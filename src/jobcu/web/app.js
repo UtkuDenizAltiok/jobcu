@@ -843,6 +843,8 @@ function showSearch(search) {
   if (question) {
     $("question-text").textContent = question.message;
     $("question-yes").textContent = question.yes;
+    $("question-always").hidden = !question.always;
+    $("question-always").textContent = question.always || "";
     $("question-no").textContent = question.no;
   }
 
@@ -1305,11 +1307,18 @@ function setUpSearchActions() {
   $("stop-search").addEventListener("click", async () => {
     if (state.search) await api(`/api/search/${state.search.id}/stop`, { method: "POST" });
   });
-  for (const [id, yes] of [["question-yes", true], ["question-no", false]]) {
+  for (const [id, yes, always] of [
+    ["question-yes", true, false],
+    ["question-always", true, true],
+    ["question-no", false, false],
+  ]) {
     $(id).addEventListener("click", async () => {
       if (!state.search) return;
       $("search-question").hidden = true;
-      await api(`/api/search/${state.search.id}/answer`, { method: "POST", body: { yes } });
+      await api(`/api/search/${state.search.id}/answer`, {
+        method: "POST",
+        body: { yes, always },
+      });
     });
   }
   $("show-details").addEventListener("click", () => {

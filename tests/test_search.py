@@ -337,3 +337,30 @@ def test_when_the_web_look_ups_run_out_jobcu_asks_before_leaving_jobs_unread(rea
     assert "about 1 minute" in questions[0]["message"]
     assert len(ai.looked_up) == 2  # both jobs, the second after the yes
     assert result["steps"][-1]["detail"] == "Found online: the requirements of 2 of 2 jobs"
+
+
+def test_answering_always_raises_the_limit_so_later_searches_don_t_ask(ready, monkeypatch):
+    ai = ResearchingAI()
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: ai)
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [SummarySource()])
+    monkeypatch.setattr("jobcu.jobplace.BATCH_SIZE", 1)
+    settings = load_settings()
+    settings.limits.web_search_cap = 1
+    save_settings(settings)
+    manager = search.SearchManager()
+    asked, notes = [], []
+    for _ in range(2):
+        manager.start(SearchForm(location_text="Germany"))
+        deadline = time.monotonic() + 15
+        while manager.current.status == "running" and time.monotonic() < deadline:
+            if manager.current.question:
+                asked.append(manager.current.question["kind"])
+                manager.current.answer(True, always=True)
+            time.sleep(0.02)
+        result = manager.current.snapshot()
+        assert result["status"] == "finished", result["error"]
+        notes.append(result["notes"])
+    assert asked == ["web_search_cap"]  # only the first search asked
+    assert load_settings().limits.web_search_cap == 50  # what it needed, rounded up to 50
+    assert any("up to 50 web look-ups in every search" in note for note in notes[0])
+    assert len(ai.looked_up) == 4  # both jobs in both searches, the second without asking
