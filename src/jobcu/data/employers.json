@@ -1403,6 +1403,22 @@
    }
   },
   {
+   "name": "MTU Aero Engines (eMoSys, 3D.aero)",
+   "system": "dvinci",
+   "board": "mtuaero.dvinci-easy.com",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Berlin",
+     "Hamburg",
+     "Munich"
+    ]
+   }
+  },
+  {
    "name": "Ericsson",
    "system": "eightfold",
    "board": "jobs.ericsson.com/ericsson.com",

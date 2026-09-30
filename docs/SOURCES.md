@@ -173,6 +173,26 @@ company had jobs in, and whether it also hires outside them).
   employers above. Seen and not read: Ricardo (`cms.ricardo.com/careers/vacancies`, its own
   pages), EDAG (its own `/career/vacancies`), Keysight (`jobsearch.keysight.com`), AMD
   (`careers.amd.com`).
+- **Career systems checked on 2026-09-30, from what the employer finder saw in use:**
+  - **SmartRecruiters** (Bosch and others): the public Posting API
+    (`api.smartrecruiters.com/v1/companies/{company}/postings`, 721 Bosch jobs in Germany) has a
+    robots.txt that allows only `LinkedInBot` and says `Disallow: /` to every other robot.
+    **Not read** (hard rule 1).
+  - **iCIMS** (AMD, Ricardo, TT Electronics, Schneider Electric): `careers-{company}.icims.com`
+    answers `Disallow: /` for every robot. **Not read.**
+  - **Avature** (Siemens): robots.txt allows `/externaljobs` pages, but the sitemap lists only
+    portal pages, not jobs; the job list is a search page with site-specific filters (20 a page).
+    Parked: Siemens' German jobs also reach Jobcu through the Bundesagentur.
+  - **Personio** (eMoSys and many German mid-sized employers): the career site
+    `{company}.jobs.personio.de` has no robots.txt; the old public XML feed (`/xml`) answers 404.
+    Still to find how the site loads its list.
+  - **Softgarden** (PULS, Groupe Eldora): robots.txt closes `/api/`, `/rest/` and
+    `/*/widgets/`; the job pages themselves are open. Still to check whether the job list page
+    can be read.
+  - **d.vinci's smaller product** serves the same public list from
+    `{company}.dvinci-easy.com/jobPublication/list.json` (robots.txt allows all): read since
+    2026-09-30, board written as the full host. MTU Aero Engines' portal (19 jobs: eMoSys in
+    Starnberg and 3D.aero in Hamburg) is in the directory.
 - Other career systems seen on engineering employers' sites (2026-09-24, not built): **Avature**
   (jobs.siemens.com, jobs.siemens-energy.com, jobs.lenovo.com: "Allow: /$ # Disallowed portals
   are included as…"), Rohde & Schwarz's own jobboard (job.rohde-schwarz.com), Renesas

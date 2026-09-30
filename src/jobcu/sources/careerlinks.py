@@ -32,6 +32,8 @@ _READABLE: list[tuple[str, re.Pattern, str]] = [
     ("teamtailor", re.compile(
         r"\b(?!www\b|app\b|api\b|career\b|assets\b)([a-z0-9-]+)\.teamtailor\.com"), "{0}"),
     ("dvinci", re.compile(r"\b(?!www\b|static\b|cdn\b)([a-z0-9-]+)\.dvinci-hr\.com"), "{0}"),
+    ("dvinci", re.compile(r"\b(?!www\b|static\b|cdn\b)([a-z0-9-]+)\.dvinci-easy\.com"),
+     "{0}.dvinci-easy.com"),
     ("eightfold", re.compile(
         r"https?://([a-z0-9.-]+)/careers\?(?:[^\"'\s<>]*&(?:amp;)?)?domain=([a-z0-9.-]+)"),
      "{0}/{1}"),
