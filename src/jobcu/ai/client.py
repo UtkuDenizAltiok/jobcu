@@ -4,6 +4,8 @@ Every AI request in Jobcu goes through `AIClient.generate`, which:
 - picks the provider and model from the user's settings
 - checks the user's monthly limit first
 - waits and retries on rate limits and short outages, without losing progress
+- sends a few requests at a time for steps with many (`in_parallel`), and only one at a time
+  once the provider has said "too many requests"
 - drops reasoning settings a model doesn't support
 - checks the answer against the expected format, and asks once more if it's wrong
 - records the tokens used
@@ -11,8 +13,11 @@ Every AI request in Jobcu goes through `AIClient.generate`, which:
 
 import logging
 import random
+import threading
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Iterator, Sequence
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import ClassVar, TypeVar
 
@@ -45,6 +50,12 @@ T = TypeVar("T", bound=BaseModel)
 MAX_RATE_LIMIT_WAITS = 10
 MAX_OUTAGE_RETRIES = 4
 MAX_WAIT_SECONDS = 300
+
+# Requests sent at the same time by a step with many of them (scoring, the quick check, the look
+# at career-site titles, the online look-up). One at a time, search 10 (2026-09-30) spent 36 of
+# its 46 minutes waiting for them. Paid tiers allow far more than this; a free tier may not, so
+# the first "too many requests" answer puts the rest of the search back to one at a time.
+PARALLEL_REQUESTS = 4
 
 
 # Thinking counts towards the output limit with every provider, but only what is used is paid
@@ -84,8 +95,15 @@ class AIClient:
         self.patient = patient  # False for quick checks: report limits instead of waiting
         self.sleep = sleep
         self._adapter = adapter
-        # Web look-ups used in this search, against the cap in Settings.
+        # Web look-ups used in this search, against the cap in Settings, and those promised to
+        # requests still running, so requests sent together never go past the cap.
         self.web_searches_used = 0
+        self._web_searches_reserved = 0
+        # How many requests may be waiting for an answer at the same time (see `_slot`).
+        self.parallel_requests = PARALLEL_REQUESTS
+        self._requests_running = 0
+        self._gate = threading.Condition()
+        self._adapter_lock = threading.Lock()
 
     @property
     def provider_id(self) -> str:
@@ -102,15 +120,36 @@ class AIClient:
         return model
 
     def adapter(self) -> ProviderAdapter:
-        if self._adapter is None:
-            info = PROVIDERS[self.provider_id]
-            key = self.keys.get(info.key_name) or ""
-            if not key and not info.key_optional:
-                raise AIAuthError("Please enter your AI key in Settings first.")
-            if info.needs_base_url and not self.settings.ai.base_url.strip():
-                raise AIAuthError("Please enter the provider's address in Settings first.")
-            self._adapter = info.adapter(key, base_url=self.settings.ai.base_url.strip())
+        with self._adapter_lock:
+            if self._adapter is None:
+                info = PROVIDERS[self.provider_id]
+                key = self.keys.get(info.key_name) or ""
+                if not key and not info.key_optional:
+                    raise AIAuthError("Please enter your AI key in Settings first.")
+                if info.needs_base_url and not self.settings.ai.base_url.strip():
+                    raise AIAuthError("Please enter the provider's address in Settings first.")
+                self._adapter = info.adapter(key, base_url=self.settings.ai.base_url.strip())
         return self._adapter
+
+    @contextmanager
+    def _slot(self) -> Iterator[None]:
+        """Waits until fewer than `parallel_requests` requests are waiting for an answer."""
+        with self._gate:
+            while self._requests_running >= self.parallel_requests:
+                self._gate.wait()
+            self._requests_running += 1
+        try:
+            yield
+        finally:
+            with self._gate:
+                self._requests_running -= 1
+                self._gate.notify_all()
+
+    def _one_at_a_time(self) -> None:
+        """The provider said "too many requests": the rest of this search asks one at a time,
+        as a free tier's per-minute limit expects."""
+        with self._gate:
+            self.parallel_requests = 1
 
     def generate(
         self,
@@ -137,16 +176,18 @@ class AIClient:
 
         while True:
             try:
-                reply = adapter.complete_json(
-                    model=model,
-                    system=system,
-                    prompt=request_prompt,
-                    schema=schema,
-                    schema_name=output.__name__,
-                    effort=effort,
-                    max_output_tokens=with_thinking_room(max_output_tokens, effort),
-                )
+                with self._slot():
+                    reply = adapter.complete_json(
+                        model=model,
+                        system=system,
+                        prompt=request_prompt,
+                        schema=schema,
+                        schema_name=output.__name__,
+                        effort=effort,
+                        max_output_tokens=with_thinking_room(max_output_tokens, effort),
+                    )
             except AIRateLimited as exc:
+                self._one_at_a_time()
                 rate_waits += 1
                 if not self.patient or rate_waits > MAX_RATE_LIMIT_WAITS:
                     raise
@@ -192,7 +233,8 @@ class AIClient:
 
     def web_searches_left(self) -> int:
         """What is left of this search's allowance of web look-ups (Settings)."""
-        return self.settings.limits.web_search_cap - self.web_searches_used
+        return (self.settings.limits.web_search_cap - self.web_searches_used
+                - self._web_searches_reserved)
 
     def allow_more_web_searches(self, count: int | None = None) -> None:
         """The person said yes to more web look-ups: this many more for this search (by
@@ -223,33 +265,49 @@ class AIClient:
                 "Looking things up on the web is switched off in Settings, so anything that "
                 'needs checking is shown as "not checked".'
             )
-        left = self.web_searches_left()
-        if left <= 0:
-            raise AILimitReached(
-                "Jobcu has used this search's allowance of web look-ups. You can raise it in "
-                "Settings."
-            )
         provider = self.provider_id
         model = self.model_for(reasoning=True)
         adapter = self.adapter()
         if not adapter.can_search_the_web:
             raise AIError(MSG_NO_WEB_SEARCH)
         self._check_monthly_limit()
+        with self._gate:
+            allowed = min(max_searches, self.web_searches_left())
+            if allowed <= 0:
+                raise AILimitReached(
+                    "Jobcu has used this search's allowance of web look-ups. You can raise it "
+                    "in Settings."
+                )
+            self._web_searches_reserved += allowed
+        try:
+            reply = self._research(adapter, provider, model, system, prompt, allowed,
+                                   max_output_tokens, effort)
+            with self._gate:
+                self.web_searches_used += max(1, reply.usage.web_searches)
+        finally:
+            with self._gate:
+                self._web_searches_reserved -= allowed
+        self._record(step, provider, model, reply.usage)
+        return reply
+
+    def _research(self, adapter: ProviderAdapter, provider: str, model: str, system: str,
+                  prompt: str, max_searches: int, max_output_tokens: int,
+                  effort: Effort | None) -> ResearchReply:
         effort = effort or self.settings.ai.reasoning_effort
         if (provider, model) in self._effort_unsupported:
             effort = None
         waits = outages = 0
         while True:
             try:
-                reply = adapter.research(
-                    model=model,
-                    system=system,
-                    prompt=prompt,
-                    max_searches=min(max_searches, left),
-                    max_output_tokens=with_thinking_room(max_output_tokens, effort),
-                    effort=effort,
-                )
-                break
+                with self._slot():
+                    return adapter.research(
+                        model=model,
+                        system=system,
+                        prompt=prompt,
+                        max_searches=max_searches,
+                        max_output_tokens=with_thinking_room(max_output_tokens, effort),
+                        effort=effort,
+                    )
             except AIBadRequest:
                 if effort is None:
                     raise
@@ -257,6 +315,7 @@ class AIClient:
                 effort = None
                 self._effort_unsupported.add((provider, model))
             except AIRateLimited as exc:
+                self._one_at_a_time()
                 waits += 1
                 if not self.patient or waits > MAX_RATE_LIMIT_WAITS:
                     raise
@@ -267,9 +326,6 @@ class AIClient:
                 if outages > MAX_OUTAGE_RETRIES:
                     raise
                 self._wait(min(5 * 2 ** (outages - 1), 60), exc)
-        self.web_searches_used += max(1, reply.usage.web_searches)
-        self._record(step, provider, model, reply.usage)
-        return reply
 
     def _wait(self, seconds: float, reason: AIError) -> None:
         seconds = min(max(seconds, 1.0), MAX_WAIT_SECONDS) + random.uniform(0, 1)
@@ -303,6 +359,37 @@ class AIClient:
                     "Your monthly AI spending limit in Jobcu's settings is reached, so Jobcu "
                     "stopped using the AI. You can raise the limit in Settings."
                 )
+
+
+def in_parallel[Item, Result](
+        client: AIClient, work: Callable[[Item], Result], items: Sequence[Item],
+        on_done: Callable[[Item, Result], None] | None = None) -> list[Result]:
+    """Runs `work` (which asks `client`) for every item, as many at a time as the client
+    allows, and returns the results in the items' order. `on_done` is called here, in the
+    calling thread, as each item finishes, so a step can show its progress. The first error
+    stops the items not started yet and is raised here once the running ones have finished."""
+    at_once = min(client.parallel_requests, len(items))
+    if at_once <= 1:
+        results = []
+        for item in items:
+            results.append(work(item))
+            if on_done is not None:
+                on_done(item, results[-1])
+        return results
+    done: dict[int, Result] = {}
+    with ThreadPoolExecutor(max_workers=at_once, thread_name_prefix="ai") as pool:
+        futures = {pool.submit(work, item): position for position, item in enumerate(items)}
+        try:
+            for future in as_completed(futures):
+                position = futures[future]
+                done[position] = future.result()
+                if on_done is not None:
+                    on_done(items[position], done[position])
+        except BaseException:
+            for future in futures:
+                future.cancel()
+            raise
+    return [done[position] for position in range(len(items))]
 
 
 # ---------------------------------------------------------------------------

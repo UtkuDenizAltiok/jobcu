@@ -17,7 +17,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-from jobcu.ai.client import AIClient
+from jobcu.ai.client import AIClient, in_parallel
 from jobcu.countries import language_code
 from jobcu.dedupe import JobGroup
 from jobcu.location import LocationPlan
@@ -211,11 +211,11 @@ def score_groups(
     batch_size: int = BATCH_SIZE,
     on_progress=lambda done, total: None,
 ) -> dict[int, dict]:
-    """Score the given groups. Returns a result per index, including the total score."""
+    """Score the given groups, a few batches at a time. Returns a result per index, including
+    the total score."""
     background = _background(profile, plan)
-    results: dict[int, dict] = {}
-    for start in range(0, len(indexes), batch_size):
-        batch = indexes[start : start + batch_size]
+
+    def score(batch: list[int]) -> dict[int, dict]:
         ids = {f"J{i}": i for i in batch}
         answer = client.generate(
             ScoringAnswer,
@@ -226,14 +226,28 @@ def score_groups(
             ),
             max_output_tokens=800 * len(batch) + 1000,
         )
+        found: dict[int, dict] = {}
         for score in answer.scores:
-            if score.job_id in ids and ids[score.job_id] not in results:
-                results[ids[score.job_id]] = finish(score, profile)
+            if score.job_id in ids and ids[score.job_id] not in found:
+                found[ids[score.job_id]] = finish(score, profile)
         # A job the AI skipped is asked about again on its own.
         for index in ids.values():
-            if index not in results and len(batch) > 1:
-                results.update(score_groups(client, profile, plan, groups, [index], 1))
-        on_progress(min(start + batch_size, len(indexes)), len(indexes))
+            if index not in found and len(batch) > 1:
+                found.update(score_groups(client, profile, plan, groups, [index], 1))
+        return found
+
+    done = 0
+
+    def finished(batch: list[int], found: dict[int, dict]) -> None:
+        nonlocal done
+        done += len(batch)
+        on_progress(done, len(indexes))
+
+    batches = [indexes[start : start + batch_size]
+               for start in range(0, len(indexes), batch_size)]
+    results: dict[int, dict] = {}
+    for found in in_parallel(client, score, batches, finished):
+        results.update(found)
     return results
 
 

@@ -44,11 +44,12 @@ class GeminiAdapter(ProviderAdapter):
     def _client(self) -> genai.Client:
         # Kept for the adapter's lifetime: the library closes its connection when the
         # client object is discarded, which would break results that are still loading.
-        if self._genai_client is None:
-            self._genai_client = genai.Client(
-                api_key=self.api_key,
-                http_options=types.HttpOptions(timeout=int(self.timeout * 1000)),
-            )
+        with self._client_lock:
+            if self._genai_client is None:
+                self._genai_client = genai.Client(
+                    api_key=self.api_key,
+                    http_options=types.HttpOptions(timeout=int(self.timeout * 1000)),
+                )
         return self._genai_client
 
     def complete_json(

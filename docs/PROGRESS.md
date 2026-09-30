@@ -53,7 +53,19 @@ medium, and what all this costs now that more jobs reach scoring.
 
 ### In progress
 
-Nothing.
+**Search 10 took 46 minutes** (2026-09-30, 72 hours, medium effort): the online look-up alone
+took 22 minutes for about 150 jobs, with no progress shown; scoring 10 and the quick check 4.
+Every AI step sends one request at a time. Goal: a few requests at a time, falling back to one at
+a time on the first rate limit, and a counter on the look-up step.
+- [x] `ai/client.py`: `in_parallel` (a few at a time, results in order), a gate that drops to
+      one request at a time after a rate limit, web look-ups reserved so the cap still holds
+- [x] Used by scoring, the quick check, the title look and the online look-up; the look-up shows
+      "N of M jobs" and one failed batch no longer ends it silently
+- [x] Tests; DECISIONS.md row; this section and "Verify" updated
+- [ ] Then the rest of the search 10 check (Ireland: 3 cards; JobsIreland.ie 0 jobs), the
+      ratings and the coverage list
+
+Check: `uv run pytest`; a timed search on the Mac.
 
 ### Verify before relying on
 

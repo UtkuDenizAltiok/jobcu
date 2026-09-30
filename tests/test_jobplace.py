@@ -3,7 +3,14 @@
 from datetime import UTC, datetime
 
 from jobcu import jobplace
-from jobcu.ai.base import AILimitReached, ResearchReply, Source, Usage
+from jobcu.ai.base import (
+    AIInvalidOutput,
+    AILimitReached,
+    AIUnavailable,
+    ResearchReply,
+    Source,
+    Usage,
+)
 from jobcu.dedupe import group_duplicates
 from jobcu.sources.base import FoundJob
 
@@ -12,7 +19,9 @@ NOW = datetime.now(UTC)
 
 class Researcher:
     """Stands in for the AI client: answers each web look-up with the next scripted notes, and
-    each structuring step with the next scripted jobs."""
+    each structuring step with the next scripted jobs, one request at a time."""
+
+    parallel_requests = 1
 
     def __init__(self, notes, structured=()):
         self.notes = list(notes)
@@ -82,6 +91,27 @@ def test_looking_up_stops_when_the_search_s_allowance_is_used():
     assert looked_up.towns_found == 1 and looked_up.asked == set(range(5))
     assert groups[0].place_from_web == ["Leeds"]
     assert groups[5].place_from_web is None  # not looked up: can be later
+
+
+def test_one_unusable_answer_loses_only_its_own_jobs_and_progress_is_counted():
+    groups = jobs(*[("UK", "GB")] * 7)
+    researcher = Researcher([AIInvalidOutput("not in the format"), "notes"],
+                            [[online("J5", ["Leeds"])]])
+    progress = []
+    looked_up = jobplace.find_online(researcher, groups, list(range(7)),
+                                     on_progress=lambda done, total: progress.append(done))
+    assert looked_up.asked == {5, 6} and looked_up.not_asked == []
+    assert groups[0].place_from_web is None  # can be looked up again later
+    assert groups[5].place_from_web == ["Leeds"]
+    assert progress == [5, 7]
+
+
+def test_the_service_being_down_stops_the_jobs_not_asked_yet():
+    groups = jobs(*[("UK", "GB")] * 12)
+    researcher = Researcher([AIUnavailable("down"), "notes", "notes"])
+    looked_up = jobplace.find_online(researcher, groups, list(range(12)))
+    assert len(researcher.prompts) == 1 and looked_up.asked == set()
+    assert looked_up.not_asked == []  # not a question of web look-ups: nothing to offer
 
 
 def test_the_full_ad_found_online_gives_its_languages_and_years():

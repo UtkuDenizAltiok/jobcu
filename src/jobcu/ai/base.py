@@ -4,6 +4,7 @@ Each provider adapter turns its provider's answers and errors into these common
 types, so the rest of Jobcu never needs to know which provider is in use.
 """
 
+import threading
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
@@ -152,6 +153,10 @@ class ProviderAdapter(ABC):
         self.api_key = api_key
         self.base_url = base_url
         self.timeout = timeout
+        # The provider's library client is made on first use; several requests can start
+        # together (AIClient.in_parallel), and a second client made alongside would be dropped
+        # while its request is still loading.
+        self._client_lock = threading.Lock()
 
     @abstractmethod
     def complete_json(
