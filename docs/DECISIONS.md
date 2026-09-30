@@ -649,3 +649,9 @@ as the documents say.
 | Decision | Reason |
 |---|---|
 | **The two questions a search can ask (score more jobs, look more jobs up online) get a third answer, "Always"**: it does the work now and raises the limit in Settings to what a search like this one needed, rounded up to 50, so later searches don't ask. A note says so; the limit can be lowered in Settings. The defaults stay (200 jobs scored, 50 web look-ups). | The owner answered yes to the look-up question in every search (122 more jobs in search 10): a question that always gets the same answer is friction. The defaults stay low because web look-ups cost money with some providers (Anthropic and OpenAI charge for every search; Gemini gives 5,000 a month free), so each person decides once, with the real size in front of them (AGENTS.md: free or under €10 a month for friends). |
+
+## 2026-09-30: Personio career sites
+
+| Decision | Reason |
+|---|---|
+| **Jobcu reads Personio career sites** (`personio.py`): the public job list, then only the pages of jobs whose title matches the search words (for the ad and the publication time), remembered for a few days so later searches don't open them again, as for SuccessFactors. The finder recognises Personio addresses. | Personio is common with German mid-sized employers and start-ups; eMoSys (MTU's power-electronics and drives company in Starnberg, on search 10's coverage list) uses it. No robots.txt closes it and no key is needed. Titles that miss the search words aren't opened: without the page there's no date, and an undated job can't be told fresh from old. |
