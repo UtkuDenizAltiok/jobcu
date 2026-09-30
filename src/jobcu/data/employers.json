@@ -5454,6 +5454,20 @@
    }
   },
   {
+   "name": "eMoSys",
+   "system": "personio",
+   "board": "emosys-gmbh",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Munich"
+    ]
+   }
+  },
+  {
    "name": "Canton of Basel-Landschaft",
    "system": "prospective",
    "board": "1571",

@@ -184,8 +184,13 @@ company had jobs in, and whether it also hires outside them).
     portal pages, not jobs; the job list is a search page with site-specific filters (20 a page).
     Parked: Siemens' German jobs also reach Jobcu through the Bundesagentur.
   - **Personio** (eMoSys and many German mid-sized employers): the career site
-    `{company}.jobs.personio.de` has no robots.txt; the old public XML feed (`/xml`) answers 404.
-    Still to find how the site loads its list.
+    `{company}.jobs.personio.de` has no robots.txt (404); the old public XML feed (`/xml`)
+    answers 404 for eMoSys. **Read since 2026-09-30** (`personio.py`): `GET /search.json` lists
+    every job (`id`, `name`, `employment_type` "Festanstellung", `schedule` "Vollzeit",
+    `offices`, `department`), without date or ad; the job page `/job/{id}` is plain HTML with
+    the full ad and `published_at` (and `created_at`) in its page data. Only pages of jobs whose
+    title matches the search words are opened, and remembered for a few days. eMoSys (9 jobs,
+    Starnberg) is in the directory.
   - **Softgarden** (PULS, Groupe Eldora): robots.txt closes `/api/`, `/rest/` and
     `/*/widgets/`; the job pages themselves are open. Still to check whether the job list page
     can be read.

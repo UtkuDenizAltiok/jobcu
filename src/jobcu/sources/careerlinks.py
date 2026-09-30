@@ -34,6 +34,8 @@ _READABLE: list[tuple[str, re.Pattern, str]] = [
     ("dvinci", re.compile(r"\b(?!www\b|static\b|cdn\b)([a-z0-9-]+)\.dvinci-hr\.com"), "{0}"),
     ("dvinci", re.compile(r"\b(?!www\b|static\b|cdn\b)([a-z0-9-]+)\.dvinci-easy\.com"),
      "{0}.dvinci-easy.com"),
+    ("personio", re.compile(r"\b([a-z0-9-]+)\.jobs\.personio\.de"), "{0}"),
+    ("personio", re.compile(r"\b([a-z0-9-]+)\.jobs\.personio\.com"), "{0}.jobs.personio.com"),
     ("eightfold", re.compile(
         r"https?://([a-z0-9.-]+)/careers\?(?:[^\"'\s<>]*&(?:amp;)?)?domain=([a-z0-9.-]+)"),
      "{0}/{1}"),
@@ -48,7 +50,6 @@ _OWN_ADDRESS: list[tuple[str, re.Pattern]] = [
 # Systems Jobcu doesn't read yet, recognised so their use can be counted.
 _NOT_READ: list[tuple[str, re.Pattern]] = [
     ("SmartRecruiters", re.compile(r"smartrecruiters\.com")),
-    ("Personio", re.compile(r"\.jobs\.personio\.(?:de|com)")),
     ("Softgarden", re.compile(r"softgarden\.(?:io|de)")),
     ("iCIMS", re.compile(r"icims\.com")),
     ("Avature", re.compile(r"avature\.net|/externaljobs\b")),
