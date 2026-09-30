@@ -132,6 +132,10 @@ Update this whenever a source changes or something new is learned. Decisions are
   empty first page as a site problem instead of "0 jobs". The browse page now calls
   `BrowseJobs/43` with two more parameters (`RemoteOrBlendedJobType`, `NaceCode`); the address
   Jobcu uses, without them, answered the same way.
+- **Few engineering jobs** (2026-09-30): its 720 newest jobs (72 hours) were care, trades,
+  pharmacy and technician roles, with no electronics or hardware engineering title at all, so
+  0 jobs for a hardware engineer is right. Ireland's engineering jobs come from employers' own
+  career sites.
 - Many JobsIreland jobs also appear on EURES (IDs like `base64("2470780 18")`, 18 = JobsIreland),
   but EURES showed only ~1,970 of its ~5,100 jobs.
 
@@ -180,6 +184,9 @@ company had jobs in, and whether it also hires outside them).
   and Malvern Panalytical, Rockwell Automation, Trimble, Cognex, Viavi, Sensata and Nidec
   (counts: jobs when checked). Stryker's missed Cork job (the coverage list) was posted 9 days
   earlier on its own site: LinkedIn showed a newer date, so it was rightly outside 72 hours.
+- **Some Workday sites have no country filter** (GE Vernova, 2026-09-30): Jobcu reads the
+  whole worldwide list (340 jobs in 72 hours, 18 requests) and gets each job's country from
+  its place alone, often just a town ("Rugby", "Stafford", "Berlin").
 - **A Workday site answering 422 is a wrong site name**, or a site that moved (Dell's own
   `External` page answers 500): 30 guessed sites answered this way (AMD, Dell, Keysight, onsemi,
   TE Connectivity, Honeywell, Schneider Electric, Zeiss, Continental…). Their real addresses are

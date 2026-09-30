@@ -253,11 +253,20 @@ def hires_near(employer: Employer, countries: list[str], places: list[Place]) ->
     return False
 
 
+# A town the names in placenames.py don't list still tells the country when the job's place is
+# only that town's name, and the town is big enough not to be a village sharing its name with a
+# place abroad: GE Vernova's site gives no country, and its graduate programme in "Rugby" was
+# dropped as "location unclear" (search 10, 2026-09-30).
+TOWN_ALONE_PEOPLE = 10_000
+
+
 def job_countries(job: FoundJob) -> set[str]:
     """Supported country codes the job is in, OTHER for places elsewhere, empty if unclear."""
     if job.country:
         return {job.country if job.country in COUNTRIES else OTHER}
-    return countries_in(job.location_text)
+    return countries_in(job.location_text) or {
+        town.country for part in re.split(r"[;|\n]", job.location_text or "")
+        for town in place_list.named(part) if town.people >= TOWN_ALONE_PEOPLE}
 
 
 def keep_job(job: FoundJob, employer: Employer, query: JobQuery, start: datetime):
@@ -298,7 +307,7 @@ def keep_job(job: FoundJob, employer: Employer, query: JobQuery, start: datetime
 
 _JOB_TYPE_WORDS = [
     (re.compile(r"\b(intern|internship|praktik\w*|werkstudent\w*|working student|trainee|"
-                r"apprentice\w*|ausbildung|graduate programme|co op|stage|stagiaire)\b"),
+                r"apprentice\w*|ausbildung|co op|stage|stagiaire)\b"),
      "internship_or_working_student"),
     (re.compile(r"\b(part time|parttime|teilzeit|temps partiel)\b"), "part_time"),
     (re.compile(r"\b(contract|contractor|freelance\w*|freiberuf\w*)\b"), "freelance_or_contract"),
