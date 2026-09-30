@@ -70,7 +70,11 @@ everything from the cloud sessions), checked by a local session the same evening
 
 ### In progress
 
-Nothing.
+- **PR #31 (Softgarden) waits for GitHub's tests:** merge it with a merge commit when they pass.
+- **One complete test search with everything from 2026-09-30** (the employer finder step, the
+  Oracle/Personio/Softgarden readers, four AI requests at a time, the fit limits) was started
+  and stopped when the session's usage ran out: run a 24-hour search on a scratch copy (or let
+  the owner's next 72-hour search show it) and check the step times and the finder's detail.
 
 ### Verify before relying on
 
