@@ -59,14 +59,12 @@ everything from the cloud sessions), checked by a local session the same evening
   search 9's 32 towns and Wales: the answer still varies a lot between searches.
 - Two cards for one agency job (Augusta's "Hardware-Entwickler Embedded-Elektronik" in Weichs,
   two Adzuna ads) sharing Save and Applied: **fixed**, one card per remembered job.
-- **The quality set is complete:** 40 ads and 40 titles rated by Claude (search 10 added 8
-  ads, two of them good fits). The scores stored with the ads are from when each was collected,
-  some before the owner's limits existed, so the set was **scored again with today's Jobcu**
-  (`tools/score_check.py --rescore`, medium, 88k tokens): 28 of 40 where expected; good 86–88,
-  okay 65–82 (median 75), poor 33–75 (median 60). The limits work (10+ years: 60). Still too
-  high for "poor": **other fields** (PLC commissioning 73, analog chip design 70, hardware test
-  leadership 69, mechanical pressure-vessel testing 67, robotic sensing 66), RF/EW hardware with
-  6+ years (75), and a co-op only for students still in a Bachelor's (67). The quick check left
+- **The quality set is complete:** 40 ads and 40 titles rated by Claude. Scored again with
+  today's Jobcu, other fields scored too high (PLC commissioning 73, mechanical testing 67) and
+  only 28 of 40 landed where the ratings put them. **Fixed:** limits for work that fits only
+  partly and for a requirement clearly not met (DECISIONS.md, "Limits for work that fits only
+  partly"): now **38 of 40**; good 87–88, okay 60–80, poor 30–75 (median 50). Left: analog chip
+  design and RF/EW hardware sometimes judged a neighbouring specialisation. The quick check left
   out 2 of 40 titles worth a look (Quantum Machines' QA engineer, a university's drives lab
   lead).
 
@@ -163,11 +161,10 @@ at most €25 a month for the owner; free, or under €10 a month, for everyone 
 6. **Phase 2's "Done when":** every example sentence from HANDOVER §6, README.md and the owner's
    own, read twice with a real provider, as its author means it. Fix in general terms, never for
    one sentence.
-7. **Scoring with the quality set** (`tools/score_check.py --rescore`, on his Mac): good and
-   okay are separated from other fields too weakly (above). Try prompt variants for how much
-   "role and skills" a neighbouring field gets, and for eligibility the ad makes a condition
-   (students only); then the quick check's two misses. Re-run `tools/universality_check.py`
-   after any change to the instructions.
+7. **Scoring with the quality set** (`tools/score_check.py --rescore`, on his Mac): 38 of 40
+   now. Add ads from each search's check so the set keeps up (good fits especially), watch the
+   neighbouring-specialisation calls, then the quick check's two misses. Re-run
+   `tools/universality_check.py` after any change to the instructions.
 8. **Paused until Germany, the UK and Ireland are as strong as possible:** sources for other
    countries (SOURCES.md), the licence limit for other professions, and the universality audit's
    rest (re-run `tools/universality_check.py` after any change to the AI instructions, which

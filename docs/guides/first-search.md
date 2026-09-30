@@ -43,7 +43,12 @@ or a language level. Without your citizenship, Jobcu never assumes one.
     at most 65, and 0 for languages. "Good" or "very good" counts as B2, "fluent" as C1;
   - a citizenship or security clearance you definitely can't get: at most 30;
   - a required PhD you don't have: at most 50;
-  - 5 or more years of experience beyond yours: at most 75; 8 or more: at most 60.
+  - 3 or 4 years of experience beyond yours: at most 80; 5 or more: at most 75; 8 or more: at
+    most 60;
+  - work that fits yours only partly: a related job whose daily tasks are partly different, at
+    most 60; only loosely related, at most 45; another field, at most 30;
+  - a requirement you clearly don't meet (for example a placement only for students, or a
+    licence you don't have): at most 55.
 
   An ad written in a language you speak below B2 that doesn't say what level it needs scores low
   for languages, but isn't limited. Jobs with a low score still stay in your list.
