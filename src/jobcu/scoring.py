@@ -52,6 +52,18 @@ LIMIT_LANGUAGE = 65  # a must-have language two or more levels above the person'
 LIMIT_CITIZENSHIP = 30  # a citizenship or clearance the person definitely can't get
 LIMIT_DOCTORATE = 50  # a required doctorate the person doesn't have
 LIMITS_YEARS = [(8, 60), (5, 75), (3, 80)]  # this many years short of what the ad asks: at most
+# How far a job that fits the person's kind of work only partly can go, by the rubric's own bands
+# for "role and skills" (at most these points: at most this total). The other 60 points come to
+# any job without a blocker, so jobs in other fields scored 62-75 (search 10's quality set,
+# 2026-09-30); with these, 39 of the 40 rated ads scored where the owner's ratings put them.
+LIMITS_ROLE = [
+    (7, 30, "Another field than yours"),
+    (17, 45, "Only loosely related to your work"),
+    (27, 60, "A related job, its daily tasks partly different from yours"),
+]
+# The rubric's "a requirement the person clearly doesn't meet" (0-10 of 15 points), such as a
+# placement only for students or a licence the person lacks.
+LIMIT_REQUIREMENT_POINTS, LIMIT_REQUIREMENT = 10, 55
 
 Level = Literal["A1", "A2", "B1", "B2", "C1", "C2", "not_needed"]
 Doctorate = Literal["not_required", "required_person_has_it", "required_person_lacks_it"]
@@ -273,7 +285,8 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
     language = judge_languages(score, profile)
     parts = {name: language.points if name == "languages" else result["parts"][name]
              for name in PARTS}
-    limits = sorted([*language.limits, *other_limits(score, profile)], key=lambda x: x["at"])
+    limits = sorted([*language.limits, *other_limits(score, profile), *fit_limits(parts)],
+                    key=lambda x: x["at"])
     return {
         **result,
         "score": min([sum(parts.values()), *(limit["at"] for limit in limits)]),
@@ -375,6 +388,20 @@ def other_limits(score: JobScore, profile: Profile) -> list[dict]:
                     f"Asks for {score.years_required:g}+ years of experience, you have "
                     f"{full_time}")})
                 break
+    return limits
+
+
+def fit_limits(parts: dict[str, int]) -> list[dict]:
+    """Limits for a job whose work or requirements fit the person only partly, from the AI's
+    points for them."""
+    limits = []
+    role = parts.get("role_and_skills", PARTS["role_and_skills"])
+    for most_points, at, why in LIMITS_ROLE:
+        if role <= most_points:
+            limits.append({"at": at, "why": why})
+            break
+    if parts.get("hard_requirements", PARTS["hard_requirements"]) <= LIMIT_REQUIREMENT_POINTS:
+        limits.append({"at": LIMIT_REQUIREMENT, "why": "A requirement you clearly don't meet"})
     return limits
 
 

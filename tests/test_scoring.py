@@ -1,6 +1,8 @@
 import json
 import re
 
+import pytest
+
 from jobcu.ai.base import ProviderAdapter, RawReply, Usage
 from jobcu.ai.client import AIClient
 from jobcu.dedupe import group_duplicates
@@ -182,8 +184,24 @@ def test_the_lowest_limit_wins_and_every_reason_is_kept():
 
 
 def test_a_low_total_is_not_raised_by_a_limit():
-    raw = score_json("J1", role=5, years_required=5)
-    assert finish(JobScore.model_validate(raw), SPEAKER)["score"] == 5 + 15 + 15 + 15 + 8
+    raw = score_json("J1", role=28, seniority=2, hard_requirements=12, years_required=5)
+    assert finish(JobScore.model_validate(raw), SPEAKER)["score"] == 28 + 2 + 15 + 12 + 8
+
+
+@pytest.mark.parametrize(("role", "hard", "total", "why"), [
+    (36, 15, 36 + 15 + 15 + 15 + 8, None),  # the person's own kind of work: no limit
+    (28, 15, 28 + 15 + 15 + 15 + 8, None),  # a neighbouring specialisation: no limit
+    (24, 15, 60, "A related job, its daily tasks partly different from yours"),
+    (12, 15, 45, "Only loosely related to your work"),
+    (5, 15, 30, "Another field than yours"),
+    (34, 8, 55, "A requirement you clearly don't meet"),  # e.g. a placement only for students
+])
+def test_a_job_that_fits_only_partly_is_limited_by_the_rubric_s_own_bands(role, hard, total,
+                                                                          why):
+    raw = score_json("J1", role=role, hard_requirements=hard)
+    result = finish(JobScore.model_validate(raw), SPEAKER)
+    assert result["score"] == total
+    assert [limit["why"] for limit in result["limits"]] == ([why] if why else [])
 
 
 def test_every_job_in_a_batch_gets_a_score_even_if_the_ai_skips_one():
