@@ -49,14 +49,16 @@ everything from the cloud sessions), checked by a local session the same evening
   search word said "Electronics"): DECISIONS.md, "Search 10's coverage list". **Never
   collected, 17:** agencies seen on LinkedIn (IC Resources, Insignis, Morgan McKinley) and
   employers not in the directory (eMoSys, AES, EDAG, Ricardo, Evolito, Malloy Aeronautics,
-  TDK-Lambda, ENGIE, Real, Tyndall, Boston Scientific, Egis, Kirstein), and FERCHAU's Oberkochen
-  job (FERCHAU's others came through the Bundesagentur): tasks 3 and 5.
+  TDK-Lambda, ENGIE, Real, Tyndall, Egis, Kirstein; Boston Scientific added since), and
+  FERCHAU's Oberkochen job (FERCHAU's others came through the Bundesagentur): tasks 3 and 5.
+  **Added since:** Oracle career sites (Texas Instruments, onsemi, Vertiv and six more) and
+  Boston Scientific and Cirrus Logic: DECISIONS.md, "Oracle career sites and more engineering
+  employers".
 - The far-right condition: 109 towns (41 in Germany, 60 in the UK, 8 in Ireland) and 9 regions
   (the five eastern states, Schwandorf, Weiden, Thurrock, Ashfield; Wales not this time), against
   search 9's 32 towns and Wales: the answer still varies a lot between searches.
 - Two cards for one agency job (Augusta's "Hardware-Entwickler Embedded-Elektronik" in Weichs,
   two Adzuna ads) sharing Save and Applied: **fixed**, one card per remembered job.
-
 - **The quality set is complete:** 40 ads and 40 titles rated by Claude (search 10 added 8
   ads, two of them good fits). `tools/score_check.py`: 30 of 40 scores where expected; good
   88–94 (median 91), okay 61–85 (median 80), poor 24–76 (median 58). Too high for "poor": a team
