@@ -232,7 +232,8 @@ answering open questions.
 `search.py` runs these steps in a background thread; the screen asks for progress once a second:
 
 documents → profile (`profile.py`) → location plan (`location.py`) → search words (`keywords.py`)
-→ sources in parallel (`pipeline.collect`, `sources/*`) → a look by the AI at the career sites'
+→ employers the person's AI finds for their kind of work, every two weeks (`employers.py`) →
+sources in parallel (`pipeline.collect`, `sources/*`) → a look by the AI at the career sites'
 titles the search words missed (`relevance.screen_titles`) → duplicates (`dedupe.py`) → fixed rules
 (`filters.py`) → the location conditions that need no measuring → quick relevance check
 (`relevance.py`; it also reads the town from the ad text when the job sites give only a country,
@@ -290,6 +291,8 @@ src/jobcu/
   quality.py                 the score check: ads kept from real searches and the owner's answers
   quality_api.py             internal API behind the Score check screen
   keywords.py                the hidden multilingual search words
+  employers.py               employers the person's AI finds for their kind of work: their
+                             career systems recognised, checked and remembered in the data folder
   search.py                  runs a search (or a correction) step by step, with progress
   pipeline.py                collecting from sources, full ads, result cards
   dedupe.py                  duplicates, main link, "possible duplicate"
@@ -313,7 +316,8 @@ src/jobcu/
   sources/                   job sources: base.py (common interface), http.py (polite
                              requests), budget.py (usage limits), matching.py (titles and
                              places matched on Jobcu's side), careers.py (company career systems
-                             and the employer directory), one module per source
+                             and the employer directory), careerlinks.py (which career system an
+                             address or page belongs to), one module per source
   data/                      shipped reference data: employers.json, places.csv.gz,
                              regions.csv.gz, postcodes.csv.gz
   web/                       the screen: plain HTML, CSS, JS (no build step)

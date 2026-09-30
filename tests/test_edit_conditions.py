@@ -400,7 +400,8 @@ class OnlineAI(PlaceReadingAI):
 
     def research(self, **request):
         jobs = re.findall(r"^(J\d+) \| ([^|]+) \|", request["prompt"], re.MULTILINE)
-        self.looked_up.append([title.strip() for _, title in jobs])
+        if jobs:  # a job look-up, not the search for employers
+            self.looked_up.append([title.strip() for _, title in jobs])
         return ResearchReply("The PCB Designer ad is in Garching.",
                              [Source("https://jobs.test/pcb", "Job board")],
                              Usage(100, 20, web_searches=len(jobs)))

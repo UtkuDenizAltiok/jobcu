@@ -88,6 +88,13 @@ class SuccessFactorsSource(CareerSystemSource):
                 if full is not None:
                     yield full
 
+    def readable(self, employer: Employer, ctx: SourceContext) -> bool:
+        """Some sites' job pages show only the title and need JavaScript for the rest (Danfoss,
+        SICK): one page must carry its posting date."""
+        for job in self.list_jobs(employer, ctx):
+            return date_posted(self._page(job, ctx) or "") is not None
+        return False
+
     def _page(self, job: FoundJob, ctx: SourceContext) -> str | None:
         if not self.allowed(job.url, ctx):
             return None

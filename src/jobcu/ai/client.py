@@ -243,6 +243,19 @@ class AIClient:
         self.web_searches_used = min(self.web_searches_used, self.settings.limits.web_search_cap)
         self.web_searches_used -= more
 
+    @contextmanager
+    def own_web_searches(self, count: int) -> Iterator[None]:
+        """Web look-ups for a step with its own allowance of `count`, outside the search's
+        allowance in Settings: what the step uses is never taken from the rest of the search."""
+        with self._gate:
+            before = self.web_searches_used
+            self.web_searches_used = min(before, self.settings.limits.web_search_cap) - count
+        try:
+            yield
+        finally:
+            with self._gate:
+                self.web_searches_used = before
+
     def research(
         self,
         *,

@@ -4,7 +4,9 @@ Career systems (Greenhouse, Lever, Workday and others) publish each company's jo
 are usually the original and earliest source of a job, but can't be searched across companies,
 so Jobcu ships an **employer directory** (`jobcu/data/employers.json`): employers in the
 supported countries and the career system they use. It's general reference data, checked with
-`tools/check_employers.py`, never built from anyone's searches.
+`tools/check_employers.py`, never built from anyone's searches. The employers a person's own AI
+finds for their kind of work (`employers.py`) are read too; they are remembered only in that
+person's data folder.
 
 Each search reads the job lists of the employers that hire in the countries searched, keeps
 jobs that are fresh, in those countries and match the search words, and treats the result as
@@ -26,6 +28,7 @@ from urllib.parse import urlsplit
 
 import httpx
 
+from jobcu import db
 from jobcu import places as place_list
 from jobcu.countries import COUNTRIES
 from jobcu.freshness import freshness, window_start
@@ -51,6 +54,7 @@ class Employer:
     countries: tuple[str, ...]  # supported countries it had jobs in when last checked
     elsewhere: bool = False  # it also hires outside the supported countries
     towns: dict[str, tuple[str, ...]] = field(default_factory=dict)  # per country, when known
+    found_by_ai: bool = False  # found for this person by their AI, not in the directory
 
 
 @dataclass
@@ -83,6 +87,45 @@ def load_directory(path: Path = DIRECTORY) -> tuple[Employer, ...]:
     )
 
 
+def found_employers() -> tuple[Employer, ...]:
+    """The employers the person's AI found, from their data folder."""
+    with db.connect() as conn:
+        rows = conn.execute("SELECT * FROM found_employers ORDER BY name").fetchall()
+    return tuple(
+        Employer(row["name"], row["system"], row["board"], tuple(json.loads(row["countries"])),
+                 bool(row["elsewhere"]),
+                 {code: tuple(towns) for code, towns in json.loads(row["towns"]).items()},
+                 found_by_ai=True)
+        for row in rows)
+
+
+def save_found_employer(employer: Employer, found_at: datetime) -> None:
+    with db.connect() as conn:
+        conn.execute(
+            """INSERT OR REPLACE INTO found_employers
+               (system, board, name, countries, elsewhere, towns, found_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (employer.system, employer.board, employer.name, json.dumps(list(employer.countries)),
+             int(employer.elsewhere),
+             json.dumps({code: list(towns) for code, towns in employer.towns.items()}),
+             found_at.isoformat(timespec="seconds")))
+
+
+def forget_found_employer(employer: Employer) -> None:
+    with db.connect() as conn:
+        conn.execute("DELETE FROM found_employers WHERE system = ? AND board = ?",
+                     (employer.system, employer.board))
+
+
+def all_employers() -> tuple[Employer, ...]:
+    """The directory's employers and the ones the person's AI found; the directory's entry wins
+    when both have the same job list."""
+    known = load_directory()
+    boards = {(e.system, e.board.lower()) for e in known}
+    return known + tuple(e for e in found_employers()
+                         if (e.system, e.board.lower()) not in boards)
+
+
 class EmployerNotFound(SourceError):
     """The company's job list doesn't exist (any more) in this career system."""
 
@@ -97,7 +140,7 @@ class CareerSystemSource(JobSource):
     def employers(self, countries: list[str], places: list[Place] | None = None
                   ) -> list[Employer]:
         wanted = set(countries)
-        return [e for e in load_directory()
+        return [e for e in all_employers()
                 if e.system == self.system and wanted & set(e.countries)
                 and hires_near(e, countries, places or [])]
 
@@ -124,6 +167,13 @@ class CareerSystemSource(JobSource):
                         if (kept := keep_job(job, employer, query, start)) is not None]
             except (BudgetExhausted, Blocked) as exc:
                 stop.append(exc)
+            except EmployerNotFound as exc:
+                # A list the person's AI found that no longer exists is forgotten; a
+                # directory company's is reported, and the next directory check drops it.
+                if employer.found_by_ai:
+                    forget_found_employer(employer)
+                log.info("%s: %s couldn't be read: %s", self.name, employer.name, exc)
+                failed.append(employer.name)
             except SourceError as exc:
                 log.info("%s: %s couldn't be read: %s", self.name, employer.name, exc)
                 failed.append(employer.name)
@@ -163,6 +213,11 @@ class CareerSystemSource(JobSource):
         system may use to read less; without them, every job is listed (used by the directory
         check). Jobs are still checked against the whole search afterwards."""
         raise NotImplementedError
+
+    def readable(self, employer: Employer, ctx: SourceContext) -> bool:
+        """Whether the employer's jobs can be read in full (a system may need to look at one job
+        page to tell)."""
+        return True
 
     def survey(self, employer: Employer, ctx: SourceContext) -> Survey:
         """Which countries and towns the employer hires in, for the directory check."""
