@@ -75,6 +75,7 @@ def change_conditions(search_id: int, body: ConditionEdits) -> dict:
 
 class Answer(BaseModel):
     yes: bool
+    always: bool = False  # yes, and don't ask again in later searches
 
 
 @router.post("/search/{search_id}/answer")
@@ -82,7 +83,7 @@ def answer_question(search_id: int, body: Answer) -> dict:
     run = search.manager.current
     if run is None or run.id != search_id:
         raise HTTPException(status_code=404, detail="That search isn't running any more.")
-    return {"accepted": run.answer(body.yes)}
+    return {"accepted": run.answer(body.yes, body.always)}
 
 
 @router.post("/search/{search_id}/stop")

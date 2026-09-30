@@ -32,6 +32,9 @@ or a language level. Without your citizenship, Jobcu never assumes one.
    more. The screen shows each step as it goes, and how many jobs it has checked so far.
    Every two weeks your AI also looks for employers who hire for your kind of work; Jobcu then
    reads their own job lists in every search. **Search details** names the ones it found.
+4. If a search reaches a limit from Settings (how many jobs to score, how many web look-ups),
+   it asks before doing more. **Always** does it now and raises the limit, so later searches
+   don't ask; you can lower it again in Settings.
 
 ## 4. Results
 

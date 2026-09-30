@@ -36,7 +36,7 @@ from jobcu.location import (
 )
 from jobcu.profile import Profile, read_profile_reusing
 from jobcu.relevance import quick_pass, screen_titles
-from jobcu.settings import SearchForm, load_settings
+from jobcu.settings import SearchForm, load_settings, save_settings
 from jobcu.sources.base import JobQuery
 from jobcu.sources.http import PoliteClient
 
@@ -94,6 +94,8 @@ class SearchRun:
     result: dict = field(default_factory=dict)
     stop_requested: bool = False
     question: dict | None = None
+    # The person answered "always": do it now, and without asking in later searches.
+    answered_always: bool = False
     _answer: bool = False
     _answered: threading.Event = field(default_factory=threading.Event, repr=False)
     _lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
@@ -118,20 +120,23 @@ class SearchRun:
                 self.notes.append(message)
 
     def ask(self, question: dict) -> bool:
-        """Show a yes/no question on the screen and wait for the answer."""
+        """Show a yes/no question on the screen and wait for the answer. A question with an
+        "always" button can also be answered "yes, and from now on" (`answered_always`)."""
         with self._lock:
             self.question = question
+            self.answered_always = False
             self._answered.clear()
         answered = self._answered.wait(QUESTION_TIMEOUT_SECONDS)
         with self._lock:
             self.question = None
             return answered and self._answer and not self.stop_requested
 
-    def answer(self, value: bool) -> bool:
+    def answer(self, value: bool, always: bool = False) -> bool:
         with self._lock:
             if self.question is None:
                 return False
             self._answer = value
+            self.answered_always = value and always and "always" in self.question
         self._answered.set()
         return True
 
@@ -528,10 +533,14 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
                     f"{remaining} more jobs are waiting. Score them too? This uses more AI."
                 ),
                 "yes": f"Score {remaining} more",
+                "always": "Always score them all",
                 "no": "Show results now",
             })
             if not wants_more:
                 break
+            if run.answered_always:
+                cap = _raise_limit("scoring_cap", len(order), run,
+                                   "Jobcu scores up to {n} jobs in every search from now on")
             chunk = order[position : position + cap]
 
         def progress(done, total, base=position):
@@ -583,8 +592,13 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
                                     len(looked_up.asked), left)
                 + "). Look them up too?"),
             "yes": f"Look up {left} more",
+            "always": "Always look them up",
             "no": "Show results now",
         })
+        if run.answered_always:
+            _raise_limit("web_search_cap", client.web_searches_used
+                         + jobplace.SEARCHES_PER_JOB * left, run,
+                         "Jobcu uses up to {n} web look-ups in every search from now on")
         while wants_more and looked_up.not_asked:
             waiting = len(looked_up.not_asked)
             looked_before = len(worth_it) - waiting
@@ -744,6 +758,17 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
         http.close()
         usage = UsageLog().for_search(run.id)
         run.set_result("usage", {step: asdict(used) for step, used in usage.items()})
+
+
+def _raise_limit(name: str, needed: int, run: SearchRun, message: str) -> int:
+    """The person answered "always": the limit in Settings grows to what a search like this one
+    needs (rounded up to 50), so later searches don't ask. It can be lowered in Settings."""
+    settings = load_settings()
+    value = max(getattr(settings.limits, name), -(-needed // 50) * 50)
+    setattr(settings.limits, name, value)
+    save_settings(settings)
+    run.note(message.format(n=value) + " (Settings, Limits).")
+    return value
 
 
 def _score(job) -> int:
