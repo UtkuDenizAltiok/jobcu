@@ -11,7 +11,7 @@ Where the project stands, and nothing else: git history says what was done, and
 ### State
 
 Jobcu works end to end. A search reads the documents with the person's own AI, collects jobs from
-27 sources (13 of them company career systems, reading 402 employers and those the person's AI finds), lets the AI look at the
+28 sources (14 of them company career systems, reading 403 employers and those the person's AI finds), lets the AI look at the
 career-site titles the search words miss, removes duplicates, applies the rules and the location
 conditions, and scores what's left with every AI step at **medium** effort (the owner's choice:
 DECISIONS.md, "Back to local sessions"). The location box takes any condition in the person's
@@ -135,12 +135,11 @@ at most €25 a month for the owner; free, or under €10 a month, for everyone 
    what the quick check keeps, send the scoring instructions and profile once per search with
    the provider's context caching (about 3,000 tokens with each of about 60 requests; HANDOVER
    §13, saving 8), and try the batch size with `tools/score_check.py`. Never a lower effort.
-3. **More career systems**, in the order the employer finder shows them in use (DECISIONS.md,
-   "Which career systems come next"): **Softgarden** (PULS, hotel groups: robots.txt closes its
-   API and widgets but leaves the job pages open; find how the list page can be read), then
-   **Avature** (Siemens). Personio is read since 2026-09-30; SmartRecruiters and iCIMS close
-   themselves to robots and are not read. Then employers' own career sites through the standard
-   job data (HANDOVER §9.0, the generic JobPosting reader).
+3. **More career systems and employers:** Personio and Softgarden are read since 2026-09-30,
+   and the employer finder adds each person's employers on them. Next: **Avature** (Siemens:
+   site-specific search pages), then employers' own career sites through the standard job data
+   (HANDOVER §9.0, the generic JobPosting reader). SmartRecruiters and iCIMS close themselves to
+   robots and are not read (DECISIONS.md, "Which career systems come next").
 4. **Fewer jobs depending on Adzuna's summaries:** find the same job at its original (the
    employer's career site, the Bundesagentur) before reading it online, and measure how many
    still rely on a summary.
@@ -242,11 +241,11 @@ at most €25 a month for the owner; free, or under €10 a month, for everyone 
 
 ### Phase 3: Maximum coverage
 
-- [x] 27 sources: Adzuna, Reed, Bundesagentur für Arbeit, service.bund.de, JobsIreland.ie,
+- [x] 28 sources: Adzuna, Reed, Bundesagentur für Arbeit, service.bund.de, JobsIreland.ie,
       jobs.ac.uk, Teaching Vacancies, NHS Jobs, Le Forem, Werken voor Nederland, NAV,
-      EURAXESS, Arbeitnow, Arbetsförmedlingen, and company career sites in 13 systems
+      EURAXESS, Arbeitnow, Arbetsförmedlingen, and company career sites in 14 systems
       (Greenhouse, Lever, Ashby, Workable, Recruitee, Workday, Teamtailor, SuccessFactors,
-      prospective.ch, d.vinci, Eightfold, Oracle, Personio) for 402 employers
+      prospective.ch, d.vinci, Eightfold, Oracle, Personio, Softgarden) for 403 employers
 - [x] Per-source status, unique-job counts and on/off switches
 - [ ] A source for every supported country (HANDOVER §9.0)
 - [ ] More career systems and employers; live AI web search for jobs (HANDOVER §9.6)

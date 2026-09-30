@@ -5926,6 +5926,21 @@
    }
   },
   {
+   "name": "PULS",
+   "system": "softgarden",
+   "board": "pulspower",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Freiburg",
+     "Munich"
+    ]
+   }
+  },
+  {
    "name": "Boston Scientific",
    "system": "successfactors",
    "board": "jobs.bostonscientific.com",
