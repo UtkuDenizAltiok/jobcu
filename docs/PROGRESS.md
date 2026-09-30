@@ -58,9 +58,17 @@ everything from the cloud sessions), checked by a local session the same evening
   two Adzuna ads): agency summaries aren't merged, but the job memory gives both the same job,
   so they share Save and Applied.
 
+- **The quality set is complete:** 40 ads and 40 titles rated by Claude (search 10 added 8
+  ads, two of them good fits). `tools/score_check.py`: 30 of 40 scores where expected; good
+  88–94 (median 91), okay 61–85 (median 80), poor 24–76 (median 58). Too high for "poor": a team
+  lead in airborne electronics (76), mechanical pressure-vessel testing (74), senior power
+  systems (73), senior EW electronics (70), C++ systems engineering (69). The quick check left
+  out 2 of 40 titles worth a look (Quantum Machines' QA engineer, a university's drives lab
+  lead).
+
 ### In progress
 
-**The rest of search 10's check:** the ratings for the score check (8 of 40 ads not rated yet).
+Nothing.
 
 ### Verify before relying on
 
@@ -143,8 +151,10 @@ at most €25 a month for the owner; free, or under €10 a month, for everyone 
 6. **Phase 2's "Done when":** every example sentence from HANDOVER §6, README.md and the owner's
    own, read twice with a real provider, as its author means it. Fix in general terms, never for
    one sentence.
-7. **Scoring with the quality set** (`tools/score_check.py`, on his Mac): the quick check first,
-   then the scoring prompt (HANDOVER §13), once the set holds good fits too.
+7. **Scoring with the quality set** (`tools/score_check.py`, on his Mac): the set holds good fits
+   now. Senior roles and neighbouring fields score too high (above); try prompt variants with
+   `--rescore`, then the quick check's two misses. Re-run `tools/universality_check.py` after any
+   change to the instructions.
 8. **Paused until Germany, the UK and Ireland are as strong as possible:** sources for other
    countries (SOURCES.md), the licence limit for other professions, and the universality audit's
    rest (re-run `tools/universality_check.py` after any change to the AI instructions, which
@@ -203,9 +213,8 @@ at most €25 a month for the owner; free, or under €10 a month, for everyone 
       relevance check; scoring with reasons; a scoring limit that asks before doing more
 - [x] Results: Save, Applied, Not interested, "New", Saved and Applied lists, sorting, "Posting
       date unknown"
-- [ ] A quality set of 30–50 real ads judged for the owner (the Score check screen collects them;
-      32 ads and 39 titles rated by Claude on 2026-09-24, none of the ads a good fit yet) and a
-      tuned scoring prompt (HANDOVER §13)
+- [ ] A quality set of 30–50 real ads judged for the owner (40 ads and 40 titles rated by Claude
+      on 2026-09-24 and 30, good fits among them) and a tuned scoring prompt (HANDOVER §13)
 - [x] **Done when:** the owner runs a real search on his Mac and gets a ranked, deduplicated list
       with reasons (2026-09-22 and 2026-09-23).
 
