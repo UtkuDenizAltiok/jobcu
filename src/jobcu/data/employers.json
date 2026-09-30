@@ -1,6 +1,6 @@
 {
  "about": "Employers in Jobcu's supported countries and the career system they use. General reference data from public career sites, never built from anyone's searches. Checked and updated with tools/check_employers.py; 'countries' are the supported countries the employer had jobs in when checked, 'elsewhere' means it also had jobs outside them.",
- "checked": "2026-09-24",
+ "checked": "2026-09-30",
  "employers": [
   {
    "name": "AeroVect",
@@ -4552,6 +4552,26 @@
    }
   },
   {
+   "name": "Cirrus Logic",
+   "system": "lever",
+   "board": "eu/cirrus",
+   "countries": [
+    "GB",
+    "PT"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Edinburgh",
+     "London",
+     "Newbury"
+    ],
+    "PT": [
+     "Porto"
+    ]
+   }
+  },
+  {
    "name": "FINN",
    "system": "lever",
    "board": "finn",
@@ -4954,6 +4974,169 @@
     "GB": [
      "London",
      "Manchester"
+    ]
+   }
+  },
+  {
+   "name": "onsemi",
+   "system": "oracle",
+   "board": "hctz.fa.us2.oraclecloud.com/CX_1001",
+   "countries": [
+    "CH",
+    "CZ",
+    "DE",
+    "IE",
+    "IT",
+    "SI",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "CH": [
+     "Marin-Epagnier"
+    ],
+    "CZ": [
+     "Brno-jih",
+     "Rožnov pod Radhoštěm"
+    ],
+    "DE": [
+     "Munich"
+    ],
+    "IE": [
+     "Cork",
+     "Limerick"
+    ],
+    "IT": [
+     "Milan"
+    ],
+    "SI": [
+     "Ljubljana"
+    ],
+    "SK": [
+     "Piešťany"
+    ]
+   }
+  },
+  {
+   "name": "Texas Instruments",
+   "system": "oracle",
+   "board": "edbz.fa.us2.oraclecloud.com/CX",
+   "countries": [
+    "DE",
+    "DK",
+    "FI",
+    "IT",
+    "NL",
+    "NO",
+    "PL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Freising",
+     "Munich",
+     "Stuttgart"
+    ],
+    "FI": [
+     "Oulu"
+    ],
+    "NL": [
+     "Eindhoven"
+    ],
+    "NO": [
+     "Oslo"
+    ],
+    "PL": [
+     "Warsaw"
+    ]
+   }
+  },
+  {
+   "name": "Vertiv",
+   "system": "oracle",
+   "board": "egup.fa.us2.oraclecloud.com/CX",
+   "countries": [
+    "AT",
+    "BE",
+    "CH",
+    "CZ",
+    "DE",
+    "ES",
+    "FI",
+    "FR",
+    "GB",
+    "HR",
+    "IE",
+    "IT",
+    "NL",
+    "NO",
+    "PL",
+    "PT",
+    "RO",
+    "SE",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Vienna"
+    ],
+    "CH": [
+     "Neuhausen"
+    ],
+    "CZ": [
+     "Nové Město",
+     "Volyně"
+    ],
+    "DE": [
+     "Frankfurt am Main",
+     "Munich"
+    ],
+    "ES": [
+     "Madrid"
+    ],
+    "FI": [
+     "Helsinki"
+    ],
+    "FR": [
+     "Rungis"
+    ],
+    "GB": [
+     "Bedford",
+     "Derry",
+     "Edenbridge",
+     "London",
+     "Redhill"
+    ],
+    "HR": [
+     "Rugvica",
+     "Zagreb"
+    ],
+    "IE": [
+     "Letterkenny"
+    ],
+    "IT": [
+     "Bologna",
+     "Milan",
+     "Nove"
+    ],
+    "NL": [
+     "Amsterdam"
+    ],
+    "NO": [
+     "Oslo"
+    ],
+    "PL": [
+     "Warsaw"
+    ],
+    "RO": [
+     "Cluj-Napoca"
+    ],
+    "SE": [
+     "Stockholm"
+    ],
+    "SK": [
+     "Nové Mesto nad Váhom"
     ]
    }
   },
@@ -5412,6 +5595,80 @@
    "towns": {
     "DE": [
      "Sigmaringen"
+    ]
+   }
+  },
+  {
+   "name": "Boston Scientific",
+   "system": "successfactors",
+   "board": "jobs.bostonscientific.com",
+   "countries": [
+    "BE",
+    "CH",
+    "CZ",
+    "DE",
+    "DK",
+    "ES",
+    "FR",
+    "GB",
+    "IE",
+    "IT",
+    "NL",
+    "PL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "BE": [
+     "Diegem"
+    ],
+    "CH": [
+     "Zürich"
+    ],
+    "CZ": [
+     "Prague"
+    ],
+    "DE": [
+     "Dresden",
+     "Düsseldorf",
+     "Hamburg",
+     "Munich",
+     "Regensburg",
+     "Stuttgart",
+     "Ulm"
+    ],
+    "ES": [
+     "Barcelona",
+     "Madrid"
+    ],
+    "FR": [
+     "Lyon",
+     "Marseille",
+     "Saint-Quentin-en-Yvelines",
+     "Voisins-le-Bretonneux"
+    ],
+    "GB": [
+     "Bristol",
+     "Hemel Hempstead",
+     "Middlesbrough",
+     "Norwich"
+    ],
+    "IE": [
+     "Cluain Meala",
+     "Cork",
+     "Dublin",
+     "Galway"
+    ],
+    "IT": [
+     "Milan"
+    ],
+    "NL": [
+     "Kerkrade",
+     "Rotterdam"
+    ],
+    "PL": [
+     "Białystok",
+     "Warsaw",
+     "Wrocław"
     ]
    }
   },
