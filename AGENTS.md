@@ -434,6 +434,14 @@ short script with that `JOBCU_DATA_DIR`.
 - **Measure coverage with a whole search, not a source on its own.** Each new source looked fine
   alone; only `tools/made_up_search.py` showed that the directory's career sites gave nothing
   for a hardware engineer around Munich or in Dublin.
+- **LinkedIn shows reposts as new.** A coverage-list job "posted 2 days ago" on LinkedIn was 24
+  days old on the employer's own site; check the original's date before counting a miss.
+- **A score stored with an ad ages.** The score check's stored scores predate later limits; judge
+  scoring with `tools/score_check.py --rescore`, never with the stored numbers.
+- **Parts of a score can hide a whole.** Jobs in other fields reached 62–75 because the rubric's
+  other 60 points come to any job without a blocker; look at the parts, not only the total.
+- **An API can be closed while its pages are open.** SmartRecruiters' job API allows only
+  LinkedIn's crawler in robots.txt; read every host's robots.txt, API hosts included.
 - The secrets check can flag public identifiers. Only if a value is clearly not a secret, add
   `# jobcu-guard: allow` with a comment explaining why.
 
