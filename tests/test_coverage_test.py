@@ -58,15 +58,20 @@ def test_a_missed_job_is_placed_at_the_step_that_lost_it():
     tool = load_tool()
     pool = Pool(search_id=1, jobs=[
         pool_job("Test Engineer", "Babcock", "Rosyth", unrelated=True),
-        pool_job("Test Engineer", "Thales", "Glasgow", unrelated=False, scored=None)],
+        pool_job("Test Engineer", "Thales", "Glasgow", unrelated=False, scored=None),
+        pool_job("Test Engineer", "Rolls-Royce", "Derby")],
         profile={})
     why = {company: tool.why_missed(tool.Wanted(company, "Test Engineer", town), SNAPSHOT, pool)
            for company, town in (("Leonardo", "Edinburgh"), ("Babcock", "Rosyth"),
-                                 ("Thales", "Glasgow"), ("Nobody Ltd", "Leeds"))}
+                                 ("Thales", "Glasgow"), ("Rolls-Royce", "Derby"),
+                                 ("Nobody Ltd", "Leeds"))}
     assert why["Leonardo"] == ("collected, then left out by a place condition "
                                "(no such place in reach)")
     assert "left out as clearly unrelated by the quick check" in why["Babcock"]
     assert "not scored" in why["Thales"]
+    # Never quick-checked: a place condition decided before the quick check (search 10's Rostock
+    # job, not among the ruled-out jobs the results page lists).
+    assert why["Rolls-Royce"].endswith("then left out by a place condition")
     assert why["Nobody Ltd"].startswith("never collected: no source Jobcu uses had it")
     # A title none of the search words match is named as the reason it was never collected.
     assert tool.why_missed(tool.Wanted("Nobody Ltd", "RF Power Engineer", "Cork"), SNAPSHOT,

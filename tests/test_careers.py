@@ -59,6 +59,19 @@ def query(countries=("IE",), terms=None, places=(), hours=24):
 # --- Keeping the right jobs -----------------------------------------------------------
 
 
+def test_a_town_s_name_alone_tells_the_country_when_it_is_big_enough():
+    # GE Vernova's site gives no country: "Rugby" was dropped as unclear (search 10).
+    q = query(countries=("GB", "IE", "DE"), terms=[term("Graduate")])
+    start = NOW - timedelta(hours=72)
+    company = employer(countries=("GB", "DE", "IE"), elsewhere=True)
+    for town in ("Rugby", "Stafford", "Carrigaline"):
+        kept = keep_job(job("Electrical Graduate Programme", town), company, q, start)
+        assert kept is not None and kept.country == ("IE" if town == "Carrigaline" else "GB")
+    # Places abroad, villages and parts of a longer name still count as unclear.
+    for place in ("Salt Lake City", "Hyderabad", "Greenville", "Wilmington", "2 Locations"):
+        assert keep_job(job("Electrical Graduate Programme", place), company, q, start) is None
+
+
 def test_keeps_fresh_matching_jobs_in_the_countries_searched():
     q = query(["IE", "GB"])
     start = NOW - timedelta(hours=24)
@@ -108,6 +121,8 @@ def test_job_languages_and_places_follow_the_jobs_country():
         ("Intern", ["internship_or_working_student"]),
         ("Werkstudent (Teilzeit)", ["internship_or_working_student", "part_time"]),
         ("Contract", ["freelance_or_contract", "fixed_term"]),
+        # A graduate programme is a graduate's full-time job, not an internship.
+        ("Graduate Programme 2027", []),
         ("Regular", ["full_time_permanent"]),
         ("", []),
         (None, []),

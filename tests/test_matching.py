@@ -19,6 +19,16 @@ def test_term_words_match_in_any_order_and_inside_longer_words():
     assert not term_matches("Hardware Engineer", "Software Engineer")
 
 
+def test_a_word_matches_with_or_without_its_plural_s():
+    # Search 10's coverage list: "Electronics Engineer" had never matched "Electronic Engineer".
+    assert term_matches("Electronics Engineer", "Electronic Engineer")
+    assert term_matches("Electronics Engineer", "FY27 Electronic Engineering Graduate")
+    assert term_matches("Nurses", "Staff Nurse, ICU")
+    assert term_matches("Electronic Engineer", "Electronics Engineer")  # as before
+    assert not term_matches("Electronics Engineer", "Electrical Engineer")
+    assert not term_matches("Ops", "Op Engineer")  # short words stay whole words
+
+
 def test_short_words_must_match_whole_words():
     assert not term_matches("IT", "Digital Marketing Executive")
     assert term_matches("IT support", "IT Support Engineer")

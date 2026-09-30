@@ -124,6 +124,25 @@ def test_full_search_finds_filters_scores_and_remembers(ready):
     assert again["new_count"] == 0
 
 
+def test_one_job_the_memory_knows_twice_gets_one_card(ready, monkeypatch):
+    # An agency's two summaries with the same title and town stay apart in the duplicate rules
+    # but are one job in Jobcu's memory (search 10): one card, not two sharing Save.
+    class AgencyTwice(FakeSource):
+        def search(self, query, ctx):
+            for i, text in enumerate(["Short", "Another short text"]):
+                yield FoundJob(source="fake", source_job_id=f"a{i}", url=f"https://jobs.test/a{i}",
+                               title="Hardware Engineer", company="Augusta Personaldienst",
+                               location_text="Berlin", country="DE",
+                               posted_at=datetime.now(UTC), date_precision="exact",
+                               description=text)
+
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [AgencyTwice()])
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    jobs = wait_until_done(manager)["result"]["jobs"]
+    assert [card["title"] for card in jobs["cards"]] == ["Hardware Engineer"]
+
+
 def test_not_interested_jobs_are_hidden_from_later_searches(ready):
     manager = search.SearchManager()
     manager.start(SearchForm())

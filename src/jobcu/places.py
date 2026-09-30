@@ -151,6 +151,11 @@ def find_region(name: str | None, country: str | None = None) -> Region | None:
     return None
 
 
+def named(name: str | None) -> tuple[Town, ...]:
+    """Every town called exactly this, in any supported country, biggest first."""
+    return _towns().get(normalise(name), ())
+
+
 def find(name: str | None, country: str | None = None) -> Town | None:
     """The best known town with this name, preferring the one in the given country."""
     towns = _towns().get(normalise(name))

@@ -136,6 +136,10 @@ def lost_at(wanted: Wanted, snapshot: dict, pool: search_pool.Pool | None) -> st
         seen = f"collected as \"{main.title}\""
         if job.unrelated:
             return f"{seen}, then left out as clearly unrelated by the quick check"
+        if job.unrelated is None and job.scored is None:
+            # Only a place condition decided before the quick check leaves a job unchecked; the
+            # results page lists only the first of those (search 10's Rostock job, 2026-09-30).
+            return f"{seen}, then left out by a place condition"
         if job.scored is None:
             return f"{seen}, but not scored (the scoring limit)"
         return (f"{seen} and scored {job.scored.get('score')}, but not shown (hidden, or a "

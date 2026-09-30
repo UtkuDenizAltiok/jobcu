@@ -27,12 +27,20 @@ def _contains(haystack: str, word: str) -> bool:
     return word in haystack
 
 
+def _contains_either_form(haystack: str, word: str) -> bool:
+    """The word, or the word without a plural "s": the search word "Electronics Engineer" never
+    matched the common title "Electronic Engineer" (search 10's coverage list, 2026-09-30)."""
+    return _contains(haystack, word) or (
+        len(word) > _SHORT_WORD + 1 and word.endswith("s") and _contains(haystack, word[:-1]))
+
+
 def term_matches(term_text: str, text: str) -> bool:
     """Every word of the term appears in the text, in any order ("Engineer, Hardware" matches
-    "Hardware Engineer"; "Elektronik" matches "Leistungselektronik")."""
+    "Hardware Engineer"; "Elektronik" matches "Leistungselektronik"; "Electronics" matches
+    "Electronic")."""
     words = normalise(term_text).split()
     haystack = normalise(text)
-    return bool(words) and all(_contains(haystack, word) for word in words)
+    return bool(words) and all(_contains_either_form(haystack, word) for word in words)
 
 
 def matches_terms(
