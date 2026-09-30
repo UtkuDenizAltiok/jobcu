@@ -1,6 +1,6 @@
 {
  "about": "Employers in Jobcu's supported countries and the career system they use. General reference data from public career sites, never built from anyone's searches. Checked and updated with tools/check_employers.py; 'countries' are the supported countries the employer had jobs in when checked, 'elsewhere' means it also had jobs outside them.",
- "checked": "2026-09-24",
+ "checked": "2026-09-30",
  "employers": [
   {
    "name": "AeroVect",
@@ -4552,6 +4552,26 @@
    }
   },
   {
+   "name": "Cirrus Logic",
+   "system": "lever",
+   "board": "eu/cirrus",
+   "countries": [
+    "GB",
+    "PT"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Edinburgh",
+     "London",
+     "Newbury"
+    ],
+    "PT": [
+     "Porto"
+    ]
+   }
+  },
+  {
    "name": "FINN",
    "system": "lever",
    "board": "finn",
@@ -4954,6 +4974,466 @@
     "GB": [
      "London",
      "Manchester"
+    ]
+   }
+  },
+  {
+   "name": "Akamai",
+   "system": "oracle",
+   "board": "fa-extu-saasfaprod1.fa.ocs.oraclecloud.com/CX_1",
+   "countries": [
+    "CZ",
+    "DE",
+    "DK",
+    "ES",
+    "FR",
+    "GB",
+    "IE",
+    "IT",
+    "PL",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {}
+  },
+  {
+   "name": "Arcadis",
+   "system": "oracle",
+   "board": "ebcs.fa.em2.oraclecloud.com/CX_1",
+   "countries": [
+    "BE",
+    "DE",
+    "ES",
+    "FI",
+    "FR",
+    "GB",
+    "IE",
+    "IT",
+    "NL",
+    "PL",
+    "RO"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "BE": [
+     "Antwerp",
+     "Brussels",
+     "Gent",
+     "Sint-Niklaas"
+    ],
+    "DE": [
+     "Berlin",
+     "Darmstadt",
+     "Dresden",
+     "Frankfurt am Main",
+     "Hamburg",
+     "Hannover",
+     "Munich"
+    ],
+    "ES": [
+     "Madrid"
+    ],
+    "FR": [
+     "Paris",
+     "Strasbourg"
+    ],
+    "GB": [
+     "Birmingham",
+     "Bristol",
+     "Cambridge",
+     "Edinburgh",
+     "Glasgow",
+     "Gloucester",
+     "Guildford",
+     "Leeds",
+     "London",
+     "Manchester",
+     "Milton Keynes",
+     "Newcastle upon Tyne",
+     "Sheffield",
+     "Warrington",
+     "York"
+    ],
+    "IE": [
+     "Cork",
+     "Dublin"
+    ],
+    "IT": [
+     "Milan"
+    ],
+    "NL": [
+     "'s-Hertogenbosch",
+     "Amsterdam",
+     "Arnhem",
+     "Groningen",
+     "Rotterdam",
+     "Utrecht"
+    ],
+    "PL": [
+     "Opole",
+     "Warsaw",
+     "Wrocław"
+    ],
+    "RO": [
+     "Bucharest",
+     "Iaşi"
+    ]
+   }
+  },
+  {
+   "name": "ArcelorMittal",
+   "system": "oracle",
+   "board": "emfg.fa.em4.oraclecloud.com/CX_4001",
+   "countries": [
+    "BE",
+    "CZ",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "HU",
+    "IT",
+    "LU",
+    "NL",
+    "PL",
+    "RO",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "BE": [
+     "Charleroi",
+     "Genk",
+     "Gent",
+     "Liège"
+    ],
+    "DE": [
+     "Bad Oldesloe",
+     "Bremen",
+     "Duisburg",
+     "Eisenhüttenstadt",
+     "Eppingen",
+     "Frankfurt am Main",
+     "Halle",
+     "Hamburg",
+     "Köln",
+     "Lustadt",
+     "Marktredwitz",
+     "Neckarsulm",
+     "Neu-Ulm",
+     "Sandersdorf",
+     "Schweinfurt",
+     "Sennfeld",
+     "Stuttgart",
+     "Trier",
+     "Wiedergeltingen"
+    ],
+    "ES": [
+     "Avilés",
+     "Gijón",
+     "Madrid",
+     "Olaberria",
+     "Sagunto",
+     "Sestao",
+     "Zaragoza"
+    ],
+    "FR": [
+     "Bazeilles",
+     "Bourg-en-Bresse",
+     "Bruyères-sur-Oise",
+     "Chambéry",
+     "Cérons",
+     "Dunkirk",
+     "Florange",
+     "Fos-sur-Mer",
+     "Gandrange",
+     "Indre",
+     "Le Creusot",
+     "Maizières-lès-Metz",
+     "Montataire",
+     "Mouzon",
+     "Nérac",
+     "Onnaing",
+     "Ottmarsheim",
+     "Paris",
+     "Reims",
+     "Revigny-sur-Ornain",
+     "Rive-de-Gier",
+     "Saint-Chamond",
+     "Saint-Chély-d'Apcher",
+     "Saint-Denis",
+     "Saint-Dizier",
+     "Saint-Nazaire",
+     "Thézan-lès-Béziers",
+     "Uckange",
+     "Vitry-le-François",
+     "Woippy"
+    ],
+    "GB": [
+     "London",
+     "Sheffield"
+    ],
+    "LU": [
+     "Esch-sur-Alzette",
+     "Luxembourg"
+    ],
+    "NL": [
+     "Almelo",
+     "Noord"
+    ],
+    "PL": [
+     "Dąbrowa Górnicza",
+     "Gdańsk",
+     "Kraków",
+     "Sosnowiec",
+     "Warsaw",
+     "Zdzieszowice",
+     "Świętochłowice"
+    ]
+   }
+  },
+  {
+   "name": "Heathrow",
+   "system": "oracle",
+   "board": "encd.fa.em3.oraclecloud.com/CX_6005",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Glasgow",
+     "London"
+    ]
+   }
+  },
+  {
+   "name": "Nokia",
+   "system": "oracle",
+   "board": "fa-evmr-saasfaprod1.fa.ocs.oraclecloud.com/CX_1",
+   "countries": [
+    "BE",
+    "DE",
+    "DK",
+    "ES",
+    "FI",
+    "FR",
+    "GB",
+    "GR",
+    "HU",
+    "IT",
+    "NO",
+    "PL",
+    "PT",
+    "RO"
+   ],
+   "elsewhere": true,
+   "towns": {}
+  },
+  {
+   "name": "onsemi",
+   "system": "oracle",
+   "board": "hctz.fa.us2.oraclecloud.com/CX_1001",
+   "countries": [
+    "CH",
+    "CZ",
+    "DE",
+    "IE",
+    "IT",
+    "SI",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "CH": [
+     "Marin-Epagnier"
+    ],
+    "CZ": [
+     "Brno-jih",
+     "Rožnov pod Radhoštěm"
+    ],
+    "DE": [
+     "Munich"
+    ],
+    "IE": [
+     "Cork",
+     "Limerick"
+    ],
+    "IT": [
+     "Milan"
+    ],
+    "SI": [
+     "Ljubljana"
+    ],
+    "SK": [
+     "Piešťany"
+    ]
+   }
+  },
+  {
+   "name": "Oracle",
+   "system": "oracle",
+   "board": "eeho.fa.us2.oraclecloud.com/jobsearch",
+   "countries": [
+    "CZ",
+    "DE",
+    "DK",
+    "GB",
+    "IE",
+    "NL",
+    "PL",
+    "RO",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "CZ": [
+     "Brno",
+     "Prague"
+    ],
+    "DE": [
+     "Frankfurt am Main"
+    ],
+    "GB": [
+     "Belfast",
+     "Bristol",
+     "London"
+    ],
+    "IE": [
+     "Dublin"
+    ],
+    "NL": [
+     "Utrecht"
+    ],
+    "RO": [
+     "Bucharest"
+    ],
+    "SE": [
+     "Gothenburg",
+     "Stockholm"
+    ]
+   }
+  },
+  {
+   "name": "Texas Instruments",
+   "system": "oracle",
+   "board": "edbz.fa.us2.oraclecloud.com/CX",
+   "countries": [
+    "DE",
+    "DK",
+    "FI",
+    "IT",
+    "NL",
+    "NO",
+    "PL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Freising",
+     "Munich",
+     "Stuttgart"
+    ],
+    "FI": [
+     "Oulu"
+    ],
+    "NL": [
+     "Eindhoven"
+    ],
+    "NO": [
+     "Oslo"
+    ],
+    "PL": [
+     "Warsaw"
+    ]
+   }
+  },
+  {
+   "name": "Vertiv",
+   "system": "oracle",
+   "board": "egup.fa.us2.oraclecloud.com/CX",
+   "countries": [
+    "AT",
+    "BE",
+    "CH",
+    "CZ",
+    "DE",
+    "ES",
+    "FI",
+    "FR",
+    "GB",
+    "HR",
+    "IE",
+    "IT",
+    "NL",
+    "NO",
+    "PL",
+    "PT",
+    "RO",
+    "SE",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Vienna"
+    ],
+    "CH": [
+     "Neuhausen"
+    ],
+    "CZ": [
+     "Nové Město",
+     "Volyně"
+    ],
+    "DE": [
+     "Frankfurt am Main",
+     "Munich"
+    ],
+    "ES": [
+     "Madrid"
+    ],
+    "FI": [
+     "Helsinki"
+    ],
+    "FR": [
+     "Rungis"
+    ],
+    "GB": [
+     "Bedford",
+     "Derry",
+     "Edenbridge",
+     "London",
+     "Redhill"
+    ],
+    "HR": [
+     "Rugvica",
+     "Zagreb"
+    ],
+    "IE": [
+     "Letterkenny"
+    ],
+    "IT": [
+     "Bologna",
+     "Milan",
+     "Nove"
+    ],
+    "NL": [
+     "Amsterdam"
+    ],
+    "NO": [
+     "Oslo"
+    ],
+    "PL": [
+     "Warsaw"
+    ],
+    "RO": [
+     "Cluj-Napoca"
+    ],
+    "SE": [
+     "Stockholm"
+    ],
+    "SK": [
+     "Nové Mesto nad Váhom"
     ]
    }
   },
@@ -5412,6 +5892,80 @@
    "towns": {
     "DE": [
      "Sigmaringen"
+    ]
+   }
+  },
+  {
+   "name": "Boston Scientific",
+   "system": "successfactors",
+   "board": "jobs.bostonscientific.com",
+   "countries": [
+    "BE",
+    "CH",
+    "CZ",
+    "DE",
+    "DK",
+    "ES",
+    "FR",
+    "GB",
+    "IE",
+    "IT",
+    "NL",
+    "PL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "BE": [
+     "Diegem"
+    ],
+    "CH": [
+     "Zürich"
+    ],
+    "CZ": [
+     "Prague"
+    ],
+    "DE": [
+     "Dresden",
+     "Düsseldorf",
+     "Hamburg",
+     "Munich",
+     "Regensburg",
+     "Stuttgart",
+     "Ulm"
+    ],
+    "ES": [
+     "Barcelona",
+     "Madrid"
+    ],
+    "FR": [
+     "Lyon",
+     "Marseille",
+     "Saint-Quentin-en-Yvelines",
+     "Voisins-le-Bretonneux"
+    ],
+    "GB": [
+     "Bristol",
+     "Hemel Hempstead",
+     "Middlesbrough",
+     "Norwich"
+    ],
+    "IE": [
+     "Cluain Meala",
+     "Cork",
+     "Dublin",
+     "Galway"
+    ],
+    "IT": [
+     "Milan"
+    ],
+    "NL": [
+     "Kerkrade",
+     "Rotterdam"
+    ],
+    "PL": [
+     "Białystok",
+     "Warsaw",
+     "Wrocław"
     ]
    }
   },

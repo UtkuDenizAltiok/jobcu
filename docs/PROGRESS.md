@@ -11,7 +11,7 @@ Where the project stands, and nothing else: git history says what was done, and
 ### State
 
 Jobcu works end to end. A search reads the documents with the person's own AI, collects jobs from
-25 sources (11 of them company career systems, reading 389 employers), lets the AI look at the
+26 sources (12 of them company career systems, reading 400 employers), lets the AI look at the
 career-site titles the search words miss, removes duplicates, applies the rules and the location
 conditions, and scores what's left with every AI step at **medium** effort (the owner's choice:
 DECISIONS.md, "Back to local sessions"). The location box takes any condition in the person's
@@ -49,14 +49,16 @@ everything from the cloud sessions), checked by a local session the same evening
   search word said "Electronics"): DECISIONS.md, "Search 10's coverage list". **Never
   collected, 17:** agencies seen on LinkedIn (IC Resources, Insignis, Morgan McKinley) and
   employers not in the directory (eMoSys, AES, EDAG, Ricardo, Evolito, Malloy Aeronautics,
-  TDK-Lambda, ENGIE, Real, Tyndall, Boston Scientific, Egis, Kirstein), and FERCHAU's Oberkochen
-  job (FERCHAU's others came through the Bundesagentur): tasks 3 and 5.
+  TDK-Lambda, ENGIE, Real, Tyndall, Egis, Kirstein; Boston Scientific added since), and
+  FERCHAU's Oberkochen job (FERCHAU's others came through the Bundesagentur): tasks 3 and 5.
+  **Added since:** Oracle career sites (Texas Instruments, onsemi, Vertiv and six more) and
+  Boston Scientific and Cirrus Logic: DECISIONS.md, "Oracle career sites and more engineering
+  employers".
 - The far-right condition: 109 towns (41 in Germany, 60 in the UK, 8 in Ireland) and 9 regions
   (the five eastern states, Schwandorf, Weiden, Thurrock, Ashfield; Wales not this time), against
   search 9's 32 towns and Wales: the answer still varies a lot between searches.
 - Two cards for one agency job (Augusta's "Hardware-Entwickler Embedded-Elektronik" in Weichs,
   two Adzuna ads) sharing Save and Applied: **fixed**, one card per remembered job.
-
 - **The quality set is complete:** 40 ads and 40 titles rated by Claude (search 10 added 8
   ads, two of them good fits). `tools/score_check.py`: 30 of 40 scores where expected; good
   88–94 (median 91), okay 61–85 (median 80), poor 24–76 (median 58). Too high for "poor": a team
@@ -73,6 +75,8 @@ Nothing.
 
 - **The next search's time and rate limits:** about 20 minutes expected for a 72-hour search;
   no "AI limit reached, continuing more slowly" note on the owner's paid tier.
+- **Oracle career sites in a search:** Texas Instruments, onsemi and Vertiv jobs arrive with
+  their full ads (read live on 2026-09-30, not yet inside a whole search).
 - **Rugby-like towns:** jobs at GE Vernova's Rugby and Stafford sites on cards; no job abroad
   taken for a UK or Irish town of the same name (a bare "Hamilton" would be).
 - **The robots.txt reader** (RFC 9309): check at the next `tools/check_employers.py` run that no
@@ -137,15 +141,19 @@ at most €25 a month for the owner; free, or under €10 a month, for everyone 
    employer's career site, the Bundesagentur) before reading it online, and measure how many
    still rely on a summary.
 5. **More employer career sites in Germany, the UK and Ireland**, measured with whole searches
-   (`tools/made_up_search.py` and the owner's own): (a) the real Workday addresses of the 30
-   employers whose guessed sites answered 422 (AMD, Dell, Keysight, onsemi, TE Connectivity,
-   Honeywell, Schneider Electric, Zeiss, Continental…; SOURCES.md), then
-   `tools/check_employers.py --only-new --write`; (b) **Personio** and **softgarden** career pages
-   (check terms, robots.txt and JobPosting first) and **Avature** (Siemens, Siemens Energy);
-   (c) more employers on the systems Jobcu reads: semiconductors, power electronics, automotive
-   and industrial electronics, drives, defence, medical devices, test and measurement, energy
-   (Rohde & Schwarz, Renesas, Arm, Bosch seen; SOURCES.md); (d) whether the robots fix lets more
-   Workday and SuccessFactors companies through, and Micron's Eightfold site.
+   (`tools/made_up_search.py` and the owner's own). Search 10's coverage list names who is
+   missing (above). (a) the real addresses of the employers whose guessed Workday sites answered
+   422: onsemi turned out to be on Oracle (added); AMD (`careers.amd.com`) and Keysight
+   (`jobsearch.keysight.com`) run other systems; Dell, TE Connectivity, Honeywell, Schneider
+   Electric, Zeiss and Continental still to find (SOURCES.md); (b) **more Oracle Recruiting
+   Cloud employers** (the system is read since 2026-09-30; look for `oraclecloud.com/hcmUI` on
+   career pages), **Personio** and **softgarden** career pages (small German employers such as
+   eMoSys and AES; check terms, robots.txt and JobPosting first) and **Avature** (Siemens,
+   Siemens Energy); (c) more employers on the systems Jobcu reads: semiconductors, power
+   electronics, automotive and industrial electronics, drives, defence, medical devices, test and
+   measurement, energy (Rohde & Schwarz, Renesas, Arm, Bosch, Ricardo, EDAG seen with their own
+   sites; SOURCES.md); (d) whether the robots fix lets more Workday and SuccessFactors companies
+   through, and Micron's Eightfold site.
 6. **Phase 2's "Done when":** every example sentence from HANDOVER §6, README.md and the owner's
    own, read twice with a real provider, as its author means it. Fix in general terms, never for
    one sentence.
@@ -230,11 +238,11 @@ at most €25 a month for the owner; free, or under €10 a month, for everyone 
 
 ### Phase 3: Maximum coverage
 
-- [x] 25 sources: Adzuna, Reed, Bundesagentur für Arbeit, service.bund.de, JobsIreland.ie,
+- [x] 26 sources: Adzuna, Reed, Bundesagentur für Arbeit, service.bund.de, JobsIreland.ie,
       jobs.ac.uk, Teaching Vacancies, NHS Jobs, Le Forem, Werken voor Nederland, NAV,
-      EURAXESS, Arbeitnow, Arbetsförmedlingen, and company career sites in 11 systems
+      EURAXESS, Arbeitnow, Arbetsförmedlingen, and company career sites in 12 systems
       (Greenhouse, Lever, Ashby, Workable, Recruitee, Workday, Teamtailor, SuccessFactors,
-      prospective.ch, d.vinci, Eightfold) for 389 employers
+      prospective.ch, d.vinci, Eightfold, Oracle) for 400 employers
 - [x] Per-source status, unique-job counts and on/off switches
 - [ ] A source for every supported country (HANDOVER §9.0)
 - [ ] More career systems and employers; live AI web search for jobs (HANDOVER §9.6)
