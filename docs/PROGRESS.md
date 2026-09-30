@@ -11,7 +11,7 @@ Where the project stands, and nothing else: git history says what was done, and
 ### State
 
 Jobcu works end to end. A search reads the documents with the person's own AI, collects jobs from
-26 sources (12 of them company career systems, reading 394 employers), lets the AI look at the
+26 sources (12 of them company career systems, reading 400 employers), lets the AI look at the
 career-site titles the search words miss, removes duplicates, applies the rules and the location
 conditions, and scores what's left with every AI step at **medium** effort (the owner's choice:
 DECISIONS.md, "Back to local sessions"). The location box takes any condition in the person's
@@ -240,7 +240,7 @@ at most €25 a month for the owner; free, or under €10 a month, for everyone 
       jobs.ac.uk, Teaching Vacancies, NHS Jobs, Le Forem, Werken voor Nederland, NAV,
       EURAXESS, Arbeitnow, Arbetsförmedlingen, and company career sites in 12 systems
       (Greenhouse, Lever, Ashby, Workable, Recruitee, Workday, Teamtailor, SuccessFactors,
-      prospective.ch, d.vinci, Eightfold, Oracle) for 394 employers
+      prospective.ch, d.vinci, Eightfold, Oracle) for 400 employers
 - [x] Per-source status, unique-job counts and on/off switches
 - [ ] A source for every supported country (HANDOVER §9.0)
 - [ ] More career systems and employers; live AI web search for jobs (HANDOVER §9.6)
