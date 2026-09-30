@@ -11,7 +11,7 @@ Where the project stands, and nothing else: git history says what was done, and
 ### State
 
 Jobcu works end to end. A search reads the documents with the person's own AI, collects jobs from
-26 sources (12 of them company career systems, reading 400 employers), lets the AI look at the
+26 sources (12 of them company career systems, reading 400 employers and those the person's AI finds), lets the AI look at the
 career-site titles the search words miss, removes duplicates, applies the rules and the location
 conditions, and scores what's left with every AI step at **medium** effort (the owner's choice:
 DECISIONS.md, "Back to local sessions"). The location box takes any condition in the person's
@@ -78,6 +78,9 @@ Nothing.
 
 - **The next search's time and rate limits:** about 20 minutes expected for a 72-hour search;
   no "AI limit reached, continuing more slowly" note on the owner's paid tier.
+- **The employer finder in a real search** (built 2026-09-30, tried on its own): the step's
+  time (about 3 minutes, every two weeks), what the employers found add to the cards, and no
+  employer abroad or unrelated read for nothing.
 - **Oracle career sites in a search:** Texas Instruments, onsemi and Vertiv jobs arrive with
   their full ads (read live on 2026-09-30, not yet inside a whole search).
 - **Rugby-like towns:** jobs at GE Vernova's Rugby and Stafford sites on cards; no job abroad
@@ -134,12 +137,12 @@ at most €25 a month for the owner; free, or under €10 a month, for everyone 
    what the quick check keeps, send the scoring instructions and profile once per search with
    the provider's context caching (about 3,000 tokens with each of about 60 requests; HANDOVER
    §13, saving 8), and try the batch size with `tools/score_check.py`. Never a lower effort.
-3. **The AI finds employers, not jobs** (the route after the single-job experiment, DECISIONS.md
-   "The person's AI searching the web for single jobs"): the AI looks up employers hiring for the
-   person's kind of work in the places searched, with their career-site address; Jobcu recognises
-   the career system from that address (Workday, Greenhouse, Lever, Teamtailor, d.vinci…),
-   checks it with one request and reads its jobs like the directory's, remembering the employers
-   found for later searches.
+3. **More career systems**, in the order the employer finder shows them in use (DECISIONS.md,
+   "The person's AI finds employers"): **SmartRecruiters** (Bosch and others; a public Posting
+   API), **Softgarden** and **Personio** (German mid-sized employers, hotel groups; check their
+   public feeds, terms and robots.txt), **iCIMS** (AMD, Ricardo, TT Electronics, Schneider
+   Electric) and **Avature** (Siemens, Siemens Energy); then employers' own career sites through
+   the standard job data (HANDOVER §9.0, the generic JobPosting reader).
 4. **Fewer jobs depending on Adzuna's summaries:** find the same job at its original (the
    employer's career site, the Bundesagentur) before reading it online, and measure how many
    still rely on a summary.

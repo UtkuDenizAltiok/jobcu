@@ -30,6 +30,8 @@ or a language level. Without your citizenship, Jobcu never assumes one.
 2. Choose **Posted within** (72 hours or 1 week finds more) and the **job types**.
 3. Click **Search**. It takes a few minutes, and longer for several countries or 72 hours or
    more. The screen shows each step as it goes, and how many jobs it has checked so far.
+   Every two weeks your AI also looks for employers who hire for your kind of work; Jobcu then
+   reads their own job lists in every search. **Search details** names the ones it found.
 
 ## 4. Results
 

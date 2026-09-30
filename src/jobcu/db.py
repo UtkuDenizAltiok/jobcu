@@ -151,6 +151,26 @@ MIGRATIONS: list[str] = [
         PRIMARY KEY (origin, destination, mode, measured_by)
     );
     """,
+    # 10: Employers the person's AI found for their kind of work, whose job lists Jobcu can read
+    # (employers.py), and when it last looked in each country for that kind of work.
+    """
+    CREATE TABLE found_employers (
+        system TEXT NOT NULL,
+        board TEXT NOT NULL,
+        name TEXT NOT NULL,
+        countries TEXT NOT NULL,
+        elsewhere INTEGER NOT NULL,
+        towns TEXT NOT NULL,
+        found_at TEXT NOT NULL,
+        PRIMARY KEY (system, board)
+    );
+    CREATE TABLE employer_searches (
+        subject TEXT NOT NULL,
+        country TEXT NOT NULL,
+        searched_at TEXT NOT NULL,
+        PRIMARY KEY (subject, country)
+    );
+    """,
 ]
 
 

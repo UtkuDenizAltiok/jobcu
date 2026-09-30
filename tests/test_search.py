@@ -108,7 +108,11 @@ def test_full_search_finds_filters_scores_and_remembers(ready):
     manager.start(SearchForm(location_text="Germany"))
     result = wait_until_done(manager)
     assert result["status"] == "finished", result["error"]
-    assert all(step["status"] == "done" for step in result["steps"])
+    steps = {step["id"]: step for step in result["steps"]}
+    assert all(step["status"] == "done" for name, step in steps.items() if name != "employers")
+    # This AI can't search the web, so no employers are looked for, and the search goes on.
+    assert steps["employers"]["status"] == "skipped"
+    assert "can't look things up" in steps["employers"]["detail"]
     jobs = result["result"]["jobs"]
     titles = [card["title"] for card in jobs["cards"]]
     assert sorted(titles) == ["Electronics Engineer", "Hardware Engineer"]

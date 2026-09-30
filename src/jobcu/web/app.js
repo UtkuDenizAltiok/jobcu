@@ -1241,14 +1241,28 @@ function renderDetails(search) {
       ),
     );
   }
+  const found = result.employers;
+  if (found && found.new && found.new.length) {
+    parts.push(
+      section(
+        "Employers your AI found this time",
+        el("p", {
+          class: "muted",
+          text: "Their own job lists are read in this search and the ones after it.",
+        }),
+        el("ul", { class: "chips" }, ...found.new.map((name) => el("li", { text: name }))),
+      ),
+    );
+  }
   const usage = result.usage || {};
   const stepNames = {
     profile: "Understanding your profile",
     location: "Understanding the location",
     search_words: "Preparing search words",
+    employers: "Finding employers for your kind of work",
     quick_pass: "Quick relevance check",
     scoring: "Scoring jobs",
-    job_places: "Finding where jobs are",
+    job_places: "Checking the best jobs online",
   };
   const rows = Object.entries(usage).map(([step, used]) =>
     el("li", {

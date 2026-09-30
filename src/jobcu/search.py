@@ -16,7 +16,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from typing import Literal
 
-from jobcu import db, documents, jobplace, jobstore, pipeline, quality, scoring, travel
+from jobcu import db, documents, employers, jobplace, jobstore, pipeline, quality, scoring, travel
 from jobcu import pool as search_pool
 from jobcu.ai.base import AIError
 from jobcu.ai.client import AIClient
@@ -50,6 +50,7 @@ STEPS: list[tuple[str, str]] = [
     ("profile", "Understanding your profile"),
     ("location", "Understanding where you want to work"),
     ("search_words", "Preparing search words"),
+    ("employers", "Finding employers for your kind of work"),
     ("sources", "Searching job sources"),
     ("filtering", "Removing duplicates and jobs that don't fit"),
     ("details", "Reading the full job ads"),
@@ -357,8 +358,46 @@ def _screen_career_titles(run, client, profile, collected) -> str:
             "your AI)")
 
 
+def _find_employers(run, settings, client, http, profile, plan) -> None:
+    """The person's AI finds employers for their kind of work every few weeks (employers.py);
+    their job lists are read with the others. A problem here never stops the search."""
+    run.update("employers", "running")
+    if not settings.use_web_search:
+        run.update("employers", "skipped", "Looking things up on the web is off in Settings")
+        return
+    try:
+        if not client.adapter().can_search_the_web:
+            run.update("employers", "skipped", "Your AI provider can't look things up on the web")
+            return
+        found = employers.find(client, http, profile, plan.countries, plan.places,
+                               on_progress=lambda text: run.update("employers", "running", text))
+    except AIError as exc:
+        log.info("Finding employers failed: %s", exc)
+        run.update("employers", "failed", exc.message)
+        return
+    run.set_result("employers", {"named": found.named, "new": found.new, "known": found.known,
+                                 "read": found.read, "not_read": found.not_read})
+    if found.looked:
+        detail = (f"Your AI named {found.named} employers: {len(found.new)} more job lists Jobcu "
+                  "can read" + (f" ({_listed(found.new)})" if found.new else "")
+                  + f", {found.known} read already")
+    elif found.since is not None:
+        detail = (f"{found.read} employers your AI found on {found.since.day} "
+                  f"{found.since:%B} are read")
+    else:
+        detail = ""
+    run.update("employers", "done", detail)
+
+
+def _listed(names: list[str], most: int = 5) -> str:
+    shown = ", ".join(names[:most])
+    return shown + (f" and {len(names) - most} more" if len(names) > most else "")
+
+
 def _find_and_score(run, settings, client, keys, http, profile, plan, query, checkpoint) -> None:
     form = run.form
+    _find_employers(run, settings, client, http, profile, plan)
+    checkpoint()
     run.update("sources", "running")
     collected = pipeline.collect(query, http, keys, settings.sources_disabled, run)
     names = {source_id: source.name for source_id, source in collected.sources.items()}
