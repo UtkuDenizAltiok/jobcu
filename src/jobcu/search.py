@@ -578,7 +578,17 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     looking_since = time.monotonic()
     looked_up = (jobplace.find_online(client, groups, worth_it, profile, looking) if worth_it
                  else jobplace.LookedUp())
-    if looked_up.not_asked and client.web_searches_left() <= 0:
+    # Look-ups sent together can find the allowance held by others still running; those jobs get
+    # another turn while look-ups are left (a test search on 2026-10-01 skipped 100 of 115 jobs
+    # without asking).
+    while looked_up.not_asked and client.web_searches_left() > 0:
+        waiting = len(looked_up.not_asked)
+        looked_before = len(worth_it) - waiting
+        looked_up = looked_up.add(
+            jobplace.find_online(client, groups, looked_up.not_asked, profile, looking))
+        if len(looked_up.not_asked) >= waiting:
+            break
+    if looked_up.not_asked:
         # One question for every job left, counted in jobs (search 9 asked four times, each
         # "yes" adding web look-ups for only about 25 of the jobs its button promised).
         left = len(looked_up.not_asked)

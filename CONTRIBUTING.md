@@ -69,9 +69,9 @@ read "Right now" in docs/PROGRESS.md and check the repository's real state. Tell
 where the project stands, anything unfinished or needing a check, and what is waiting on me.
 Then carry on with the mission and the next tasks in PROGRESS.md: decide the technical details
 yourself, research where needed, and work carefully in small, tested, recorded steps. Ask me only
-about decisions that are mine (AGENTS.md). In a cloud session you may merge your own pull
-requests with a merge commit once GitHub's tests pass. If you can't open files yourself, ask me
-to paste AGENTS.md and docs/PROGRESS.md.
+about decisions that are mine (AGENTS.md). You may merge your own pull requests with a merge
+commit once GitHub's tests pass. If you can't open files yourself, ask me to paste AGENTS.md and
+docs/PROGRESS.md.
 ```
 
 **Before you stop, or when the conversation is getting full:**
@@ -79,8 +79,8 @@ to paste AGENTS.md and docs/PROGRESS.md.
 ```text
 Wrap up for a fresh session: follow the section "Ending a session" in AGENTS.md. Stop at a safe
 point, make sure everything important from this session is recorded in the repository (not only
-in this chat), check the tests, commit and push. In a cloud session, merge your pull request with
-a merge commit once GitHub's tests pass. Then tell me in a few lines what was done, what comes
+in this chat), check the tests, commit and push. Merge your pull request with a merge commit once
+GitHub's tests pass. Then tell me in a few lines what was done, what comes
 next, what is waiting on me, and whether it's safe to start a new session.
 ```
 
@@ -95,14 +95,16 @@ Jobcu data folder (JOBCU_DATA_DIR), and do three things:
 2. The quality set, on my behalf: rate the ads Jobcu kept for the score check (good, okay or
    poor, with blockers), until 30-50 are rated over time. Judge each full ad against my CV and
    cover letter as a careful recruiter would, before looking at Jobcu's score. Save the ratings
-   in my real data folder with quality.rate(..., by="claude"), then run tools/score_check.py.
+   in my real data folder with quality.rate(..., by="claude"), then run
+   tools/score_check.py --rescore (the stored scores are from when each ad was collected).
 3. The coverage list, on my behalf: search the web for 15-25 fresh, real jobs that fit my CV in
    my priority countries (employers' own sites and job boards, including LinkedIn and StepStone
-   pages as search engines show them), and run tools/coverage_test.py with them.
+   pages as search engines show them), and run tools/coverage_test.py with them. Before counting
+   a job as missed, check its date on the employer's own site: LinkedIn shows reposts as new.
 Record what you find, with examples, in docs/PROGRESS.md (decisions in DECISIONS.md, source facts
 in SOURCES.md), never my CV or other personal details. Delete the scratch copy, check the tests,
-commit and push. Then tell me in plain words what you found and what the cloud sessions should
-fix next.
+commit and push. Then fix what you found, most important first, in small tested steps, and tell
+me in plain words what you found, what you fixed and what comes next.
 ```
 
 **When a cloud credit is nearly used, before going back to local sessions:**

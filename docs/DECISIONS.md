@@ -661,3 +661,9 @@ as the documents say.
 | Decision | Reason |
 |---|---|
 | **Jobcu reads Softgarden career sites** (`softgarden.py`): the list page, which gives every job's posting day, title, audience and towns in one request, then the job's own page (standard JobPosting data) for the full ad of jobs still in the running. The finder recognises `*.softgarden.io` addresses. | Softgarden is common with German mid-sized employers and hotel groups; PULS (power supplies: "Entwicklungsingenieur (Hardware – Schaltnetzteile)", "PCB Designer / Layouter") uses it. robots.txt closes only the API, widgets and application pages. Because the list gives the day, every title can go through the search words and the AI's look like the other career sites'. |
+
+## 2026-10-01: A complete test search before the owner's next one
+
+| Decision | Reason |
+|---|---|
+| **Online look-ups that lost their turn to others running at the same time get another turn while the search's look-ups last, and Jobcu asks for any still left** (never skips them silently). | A complete 24-hour test search with everything from 2026-09-30 read the requirements of only 15 of 115 jobs and never asked: with four look-ups at a time, a batch could find the allowance reserved by the others, and when their real use turned out lower, some allowance was left, so the question's condition ("none left") didn't hold. Caps never silently reduce coverage (HANDOVER §13). The same search ran in 16 minutes without other errors (PROGRESS.md). |

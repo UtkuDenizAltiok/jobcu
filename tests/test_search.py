@@ -364,3 +364,25 @@ def test_answering_always_raises_the_limit_so_later_searches_don_t_ask(ready, mo
     assert load_settings().limits.web_search_cap == 50  # what it needed, rounded up to 50
     assert any("up to 50 web look-ups in every search" in note for note in notes[0])
     assert len(ai.looked_up) == 4  # both jobs in both searches, the second without asking
+
+
+def test_look_ups_that_lost_their_turn_to_others_running_are_done_before_asking(ready,
+                                                                               monkeypatch):
+    class SlowResearchingAI(ResearchingAI):
+        def research(self, **request):
+            time.sleep(0.2)  # the other look-up starts while this one still holds its allowance
+            return super().research(**request)
+
+    ai = SlowResearchingAI()
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: ai)
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [SummarySource()])
+    monkeypatch.setattr("jobcu.jobplace.BATCH_SIZE", 1)
+    settings = load_settings()
+    settings.limits.web_search_cap = 2  # enough for both jobs, not for both at once
+    save_settings(settings)
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    result = wait_until_done(manager)
+    assert result["status"] == "finished", result["error"]
+    assert result["question"] is None and sorted(ai.looked_up) == ["J0", "J1"]
+    assert result["steps"][-1]["detail"] == "Found online: the requirements of 2 of 2 jobs"
