@@ -3,10 +3,11 @@
 from datetime import UTC, datetime
 
 import httpx
+import pytest
 
 from jobcu.keystore import KeyStore
 from jobcu.sources import all_sources, dvinci
-from jobcu.sources.base import SourceContext, SourceReport
+from jobcu.sources.base import SourceContext, SourceError, SourceReport
 from jobcu.sources.careers import Employer
 from jobcu.sources.http import PoliteClient
 
@@ -39,6 +40,8 @@ def context(handler):
 def test_reads_an_employers_publications():
     def handler(request):
         assert request.url.host == "klinikum-beispiel.dvinci-hr.com"
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
         assert request.url.path == "/jobPublication/list.json"
         return httpx.Response(200, json=[publication(1), publication(2, position="")])
 
@@ -75,3 +78,26 @@ def test_a_job_in_several_countries_leaves_the_country_open():
 def test_it_is_one_of_the_career_systems_with_employers_in_the_directory():
     assert any(isinstance(source, dvinci.DvinciSource) for source in all_sources())
     assert len(dvinci.DvinciSource().employers(["DE"])) >= 2
+
+
+def test_a_dvinci_easy_portal_is_read_at_its_own_host_and_robots_txt_is_respected():
+    easy = Employer("MTU Aero Engines", "dvinci", "mtuaero.dvinci-easy.com", ("DE",))
+    asked = []
+
+    def handler(request):
+        asked.append(f"{request.url.host}{request.url.path}")
+        if request.url.path == "/robots.txt":
+            return httpx.Response(200, text="User-agent: *\nAllow: /\n")
+        return httpx.Response(200, json=[publication(1)])
+
+    assert len(list(dvinci.DvinciSource().list_jobs(easy, context(handler)))) == 1
+    assert asked == ["mtuaero.dvinci-easy.com/robots.txt",
+                     "mtuaero.dvinci-easy.com/jobPublication/list.json"]
+
+    def closed(request):
+        if request.url.path == "/robots.txt":
+            return httpx.Response(200, text="User-agent: *\nDisallow: /jobPublication/\n")
+        raise AssertionError("the list must not be asked for")
+
+    with pytest.raises(SourceError):
+        list(dvinci.DvinciSource().list_jobs(easy, context(closed)))

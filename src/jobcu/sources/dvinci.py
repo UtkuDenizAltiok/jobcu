@@ -9,16 +9,19 @@ councils and mid-sized employers.
 
 The publication's own start date is often empty, so a job's date is when its opening was
 created: an "always open" post from years ago is then honestly old.
+
+d.vinci's smaller product serves the same list from `{company}.dvinci-easy.com` (MTU Aero
+Engines' portal, with eMoSys and 3D.aero, 2026-09-30); such a board is written as its full host.
 """
 
 from collections.abc import Iterator
 
 from jobcu.freshness import parse_iso
-from jobcu.sources.base import FoundJob, SourceContext
+from jobcu.sources.base import FoundJob, SourceContext, SourceError
 from jobcu.sources.careers import CareerSystemSource, Employer
 from jobcu.text import html_to_text, tidy
 
-API = "https://{board}.dvinci-hr.com/jobPublication/list.json"
+API = "https://{host}/jobPublication/list.json"
 _AD_PARTS = ("introduction", "tasks", "profile", "weOffer", "closingText")
 
 
@@ -30,11 +33,20 @@ class DvinciSource(CareerSystemSource):
 
     def list_jobs(self, employer: Employer, ctx: SourceContext, *, countries=None, start=None,
                   terms=None) -> Iterator[FoundJob]:
-        data = self.get_json(API.format(board=employer.board), ctx)
+        address = API.format(host=host(employer.board))
+        if not self.allowed(address, ctx):
+            raise SourceError(f"{employer.name} asks automated tools not to read its job list.")
+        data = self.get_json(address, ctx)
         for item in data if isinstance(data, list) else []:
             job = to_found_job(item, employer)
             if job is not None:
                 yield job
+
+
+def host(board: str) -> str:
+    """A board is the company's d.vinci name ("klinikum-neumarkt") or a full host
+    ("mtuaero.dvinci-easy.com")."""
+    return board if "." in board else f"{board}.dvinci-hr.com"
 
 
 def _job_types(opening: dict) -> list[str]:
