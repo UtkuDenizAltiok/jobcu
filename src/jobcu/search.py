@@ -601,6 +601,15 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     job_ids, new_flags = jobstore.remember([groups[i] for i in shown], run.id)
     id_of = dict(zip(shown, job_ids, strict=True))
     new_of = dict(zip(shown, new_flags, strict=True))
+    # The job memory can take two jobs the duplicate rules kept apart for one (an agency's two
+    # summaries with the same title and town, search 10): one card, the better-scored, rather
+    # than two cards sharing Save and Applied.
+    best_of: dict[int, int] = {}
+    for index in shown:
+        kept = best_of.get(id_of[index])
+        if kept is None or _score(job_pool.jobs[index]) > _score(job_pool.jobs[kept]):
+            best_of[id_of[index]] = index
+    shown = [index for index in shown if best_of[id_of[index]] == index]
     states = jobstore.states(job_ids)
     first_seen = jobstore.first_seen(job_ids)
     names = job_pool.source_names
@@ -696,6 +705,10 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
         http.close()
         usage = UsageLog().for_search(run.id)
         run.set_result("usage", {step: asdict(used) for step, used in usage.items()})
+
+
+def _score(job) -> int:
+    return (job.scored or {}).get("score", -1)
 
 
 def _checkpoint(run: SearchRun) -> None:

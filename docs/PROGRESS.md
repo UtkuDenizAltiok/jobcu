@@ -55,8 +55,7 @@ everything from the cloud sessions), checked by a local session the same evening
   (the five eastern states, Schwandorf, Weiden, Thurrock, Ashfield; Wales not this time), against
   search 9's 32 towns and Wales: the answer still varies a lot between searches.
 - Two cards for one agency job (Augusta's "Hardware-Entwickler Embedded-Elektronik" in Weichs,
-  two Adzuna ads): agency summaries aren't merged, but the job memory gives both the same job,
-  so they share Save and Applied.
+  two Adzuna ads) sharing Save and Applied: **fixed**, one card per remembered job.
 
 - **The quality set is complete:** 40 ads and 40 titles rated by Claude (search 10 added 8
   ads, two of them good fits). `tools/score_check.py`: 30 of 40 scores where expected; good
@@ -121,9 +120,8 @@ at most €25 a month for the owner; free, or under €10 a month, for everyone 
    on", the ratings and the coverage list; record the findings here and fix them first. Open
    from searches 9 and 10: (a) jobs never collected, above all agencies seen only on LinkedIn and
    StepStone (tasks 3 and 4) and employers missing from the directory (task 5: search 10's list
-   above); (b) two cards for one job when the job memory merges what the duplicate rules keep
-   apart (Augusta in Weichs); (f) neighbouring fields scoring too high (analog chip design 71,
-   PLC commissioning 70) and the quick check leaving out 2 of 39 titles worth a look.
+   above); (f) neighbouring fields and senior roles scoring too high, and the quick check leaving
+   out 2 of 40 titles worth a look (task 7).
 2. **Cost at medium effort:** measure the next search's cost per step (Settings → Usage, "Search
    details"). If the monthly cost goes above the budget, save where it loses nothing: score only
    what the quick check keeps, send the scoring instructions and profile once per search with
