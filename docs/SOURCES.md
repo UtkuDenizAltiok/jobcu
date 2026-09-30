@@ -191,9 +191,14 @@ company had jobs in, and whether it also hires outside them).
     the full ad and `published_at` (and `created_at`) in its page data. Only pages of jobs whose
     title matches the search words are opened, and remembered for a few days. eMoSys (9 jobs,
     Starnberg) is in the directory.
-  - **Softgarden** (PULS, Groupe Eldora): robots.txt closes `/api/`, `/rest/` and
-    `/*/widgets/`; the job pages themselves are open. Still to check whether the job list page
-    can be read.
+  - **Softgarden** (PULS, Groupe Eldora): robots.txt closes `/api/`, `/rest/`, `/apply/` and
+    `/*/widgets/`, and leaves the list and job pages open. **Read since 2026-09-30**
+    (`softgarden.py`): `GET {company}.softgarden.io/de/vacancies` is plain HTML, one block per
+    job (`div.matchElement#job_id_{id}`) with the posting day ("01.09.26"), the title linking to
+    `/job/{id}/{words}`, the audience ("Berufserfahrene", "Student/in"), the category and the
+    towns; the job page carries JobPosting data (full ad, exact `datePosted`, place, company,
+    `validThrough`). PULS (9 jobs: Munich, Bad Lobenstein, Freiburg) is in the directory. Not
+    seen yet: whether big employers' list pages show every job or only the first ones.
   - **d.vinci's smaller product** serves the same public list from
     `{company}.dvinci-easy.com/jobPublication/list.json` (robots.txt allows all): read since
     2026-09-30, board written as the full host. MTU Aero Engines' portal (19 jobs: eMoSys in

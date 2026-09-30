@@ -61,7 +61,7 @@ def test_a_page_can_be_the_career_site_itself_or_use_a_system_not_read_yet():
         "successfactors", "jobs.example.com")
     assert own_address_board("https://www.example.com/", "<html></html>") is None
     assert system_not_read("https://jobs.smartrecruiters.com/BoschGroup") == "SmartRecruiters"
-    assert system_not_read("https://acme.softgarden.io/job/1") == "Softgarden"
+    assert board_in("https://acme.softgarden.io/job/1") == ("softgarden", "acme")
     assert board_in("https://acme-gmbh.jobs.personio.de/job/1") == ("personio", "acme-gmbh")
     assert board_in("https://acme.jobs.personio.com/") == ("personio", "acme.jobs.personio.com")
     assert system_not_read("https://www.example.com/") is None

@@ -655,3 +655,9 @@ as the documents say.
 | Decision | Reason |
 |---|---|
 | **Jobcu reads Personio career sites** (`personio.py`): the public job list, then only the pages of jobs whose title matches the search words (for the ad and the publication time), remembered for a few days so later searches don't open them again, as for SuccessFactors. The finder recognises Personio addresses. | Personio is common with German mid-sized employers and start-ups; eMoSys (MTU's power-electronics and drives company in Starnberg, on search 10's coverage list) uses it. No robots.txt closes it and no key is needed. Titles that miss the search words aren't opened: without the page there's no date, and an undated job can't be told fresh from old. |
+
+## 2026-09-30: Softgarden career sites
+
+| Decision | Reason |
+|---|---|
+| **Jobcu reads Softgarden career sites** (`softgarden.py`): the list page, which gives every job's posting day, title, audience and towns in one request, then the job's own page (standard JobPosting data) for the full ad of jobs still in the running. The finder recognises `*.softgarden.io` addresses. | Softgarden is common with German mid-sized employers and hotel groups; PULS (power supplies: "Entwicklungsingenieur (Hardware – Schaltnetzteile)", "PCB Designer / Layouter") uses it. robots.txt closes only the API, widgets and application pages. Because the list gives the day, every title can go through the search words and the AI's look like the other career sites'. |
