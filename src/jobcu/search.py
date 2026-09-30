@@ -519,8 +519,16 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
                          if jobplace.needs_requirements(groups[i], job_pool.jobs[i].scored)]
     worth_it = sorted(set(need_town) | set(need_requirements),
                       key=lambda i: -job_pool.jobs[i].scored["score"])
+    # Counted over both rounds, when the person says yes to more web look-ups in between.
+    looked_before = 0
+
+    def looking(done: int, total: int) -> None:
+        run.update("places", "running", f"{looked_before + done} of {len(worth_it)} jobs")
+
+    if worth_it:
+        looking(0, len(worth_it))
     looking_since = time.monotonic()
-    looked_up = (jobplace.find_online(client, groups, worth_it, profile) if worth_it
+    looked_up = (jobplace.find_online(client, groups, worth_it, profile, looking) if worth_it
                  else jobplace.LookedUp())
     if looked_up.not_asked and client.web_searches_left() <= 0:
         # One question for every job left, counted in jobs (search 9 asked four times, each
@@ -540,9 +548,10 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         })
         while wants_more and looked_up.not_asked:
             waiting = len(looked_up.not_asked)
+            looked_before = len(worth_it) - waiting
             client.allow_more_web_searches(jobplace.SEARCHES_PER_JOB * waiting)
             looked_up = looked_up.add(
-                jobplace.find_online(client, groups, looked_up.not_asked, profile))
+                jobplace.find_online(client, groups, looked_up.not_asked, profile, looking))
             if len(looked_up.not_asked) >= waiting:
                 break  # no progress: stop rather than loop
     for index in looked_up.asked:

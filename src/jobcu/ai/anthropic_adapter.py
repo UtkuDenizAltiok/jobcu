@@ -37,10 +37,11 @@ class AnthropicAdapter(ProviderAdapter):
     _sdk_client: anthropic.Anthropic | None = None
 
     def _client(self) -> anthropic.Anthropic:
-        if self._sdk_client is None:
-            self._sdk_client = anthropic.Anthropic(
-                api_key=self.api_key, max_retries=0, timeout=self.timeout
-            )
+        with self._client_lock:
+            if self._sdk_client is None:
+                self._sdk_client = anthropic.Anthropic(
+                    api_key=self.api_key, max_retries=0, timeout=self.timeout
+                )
         return self._sdk_client
 
     def complete_json(

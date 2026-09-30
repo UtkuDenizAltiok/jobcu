@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from pydantic import BaseModel, Field
 
 from jobcu import places as place_list
-from jobcu.ai.client import AIClient
+from jobcu.ai.client import AIClient, in_parallel
 from jobcu.dedupe import JobGroup
 from jobcu.profile import Profile
 from jobcu.text import normalise
@@ -79,21 +79,20 @@ def quick_pass(
         include={"summary", "field", "target_roles", "target_fields", "technical_areas"}
     )
     result = QuickPass()
-    for start in range(0, len(indexes), BATCH_SIZE):
-        batch = indexes[start : start + BATCH_SIZE]
-        ids = {f"J{i}": i for i in batch}
+    result.places = {index: [] for index in indexes if needs_place(groups[index])}
+
+    def check(batch: list[int]) -> QuickPassAnswer:
         lines = []
-        for job_id, index in ids.items():
+        for index in batch:
             job = groups[index].best_description_copy
             text = " ".join(job.description.split())
-            if needs_place(groups[index]):
-                result.places[index] = []
-                lines.append(f"{job_id} | {job.title} | {job.company or 'company unknown'} | "
+            if index in result.places:
+                lines.append(f"J{index} | {job.title} | {job.company or 'company unknown'} | "
                              f"{text[:PLACE_TEXT_CHARS]} | WHERE?")
             else:
-                lines.append(f"{job_id} | {job.title} | {job.company or 'company unknown'} | "
+                lines.append(f"J{index} | {job.title} | {job.company or 'company unknown'} | "
                              f"{text[:OPENING_CHARS]}")
-        answer = client.generate(
+        return client.generate(
             QuickPassAnswer,
             step="quick_pass",
             system=SYSTEM_PROMPT,
@@ -101,6 +100,11 @@ def quick_pass(
             + "\n".join(lines),
             max_output_tokens=3000,
         )
+
+    batches = [indexes[start : start + BATCH_SIZE]
+               for start in range(0, len(indexes), BATCH_SIZE)]
+    for batch, answer in zip(batches, in_parallel(client, check, batches), strict=True):
+        ids = {f"J{i}": i for i in batch}
         unrelated = {ids[job_id] for job_id in answer.clearly_unrelated if job_id in ids}
         result.unrelated.extend(sorted(unrelated))
         for found in answer.places:
@@ -158,10 +162,9 @@ def screen_titles(client: AIClient, profile: Profile, titles: list[tuple[str, st
     jobs than anyone needs, and the rest are left out as before."""
     person = profile.model_dump(
         include={"summary", "field", "target_roles", "target_fields", "technical_areas"})
-    kept: set[int] = set()
     looked_at = titles[:MAX_TITLES]
-    for start in range(0, len(looked_at), TITLE_BATCH):
-        batch = range(start, min(start + TITLE_BATCH, len(looked_at)))
+
+    def screen(batch: range) -> set[int]:
         lines = [f"T{i} | {looked_at[i][0]} | {looked_at[i][1] or 'company unknown'}"
                  for i in batch]
         answer = client.generate(
@@ -172,5 +175,8 @@ def screen_titles(client: AIClient, profile: Profile, titles: list[tuple[str, st
             max_output_tokens=2000,
         )
         ids = {f"T{i}": i for i in batch}
-        kept |= {ids[item] for item in answer.worth_a_look if item in ids}
-    return kept
+        return {ids[item] for item in answer.worth_a_look if item in ids}
+
+    batches = [range(start, min(start + TITLE_BATCH, len(looked_at)))
+               for start in range(0, len(looked_at), TITLE_BATCH)]
+    return set().union(*in_parallel(client, screen, batches))

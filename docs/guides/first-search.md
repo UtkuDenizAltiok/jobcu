@@ -28,7 +28,8 @@ or a language level. Without your citizenship, Jobcu never assumes one.
    They go to the nearest part of a town, since you could live anywhere in it; write *city
    centre* if you mean the centre.
 2. Choose **Posted within** (72 hours or 1 week finds more) and the **job types**.
-3. Click **Search**. It takes a few minutes.
+3. Click **Search**. It takes a few minutes, and longer for several countries or 72 hours or
+   more. The screen shows each step as it goes, and how many jobs it has checked so far.
 
 ## 4. Results
 

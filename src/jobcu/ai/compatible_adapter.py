@@ -34,14 +34,15 @@ class CompatibleAdapter(ProviderAdapter):
     _sdk_client: openai.OpenAI | None = None
 
     def _client(self) -> openai.OpenAI:
-        if self._sdk_client is None:
-            self._sdk_client = openai.OpenAI(
-                # Local services often need no key, but the library requires some value.
-                api_key=self.api_key or "not-needed",
-                base_url=self.base_url,
-                max_retries=0,
-                timeout=self.timeout,
-            )
+        with self._client_lock:
+            if self._sdk_client is None:
+                self._sdk_client = openai.OpenAI(
+                    # Local services often need no key, but the library requires some value.
+                    api_key=self.api_key or "not-needed",
+                    base_url=self.base_url,
+                    max_retries=0,
+                    timeout=self.timeout,
+                )
         return self._sdk_client
 
     def complete_json(

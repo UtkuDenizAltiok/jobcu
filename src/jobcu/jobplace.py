@@ -15,13 +15,21 @@ requirements with its score (scoring.with_ad_read_online), so Edit never asks ag
 """
 
 import logging
+import threading
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from pydantic import BaseModel
 
 from jobcu import places as place_list
-from jobcu.ai.base import AIError, AILimitReached
-from jobcu.ai.client import AIClient
+from jobcu.ai.base import (
+    AIError,
+    AIInvalidOutput,
+    AILimitReached,
+    AIOutputTruncated,
+    AIRefused,
+)
+from jobcu.ai.client import AIClient, in_parallel
 from jobcu.dedupe import JobGroup
 from jobcu.profile import Profile
 from jobcu.scoring import (
@@ -45,6 +53,10 @@ BATCH_SIZE = 5
 SEARCHES_PER_JOB = 2
 MAX_PLACES = 3
 TEXT_CHARS = 300
+# Problems with one answer (cut off, refused, not in the format) lose only that batch, which can
+# be looked up again later; any other problem (the service down, the key, the quota) stops the
+# batches not started yet.
+ONE_ANSWER_PROBLEMS = (AIInvalidOutput, AIOutputTruncated, AIRefused)
 
 # The model searches more reliably when it may write freely, so it looks the ads up first and a
 # second, cheap step turns its notes into the app's format (found with a real model, 2026-09-23:
@@ -139,32 +151,58 @@ def needs_requirements(group: JobGroup, scored: dict | None) -> bool:
             and scored["score"] >= MIN_SCORE)
 
 
+_USED_UP = "used up"  # a batch not asked about because the web look-ups ran out
+
+
 def find_online(client: AIClient, groups: list[JobGroup], indexes: list[int],
-                profile: Profile | None = None) -> LookedUp:
-    """Looks these jobs up on the web, a few per request, until the search's allowance of web
-    look-ups is used. Jobs whose town nobody gave get `place_from_web` ([] when the ad wasn't
-    found or names no town); the requirements of every ad found are returned."""
-    looked_up = LookedUp()
-    for start in range(0, len(indexes), BATCH_SIZE):
-        batch = indexes[start : start + BATCH_SIZE]
-        ids = {f"J{index}": index for index in batch}
+                profile: Profile | None = None,
+                on_progress: Callable[[int, int], None] = lambda done, total: None) -> LookedUp:
+    """Looks these jobs up on the web, a few per request and a few requests at a time, until
+    the search's allowance of web look-ups is used. Jobs whose town nobody gave get
+    `place_from_web` ([] when the ad wasn't found or names no town); the requirements of every
+    ad found are returned."""
+    stopped = threading.Event()
+
+    def look_up(batch: list[int]) -> dict[str, OnlineJob] | str | None:
+        if stopped.is_set():
+            return None
         lines = []
-        for job_id, index in ids.items():
+        for index in batch:
             job = groups[index].best_description_copy
             text = " ".join(job.description.split())[:TEXT_CHARS]
-            lines.append(f"{job_id} | {job.title} | {job.company or 'company unknown'} | "
+            lines.append(f"J{index} | {job.title} | {job.company or 'company unknown'} | "
                          f"{job_country(groups[index])} | {text}")
         try:
-            answers = _look_up(client, lines, len(batch), profile)
+            return _look_up(client, lines, len(batch), profile)
         except AILimitReached:
-            looked_up.not_asked = indexes[start:]
-            break
+            return _USED_UP
+        except ONE_ANSWER_PROBLEMS as exc:
+            log.info("Looking jobs up online: one answer was unusable: %s", exc)
+            return None
         except AIError as exc:
             log.info("Looking jobs up online failed: %s", exc)
-            break
-        for job_id, index in ids.items():
+            stopped.set()
+            return None
+
+    done = 0
+
+    def finished(batch: list[int], answers) -> None:
+        nonlocal done
+        done += len(batch)
+        on_progress(done, len(indexes))
+
+    batches = [indexes[start : start + BATCH_SIZE]
+               for start in range(0, len(indexes), BATCH_SIZE)]
+    looked_up = LookedUp()
+    for batch, answers in zip(batches, in_parallel(client, look_up, batches, finished),
+                              strict=True):
+        if answers == _USED_UP:
+            looked_up.not_asked.extend(batch)
+        if not isinstance(answers, dict):
+            continue
+        for index in batch:
             looked_up.asked.add(index)
-            answer = answers.get(job_id)
+            answer = answers.get(f"J{index}")
             found = answer is not None and answer.found
             if needs_looking_up(groups[index]):
                 towns = _real_towns(groups[index], answer.towns) if found else []

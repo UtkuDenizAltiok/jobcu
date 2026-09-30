@@ -53,6 +53,8 @@ def test_titles_are_looked_at_in_batches_and_only_real_ids_count(monkeypatch):
     ai = ScreeningAI()
 
     class Client:
+        parallel_requests = 1
+
         def generate(self, output, **request):
             reply = ai.complete_json(schema_name=output.__name__, **request)
             return output.model_validate_json(reply.text)
