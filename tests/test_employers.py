@@ -45,6 +45,7 @@ NURSE = Profile.model_validate({
     ("https://apply.workable.com/smart-wires/", ("workable", "smart-wires")),
     ("https://apply.workable.com/j/ABC123", None),
     ("https://klinik.dvinci-hr.com/de/jobs", ("dvinci", "klinik")),
+    ("https://mtuaero.dvinci-easy.com/de/jobs/61631/x", ("dvinci", "mtuaero.dvinci-easy.com")),
     ("https://acme.teamtailor.com/jobs", ("teamtailor", "acme")),
     ("https://jobs.example.com/careers?domain=example.com",
      ("eightfold", "jobs.example.com/example.com")),
