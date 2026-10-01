@@ -80,10 +80,11 @@ Nothing.
 
 ### Waiting on the owner
 
-1. **The next search (Friday or Saturday):** quit the Jobcu that is still open, start it again
-   with the launcher (it updates itself from GitHub first), and run a **72-hour search** with his
-   usual sentence. Answer the look-up question with **Always** if he wants it never asked again.
-   Then a local session with "Check my latest search" (CONTRIBUTING.md).
+1. **The next search, Saturday 2026-10-03 at noon:** double-click the launcher (it updates
+   itself from GitHub and replaces the old Jobcu still running), run a **72-hour search** with
+   his usual sentence, and answer both questions with **Always** (score them all; look them all
+   up). The first search with the employer finder takes about 3 minutes longer. Then a local
+   session with "Check my latest search" (CONTRIBUTING.md).
 2. **The friend's test:** his feedback on installing and using Jobcu.
 3. **Only if he wants to send them** (messages in his name): access requests to StepStone,
    Denmark's Jobnet, Poland's CBOP, or a private NAV token. None is needed for the current focus.
