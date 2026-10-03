@@ -64,6 +64,8 @@ PARALLEL_REQUESTS = 4
 # looking everything up on the web (2026-09-24).
 THINKING_ROOM = {"minimal": 1_000, "low": 4_000, "medium": 12_000, "high": 16_000}
 MAX_OUTPUT_TOKENS = 32_000  # within every current provider's own limit
+# Web look-ups allowed in one search when Settings has no limit (the person answered "Always").
+NO_LIMIT = 1_000_000
 
 
 def with_thinking_room(max_output_tokens: int, effort: Effort | None) -> int:
@@ -231,16 +233,19 @@ class AIClient:
                     "JSON format. Answer again with only valid JSON in exactly that format."
                 )
 
+    def _web_search_cap(self) -> int:
+        cap = self.settings.limits.web_search_cap
+        return NO_LIMIT if cap is None else cap
+
     def web_searches_left(self) -> int:
         """What is left of this search's allowance of web look-ups (Settings)."""
-        return (self.settings.limits.web_search_cap - self.web_searches_used
-                - self._web_searches_reserved)
+        return self._web_search_cap() - self.web_searches_used - self._web_searches_reserved
 
     def allow_more_web_searches(self, count: int | None = None) -> None:
         """The person said yes to more web look-ups: this many more for this search (by
         default another allowance as big as the one in Settings)."""
-        more = self.settings.limits.web_search_cap if count is None else count
-        self.web_searches_used = min(self.web_searches_used, self.settings.limits.web_search_cap)
+        more = self._web_search_cap() if count is None else count
+        self.web_searches_used = min(self.web_searches_used, self._web_search_cap())
         self.web_searches_used -= more
 
     @contextmanager
@@ -249,7 +254,7 @@ class AIClient:
         allowance in Settings: what the step uses is never taken from the rest of the search."""
         with self._gate:
             before = self.web_searches_used
-            self.web_searches_used = min(before, self.settings.limits.web_search_cap) - count
+            self.web_searches_used = min(before, self._web_search_cap()) - count
         try:
             yield
         finally:

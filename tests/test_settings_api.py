@@ -100,6 +100,11 @@ def test_limits_and_source_switches_are_saved(client):
     data = client.put("/api/settings/limits", headers=HEADERS, json={
         "scoring_cap": 40, "web_search_cap": 20}).json()
     assert data["limits"]["web_search_cap"] == 20 and load_settings().limits.web_search_cap == 20
+    # An empty box means no limit.
+    data = client.put("/api/settings/limits", headers=HEADERS, json={
+        "scoring_cap": None, "web_search_cap": None}).json()
+    assert data["limits"]["scoring_cap"] is None and data["limits"]["web_search_cap"] is None
+    assert load_settings().limits.scoring_cap is None
 
     data = client.put("/api/settings/sources", headers=HEADERS,
                       json={"disabled": ["workday", "not-a-source"]}).json()

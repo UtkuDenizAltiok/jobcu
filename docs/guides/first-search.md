@@ -33,8 +33,9 @@ or a language level. Without your citizenship, Jobcu never assumes one.
    Every two weeks your AI also looks for employers who hire for your kind of work; Jobcu then
    reads their own job lists in every search. **Search details** names the ones it found.
 4. If a search reaches a limit from Settings (how many jobs to score, how many web look-ups),
-   it asks before doing more. **Always** does it now and raises the limit, so later searches
-   don't ask; you can lower it again in Settings.
+   it asks before doing more. **Always** does it now and in every later search: the limit in
+   Settings becomes **No limit** (your monthly limit still holds), and you can type a number
+   there again.
 
 ## 4. Results
 
@@ -84,7 +85,8 @@ or a language level. Without your citizenship, Jobcu never assumes one.
 **Settings → Usage and limits** shows what Jobcu used this month and in your last search. Add
 what your provider charges per million tokens and Jobcu estimates the cost. You can set a monthly
 limit, how many jobs are scored and how many web look-ups your AI may do in one search before
-Jobcu asks whether to do more, and switch off any job source you don't want searched.
+Jobcu asks whether to do more (leave a box empty for no limit), and switch off any job source
+you don't want searched.
 
 ## 6. Feedback
 
