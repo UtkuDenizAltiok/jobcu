@@ -189,8 +189,8 @@ effort.** Cost: at most €25 a month for the owner; free, or under €10 a mont
 
 - The town list contains some city districts as separate places (Hamburg-Wandsbek, London's
   Brent). Harmless for conditions: they lie inside the bigger city.
-- SuccessFactors sites whose job pages need JavaScript (Danfoss, SICK, Vitesco, Wacker) or
-  redirect (MTU) aren't read, and pages opened for address-list sites aren't remembered between
+- SuccessFactors sites whose job pages need JavaScript (SICK, Wacker) or redirect (MTU)
+  aren't read, and pages opened for address-list sites aren't remembered between
   searches.
 - Facts about places are looked up fresh in every search. Only the AI's travel estimates are
   remembered (30 days); Google's travel times may not be kept (Routes API terms).
