@@ -9,11 +9,16 @@ from jobcu.filters import REASONS, apply_rules
 from jobcu.freshness import end_of_day, parse_closing
 from jobcu.jobposting import find_job_posting
 from jobcu.location import LocationPlan
-from jobcu.pipeline import build_card
+from jobcu.pipeline import Collected, build_card, make_groups
 from jobcu.settings import JOB_TYPES
 from jobcu.sources.base import FoundJob
 
 NOW = datetime(2026, 9, 24, 12, tzinfo=UTC)
+class FakeSource:
+    def __init__(self, kind):
+        self.kind = kind
+
+
 PLAN = LocationPlan(text="", understood_as="Anywhere.", countries=["DE"], places=[],
                     not_checked_yet=[], outside_supported_area=[], broad=True)
 
@@ -95,6 +100,53 @@ def test_the_job_memory_says_when_a_job_was_first_shown():
     seen = jobstore.first_seen(ids)
     assert abs((seen[ids[0]] - datetime.now(UTC)).total_seconds()) < 60
     assert jobstore.first_seen([]) == {}
+
+
+def rules(groups, first_shown=None, hours=72):
+    return apply_rules(groups, [None] * len(groups), started_at=NOW, posted_within_hours=hours,
+                       job_types=list(JOB_TYPES), exclude_remote=False, countries=["DE"],
+                       first_shown=first_shown)
+
+
+def test_a_job_shown_before_the_window_began_is_left_out_as_posted_again():
+    # Search 11: Adzuna dated Redline's SMPS job 30 September; Jobcu had shown it on the 22nd.
+    groups = group_duplicates([found("1"), found("2"), found("3")], {"s": "job_board"})
+    outcome = rules(groups, first_shown=[NOW - timedelta(days=10), NOW - timedelta(hours=60),
+                                         None])
+    assert [groups[i].main.source_job_id for i in outcome.kept] == ["2", "3"]
+    assert dict(outcome.left_out) == {"repost": 1}
+    assert "Posted again" in REASONS["repost"]
+
+
+def career_copy(job_id, days_old, older):
+    return found(job_id, source="workday", title="Power Electronics Development Engineer",
+                 company="GE Vernova", location_text="Berlin", older_copy=older,
+                 posted_at=NOW - timedelta(days=days_old), date_precision="day")
+
+
+def test_an_older_copy_on_the_employers_site_dates_the_same_job_elsewhere():
+    # Search 11: "Posted 4 Days Ago" on GE Vernova's Workday site, dated yesterday on Adzuna.
+    board = found("a1", source="adzuna", title="Power Electronics Development Engineer (m/w/d)",
+                  company="GE Vernova", location_text="Berlin, Deutschland",
+                  posted_at=NOW - timedelta(days=1))
+    collected = Collected([board, career_copy("w1", 4, True)], [],
+                          {"adzuna": FakeSource("aggregator"), "workday": FakeSource("employer")})
+    assert collected.ads_found == 1
+    groups = make_groups(collected)
+    assert len(groups) == 1 and len(groups[0].copies) == 2
+    assert dict(rules(groups).left_out) == {"repost": 1}
+
+
+def test_older_copies_alone_are_no_job_and_never_count_against_their_own_site():
+    alone = career_copy("w1", 9, True)
+    # The same title on the same site, fresh: perhaps a second vacancy, so it stays new.
+    second = career_copy("w2", 1, False)
+    other = found("x", source="workday", title="Hardware Engineer", company="Other GmbH",
+                  older_copy=True, posted_at=NOW - timedelta(days=9))
+    collected = Collected([alone, second, other], [], {"workday": FakeSource("employer")})
+    groups = make_groups(collected)
+    assert [[c.source_job_id for c in g.copies] for g in groups] == [["w2"]]
+    assert rules(groups).kept == [0]
 
 
 def test_the_closing_date_survives_the_saved_pool_and_the_ad_memory():

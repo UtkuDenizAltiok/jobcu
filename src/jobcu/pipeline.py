@@ -1,6 +1,7 @@
 """The job-finding part of a search: collecting from sources, duplicates, filters, full ads,
 scoring and the result cards. search.py runs these steps and reports progress."""
 
+import dataclasses
 import logging
 import threading
 from collections import Counter
@@ -38,6 +39,11 @@ class Collected:
         self.reports: list[SourceReport] = reports
         self.sources: dict[str, JobSource] = sources
 
+    @property
+    def ads_found(self) -> int:
+        """The ads found fresh: older copies only help to date the others."""
+        return sum(1 for job in self.jobs if not job.older_copy)
+
 
 def collect(query: JobQuery, http: PoliteClient, keys, disabled: list[str], run) -> Collected:
     """Ask every source at the same time. A failing source never stops the others."""
@@ -67,9 +73,10 @@ def collect(query: JobQuery, http: PoliteClient, keys, disabled: list[str], run)
         try:
             for job in source.search(query, ctx):
                 jobs.append(job)
-                report.jobs_found = len(jobs)
-                if len(jobs) % 10 == 0:
-                    progress()
+                if not job.older_copy:
+                    report.jobs_found += 1
+                    if report.jobs_found % 10 == 0:
+                        progress()
         except Blocked:
             report.status = "unavailable"
             report.message = "Refused Jobcu's requests right now, so it was skipped."
@@ -78,7 +85,7 @@ def collect(query: JobQuery, http: PoliteClient, keys, disabled: list[str], run)
         except Exception:
             log.exception("Source %s failed", source.id)
             report.status, report.message = "failed", "Had an unexpected problem."
-        report.jobs_found = len(jobs)
+        report.jobs_found = sum(1 for job in jobs if not job.older_copy)
         found[source.id] = jobs
         progress()
 
@@ -97,8 +104,25 @@ def collected_again(reports: list[dict]) -> Collected:
 
 
 def make_groups(collected: Collected) -> list[JobGroup]:
+    """The different jobs. A career site's older copy stays in a group only to give it its
+    earliest date when another source found the job fresh; a group of older copies alone is no
+    job of this search. An older copy never counts against a fresh one from its own site, which
+    may be a second vacancy with the same title."""
     kinds = {source_id: source.kind for source_id, source in collected.sources.items()}
-    return group_duplicates(collected.jobs, kinds)
+    groups = group_duplicates(collected.jobs, kinds)
+    kept: list[JobGroup] = []
+    position: dict[int, int] = {}
+    for index, group in enumerate(groups):
+        fresh_sources = {copy.source for copy in group.copies if not copy.older_copy}
+        if not fresh_sources:
+            continue
+        copies = [copy for copy in group.copies
+                  if not copy.older_copy or copy.source not in fresh_sources]
+        position[index] = len(kept)
+        kept.append(group if len(copies) == len(group.copies)
+                    else dataclasses.replace(group, copies=copies))
+    return [dataclasses.replace(group, possible_duplicate_of=position.get(
+        group.possible_duplicate_of)) for group in kept]
 
 
 def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> None:

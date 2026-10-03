@@ -74,17 +74,17 @@ Maps had no trouble. What it showed, most important first:
 
 ### In progress
 
-**Checking the owner's search 11** (2026-10-03, 72 hours, 349 cards, 32 minutes), on branch
-`local/check-search-11`, with a scratch copy of his data folder in the session's scratchpad
-(delete it when done):
+**Checking the owner's search 11** (2026-10-03, 72 hours, 349 cards, 32 minutes), on branches named
+`local/…`; the scratch copy of his data folder is deleted:
 1. [x] Study the search (results, scores, places, notes, sources, cost, time).
 2. [x] Rate the new ads kept for the score check; `tools/score_check.py --rescore`.
 3. [x] A coverage list of 15–25 fresh jobs found on the web; `tools/coverage_test.py`.
 4. [x] Record the findings here, delete the scratch copy, tests, merge.
 5. [ ] Fix, most important first, each in its own tested, merged step:
-   a. [ ] Reposts: a job Jobcu showed before the window began is hidden as older; career
+   a. [x] Reposts: a job Jobcu showed before the window began is hidden as older; career
           sites keep their older copies for the duplicate comparison, so an aggregator's newer
-          date for an older original is caught (GE Vernova Berlin).
+          date for an older original is caught (GE Vernova Berlin: checked live, its Workday
+          copy comes back as an older copy dated 29 September).
    b. [ ] "Always" means no limit from now on (Settings shows it and can set one again).
    c. [ ] England's nine regions in the shipped regions, so a condition answered with them
           applies.

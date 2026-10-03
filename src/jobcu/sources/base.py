@@ -49,6 +49,11 @@ class FoundJob:
     # A career site's title that none of the search words match: the person's AI looks at the
     # title before the job is dropped (relevance.screen_titles).
     title_unmatched: bool = False
+    # A career site's copy older than the search's window: never shown or counted, only kept so
+    # the same job on a job board, dated later because it was posted again, is known to be old
+    # (HANDOVER §7: the earliest copy's date). GE Vernova's Berlin job said "Posted 4 Days Ago"
+    # on its own site while Adzuna dated it the day before search 11.
+    older_copy: bool = False
 
 
 @dataclass
