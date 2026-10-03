@@ -64,9 +64,8 @@ Maps had no trouble. What it showed, most important first:
   expertum Munich, Michael Page Munich, Advancing People Bedford, Ovarro Chesterfield, Xtrac
   Thatcham), German titles none of the search words match ("Hardware Entwickler" in two words,
   "Ingenieur in der Hardware-Entwicklung", "Entwickler Analogelektronik & PCB Layout",
-  "Ingenieur*in … Elektronik"). The coverage tool's title match counted "Electronics Engineer"
-  as "Electronics Design Engineer – Mixed Signal / Robotics" (one title's words inside the
-  other's), so it overstated finds.
+  "Ingenieur*in … Elektronik"). The coverage tool's title match had counted "Electronics
+  Engineer" as "Electronics Design Engineer – Mixed Signal / Robotics" (9 of 21 "found").
 - Smaller: the employer finder named 120 employers, 6 new readable lists (BorgWarner, Cummins,
   Eaton, Littelfuse, Qorvo, Red Bull Technology; the rest own sites or closed systems: Bosch,
   Infineon, Siemens, ABB, Schneider); eight career hosts refused connections for a minute at
@@ -88,8 +87,8 @@ Maps had no trouble. What it showed, most important first:
    b. [x] "Always" means no limit from now on (Settings shows it and can set one again).
    c. [x] England's nine regions in the shipped regions, so a condition answered with them
           applies.
-   d. [ ] Search words match German compounds written apart or with a hyphen.
-   e. [ ] The coverage tool's title match agrees both ways.
+   d. [x] Search words match German compounds written apart or with a hyphen.
+   e. [x] The coverage tool's title match agrees both ways.
 Done when: findings recorded with examples, fixes merged with tests, GitHub's tests pass.
 
 ### Verify before relying on

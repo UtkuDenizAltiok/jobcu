@@ -42,6 +42,9 @@ from jobcu.sources.careers import load_directory  # noqa: E402
 from jobcu.sources.matching import matches_places, matches_terms  # noqa: E402
 
 TITLE_MATCH = 80  # a bit looser than the duplicate rules: wording differs between sites
+# ...but the titles must agree both ways: "Electronics Engineer" isn't "Electronics Design
+# Engineer - Mixed Signal / Robotics", though one's words are all in the other (search 11).
+TITLE_BOTH_WAYS = 75
 COMPANY_MATCH = 80
 SAME_PLACE_KM = 30
 
@@ -105,10 +108,18 @@ def same_job(wanted: Wanted, title: str | None, company: str | None,
                         for name in names)
     if company_score < COMPANY_MATCH:
         return 0
-    title_score = fuzz.token_set_ratio(normal_title(wanted.title), normal_title(title))
+    title_score = title_match(wanted.title, title)
     if not different_places(wanted.place, location):
         return min(company_score, title_score)
     return 0
+
+
+def title_match(a: str | None, b: str | None) -> float:
+    """0 to 100: how well two titles agree, in both directions."""
+    a, b = normal_title(a), normal_title(b)
+    if fuzz.token_sort_ratio(a, b) < TITLE_BOTH_WAYS:
+        return 0.0
+    return fuzz.token_set_ratio(a, b)
 
 
 def different_places(wanted: str, found: str | None) -> bool:
@@ -159,8 +170,7 @@ def why_missed(wanted: Wanted, snapshot: dict, pool: search_pool.Pool | None = N
         return prefix + "the title matches none of the search words"
     unrelated = result.get("jobs", {}).get("counts", {}).get("unrelated_titles", [])
     if pool is None and any(
-            fuzz.token_set_ratio(normal_title(wanted.title), normal_title(t)) >= TITLE_MATCH
-            for t in unrelated):
+            title_match(wanted.title, t) >= TITLE_MATCH for t in unrelated):
         return "the quick check left this title out as clearly unrelated"
     plan = result.get("location", {})
     places = [Place(**place) for place in plan.get("places", [])]

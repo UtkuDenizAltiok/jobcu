@@ -29,6 +29,17 @@ def test_a_word_matches_with_or_without_its_plural_s():
     assert not term_matches("Ops", "Op Engineer")  # short words stay whole words
 
 
+def test_a_compound_matches_when_written_apart_or_with_a_hyphen():
+    # Search 11's coverage list: Michael Page's "Hardware Entwickler (m/w/d)" in Erding.
+    for title in ("Hardware Entwickler (m/w/d)", "Hardware-Entwickler (w/m/d) Leistungselektronik",
+                  "Senior Hardwareentwickler"):
+        assert term_matches("Hardwareentwickler", title), title
+    assert term_matches("Leiterplattendesign", "Leiterplatten-Design und Layout")
+    assert term_matches("Hardwareontwikkelaar", "Hardware-ontwikkelaar Embedded")  # Dutch too
+    assert not term_matches("Hardwareentwickler", "Hardware Engineer")
+    assert not term_matches("SMPS", "S MPS")  # short terms only as written
+
+
 def test_short_words_must_match_whole_words():
     assert not term_matches("IT", "Digital Marketing Executive")
     assert term_matches("IT support", "IT Support Engineer")

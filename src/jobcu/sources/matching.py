@@ -16,6 +16,8 @@ from jobcu.text import normalise
 
 # Words this short must match a whole word ("IT" shouldn't match "digital").
 _SHORT_WORD = 3
+# Terms at least this long also match when the text writes them as two words.
+_COMPOUND = 8
 # How far around a named city counts as that city when the person didn't give a distance.
 # The job sites that filter by place themselves use about the same.
 DEFAULT_RADIUS_KM = 25
@@ -37,10 +39,18 @@ def _contains_either_form(haystack: str, word: str) -> bool:
 def term_matches(term_text: str, text: str) -> bool:
     """Every word of the term appears in the text, in any order ("Engineer, Hardware" matches
     "Hardware Engineer"; "Elektronik" matches "Leistungselektronik"; "Electronics" matches
-    "Electronic")."""
+    "Electronic"), or the term as one word appears in the text written apart or with a hyphen
+    ("Hardwareentwickler" matches "Hardware Entwickler" and "Hardware-Entwickler")."""
     words = normalise(term_text).split()
     haystack = normalise(text)
-    return bool(words) and all(_contains_either_form(haystack, word) for word in words)
+    if not words:
+        return False
+    if all(_contains_either_form(haystack, word) for word in words):
+        return True
+    # German, Dutch and Scandinavian compounds are written in all three ways: search 11's
+    # coverage list missed Michael Page's "Hardware Entwickler" for the word "Hardwareentwickler".
+    joined = "".join(words)
+    return len(joined) >= _COMPOUND and _contains_either_form(haystack.replace(" ", ""), joined)
 
 
 def matches_terms(
