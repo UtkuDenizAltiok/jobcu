@@ -1644,8 +1644,8 @@ function renderUsage() {
   $("travel-usage").textContent =
     `This month: ${usage.travel.routes_this_month.toLocaleString()} of ` +
     `${usage.limits.maps_monthly_routes.toLocaleString()} travel-time look-ups.`;
-  $("scoring-cap").value = usage.limits.scoring_cap;
-  $("web-search-cap").value = usage.limits.web_search_cap;
+  $("scoring-cap").value = usage.limits.scoring_cap ?? "";
+  $("web-search-cap").value = usage.limits.web_search_cap ?? "";
   $("token-limit").value = usage.limits.monthly_token_limit ?? "";
   $("cost-limit").value = usage.limits.monthly_cost_limit ?? "";
   renderPrices(usage.prices);
@@ -1735,7 +1735,7 @@ function setUpUsageActions() {
         state.usage = await api("/api/settings/limits", {
           method: "PUT",
           body: {
-            scoring_cap: Number($("scoring-cap").value || 200),
+            scoring_cap: value("scoring-cap"),
             web_search_cap: value("web-search-cap"),
             monthly_token_limit: value("token-limit"),
             monthly_cost_limit: value("cost-limit"),

@@ -153,7 +153,8 @@ def check_travel() -> dict:
 
 
 class Limits(BaseModel):
-    scoring_cap: int
+    # Empty (None) means no limit; a cap not sent at all stays as it was.
+    scoring_cap: int | None = Field(default=None, ge=1)
     web_search_cap: int | None = Field(default=None, ge=0)
     monthly_token_limit: int | None = None
     monthly_cost_limit: float | None = None
@@ -163,9 +164,11 @@ class Limits(BaseModel):
 @router.put("/settings/limits")
 def put_limits(limits: Limits) -> dict:
     settings = load_settings()
+    sent = limits.model_fields_set
     settings.limits = LimitSettings(
-        scoring_cap=limits.scoring_cap,
-        web_search_cap=(limits.web_search_cap if limits.web_search_cap is not None
+        scoring_cap=(limits.scoring_cap if "scoring_cap" in sent
+                     else settings.limits.scoring_cap),
+        web_search_cap=(limits.web_search_cap if "web_search_cap" in sent
                         else settings.limits.web_search_cap),
         monthly_token_limit=limits.monthly_token_limit,
         monthly_cost_limit=limits.monthly_cost_limit,

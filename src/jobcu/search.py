@@ -521,7 +521,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
 
     run.update("scoring", "running")
     order = pipeline.newest_first(groups, to_score)
-    cap = settings.limits.scoring_cap
+    cap = settings.limits.scoring_cap or len(order)  # None: no limit
     scored_now: dict[int, dict] = {}
     position = 0
     while position < len(order):
@@ -541,8 +541,8 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             if not wants_more:
                 break
             if run.answered_always:
-                cap = _raise_limit("scoring_cap", len(order), run,
-                                   "Jobcu scores up to {n} jobs in every search from now on")
+                _no_limit("scoring_cap", run, "Jobcu scores every job in every search from now on")
+                cap = len(order)
             chunk = order[position : position + cap]
 
         def progress(done, total, base=position):
@@ -608,9 +608,8 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             "no": "Show results now",
         })
         if run.answered_always:
-            _raise_limit("web_search_cap", client.web_searches_used
-                         + jobplace.SEARCHES_PER_JOB * left, run,
-                         "Jobcu uses up to {n} web look-ups in every search from now on")
+            _no_limit("web_search_cap", run,
+                      "Jobcu looks up every job worth reading online in every search from now on")
         while wants_more and looked_up.not_asked:
             waiting = len(looked_up.not_asked)
             looked_before = len(worth_it) - waiting
@@ -772,15 +771,14 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
         run.set_result("usage", {step: asdict(used) for step, used in usage.items()})
 
 
-def _raise_limit(name: str, needed: int, run: SearchRun, message: str) -> int:
-    """The person answered "always": the limit in Settings grows to what a search like this one
-    needs (rounded up to 50), so later searches don't ask. It can be lowered in Settings."""
+def _no_limit(name: str, run: SearchRun, message: str) -> None:
+    """The person answered "always": the limit in Settings goes, so no later search asks,
+    however big (search 11: raising it to this search's size alone would ask again in a bigger
+    one). The monthly limits still hold, and a number can be set again in Settings."""
     settings = load_settings()
-    value = max(getattr(settings.limits, name), -(-needed // 50) * 50)
-    setattr(settings.limits, name, value)
+    setattr(settings.limits, name, None)
     save_settings(settings)
-    run.note(message.format(n=value) + " (Settings, Limits).")
-    return value
+    run.note(message + ", with no limit (Settings, Limits).")
 
 
 def _score(job) -> int:

@@ -171,6 +171,25 @@ def test_scoring_limit_asks_before_doing_more(ready, answer, scored):
     assert len(cards) == 2  # unscored jobs are still shown, never silently dropped
 
 
+def test_always_scoring_them_all_removes_the_limit_for_every_later_search(ready):
+    settings = load_settings()
+    settings.limits.scoring_cap = 1
+    save_settings(settings)
+    manager = search.SearchManager()
+    manager.start(SearchForm())
+    deadline = time.monotonic() + 15
+    while manager.current.status == "running" and time.monotonic() < deadline:
+        if manager.current.question:
+            manager.current.answer(True, always=True)
+        time.sleep(0.02)
+    cards = manager.current.snapshot()["result"]["jobs"]["cards"]
+    assert all(c["score"] is not None for c in cards) and len(cards) == 2
+    assert load_settings().limits.scoring_cap is None
+    manager.start(SearchForm())  # a later search scores everything without asking
+    result = wait_until_done(manager, answer=False)
+    assert all(c["score"] is not None for c in result["result"]["jobs"]["cards"])
+
+
 def test_missing_documents_stop_the_search_with_a_plain_message():
     manager = search.SearchManager()
     manager.start(SearchForm())
@@ -339,7 +358,7 @@ def test_when_the_web_look_ups_run_out_jobcu_asks_before_leaving_jobs_unread(rea
     assert result["steps"][-1]["detail"] == "Found online: the requirements of 2 of 2 jobs"
 
 
-def test_answering_always_raises_the_limit_so_later_searches_don_t_ask(ready, monkeypatch):
+def test_answering_always_removes_the_limit_so_later_searches_don_t_ask(ready, monkeypatch):
     ai = ResearchingAI()
     monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: ai)
     monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [SummarySource()])
@@ -361,8 +380,8 @@ def test_answering_always_raises_the_limit_so_later_searches_don_t_ask(ready, mo
         assert result["status"] == "finished", result["error"]
         notes.append(result["notes"])
     assert asked == ["web_search_cap"]  # only the first search asked
-    assert load_settings().limits.web_search_cap == 50  # what it needed, rounded up to 50
-    assert any("up to 50 web look-ups in every search" in note for note in notes[0])
+    assert load_settings().limits.web_search_cap is None  # no limit, however big the search
+    assert any("every search from now on, with no limit" in note for note in notes[0])
     assert len(ai.looked_up) == 4  # both jobs in both searches, the second without asking
 
 
