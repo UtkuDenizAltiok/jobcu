@@ -7,6 +7,23 @@ your changes become part of Jobcu under its [LICENSE](LICENSE). Everyday users n
 Everything about how Jobcu is built and worked on is in **[AGENTS.md](AGENTS.md)**, the one
 rulebook for people and AI assistants alike. This page only gets you started.
 
+## Handover (2026-10-03)
+
+The owner (Utku) handed development to a friend who works with **ChatGPT**. Where things stand
+is in [docs/PROGRESS.md](docs/PROGRESS.md) ("Right now": state, what to verify, what waits on
+the owner, next tasks in order); why things are as they are is in
+[docs/DECISIONS.md](docs/DECISIONS.md); facts about every source and service are in
+[docs/SOURCES.md](docs/SOURCES.md). To start:
+
+1. Ask Utku for **write access** to this GitHub repository (it stays private: hard rule 6).
+2. Set up your computer as below, and run `uv run pytest` once: all tests must pass.
+3. Open the repository in an assistant that can read and edit files and run commands (ChatGPT's
+   coding agent Codex, or any of those listed below). Such assistants read `AGENTS.md` by
+   themselves; `CLAUDE.md` only points to it. A chat-only assistant needs AGENTS.md and
+   docs/PROGRESS.md pasted in.
+4. Paste the start prompt below. For real tests, put your own AI key in your own Jobcu's
+   Settings (never in a chat); the owner's CV and data stay on his Mac.
+
 ## Set up
 
 Mac: `brew install git uv gh` · Windows: `winget install --id Git.Git -e`,
@@ -14,7 +31,7 @@ Mac: `brew install git uv gh` · Windows: `winget install --id Git.Git -e`,
 
 ```bash
 gh auth login
-gh repo fork UtkuDenizAltiok/jobcu --clone   # or clone directly if you have write access
+gh repo clone UtkuDenizAltiok/jobcu          # with write access (or: gh repo fork … --clone)
 cd jobcu
 uv sync
 git config core.hooksPath .githooks          # safety check before every commit
@@ -22,9 +39,10 @@ uv run pytest && uv run ruff check .
 uv run jobcu
 ```
 
-## Cloud sessions (claude.ai/code)
+## Cloud sessions with Claude Code (optional, claude.ai/code)
 
-One-time setup; how sessions work there is in AGENTS.md, "Working in a cloud session".
+Only for Claude Code's cloud. One-time setup; how sessions work there is in AGENTS.md, "Working
+in a cloud session". Other assistants' cloud agents follow the same rules with their own setup.
 
 1. At claude.ai, **Settings → Usage**: check your credit balance. If paid **Usage credits** are on,
    set the monthly spend limit to the lowest amount, so nothing beyond a credit is charged.
@@ -95,7 +113,7 @@ Jobcu data folder (JOBCU_DATA_DIR), and do three things:
 2. The quality set, on my behalf: rate the ads Jobcu kept for the score check (good, okay or
    poor, with blockers), until 30-50 are rated over time. Judge each full ad against my CV and
    cover letter as a careful recruiter would, before looking at Jobcu's score. Save the ratings
-   in my real data folder with quality.rate(..., by="claude"), then run
+   in my real data folder with quality.rate(..., by="assistant"), then run
    tools/score_check.py --rescore (the stored scores are from when each ad was collected).
 3. The coverage list, on my behalf: search the web for 15-25 fresh, real jobs that fit my CV in
    my priority countries (employers' own sites and job boards, including LinkedIn and StepStone
@@ -110,8 +128,8 @@ me in plain words what you found, what you fixed and what comes next.
 **When a cloud credit is nearly used, before going back to local sessions:**
 
 ```text
-Final handover: my cloud credit is nearly used, and I'll continue in a local Claude Code session
-on my Mac. Stop new work at a safe point and follow "Budget and the final handover" in AGENTS.md
+Final handover: my cloud credit is nearly used, and I'll continue in a local session on my
+computer. Stop new work at a safe point and follow "Budget and the final handover" in AGENTS.md
 (section "Working in a cloud session") and "Ending a session": a complete check-up, everything
 merged with merge commits, and "Right now" in docs/PROGRESS.md rewritten for a local session.
 Then tell me in plain words what was done, what's next, what is waiting on me, and that it's

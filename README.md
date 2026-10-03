@@ -8,10 +8,11 @@ first, with short reasons for each score.
 
 > 🧪 Early test version for invited testers. Your feedback helps: tell Utku what worked and what didn't.
 
-## Get started
+## Get started (about 20 minutes)
 
 1. [Install and start Jobcu](docs/guides/install-and-start.md) (Mac or Windows)
-2. [Get your keys](docs/guides/getting-your-keys.md)
+2. [Get your keys](docs/guides/getting-your-keys.md): one AI key; we recommend a free Google
+   Gemini key
 3. [Your first search](docs/guides/first-search.md)
 
 Something not working? [Troubleshooting](docs/guides/troubleshooting.md)
@@ -37,10 +38,12 @@ Conditions it can't check are shown as "not checked", never silently dropped.
 
 - **Private:** Jobcu runs on your own computer. Your documents, keys and results never leave it,
   except to the job sites and the AI service you choose. It never logs in to job sites.
-- **You need:** a Mac or Windows computer and a key from an AI provider of your choice. Free
-  Adzuna and Reed keys are optional but bring many more jobs. A Google Maps key is optional
-  and gives real travel times.
-- **Cost:** Jobcu is free. Your AI provider may charge for use; some have a free allowance.
+- **You need:** a Mac or Windows computer and an AI key (Google Gemini's is free to start).
+  Free Adzuna and Reed keys are optional but bring many more jobs. A Google Maps key is
+  optional and gives real travel times.
+- **Cost:** Jobcu itself is free. On Gemini's free allowance a search costs nothing; with
+  billing on (recommended for the best results) it's usually €0.50–2.50 a search, and a
+  spending limit at Google keeps you safe ([details](docs/guides/getting-your-keys.md)).
 
 ---
 

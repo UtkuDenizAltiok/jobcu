@@ -114,7 +114,10 @@ for any reason:
 
 The owner worked through cloud sessions on 2026-09-24 and went back to local sessions on his
 Mac at the final handover (DECISIONS.md, "Back to local sessions"); this section is for any
-later cloud session. Jobcu itself always runs on his Mac.
+later cloud session. Its details are for Claude Code's cloud; a cloud agent of another
+assistant (ChatGPT's Codex, for example) follows the same rules about personal data, keys,
+branches and merging, with its own way of giving network access and secrets. Jobcu itself
+always runs on the owner's and the friends' own computers.
 
 - A cloud session starts on a fresh Ubuntu machine with a clone of the repository. Python, uv,
   pytest, ruff and `gh` are pre-installed, and `gh` works without logging in. At the start,
@@ -172,8 +175,10 @@ later cloud session. Jobcu itself always runs on his Mac.
 
 ## Who you are working with
 
-The owner (Utku) and his invited friends. **Assume they have no programming experience**, unless
-they say otherwise. The owner uses a MacBook and prefers choosing from a few clear options over
+The owner (Utku), his invited friends who use Jobcu, and, since **2026-10-03**, a friend of the
+owner who **develops Jobcu further with ChatGPT** (the owner handed development over; DECISIONS.md,
+"Handover"). This file is written for any AI tool: read it in full, whatever assistant you are.
+**Assume people have no programming experience**, unless they say otherwise. The owner uses a MacBook and prefers choosing from a few clear options over
 answering open questions.
 
 - Explain what you do and why in plain words. Explain any technical term the first time.
@@ -206,8 +211,12 @@ answering open questions.
    the user saved a key for it, to Google Maps for travel times (the owner's decision).
 3. **macOS and Windows are both fully supported.** Every feature, file path and launcher must work
    on both, and CI tests both.
-4. **Stay neutral about AI providers.** Never recommend, prefer or default to one, in code, UI or
-   docs. Never hard-code model names: users enter or pick them in settings.
+4. **No provider is built in.** The code and the screen never default to or prefer an AI
+   provider, and never hard-code model names: users pick them in Settings. The everyday-user
+   guide (`docs/guides/getting-your-keys.md`) **does recommend** the provider with the best
+   price and performance for Jobcu, from a dated check recorded in SOURCES.md (the owner,
+   2026-10-03: friends who don't know API keys need a clear recommendation). Re-check prices
+   and free allowances before relying on that recommendation, and update both together.
 5. **Never commit keys, CVs or personal data.** Tests use fake data only.
 6. **The repository is private and its history is permanent:** never make it public, force-push,
    rewrite or squash shared history, or delete commits. Pull requests are merged with a merge
@@ -394,6 +403,15 @@ short script with that `JOBCU_DATA_DIR`.
   (the owner, 2026-09-24, see "Where the work goes first").
 
 ## Lessons learned (avoid repeating these mistakes)
+
+- **Check a site's terms, not only its robots.txt.** Hays' robots.txt welcomes every crawler
+  and publishes a job sitemap, but its terms forbid "Sammeln oder Auslesen von Informationen";
+  Rise Technical forbids downloading. Record what the terms say in SOURCES.md before reading.
+- **A corporate careers page rarely shows its career system.** The job site is one link deeper
+  or on its own host (`jobs.`, `careers.`, `job.`): a sweep found 35 readable employers that
+  way (Rohde & Schwarz, Hensoldt, Fraunhofer…) after the pages themselves showed 11.
+- **Jobcu's own memory is evidence.** A job Jobcu showed before the window began is old,
+  whatever date a job board gives it now (search 11: 45 of 349 cards were such reposts).
 
 - **Check the test result before committing.** Piping pytest output through `tail` or `grep`
   hides failures. Use `uv run pytest && git commit …` or `set -o pipefail`.

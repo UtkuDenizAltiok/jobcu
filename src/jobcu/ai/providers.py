@@ -1,4 +1,5 @@
-"""The AI providers Jobcu can use, listed alphabetically. Jobcu recommends none of them."""
+"""The AI providers Jobcu can use, listed alphabetically. The code prefers none of them (the user
+guide recommends one from a dated price check: AGENTS.md, hard rule 4)."""
 
 from dataclasses import dataclass
 

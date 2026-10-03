@@ -11,19 +11,27 @@ Where the project stands, and nothing else: git history says what was done, and
 ### State
 
 Jobcu works end to end. A search reads the documents with the person's own AI, lets the AI find
-employers for the person's kind of work (every two weeks), collects jobs from 28 sources (14 of
-them company career systems, reading 403 employers plus the ones the AI found), lets the AI look
+employers for the person's kind of work (every two weeks), collects jobs from 29 sources (15 of
+them company career systems and job sitemaps, reading 441 employers plus the ones the AI found), lets the AI look
 at the career-site titles the search words miss, removes duplicates, applies the rules and the
 location conditions, and scores what's left with every AI step at **medium** effort (the
 owner's choice). The location box takes any condition in the person's own words, shows how each
 was checked, with sources, and can be corrected with Edit. The owner has run eleven real
-searches on his Mac (2026-09-22 to 10-03); development is in local Claude Code sessions there.
+searches on his Mac (2026-09-22 to 10-03). **Handover (2026-10-03):** development passes to a
+friend of the owner who works with ChatGPT (CONTRIBUTING.md, "Handover"); the owner's friends
+start using Jobcu with the guides (README.md), which now recommend Google Gemini.
 
 **Fixed on 2026-10-03 from search 11** (DECISIONS.md, "The owner's search 11"): jobs Jobcu
 showed before the window began, and jobs whose employer's own site shows an older copy, are left
 out as **posted again**; **"Always" removes the limit** (Settings shows "No limit"); **England's
 nine regions** are known; search words match compounds written apart ("Hardware Entwickler");
-the score check holds 50 ads; the coverage tool's titles agree both ways.
+the score check holds 50 ads; the coverage tool's titles agree both ways. **Coverage, the same
+day:** 38 employers join the directory (Rohde & Schwarz, Hensoldt, Fraunhofer, Liebherr, VW
+Group, TE Connectivity, KION, EDAG, QinetiQ, ESB…; SOURCES.md, 2026-10-03); the employer finder
+follows a careers page's job link and tries `jobs.`/`careers.`/`job.` hosts (33 of 156 employers
+recognised instead of 11); a new reader for job sitemaps with JobPosting pages gives full ads
+from Redline Group, ECM Selection and expertum (sites whose terms allow it); made-up hosts are no
+longer retried. None of this has run inside a real search yet.
 
 **The owner's search 11** (2026-10-03 at noon, 72 hours, his usual sentence; the first real
 search with the employer finder): **32 minutes**, no errors, 1,103 ads, 943 different jobs, 395
@@ -79,23 +87,7 @@ Maps had no trouble. What it showed, most important first:
 
 ### In progress
 
-**Until the owner's next search on Wednesday 2026-10-07** (his words: improve Jobcu as well as
-possible, the sessions deciding), each step on its own `local/…` branch, tested and merged:
-1. [ ] StepStone and LinkedIn re-checked (2026-10-03): still no read API; LinkedIn closed;
-       StepStone only with written permission (a draft email for the owner).
-2. [ ] Employers: (a) [x] a sweep of ~230 engineering employers' career pages: 18 readable ones
-       added to the directory (Rohde & Schwarz, Hensoldt, VW, TE Connectivity, KION…; SOURCES.md,
-       2026-10-03); (b) [x] the employer finder also tries `jobs.`/`careers.` hosts and the
-       page's "jobs" link when a careers page shows no system; (c) [x] a job-sitemap reader
-       for sites whose terms allow it (Redline, ECM, expertum), for full ads instead of
-       Adzuna summaries.
-3. [ ] Adzuna's jobs found at their original (agencies' own sites through the same reader),
-       measured by how many cards still rely on a summary.
-4. [ ] Cost without losing anything: Gemini's implicit caching (shared instructions first), the
-       online look-up's requests.
-5. [ ] Avature (Siemens).
-6. [ ] A complete made-up search (`tools/made_up_search.py`) to measure all of it.
-Done when: each merged with tests, GitHub's tests pass, and "Right now" says what changed.
+Nothing.
 
 ### Verify before relying on
 
@@ -105,6 +97,15 @@ Done when: each merged with tests, GitHub's tests pass, and "Right now" says wha
   and town is the risk), the far-right condition now listing English regions and applying them
   ("Understood as"), and "Always" leaving Settings at "No limit". Time (search 11: 32 minutes,
   10 of them the online look-up) and cost per step.
+- **The 38 new employers and the sitemap reader inside a real search:** requests per career
+  system (each may make up to 1,500 a search; Hensoldt lists 1,020 German jobs), Redline's and
+  ECM's full ads merging with Adzuna's summaries of the same jobs (fewer "Scored from a short
+  summary"), and the time added.
+- **Gemini's free tier** (what the guide recommends to start): it has no web look-ups. Check
+  with a free key what Jobcu shows (the employer finder, place conditions that need facts, the
+  online look-up) and make the message plain; today the wording isn't known.
+- **The finder's deeper look** at its next refresh (about 2026-10-17 for the owner): employers
+  found through `jobs.`/`careers.` hosts are the company's own, not a namesake's.
 - **Older copies:** only career sites that list jobs older than the window give them (Workday,
   SuccessFactors, Greenhouse and others; Oracle stops at the window). Watch that no fresh job is
   merged with an unrelated older one.
@@ -128,15 +129,17 @@ Done when: each merged with tests, GitHub's tests pass, and "Right now" says wha
 
 ### Waiting on the owner
 
-1. **The next search** (a 72-hour search every two or three days, as before): double-click the
-   launcher first, so it updates from GitHub and replaces the Jobcu still running (the one that
-   ran search 11 has the old code). Answer both questions with **Always** if he wants every job
-   scored and looked up in every search; it now means no limit (Settings can set one again).
-   Then a local session with "Check my latest search" (CONTRIBUTING.md).
-2. **The friend's test:** his feedback on installing and using Jobcu.
-3. **Only if he wants to send them** (messages in his name): access requests to StepStone,
-   Denmark's Jobnet, Poland's CBOP, or a private NAV token. **StepStone matters now:** 7 of
-   search 11's 14 missed coverage-list jobs were on StepStone and no source Jobcu reads.
+1. **The next search, Wednesday 2026-10-07:** double-click the launcher first (it updates from
+   GitHub and replaces the Jobcu still running), a 72-hour search with his usual sentence; answer
+   **Always** if he wants every job scored and looked up (it now means no limit). Then a session
+   on his Mac with "Check my latest search" (CONTRIBUTING.md), in any assistant.
+2. **Friends:** invite each friend's GitHub username to the repository (they download the ZIP:
+   docs/guides/install-and-start.md), give the developer friend write access, and collect their
+   feedback (here, without personal details).
+3. **Only if he wants to send them** (messages in his name): written permission from the
+   Stepstone Group (one request covers StepStone.de, Totaljobs, IrishJobs and Jobs.ie; a draft is
+   in SOURCES.md, "LinkedIn, StepStone…"), Denmark's Jobnet, Poland's CBOP, a private NAV token.
+   **LinkedIn has no route:** no read API, and its terms forbid automated reading.
 
 The quality set and the coverage list are made by the local check on his behalf (DECISIONS.md,
 2026-09-24 night); he may still rate or add jobs himself.
@@ -155,32 +158,31 @@ effort.** Cost: at most €25 a month for the owner; free, or under €10 a mont
 1. **Check the next search** ("Check my latest search"): "Verify before relying on" above, the
    ratings (`tools/score_check.py --rescore`) and a new coverage list; record the findings here
    and fix them first.
-2. **Cost at medium effort** (search 11: $2.43 and 471 web searches, over budget): from
-   the next search's cost per step, save only where nothing is lost: context caching for scoring
-   and the quick check (Gemini cached none of their repeated instructions), the online look-up's
-   jobs per request and web searches per job, and the batch size with `tools/score_check.py`.
-   Never a lower effort or fewer jobs.
-3. **More career systems and employers** (search 11's coverage list: 7 of 21 found; missed
-   SIKORA, SII Technologies, expertum, Michael Page, Advancing People, Ovarro, Xtrac): Avature
-   (Siemens: site-specific search pages), then employers' own career sites through the standard
-   job data (HANDOVER §9.0, the generic JobPosting reader); the employer finder named 120
-   employers in search 11 and only 15 had readable lists (SOURCES.md, "Career systems checked
-   on 2026-09-30"). Still missing from search 10's list: AES, EDAG, Ricardo, Evolito, Malloy
-   Aeronautics, TDK-Lambda, ENGIE, Real, Tyndall, Egis, Kirstein.
-4. **Fewer jobs depending on Adzuna's summaries** (204 of 349 cards in search 11, 34 of the 40
-   best): find the same job at its original before reading it online, and measure how many
-   still rely on a summary. It is also most of the look-up's time and cost.
-5. **Scoring:** the quality set is at HANDOVER's 50 ads with only 3 good fits: at each check,
+2. **Friends on Gemini's free tier:** make Jobcu say plainly, once, that web look-ups need
+   billing, and skip those steps quietly (see "Verify before relying on").
+3. **Cost at medium effort** (search 11: $2.43 and 471 web searches, over the owner's budget):
+   Gemini cached none of the scoring and quick check's repeated instructions (about 1,400 tokens
+   of system instruction plus the person's background) though it caches long shared prefixes by
+   itself: find out why; the online look-up's jobs per request and web searches per job; the
+   batch size with `tools/score_check.py`. Never a lower effort or fewer jobs.
+4. **More employers and systems:** recruiters with job sitemaps whose terms allow it (check terms
+   first: Hays and Rise Technical forbid it), Avature (Siemens: RSS without places, no JobPosting
+   on its pages), SuccessFactors' shared career pages (`career5.successfactors.eu`: Brose's older
+   site, IAV), the employer finder's 103 unrecognised employers of the sweep (SOURCES.md).
+5. **Fewer jobs depending on Adzuna's summaries** (204 of 349 cards in search 11): measure after
+   the sitemap reader; find the same job at its original before reading it online.
+6. **Scoring:** the quality set is at HANDOVER's 50 ads with only 3 good fits: at each check,
    swap good fits with full ads in for poor ones that repeat a lesson (a small change to
    `quality.py`), watch the neighbouring-specialisation calls (NXP 91 vs 60), then the quick check's two misses (Quantum Machines' QA
    engineer, a university's drives lab lead). Re-run `tools/universality_check.py` after any
    change to the AI instructions.
-6. **Phase 2's "Done when":** every example sentence from HANDOVER §6, README.md and the owner's
+7. **Phase 2's "Done when":** every example sentence from HANDOVER §6, README.md and the owner's
    own, read twice with a real provider, as its author means it. Fix in general terms.
-7. **Paused until Germany, the UK and Ireland are as strong as possible:** sources for other
+8. **Paused until Germany, the UK and Ireland are as strong as possible:** sources for other
    countries (SOURCES.md), the licence limit for other professions, and the universality audit's
    rest.
-8. **Ready for friends (Phase 4):** a first-run setup screen, updating from GitHub while keeping
+9. **Ready for friends (Phase 4):** a first-run setup screen, a "new version" notice for ZIP
+   installs, updating from GitHub while keeping
    the data folder, the guides tested on a clean Mac and a clean Windows computer, and the
    repository moved to a free GitHub organization, choosing with the owner how friends
    contribute.
@@ -219,7 +221,7 @@ effort.** Cost: at most €25 a month for the owner; free, or under €10 a mont
 | 0. Foundations | Project set-up; Jobcu starts with a double-click | ✅ Done (2026-09-17) |
 | 1. Usable first version | A real search with ranked, deduplicated results and reasons | 🔨 Real searches work; the scoring limits are tuned on the quality set (48 of 50) |
 | 2. Smart location filter | Understands sentences like "a city by the seaside" | 🔨 Mostly built; England's nine regions known (2026-10-03) |
-| 3. Maximum coverage | Many more job sources in every supported country | 🔨 14 career systems, 403 employers, the employer finder |
+| 3. Maximum coverage | Many more job sources in every supported country | 🔨 15 career systems and job sitemaps, 441 employers, the employer finder |
 | 4. Ready for friends | Complete guides, first-run setup, tested on real Mac and Windows computers | Planned |
 
 ### Phase 1: Usable first version

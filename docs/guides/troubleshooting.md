@@ -12,6 +12,8 @@
 | "didn't accept the key" | Copy the whole key again → **Replace** → **Save** → test |
 | "doesn't know this model name" | **Load model list** and pick one |
 | "AI limit reached, continuing more slowly" | Normal on a free allowance, just wait |
+| On Gemini's free allowance: a place condition "not checked", or a note that the AI couldn't handle a request or look something up | Expected: Google gives no web look-ups for free. Turn on billing with a spending limit ([Get your keys](getting-your-keys.md), step 2) |
+| GitHub says "404" on the Jobcu page | Sign in to GitHub, and accept Utku's invitation email first |
 | "allowance is used up" / "free requests are used up" | Try again tomorrow |
 | Few or no jobs | Choose **1 week**, a wider place, or more job types |
 
