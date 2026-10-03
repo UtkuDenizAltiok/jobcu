@@ -646,6 +646,38 @@ Not a job source; recorded because the owner uses it and pays for it.
 - Sources: [Cloud Billing spend caps](https://docs.cloud.google.com/billing/docs/how-to/budgets-spend-caps),
   [Gemini API billing](https://ai.google.dev/gemini-api/docs/billing).
 
+## AI providers for Jobcu: prices and free use, checked 2026-10-03
+
+For the user guide's recommendation (AGENTS.md, hard rule 4). Jobcu needs JSON answers and web
+look-ups (location facts, the employer finder, reading summary-only ads online), which only the
+Anthropic, Google and OpenAI adapters offer.
+
+- **Google Gemini** ([pricing](https://ai.google.dev/gemini-api/docs/pricing),
+  [terms](https://ai.google.dev/gemini-api/terms)): `gemini-3.8-flash` is **free of charge on the
+  free tier** (no billing on the project), but **Grounding with Google Search is "Not available"**
+  there: no web look-ups. Paid: $0.75 input and $3.75 output per million tokens through
+  31 December 2026, then $1.50 and $7.50; grounding 5,000 search requests a month free (shared by
+  all Gemini 3.x models), then $14 per 1,000. Cheaper paid models: `gemini-3.5-flash-lite`
+  ($0.30 / $2.50), `gemini-3.1-flash-lite` ($0.25 / $1.50), quality not measured for Jobcu.
+  Free-tier rate limits are shown only in AI Studio (third-party pages: about 10 requests a
+  minute and 1,000–1,500 a day for Flash). **Terms:** "You may use only Paid Services when
+  making API Clients available to users in the European Economic Area, Switzerland, or the
+  United Kingdom" (reading, not legal advice: a person using their own key on their own
+  computer for their own search makes nothing available to others); in those countries the paid
+  data terms apply to unpaid use too, elsewhere "human reviewers may read, annotate, and
+  process your API input and output". Users must be 18 or older.
+- **OpenAI** (third-party price tables, October 2026): GPT-5.4 Mini $0.75 / $4.50, GPT-5.4 Nano
+  $0.20 / $1.25 per million tokens; web search is billed per call on top (about $10 per 1,000).
+  No free API tier.
+- **Anthropic**: Claude Haiku 4.5 $1 / $5 per million tokens; web search $10 per 1,000 searches.
+  No free API tier.
+- **For a search like the owner's search 11** (about 0.7 million input and 0.5 million output
+  tokens with thinking, 471 web searches): Gemini 3.8 Flash about $2.40 (searches within the
+  free 5,000), GPT-5.4 Mini about $7.50, Claude Haiku 4.5 about $8. With Jobcu's standard limits
+  (200 jobs scored, 50 web look-ups) a search uses less.
+- **Not checked for Jobcu:** what Jobcu shows when a Gemini free-tier key's web look-up is
+  refused (PROGRESS.md, "Verify before relying on").
+
 ## Job boards on hold: what their terms say (checked 2026-09-18 and 2026-09-21)
 
 Facts for the owner's decision (DECISIONS.md, 2026-09-17: boards stay on hold until the coverage
@@ -722,6 +754,19 @@ Legitimate routes only (DECISIONS.md, 2026-09-24 later): Jobcu never opens their
   public job search (`linkedin.com/jobs/search?keywords=…&location=…&f_TPR=r259200`, the last 3
   days) and StepStone's lists (`stepstone.de/jobs/{words}?ag=age_3`) could be read on 2026-09-24,
   60 and 25 jobs a page, with company, place and "2 days ago".
+- **Re-checked 2026-10-03:** still no API to search or read jobs at either; only third-party
+  scrapers (Apify and the like), which break both sites' terms and hard rule 1. StepStone's
+  imprint: The Stepstone Group Deutschland GmbH, Völklinger Straße 1, 40219 Düsseldorf,
+  info@stepstone.de. **A request the owner may send** (his decision, in his name):
+
+  > Subject: Permission for a personal, non-commercial job search tool
+  >
+  > Hello, I'm developing Jobcu, a private job search app that runs only on a job seeker's own
+  > computer: it reads public job ads for that person's own search, never republishes them,
+  > has no website or users of its own, and links every job back to the original ad. Would you
+  > allow it to read StepStone's public job pages (StepStone.de, Totaljobs, IrishJobs, Jobs.ie)
+  > at a gentle pace, respecting robots.txt, or offer a job feed for this purpose? I'm happy to
+  > follow any conditions you set. Thank you, Utku Deniz Altiok
 - **Some StepStone jobs already arrive legitimately:** Le Forem's open data carries 402 StepStone
   Belgium ads and 10,284 from Jobat (Belgium, above).
 - **How many StepStone jobs Jobcu misses (a sample):** of 7 fresh StepStone nursing jobs in

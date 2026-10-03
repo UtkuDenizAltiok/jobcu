@@ -2,11 +2,19 @@
 
 ## 1. Download
 
-1. Accept the GitHub invitation email from Utku.
-2. On the [Jobcu page](https://github.com/UtkuDenizAltiok/jobcu), click the green **Code** button →
-   **Download ZIP**.
-3. Unpack it: **Mac** double-click the file · **Windows** right-click → **Extract All**.
-4. Move the `jobcu-main` folder to your **Documents**.
+Jobcu's files are on **GitHub**, a website where programs are kept. Jobcu's page there is private,
+so Utku has to let you in first.
+
+1. Create a free account at [github.com/signup](https://github.com/signup) (an email address and a
+   password are enough) and send Utku your **username**.
+2. Open the invitation email from GitHub and click **Accept invitation**.
+3. Open the [Jobcu page](https://github.com/UtkuDenizAltiok/jobcu), click the green **Code** button
+   → **Download ZIP**.
+4. Unpack it: **Mac** double-click the downloaded file · **Windows** right-click it → **Extract
+   All** → **Extract**.
+5. Move the unpacked `jobcu-main` folder into your **Documents** folder.
+
+You need a Mac or a Windows 10 or 11 computer, and an internet connection.
 
 ## 2. Start
 
@@ -33,8 +41,10 @@ window to stop Jobcu. Next time, just double-click **Start Jobcu** again.
 
 ---
 
-**Update:** download the new ZIP and replace the `jobcu-main` folder. Your settings and saved jobs
-are kept. (A Jobcu folder set up with git updates itself each time you start it.)
+**Update** (Utku tells you when there's a new version): close Jobcu's window, download the new ZIP
+as above and put its `jobcu-main` folder in place of the old one. Your documents, keys, settings
+and saved jobs are kept: they live in a separate folder, not in `jobcu-main`. (A Jobcu folder set
+up with git updates itself each time you start it.)
 
 **Remove:** delete `jobcu-main`. To also delete your data, delete the `Jobcu` folder in
 `~/Library/Application Support` (Mac) or `%LOCALAPPDATA%` (Windows).

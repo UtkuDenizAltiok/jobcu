@@ -2,9 +2,11 @@
 
 ## 1. Settings
 
-1. Click **Settings** (top right).
-2. **AI provider:** choose yours, paste your key → **Save**, click **Load model list** and pick a
-   model (a fast, low-cost one is a good start), then **Test connection**.
+1. Click **Settings** (top right). Until everything needed is in place, the Search page shows a
+   short checklist.
+2. **AI provider:** if you followed [Get your keys](getting-your-keys.md), this is done. Otherwise
+   choose your provider, paste your key → **Save**, click **Load model list** and pick a model
+   (for Google Gemini: **gemini-3.8-flash**), then **Test connection**.
 3. **Job site keys (optional):** paste your Adzuna and Reed keys → **Save** → **Test**. Most of
    Jobcu's job sites and company career pages need no key.
 
@@ -28,8 +30,9 @@ or a language level. Without your citizenship, Jobcu never assumes one.
    They go to the nearest part of a town, since you could live anywhere in it; write *city
    centre* if you mean the centre.
 2. Choose **Posted within** (72 hours or 1 week finds more) and the **job types**.
-3. Click **Search**. It takes a few minutes, and longer for several countries or 72 hours or
-   more. The screen shows each step as it goes, and how many jobs it has checked so far.
+3. Click **Search**. It takes 5 to 30 minutes: longer for several countries, 72 hours or more,
+   and on a free AI allowance. You can do other things meanwhile; keep Jobcu's small window open.
+   The screen shows each step as it goes, and how many jobs it has checked so far.
    Every two weeks your AI also looks for employers who hire for your kind of work; Jobcu then
    reads their own job lists in every search. **Search details** names the ones it found.
 4. If a search reaches a limit from Settings (how many jobs to score, how many web look-ups),
