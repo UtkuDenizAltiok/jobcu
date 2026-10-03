@@ -113,7 +113,7 @@ Jobcu data folder (JOBCU_DATA_DIR), and do three things:
 2. The quality set, on my behalf: rate the ads Jobcu kept for the score check (good, okay or
    poor, with blockers), until 30-50 are rated over time. Judge each full ad against my CV and
    cover letter as a careful recruiter would, before looking at Jobcu's score. Save the ratings
-   in my real data folder with quality.rate(..., by="claude"), then run
+   in my real data folder with quality.rate(..., by="assistant"), then run
    tools/score_check.py --rescore (the stored scores are from when each ad was collected).
 3. The coverage list, on my behalf: search the web for 15-25 fresh, real jobs that fit my CV in
    my priority countries (employers' own sites and job boards, including LinkedIn and StepStone
@@ -128,8 +128,8 @@ me in plain words what you found, what you fixed and what comes next.
 **When a cloud credit is nearly used, before going back to local sessions:**
 
 ```text
-Final handover: my cloud credit is nearly used, and I'll continue in a local Claude Code session
-on my Mac. Stop new work at a safe point and follow "Budget and the final handover" in AGENTS.md
+Final handover: my cloud credit is nearly used, and I'll continue in a local session on my
+computer. Stop new work at a safe point and follow "Budget and the final handover" in AGENTS.md
 (section "Working in a cloud session") and "Ending a session": a complete check-up, everything
 merged with merge commits, and "Right now" in docs/PROGRESS.md rewritten for a local session.
 Then tell me in plain words what was done, what's next, what is waiting on me, and that it's
