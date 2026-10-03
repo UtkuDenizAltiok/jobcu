@@ -27,7 +27,7 @@ BLOCKERS = {
     "company": "Company I don't want",
 }
 # How many ads the set holds, and how many one search may add.
-WANTED = {"scored": 40, "title_only": 40}
+WANTED = {"scored": 50, "title_only": 40}
 PER_SEARCH = {"scored": 8, "title_only": 8}
 # Scored ads are kept across the whole range, so the check isn't only about the top jobs.
 BANDS = ((0, 39), (40, 59), (60, 74), (75, 100))

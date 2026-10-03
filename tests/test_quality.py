@@ -27,7 +27,7 @@ def test_a_search_keeps_a_spread_of_its_jobs_and_left_out_titles():
     assert added == {"scored": 8, "title_only": 3}
     kept = quality.all_ads()
     assert {a.score for a in kept if a.kind == "scored"} == {95, 88, 70, 65, 55, 50, 30, 20}
-    assert quality.progress()["scored"] == {"wanted": 40, "collected": 8, "rated": 0}
+    assert quality.progress()["scored"] == {"wanted": 50, "collected": 8, "rated": 0}
 
     # The same jobs in the next search aren't kept twice.
     assert quality.collect_from_search(scored, titles) == {"scored": 0, "title_only": 0}
