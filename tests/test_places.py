@@ -114,6 +114,22 @@ def test_regions_are_found_by_their_english_local_and_short_names():
     assert places.find_region("Atlantis", "DE") is None
 
 
+def test_englands_nine_regions_are_made_of_its_counties():
+    shipped = {region.code for regions in places._regions().values() for region in regions
+               if region.code.startswith("GB.ENG.") and region.level == "district"}
+    members = [code for districts in places._ENGLISH_MEMBERS.values() for code in districts]
+    # Every county and unitary authority is in exactly one region (a rebuilt town list with a
+    # new county must give it one).
+    assert sorted(members) == sorted(shipped)
+    assert places.find_region("East Midlands", "GB").code == "GB.ENG.TLF"
+    assert places.find_region("North East England", "GB").level == "region"
+    assert places.find("Nottingham", "GB").lies_in("GB.ENG.TLF")
+    assert places.find("Hitchin", "GB").lies_in("GB.ENG.TLH")
+    assert not places.find("Reading", "GB").lies_in("GB.ENG.TLF")
+    assert places.region_inside(places.find_region("Nottinghamshire", "GB").code, "GB.ENG.TLF")
+    assert not places.region_inside("DE.13", "GB.ENG.TLF")
+
+
 def test_english_council_districts_are_areas_inside_their_county():
     # Search 9: "Thanet" and "Castle Point" were answered as far-right places to avoid, but no
     # town has those names, so Margate and Canvey Island passed.

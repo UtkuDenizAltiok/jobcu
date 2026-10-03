@@ -57,6 +57,45 @@ _REGIONS = frozenset(normalise(name) for name in (
 ))
 
 
+# England's nine regions (the Office for National Statistics' ITL1 regions, with their codes),
+# which GeoNames doesn't list: each is made of counties and unitary authorities in
+# `regions.csv.gz`. Election results and many other facts are given per region: search 11's
+# answer named five of them, and without them its condition left most of England unchecked.
+ENGLISH_REGIONS: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
+    "GB.ENG.TLC": (("North East England", "North East", "North-East England"),
+                   ("D1", "D8", "E5", "F5", "I5", "I7", "J5", "J6", "K9", "M7", "N3", "N6")),
+    "GB.ENG.TLD": (("North West England", "North West", "North-West England"),
+                   ("A8", "A9", "B1", "C1", "C9", "E9", "G9", "H2", "H8", "I2", "K1", "L2", "L5",
+                    "L8", "N1", "N2", "O1", "O6", "P2", "P7", "Q1", "Z7", "Z8")),
+    "GB.ENG.TLE": (("Yorkshire and the Humber", "Yorkshire and Humber", "Yorkshire"),
+                   ("A3", "B4", "C2", "D5", "E1", "G6", "G8", "H3", "J2", "J3", "J7", "L3", "L9",
+                    "O7", "Q5")),
+    "GB.ENG.TLF": (("East Midlands",),
+                   ("D2", "D3", "H4", "H5", "H7", "J8", "J9", "L4", "NNH", "WNH")),
+    "GB.ENG.TLG": (("West Midlands",),
+                   ("A7", "C7", "D7", "F7", "L6", "L7", "M2", "M9", "N4", "O2", "O8", "P3", "Q3",
+                    "Q4")),
+    "GB.ENG.TLH": (("East of England", "East England", "Eastern England"),
+                   ("C3", "E4", "F8", "I1", "I9", "K3", "M5", "N5", "O3", "Z5", "Z6")),
+    "GB.ENG.TLI": (("London", "Greater London"), ("GLA",)),
+    "GB.ENG.TLJ": (("South East England", "South East", "South-East England"),
+                   ("B3", "B6", "B9", "E2", "F2", "G2", "G5", "I3", "I6", "K2", "K6", "K7", "M1",
+                    "M4", "N7", "P4", "P6", "P9", "Q2")),
+    "GB.ENG.TLK": (("South West England", "South West", "South-West England"),
+                   ("A4", "AA", "B7", "C6", "D4", "D6", "E6", "J4", "K4", "M3", "M6", "N9", "O4",
+                    "P8", "Z9")),
+}
+_ENGLISH_MEMBERS = {code: frozenset(f"GB.ENG.{district}" for district in districts)
+                    for code, (_, districts) in ENGLISH_REGIONS.items()}
+
+
+def region_inside(inner: str, outer: str) -> bool:
+    """Whether the region coded `inner` lies in `outer`: the same one, or an English county or
+    district inside one of England's nine regions."""
+    district = ".".join(inner.split(".")[:3])
+    return inner == outer or district in _ENGLISH_MEMBERS.get(outer, ())
+
+
 @dataclass(frozen=True)
 class Town:
     name: str
@@ -72,7 +111,8 @@ class Town:
     area: str = ""
 
     def lies_in(self, code: str) -> bool:
-        return code in (self.region, self.district, self.area)
+        return code in (self.region, self.district, self.area) or (
+            self.district in _ENGLISH_MEMBERS.get(code, ()))
 
 
 @dataclass(frozen=True)
@@ -137,6 +177,10 @@ def _regions(path: Path = REGIONS) -> dict[str, tuple[Region, ...]]:
             keys = {normalise(name) for name in spellings} | {_region_key(n) for n in spellings}
             for key in keys - {""}:
                 index.setdefault(key, []).append(region)
+    for code, (spellings, _) in ENGLISH_REGIONS.items():
+        region = Region(code, "region", "GB", spellings[0])
+        for key in {normalise(name) for name in spellings} | {_region_key(n) for n in spellings}:
+            index.setdefault(key, []).append(region)
     return {key: tuple(regions) for key, regions in index.items()}
 
 

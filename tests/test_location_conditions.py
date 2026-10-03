@@ -165,6 +165,32 @@ def test_regions_in_the_answer_are_kept_and_unknown_ones_are_named():
     assert condition.status == "applied" and condition.kind == "towns_to_avoid"
 
 
+def test_englands_regions_in_the_answer_decide_their_towns():
+    # Search 11: five English regions were answered (Reform UK above its national share) and
+    # dropped as unknown, so the condition left most of England unchecked.
+    answer = CheckedCondition(
+        understood_as="Places where Reform UK was above its national share are left out",
+        kind="towns_to_avoid", towns=[],
+        regions=[RegionAnswer(name="North East", country="GB"),
+                 RegionAnswer(name="East Midlands", country="GB"),
+                 RegionAnswer(name="Yorkshire and the Humber", country="GB"),
+                 RegionAnswer(name="Wales", country="GB")],
+        exceptions=[TownRef(name="Leeds", country="GB")],
+        confidence="checked", note="From the 2024 general election results.")
+    (condition,) = check_conditions(ScriptedClient(answer), ["no far-right cities"], ["GB"])
+    assert [r.name for r in condition.regions] == [
+        "North East England", "East Midlands", "Yorkshire and the Humber", "Wales"]
+    assert "doesn't know" not in condition.note
+    assert fits(condition, "GB", "Hebburn, Tyne & Wear") == "no"
+    assert fits(condition, "GB", "Bestwood Village, Nottingham") == "no"
+    assert fits(condition, "GB", "Castleford, West Yorkshire") == "no"
+    assert fits(condition, "GB", "Leeds") == "yes"  # the exception
+    assert fits(condition, "GB", "Nottinghamshire") == "no"  # only a county inside a region
+    assert fits(condition, "GB", "East Midlands") == "no"  # only the region itself
+    assert fits(condition, "GB", "Reading, Berkshire") == "yes"
+    assert fits(condition, "GB", "Cambridge") == "yes"
+
+
 def test_conditions_that_could_not_be_checked_never_rule_a_job_out():
     unchecked = Condition(text="nice weather", understood_as="nice weather",
                           status="not_checked", kind="could_not_check")
