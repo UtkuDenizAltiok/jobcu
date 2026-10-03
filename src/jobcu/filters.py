@@ -2,7 +2,8 @@
 
 A job is left out only when a fact proves it doesn't fit:
 - it was marked Not interested before
-- it's proven older than "Posted within"
+- it's proven older than "Posted within": by its earliest copy's date, or because Jobcu
+  already showed it in a search before that time began (a job posted again looks new)
 - its closing date for applications has passed
 - the source states a job type the user didn't tick
 - the source states it's fully remote and remote jobs are excluded
@@ -28,6 +29,7 @@ REASONS = {
     "dismissed": "Marked Not interested before",
     "location_condition": "The place doesn't fit a condition you wrote",
     "too_old": "Older than your \"Posted within\" choice",
+    "repost": "Posted again: Jobcu saw it before your \"Posted within\" time",
     "closed": "The closing date for applications has passed",
     "job_type": "A job type you didn't tick",
     "remote": "Fully remote (you excluded remote jobs)",
@@ -53,13 +55,16 @@ def apply_rules(
     exclude_remote: bool,
     countries: list[str],
     conditions: list | None = None,
+    first_shown: list[datetime | None] | None = None,
 ) -> FilterOutcome:
+    """`first_shown` says when Jobcu's job memory first showed each job, if ever."""
     outcome = FilterOutcome()
     start = window_start(started_at, posted_within_hours)
     wanted_types = set(job_types)
     for index, group in enumerate(groups):
         reason = _reason(group, remembered_states[index], start, wanted_types, exclude_remote,
-                         set(countries), conditions or [], started_at)
+                         set(countries), conditions or [], started_at,
+                         first_shown[index] if first_shown else None)
         if reason:
             outcome.left_out[reason] += 1
             outcome.by_reason.setdefault(reason, []).append(index)
@@ -69,11 +74,15 @@ def apply_rules(
 
 
 def _reason(group, state, start, wanted_types, exclude_remote, countries, conditions,
-            now) -> str | None:
+            now, shown=None) -> str | None:
     if state is not None and state.dismissed:
         return "dismissed"
     if freshness(group.posted_at, group.date_precision, start) == "too_old":
-        return "too_old"
+        return "repost" if any(copy.older_copy for copy in group.copies) else "too_old"
+    # Shown in an earlier search before the window began: the job existed then, whatever date
+    # its ads give now (45 of search 11's 349 cards, most re-dated by Adzuna).
+    if shown is not None and shown < start:
+        return "repost"
     if group.closes_at is not None and group.closes_at < now:
         return "closed"
     stated_types = [c.job_types for c in group.copies if c.job_types]

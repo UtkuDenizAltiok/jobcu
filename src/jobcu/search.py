@@ -409,7 +409,7 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
     working = [r for r in collected.reports if r.status in ("ok", "partial")]
     screened = _screen_career_titles(run, client, profile, collected)
     run.update("sources", "done" if working else "failed",
-               f"{len(collected.jobs)} job ads found" + screened)
+               f"{collected.ads_found} job ads found" + screened)
     for report in collected.reports:
         if report.message and report.status in ("partial", "failed", "unavailable"):
             run.note(report.message if report.message.startswith(report.name)
@@ -421,9 +421,11 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
     remembered = jobstore.find_job_ids(groups)
     states = jobstore.states([job_id for job_id in remembered if job_id])
     remembered_states = [states.get(job_id) if job_id else None for job_id in remembered]
+    shown = jobstore.first_seen([job_id for job_id in remembered if job_id])
     outcome = apply_rules(
         groups,
         remembered_states,
+        first_shown=[shown.get(job_id) if job_id else None for job_id in remembered],
         started_at=query.started_at,
         posted_within_hours=form.posted_within_hours,
         job_types=form.job_types,
@@ -455,7 +457,7 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
         profile=profile.model_dump(),
         left_out=dict(outcome.left_out),
         source_names=names,
-        ads_found=len(collected.jobs),
+        ads_found=collected.ads_found,
         different_jobs=len(groups),
     )
     _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden_cards, checkpoint)

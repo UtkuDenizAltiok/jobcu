@@ -325,9 +325,10 @@ def job_countries(job: FoundJob) -> set[str]:
 
 
 def keep_job(job: FoundJob, employer: Employer, query: JobQuery, start: datetime):
-    """The job with its country filled in, or None if it's too old, elsewhere or unrelated."""
-    if freshness(job.posted_at, job.date_precision, start) == "too_old":
-        return None
+    """The job with its country filled in, or None if it's elsewhere or unrelated. A job older
+    than the window whose title matches the search words comes back as an `older_copy`, for the
+    duplicate comparison only."""
+    too_old = freshness(job.posted_at, job.date_precision, start) == "too_old"
     searched = list(query.countries)
     found = job_countries(job)
     in_searched = [code for code in searched if code in found]
@@ -353,6 +354,9 @@ def keep_job(job: FoundJob, employer: Employer, query: JobQuery, start: datetime
     matched = matches_terms(query.terms, languages, job.title, job.description)
     if country and not matches_places(query.places, country, job.location_text):
         return None
+    if too_old and not matched:
+        return None  # an old copy only matters for a job some source found fresh
+    job.older_copy = too_old
     job.title_unmatched = not matched
     job.country = country
     job.company = job.company or employer.name

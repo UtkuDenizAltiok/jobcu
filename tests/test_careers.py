@@ -78,7 +78,10 @@ def test_keeps_fresh_matching_jobs_in_the_countries_searched():
     kept = keep_job(job(), employer(), q, start)
     assert kept.country == "IE" and kept.company == "FakeCo"
     assert kept.employer_url == "https://example.test/1"  # the employer's own ad
-    assert keep_job(job(hours_ago=30), employer(), q, start) is None
+    # An older job is kept only to date the same job elsewhere, and only if its title matches.
+    older = keep_job(job(hours_ago=30), employer(), q, start)
+    assert older is not None and older.older_copy and not kept.older_copy
+    assert keep_job(job(title="Account Executive", hours_ago=30), employer(), q, start) is None
     assert keep_job(job(location="Munich, Germany"), employer(), q, start) is None
     assert keep_job(job(location="Dublin, CA"), employer(), q, start) is None
     # A title the search words miss goes to the person's AI for a look (relevance.py).
@@ -383,7 +386,9 @@ def test_successfactors_reads_the_feed_and_dates_only_the_jobs_still_in_the_runn
     monkeypatch.setattr(careers, "load_directory", lambda: (fake,))
     source = successfactors.SuccessFactorsSource()
     jobs = list(source.search(query(["DE"], hours=72), context(handler, "successfactors")))
-    assert [job.source_job_id for job in jobs] == ["jobs.fake.example/111"]
+    assert [job.source_job_id for job in jobs if not job.older_copy] == ["jobs.fake.example/111"]
+    # The 40-day-old job only dates the same job elsewhere.
+    assert [job.source_job_id for job in jobs if job.older_copy] == ["jobs.fake.example/222"]
     walldorf = jobs[0]
     assert walldorf.title == "Hardware Engineer" and walldorf.country == "DE"
     assert walldorf.location_text == "Walldorf, Germany"
@@ -398,7 +403,7 @@ def test_successfactors_reads_the_feed_and_dates_only_the_jobs_still_in_the_runn
     # The next search takes the dates it already knows instead of opening the pages again.
     requested.clear()
     again = list(source.search(query(["DE"], hours=72), context(handler, "successfactors")))
-    assert [job.source_job_id for job in again] == ["jobs.fake.example/111"]
+    assert [job.source_job_id for job in again if not job.older_copy] == ["jobs.fake.example/111"]
     assert requested.count("/job/Walldorf-Hardware-Engineer/111/") == 0
 
 

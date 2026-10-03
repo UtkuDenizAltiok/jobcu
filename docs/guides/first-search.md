@@ -59,7 +59,9 @@ or a language level. Without your citizenship, Jobcu never assumes one.
 - **"apply by 8 October":** the closing date, when the job site gives one ("closes soon" in the
   last two days). Jobs whose closing date has passed are left out.
 - **"first seen by Jobcu on 14 August":** the ad says it's new, but Jobcu showed you this job
-  before that date, so it's probably an old ad posted again.
+  before that date, so it's probably an old ad posted again. If Jobcu showed it before your
+  **Posted within** time began, or the employer's own site shows it as older, the job is left
+  out as **posted again** (Search details counts these).
 - **Understood as:** how Jobcu read where you want to work. If something is wrong, click **Edit**
   to switch a condition off, fix its list of places or its town size, reword it or add one. In a
   list of places, **All of Saxony** means a whole state, county or district, and **Except
