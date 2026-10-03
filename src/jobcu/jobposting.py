@@ -11,8 +11,9 @@ from datetime import datetime
 from jobcu.freshness import parse_closing, parse_iso
 from jobcu.text import html_to_text
 
+# Some sites write the "+" as an HTML entity (ECM Selection: "application/ld&#x2B;json").
 _JSON_LD = re.compile(
-    r"<script[^>]+type\s*=\s*[\"']application/ld\+json[\"'][^>]*>(.*?)</script>",
+    r"<script[^>]+type\s*=\s*[\"']application/ld(?:\+|&#x2B;|&#43;)json[\"'][^>]*>(.*?)</script>",
     re.IGNORECASE | re.DOTALL,
 )
 
@@ -41,7 +42,8 @@ class JobPosting:
 def find_job_posting(html: str) -> JobPosting | None:
     for block in _JSON_LD.findall(html or ""):
         try:
-            data = json.loads(block.strip())
+            # strict=False: line breaks inside an ad's text are common and harmless.
+            data = json.loads(block.strip(), strict=False)
         except ValueError:
             continue
         for item in _items(data):

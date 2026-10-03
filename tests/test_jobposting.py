@@ -34,6 +34,17 @@ def test_job_posting_data_is_read_even_inside_a_graph():
     assert posting.remote
 
 
+def test_job_data_with_an_encoded_type_and_raw_line_breaks_is_read():
+    # ECM Selection writes the "+" as "&#x2B;", and many sites leave line breaks in the text.
+    page = ('<script type="application/ld&#x2B;json">{"@type": "JobPosting", '
+            '"title": "Graduate Electronics Engineer", "datePosted": "2026-09-30", '
+            '"description": "<p>Design boards.\nTest them.</p>", "jobLocation": {"@type": '
+            '"Place", "address": {"addressLocality": "Nottingham"}}}</script>')
+    found = find_job_posting(page)
+    assert found.title == "Graduate Electronics Engineer"
+    assert found.location_text == "Nottingham" and "Test them" in found.description
+
+
 def test_pages_without_job_data_give_nothing():
     assert find_job_posting("<html><script type='application/ld+json'>{bad json</script>") is None
     assert find_job_posting(page({"@type": "Organization"})) is None
