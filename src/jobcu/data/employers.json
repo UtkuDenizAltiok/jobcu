@@ -6076,6 +6076,74 @@
    }
   },
   {
+   "name": "ECM Selection",
+   "system": "sitemap",
+   "board": "https://www.ecmselection.co.uk/sitemap.xml",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Cambridge",
+     "Guildford",
+     "London",
+     "Nottingham"
+    ]
+   }
+  },
+  {
+   "name": "expertum",
+   "system": "sitemap",
+   "board": "https://expertum.de/job/sitemap.xml",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Augsburg",
+     "Biberach an der Riß",
+     "Bochum",
+     "Bremen",
+     "Garching",
+     "Hamburg",
+     "Hude",
+     "Landsberg am Lech",
+     "Memmingen",
+     "Oldenburg",
+     "Schongau",
+     "Schwäbisch Hall",
+     "Wilhelmshaven",
+     "Zschopau"
+    ]
+   }
+  },
+  {
+   "name": "Redline Group",
+   "system": "sitemap",
+   "board": "https://www.redlinegroup.com/sitemap_jobs.xml",
+   "countries": [
+    "GB",
+    "IT"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Eastbourne",
+     "Fareham",
+     "Gateshead",
+     "Guildford",
+     "Lincoln",
+     "Loughborough",
+     "Manchester",
+     "Norwich",
+     "Reading",
+     "Rochester"
+    ]
+   }
+  },
+  {
    "name": "PULS",
    "system": "softgarden",
    "board": "pulspower",
@@ -6087,6 +6155,159 @@
     "DE": [
      "Freiburg",
      "Munich"
+    ]
+   }
+  },
+  {
+   "name": "Alstom",
+   "system": "successfactors",
+   "board": "jobsearch.alstom.com",
+   "countries": [
+    "AT",
+    "BE",
+    "CH",
+    "DE",
+    "DK",
+    "ES",
+    "FR",
+    "GB",
+    "GR",
+    "HU",
+    "IE",
+    "IT",
+    "NL",
+    "NO",
+    "PL",
+    "PT",
+    "RO",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Vienna"
+    ],
+    "BE": [
+     "Charleroi"
+    ],
+    "CH": [
+     "Villeneuve",
+     "Zürich"
+    ],
+    "DE": [
+     "Bautzen",
+     "Berlin",
+     "Braunschweig",
+     "Hamburg",
+     "Hennigsdorf",
+     "Kassel",
+     "Mannheim",
+     "Salzgitter",
+     "Uelzen"
+    ],
+    "DK": [
+     "Copenhagen",
+     "Hvidovre"
+    ],
+    "ES": [
+     "Barcelona",
+     "Getafe",
+     "Jaén",
+     "Madrid",
+     "Santa Perpètua de Mogoda"
+    ],
+    "FR": [
+     "Aix-en-Provence",
+     "Belfort",
+     "Crespin",
+     "Gennevilliers",
+     "Hangenbieten",
+     "La Rochelle",
+     "Le Creusot",
+     "Le Petit-Quevilly",
+     "Lyon",
+     "Marseille",
+     "Ornans",
+     "Palaiseau",
+     "Paris",
+     "Rouen",
+     "Saint-Denis",
+     "Saint-Florentin",
+     "Saint-Ouen",
+     "Séméac",
+     "Tarbes",
+     "Toulouse",
+     "Valenciennes",
+     "Villeurbanne"
+    ],
+    "GB": [
+     "Brighton",
+     "Derby",
+     "East Ham",
+     "Glasgow",
+     "London",
+     "Mansfield",
+     "Milton Keynes",
+     "Newcastle upon Tyne",
+     "Wembley"
+    ],
+    "GR": [
+     "Athens",
+     "Thessaloníki"
+    ],
+    "HU": [
+     "Mátranovák"
+    ],
+    "IE": [
+     "Dublin"
+    ],
+    "IT": [
+     "Bari",
+     "Bologna",
+     "Bolzano",
+     "Florence",
+     "Milan",
+     "Reggio Calabria",
+     "Rome",
+     "Savigliano",
+     "Sesto San Giovanni",
+     "Vado Ligure",
+     "Venice"
+    ],
+    "NL": [
+     "Nieuwegein",
+     "Rotterdam"
+    ],
+    "NO": [
+     "Oslo"
+    ],
+    "PL": [
+     "Chorzów",
+     "Katowice",
+     "Nadarzyn",
+     "Toruń",
+     "Warsaw",
+     "Wrocław"
+    ],
+    "PT": [
+     "Lisbon"
+    ],
+    "RO": [
+     "Arad",
+     "Braşov",
+     "Bucharest",
+     "Cluj-Napoca"
+    ],
+    "SE": [
+     "Falköping",
+     "Gothenburg",
+     "Gävle",
+     "Helsingborg",
+     "Hässleholm",
+     "Luleå",
+     "Stockholm",
+     "Umeå",
+     "Västerås"
     ]
    }
   },
@@ -6295,6 +6516,49 @@
    }
   },
   {
+   "name": "Brose",
+   "system": "successfactors",
+   "board": "job.brose.com",
+   "countries": [
+    "BE",
+    "CZ",
+    "DE",
+    "GB",
+    "HU",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "BE": [
+     "Belgrade"
+    ],
+    "CZ": [
+     "Kopřivnice",
+     "Ostrava",
+     "Rožnov pod Radhoštěm"
+    ],
+    "DE": [
+     "Bamberg",
+     "Berlin",
+     "Bremen",
+     "Coburg",
+     "Hallstadt",
+     "Wolfsburg",
+     "Wuppertal",
+     "Würzburg"
+    ],
+    "GB": [
+     "Coventry"
+    ],
+    "HU": [
+     "Kecskemét"
+    ],
+    "SK": [
+     "Prievidza"
+    ]
+   }
+  },
+  {
    "name": "Dana",
    "system": "successfactors",
    "board": "jobs.dana.com",
@@ -6336,6 +6600,150 @@
      "Novi di Modena",
      "Reggio nell'Emilia",
      "Rivoli"
+    ]
+   }
+  },
+  {
+   "name": "Danfoss",
+   "system": "successfactors",
+   "board": "jobs.danfoss.com",
+   "countries": [
+    "AT",
+    "BE",
+    "CZ",
+    "DE",
+    "DK",
+    "ES",
+    "FI",
+    "FR",
+    "GB",
+    "HR",
+    "IT",
+    "NL",
+    "PL",
+    "PT",
+    "RO",
+    "SE",
+    "SI",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Guntramsdorf"
+    ],
+    "BE": [
+     "Dilbeek",
+     "Forest"
+    ],
+    "CZ": [
+     "Prague"
+    ],
+    "DE": [
+     "Baden-Baden",
+     "Frickenhausen",
+     "Hamburg",
+     "Neumünster",
+     "Nuremberg",
+     "Offenbach",
+     "Troisdorf",
+     "Winsen"
+    ],
+    "DK": [
+     "Copenhagen",
+     "Kolding",
+     "Nordborg",
+     "Rødekro",
+     "Silkeborg",
+     "Sønderborg",
+     "Tinglev"
+    ],
+    "ES": [
+     "Madrid",
+     "Santiago de Compostela",
+     "Terrassa",
+     "Usurbil"
+    ],
+    "FI": [
+     "Lappeenranta",
+     "Vaasa"
+    ],
+    "FR": [
+     "Reyrieux",
+     "Sartrouville",
+     "Ville-la-Grand",
+     "Voisins-le-Bretonneux"
+    ],
+    "GB": [
+     "Dalkeith",
+     "Durham",
+     "Havant",
+     "Melbourne",
+     "Uxbridge",
+     "Warwick"
+    ],
+    "HR": [
+     "Zagreb"
+    ],
+    "IT": [
+     "Mestre",
+     "Osasco",
+     "Pomezia",
+     "Postal",
+     "Turin"
+    ],
+    "NL": [
+     "Gorinchem",
+     "Rotterdam"
+    ],
+    "PL": [
+     "Grodzisk Mazowiecki"
+    ],
+    "PT": [
+     "Caxias"
+    ],
+    "RO": [
+     "Bucharest"
+    ],
+    "SE": [
+     "Gothenburg"
+    ],
+    "SI": [
+     "Kamnik",
+     "Ljubljana"
+    ],
+    "SK": [
+     "Dubnica nad Váhom",
+     "Považská Bystrica",
+     "Vrbové"
+    ]
+   }
+  },
+  {
+   "name": "EDAG",
+   "system": "successfactors",
+   "board": "careers.edag.com",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Berlin",
+     "Böblingen",
+     "Essen",
+     "Feuchtwangen",
+     "Fulda",
+     "Hamburg",
+     "Ingolstadt",
+     "Köln",
+     "Munich",
+     "Mönsheim",
+     "Recklinghausen",
+     "Regensburg",
+     "Stuttgart",
+     "Ulm",
+     "Wolfsburg"
     ]
    }
   },
@@ -6421,6 +6829,31 @@
    }
   },
   {
+   "name": "ESB",
+   "system": "successfactors",
+   "board": "careers.esb.ie",
+   "countries": [
+    "AT",
+    "GB",
+    "IE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "See"
+    ],
+    "GB": [
+     "London",
+     "Wilton"
+    ],
+    "IE": [
+     "Dublin",
+     "Finglas",
+     "Tullamore"
+    ]
+   }
+  },
+  {
    "name": "Everllence (MAN Energy Solutions)",
    "system": "successfactors",
    "board": "jobs.everllence.com",
@@ -6447,6 +6880,32 @@
     ],
     "FR": [
      "Chargé"
+    ]
+   }
+  },
+  {
+   "name": "Excelitas",
+   "system": "successfactors",
+   "board": "jobs.excelitas.com",
+   "countries": [
+    "DE",
+    "GB",
+    "LU"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Feldkirchen",
+     "Göttingen",
+     "Kelheim",
+     "Kleinostheim",
+     "Regen"
+    ],
+    "GB": [
+     "Cambridge"
+    ],
+    "LU": [
+     "Luxembourg"
     ]
    }
   },
@@ -6490,6 +6949,105 @@
     ],
     "RO": [
      "Tuzla"
+    ]
+   }
+  },
+  {
+   "name": "Fraunhofer",
+   "system": "successfactors",
+   "board": "jobs.fraunhofer.de",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Aachen",
+     "Augsburg",
+     "Bayreuth",
+     "Berlin",
+     "Biberach an der Riß",
+     "Bochum",
+     "Bonn",
+     "Braunschweig",
+     "Bremen",
+     "Bremerhaven",
+     "Chemnitz",
+     "Cottbus",
+     "Darmstadt",
+     "Dortmund",
+     "Dresden",
+     "Duisburg",
+     "Efringen-Kirchen",
+     "Erfurt",
+     "Erlangen",
+     "Ettlingen",
+     "Frankfurt am Main",
+     "Freiberg",
+     "Freiburg",
+     "Freising",
+     "Garching",
+     "Gießen",
+     "Göttingen",
+     "Halle (Saale)",
+     "Hamburg",
+     "Hansestadt Stade",
+     "Heilbronn",
+     "Ilmenau",
+     "Itzehoe",
+     "Jena",
+     "Kaiserslautern",
+     "Karlsruhe",
+     "Kassel",
+     "Leipzig",
+     "Lemgo",
+     "Leuna"
+    ]
+   }
+  },
+  {
+   "name": "HARTING",
+   "system": "successfactors",
+   "board": "jobs.harting.com",
+   "countries": [
+    "AT",
+    "CH",
+    "DE",
+    "ES",
+    "GB",
+    "IT",
+    "RO",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Baden"
+    ],
+    "CH": [
+     "Biel/Bienne"
+    ],
+    "DE": [
+     "Espelkamp",
+     "Minden",
+     "Rahden"
+    ],
+    "ES": [
+     "Barcelona",
+     "Los Angeles"
+    ],
+    "GB": [
+     "Elgin"
+    ],
+    "IT": [
+     "Milan"
+    ],
+    "RO": [
+     "Agnita",
+     "Sibiu"
+    ],
+    "SE": [
+     "Stockholm"
     ]
    }
   },
@@ -6555,6 +7113,58 @@
     ],
     "HU": [
      "Budapest"
+    ]
+   }
+  },
+  {
+   "name": "Knorr-Bremse",
+   "system": "successfactors",
+   "board": "careers.knorr-bremse.com",
+   "countries": [
+    "AT",
+    "CZ",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "HU",
+    "PL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Mödling"
+    ],
+    "CZ": [
+     "Liberec",
+     "Modřice"
+    ],
+    "DE": [
+     "Aldersbach",
+     "Berlin",
+     "Grünheide",
+     "Leonberg",
+     "Munich",
+     "Pullach im Isartal"
+    ],
+    "ES": [
+     "Melilla"
+    ],
+    "FR": [
+     "Avon"
+    ],
+    "GB": [
+     "Grain",
+     "Huntington",
+     "Melbourne"
+    ],
+    "HU": [
+     "Budapest"
+    ],
+    "PL": [
+     "Kraków",
+     "Rzeszów",
+     "Warsaw"
     ]
    }
   },
@@ -6641,6 +7251,237 @@
     ],
     "SE": [
      "Linköping"
+    ]
+   }
+  },
+  {
+   "name": "Liebherr",
+   "system": "successfactors",
+   "board": "careers.liebherr.com",
+   "countries": [
+    "AT",
+    "BE",
+    "CH",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "HU",
+    "IE",
+    "IT",
+    "NL",
+    "PL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Baden",
+     "Bischofshofen",
+     "Korneuburg",
+     "Lienz",
+     "Nenzing",
+     "Peggau",
+     "Puch bei Hallein",
+     "Rankweil",
+     "Telfs",
+     "Wels"
+    ],
+    "BE": [
+     "Antwerp"
+    ],
+    "CH": [
+     "Bulle",
+     "Reiden"
+    ],
+    "DE": [
+     "Bad Schussenried",
+     "Bentwisch",
+     "Berlin",
+     "Biberach an der Riß",
+     "Bremen",
+     "Deggendorf",
+     "Dettingen an der Erms",
+     "Dortmund",
+     "Ettlingen",
+     "Frankfurt am Main",
+     "Friedrichshafen",
+     "Hamburg",
+     "Kempten (Allgäu)",
+     "Kirchdorf am Inn",
+     "Köln",
+     "Landstuhl",
+     "Lindau",
+     "Lindenberg",
+     "Mannheim",
+     "Memmingen",
+     "Munich",
+     "Oberhausen",
+     "Ochsenhausen",
+     "Rostock",
+     "Schwerin",
+     "Schüttorf",
+     "Stockach",
+     "Ulm"
+    ],
+    "ES": [
+     "Chiloeches",
+     "Madrid",
+     "San Isidro",
+     "Sant Joan d'Alacant"
+    ],
+    "FR": [
+     "Bénesse-Maremne",
+     "Campsas",
+     "Cugnaux",
+     "Fontenay-Trésigny",
+     "Gradignan",
+     "Haguenau",
+     "Laval",
+     "Montauban",
+     "Montréal",
+     "Rognac",
+     "Saint-Priest",
+     "Strasbourg",
+     "Taverny",
+     "Toulouse"
+    ],
+    "GB": [
+     "Bathgate",
+     "Biggleswade",
+     "Bristol",
+     "Christchurch",
+     "Houston",
+     "Melbourne",
+     "Newport",
+     "Perth",
+     "Sheffield"
+    ],
+    "HU": [
+     "Vál"
+    ],
+    "IE": [
+     "Killarney"
+    ],
+    "IT": [
+     "Lodi",
+     "Monfalcone",
+     "Saline"
+    ],
+    "NL": [
+     "Amersfoort",
+     "Uithoorn"
+    ],
+    "PL": [
+     "Gdańsk",
+     "Ruda Śląska",
+     "Rusiec"
+    ]
+   }
+  },
+  {
+   "name": "MAHLE",
+   "system": "successfactors",
+   "board": "careers.mahle.com",
+   "countries": [
+    "AT",
+    "BE",
+    "CZ",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "HU",
+    "IT",
+    "LU",
+    "PL",
+    "RO",
+    "SI"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Vöcklabruck"
+    ],
+    "BE": [
+     "Belgrade"
+    ],
+    "CZ": [
+     "Mnichovo Hradiště"
+    ],
+    "DE": [
+     "Eislingen",
+     "Fellbach",
+     "Kornwestheim",
+     "Lorch",
+     "Markgröningen",
+     "Mühlacker",
+     "Rottweil",
+     "Stuttgart",
+     "Vaihingen an der Enz",
+     "Wölfersheim",
+     "Zell im Wiesental"
+    ],
+    "ES": [
+     "El Paso",
+     "Montblanc",
+     "Palencia",
+     "Valencia"
+    ],
+    "FR": [
+     "Seboncourt"
+    ],
+    "GB": [
+     "Bilston",
+     "Kilmarnock",
+     "Melbourne",
+     "Tilbury"
+    ],
+    "HU": [
+     "Balassagyarmat"
+    ],
+    "IT": [
+     "Trento"
+    ],
+    "LU": [
+     "Kirchberg"
+    ],
+    "PL": [
+     "Krotoszyn",
+     "Ostrów Wielkopolski",
+     "Wrocław"
+    ],
+    "RO": [
+     "Timişoara"
+    ],
+    "SI": [
+     "Bovec",
+     "Komen",
+     "Šempeter pri Gorici"
+    ]
+   }
+  },
+  {
+   "name": "Murata",
+   "system": "successfactors",
+   "board": "jobs.murata.com",
+   "countries": [
+    "ES",
+    "GB",
+    "IT"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "ES": [
+     "San Diego",
+     "San Mateo de Gállego",
+     "Sant Josep de sa Talaia"
+    ],
+    "GB": [
+     "Irvine",
+     "Waltham"
+    ],
+    "IT": [
+     "Novi di Modena"
     ]
    }
   },
@@ -6744,6 +7585,94 @@
      "Porto",
      "Rio de Mouro",
      "São Paulo de Frades"
+    ]
+   }
+  },
+  {
+   "name": "Oxford Instruments",
+   "system": "successfactors",
+   "board": "jobs.oxinst.com",
+   "countries": [
+    "DE",
+    "FI",
+    "FR",
+    "GB",
+    "PT",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Ulm",
+     "Wiesbaden"
+    ],
+    "FI": [
+     "Espoo"
+    ],
+    "FR": [
+     "Les Ulis",
+     "Meyreuil",
+     "Paris",
+     "Sales"
+    ],
+    "GB": [
+     "Belfast",
+     "Bristol",
+     "High Wycombe",
+     "Washington"
+    ],
+    "PT": [
+     "Santa Bárbara de Nexe"
+    ],
+    "SE": [
+     "Stockholm"
+    ]
+   }
+  },
+  {
+   "name": "PowerCo",
+   "system": "successfactors",
+   "board": "careers.powerco.de",
+   "countries": [
+    "DE",
+    "ES"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Salzgitter"
+    ],
+    "ES": [
+     "Sagunto",
+     "Valencia"
+    ]
+   }
+  },
+  {
+   "name": "QinetiQ",
+   "system": "successfactors",
+   "board": "careers.qinetiq.com",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Aberporth",
+     "Amesbury",
+     "Ashford",
+     "Benbecula",
+     "Bristol",
+     "Farnborough",
+     "Gosport",
+     "Lincoln",
+     "London",
+     "Manchester",
+     "Melbourne",
+     "Portsmouth",
+     "Rosneath",
+     "Rosyth",
+     "Sevenoaks"
     ]
    }
   },
@@ -7077,6 +8006,21 @@
    }
   },
   {
+   "name": "sonnen",
+   "system": "successfactors",
+   "board": "jobs.sonnen.de",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Twistringen",
+     "Wildpoldsried"
+    ]
+   }
+  },
+  {
    "name": "TE Connectivity",
    "system": "successfactors",
    "board": "careers.te.com",
@@ -7189,6 +8133,90 @@
     ],
     "RO": [
      "Timişoara"
+    ]
+   }
+  },
+  {
+   "name": "Vaillant",
+   "system": "successfactors",
+   "board": "jobs.vaillant-group.com",
+   "countries": [
+    "AT",
+    "BE",
+    "CH",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "IT",
+    "PL",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Bruck an der Mur",
+     "Deutschlandsberg",
+     "Klagenfurt am Wörthersee",
+     "Reutte",
+     "Salzburg",
+     "Vienna",
+     "Wels"
+    ],
+    "BE": [
+     "Drogenbos"
+    ],
+    "CH": [
+     "Dietikon"
+    ],
+    "DE": [
+     "Bergheim",
+     "Berlin",
+     "Bremen",
+     "Dortmund",
+     "Dresden",
+     "Hamburg",
+     "Hannover",
+     "Leipzig",
+     "Magdeburg",
+     "Munich",
+     "Nuremberg",
+     "Remscheid",
+     "Rostock",
+     "Stuttgart",
+     "Ulm"
+    ],
+    "ES": [
+     "Alcobendas",
+     "Gasteiz / Vitoria",
+     "Las Rozas de Madrid",
+     "Madrid",
+     "Pamplona",
+     "Salamanca",
+     "Segovia",
+     "Toledo",
+     "Ávila"
+    ],
+    "FR": [
+     "Lille",
+     "Nantes",
+     "Paris"
+    ],
+    "GB": [
+     "Belper",
+     "Derby",
+     "London"
+    ],
+    "IT": [
+     "Milan"
+    ],
+    "PL": [
+     "Katowice",
+     "Warsaw"
+    ],
+    "SK": [
+     "Senica",
+     "Skalica"
     ]
    }
   },

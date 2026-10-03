@@ -24,7 +24,7 @@ import threading
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import urljoin, urlsplit, urlunsplit
 
 from jobcu import db
 from jobcu.ai.base import AIError
@@ -230,25 +230,113 @@ def _verified(source, employer: Employer, http: PoliteClient) -> Employer | None
 def _board_from_page(http: PoliteClient, address: str, robots: dict[str, RobotsRules],
                      lock: threading.Lock) -> tuple[tuple[str, str] | None, str | None]:
     """Opens the employer's careers page (or, when the AI's address doesn't exist, the page one
-    level up) and looks for a career system in it. Returns (system, board) or None, and the name
-    of a system Jobcu doesn't read yet when that's what the page uses."""
+    level up) and looks for a career system in it; then, when it shows none, the page's own
+    link to its job list and the company's job hosts (`jobs.` and `careers.`). Returns
+    (system, board) or None, and the name of a system Jobcu doesn't read yet when that's what
+    the employer uses."""
     url = address if "://" in address else f"https://{address}"
+    page = final = None
     for attempt in (url, _parent(url)):
-        if attempt is None or not _allowed(http, attempt, robots, lock):
-            return None, None
-        try:
-            response = http.get(attempt, cache=False)
-        except Exception:  # noqa: BLE001 - a site that can't be opened, or that blocks tools
-            return None, None
-        if response.status_code in (404, 410):
+        if attempt is None:
+            break
+        looked = _look(http, attempt, robots, lock)
+        if looked == "missing":
             continue
-        if response.status_code != 200:
-            return None, None
-        page = response.text[:PAGE_BYTES]
-        final = str(response.url)
-        board = board_in(final) or board_in(page) or own_address_board(final, page)
-        return board, None if board else system_not_read(final + " " + page)
-    return None, None
+        if looked is not None:
+            final, page = looked
+        break
+    other = None
+    if page is not None:
+        board = _recognised(final, page)
+        if board is not None:
+            return board, None
+        other = system_not_read(final + " " + page)
+        if other:
+            return None, other
+        # Corporate careers pages often only link to the job search (search 11's sweep:
+        # 91 of 156 opened pages showed no system on the page itself).
+        deeper = _jobs_link(final, page)
+        if deeper is not None:
+            looked = _look(http, deeper, robots, lock)
+            if isinstance(looked, tuple):
+                board = _recognised(*looked)
+                if board is not None:
+                    return board, None
+                other = system_not_read(looked[0] + " " + looked[1])
+                if other:
+                    return None, other
+    # Many companies run their job site on its own host: Rohde & Schwarz on
+    # job.rohde-schwarz.com, Hensoldt on jobs.hensoldt.net (both SuccessFactors).
+    for host in _job_hosts(final or url):
+        looked = _look(http, f"https://{host}/", robots, lock)
+        if isinstance(looked, tuple):
+            board = _recognised(*looked)
+            if board is not None:
+                return board, None
+            other = other or system_not_read(looked[0] + " " + looked[1])
+    return None, other
+
+
+def _look(http: PoliteClient, url: str, robots: dict[str, RobotsRules],
+          lock: threading.Lock) -> tuple[str, str] | str | None:
+    """(final address, page), "missing" for a page that doesn't exist, or None when the page
+    can't or mayn't be read."""
+    if not _allowed(http, url, robots, lock):
+        return None
+    try:
+        response = http.get(url, cache=False)
+    except Exception:  # noqa: BLE001 - a site that can't be opened, or that blocks tools
+        return None
+    if response.status_code in (404, 410):
+        return "missing"
+    if response.status_code != 200:
+        return None
+    return str(response.url), response.text[:PAGE_BYTES]
+
+
+def _recognised(final: str, page: str) -> tuple[str, str] | None:
+    return board_in(final) or board_in(page) or own_address_board(final, page)
+
+
+# The words of a careers page's link to its list of open jobs, in the supported countries'
+# languages.
+_JOBS_WORDS = re.compile(
+    r"\b(?:job ?search|search jobs|find (?:a )?jobs?|all jobs|current (?:jobs|vacancies|openings)|"
+    r"vacancies|open (?:positions|roles|jobs)|job openings|stellenangebote|offene stellen|"
+    r"stellenbörse|jobbörse|jobsuche|aktuelle stellen|alle jobs|offres d.emploi|nos offres|"
+    r"vacatures|offerte di lavoro|posizioni aperte|ofertas de empleo|vacantes|oferty pracy|"
+    r"lediga jobb|ledige stillinger|avoimet työpaikat|volné pozice)\b", re.IGNORECASE)
+_LINK = re.compile(r"<a\b[^>]*href\s*=\s*[\"']([^\"'#]+)[\"'][^>]*>(.*?)</a>",
+                   re.IGNORECASE | re.DOTALL)
+_TAG = re.compile(r"<[^>]+>")
+
+
+def _jobs_link(base: str, page: str) -> str | None:
+    """The address a careers page links to under words like "Vacancies" or "Stellenangebote"."""
+    for href, text in _LINK.findall(page):
+        words = " ".join(_TAG.sub(" ", text).split())
+        if words and len(words) <= 60 and _JOBS_WORDS.search(words):
+            address = urljoin(base, href.strip())
+            if address.startswith("http") and address.rstrip("/") != base.rstrip("/"):
+                return address
+    return None
+
+
+_TWO_PART_ENDINGS = {"co.uk", "org.uk", "ac.uk", "gov.uk", "com.au", "co.at", "com.pl",
+                     "com.pt", "com.es", "com.gr", "com.cy", "com.mt"}
+
+
+def _job_hosts(url: str) -> list[str]:
+    """`jobs.` and `careers.` on the company's own domain ("www.hensoldt.net" →
+    jobs.hensoldt.net, careers.hensoldt.net), unless the address is already one of those."""
+    host = (urlsplit(url).hostname or "").lower()
+    labels = host.split(".")
+    if len(labels) < 2:
+        return []
+    keep = 3 if ".".join(labels[-2:]) in _TWO_PART_ENDINGS else 2
+    domain = ".".join(labels[-keep:])
+    return [name for name in (f"jobs.{domain}", f"careers.{domain}", f"job.{domain}")
+            if name != host]
 
 
 def _parent(url: str) -> str | None:

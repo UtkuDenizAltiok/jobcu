@@ -85,8 +85,8 @@ possible, the sessions deciding), each step on its own `local/…` branch, teste
        StepStone only with written permission (a draft email for the owner).
 2. [ ] Employers: (a) [x] a sweep of ~230 engineering employers' career pages: 18 readable ones
        added to the directory (Rohde & Schwarz, Hensoldt, VW, TE Connectivity, KION…; SOURCES.md,
-       2026-10-03); (b) [ ] the employer finder also tries `jobs.`/`careers.` hosts and the
-       page's "jobs" link when a careers page shows no system; (c) [ ] a job-sitemap reader
+       2026-10-03); (b) [x] the employer finder also tries `jobs.`/`careers.` hosts and the
+       page's "jobs" link when a careers page shows no system; (c) [x] a job-sitemap reader
        for sites whose terms allow it (Redline, ECM, expertum), for full ads instead of
        Adzuna summaries.
 3. [ ] Adzuna's jobs found at their original (agencies' own sites through the same reader),
@@ -189,8 +189,8 @@ effort.** Cost: at most €25 a month for the owner; free, or under €10 a mont
 
 - The town list contains some city districts as separate places (Hamburg-Wandsbek, London's
   Brent). Harmless for conditions: they lie inside the bigger city.
-- SuccessFactors sites whose job pages need JavaScript (Danfoss, SICK, Vitesco, Wacker) or
-  redirect (MTU) aren't read, and pages opened for address-list sites aren't remembered between
+- SuccessFactors sites whose job pages need JavaScript (SICK, Wacker) or redirect (MTU)
+  aren't read, and pages opened for address-list sites aren't remembered between
   searches.
 - Facts about places are looked up fresh in every search. Only the AI's travel estimates are
   remembered (30 days); Google's travel times may not be kept (Routes API terms).

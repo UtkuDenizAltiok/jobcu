@@ -280,6 +280,27 @@ def test_polite_client_waits_as_asked_and_remembers_answers():
     assert len(calls) == 2  # the second request came from memory
 
 
+@pytest.mark.parametrize(("exists", "attempts"), [(False, 1), (True, 4)])
+def test_a_host_that_doesn_t_exist_isn_t_tried_again(exists, attempts):
+    # Search 11: seven addresses guessed for employers' job lists cost 15 seconds of retries each.
+    calls = []
+
+    def handler(request):
+        calls.append(1)
+        raise httpx.ConnectError("no address")
+
+    def resolve(host):
+        if not exists:
+            raise OSError("unknown host")
+        return [("address",)]
+
+    http = PoliteClient(min_intervals={}, sleep=lambda s: None, resolve=resolve,
+                        transport=httpx.MockTransport(handler))
+    with pytest.raises(httpx.ConnectError):
+        http.get("https://jobs.nowhere.test/")
+    assert len(calls) == attempts  # a real network hiccup is still tried again
+
+
 @pytest.mark.parametrize("page", [
     "<html>Please complete the CAPTCHA</html>",
     # Amazon CloudFront's firewall, as Adzuna's pages answered (2026-09-23).

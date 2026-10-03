@@ -222,11 +222,20 @@ company had jobs in, and whether it also hires outside them).
   Integrations, Tyndall), SuccessFactors' shared career pages (`career2/career5.successfactors.eu`:
   Brose, IAV, Volkswagen's older site), HR4YOU (Rheinmetall), rexx (Preh), softgarden's `.de`
   pages (Elmos).
+- **The employer finder's deeper look on the same list (2026-10-03):** following each careers
+  page's job link and trying `jobs.`/`careers.`/`job.` hosts recognised 33 readable job sites
+  among the 156 employers (11 before) and left 103 unrecognised (132 before). **Added (17, all
+  SuccessFactors):** Fraunhofer (`jobs.fraunhofer.de`, DE 764), Liebherr (DE 508, GB 47, IE 12),
+  EDAG (DE 138), MAHLE (DE 133), QinetiQ (GB 121), Vaillant (DE 107), Knorr-Bremse (DE 99, GB 36),
+  Alstom (DE 65), HARTING (DE 61, GB 30), Brose (`job.brose.com`, DE 56), Excelitas (DE 56),
+  Danfoss (`jobs.danfoss.com`, DE 50; its job pages now show their dates), Oxford Instruments
+  (GB 44), ESB (IE 43), PowerCo, Murata, sonnen.
 - **Avature, looked at again (2026-10-03):** `jobs.siemens.com/en_US/externaljobs/SearchJobs/{words}`
   is allowed by robots.txt and offers an RSS feed (`…/feed/`) with title, link and `pubDate`,
   but no place, not newest first, and the job pages carry no JobPosting data: reading it means
   parsing each Avature site's own page layout. Still parked.
-- **Job sitemaps with JobPosting pages (2026-10-03):** some recruiters and employers publish a
+- **Job sitemaps with JobPosting pages (2026-10-03; read since then, `sitemaps.py`):** some
+  recruiters and employers publish a
   sitemap of every job page (with `lastmod`) and put schema.org JobPosting data on each page
   (exact `datePosted`, place, full ad). Checked: **Redline Group** (`/sitemap_jobs.xml`, 245
   jobs, `/job-details/…`; its terms have no clause on automated access), **ECM Selection**
@@ -238,6 +247,9 @@ company had jobs in, and whether it also hires outside them).
   may not copy, download, reproduce, re-sell or publish any part of the website"). Michael
   Page's sitemap lists advice pages, not jobs. Employers with job sitemaps but no JobPosting on
   the pages: Cambridge Consultants (`cambridgeconsult_job-sitemap.xml`, 88).
+  Redline's sitemap dates every page with the day it was made, so its dates don't narrow
+  anything; 40 of its 246 addresses matched the owner's search words (2026-10-03). In the
+  directory: Redline Group (GB), ECM Selection (GB), expertum (DE).
 - Other career systems seen on engineering employers' sites (2026-09-24, not built): **Avature**
   (jobs.siemens.com, jobs.siemens-energy.com, jobs.lenovo.com: "Allow: /$ # Disallowed portals
   are included as…"), Rohde & Schwarz's own jobboard (job.rohde-schwarz.com), Renesas

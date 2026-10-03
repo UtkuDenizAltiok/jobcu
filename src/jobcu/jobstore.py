@@ -22,7 +22,8 @@ AD_TEXT_DAYS = 3
 # What reading the full ad adds to what a source's job list already gave.
 AD_DETAIL_FIELDS = ("description", "description_is_complete", "job_types", "work_mode",
                     "employer_url", "salary_text", "company", "posted_at", "closes_at",
-                    "latitude", "longitude")
+                    "latitude", "longitude", "title", "location_text", "country",
+                    "date_precision")
 _TIMES = ("posted_at", "closes_at")
 
 

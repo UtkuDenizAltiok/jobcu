@@ -169,6 +169,28 @@ def test_the_ai_names_employers_and_jobcu_keeps_the_lists_it_can_read(monkeypatc
     assert len(ai.asked) == 3
 
 
+def test_a_careers_page_without_a_system_leads_to_its_job_list_or_job_host():
+    import threading
+
+    pages = {
+        # Only a link to the job search, one level deeper, shows the system.
+        "www.drives.test/karriere": '<a href="/karriere/jobs">Aktuelle Stellenangebote</a>',
+        "www.drives.test/karriere/jobs":
+            '<a href="https://drives.wd3.myworkdayjobs.com/Careers">Suche</a>',
+        # Nothing on the corporate page; the company's own job host runs SuccessFactors.
+        "www.radar.test/careers": "<h1>Careers</h1><p>Join us.</p>",
+        "jobs.radar.test/": '<script src="https://rmkcdn.successfactors.com/x.js"></script>',
+    }
+    http, robots, lock = web(pages), {}, threading.Lock()
+    assert employers._board_from_page(http, "https://www.drives.test/karriere", robots, lock) == (
+        ("workday", "https://drives.wd3.myworkdayjobs.com/Careers"), None)
+    assert employers._board_from_page(http, "https://www.radar.test/careers", robots, lock) == (
+        ("successfactors", "jobs.radar.test"), None)
+    assert employers._job_hosts("https://www.ward.co.uk/x") == [
+        "jobs.ward.co.uk", "careers.ward.co.uk", "job.ward.co.uk"]
+    assert "jobs.hensoldt.net" not in employers._job_hosts("https://jobs.hensoldt.net/")
+
+
 def test_employers_found_are_read_with_the_directory_s_and_forgotten_when_gone(monkeypatch):
     from jobcu.sources.careers import forget_found_employer, save_found_employer
 

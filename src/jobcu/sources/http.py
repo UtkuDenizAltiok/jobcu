@@ -10,6 +10,7 @@
 import logging
 import random
 import re
+import socket
 import threading
 import time
 from collections.abc import Callable
@@ -143,6 +144,7 @@ class PoliteClient:
         min_intervals: dict[str, float] | None = None,
         sleep: Callable[[float], None] = time.sleep,
         transport: httpx.BaseTransport | None = None,
+        resolve: Callable[[str], object] | None = None,
     ) -> None:
         self._client = httpx.Client(
             headers={"User-Agent": USER_AGENT},
@@ -158,6 +160,8 @@ class PoliteClient:
         self._cache: dict[tuple, httpx.Response] = {}
         self._sleep = sleep
         self.request_count: dict[str, int] = {}
+        self._resolve = resolve or (lambda host: socket.getaddrinfo(host, 443))
+        self._hosts_exist: dict[str, bool] = {}
 
     def close(self) -> None:
         self._client.close()
@@ -179,7 +183,10 @@ class PoliteClient:
             try:
                 response = self._client.request(method, url, **kwargs)
             except httpx.TransportError as exc:
-                if attempt == MAX_RETRIES:
+                # A host name that doesn't exist won't appear by waiting: an address the
+                # person's AI guessed cost 15 seconds of retries each (search 11).
+                if attempt == MAX_RETRIES or (isinstance(exc, httpx.ConnectError)
+                                              and not self._exists(host)):
                     raise
                 log.info("Network problem with %s (%s), retrying", host, type(exc).__name__)
                 self._sleep(min(2 ** attempt * 2, MAX_WAIT) + random.uniform(0, 1))
@@ -200,6 +207,19 @@ class PoliteClient:
         if cache and response.status_code == 200:
             self._cache[key] = response
         return response
+
+    def _exists(self, host: str) -> bool:
+        """Whether the host name has an address at all (asked once per host)."""
+        with self._lock:
+            known = self._hosts_exist.get(host)
+        if known is None:
+            try:
+                known = bool(self._resolve(host))
+            except OSError:
+                known = False
+            with self._lock:
+                self._hosts_exist[host] = known
+        return known
 
     def _wait_turn(self, host: str) -> None:
         with self._lock:
