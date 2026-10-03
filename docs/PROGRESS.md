@@ -19,37 +19,78 @@ owner's choice). The location box takes any condition in the person's own words,
 was checked, with sources, and can be corrected with Edit. The owner has run ten real searches
 on his Mac (2026-09-22 to 30); development is in local Claude Code sessions there.
 
-**What 2026-09-30/10-01 changed** (from the owner's search 10: details in DECISIONS.md, the
-sections dated 2026-09-30):
-- **Speed:** up to four AI requests at a time (one at a time after a rate limit), a counter on
-  the online look-up, an "Always" answer to the two limit questions.
-- **Coverage:** the **employer finder** (`employers.py`); new career systems **Oracle**
-  (Texas Instruments, onsemi, Vertiv, Nokia, Arcadis…), **Personio** (eMoSys), **Softgarden**
-  (PULS) and d.vinci-easy (MTU); Boston Scientific and Cirrus Logic; towns known by name alone
-  ("Rugby") give a career-site job its country; search words match with or without a plural
-  "s". SmartRecruiters and iCIMS close themselves to robots: not read.
-- **Scoring:** limits for work that fits only partly (related 60, loosely related 45, another
-  field 30) and for a requirement clearly not met (55); the owner's rule for senior roles. The
-  quality set (40 ads, 40 titles, complete) now scores 38 of 40 where the ratings put it (28
-  before).
-- One card per remembered job; the coverage tool names the right step.
-
-**A complete test search with all of it** (2026-10-01, a scratch copy of the owner's data, his
-usual sentence, 24 hours): **16 minutes**, no errors; location 1.5 min, **employer finder 3 min**
-(115 employers named, 10 new job lists: ADS-TEC Energy, AVL, BorgWarner, Cambridge GaN Devices,
-Cosworth, Fraunhofer, Logitech, Pragmatic Semiconductor, ROHM, Red Bull Powertrains), sources
-4.5 min (872 ads; 52 of 1,264 career-site titles kept by the AI), duplicates, quick check and
-travel 4.5 min, **scoring 288 jobs in 2 minutes** (10 before), 268 cards; the best GE Vernova's
-Power Electronics Development Engineer in Berlin (97), then UK graduate and electronics design
-roles. About $1.26 of tokens with the finder. **It found one bug, fixed the same day:** look-ups
-sent together could find the allowance held by the others, and the jobs left were skipped
-without the question (the requirements of 15 of 115 jobs read); they now get another turn, and
-Jobcu asks for any still left. Google Maps asked Jobcu to slow down once (the rest of the travel
-times became AI estimates).
+**The owner's search 11** (2026-10-03 at noon, 72 hours, his usual sentence; the first real
+search with the employer finder): **32 minutes**, no errors, 1,103 ads, 943 different jobs, 395
+scored (he answered "Score 195 more", not "Always"), **349 cards** (200 UK, 140 Germany, 9
+Ireland). Time: location 4.7 min (1.5 in the test), finder 3, sources 4, quick check and travel
+about 5, scoring 4, **the online look-up 10 min** (210 jobs, 413 web searches; it read 205 of
+210, as it should). **Cost about $2.43 of tokens and 471 web searches** (search 10: $1.74, 294):
+scoring $1.04, look-up $0.86, quick check $0.34. A search every two or three days would be
+about $29 a month and 5,600 web searches, above the €23 budget and Gemini's free 5,000. Google
+Maps had no trouble. What it showed, most important first:
+- **Reposts shown as fresh** (the owner noticed): **45 of the 349 cards** were jobs Jobcu itself
+  had shown on 17–24 September, before the 72 hours began (37 Adzuna, 5 Bundesagentur, 3
+  Arbeitnow; 13 scored 70+), e.g. Redline's "Senior SMPS Design Engineer" (first shown 22
+  September, Adzuna dates it 30 September) and Avd's "Altium PCB Design Engineer". They carried
+  "first seen by Jobcu on …" but stayed in the list, against HANDOVER §7 (proven older: hidden).
+  The top card, **GE Vernova's Power Electronics Development Engineer in Berlin (94)**, says
+  "Posted 4 Days Ago" on GE Vernova's own Workday site, its address ending "-3" (the third
+  posting of the requisition; the owner saw it two weeks ago), while Adzuna dates it 2 October:
+  the career-site reader dropped its own older copy before the duplicates were compared, so
+  only Adzuna's date was left. Hitachi's "R&D Senior Engineer – Power Electronics for Power
+  Transformers" says "Date Posted: 2026-02-16" in its text; Workday lists it as new.
+- **England's regions are unknown to Jobcu:** the AI answered the far-right condition with five
+  English regions above Reform UK's national share (North East, Yorkshire and the Humber, East
+  and West Midlands, East of England), and the note says Jobcu "doesn't know" them, so they were
+  dropped: only Wales and three German towns besides the eastern states were avoided (search
+  10's answer: 109 towns). The shipped regions have England, Scotland, Wales and Northern
+  Ireland and their counties, not the nine English regions.
+- **"Always" is only as large as this search:** it raises the Settings limit to this search's
+  number rounded up to 50 (400 here), so a bigger search asks again.
+- **58% of the cards are Adzuna summaries** (204 of 349; 127 of 267 in search 10), and they fill
+  the top: 34 of the 40 best are read only from Adzuna's ~500 characters (32 of them UK). They
+  are most of the look-up's 210 jobs and its 10 minutes.
+- **Quality set** (now 50 ads, 10 added from this search and rated by Claude, 40 titles):
+  **48 of 50** score where the ratings put them; the two off are Bond Williams' London
+  "Electronics Engineer" (88; asks 2–5 years, "typically your 2nd or 3rd role") and YER's "PCB
+  Layout Designer" (77; PCB library and PLM data work, German-only ad). Only 3 of the 50 are good
+  fits: the good graduate fits of this search were all Adzuna summaries, which the set can't
+  keep. The same NXP graduate role scored 91 in the search and 60 when scored again (embedded
+  system work judged "own field" once and "related" once).
+- **Coverage list** (21 fresh jobs from StepStone's "last 3 days" and ITJobsWatch, dates checked;
+  AES Bremen's "posted 1 day ago" power-electronics job is a December 2025 PDF on AES's own site,
+  so a repost, left out): **7 surely found** (FRITZ!, Retsch, SEG Automotive, TKMS, Redline
+  Chelmsford, ECM, Carbon 60); missed: on no source Jobcu reads (SIKORA Bremen, SII Ottobrunn,
+  expertum Munich, Michael Page Munich, Advancing People Bedford, Ovarro Chesterfield, Xtrac
+  Thatcham), German titles none of the search words match ("Hardware Entwickler" in two words,
+  "Ingenieur in der Hardware-Entwicklung", "Entwickler Analogelektronik & PCB Layout",
+  "Ingenieur*in … Elektronik"). The coverage tool's title match counted "Electronics Engineer"
+  as "Electronics Design Engineer – Mixed Signal / Robotics" (one title's words inside the
+  other's), so it overstated finds.
+- Smaller: the employer finder named 120 employers, 6 new readable lists (BorgWarner, Cummins,
+  Eaton, Littelfuse, Qorvo, Red Bull Technology; the rest own sites or closed systems: Bosch,
+  Infineon, Siemens, ABB, Schneider); eight career hosts refused connections for a minute at
+  11:39 (a network hiccup, retried); JobsIreland.ie listed nothing.
 
 ### In progress
 
-Nothing.
+**Checking the owner's search 11** (2026-10-03, 72 hours, 349 cards, 32 minutes), on branch
+`local/check-search-11`, with a scratch copy of his data folder in the session's scratchpad
+(delete it when done):
+1. [x] Study the search (results, scores, places, notes, sources, cost, time).
+2. [x] Rate the new ads kept for the score check; `tools/score_check.py --rescore`.
+3. [x] A coverage list of 15–25 fresh jobs found on the web; `tools/coverage_test.py`.
+4. [x] Record the findings here, delete the scratch copy, tests, merge.
+5. [ ] Fix, most important first, each in its own tested, merged step:
+   a. [ ] Reposts: a job Jobcu showed before the window began is hidden as older; career
+          sites keep their older copies for the duplicate comparison, so an aggregator's newer
+          date for an older original is caught (GE Vernova Berlin).
+   b. [ ] "Always" means no limit from now on (Settings shows it and can set one again).
+   c. [ ] England's nine regions in the shipped regions, so a condition answered with them
+          applies.
+   d. [ ] Search words match German compounds written apart or with a hyphen.
+   e. [ ] The coverage tool's title match agrees both ways.
+Done when: findings recorded with examples, fixes merged with tests, GitHub's tests pass.
 
 ### Verify before relying on
 

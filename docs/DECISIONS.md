@@ -667,3 +667,9 @@ as the documents say.
 | Decision | Reason |
 |---|---|
 | **Online look-ups that lost their turn to others running at the same time get another turn while the search's look-ups last, and Jobcu asks for any still left** (never skips them silently). | A complete 24-hour test search with everything from 2026-09-30 read the requirements of only 15 of 115 jobs and never asked: with four look-ups at a time, a batch could find the allowance reserved by the others, and when their real use turned out lower, some allowance was left, so the question's condition ("none left") didn't hold. Caps never silently reduce coverage (HANDOVER §13). The same search ran in 16 minutes without other errors (PROGRESS.md). |
+
+## 2026-10-03: The owner's search 11
+
+| Decision | Reason |
+|---|---|
+| **The score check holds 50 ads** (was 40; titles stay 40), and the local check adds a search's full ads by hand when the set is full, good fits first. | HANDOVER §13 asks for 30–50, and PROGRESS.md's plan says keep the set growing with good fits: the 40 had only 2 good fits, and search 11 kept nothing because the set was full. 10 ads from search 11 were added and rated (1 good, 6 okay, 3 poor); 48 of the 50 score where the ratings put them. |
