@@ -79,7 +79,23 @@ Maps had no trouble. What it showed, most important first:
 
 ### In progress
 
-Nothing.
+**Until the owner's next search on Wednesday 2026-10-07** (his words: improve Jobcu as well as
+possible, the sessions deciding), each step on its own `local/…` branch, tested and merged:
+1. [ ] StepStone and LinkedIn re-checked (2026-10-03): still no read API; LinkedIn closed;
+       StepStone only with written permission (a draft email for the owner).
+2. [ ] Employers: (a) [x] a sweep of ~230 engineering employers' career pages: 18 readable ones
+       added to the directory (Rohde & Schwarz, Hensoldt, VW, TE Connectivity, KION…; SOURCES.md,
+       2026-10-03); (b) [ ] the employer finder also tries `jobs.`/`careers.` hosts and the
+       page's "jobs" link when a careers page shows no system; (c) [ ] a job-sitemap reader
+       for sites whose terms allow it (Redline, ECM, expertum), for full ads instead of
+       Adzuna summaries.
+3. [ ] Adzuna's jobs found at their original (agencies' own sites through the same reader),
+       measured by how many cards still rely on a summary.
+4. [ ] Cost without losing anything: Gemini's implicit caching (shared instructions first), the
+       online look-up's requests.
+5. [ ] Avature (Siemens).
+6. [ ] A complete made-up search (`tools/made_up_search.py`) to measure all of it.
+Done when: each merged with tests, GitHub's tests pass, and "Right now" says what changed.
 
 ### Verify before relying on
 

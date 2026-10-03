@@ -203,6 +203,41 @@ company had jobs in, and whether it also hires outside them).
     `{company}.dvinci-easy.com/jobPublication/list.json` (robots.txt allows all): read since
     2026-09-30, board written as the full host. MTU Aero Engines' portal (19 jobs: eMoSys in
     Starnberg and 3D.aero in Hamburg) is in the directory.
+- **A sweep of engineering and energy employers, 2026-10-03** (about 230 careers pages and
+  likely job hosts in Germany, the UK and Ireland, Jobcu's own recognition, robots.txt
+  respected). Most corporate careers pages show no career system: the job search is one level
+  deeper, loaded by script, or on its own host (`jobs.{company}.com`, `careers.{company}.com`),
+  and 28 corporate sites refuse robots altogether (Webasto, SMA, STMicroelectronics,
+  Fraunhofer, Mercedes-Benz, BMW, Microchip, National Grid, Dell…). **Added to the directory
+  (18):** on SuccessFactors Rohde & Schwarz (`job.rohde-schwarz.com`, DE 388), Hensoldt
+  (`jobs.hensoldt.net`, DE 1,020), Volkswagen Group (`jobs.volkswagen-group.com`, DE 356),
+  B. Braun (DE 360), Voith (DE 169), Nordex (`jobs.nordex-online.com`, DE 144), TE Connectivity
+  (`careers.te.com`, DE 144, GB 133, IE 15), Everllence, formerly MAN Energy Solutions (DE 110),
+  RWE (DE 58, GB 52), Vitesco Technologies, Dana, Jaguar Land Rover (GB 16), Sennheiser; on
+  Workday KION Group (DE 144, GB 91); on Eightfold Eaton and Tektronix (Ralliant); ADS-TEC
+  Energy on d.vinci; Lotus on Teamtailor. Bentley Motors (SuccessFactors) had no job in a
+  supported country. **Seen and not read:** Avature (Siemens, Siemens Energy, Synopsys), iCIMS
+  (Schneider Electric, Arm, AMD, Rivian, Wolfspeed), Phenom (ABB, Honeywell, Siemens
+  Healthineers), SmartRecruiters (Bosch, Renesas, XP Power, Smiths), Jobvite (Power
+  Integrations, Tyndall), SuccessFactors' shared career pages (`career2/career5.successfactors.eu`:
+  Brose, IAV, Volkswagen's older site), HR4YOU (Rheinmetall), rexx (Preh), softgarden's `.de`
+  pages (Elmos).
+- **Avature, looked at again (2026-10-03):** `jobs.siemens.com/en_US/externaljobs/SearchJobs/{words}`
+  is allowed by robots.txt and offers an RSS feed (`…/feed/`) with title, link and `pubDate`,
+  but no place, not newest first, and the job pages carry no JobPosting data: reading it means
+  parsing each Avature site's own page layout. Still parked.
+- **Job sitemaps with JobPosting pages (2026-10-03):** some recruiters and employers publish a
+  sitemap of every job page (with `lastmod`) and put schema.org JobPosting data on each page
+  (exact `datePosted`, place, full ad). Checked: **Redline Group** (`/sitemap_jobs.xml`, 245
+  jobs, `/job-details/…`; its terms have no clause on automated access), **ECM Selection**
+  (`/sitemap.xml`, `/jobs/{id}/{title}`; terms forbid copying only "for commercial gain"; its
+  pages write the script type as `application/ld&#x2B;json`), **expertum** (`/job/sitemap.xml`,
+  no `lastmod`; its AGB cover staffing contracts, not the website). **Not usable by their
+  terms:** Hays (hays.de, 4,471 jobs in `job-sitemap.xml`; Nutzungsbedingungen I.3: "Kein
+  Sammeln oder Auslesen von Informationen oder Daten aus den Services"), Rise Technical ("You
+  may not copy, download, reproduce, re-sell or publish any part of the website"). Michael
+  Page's sitemap lists advice pages, not jobs. Employers with job sitemaps but no JobPosting on
+  the pages: Cambridge Consultants (`cambridgeconsult_job-sitemap.xml`, 88).
 - Other career systems seen on engineering employers' sites (2026-09-24, not built): **Avature**
   (jobs.siemens.com, jobs.siemens-energy.com, jobs.lenovo.com: "Allow: /$ # Disallowed portals
   are included as…"), Rohde & Schwarz's own jobboard (job.rohde-schwarz.com), Renesas
