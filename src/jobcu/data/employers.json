@@ -6076,6 +6076,74 @@
    }
   },
   {
+   "name": "ECM Selection",
+   "system": "sitemap",
+   "board": "https://www.ecmselection.co.uk/sitemap.xml",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Cambridge",
+     "Guildford",
+     "London",
+     "Nottingham"
+    ]
+   }
+  },
+  {
+   "name": "expertum",
+   "system": "sitemap",
+   "board": "https://expertum.de/job/sitemap.xml",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Augsburg",
+     "Biberach an der Riß",
+     "Bochum",
+     "Bremen",
+     "Garching",
+     "Hamburg",
+     "Hude",
+     "Landsberg am Lech",
+     "Memmingen",
+     "Oldenburg",
+     "Schongau",
+     "Schwäbisch Hall",
+     "Wilhelmshaven",
+     "Zschopau"
+    ]
+   }
+  },
+  {
+   "name": "Redline Group",
+   "system": "sitemap",
+   "board": "https://www.redlinegroup.com/sitemap_jobs.xml",
+   "countries": [
+    "GB",
+    "IT"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Eastbourne",
+     "Fareham",
+     "Gateshead",
+     "Guildford",
+     "Lincoln",
+     "Loughborough",
+     "Manchester",
+     "Norwich",
+     "Reading",
+     "Rochester"
+    ]
+   }
+  },
+  {
    "name": "PULS",
    "system": "softgarden",
    "board": "pulspower",

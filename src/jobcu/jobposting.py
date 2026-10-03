@@ -37,6 +37,7 @@ class JobPosting:
     job_types: list[str] = field(default_factory=list)
     remote: bool = False
     valid_through: datetime | None = None  # when applications close
+    country: str | None = None  # the address's country as written ("GB", "Deutschland")
 
 
 def find_job_posting(html: str) -> JobPosting | None:
@@ -83,10 +84,22 @@ def _read(item: dict) -> JobPosting:
         date_has_time="T" in posted_text,
         company=str(company) if company else None,
         location_text=_location(item.get("jobLocation")),
+        country=_country(item.get("jobLocation")),
         job_types=types,
         remote=str(item.get("jobLocationType") or "").upper() == "TELECOMMUTE",
         valid_through=parse_closing(str(item.get("validThrough") or "")),
     )
+
+
+def _country(value) -> str | None:
+    for place in value if isinstance(value, list) else [value]:
+        address = place.get("address") if isinstance(place, dict) else None
+        country = address.get("addressCountry") if isinstance(address, dict) else None
+        if isinstance(country, dict):
+            country = country.get("name")
+        if country:
+            return str(country).strip()
+    return None
 
 
 def _location(value) -> str | None:

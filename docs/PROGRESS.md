@@ -86,7 +86,7 @@ possible, the sessions deciding), each step on its own `local/…` branch, teste
 2. [ ] Employers: (a) [x] a sweep of ~230 engineering employers' career pages: 18 readable ones
        added to the directory (Rohde & Schwarz, Hensoldt, VW, TE Connectivity, KION…; SOURCES.md,
        2026-10-03); (b) [x] the employer finder also tries `jobs.`/`careers.` hosts and the
-       page's "jobs" link when a careers page shows no system; (c) [ ] a job-sitemap reader
+       page's "jobs" link when a careers page shows no system; (c) [x] a job-sitemap reader
        for sites whose terms allow it (Redline, ECM, expertum), for full ads instead of
        Adzuna summaries.
 3. [ ] Adzuna's jobs found at their original (agencies' own sites through the same reader),
