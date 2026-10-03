@@ -54,6 +54,20 @@ def test_a_job_counts_as_found_only_with_the_same_company_title_and_town():
     assert tool.looks_like(by_link, cards[0]) == 100
 
 
+def test_titles_must_agree_both_ways():
+    tool = load_tool()
+    # Search 11: one title's words all inside the other's counted as the same job.
+    assert tool.title_match("Electronics Design Engineer - Mixed Signal / Robotics",
+                            "Electronics Engineer") < tool.TITLE_MATCH
+    assert tool.title_match("Graduate Electronics Engineer (CAD)",
+                            "Electronics Design Engineer") < tool.TITLE_MATCH
+    # A salary or a start date added by one site is still the same job.
+    assert tool.title_match("Electronics Engineer",
+                            "Electronics Engineer - London - c£50K") >= tool.TITLE_MATCH
+    assert tool.title_match("Graduate Electronics Engineer",
+                            "Graduate Electronics Engineer (2027 start)") >= tool.TITLE_MATCH
+
+
 def test_a_missed_job_is_placed_at_the_step_that_lost_it():
     tool = load_tool()
     pool = Pool(search_id=1, jobs=[
