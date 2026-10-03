@@ -86,7 +86,7 @@ Maps had no trouble. What it showed, most important first:
           date for an older original is caught (GE Vernova Berlin: checked live, its Workday
           copy comes back as an older copy dated 29 September).
    b. [x] "Always" means no limit from now on (Settings shows it and can set one again).
-   c. [ ] England's nine regions in the shipped regions, so a condition answered with them
+   c. [x] England's nine regions in the shipped regions, so a condition answered with them
           applies.
    d. [ ] Search words match German compounds written apart or with a hyphen.
    e. [ ] The coverage tool's title match agrees both ways.

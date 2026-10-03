@@ -1046,7 +1046,8 @@ def fits(condition: Condition, country: str | None, location_text: str | None) -
         else:
             # Only a region is known ("Sachsen"): it decides when it's one of those regions.
             hit = any((region := place_list.find_region(part, country)) is not None
-                      and region.code in regions for part in parts)
+                      and any(place_list.region_inside(region.code, code) for code in regions)
+                      for part in parts)
     if condition.kind == "towns_that_fit":
         return "yes" if hit else ("no" if found is not None else "unknown")
     # Towns to avoid: a place that is only a country or a region ("Deutschland", "Bayern") may
