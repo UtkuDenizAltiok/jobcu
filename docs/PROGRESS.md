@@ -6,7 +6,7 @@ Where the project stands, and nothing else: git history says what was done, and
 
 ## Right now
 
-*Updated 2026-10-01. All tests pass; GitHub's tests pass on macOS and Windows.*
+*Updated 2026-10-03. All tests pass; GitHub's tests pass on macOS and Windows.*
 
 ### State
 
@@ -16,8 +16,14 @@ them company career systems, reading 403 employers plus the ones the AI found), 
 at the career-site titles the search words miss, removes duplicates, applies the rules and the
 location conditions, and scores what's left with every AI step at **medium** effort (the
 owner's choice). The location box takes any condition in the person's own words, shows how each
-was checked, with sources, and can be corrected with Edit. The owner has run ten real searches
-on his Mac (2026-09-22 to 30); development is in local Claude Code sessions there.
+was checked, with sources, and can be corrected with Edit. The owner has run eleven real
+searches on his Mac (2026-09-22 to 10-03); development is in local Claude Code sessions there.
+
+**Fixed on 2026-10-03 from search 11** (DECISIONS.md, "The owner's search 11"): jobs Jobcu
+showed before the window began, and jobs whose employer's own site shows an older copy, are left
+out as **posted again**; **"Always" removes the limit** (Settings shows "No limit"); **England's
+nine regions** are known; search words match compounds written apart ("Hardware Entwickler");
+the score check holds 50 ads; the coverage tool's titles agree both ways.
 
 **The owner's search 11** (2026-10-03 at noon, 72 hours, his usual sentence; the first real
 search with the employer finder): **32 minutes**, no errors, 1,103 ads, 943 different jobs, 395
@@ -73,46 +79,32 @@ Maps had no trouble. What it showed, most important first:
 
 ### In progress
 
-**Checking the owner's search 11** (2026-10-03, 72 hours, 349 cards, 32 minutes), on branches named
-`local/…`; the scratch copy of his data folder is deleted:
-1. [x] Study the search (results, scores, places, notes, sources, cost, time).
-2. [x] Rate the new ads kept for the score check; `tools/score_check.py --rescore`.
-3. [x] A coverage list of 15–25 fresh jobs found on the web; `tools/coverage_test.py`.
-4. [x] Record the findings here, delete the scratch copy, tests, merge.
-5. [ ] Fix, most important first, each in its own tested, merged step:
-   a. [x] Reposts: a job Jobcu showed before the window began is hidden as older; career
-          sites keep their older copies for the duplicate comparison, so an aggregator's newer
-          date for an older original is caught (GE Vernova Berlin: checked live, its Workday
-          copy comes back as an older copy dated 29 September).
-   b. [x] "Always" means no limit from now on (Settings shows it and can set one again).
-   c. [x] England's nine regions in the shipped regions, so a condition answered with them
-          applies.
-   d. [x] Search words match German compounds written apart or with a hyphen.
-   e. [x] The coverage tool's title match agrees both ways.
-Done when: findings recorded with examples, fixes merged with tests, GitHub's tests pass.
+Nothing.
 
 ### Verify before relying on
 
-- **The owner's next search** (the first real one with everything above): its time (about 20
-  minutes for 72 hours, plus 3 for the finder), the finder's step detail and the employers it
-  adds, the online look-up's detail (it must read nearly all jobs it lists, or ask), no "AI limit
-  reached" note on his paid tier, and the cost per step (Search details).
+- **The owner's next search** (the first with the 2026-10-03 fixes): "posted again" counted in
+  Search details (search 11 would have had about 45, plus jobs like GE Vernova's Berlin one),
+  no job left out that is really new (a second vacancy with the same title at the same company
+  and town is the risk), the far-right condition now listing English regions and applying them
+  ("Understood as"), and "Always" leaving Settings at "No limit". Time (search 11: 32 minutes,
+  10 of them the online look-up) and cost per step.
+- **Older copies:** only career sites that list jobs older than the window give them (Workday,
+  SuccessFactors, Greenhouse and others; Oracle stops at the window). Watch that no fresh job is
+  merged with an unrelated older one.
 - **The employer finder over time:** no employer abroad or unrelated read for nothing; forgotten
-  when a list disappears; it looks again after 14 days.
-- **New readers inside real searches:** Oracle, Personio and Softgarden jobs on cards with full
-  ads; whether a big Softgarden employer's list page shows every job.
-- **Fit limits:** real fits never capped (a neighbouring specialisation keeps its score); watch
-  analog chip design and RF/EW hardware.
-- **Rugby-like towns:** GE Vernova's Rugby and Stafford jobs on cards; no job abroad taken for a
-  UK or Irish town of the same name (a bare "Hamilton" would be).
-- **Google Maps:** it asked Jobcu to slow down in the test search (per-minute quota): whether
-  that happens in the owner's searches, and Billing → Reports still at €0.
-- **The regions answer varies from search to search** (search 9: 32 towns and Wales; search 10:
-  109 towns, no Wales): compare "Understood as".
-- **Cost:** about $1.7 of tokens for a 72-hour search; a search every two or three days is about
-  $21 a month now and about $42 after the prices double on 1 January 2027, above the €23 AI
-  budget; web searches stay within Gemini's free 5,000 a month at that rhythm. Never saved by a
-  lower effort or fewer jobs (task 2).
+  when a list disappears; it looks again after 14 days (next: about 2026-10-17).
+- **New readers inside real searches:** Oracle (14 cards in search 11), Personio and Softgarden
+  (none yet) with full ads; whether a big Softgarden employer's list page shows every job.
+- **Fit limits:** real fits never capped (a neighbouring specialisation keeps its score); the
+  same NXP graduate role scored 91 in search 11 and 60 when scored again.
+- **The regions answer varies from search to search** (search 9: 32 towns and Wales; search
+  10: 109 towns; search 11: German states, Wales and five English regions): compare
+  "Understood as".
+- **Cost:** search 11 cost about $2.43 of tokens and 471 web searches; at a search every two or
+  three days that is about $29 a month and 5,600 web searches, above the €23 AI budget and
+  Gemini's free 5,000 (prices double on 1 January 2027). Never saved by a lower effort or fewer
+  jobs (task 2).
 - **The robots.txt reader** (RFC 9309): check at the next `tools/check_employers.py` run that no
   newly read company clearly forbids it.
 - **Sources not seen inside a search yet:** "apply by …" on a card, and Le Forem, prospective.ch,
@@ -120,14 +112,15 @@ Done when: findings recorded with examples, fixes merged with tests, GitHub's te
 
 ### Waiting on the owner
 
-1. **The next search, Saturday 2026-10-03 at noon:** double-click the launcher (it updates
-   itself from GitHub and replaces the old Jobcu still running), run a **72-hour search** with
-   his usual sentence, and answer both questions with **Always** (score them all; look them all
-   up). The first search with the employer finder takes about 3 minutes longer. Then a local
-   session with "Check my latest search" (CONTRIBUTING.md).
+1. **The next search** (a 72-hour search every two or three days, as before): double-click the
+   launcher first, so it updates from GitHub and replaces the Jobcu still running (the one that
+   ran search 11 has the old code). Answer both questions with **Always** if he wants every job
+   scored and looked up in every search; it now means no limit (Settings can set one again).
+   Then a local session with "Check my latest search" (CONTRIBUTING.md).
 2. **The friend's test:** his feedback on installing and using Jobcu.
 3. **Only if he wants to send them** (messages in his name): access requests to StepStone,
-   Denmark's Jobnet, Poland's CBOP, or a private NAV token. None is needed for the current focus.
+   Denmark's Jobnet, Poland's CBOP, or a private NAV token. **StepStone matters now:** 7 of
+   search 11's 14 missed coverage-list jobs were on StepStone and no source Jobcu reads.
 
 The quality set and the coverage list are made by the local check on his behalf (DECISIONS.md,
 2026-09-24 night); he may still rate or add jobs himself.
@@ -146,19 +139,24 @@ effort.** Cost: at most €25 a month for the owner; free, or under €10 a mont
 1. **Check the next search** ("Check my latest search"): "Verify before relying on" above, the
    ratings (`tools/score_check.py --rescore`) and a new coverage list; record the findings here
    and fix them first.
-2. **Cost at medium effort:** from the next search's cost per step, save only where nothing is
-   lost: context caching for scoring and the quick check (Gemini cached none of their repeated
-   instructions in search 10, but 43% of the online look-up's), and the batch size with
-   `tools/score_check.py`. Never a lower effort or fewer jobs.
-3. **More career systems and employers:** Avature (Siemens: site-specific search pages), then
-   employers' own career sites through the standard job data (HANDOVER §9.0, the generic
-   JobPosting reader); the employer finder names the systems in use (SOURCES.md, "Career systems
-   checked on 2026-09-30"). Missing employers from search 10's coverage list: AES, EDAG,
-   Ricardo, Evolito, Malloy Aeronautics, TDK-Lambda, ENGIE, Real, Tyndall, Egis, Kirstein.
-4. **Fewer jobs depending on Adzuna's summaries** (127 of 267 cards in search 10): find the same
-   job at its original before reading it online, and measure how many still rely on a summary.
-5. **Scoring:** keep the quality set growing with each check (good fits especially), watch the
-   neighbouring-specialisation calls, then the quick check's two misses (Quantum Machines' QA
+2. **Cost at medium effort** (search 11: $2.43 and 471 web searches, over budget): from
+   the next search's cost per step, save only where nothing is lost: context caching for scoring
+   and the quick check (Gemini cached none of their repeated instructions), the online look-up's
+   jobs per request and web searches per job, and the batch size with `tools/score_check.py`.
+   Never a lower effort or fewer jobs.
+3. **More career systems and employers** (search 11's coverage list: 7 of 21 found; missed
+   SIKORA, SII Technologies, expertum, Michael Page, Advancing People, Ovarro, Xtrac): Avature
+   (Siemens: site-specific search pages), then employers' own career sites through the standard
+   job data (HANDOVER §9.0, the generic JobPosting reader); the employer finder named 120
+   employers in search 11 and only 15 had readable lists (SOURCES.md, "Career systems checked
+   on 2026-09-30"). Still missing from search 10's list: AES, EDAG, Ricardo, Evolito, Malloy
+   Aeronautics, TDK-Lambda, ENGIE, Real, Tyndall, Egis, Kirstein.
+4. **Fewer jobs depending on Adzuna's summaries** (204 of 349 cards in search 11, 34 of the 40
+   best): find the same job at its original before reading it online, and measure how many
+   still rely on a summary. It is also most of the look-up's time and cost.
+5. **Scoring:** the quality set is at HANDOVER's 50 ads with only 3 good fits: at each check,
+   swap good fits with full ads in for poor ones that repeat a lesson (a small change to
+   `quality.py`), watch the neighbouring-specialisation calls (NXP 91 vs 60), then the quick check's two misses (Quantum Machines' QA
    engineer, a university's drives lab lead). Re-run `tools/universality_check.py` after any
    change to the AI instructions.
 6. **Phase 2's "Done when":** every example sentence from HANDOVER §6, README.md and the owner's
@@ -203,8 +201,8 @@ effort.** Cost: at most €25 a month for the owner; free, or under €10 a mont
 | Phase | What it delivers | Status |
 |---|---|---|
 | 0. Foundations | Project set-up; Jobcu starts with a double-click | ✅ Done (2026-09-17) |
-| 1. Usable first version | A real search with ranked, deduplicated results and reasons | 🔨 Real searches work; the quality set is complete and the scoring limits are tuned on it (38 of 40) |
-| 2. Smart location filter | Understands sentences like "a city by the seaside" | 🔨 Mostly built |
+| 1. Usable first version | A real search with ranked, deduplicated results and reasons | 🔨 Real searches work; the scoring limits are tuned on the quality set (48 of 50) |
+| 2. Smart location filter | Understands sentences like "a city by the seaside" | 🔨 Mostly built; England's nine regions known (2026-10-03) |
 | 3. Maximum coverage | Many more job sources in every supported country | 🔨 14 career systems, 403 employers, the employer finder |
 | 4. Ready for friends | Complete guides, first-run setup, tested on real Mac and Windows computers | Planned |
 
@@ -220,8 +218,9 @@ effort.** Cost: at most €25 a month for the owner; free, or under €10 a mont
       relevance check; scoring with reasons; a scoring limit that asks before doing more
 - [x] Results: Save, Applied, Not interested, "New", Saved and Applied lists, sorting, "Posting
       date unknown"
-- [ ] A quality set of 30–50 real ads judged for the owner (40 ads and 40 titles rated by Claude
-      on 2026-09-24 and 30, good fits among them) and a tuned scoring prompt (HANDOVER §13)
+- [ ] A quality set of 30–50 real ads judged for the owner (50 ads and 40 titles rated by
+      Claude on 2026-09-24, 30 and 10-03; 48 of 50 scored where rated, but only 3 good fits) and a
+      tuned scoring prompt (HANDOVER §13)
 - [x] **Done when:** the owner runs a real search on his Mac and gets a ranked, deduplicated list
       with reasons (2026-09-22 and 2026-09-23).
 
