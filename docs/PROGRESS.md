@@ -5,13 +5,14 @@ Current state and next work. Decisions live in [DECISIONS.md](DECISIONS.md); sou
 
 ## Right now
 
-*Updated 2026-10-06. Project preparation is merged; the owner uses Jobcu on demand and it is stopped.*
+*Updated 2026-10-06. Final handover: preparation is merged; personal setup and the first real search are next.*
 
 ### State
 
-Mac recovery, project readiness, session prompts and handover are merged in PRs #42–#45.
-Main was clean and matched origin at `0bbcf60` before this preference update. The sole local
-checkout was moved into `Developer/jobcu` under the owner's home; it was moved, not copied.
+Mac recovery, project readiness, session prompts and on-demand use are implemented, tested,
+pushed and merged in PRs #42–#46. Verified main `a08a09f` was clean and matched origin;
+macOS, Windows and privacy CI passed on that merge. The sole local checkout is in
+`Developer/jobcu` under the owner's home; it was moved, not copied.
 The rebuilt environment and Mac launcher self-test passed after relocation; Git stayed clean.
 **Jobcu is stopped by the owner's request.** His default is double-clicking **Start Jobcu.command**
 to open it, then closing that terminal window and choosing **Terminate** if prompted to stop it.
@@ -27,40 +28,30 @@ separate from all private inputs and results. Country work order: **Germany, Ire
 Switzerland, Netherlands, Belgium, Italy**. First validation focus: **electronics and technical
 engineering**, with general matching and fictional other-profession regressions.
 
-Jobcu has 29 source adapters, 15 employer career systems/sitemaps, and 441 listed employers.
-The shipped directory has entries in all seven priority countries; listed employers are not
-verified current vacancies or measured engineering recall. See the dated matrix in SOURCES.md.
+The shipped source directory includes all seven priority countries. Listed employers are not
+verified vacancies or measured engineering recall; see the dated matrix in SOURCES.md.
+Architecture and evaluation tools are documented in ARCHITECTURE.md and CONTRIBUTING.md;
+completed implementation detail belongs in Git. The two canonical start/end prompts are in
+[SESSION-PROMPTS.md](SESSION-PROMPTS.md). AGENTS.md requires simple, direct next steps after
+every response. No source upload or copy of this chat is needed for the local project.
 
-This preparation adds labelled summaries, final scores and original location plans to the quality
-sample, fixes duplicate-first sampling, records step/answer-wait timings, and adds a read-only
-aggregate review command. Lengthy scoring excerpts are explicitly identified. New installations
-use a 72-hour ad-age window; existing selections remain unchanged. Completed Claude cloud tooling
-and redundant wrappers are removed. AGENTS.md is shorter; architecture/retained lessons have their
-own document; CONTRIBUTING.md contains the local project and result-review workflow. The two
-canonical defaults are in [SESSION-PROMPTS.md](SESSION-PROMPTS.md): checkpoint and end a session,
-or verify the latest state and resume, including recovery after an unexpected cutoff.
+This final documentation refresh is on `codex/final-handover`, based on `a08a09f`.
+Git and its PR/CI record establish the final commit and publication state. If interrupted
+before merge, finish that branch's checks/publication under AGENTS.md; once merged with
+passing CI, no handover publication remains. Leave main clean and Jobcu stopped.
 
 ### In progress
 
-No unfinished product implementation. **On-demand use** is recorded in the working rules,
-ending prompt and launcher guide. The actual service is stopped and port 8765 was checked closed;
-609 tests, Ruff and the privacy guard passed locally. This preference update is prepared on
-`codex/on-demand-app`, based on main `0bbcf60`. If publication is interrupted, recover that
-branch's PR and final checks, then merge and leave clean main with the service stopped. Once
-merged with passing checks, no publication remains. No product code change or new search is needed.
+No unfinished product implementation, running search or failed check. **609 tests**, Ruff,
+documentation links and the privacy guard passed locally for this handover. Pytest reported
+one upstream dependency deprecation warning, with no failure. No app code changed; launcher
+verification after relocation and Mac/Windows/privacy CI on `a08a09f` remain valid.
 
-Completed evidence: **609 tests**, Ruff, documentation links and privacy checks passed for PR #44;
-macOS/Windows CI also passed on its merge. Prior app verification covered JavaScript syntax,
-the Mac launcher and a fictional-data browser check of the 72-hour default, step/wait timings,
-summary warning and score reveal after rating. No failed check remains from that work. This
-checkpoint changes only the handover record; the final publication must pass the normal checks.
-
-**Next session's exact first action:** use the Start a session prompt in SESSION-PROMPTS.md,
-check `git status`, this record and the latest main/PR checks. After any interrupted publication
-is resolved, the next product action is the first real-results review using CONTRIBUTING.md;
-it waits for the owner's setup and completed search. `uv run python tools/review_search.py`
-currently reports no saved search. Actual provider access, coverage, scoring quality, cost and
-speed remain untested on the restored Mac; their verification list below is still open.
+**Next session's exact first action:** use the Start a session prompt in SESSION-PROMPTS.md;
+verify `git status`, this record and recent PR/CI state. The next product action is the first
+real-results review using CONTRIBUTING.md, after the owner's setup and completed search.
+Actual provider access, coverage, scoring quality, cost and speed remain untested on the
+restored Mac; their verification list below is still open.
 
 ### Verify before relying on
 
