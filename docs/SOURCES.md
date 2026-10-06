@@ -792,8 +792,8 @@ Legitimate routes only (DECISIONS.md, 2026-09-24 later): Jobcu never opens their
   employer or another permitted source. Cost per person and query: about 3,000–8,000 output
   tokens (≈ $0.01–0.03) and 4–8 grounded searches (Gemini's 5,000 free a month, then $14 per
   1,000).
-- **Cloud check note:** Python 3.13 needed a relaxed certificate flag for the proxy (AGENTS.md,
-  "Working in a cloud session").
+- **Historical cloud check note:** the former Claude proxy needed a relaxed certificate flag.
+  That setup is retired; never disable TLS verification in Jobcu or local source checks.
 
 ## Candidate sources by country (research from 2026-09-24, not built yet)
 
@@ -855,7 +855,7 @@ systems. No Swiss public or national source yet.
 ### Belgium
 
 - **Le Forem's open data:** built (above).
-- **VDAB (Flanders' public employment service):** a developer portal (developer.vdab.be) with a
+- **VDAB (Flanders' public employment service, historical 2026-09-24 note; updated below):** a developer portal (developer.vdab.be) with a
   Vacatures API (search, bulk list of new and changed vacancies; up to 2,000 calls a minute are
   mentioned). Free, but each user needs **an account and a subscription**, like Adzuna's key;
   the terms show only after signing in. Not tested.
@@ -930,3 +930,51 @@ Non-search quotas, invalid keys and brief rate limits keep their usual handling.
 tests use representative error messages; the exact response from a real free-tier project
 still needs checking. No credentials were present after the Mac reset, and none were requested
 in chat. This updates the implementation limitation above without claiming a live free-tier test.
+
+## Engineering coverage research, checked 2026-10-06
+
+These are source facts, not results from the owner's restored Mac. The current work order is
+in AGENTS.md; the measured gaps and next actions belong in PROGRESS.md.
+
+- **ESCO remains an audit reference for multilingual occupations and skills.** The European
+  Commission publishes data and APIs in 28 languages, including English, German, Dutch, French
+  and Italian. This supports checking translations and neighbouring electronics specialisations;
+  a taxonomy match alone cannot establish candidate fit or job freshness. No new runtime ESCO
+  dependency was added. [Official reuse and language documentation](https://esco.ec.europa.eu/en/use-esco).
+- **Original posting dates and full evidence matter.** Google's JobPosting specification defines
+  `datePosted` as the employer's original date and `description` as the complete job content,
+  including requirements. These are evidence when the source supplies them correctly, not proof
+  that every source is accurate; check reposts against job memory and the original requisition.
+  [Official JobPosting documentation](https://developers.google.com/search/docs/appearance/structured-data/job-posting).
+- **Ireland: Engineers Ireland Jobs Desk is public and dedicated to engineering.** Its FAQ says
+  jobseekers can use it without membership. It is a candidate for an independent coverage sample;
+  the public page and [terms](https://www.engineersireland.ie/Terms-Of-Use) were read, but an
+  automated feed/API, robots rules and safe collection permission have not been established.
+  No adapter or automated collection was added. [Official Jobs Desk](https://www.engineersireland.ie/Jobs-Desk).
+- **Belgium: VDAB is not a per-user-key drop-in source.** Its current official documentation
+  requires an approved partnership and signed agreement, professional use and value for VDAB.
+  It also says new applications are temporarily unavailable. This supersedes the earlier
+  suggestion that a free developer account/subscription might suffice. No application or contact
+  was made; prefer already permitted employer sites and Le Forem for current work.
+  [Official vacancy API conditions](https://extranet.vdab.be/api-center-excellence-coe/vacatures-ophalen-met-de-vacatures-api).
+- **Switzerland: Job-Room's published Jobs API manages an employer's own advertisements.** The
+  registration flow uses creation and employer-owned retrieval, not an unrestricted public
+  job-search API; registration-duty ads also have an initial restricted period. Do not treat
+  that API as a new keyless vacancy source. Existing Prospective and employer adapters remain
+  the practical route. [Official Jobs API](https://test-api.job-room.ch/api-docs/jobAdvertisements/v1/index.html).
+
+The repository directory contains 441 employers. Multiple countries can belong to one employer;
+counts below measure listed coverage, not reachable sites, current vacancies or electronics fit.
+
+| Country, in priority order | Listed employers | Career systems represented |
+|---|---:|---:|
+| Germany | 299 | 15 |
+| Ireland | 176 | 10 |
+| UK | 315 | 13 |
+| Switzerland | 109 | 11 |
+| Netherlands | 161 | 12 |
+| Belgium | 106 | 10 |
+| Italy | 168 | 13 |
+
+Computed directly from `src/jobcu/data/employers.json` on 2026-10-06. Recompute when that file
+changes. No live full search, paid provider check or freshness/recall claim follows from this table.

@@ -47,6 +47,8 @@ class Ad:
     blockers: list[str] = field(default_factory=list)
     note: str = ""
     rated_by: str | None = None
+    description_is_complete: bool = True
+    location_plan: dict | None = None
 
     @classmethod
     def from_row(cls, row) -> "Ad":
@@ -55,6 +57,9 @@ class Ad:
             location=row["location"], url=row["url"], score=row["score"], text=row["text"],
             rating=row["rating"], blockers=json.loads(row["blockers_json"] or "[]"),
             note=row["note"] or "", rated_by=row["rated_by"],
+            description_is_complete=bool(row["description_is_complete"]),
+            location_plan=(json.loads(row["location_plan_json"])
+                           if row["location_plan_json"] else None),
         )
 
 
@@ -68,14 +73,19 @@ def add(kind: str, items: list[dict]) -> int:
             "SELECT COUNT(*) FROM quality_ads WHERE kind = ?", (kind,)
         ).fetchone()[0]
         room = max(0, WANTED[kind] - have)
-        for item in items[:room]:
+        for item in items:
+            if added >= room:
+                break
             cursor = conn.execute(
                 """INSERT OR IGNORE INTO quality_ads
-                   (kind, source, source_job_id, title, company, location, url, score, text)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                   (kind, source, source_job_id, title, company, location, url, score, text,
+                    description_is_complete, location_plan_json)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (kind, item.get("source", ""), item.get("source_job_id", ""), item["title"],
                  item.get("company"), item.get("location"), item.get("url", ""),
-                 item.get("score"), item.get("text", "")),
+                 item.get("score"), item.get("text", ""),
+                 int(item.get("description_is_complete", True)),
+                 json.dumps(item["location_plan"]) if item.get("location_plan") else None),
             )
             added += cursor.rowcount or 0
     return added
@@ -86,7 +96,18 @@ def spread_by_score(ads: list[dict], most: int) -> list[dict]:
     chosen: list[dict] = []
     for low, high in BANDS:
         in_band = [ad for ad in ads if ad.get("score") is not None and low <= ad["score"] <= high]
-        chosen.extend(in_band[: max(1, most // len(BANDS))])
+        in_band.sort(key=lambda ad: -ad["score"])
+        per_band = max(1, most // len(BANDS))
+        # Include both complete and incomplete evidence where available, especially at the top:
+        # older samples missed the best summary-based cards entirely.
+        picks = []
+        for complete in (True, False):
+            match = next((ad for ad in in_band
+                          if ad.get("description_is_complete", True) == complete), None)
+            if match is not None and len(picks) < per_band:
+                picks.append(match)
+        picks.extend(ad for ad in in_band if ad not in picks)
+        chosen.extend(picks[:per_band])
     for ad in ads:  # fill up with whatever is left if some bands were empty
         if len(chosen) >= most:
             break
@@ -97,9 +118,21 @@ def spread_by_score(ads: list[dict], most: int) -> list[dict]:
 
 def collect_from_search(scored_ads: list[dict], left_out_titles: list[dict]) -> dict[str, int]:
     """Called at the end of a search: keeps a few of its jobs for the score check."""
+    with db.connect() as conn:
+        existing = {(row["kind"], row["source"], row["source_job_id"], row["title"])
+                    for row in conn.execute("SELECT kind, source, source_job_id, title "
+                                            "FROM quality_ads")}
+
+    def fresh(kind: str, items: list[dict]) -> list[dict]:
+        return [item for item in items if
+                (kind, item.get("source", ""), item.get("source_job_id", ""), item["title"])
+                not in existing]
+
     return {
-        "scored": add("scored", spread_by_score(scored_ads, PER_SEARCH["scored"])),
-        "title_only": add("title_only", left_out_titles[: PER_SEARCH["title_only"]]),
+        "scored": add("scored", spread_by_score(fresh("scored", scored_ads),
+                                                PER_SEARCH["scored"])),
+        "title_only": add("title_only", fresh("title_only", left_out_titles)
+                          [:PER_SEARCH["title_only"]]),
     }
 
 

@@ -241,7 +241,11 @@ def score_groups(
         found: dict[int, dict] = {}
         for score in answer.scores:
             if score.job_id in ids and ids[score.job_id] not in found:
-                found[ids[score.job_id]] = finish(score, profile)
+                index = ids[score.job_id]
+                found[index] = finish(score, profile)
+                if len(groups[index].best_description_copy.description) > MAX_DESCRIPTION_CHARS:
+                    found[index]["notes"].insert(
+                        0, "Only part of this lengthy ad was read for scoring")
         # A job the AI skipped is asked about again on its own.
         for index in ids.values():
             if index not in found and len(batch) > 1:
@@ -458,7 +462,8 @@ def _job_block(job_id: str, group: JobGroup) -> str:
     main = group.main
     best = group.best_description_copy
     description = best.description[:MAX_DESCRIPTION_CHARS]
-    note = "" if best.description_is_complete else " (only the start of the ad is available)"
+    complete = best.description_is_complete and len(best.description) <= MAX_DESCRIPTION_CHARS
+    note = "" if complete else " (only the start of the ad is available)"
     stated_types = sorted({t for c in group.copies for t in c.job_types})
     return (
         f"JOB {job_id}\n"

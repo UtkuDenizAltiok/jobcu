@@ -224,6 +224,19 @@ def test_scoring_prompt_includes_the_profile_and_marks_short_ads():
     assert "only the start of the ad is available" in prompt
 
 
+def test_a_clipped_full_ad_is_an_excerpt_not_complete_evidence():
+    from jobcu.scoring import MAX_DESCRIPTION_CHARS
+
+    adapter = Scripted(lambda r: {"scores": [score_json("J0")]})
+    found = groups("Hardware Engineer")
+    found[0].copies[0].description = "a" * MAX_DESCRIPTION_CHARS + "UNSEEN_REQUIREMENT"
+    found[0].copies[0].description_is_complete = True
+    result = score_groups(client(adapter), PROFILE, PLAN, found, [0])
+    assert "only the start of the ad is available" in adapter.prompts[0]
+    assert "UNSEEN_REQUIREMENT" not in adapter.prompts[0]
+    assert "Only part of this lengthy ad was read for scoring" in result[0]["notes"]
+
+
 def test_quick_pass_only_accepts_ids_it_was_given():
     adapter = Scripted(lambda r: {"clearly_unrelated": ["J1", "J99", "nonsense"], "places": []})
     found = groups("Hardware Engineer", "Nurse")

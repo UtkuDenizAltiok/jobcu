@@ -41,6 +41,31 @@ def test_only_a_few_jobs_per_search_and_never_more_than_wanted():
     assert scores[0] < 40 and scores[-1] > 74
 
 
+def test_repeated_samples_do_not_hide_new_jobs_and_duplicate_inserts_do_not_use_room():
+    initial = [ad(str(i), score=80) for i in range(49)]
+    assert quality.add("scored", initial) == 49
+    assert quality.add("scored", [initial[0], ad("new", score=95)]) == 1
+    assert any(a.title == "Hardware Engineer" and a.score == 95 for a in quality.all_ads())
+
+
+def test_a_search_samples_new_items_even_when_the_first_choices_were_seen_before():
+    old = [ad(str(i), score=80) for i in range(8)]
+    quality.collect_from_search(old, [])
+    assert quality.collect_from_search([*old, ad("new", score=95)], [])["scored"] == 1
+
+
+def test_sampling_covers_full_ads_and_top_summaries_and_keeps_their_context(client):
+    full = ad("full", score=80)
+    summary = {**ad("summary", score=95, text="Only a summary"),
+               "description_is_complete": False, "location_plan": {"text": "Fake criteria"}}
+    quality.collect_from_search([full, summary], [])
+    data = client.get("/api/quality", headers=HEADERS).json()["ads"]
+    assert len(data) == 2
+    saved = next(a for a in data if a["score"] == 95)
+    assert saved["description_is_complete"] is False
+    assert saved["location_plan"] == {"text": "Fake criteria"}
+
+
 def test_rating_an_ad_and_taking_it_back(client):
     quality.collect_from_search([ad("1", score=80)], [ad("t1", title="Cleaner")])
     data = client.get("/api/quality", headers=HEADERS).json()

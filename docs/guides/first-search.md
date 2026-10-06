@@ -1,5 +1,8 @@
 # Your first search
 
+The default **72-hour** window looks for jobs posted during the previous three days.
+It describes the age of the ads, not how long the search runs. Your saved window stays selected.
+
 ## 1. Settings
 
 1. The Search page shows **Make Jobcu yours**: your AI, CV and cover letter, with a count of
@@ -89,7 +92,10 @@ or a language level. Without your citizenship, Jobcu never assumes one.
   full ad online"**.
 - **Open job** opens the ad. **Save**, **Applied** and **Not interested** keep your list tidy;
   "Not interested" hides a job for good (**Show hidden** undoes it).
-- **Search details:** which sites were searched and why some jobs were left out.
+- **Search details:** which sites were searched, why some jobs were left out, and time spent in
+  each step, including time waiting for your answers.
+- **"Only part of this lengthy ad was read for scoring"**: check the original ad for requirements
+  that may be outside the part Jobcu scored.
 
 ## 5. Keeping an eye on cost
 
@@ -100,5 +106,10 @@ Jobcu asks whether to do more (leave a box empty for no limit), and switch off a
 you don't want searched.
 
 ## 6. Feedback
+
+**Score check** saves a small sample of jobs and titles from your searches. Read the ad and give
+your own judgement before Jobcu reveals its score. Samples saved only as short summaries are
+labelled: open the original ad before rating because requirements may be missing. Your ratings
+stay in your private data folder.
 
 Tell Utku: do the top jobs fit you? Is any score clearly wrong? Was anything confusing?

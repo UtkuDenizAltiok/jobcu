@@ -79,6 +79,7 @@ class Step:
     label: str
     status: StepStatus = "waiting"
     detail: str = ""
+    elapsed_seconds: float = 0.0
 
 
 @dataclass
@@ -99,6 +100,9 @@ class SearchRun:
     _answer: bool = False
     _answered: threading.Event = field(default_factory=threading.Event, repr=False)
     _lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
+    _step_started: dict[str, float] = field(default_factory=dict, repr=False)
+    _waiting_since: float | None = field(default=None, repr=False)
+    waiting_seconds: float = 0.0
 
     def step(self, step_id: str) -> Step:
         return next(s for s in self.steps if s.id == step_id)
@@ -106,6 +110,11 @@ class SearchRun:
     def update(self, step_id: str, status: StepStatus, detail: str = "") -> None:
         with self._lock:
             step = self.step(step_id)
+            now = time.monotonic()
+            if status == "running" and step_id not in self._step_started:
+                self._step_started[step_id] = now
+            elif status != "running" and step_id in self._step_started:
+                step.elapsed_seconds += max(0, now - self._step_started.pop(step_id))
             step.status = status
             step.detail = detail
 
@@ -126,8 +135,11 @@ class SearchRun:
             self.question = question
             self.answered_always = False
             self._answered.clear()
+            self._waiting_since = time.monotonic()
         answered = self._answered.wait(QUESTION_TIMEOUT_SECONDS)
         with self._lock:
+            self.waiting_seconds += max(0, time.monotonic() - self._waiting_since)
+            self._waiting_since = None
             self.question = None
             return answered and self._answer and not self.stop_requested
 
@@ -142,13 +154,19 @@ class SearchRun:
 
     def snapshot(self) -> dict:
         with self._lock:
+            now = time.monotonic()
+            steps = [{**asdict(step), "elapsed_seconds": round(step.elapsed_seconds +
+                      (max(0, now - self._step_started[step.id])
+                       if step.id in self._step_started else 0), 3)} for step in self.steps]
             return {
                 "id": self.id,
                 "form": self.form.model_dump(),
                 "started_at": self.started_at,
                 "kind": self.kind,
                 "status": self.status,
-                "steps": [asdict(s) for s in self.steps],
+                "steps": steps,
+                "waiting_seconds": round(self.waiting_seconds + (max(0, now - self._waiting_since)
+                    if self._waiting_since is not None else 0), 3),
                 "notes": list(self.notes),
                 "error": self.error,
                 "question": self.question,
@@ -745,8 +763,9 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     _keep_for_the_score_check(
         groups,
         [i for i in shown if i in worked_on],
-        scored_now,
+        {i: job_pool.jobs[i].scored for i in worked_on if job_pool.jobs[i].scored},
         {i for i in unrelated if i in worked_on},
+        plan,
     )
 
 
@@ -799,18 +818,20 @@ def _checkpoint(run: SearchRun) -> None:
         raise SearchStopped
 
 
-def _keep_for_the_score_check(groups, shown, scored, unrelated) -> None:
+def _keep_for_the_score_check(groups, shown, scored, unrelated, plan) -> None:
     """Keeps a few of this search's real ads and left-out titles for the score check
     (HANDOVER section 13). It costs nothing: everything is already in hand."""
     ads = []
     for index in shown:
-        best = groups[index].best_description_copy
-        if not best.description_is_complete:
+        if index not in scored:
             continue
+        best = groups[index].best_description_copy
         ads.append({
             "source": best.source, "source_job_id": best.source_job_id, "title": best.title,
             "company": best.company, "location": best.location_text, "url": best.url,
             "score": (scored.get(index) or {}).get("score"), "text": best.description,
+            "description_is_complete": best.description_is_complete,
+            "location_plan": plan.model_dump(),
         })
     titles = [
         {"source": groups[i].main.source, "source_job_id": groups[i].main.source_job_id,

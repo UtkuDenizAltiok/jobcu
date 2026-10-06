@@ -1,5 +1,8 @@
-# Jobcu — Project Handover for Claude Code
+# Jobcu — original product concept (September 2026)
 
+> **Historical reference:** current rules and priorities are in [AGENTS.md](../AGENTS.md) and
+> [DECISIONS.md](DECISIONS.md). This completed handover is not the active session instructions.
+>
 > Written in a planning conversation between the owner and Claude (chat), September 2026.
 > This document is the source of truth for everything decided so far.
 > **You, Claude Code, are now the project owner, architect, designer and builder.**
