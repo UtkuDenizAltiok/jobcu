@@ -5,26 +5,22 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ## Right now
 
-*Updated 2026-10-07. Documentation cleanup is active before the first restored-Mac search.*
+*Updated 2026-10-07. Documentation is organized; personal setup and the first search are next.*
 
 ### State
 
-- The session started on clean main `feb760f`, matching origin; PR #49 and main Mac/Windows/privacy
-  CI passed. Locked dependencies synced; the local baseline passed **614 tests**.
+- Cleanup is implemented and published in [PR #50](https://github.com/UtkuDenizAltiok/jobcu/pull/50).
+  README is the entry point; PROMPTS holds all three prompts. Dated background is in `archive/`.
+  **617 tests**, Ruff and the privacy guard passed locally. The PR/CI record establishes merge state.
 - Jobcu and the preview are stopped (ports 8765/8799). Preserve on-demand launcher use.
 - No private inputs/results were inspected and no live search or paid request was made.
 
 ### In progress
 
-**Documentation cleanup, `codex/documentation-cleanup`, from `feb760f`.** Establish one home per
-kind of information, combine the three reusable prompts, simplify guides and current records,
-and move dated history into `docs/archive/`. Preserve source evidence, license, private data
-and runtime paths. All edits are implemented; **617 tests**, Ruff and the privacy
-guard passed locally. Publication remains pending. Historical records are preserved;
-current documents were reduced from 3,306 to about 830 lines outside the archive.
-
-Exact next action: commit/push a PR, wait for Mac/Windows/privacy CI, merge with a merge commit,
-retire only verified merged development branches, and return to clean main.
+No unfinished implementation or running search. When resuming, verify Git and PR #50.
+If it is still open after an interruption, finish its Mac/Windows/privacy checks and merge
+`codex/documentation-cleanup` with a merge commit; preserve unmerged or active branches.
+Otherwise continue with the owner's setup/results below. No new paid work is authorized.
 
 ### Verify before relying on
 
