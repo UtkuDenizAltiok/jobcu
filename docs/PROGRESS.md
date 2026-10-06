@@ -5,25 +5,31 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ## Right now
 
-*Updated 2026-10-07. Clear usage guides include richer query examples; personal setup is next.*
+*Updated 2026-10-07. Documentation work is complete; personal setup/search awaits confirmation.*
 
 ### State
 
-- Richer query examples are restored in [PR #52](https://github.com/UtkuDenizAltiok/jobcu/pull/52).
-  README is the entry point; [How to use Jobcu](guides/first-search.md) explains everyday steps
-  and election/shop/population/commuting conditions, including a combined request.
-  **617 tests**, Ruff and privacy passed locally; the PR/CI record establishes merge state.
-  PROMPTS holds all three project prompts; dated background stays in `archive/`.
+- Documentation organization, beginner guides and richer query examples are **implemented,
+  tested, pushed and merged** in [PR #50](https://github.com/UtkuDenizAltiok/jobcu/pull/50),
+  [PR #51](https://github.com/UtkuDenizAltiok/jobcu/pull/51) and
+  [PR #52](https://github.com/UtkuDenizAltiok/jobcu/pull/52). Mac/GitHub main were synchronized
+  before this closing checkpoint; latest merged-main Mac/Windows/privacy CI passed.
+- README is the entry point; [How to use Jobcu](guides/first-search.md) explains everyday steps
+  and richer examples. PROMPTS holds all three project prompts; dated background is in `archive/`.
+  Beginner wording and preserving richer examples are recorded in DECISIONS.md.
 - Jobcu and the preview are stopped (ports 8765/8799). Preserve on-demand launcher use.
-- No private inputs/results were inspected and no live search or paid request was made.
+- This session inspected no private inputs/results and made no live searches or paid requests.
+  No private scratch copies were created; temporary PR-body files were removed.
 
 ### In progress
 
-No unfinished implementation or running search. When resuming, verify Git and PR #52.
-If still open after an interruption, finish Mac/Windows/privacy CI and merge
-`codex/restore-query-examples` with a merge commit. Otherwise continue with setup/results below.
-Examples were checked against code and fictional tests; no live research was run.
-No new paid work is authorized.
+Only session closure remains. Branch: `codex/session-handover`; no PR yet. This checkpoint
+records verified completed work and owner inputs before final checks. No implementation files
+are unfinished; no new development, private-data access or paid work is authorized.
+
+Earlier **617 tests**, Ruff/privacy and latest merged-main CI passed. Closing checks on this
+checkpoint are not run yet. Exact next action: run Ruff/full tests/privacy, review and publish
+the handover, wait for Mac/Windows/privacy CI, merge with a merge commit and leave clean main.
 
 ### Verify before relying on
 
@@ -39,9 +45,11 @@ No new paid work is authorized.
 
 ### Waiting on the owner
 
-1. After cleanup, open Jobcu, enter keys/documents/query **inside the app**, choose job types
-   and the 72-hour posting window, and complete the first search and any limit prompt.
-2. Use [Review a search](PROMPTS.md#review-a-search) in the local project chat.
+1. Personal setup/search is awaiting confirmation; private app data was not inspected. If
+   still needed, open Jobcu on demand, enter keys/documents/query **inside the app**, choose
+   job types and the 72-hour posting window, and complete the search and any limit prompt.
+2. Once a search is complete, use [Review a search](PROMPTS.md#review-a-search) in the local
+   project chat. Start the next chat with [Start a session](PROMPTS.md#start-a-session).
 
 ### Next tasks
 
