@@ -6,6 +6,14 @@ continues locally with ChatGPT/Codex. Everyday users start with [README.md](READ
 
 ## Open a local Codex project
 
+**Local means Codex edits and runs the checkout on your computer. That checkout is connected
+to the public GitHub repository; it is not an offline-only project.** GitHub holds the published
+code and handover history. Follow AGENTS.md to pull safe updates at session start, then test,
+push, check CI and merge completed changes. Git updates through those steps rather than syncing
+every edit immediately. The Mac launcher also pulls updates when starting from clean main;
+if an update fails, it warns and runs the installed version. Private inputs and results stay
+outside Git and are not part of this synchronization.
+
 Use the existing `jobcu` folder containing `AGENTS.md`, `pyproject.toml`, `src` and the two launchers.
 In Codex, add a **local project**, name it **Jobcu**, and select that folder as its primary folder.
 Start a new chat inside that project in **Local** mode. The code folder is the project context;
