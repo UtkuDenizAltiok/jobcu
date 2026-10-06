@@ -1,59 +1,52 @@
 # Jobcu
 
-**Jobcu finds fresh job ads that fit you and ranks them.**
+Jobcu finds fresh job ads, ranks their fit to your CV and cover letter, and explains each score.
+It runs on your Mac or Windows computer and connects to job sources and your chosen AI provider.
+This is an early test version; live coverage and scoring quality still need measured validation.
 
-Give it your CV, a cover letter and where you'd like to work. Jobcu searches job sites, public
-job services and companies' own career pages, removes duplicates, and shows the best matches
-first, with short reasons for each score.
+## Use Jobcu
 
-> 🧪 Early test version for invited testers. Your feedback helps: tell Utku what worked and what didn't.
+1. [Install and start](docs/guides/install-and-start.md), or double-click the launcher in your
+   existing Jobcu folder: **Start Jobcu.command** on Mac, **Start Jobcu.bat** on Windows.
+2. [Set up your keys](docs/guides/getting-your-keys.md) inside Jobcu.
+3. [Run your first search](docs/guides/first-search.md).
 
-## Get started (about 20 minutes)
+Keep the launcher's terminal window open while using Jobcu. Close it to stop the app;
+choose **Terminate** if your Mac asks. Help: [Troubleshooting](docs/guides/troubleshooting.md).
 
-1. [Install and start Jobcu](docs/guides/install-and-start.md) (Mac or Windows)
-2. [Get your keys](docs/guides/getting-your-keys.md): one AI key; we recommend a free Google
-   Gemini key
-3. [Your first search](docs/guides/first-search.md)
+Write where you want to work in your own words, such as *Dublin or Cork* or *Germany, within
+50 minutes of a city centre by public transport*. Jobcu shows **Understood as**; use **Edit**
+to correct it. Estimates and unchecked conditions remain labelled.
 
-Something not working? [Troubleshooting](docs/guides/troubleshooting.md)
+## Privacy and cost
 
-## Where do you want to work? Ask in your own words
+Your keys, documents, query and results stay outside the source folder and GitHub. A search
+sends the necessary text to the AI provider you chose and search words to job sources.
+Jobcu has no user accounts, telemetry or cloud storage, and never logs in to job sites.
 
-The location box is not a drop-down. Write what you actually want, in a sentence, and the AI works
-out what it means for **your** search. Some examples:
+Provider charges depend on your model, account and search. Check current prices and set limits
+before searching. Jobcu's usage estimate may omit web fees and discounts; it is not an invoice.
 
-- *Dublin or Cork.*
-- *Germany or Ireland, but not more than 50 minutes by public transport from a city centre.*
-- *Anywhere in Europe, as long as it's a city with at least 0.3% of that country's people.*
-- *Cities where far-right parties got less than the national average at the last election.*
-- *Somewhere with several Turkish supermarkets and shops open on Sunday.*
-- *A university town: more than 20% of the people are students.*
-- *Within 30 minutes of Munich city centre, and never fully remote.*
+## Project documents
 
-Jobcu shows **how it understood every condition**, with the sources it checked. If it got
-something wrong, click **Edit** and correct it: the change is applied to the jobs already found.
-Conditions it can't check are shown as "not checked", never silently dropped.
+| You need | Open |
+|---|---|
+| Copy a start, end or search-review prompt | [PROMPTS](docs/PROMPTS.md) |
+| See current work and the next action | [PROGRESS](docs/PROGRESS.md) |
+| Develop Jobcu with Codex | [CONTRIBUTING](CONTRIBUTING.md) |
+| Read the working rules | [AGENTS](AGENTS.md) |
+| Understand current product decisions | [DECISIONS](docs/DECISIONS.md) |
+| Find code, tools and technical lessons | [ARCHITECTURE](docs/ARCHITECTURE.md) |
+| Check source methods, restrictions and evidence | [SOURCES](docs/SOURCES.md) |
+| Look up dated background | [Original concept](docs/archive/HANDOVER.md), [decision history](docs/archive/DECISION-HISTORY.md), [source research](docs/archive/SOURCE-RESEARCH.md) |
 
-## Good to know
+## Ownership and data credits
 
-- **Your data is private:** Jobcu stores your keys, documents, search text and results on your
-  computer, outside its code folder. They are never uploaded to GitHub. When you search,
-  the AI provider you choose receives the text it needs, job sources receive search words,
-  and each key goes only to its own service. Jobcu never logs in to job sites.
-- **Public code:** anyone can read the code. The owner's copyright and proprietary
-  [license](LICENSE) still apply; this is not an open-source license.
-- **You need:** a Mac or Windows computer and an AI key (Google Gemini's is free to start).
-  Free Adzuna and Reed keys are optional but bring many more jobs. A Google Maps key is
-  optional and gives real travel times.
-- **Cost:** Jobcu itself is free. On Gemini's free allowance a search costs nothing; with
-  billing on (recommended for the best results) it's usually €0.50–2.50 a search, and a
-  spending limit at Google keeps you safe ([details](docs/guides/getting-your-keys.md)).
+The code is publicly readable under the proprietary [LICENSE](LICENSE).
+© 2026 Utku Deniz Altiok. All rights reserved.
 
----
-
-Developers: see [CONTRIBUTING.md](CONTRIBUTING.md). © 2026 Utku Deniz Altiok. All rights reserved
-([LICENSE](LICENSE)). Town, region and postcode names and coordinates: © [GeoNames](https://www.geonames.org/),
-[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Belgian job offers: © Le Forem, open data,
-[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). School jobs in England contain
-public sector information licensed under the
+Town, region and postcode data: © [GeoNames](https://www.geonames.org/),
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+Belgian job offers: © Le Forem, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+School jobs in England contain public sector information licensed under the
 [Open Government Licence v3.0](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).
