@@ -5,11 +5,11 @@ Current state and next work. Decisions live in [DECISIONS.md](DECISIONS.md); sou
 
 ## Right now
 
-*Updated 2026-10-06. Prepared for a local Codex project; publication is tracked in PR #43.*
+*Updated 2026-10-06. Codex project preparation is merged in PR #43; canonical start/end prompts are prepared.*
 
 ### State
 
-The Mac recovery is merged in PR #42; its 593 tests, privacy guard and Mac/Windows CI passed.
+Mac recovery and project readiness are merged in PRs #42 and #43; their Mac/Windows CI passed.
 The restored app runs locally, with an empty private data folder. No keys, documents, query,
 ratings or search history survived the reset. No live AI or paid requests were made during
 recovery or project preparation. Historical measurements are references, not today's results.
@@ -29,13 +29,19 @@ sample, fixes duplicate-first sampling, records step/answer-wait timings, and ad
 aggregate review command. Lengthy scoring excerpts are explicitly identified. New installations
 use a 72-hour ad-age window; existing selections remain unchanged. Completed Claude cloud tooling
 and redundant wrappers are removed. AGENTS.md is shorter; architecture/retained lessons have their
-own document; CONTRIBUTING.md contains the local project and result-review workflow.
+own document; CONTRIBUTING.md contains the local project and result-review workflow. The two
+canonical defaults are in [SESSION-PROMPTS.md](SESSION-PROMPTS.md): checkpoint and end a session,
+or verify the latest state and resume, including recovery after an unexpected cutoff.
 
 ### In progress
 
-No unfinished implementation. [PR #43](https://github.com/UtkuDenizAltiok/jobcu/pull/43) contains
-this preparation. If resuming during publication, verify its final macOS, Windows and privacy
-checks and merge state, then finish the normal merge/clean-main routine before new work.
+No unfinished implementation. Session-prompt publication is tracked by the PR from
+`codex/session-prompts`. If resuming during publication, verify its final checks and merge state,
+then finish the merge/clean-main routine. The prompts, guide links and checkpoint rules have been
+reviewed; **609 tests**, Ruff and documentation links passed locally. GitHub checks must pass on
+the final commit before merging.
+
+PR #43 is merged; macOS, Windows and privacy checks passed on merge commit `c59cff4`.
 
 Local verification passed: **608 tests**, Ruff, JavaScript syntax, full/staged privacy guards and
 the Mac launcher self-test. A fictional-data browser check confirmed the 72-hour default,

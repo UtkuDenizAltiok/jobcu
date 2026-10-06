@@ -12,7 +12,8 @@ Start a new chat inside that project in **Local** mode. The code folder is the p
 you do not need to upload the source, previous chats, CV or keys as project sources.
 
 Codex discovers `AGENTS.md` in the primary folder. The checked-in state and instructions carry
-between chats, so paste only the start prompt below. Reference: [official project documentation,
+between chats, so use the [two default session prompts](docs/SESSION-PROMPTS.md).
+Reference: [official project documentation,
 checked 2026-10-06](https://learn.chatgpt.com/docs/projects).
 
 The restored Mac already has Git, uv, GitHub CLI and the locked Python environment. For another
@@ -33,16 +34,9 @@ search needs your personal setup. [Official local-environment documentation](htt
 
 ## Start a fresh session
 
-```text
-Continue Jobcu from this local project. Follow AGENTS.md and its "Starting, or resuming after any
-interruption" routine. Read Right now in docs/PROGRESS.md and check reality. Make the product and
-engineering decisions, research relevant official sources, implement and verify useful changes,
-and merge tested PRs with merge commits. Preserve my ownership and private data. Focus first on
-electronics and technical engineering, in the recorded country order. Keep the repository ready
-for another session and end every response with simple next steps. My documents and keys go only
-in Jobcu; don't ask for them in chat. Until I complete a search, continue useful offline work
-without inventing results or starting paid tests.
-```
+Copy the [Start a session prompt](docs/SESSION-PROMPTS.md#start-a-session) into a new Local project
+chat. It follows AGENTS.md's **Starting, or resuming after any interruption** routine and checks
+the saved state against Git before continuing. It also recovers work after an unexpected cutoff.
 
 ## Tomorrow's first search
 
@@ -109,12 +103,10 @@ The reviewer follows this order:
 
 ## Wrap up a session
 
-```text
-Follow "Ending a session" in AGENTS.md. Finish at a safe point, preserve any unfinished work in
-PROGRESS.md, verify and merge completed changes, remove temporary private copies and previews,
-and leave the project ready for a fresh local session. Tell me what changed, what is still
-unverified, and my simple next steps.
-```
+Copy the [End a session prompt](docs/SESSION-PROMPTS.md#end-a-session) into the current chat while
+it can still respond. It follows **Ending a session** in AGENTS.md, saves a checkpoint first and
+records incomplete checks or publication steps when a limit prevents finishing. Wait for its
+handover confirmation, then use the starting prompt in your next Local project chat.
 
 Contributors work on a branch and propose a PR. The assistant may merge its own tested changes
 under the owner's authorization; other contributors' changes require review. Preserve Git history.
