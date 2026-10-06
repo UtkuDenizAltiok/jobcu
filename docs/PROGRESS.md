@@ -10,7 +10,7 @@ Current state and next work. Decisions live in [DECISIONS.md](DECISIONS.md); sou
 ### State
 
 Mac recovery, project readiness, session prompts and on-demand use are implemented, tested,
-pushed and merged in PRs #42–#46. Verified main `a08a09f` was clean and matched origin;
+pushed and merged in PRs #42–#47. Verified main `a842963` was clean and matched origin;
 macOS, Windows and privacy CI passed on that merge. The sole local checkout is in
 `Developer/jobcu` under the owner's home; it was moved, not copied.
 The rebuilt environment and Mac launcher self-test passed after relocation; Git stayed clean.
@@ -22,8 +22,10 @@ Verified at close: no configured keys, uploaded documents, saved query or saved 
 posting window is 72 hours. No live AI or paid requests were made during this preparation.
 Historical measurements are references, not today's results.
 
-Development is local in **ChatGPT/Codex**. The human owns the project and retains the proprietary
-license; the assistant leads product/engineering work and tested merges. The public code is
+**ChatGPT/Codex** edits the Mac checkout connected to GitHub; published code and handovers are
+kept there. "Local" is the execution location, not offline development. The owner confirmed this
+workflow: keep GitHub synchronized and run Jobcu on his Mac. The human retains ownership and
+the proprietary license; the assistant leads product/engineering work and tested merges. The public code is
 separate from all private inputs and results. Country work order: **Germany, Ireland, UK,
 Switzerland, Netherlands, Belgium, Italy**. First validation focus: **electronics and technical
 engineering**, with general matching and fictional other-profession regressions.
@@ -35,17 +37,18 @@ completed implementation detail belongs in Git. The two canonical start/end prom
 [SESSION-PROMPTS.md](SESSION-PROMPTS.md). AGENTS.md requires simple, direct next steps after
 every response. No source upload or copy of this chat is needed for the local project.
 
-This final documentation refresh is on `codex/final-handover`, based on `a08a09f`.
+This documentation clarification is on `codex/github-project-clarity`, based on `a842963`.
 Git and its PR/CI record establish the final commit and publication state. If interrupted
 before merge, finish that branch's checks/publication under AGENTS.md; once merged with
 passing CI, no handover publication remains. Leave main clean and Jobcu stopped.
 
 ### In progress
 
-No unfinished product implementation, running search or failed check. **609 tests**, Ruff,
-documentation links and the privacy guard passed locally for this handover. Pytest reported
-one upstream dependency deprecation warning, with no failure. No app code changed; launcher
-verification after relocation and Mac/Windows/privacy CI on `a08a09f` remain valid.
+No unfinished product implementation or running search. The owner confirmed GitHub-connected
+development and the on-demand Mac app; that choice and the update steps are recorded in
+AGENTS.md, CONTRIBUTING.md and DECISIONS.md. No scope question remains. **19 documentation
+tests**, Ruff and the privacy guard passed locally for this clarification. No app code changed.
+Prior baseline: 609 tests and all checks passed; Mac/Windows/privacy CI passed on `a842963`.
 
 **Next session's exact first action:** use the Start a session prompt in SESSION-PROMPTS.md;
 verify `git status`, this record and recent PR/CI state. The next product action is the first
