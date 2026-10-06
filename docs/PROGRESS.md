@@ -49,6 +49,15 @@ before merge, finish its Mac/Windows/privacy checks and merge with a merge commi
 
 ### In progress
 
+**Documentation and file organization (2026-10-07), `codex/documentation-cleanup`, from
+`feb760f`:** audit all shared files and links; establish one home for each kind of information;
+combine reusable prompts, shorten current guides/rules/state, and separate dated history.
+Preserve ownership, source evidence, privacy boundaries and working app paths. Verify document
+links/anchors, packaged guides, full tests, Ruff, privacy guard and Mac/Windows CI before merging.
+The checkout was clean and synced, PR #49/main CI passed, and app/preview ports are stopped.
+Exact next action: finish the documentation/reference audit and record the chosen structure.
+No private inputs, search, paid calls or account changes are included.
+
 No unfinished implementation or running search. **614 tests**, Ruff and the privacy guard
 passed locally for the reviewed PR #49 change; publication recovery is described above.
 Ports 8765/8799 have no listeners; no recognizable abandoned scratch folders were found.
