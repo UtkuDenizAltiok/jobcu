@@ -1,112 +1,58 @@
-# Get your keys
+# Set up your keys
 
-A **key** is a long password-like code. It lets Jobcu use a service with your own account, so
-the service knows the requests come from you. You need **one**: an **AI key**. Jobcu's AI reads
-your CV, understands where you want to work and scores every job.
+A key lets Jobcu use a service through your account. Keep it secret: enter it in Jobcu's
+**Settings**, never in chat, GitHub or a screenshot. Your chosen AI receives text from your
+documents and search; check its data-use terms before choosing it.
 
-The free **Adzuna** and **Reed** keys are optional but worth five minutes: Adzuna brings the most
-jobs in Germany and the UK, and Reed adds UK jobs. A **Google Maps** key is optional too: it gives
-real travel times. Everything else Jobcu searches needs no key.
+## AI setup
 
-**Keep keys secret:** never send them to anyone or paste them into a chat. Save each one in your
-password manager (or a private note), then paste it into Jobcu's **Settings**.
+Choose the provider and model you want. Jobcu does not choose one for you.
 
-## AI key: we recommend Google Gemini
+| Provider | Create or manage an API key |
+|---|---|
+| Anthropic | [Claude Console](https://platform.claude.com/settings/keys) |
+| Google | [Google AI Studio](https://aistudio.google.com/apikey); [current key instructions](https://ai.google.dev/gemini-api/docs/api-key) |
+| OpenAI | [OpenAI API keys](https://platform.openai.com/api-keys) |
+| Other | Follow that provider's instructions for its OpenAI-compatible address, model and key, if required. |
 
-Checked on 3 October 2026, **Google Gemini** gives Jobcu the most for the least money. It's the
-only one of the big providers with a free allowance, and with billing on it costs about a third
-of what the others do, because 5,000 web look-ups a month are included. (Jobcu also works with
-Anthropic, OpenAI and others; see the end of this section.)
+1. Create a key in your chosen provider's account, following its current instructions.
+2. In **Settings → AI provider**, select the provider, enter the key and **Save**.
+3. Click **Load model list**, choose a model, save it and **Test connection**.
+4. For **Other (OpenAI-compatible)**, enter its address and model; some local services need no key.
 
-### Step 1: create a free Gemini key (no card needed)
+A connection test checks ordinary generation. Web research may need different model/account
+permissions and may cost extra; it is unavailable with the generic compatible adapter.
+If research is refused, Jobcu explains and carries on with job sources/scoring, leaving
+unchecked conditions and summary warnings visible. A later search tries again.
 
-1. Open [aistudio.google.com/apikey](https://aistudio.google.com/apikey) and sign in with your
-   Google account (the one you use for Gmail is fine). Accept Google's terms if asked (Google
-   requires you to be 18 or older).
-2. Click **Create API key** → choose or create a project → **Create**. Copy the key (it starts
-   with `AIza`).
-3. In Jobcu: **Settings → AI provider** → choose **Google (Gemini)** → paste the key → **Save**.
-4. Click **Load model list**, pick **gemini-3.8-flash** (or a newer model whose name ends in
-   **flash**; avoid **pro**, which isn't free and costs much more) → **Save** → **Test
-   connection**. You should see that the connection works.
+## Cost and limits
 
-That's enough to search. On the free allowance:
+Use your provider's current pricing and account limits. Free allowances, web fees and privacy
+terms vary; no fixed per-search price or runtime is promised here. Before enabling billing,
+check which controls actually stop spending and which only alert you.
 
-- It costs nothing. Searches are slower, because Google allows only a few requests a minute;
-  Jobcu waits by itself ("AI limit reached, continuing more slowly" is normal).
-- Google doesn't offer **web look-ups** for free, so three things don't work: facts about
-  places that need looking up (for example "cities with a university"), finding extra employers
-  for your kind of work, and reading online the full ad of jobs a site shows only as a summary.
-  Plain conditions like "Munich or within 40 km" or "a city with at least 100,000 people" still
-  work.
-- If you live in the EU, the UK or Switzerland, Google's terms say it doesn't use what you send
-  on the free allowance to improve its products; elsewhere it may, and people at Google may read
-  it. Your CV is part of what's sent.
+In **Settings → Usage and limits**, enter model token prices and set monthly/search limits.
+Jobcu's estimate can omit web fees and discounts; compare it with the provider's own usage page.
 
-### Step 2 (recommended): turn on billing with a spending limit
+## Optional job-source keys
 
-For the best results (web look-ups included) and the fastest searches:
+- **Adzuna:** [register for API access](https://developer.adzuna.com/signup), then copy the
+  Application ID and Application Key from **API Access Details**. Use truthful personal-use details.
+- **Reed:** [request an API key](https://www.reed.co.uk/developers/jobseeker) and follow its instructions.
 
-1. In [Google AI Studio](https://aistudio.google.com), open **Billing** → **Set up billing** and
-   follow Google's steps (a card; you can buy credit in advance, for example €10).
-2. Open **Spend** → **Monthly spend cap** → enter the most you want to pay a month (for example
-   **10**) → **Save**. Google pauses your key when it's reached (sometimes a few minutes late),
-   so you can't end up paying much more.
-3. Nothing changes in Jobcu: the same key now uses the paid tier.
+Enter them in **Settings → Job site keys**, save and test. Most sources need no user key.
 
-**What it costs** (prices of 3 October 2026, which Google doubles on 1 January 2027): about
-**€0.50–2.50 per search**, depending on how many jobs are found and scored. Settings → **Usage
-and limits** shows what each search used; add the prices there (input $0.75 and output $3.75
-per million tokens for gemini-3.8-flash) and Jobcu shows the cost. Two or three searches a
-week usually stay under €10 a month with Jobcu's standard limits.
+## Optional Google Maps
 
-### Other providers
+Without Maps, Jobcu uses labelled AI travel estimates. To use Maps:
 
-If you already pay for one, it works too (each search costs roughly three times as much, mostly
-because their web look-ups cost extra):
+1. Create/select a project in [Google Cloud](https://console.cloud.google.com/), check current
+   billing terms, and enable the **Routes API**.
+2. Create a key in **APIs & Services → Credentials** and restrict it to **Routes API**.
+3. Set request quotas and budget controls suitable for your limit. An **alerts-only budget does
+   not stop spending**; follow Google's [budget guidance](https://docs.cloud.google.com/billing/docs/how-to/budgets)
+   and [Routes quota/billing guidance](https://developers.google.com/maps/documentation/routes/usage-and-billing).
+4. Enter the key in **Settings → Travel times**, **Save**, then **Test Google Maps**.
 
-- **Anthropic (Claude):** [platform.claude.com](https://platform.claude.com) → Settings → API keys
-  → **Create key**; a low-cost model is **claude-haiku-4-5**.
-- **OpenAI:** [platform.openai.com/api-keys](https://platform.openai.com/api-keys) → **Create new
-  secret key**; choose a low-cost **mini** model.
-- **Others:** choose "Other (OpenAI-compatible)" and enter the address, key and model from the
-  provider's documentation. Web look-ups don't work with these.
-
-Copy a key right away (it's often shown only once). When you add payment details anywhere, set a
-monthly spending limit there.
-
-## Adzuna (free)
-
-1. Sign up at [developer.adzuna.com/signup](https://developer.adzuna.com/signup). For the form,
-   use e.g. *Personal or academic research*, *N/A* visitors, *Europe*, *Career Services*.
-2. Sign in → **API Access Details** → copy the **Application ID** and **Application Key**.
-
-## Reed (free)
-
-1. Go to [reed.co.uk/developers/jobseeker](https://www.reed.co.uk/developers/jobseeker) → **Sign up
-   for a reed.co.uk API Key** → fill in name and email → **Register**.
-2. Copy the key shown on screen or sent by email.
-
-## Google Maps (optional, for travel times)
-
-Only needed if you write things like *"at most 50 minutes by public transport to a big city"*.
-Without it, the AI estimates travel times. Google asks for a card, but gives a free allowance
-every month, and Jobcu stops below it.
-
-1. Open [console.cloud.google.com/projectcreate](https://console.cloud.google.com/projectcreate),
-   name the project *Jobcu Google Maps* → **Create**. Add a billing account when Google asks.
-2. [Budgets & alerts](https://console.cloud.google.com/billing/budgets) → **Create budget** →
-   **Alerts only**, name *Jobcu Google Maps*, project *Jobcu Google Maps*, amount **1** →
-   **Finish**. Google then emails you if Maps ever costs anything.
-3. Open the [Routes API](https://console.cloud.google.com/apis/library/routes.googleapis.com) →
-   **Enable**. In Europe, Google first asks you to accept its European terms: type *Confirm* →
-   **Accept & continue**. Google then creates a key by itself.
-4. [Credentials](https://console.cloud.google.com/apis/credentials) → click the key → name it
-   *Jobcu Google Maps key* → under **API restrictions** keep only **Routes API** → **Save**.
-5. Daily limit, so Google itself stops before the free allowance: **Google Maps Platform →
-   Quotas** → *ComputeRouteMatrix per-element quota per day* → ⋮ → **Edit quota** → untick
-   **Unlimited**, type **320** → **Done** → **Submit request** → **Confirm**.
-6. Back in **Credentials** → **Show key** → copy it. In Jobcu: **Settings → Travel times** →
-   paste the key → **Save** → **Test Google Maps**.
-
-➡️ Next: [Your first search](first-search.md)
+These key/budget references were checked on 2026-10-07. Prices and account access still depend
+on the services' current terms. Next: [Your first search](first-search.md).

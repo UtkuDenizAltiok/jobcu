@@ -19,5 +19,5 @@ labels: problem
 - [ ] Windows
 
 **Messages or screenshots**
-<!-- Copy any error text here. Before sharing a screenshot, check it shows no API keys,
-     passwords or personal details. -->
+<!-- This is public. Share only sanitized error text or fictional examples. Do not attach
+     raw logs, documents, queries, results, keys, ratings, account details or private screenshots. -->

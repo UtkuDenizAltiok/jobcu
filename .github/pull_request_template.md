@@ -1,16 +1,14 @@
-## What does this change do?
+## Change
 
-<!-- Describe it in plain words, in one or two sentences. -->
+<!-- State the problem and resulting behavior in plain words. -->
 
-## Why?
+## Validation
 
-<!-- What problem does it solve, or what does it improve? -->
+<!-- Relevant tests, failure cases and any checks still pending. -->
 
 ## Checklist
 
-- [ ] No API keys, passwords, CVs or other personal data are included
-- [ ] `uv run ruff check .` and `uv run pytest` pass on my computer
-- [ ] Works on both Mac and Windows (the automatic tests check this)
-- [ ] The records are updated as `AGENTS.md` says: decisions in `docs/DECISIONS.md`, "Right now"
-      in `docs/PROGRESS.md`, source facts in `docs/SOURCES.md`, user guides for changed screens
-- [ ] Nothing marked *Decided* in `docs/HANDOVER.md` is changed, or the owner has agreed to it
+- [ ] No private data; `uv run python tools/check_no_secrets.py --all` passes
+- [ ] Ruff and relevant tests pass; Mac/Windows/privacy CI is required before merge
+- [ ] Current records and affected user guides are updated under [AGENTS.md](../AGENTS.md)
+- [ ] Ownership, license and shared history are preserved; merge uses a merge commit
