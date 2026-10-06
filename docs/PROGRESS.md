@@ -6,7 +6,7 @@ Where the project stands, and nothing else: git history says what was done, and
 
 ## Right now
 
-*Updated 2026-10-06. Local recovery checks pass; GitHub checks macOS and Windows on each pull request.*
+*Updated 2026-10-06. Recovery implementation passes 593 local tests and GitHub checks on macOS and Windows (PR #42).*
 
 ### State
 
@@ -100,10 +100,9 @@ Maps had no trouble. What it showed, most important first:
 
 ### In progress
 
-**Mac recovery and ChatGPT transition:** implementation and local checks are complete.
-The exact next action is to commit the recorded changes, push `codex/mac-recovery-onboarding`,
-open the pull request and wait for macOS/Windows CI before merging with a merge commit.
-Then start Jobcu on the restored Mac, remove the fictional preview data and clear this section.
+Nothing. The recovery implementation and its checks are complete in PR #42;
+the restored app is running with an empty private data folder. Temporary previews and
+fictional documents have been removed. Personal setup and the first real search are next.
 
 ### Verify before relying on
 
