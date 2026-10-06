@@ -44,6 +44,17 @@ passing CI, no handover publication remains. Leave main clean and Jobcu stopped.
 
 ### In progress
 
+**Session resumption (2026-10-06), `codex/resume-readiness`, based on `5d90a54`:**
+verify the merged PR #48 main checks, run the free local baseline, inspect readiness of the
+saved-results review with fictional data, and refresh this handover from verified facts.
+The clean checkout matched origin; locked dependencies are synced. PR #48 and main Mac,
+Windows and privacy checks passed. Baseline: 609 tests, Ruff and privacy guard passed.
+Ports 8765 and 8799 have no listeners; no recognizable abandoned scratch folders were found.
+Confirmed review-tool gaps: top-card selection ignores the app's newer-posting tie-break,
+and corrected-condition timings are not distinguished from cumulative search usage.
+Exact next action: add fictional regressions, fix `tools/review_search.py`, update the review
+protocol/architecture, rerun checks, then publish and merge. No private review or paid call.
+
 No unfinished product implementation or running search. The owner confirmed GitHub-connected
 development and the on-demand Mac app; that choice and the update steps are recorded in
 AGENTS.md, CONTRIBUTING.md and DECISIONS.md. No scope question remains. **19 documentation
