@@ -59,6 +59,37 @@ For example:
 - *Germany, Ireland or the UK.*
 - *Germany, within 50 minutes of a city centre by public transport.*
 
+### More detailed requests
+
+You can also describe the kind of place you want to live or work in. These examples show
+how to ask for population limits, local services and facts that need online research:
+
+| Example request | What you are asking Jobcu to check |
+|---|---|
+| *Exclude cities where far-right parties received a higher share of votes than their national share in that country's latest national parliamentary election.* | Compare the parties' percentage of votes in each city with their percentage across the same country, using the same election. Jobcu asks your AI to identify the parties using reliable sources. |
+| *Cities with at least three Turkish supermarkets.* | Find cities with that many Turkish supermarkets. Giving a number makes your meaning clearer than just saying "several". |
+| *Somewhere with several Turkish supermarkets and shops open on Sunday.* | Check both the local shops and Sunday opening. Say which shops must open on Sunday if you mean the supermarkets specifically. |
+| *A university town where more than 20% of the population are students.* | Look for places meeting your student-population condition. |
+| *Cities with at least 0.3% of their country's population.* | Work out a different minimum city size for each country, using the population data included with Jobcu. |
+
+You can put several conditions together. For example:
+
+> Germany or Ireland. Jobs in, or within 50 minutes by public transport of, a city with at
+> least 100,000 people and several Turkish supermarkets. Exclude job towns and the cities
+> I would commute from where far-right parties received a higher share of votes than their
+> national share in that country's latest national parliamentary election.
+
+Say whether a condition applies to the job's town, the place you would live, or both, if
+that distinction matters to you. The example above asks for the election condition in both.
+
+Election results, shop counts, opening hours and student numbers need web research through
+your chosen AI. Information may be incomplete, and a provider or model may not support
+research. Jobcu shows sources when supplied, labels estimates, and marks a condition
+**not checked** if it could not check it. A condition marked **not checked** does not filter
+jobs. Read **Understood as** and the explanations; use **Edit** to correct them after the search.
+
+### Choose your travel, posting window and job types
+
 Be clear about any distance, travel method or place that matters to you. For travel conditions,
 Jobcu measures to the nearest edge of a place unless you ask for its centre. Travel estimates
 are labelled so you can check them. Leaving the box empty searches all supported countries,

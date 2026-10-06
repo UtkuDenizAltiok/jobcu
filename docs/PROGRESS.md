@@ -5,12 +5,13 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ## Right now
 
-*Updated 2026-10-07. Beginner usage guides are ready; personal setup and the first search are next.*
+*Updated 2026-10-07. Clear usage guides include richer query examples; personal setup is next.*
 
 ### State
 
-- Explained usage guides are published in [PR #51](https://github.com/UtkuDenizAltiok/jobcu/pull/51).
-  README is the entry point; [How to use Jobcu](guides/first-search.md) covers everyday steps.
+- Richer query examples are restored in [PR #52](https://github.com/UtkuDenizAltiok/jobcu/pull/52).
+  README is the entry point; [How to use Jobcu](guides/first-search.md) explains everyday steps
+  and election/shop/population/commuting conditions, including a combined request.
   **617 tests**, Ruff and privacy passed locally; the PR/CI record establishes merge state.
   PROMPTS holds all three project prompts; dated background stays in `archive/`.
 - Jobcu and the preview are stopped (ports 8765/8799). Preserve on-demand launcher use.
@@ -18,10 +19,10 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ### In progress
 
-No unfinished implementation or running search. When resuming, verify Git and PR #51.
+No unfinished implementation or running search. When resuming, verify Git and PR #52.
 If still open after an interruption, finish Mac/Windows/privacy CI and merge
-`codex/plain-usage-guides` with a merge commit. Otherwise continue with setup/results below.
-Guide wording was checked against local code; first-time usability still needs a walkthrough.
+`codex/restore-query-examples` with a merge commit. Otherwise continue with setup/results below.
+Examples were checked against code and fictional tests; no live research was run.
 No new paid work is authorized.
 
 ### Verify before relying on
