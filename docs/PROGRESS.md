@@ -47,10 +47,9 @@ then the separately authorized private review in CONTRIBUTING.md.
 **Review readiness, `codex/resume-readiness`, based on `5d90a54`:** implemented explicit run,
 timing and usage scopes in `tools/review_search.py`, including a correction warning and unknown
 legacy kinds. CONTRIBUTING.md and ARCHITECTURE.md explain the interpretation. Five fictional
-regressions reproduced the gap; all **29 targeted review/documentation tests** and Ruff pass.
-The initial tie-break concern was resolved by existing saved-card sorting; ranking is unchanged.
-Baseline: 609 tests and privacy guard passed. Exact next action: full suite and privacy guard,
-review the diff, commit/push, create a PR, wait for all three CI jobs, merge and verify clean main.
+regressions reproduced the gap; **614 tests**, Ruff and the privacy guard pass locally.
+The diff is reviewed. Exact next action: push/create the PR, wait for Mac/Windows/privacy CI,
+merge with a merge commit and verify clean main. The owner app and preview remain stopped.
 Ports 8765/8799 remain stopped; no recognizable abandoned scratch folders were found.
 No private-data review, live search or paid call was performed. Actual provider access,
 coverage, scoring quality, cost and speed still need the owner's first results.
