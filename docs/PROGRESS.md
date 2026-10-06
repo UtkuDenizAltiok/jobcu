@@ -16,6 +16,10 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
   their latest merged-main Mac/Windows/privacy CI passed.
 - Closing **617 tests**, Ruff, privacy and diff whitespace passed; no failed local checks remain.
   [PR #53](https://github.com/UtkuDenizAltiok/jobcu/pull/53) records handover publication.
+- The first closing Windows CI run failed the existing
+  `test_the_edit_api_explains_what_it_cant_do`: restored results reported `search` rather than
+  `reapply`. Mac/privacy passed. A save-completion timing issue is a hypothesis; no product fix
+  was attempted. Final PR checks must pass before merging; retain this investigation below.
 - README is the entry point; [How to use Jobcu](guides/first-search.md) explains everyday steps
   and richer examples. PROMPTS holds all three project prompts; dated background is in `archive/`.
   Beginner wording and preserving richer examples are recorded in DECISIONS.md.
@@ -25,11 +29,13 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ### In progress
 
-No unfinished development or running search. When resuming, verify closing PR #53: if still
-open after an interruption, finish Mac/Windows/privacy CI, merge `codex/session-handover` with
-a merge commit and synchronize clean main. Otherwise session closure is complete; the next
-action is the owner's setup or completed-search review below. No new private-data access,
-paid calls or full searches are authorized by a start/end prompt.
+Documentation implementation is complete; no search is running. Closing publication is the
+remaining session action: verify PR #53's final Mac/Windows/privacy checks, merge
+`codex/session-handover` with a merge commit when they pass, and synchronize clean main.
+If checks remain failed or interrupted, preserve this pushed branch and finish publication
+next chat. Once PR #53 is merged, closure is complete; investigate the Windows failure in
+the next development session. No new private-data access, paid calls or full searches are
+authorized by a start/end prompt.
 
 ### Verify before relying on
 
@@ -53,10 +59,12 @@ paid calls or full searches are authorized by a start/end prompt.
 
 ### Next tasks
 
-1. Review those results with [REVIEW.md](REVIEW.md) before tuning.
-2. Fix confirmed freshness, coverage and matching gaps in the country order from AGENTS.md.
-3. Reduce summary dependence and repeated research; compare recall/ranking before optimizing cost/time.
-4. Fix confusion observed during use. ZIP-update notices and a full fresh-Windows check remain later work.
+1. Investigate result-save completion versus the finished status after condition edits, using
+   fictional tests. Windows CI exposed one restore failure; a rerun does not establish its cause.
+2. Review completed search results with [REVIEW.md](REVIEW.md) before tuning.
+3. Fix confirmed freshness, coverage and matching gaps in the country order from AGENTS.md.
+4. Reduce summary dependence and repeated research; compare recall/ranking before optimizing cost/time.
+5. Fix confusion observed during use. ZIP-update notices and a full fresh-Windows check remain later work.
 
 ### Known limitations
 
