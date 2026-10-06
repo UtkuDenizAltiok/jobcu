@@ -86,6 +86,7 @@ def top_quality(cards: list[dict], ads: list[dict]) -> dict:
 
 def review(snapshot: dict, ads: list[dict]) -> dict:
     """Build a measurement report from allowlisted fields; no free text passes through."""
+    kind = snapshot.get("kind") if snapshot.get("kind") in {"search", "reapply"} else "unknown"
     result = snapshot.get("result", {})
     jobs = result.get("jobs", {})
     cards = jobs.get("cards", [])
@@ -117,6 +118,11 @@ def review(snapshot: dict, ads: list[dict]) -> dict:
     summary_count = sum(bool(c.get("summary_only")) for c in visible)
     report = {
         "status": snapshot.get("status") if snapshot.get("status") in STATUSES else "unknown",
+        "kind": kind,
+        "timing_scope": {"search": "original_search", "reapply": "latest_correction"}
+                        .get(kind, "unknown"),
+        "usage_scope": {"search": "original_search", "reapply": "search_and_all_corrections"}
+                       .get(kind, "unknown"),
         "is_latest_attempt": snapshot.get("review_is_latest_attempt"),
         "latest_attempt_status": (snapshot.get("review_latest_attempt_status")
                                   if snapshot.get("review_latest_attempt_status") in STATUSES
@@ -154,6 +160,12 @@ def review(snapshot: dict, ads: list[dict]) -> dict:
         checks.append("These are older saved results; the latest attempt has no saved results.")
     if report["status"] != "finished":
         checks.append("This saved search did not finish; investigate before comparing quality.")
+    if kind == "reapply":
+        checks.append("Timings cover only the latest condition correction; usage includes the "
+                      "original search and all corrections. Compare complete original searches "
+                      "for performance.")
+    elif kind == "unknown":
+        checks.append("This saved run has no recognized kind; timing and usage scopes are unknown.")
     if not visible:
         checks.append("No visible jobs: inspect source availability and filtering locally.")
     if summary_count:

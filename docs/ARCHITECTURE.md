@@ -122,6 +122,9 @@ Search steps measure elapsed time with a monotonic clock. Repeated progress upda
 same timer. Time spent waiting for a user's answer is recorded separately, and is included in
 that step's elapsed time. Old saved searches have no timings; never invent them. A correction
 has its own step timings, while its token ledger includes the original search's usage too.
+The aggregate review allowlists the saved run kind and labels both scopes: original searches
+have matching timing/usage scopes; reapplications have latest-correction timings and usage from
+the search plus all corrections. Missing or unknown kinds remain unknown and trigger a warning.
 
 The quality sample keeps up to 50 scored ads and 40 excluded titles. Each search adds up to eight
 new items per kind, after removing already collected items. Scored samples span the score bands

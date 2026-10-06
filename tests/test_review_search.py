@@ -4,6 +4,8 @@ import importlib.util
 import json
 from pathlib import Path
 
+import pytest
+
 from jobcu import db
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -70,6 +72,54 @@ def test_empty_and_legacy_results_do_not_invent_quality_or_timing():
     assert report["waiting_seconds"] is None
     assert report["top_10_quality"]["precision_good"] is None
     assert any("did not finish" in c for c in report["checks_needed"])
+
+
+@pytest.mark.parametrize("kind,timing_scope,usage_scope", [
+    ("search", "original_search", "original_search"),
+    ("reapply", "latest_correction", "search_and_all_corrections"),
+    (None, "unknown", "unknown"),
+    ("PRIVATE_MARKER", "unknown", "unknown"),
+])
+def test_performance_scopes_are_explicit_and_unknown_kinds_stay_private(
+        kind, timing_scope, usage_scope):
+    saved = snapshot()
+    if kind is not None:
+        saved["kind"] = kind
+    report = tool.review(saved, [])
+    assert report["kind"] == (kind if kind in {"search", "reapply"} else "unknown")
+    assert report["timing_scope"] == timing_scope
+    assert report["usage_scope"] == usage_scope
+    assert "PRIVATE_MARKER" not in json.dumps(report)
+    if kind == "reapply":
+        assert any("original search and all corrections" in c for c in report["checks_needed"])
+    elif timing_scope == "unknown":
+        assert any("scopes are unknown" in c for c in report["checks_needed"])
+    else:
+        assert not any("corrections" in c for c in report["checks_needed"])
+
+
+def test_saved_correction_keeps_its_timings_and_cumulative_usage_separate(temporary_data_dir):
+    saved = snapshot()
+    saved["kind"] = "reapply"
+    saved["steps"] = [{"id": "conditions", "elapsed_seconds": 2},
+                      {"id": "scoring", "elapsed_seconds": 0}]
+    saved["waiting_seconds"] = 1
+    # The original search spent these tokens; the correction did not score any ads.
+    saved["result"]["usage"] = {"scoring": {"input_tokens": 100, "output_tokens": 20}}
+    with db.connect() as conn:
+        conn.execute("INSERT INTO searches (id, status, form_json) VALUES (1, 'finished', '{}')")
+        conn.execute("INSERT INTO search_results VALUES (1, ?)", (json.dumps(saved),))
+    path = temporary_data_dir / db.DB_FILENAME
+    before = path.read_bytes()
+    saved, ads = tool.read_saved(temporary_data_dir)
+    report = tool.review(saved, ads)
+    assert path.read_bytes() == before
+    assert report["kind"] == "reapply"
+    assert report["timing_scope"] == "latest_correction"
+    assert report["seconds_by_step"] == {"conditions": 2, "scoring": 0}
+    assert report["waiting_seconds"] == 1
+    assert report["usage_scope"] == "search_and_all_corrections"
+    assert report["usage_by_step"]["scoring"]["input_tokens"] == 100
 
 
 def test_review_never_creates_missing_data(temporary_data_dir, capsys):

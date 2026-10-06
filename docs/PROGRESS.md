@@ -5,21 +5,22 @@ Current state and next work. Decisions live in [DECISIONS.md](DECISIONS.md); sou
 
 ## Right now
 
-*Updated 2026-10-06. Final handover: preparation is merged; personal setup and the first real search are next.*
+*Updated 2026-10-06. Local session resumed and review readiness verified; first real search is next.*
 
 ### State
 
 Mac recovery, project readiness, session prompts and on-demand use are implemented, tested,
-pushed and merged in PRs #42–#47. Verified main `a842963` was clean and matched origin;
-macOS, Windows and privacy CI passed on that merge. The sole local checkout is in
+pushed and merged in PRs #42–#48. Session resumption verified clean main `5d90a54`, matching
+origin, with passing macOS, Windows and privacy CI on both PR #48 and its merge. The checkout is in
 `Developer/jobcu` under the owner's home; it was moved, not copied.
 The rebuilt environment and Mac launcher self-test passed after relocation; Git stayed clean.
 **Jobcu is stopped by the owner's request.** His default is double-clicking **Start Jobcu.command**
 to open it, then closing that terminal window and choosing **Terminate** if prompted to stop it.
 Direct terminal commands are optional. Do not automatically start or keep his app running.
 The preview port 8799 has no listener and its fictional data was removed.
-Verified at close: no configured keys, uploaded documents, saved query or saved search. The
-posting window is 72 hours. No live AI or paid requests were made during this preparation.
+The previous handover recorded no configured keys, documents, query or search. This session
+does not inspect private inputs or results. The posting window defaults to 72 hours.
+No live AI or paid requests were made during preparation or this readiness work.
 Historical measurements are references, not today's results.
 
 **ChatGPT/Codex** edits the Mac checkout connected to GitHub; published code and handovers are
@@ -37,24 +38,26 @@ completed implementation detail belongs in Git. The two canonical start/end prom
 [SESSION-PROMPTS.md](SESSION-PROMPTS.md). AGENTS.md requires simple, direct next steps after
 every response. No source upload or copy of this chat is needed for the local project.
 
-This documentation clarification is on `codex/github-project-clarity`, based on `a842963`.
-Git and its PR/CI record establish the final commit and publication state. If interrupted
-before merge, finish that branch's checks/publication under AGENTS.md; once merged with
-passing CI, no handover publication remains. Leave main clean and Jobcu stopped.
+PR #48's documentation clarification is merged; its stale publication checkpoint is resolved.
+The local project chat is active. Next is personal setup and a completed search in Jobcu,
+then the separately authorized private review in CONTRIBUTING.md.
+The review-readiness update is published in PR #49 (`codex/resume-readiness`, from `5d90a54`):
+the aggregate report labels original-search versus correction timings and cumulative usage.
+It warns against comparing mismatched scopes; unknown saved kinds remain unknown.
+Git and PR #49's checks/merge record establish its final publication state. If interrupted
+before merge, finish its Mac/Windows/privacy checks and merge with a merge commit.
 
 ### In progress
 
-No unfinished product implementation or running search. The owner confirmed GitHub-connected
-development and the on-demand Mac app; that choice and the update steps are recorded in
-AGENTS.md, CONTRIBUTING.md and DECISIONS.md. No scope question remains. **19 documentation
-tests**, Ruff and the privacy guard passed locally for this clarification. No app code changed.
-Prior baseline: 609 tests and all checks passed; Mac/Windows/privacy CI passed on `a842963`.
+No unfinished implementation or running search. **614 tests**, Ruff and the privacy guard
+passed locally for the reviewed PR #49 change; publication recovery is described above.
+Ports 8765/8799 have no listeners; no recognizable abandoned scratch folders were found.
+No private-data review, live search or paid call was performed.
 
-**Next session's exact first action:** use the Start a session prompt in SESSION-PROMPTS.md;
-verify `git status`, this record and recent PR/CI state. The next product action is the first
-real-results review using CONTRIBUTING.md, after the owner's setup and completed search.
-Actual provider access, coverage, scoring quality, cost and speed remain untested on the
-restored Mac; their verification list below is still open.
+**Next session's exact first action:** follow SESSION-PROMPTS.md's start prompt; verify Git
+and PR #49's state, recover publication only if needed, then follow CONTRIBUTING.md's review
+protocol once the owner completes setup and a search. Actual provider access, coverage,
+scoring quality, cost and speed remain unmeasured on the restored Mac.
 
 ### Verify before relying on
 
@@ -80,11 +83,9 @@ restored Mac; their verification list below is still open.
 
 ### Waiting on the owner
 
-1. Add the existing source folder as a **local Jobcu project** in Codex and start a Local chat
-   with [SESSION-PROMPTS.md's starting prompt](SESSION-PROMPTS.md#start-a-session).
-2. On **Wednesday, 2026-10-07**, enter keys, CV, cover letter and private query **in Jobcu only**;
+1. On **Wednesday, 2026-10-07**, enter keys, CV, cover letter and private query **in Jobcu only**;
    choose the job types and 72-hour posting window, then complete the search and any limit prompt.
-3. Start a Local project chat with **Analyse my latest Jobcu search** using the prepared review
+2. Start a Local project chat with **Analyse my latest Jobcu search** using the prepared review
    prompt. The initial aggregate review makes no paid calls; detailed evidence stays local.
 
 No account change, invitation, source upload or background schedule is required. Do not ask for
