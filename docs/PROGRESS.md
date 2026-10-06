@@ -5,12 +5,13 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ## Right now
 
-*Updated 2026-10-07. Beginner usage guides are ready; personal setup and the first search are next.*
+*Updated 2026-10-07. Clear usage guides include richer query examples; personal setup is next.*
 
 ### State
 
-- Explained usage guides are published in [PR #51](https://github.com/UtkuDenizAltiok/jobcu/pull/51).
-  README is the entry point; [How to use Jobcu](guides/first-search.md) covers everyday steps.
+- Richer query examples are restored in [PR #52](https://github.com/UtkuDenizAltiok/jobcu/pull/52).
+  README is the entry point; [How to use Jobcu](guides/first-search.md) explains everyday steps
+  and election/shop/population/commuting conditions, including a combined request.
   **617 tests**, Ruff and privacy passed locally; the PR/CI record establishes merge state.
   PROMPTS holds all three project prompts; dated background stays in `archive/`.
 - Jobcu and the preview are stopped (ports 8765/8799). Preserve on-demand launcher use.
@@ -18,19 +19,11 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ### In progress
 
-Goal: restore clear examples of research-based place conditions, including election vote
-shares and Turkish markets, in README and the usage guide. Branch:
-`codex/restore-query-examples`; no PR yet. No paid calls or private-data access are authorized.
-
-1. Recover the public examples and check interpretation/research behavior against code.
-2. Add plain examples and a combined query; explain estimates, unchecked facts and correction.
-3. Review, run Ruff/tests/privacy, publish and merge after Mac/Windows/privacy CI.
-
-Implemented: restored the public example range and added a combined query; clarified the
-same-election national vote-share comparison, shop counts and unchecked/estimated facts.
-Checked against the location/research instructions and existing fictional tests. No code changed.
-Checks: **617 tests**, 22 document/link checks, Ruff, privacy and diff whitespace passed.
-Jobcu/preview remain stopped. Exact next action: commit/push, open a PR and finish CI/merge.
+No unfinished implementation or running search. When resuming, verify Git and PR #52.
+If still open after an interruption, finish Mac/Windows/privacy CI and merge
+`codex/restore-query-examples` with a merge commit. Otherwise continue with setup/results below.
+Examples were checked against code and fictional tests; no live research was run.
+No new paid work is authorized.
 
 ### Verify before relying on
 
