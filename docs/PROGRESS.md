@@ -26,10 +26,12 @@ experience. Branch: `codex/plain-usage-guides`; no PR yet. No new paid work is a
 
 Implemented: explained README usage steps; installation, AI/key setup, first search, results,
 stopping/reopening and troubleshooting guides. Corrected document formats and separate key/model
-saves from code; added public guide links in the app and removed stale free-use promises.
-No AI/source behavior changed. OS instructions cite verified Apple/Microsoft guidance.
-Checks: baseline **617 tests**, 22 guide/link checks and Ruff passed; final full suite/privacy
-checks are next. Jobcu/preview remain stopped. Exact next action: finish checks, push and open a PR.
+saves from code; simplified Settings copy and removed stale free-use promises. No AI/source
+behavior changed. OS instructions cite verified Apple/Microsoft guidance.
+Checks: baseline **617 tests**, 22 guide/link checks, Ruff and privacy passed. The first updated
+full run failed the app's external-URL check; added app links were removed, preserving guide
+navigation in README. Final full checks are next. Jobcu/preview remain stopped.
+Exact next action: rerun checks, push the correction and open a PR.
 
 ### Verify before relying on
 
