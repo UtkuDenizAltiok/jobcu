@@ -5,32 +5,24 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ## Right now
 
-*Updated 2026-10-07. Documentation is organized; personal setup and the first search are next.*
+*Updated 2026-10-07. Beginner usage guides are ready; personal setup and the first search are next.*
 
 ### State
 
-- Cleanup is implemented and published in [PR #50](https://github.com/UtkuDenizAltiok/jobcu/pull/50).
-  README is the entry point; PROMPTS holds all three prompts. Dated background is in `archive/`.
-  **617 tests**, Ruff and the privacy guard passed locally. The PR/CI record establishes merge state.
+- Explained usage guides are published in [PR #51](https://github.com/UtkuDenizAltiok/jobcu/pull/51).
+  README is the entry point; [How to use Jobcu](guides/first-search.md) covers everyday steps.
+  **617 tests**, Ruff and privacy passed locally; the PR/CI record establishes merge state.
+  PROMPTS holds all three project prompts; dated background stays in `archive/`.
 - Jobcu and the preview are stopped (ports 8765/8799). Preserve on-demand launcher use.
 - No private inputs/results were inspected and no live search or paid request was made.
 
 ### In progress
 
-Goal: make everyday instructions clear enough for first-time users with little technical
-experience. Branch: `codex/plain-usage-guides`; no PR yet. No new paid work is authorized.
-
-1. Check the actual setup, search, result and launcher labels/behavior against the guides.
-2. Rewrite README's usage section and guides as explained steps, keeping optional setup separate.
-3. Check document links, run Ruff/tests/privacy checks, review, publish and merge after CI.
-
-Implemented: explained README usage steps; installation, AI/key setup, first search, results,
-stopping/reopening and troubleshooting guides. Corrected document formats and separate key/model
-saves from code; simplified Settings copy and removed stale free-use promises. No AI/source
-behavior changed. OS instructions cite verified Apple/Microsoft guidance.
-Checks: final **617 tests**, Ruff and privacy passed after correcting the app's external-URL
-check; guide navigation stays in README. Jobcu/preview remain stopped.
-Exact next action: push the validated branch, open a PR and wait for Mac/Windows/privacy CI.
+No unfinished implementation or running search. When resuming, verify Git and PR #51.
+If still open after an interruption, finish Mac/Windows/privacy CI and merge
+`codex/plain-usage-guides` with a merge commit. Otherwise continue with setup/results below.
+Guide wording was checked against local code; first-time usability still needs a walkthrough.
+No new paid work is authorized.
 
 ### Verify before relying on
 
