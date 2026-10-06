@@ -12,8 +12,10 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 - Documentation organization, beginner guides and richer query examples are **implemented,
   tested, pushed and merged** in [PR #50](https://github.com/UtkuDenizAltiok/jobcu/pull/50),
   [PR #51](https://github.com/UtkuDenizAltiok/jobcu/pull/51) and
-  [PR #52](https://github.com/UtkuDenizAltiok/jobcu/pull/52). Mac/GitHub main were synchronized
-  before this closing checkpoint; latest merged-main Mac/Windows/privacy CI passed.
+  [PR #52](https://github.com/UtkuDenizAltiok/jobcu/pull/52). These changes are on main;
+  their latest merged-main Mac/Windows/privacy CI passed.
+- Closing **617 tests**, Ruff, privacy and diff whitespace passed; no failed local checks remain.
+  [PR #53](https://github.com/UtkuDenizAltiok/jobcu/pull/53) records handover publication.
 - README is the entry point; [How to use Jobcu](guides/first-search.md) explains everyday steps
   and richer examples. PROMPTS holds all three project prompts; dated background is in `archive/`.
   Beginner wording and preserving richer examples are recorded in DECISIONS.md.
@@ -23,13 +25,11 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ### In progress
 
-Only session closure remains. Branch: `codex/session-handover`; no PR yet. This checkpoint
-records verified completed work and owner inputs before final checks. No implementation files
-are unfinished; no new development, private-data access or paid work is authorized.
-
-Earlier **617 tests**, Ruff/privacy and latest merged-main CI passed. Closing checks on this
-checkpoint are not run yet. Exact next action: run Ruff/full tests/privacy, review and publish
-the handover, wait for Mac/Windows/privacy CI, merge with a merge commit and leave clean main.
+No unfinished development or running search. When resuming, verify closing PR #53: if still
+open after an interruption, finish Mac/Windows/privacy CI, merge `codex/session-handover` with
+a merge commit and synchronize clean main. Otherwise session closure is complete; the next
+action is the owner's setup or completed-search review below. No new private-data access,
+paid calls or full searches are authorized by a start/end prompt.
 
 ### Verify before relying on
 
