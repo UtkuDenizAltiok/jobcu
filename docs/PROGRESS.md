@@ -5,7 +5,7 @@ Current state and next work. Decisions live in [DECISIONS.md](DECISIONS.md); sou
 
 ## Right now
 
-*Updated 2026-10-06. Codex project preparation is on branch `codex/project-readiness`; final verification is in progress.*
+*Updated 2026-10-06. Prepared for a local Codex project; publication is tracked in PR #43.*
 
 ### State
 
@@ -33,25 +33,14 @@ own document; CONTRIBUTING.md contains the local project and result-review workf
 
 ### In progress
 
-**Codex project readiness (2026-10-06, branch `codex/project-readiness`).** Prepare a clean local
-project and an evidence-based review of the first search on Wednesday, 2026-10-07. No real keys,
-documents or search results are available yet; do not claim live quality has been validated.
+No unfinished implementation. [PR #43](https://github.com/UtkuDenizAltiok/jobcu/pull/43) contains
+this preparation. If resuming during publication, verify its final macOS, Windows and privacy
+checks and merge state, then finish the normal merge/clean-main routine before new work.
 
-- [x] Audit the existing search, scoring, quality tools and source coverage; research official
-  documentation where needed. Record actionable findings rather than speculative rewrites.
-- [x] Record electronics/technical engineering as the first validation focus and the new work
-  order: Germany, Ireland, UK, Switzerland, Netherlands, Belgium, Italy.
-- [x] Remove obsolete completed Claude cloud tooling and redundant setup instructions after
-  checking references; retain useful decisions, specifications and Git history.
-- [x] Make private local result analysis reproducible, useful and safe for a public repository;
-  fix any concrete quality or efficiency defects found in the audit, with regression coverage.
-- [x] Prepare concise Codex project setup and start/review prompts. Local verification: 608 tests,
-  Ruff, JavaScript syntax, the privacy guard and Mac launcher self-test passed. A fictional-data
-  browser check confirmed the 72-hour default, step/wait timings, summary warning and score reveal
-  only after an independent rating. No real user inputs or provider calls were used.
-- [ ] Wait for GitHub's macOS, Windows and privacy checks; merge with a merge commit and leave
-  an updated clean main with the actual app running and temporary previews removed.
-
+Local verification passed: **608 tests**, Ruff, JavaScript syntax, full/staged privacy guards and
+the Mac launcher self-test. A fictional-data browser check confirmed the 72-hour default,
+step/wait timings, summary warning and score reveal only after an independent rating. Temporary
+preview data was removed. No real user inputs, live search or provider calls were used.
 
 ### Verify before relying on
 
