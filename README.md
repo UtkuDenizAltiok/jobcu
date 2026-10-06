@@ -6,17 +6,39 @@ This is an early test version; live coverage and scoring quality still need meas
 
 ## Use Jobcu
 
-1. [Install and start](docs/guides/install-and-start.md), or double-click the launcher in your
-   existing Jobcu folder: **Start Jobcu.command** on Mac, **Start Jobcu.bat** on Windows.
-2. [Set up your keys](docs/guides/getting-your-keys.md) inside Jobcu.
-3. [Run your first search](docs/guides/first-search.md).
+You do not need programming experience. You use Jobcu through a page in your web browser.
+You need an internet connection, your CV, a cover letter, and access to an AI service of your
+choice. An **API key** is a secret code from that service which lets Jobcu use your account.
+[The setup guide](docs/guides/getting-your-keys.md) explains how to get and enter one.
 
-Keep the launcher's terminal window open while using Jobcu. Close it to stop the app;
-choose **Terminate** if your Mac asks. Help: [Troubleshooting](docs/guides/troubleshooting.md).
+1. **Open Jobcu.** Open your Jobcu folder and double-click **Start Jobcu.command** on Mac or
+   **Start Jobcu.bat** on Windows. A text window opens, followed by the Jobcu page in your
+   browser. Keep the text window open: it runs the app. If you do not have the folder yet,
+   follow [Install and start](docs/guides/install-and-start.md).
+2. **Connect your AI service.** Click **Settings** at the top of the Jobcu page. Choose your
+   provider, save its API key, choose a model, and click **Test connection**. A model is the
+   version of the AI you want to use. Follow [Set up your keys](docs/guides/getting-your-keys.md)
+   for the individual steps and cost controls.
+3. **Add your documents.** Click **Search** at the top. Click **Add CV**, choose your CV file,
+   then do the same with **Add Cover letter**. Your file names appear when they have been added.
+   Jobcu uses these documents to understand your experience and the work you want.
+4. **Say where you want to work.** In **Where do you want to work?**, write your preferred
+   places and conditions in ordinary words. For example: *Dublin or Cork* or *Germany, within
+   50 minutes of a city centre by public transport*.
+5. **Choose the age and types of jobs.** **Posted within: 72 hours** means ads posted in the
+   previous three days. Tick the job types you want, such as permanent work or internships.
+6. **Start the search.** Click **Find matching jobs**. Keep Jobcu open and watch its progress.
+   If it asks whether to use more AI, read the question and choose whether to continue.
+7. **Read the matches.** Each job has a score and reasons. Click **Open job** to read the
+   original advertisement and apply on the employer's or job site's page. **Save** keeps a
+   job for later; **Applied** records an application you have already made.
+8. **Close Jobcu when finished.** Close the text window that opened in step 1. On Mac,
+   choose **Terminate** if asked. Close the browser tab too. Use the same start file next time;
+   your saved setup and jobs remain on your computer.
 
-Write where you want to work in your own words, such as *Dublin or Cork* or *Germany, within
-50 minutes of a city centre by public transport*. Jobcu shows **Understood as**; use **Edit**
-to correct it. Estimates and unchecked conditions remain labelled.
+The [first-search guide](docs/guides/first-search.md) walks through these steps in more detail,
+including correcting a misunderstood condition and understanding warnings on a job.
+If something does not work, follow [Troubleshooting](docs/guides/troubleshooting.md).
 
 ## Privacy and cost
 

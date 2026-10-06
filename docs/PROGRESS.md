@@ -17,10 +17,19 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ### In progress
 
-No unfinished implementation or running search. When resuming, verify Git and PR #50.
-If it is still open after an interruption, finish its Mac/Windows/privacy checks and merge
-`codex/documentation-cleanup` with a merge commit; preserve unmerged or active branches.
-Otherwise continue with the owner's setup/results below. No new paid work is authorized.
+Goal: make everyday instructions clear enough for first-time users with little technical
+experience. Branch: `codex/plain-usage-guides`; no PR yet. No new paid work is authorized.
+
+1. Check the actual setup, search, result and launcher labels/behavior against the guides.
+2. Rewrite README's usage section and guides as explained steps, keeping optional setup separate.
+3. Check document links, run Ruff/tests/privacy checks, review, publish and merge after CI.
+
+Implemented: explained README usage steps; installation, AI/key setup, first search, results,
+stopping/reopening and troubleshooting guides. Corrected document formats and separate key/model
+saves from code; added public guide links in the app and removed stale free-use promises.
+No AI/source behavior changed. OS instructions cite verified Apple/Microsoft guidance.
+Checks: baseline **617 tests**, 22 guide/link checks and Ruff passed; final full suite/privacy
+checks are next. Jobcu/preview remain stopped. Exact next action: finish checks, push and open a PR.
 
 ### Verify before relying on
 
