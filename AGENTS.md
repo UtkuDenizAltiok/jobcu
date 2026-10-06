@@ -60,7 +60,8 @@ need authorization and a bounded budget. Existing user-set limits stay respected
 | Product and technical decisions, including superseded ones | [docs/DECISIONS.md](docs/DECISIONS.md) |
 | Verified source/service facts and terms | [docs/SOURCES.md](docs/SOURCES.md) |
 | Architecture, module map and lessons | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
-| Codex setup, start prompts and local search-review protocol | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| Two canonical start/end prompts | [docs/SESSION-PROMPTS.md](docs/SESSION-PROMPTS.md) |
+| Codex setup and local search-review protocol | [CONTRIBUTING.md](CONTRIBUTING.md) |
 | Everyday usage | [README.md](README.md) and [docs/guides/](docs/guides/) |
 | Original concept, retained as historical reference | [docs/HANDOVER.md](docs/HANDOVER.md) |
 | Detailed change history | Git commits and pull requests |
@@ -85,6 +86,8 @@ Code/tests establish current behavior; the latest decision on a topic establishe
 ### While working
 
 - Before a task with several steps, record its goal, steps and verification under **In progress**.
+- Checkpoint meaningful progress before long checks or a likely interruption. Distinguish
+  implemented, tested, pushed and merged; preserve the active goal and exact next action.
 - Work on a branch in small complete steps. Update the appropriate records with implementation.
 - When reversing a decision, add the new reason and mark the old row superseded.
 - Test meaningful behavior and failure paths. No network, real documents or provider calls in tests.
@@ -95,13 +98,19 @@ Code/tests establish current behavior; the latest decision on a topic establishe
 
 ### Ending a session
 
-1. Finish at a safe point. Describe unfinished steps exactly under **In progress**, or clear it.
+1. Save a recoverable checkpoint before lengthy checks. Under **In progress**, record the active
+   goal, branch/PR state, unfinished files or steps, passed/failed/unrun checks and exact next action;
+   clear it when complete. Separate confirmed problems from hypotheses and future risks.
 2. Update Right now, pending live checks, Waiting on the owner and Next tasks. Keep it short;
    completed history belongs in Git, not a growing diary.
 3. Run `uv run ruff check . && uv run pytest`, and `uv run python tools/check_no_secrets.py --all`.
    Commit, push, wait for CI, merge finished work, and leave an updated clean main when possible.
+   If context, usage or access prevents finishing, preserve known safe work on its branch and
+   record the remaining checks/publication steps. Never discard work or label unverified work done.
 4. Delete disposable private scratch copies and stop previews; preserve the user's Jobcu service.
-5. Tell the owner what changed, what was verified, remaining limitations and direct next steps.
+5. Read back the handover against the actual repository and running services. Tell the owner what
+   was saved, verified or left unfinished, and direct next steps. Canonical prompts live in
+   [SESSION-PROMPTS.md](docs/SESSION-PROMPTS.md); link them instead of making conflicting copies.
 
 ## Commands
 

@@ -716,3 +716,10 @@ as the documents say.
 | **Measure per-step elapsed time and answer-wait time. Start real-result analysis with a read-only aggregate report; independently label all top-10 cards before reporting precision and create a date-verified coverage list before reporting recall.** | Old counts and broad score-band agreement do not prove search quality. Reports must not expose query, profile, documents, keys, titles, links or personal notes. Private local evidence supports public anonymous findings. AI and job-site calls are absent from the initial report. |
 | **When scoring truncates a lengthy ad, tell the AI it is an excerpt and warn on the result card.** | The text limit previously described a clipped full ad as complete evidence. Unseen requirements must not be assumed satisfied. No lower effort or reduction in jobs. |
 | **Remove the original private query quotation from the current decision document. Do not republish user data in future records, tool output or examples.** | The repository is public and the owner requires private search inputs. Git history remains permanent; removing current prose is not erasure of earlier public copies. |
+
+## 2026-10-06: Reusable session prompts
+
+| Decision | Reason |
+|---|---|
+| **Keep exactly two canonical default start/end prompts in SESSION-PROMPTS.md; link them from CONTRIBUTING.md and AGENTS.md. Current facts and next actions stay in PROGRESS.md.** | The owner wants repeatable handovers at a context/usage limit or a voluntary stop. Stable prompts need no dates or branch edits and avoid conflicting copies or reloading the entire history. The separate result-review prompt retains its task-specific authorization. |
+| **Checkpoint before lengthy ending checks and throughout meaningful work. A new session verifies Git and checks before continuing.** | A cutoff can prevent the final prompt from running. An incomplete branch is recoverable when its goal, files, checks and exact next action are recorded; unverified work must never be described as complete or discarded to appear clean. |
