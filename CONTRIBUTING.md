@@ -82,6 +82,8 @@ The reviewer follows this order:
    skipped/unchecked conditions, unknown dates, scoring limits, summary shares, top-10 blockers,
    per-step times and token/web usage. Separate time waiting for answers from app work. Corrections
    have new timings but cumulative usage; compare complete original searches for performance.
+   The report labels the run kind, timing scope and usage scope and warns when they differ.
+   A missing or unrecognized run kind leaves these scopes unknown.
 2. **Judge independently.** On a private scratch copy outside Git, judge full ads against the
    CV, cover letter and actual criteria **before seeing their scores**. Include the top 10 and a
    balanced 30–50-ad sample over time: good fits, near fits and blockers, across the priority
