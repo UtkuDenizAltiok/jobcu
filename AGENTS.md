@@ -1,6 +1,6 @@
 # Jobcu: working instructions
 
-Jobcu is a local job search app for macOS and Windows, with public source and private user data.
+Jobcu runs on macOS and Windows, with source and handovers published on GitHub and private user data.
 The owner develops it with ChatGPT/Codex. These instructions apply to every contributor and
 assistant. Current decisions supersede the original historical concept.
 
@@ -24,6 +24,9 @@ need authorization and a bounded budget. Existing user-set limits stay respected
   merges. The human retains ownership, copyright and licensing decisions. Account changes,
   spending and messages sent in the owner's name need his instructions.
 - Take authorized work to completion. Resolve routine details yourself and record decisions.
+- Keep the Mac checkout and GitHub current through the pull/test/push/CI/merge routine below.
+  The owner's choice is GitHub-connected development with Jobcu running on his Mac. "Local"
+  describes execution, not offline development; Git publication is not an instant file mirror.
 - Jobcu runs on demand. The owner's default is double-clicking **Start Jobcu.command**, then
   closing its terminal window and choosing **Terminate** if prompted to stop it. Do not
   automatically start or leave his app running. Use self-tests or isolated previews for

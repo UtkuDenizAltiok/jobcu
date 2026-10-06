@@ -23,8 +23,9 @@ posting window is 72 hours. No live AI or paid requests were made during this pr
 Historical measurements are references, not today's results.
 
 **ChatGPT/Codex** edits the Mac checkout connected to GitHub; published code and handovers are
-kept there. "Local" is the execution location, not offline development. The human owns the project and retains the proprietary
-license; the assistant leads product/engineering work and tested merges. The public code is
+kept there. "Local" is the execution location, not offline development. The owner confirmed this
+workflow: keep GitHub synchronized and run Jobcu on his Mac. The human retains ownership and
+the proprietary license; the assistant leads product/engineering work and tested merges. The public code is
 separate from all private inputs and results. Country work order: **Germany, Ireland, UK,
 Switzerland, Netherlands, Belgium, Italy**. First validation focus: **electronics and technical
 engineering**, with general matching and fictional other-profession regressions.
@@ -43,11 +44,10 @@ passing CI, no handover publication remains. Leave main clean and Jobcu stopped.
 
 ### In progress
 
-**Clarify GitHub synchronization:** CONTRIBUTING.md now explains the connected checkout,
-session pull/test/push/CI/merge steps and launcher updates. No product code or runtime changed.
-Next: verify documentation/style/privacy, review the diff, push the branch, wait for CI and
-merge. The owner has been asked whether "online and live" means this GitHub-connected Mac
-workflow or a hosted website; preserve his current on-demand setup while that scope is unresolved.
+No unfinished product implementation or running search. The owner confirmed GitHub-connected
+development and the on-demand Mac app; that choice and the update steps are recorded in
+AGENTS.md, CONTRIBUTING.md and DECISIONS.md. No scope question remains. **19 documentation
+tests**, Ruff and the privacy guard passed locally for this clarification. No app code changed.
 Prior baseline: 609 tests and all checks passed; Mac/Windows/privacy CI passed on `a842963`.
 
 **Next session's exact first action:** use the Start a session prompt in SESSION-PROMPTS.md;
