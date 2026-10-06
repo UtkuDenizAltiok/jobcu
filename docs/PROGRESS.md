@@ -5,7 +5,7 @@ Current state and next work. Decisions live in [DECISIONS.md](DECISIONS.md); sou
 
 ## Right now
 
-*Updated 2026-10-06. Local session resumed; review-readiness checks precede the first real search.*
+*Updated 2026-10-06. Local session resumed and review readiness verified; first real search is next.*
 
 ### State
 
@@ -41,18 +41,23 @@ every response. No source upload or copy of this chat is needed for the local pr
 PR #48's documentation clarification is merged; its stale publication checkpoint is resolved.
 The local project chat is active. Next is personal setup and a completed search in Jobcu,
 then the separately authorized private review in CONTRIBUTING.md.
+The review-readiness update is published in PR #49 (`codex/resume-readiness`, from `5d90a54`):
+the aggregate report labels original-search versus correction timings and cumulative usage.
+It warns against comparing mismatched scopes; unknown saved kinds remain unknown.
+Git and PR #49's checks/merge record establish its final publication state. If interrupted
+before merge, finish its Mac/Windows/privacy checks and merge with a merge commit.
 
 ### In progress
 
-**Review readiness, `codex/resume-readiness`, based on `5d90a54`:** implemented explicit run,
-timing and usage scopes in `tools/review_search.py`, including a correction warning and unknown
-legacy kinds. CONTRIBUTING.md and ARCHITECTURE.md explain the interpretation. Five fictional
-regressions reproduced the gap; **614 tests**, Ruff and the privacy guard pass locally.
-The diff is reviewed. Exact next action: push/create the PR, wait for Mac/Windows/privacy CI,
-merge with a merge commit and verify clean main. The owner app and preview remain stopped.
-Ports 8765/8799 remain stopped; no recognizable abandoned scratch folders were found.
-No private-data review, live search or paid call was performed. Actual provider access,
-coverage, scoring quality, cost and speed still need the owner's first results.
+No unfinished implementation or running search. **614 tests**, Ruff and the privacy guard
+passed locally for the reviewed PR #49 change; publication recovery is described above.
+Ports 8765/8799 have no listeners; no recognizable abandoned scratch folders were found.
+No private-data review, live search or paid call was performed.
+
+**Next session's exact first action:** follow SESSION-PROMPTS.md's start prompt; verify Git
+and PR #49's state, recover publication only if needed, then follow CONTRIBUTING.md's review
+protocol once the owner completes setup and a search. Actual provider access, coverage,
+scoring quality, cost and speed remain unmeasured on the restored Mac.
 
 ### Verify before relying on
 
