@@ -29,6 +29,7 @@ retain a superseded decision in the archive when replacing it.
 | Retry research on a later search; never mark a refused employer lookup as a successful refresh. | A temporary restriction must not suppress future employer discovery (2026-10-06). |
 | Keep guides provider-neutral and link to current provider instructions/prices. Remove fixed model recommendations and unmeasured cost/runtime promises. | Capabilities and charges change; the restored Mac has no measured search baseline yet (2026-10-07). This supersedes the guide's 2026-10-03 provider recommendation. |
 | Write everyday guides for first-time users: explain terms, give one clear action per step, name the actual controls and say how to confirm success. Put optional setup after the basic route; keep owner/Codex review instructions in their project documents. | Friends using Jobcu may have little technical experience. Plain language needs enough explanation to complete a task, rather than the shortest possible text (owner, 2026-10-07). |
+| Keep concrete examples of richer place requests in README and the usage guide, including election vote shares, Turkish supermarkets, Sunday opening, student populations and combined commute conditions. Define thresholds and label research limits. | The examples help users understand the range of requests they can make; simplifying the guides should preserve them without claiming unmeasured accuracy (owner, 2026-10-07). |
 
 ## Evaluation
 

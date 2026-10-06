@@ -40,6 +40,30 @@ The [first-search guide](docs/guides/first-search.md) walks through these steps 
 including correcting a misunderstood condition and understanding warnings on a job.
 If something does not work, follow [Troubleshooting](docs/guides/troubleshooting.md).
 
+## Write your search in your own words
+
+In **Where do you want to work?**, you can describe what matters to you about a place,
+including conditions Jobcu asks your AI to research online. For example:
+
+- *Dublin or Cork.*
+- *Germany or Ireland, within 50 minutes of a city centre by public transport.*
+- *Anywhere in Europe, in a city with at least 0.3% of that country's population.*
+- *Exclude cities where far-right parties received a higher share of votes than their
+  national share in that country's latest national parliamentary election.*
+- *Somewhere with several Turkish supermarkets and shops open on Sunday.*
+- *A university town where more than 20% of the population are students.*
+- *Within 30 minutes of Munich city centre by public transport; exclude fully remote jobs.*
+
+You can combine these conditions in one request. For an exact shop count, write something
+like *at least three Turkish supermarkets*. The [usage guide](docs/guides/first-search.md#more-detailed-requests)
+explains the examples and gives a combined request.
+
+Jobcu searches its supported countries, computes population limits from its included data,
+and asks your chosen AI to research facts such as election results and shops where web
+research is available. Read **Understood as**, the sources supplied and any **AI estimate**
+or **not checked** labels. Unchecked conditions do not exclude jobs. Use **Edit** to correct
+a misunderstanding and apply it to the jobs already found.
+
 ## Privacy and cost
 
 Your keys, documents, query and results stay outside the source folder and GitHub. A search
