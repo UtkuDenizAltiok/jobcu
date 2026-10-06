@@ -723,3 +723,9 @@ as the documents say.
 |---|---|
 | **Keep exactly two canonical default start/end prompts in SESSION-PROMPTS.md; link them from CONTRIBUTING.md and AGENTS.md. Current facts and next actions stay in PROGRESS.md.** | The owner wants repeatable handovers at a context/usage limit or a voluntary stop. Stable prompts need no dates or branch edits and avoid conflicting copies or reloading the entire history. The separate result-review prompt retains its task-specific authorization. |
 | **Checkpoint before lengthy ending checks and throughout meaningful work. A new session verifies Git and checks before continuing.** | A cutoff can prevent the final prompt from running. An incomplete branch is recoverable when its goal, files, checks and exact next action are recorded; unverified work must never be described as complete or discarded to appear clean. |
+
+## 2026-10-06: On-demand app use
+
+| Decision | Reason |
+|---|---|
+| **The owner opens Jobcu on demand by double-clicking Start Jobcu.command, and stops it by closing that terminal window and choosing Terminate if prompted. Development sessions do not automatically start or leave his app running.** Direct terminal commands are optional. Use self-tests or isolated previews, stop agent-started instances after verification, and respect a service the owner chose to keep running. | The owner explicitly wants the original simple launcher/terminal-close workflow, with no always-running app. Earlier instructions to preserve the actual service meant preserving his work and data; they must not turn verification into continuous app use. |

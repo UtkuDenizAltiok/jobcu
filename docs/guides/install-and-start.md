@@ -34,7 +34,8 @@ You need a Mac or a Windows 10 or 11 computer, and an internet connection.
    minutes.
 
 Jobcu opens in your browser. **Keep Jobcu's small window open while you use it**; close the
-window to stop Jobcu. Next time, just double-click **Start Jobcu** again.
+terminal window to stop Jobcu, choosing **Terminate** if your Mac asks. Next time, just
+double-click **Start Jobcu.command** on Mac or **Start Jobcu** on Windows again.
 
 ➡️ Next: [Get your keys](getting-your-keys.md)
 

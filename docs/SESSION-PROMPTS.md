@@ -27,7 +27,8 @@ rules when time allows. If context, usage, checks or access prevent completion, 
 work on its branch, clearly label any unverified checkpoint, and record the remaining verification,
 publication or merge steps. Never discard work or claim success to create a clean-looking ending.
 
-Stop temporary previews and remove disposable scratch copies; preserve the real app and user data.
+Stop previews and app instances you started, and remove disposable scratch copies. Respect the
+owner's chosen running/stopped app state and preserve user data.
 Read back the handover and confirm it matches the actual repository, checks and running services.
 End with a short saved-state report, anything incomplete, and simple steps for opening the next chat.
 ```

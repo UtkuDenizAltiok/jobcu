@@ -24,6 +24,10 @@ need authorization and a bounded budget. Existing user-set limits stay respected
   merges. The human retains ownership, copyright and licensing decisions. Account changes,
   spending and messages sent in the owner's name need his instructions.
 - Take authorized work to completion. Resolve routine details yourself and record decisions.
+- Jobcu runs on demand. The owner's default is double-clicking **Start Jobcu.command**, then
+  closing its terminal window and choosing **Terminate** if prompted to stop it. Do not
+  automatically start or leave his app running. Use self-tests or isolated previews for
+  verification, stop instances you started, and respect an app he chose to keep running.
 - Assume no programming experience. Explain outcomes plainly and finish **every response with
   simple, direct next steps** for the owner. Do not ask him to run technical work you can do.
 - Never ask for a key, password, CV, cover letter or query in chat. Keys and documents are entered
@@ -81,7 +85,8 @@ Code/tests establish current behavior; the latest decision on a topic establishe
 4. Read architecture and decision sections relevant to the task; read SOURCES.md before source work.
    Run the local test suite once for a substantive new development session, then targeted checks
    as changes require. Tests use disposable fictional data and need no API key or approval.
-5. Check for abandoned previews or private scratch copies; preserve the user's actual app and data.
+5. Check for abandoned previews or private scratch copies; respect the owner's chosen app state
+   and preserve user data. A development session does not require the actual app to be running.
 
 ### While working
 
@@ -107,7 +112,8 @@ Code/tests establish current behavior; the latest decision on a topic establishe
    Commit, push, wait for CI, merge finished work, and leave an updated clean main when possible.
    If context, usage or access prevents finishing, preserve known safe work on its branch and
    record the remaining checks/publication steps. Never discard work or label unverified work done.
-4. Delete disposable private scratch copies and stop previews; preserve the user's Jobcu service.
+4. Delete disposable private scratch copies and stop previews/app instances you started. Respect
+   the owner's chosen running/stopped state and preserve user data.
 5. Read back the handover against the actual repository and running services. Tell the owner what
    was saved, verified or left unfinished, and direct next steps. Canonical prompts live in
    [SESSION-PROMPTS.md](docs/SESSION-PROMPTS.md); link them instead of making conflicting copies.
