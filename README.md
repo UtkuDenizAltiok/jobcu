@@ -36,8 +36,12 @@ Conditions it can't check are shown as "not checked", never silently dropped.
 
 ## Good to know
 
-- **Private:** Jobcu runs on your own computer. Your documents, keys and results never leave it,
-  except to the job sites and the AI service you choose. It never logs in to job sites.
+- **Your data is private:** Jobcu stores your keys, documents, search text and results on your
+  computer, outside its code folder. They are never uploaded to GitHub. When you search,
+  the AI provider you choose receives the text it needs, job sources receive search words,
+  and each key goes only to its own service. Jobcu never logs in to job sites.
+- **Public code:** anyone can read the code. The owner's copyright and proprietary
+  [license](LICENSE) still apply; this is not an open-source license.
 - **You need:** a Mac or Windows computer and an AI key (Google Gemini's is free to start).
   Free Adzuna and Reed keys are optional but bring many more jobs. A Google Maps key is
   optional and gives real travel times.

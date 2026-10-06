@@ -96,7 +96,11 @@ def main() -> int:
     selftest = os.environ.get("JOBCU_SELFTEST") == "1"
     open_browser = not selftest and os.environ.get("JOBCU_NO_BROWSER") != "1"
 
-    ensure_data_dir()
+    try:
+        ensure_data_dir()
+    except ValueError as exc:
+        _say(str(exc))
+        return 1
     setup_logging()
 
     running = None if selftest else running_jobcu(PREFERRED_PORT)

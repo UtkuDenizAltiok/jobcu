@@ -25,6 +25,7 @@ from jobcu.ai.base import (
     AIRateLimited,
     AIRefused,
     AIUnavailable,
+    AIWebSearchUnavailable,
     ProviderAdapter,
     RawReply,
     ResearchReply,
@@ -117,7 +118,7 @@ class GeminiAdapter(ProviderAdapter):
                 model=model, contents=prompt, config=config
             )
         except Exception as exc:
-            raise _translate(exc) from exc
+            raise _translate(exc, web_search=True) from exc
         feedback = response.prompt_feedback
         if feedback is not None and feedback.block_reason:
             raise AIRefused(MSG_REFUSED, str(feedback.block_reason))
@@ -160,18 +161,27 @@ def _name(value) -> str:
     return getattr(value, "name", None) or str(value or "")
 
 
-def _translate(exc: Exception) -> Exception:
+def _translate(exc: Exception, *, web_search: bool = False) -> Exception:
     detail = str(exc)
     if isinstance(exc, errors.APIError):
         status = (exc.status or "").upper()
         text = f"{status} {exc.message or ''} {exc.details or ''}"
+        if "API_KEY_INVALID" in text or "API key not valid" in text or exc.code == 401:
+            return AIAuthError(MSG_KEY_REJECTED, detail)
+        if web_search and _web_search_refused(exc.code, text):
+            return AIWebSearchUnavailable(
+                "Google web look-ups aren't available for this model or API project. "
+                "Check the model's web-search support and your project's billing in Google "
+                "AI Studio. Jobcu will continue searching job sources and scoring ads; "
+                'conditions that need web research stay "not checked", and extra employers '
+                "and full ads can't be looked up online in this search.",
+                detail,
+            )
         if exc.code == 429 or status == "RESOURCE_EXHAUSTED":
             # Daily limits (e.g. "...PerDay...") won't reset by waiting a minute.
             if "perday" in text.lower().replace("_", "").replace(" ", ""):
                 return AIQuotaExhausted(MSG_QUOTA, detail)
             return AIRateLimited(MSG_RATE_LIMITED, detail, _retry_delay(text))
-        if "API_KEY_INVALID" in text or "API key not valid" in text or exc.code == 401:
-            return AIAuthError(MSG_KEY_REJECTED, detail)
         if exc.code == 403:
             return AIAuthError(MSG_NO_PERMISSION, detail)
         if exc.code == 404:
@@ -184,6 +194,20 @@ def _translate(exc: Exception) -> Exception:
     if isinstance(exc, AIError):
         return exc
     return AIBadRequest(MSG_BAD_REQUEST, detail)
+
+
+def _web_search_refused(code: int | None, text: str) -> bool:
+    """Only explicit search capability refusals, never a general quota or auth error."""
+    lower = text.lower()
+    mentions_search = any(word in lower for word in ("grounding", "google search", "googlesearch",
+                                                    "google_search"))
+    if not mentions_search:
+        return False
+    if code in (400, 403):
+        return any(word in lower for word in ("not supported", "not available", "unsupported",
+                                              "not enabled", "billing", "paid tier", "free tier"))
+    return code == 429 and bool(re.search(
+        r"(?:quota_?value|limit)['\"]?\s*[:=]\s*['\"]?0\b", lower))
 
 
 def _retry_delay(text: str) -> float | None:

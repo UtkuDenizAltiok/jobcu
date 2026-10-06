@@ -15,6 +15,7 @@ from jobcu.ai.base import (
     AIQuotaExhausted,
     AIRateLimited,
     AIUnavailable,
+    AIWebSearchUnavailable,
 )
 
 
@@ -113,6 +114,34 @@ def test_gemini_per_minute_limit_keeps_suggested_wait():
     )
     result = gemini_adapter._translate(error)
     assert isinstance(result, AIRateLimited) and result.retry_after == 31
+
+
+@pytest.mark.parametrize("error", [
+    _gemini_error(400, "INVALID_ARGUMENT", "Google Search grounding is not available on free tier"),
+    _gemini_error(400, "INVALID_ARGUMENT", "Google Search is not supported for this model"),
+    _gemini_error(403, "PERMISSION_DENIED", "Enable billing to use Google Search"),
+    _gemini_error(429, "RESOURCE_EXHAUSTED", "Grounding quota exceeded, limit: 0"),
+])
+def test_gemini_definite_web_refusals_are_separate_from_normal_ai_errors(error):
+    result = gemini_adapter._translate(error, web_search=True)
+    assert isinstance(result, AIWebSearchUnavailable)
+    assert "continue searching job sources and scoring" in result.message
+    # The same error during text generation must not disable research.
+    assert not isinstance(gemini_adapter._translate(error), AIWebSearchUnavailable)
+
+
+@pytest.mark.parametrize("error, expected", [
+    (_gemini_error(429, "RESOURCE_EXHAUSTED", "Grounding quota exceeded, limit: 20"),
+     AIRateLimited),
+    (_gemini_error(429, "RESOURCE_EXHAUSTED", "GenerateRequests quota exceeded, limit: 0"),
+     AIRateLimited),
+    (_gemini_error(403, "PERMISSION_DENIED", "Google Search permission denied"), AIAuthError),
+    (_gemini_error(400, "INVALID_ARGUMENT", "API key not valid. Google Search not supported"),
+     AIAuthError),
+    (_gemini_error(400, "INVALID_ARGUMENT", "thinking level not supported"), AIBadRequest),
+])
+def test_web_refusal_detection_keeps_auth_and_transient_errors(error, expected):
+    assert isinstance(gemini_adapter._translate(error, web_search=True), expected)
 
 
 def test_anthropic_asks_to_keep_the_instructions_ready():

@@ -2,8 +2,9 @@
 
 ## 1. Settings
 
-1. Click **Settings** (top right). Until everything needed is in place, the Search page shows a
-   short checklist.
+1. The Search page shows **Make Jobcu yours**: your AI, CV and cover letter, with a count of
+   what is ready. Click **Set up AI** to open Settings; **Add CV** and **Add Cover letter**
+   open the document picker directly. You can complete these in any order.
 2. **AI provider:** if you followed [Get your keys](getting-your-keys.md), this is done. Otherwise
    choose your provider, paste your key → **Save**, click **Load model list** and pick a model
    (for Google Gemini: **gemini-3.8-flash**), then **Test connection**.
@@ -11,6 +12,12 @@
    Jobcu's job sites and company career pages need no key.
 
 Keys are saved only on your computer.
+
+When Google refuses web look-ups for your model or API project, Jobcu explains once and skips
+further online research in that search. It still reads job sources and scores the ads.
+Conditions needing web research say **not checked**; extra employers and summary-only ads
+cannot be researched online. Check your model's support and the project's billing in Google AI
+Studio, or choose another model/provider. A new search tries again after you make a change.
 
 ## 2. Your documents
 
@@ -30,7 +37,8 @@ or a language level. Without your citizenship, Jobcu never assumes one.
    They go to the nearest part of a town, since you could live anywhere in it; write *city
    centre* if you mean the centre.
 2. Choose **Posted within** (72 hours or 1 week finds more) and the **job types**.
-3. Click **Search**. It takes 5 to 30 minutes: longer for several countries, 72 hours or more,
+3. Click **Find matching jobs** (available when all three setup items are ready). It takes 5 to
+   30 minutes: longer for several countries, 72 hours or more,
    and on a free AI allowance. You can do other things meanwhile; keep Jobcu's small window open.
    The screen shows each step as it goes, and how many jobs it has checked so far.
    Every two weeks your AI also looks for employers who hire for your kind of work; Jobcu then

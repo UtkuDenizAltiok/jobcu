@@ -18,7 +18,7 @@ from typing import Literal
 
 from jobcu import db, documents, employers, jobplace, jobstore, pipeline, quality, scoring, travel
 from jobcu import pool as search_pool
-from jobcu.ai.base import AIError
+from jobcu.ai.base import AIError, AIWebSearchUnavailable
 from jobcu.ai.client import AIClient
 from jobcu.ai.usage import UsageLog, estimate_cost
 from jobcu.countries import COUNTRIES, LANGUAGE_NAMES, languages_for
@@ -371,11 +371,14 @@ def _find_employers(run, settings, client, http, profile, plan) -> None:
         run.update("employers", "skipped", "Looking things up on the web is off in Settings")
         return
     try:
-        if not client.adapter().can_search_the_web:
-            run.update("employers", "skipped", "Your AI provider can't look things up on the web")
+        if reason := client.web_research_unavailable_reason():
+            run.update("employers", "skipped", reason)
             return
         found = employers.find(client, http, profile, plan.countries, plan.places,
                                on_progress=lambda text: run.update("employers", "running", text))
+    except AIWebSearchUnavailable as exc:
+        run.update("employers", "skipped", exc.message)
+        return
     except AIError as exc:
         log.info("Finding employers failed: %s", exc)
         run.update("employers", "failed", exc.message)
@@ -578,7 +581,9 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     if worth_it:
         looking(0, len(worth_it))
     looking_since = time.monotonic()
-    looked_up = (jobplace.find_online(client, groups, worth_it, profile, looking) if worth_it
+    unavailable = client.web_research_unavailable_reason()
+    looked_up = (jobplace.find_online(client, groups, worth_it, profile, looking)
+                 if worth_it and not unavailable
                  else jobplace.LookedUp())
     # Look-ups sent together can find the allowance held by others still running; those jobs get
     # another turn while look-ups are left (a test search on 2026-10-01 skipped 100 of 115 jobs
@@ -643,8 +648,12 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     if need_requirements:
         read = sum(1 for i in need_requirements if i in looked_up.requirements)
         found_online.append(f"the requirements of {read} of {len(need_requirements)} jobs")
-    run.update("places", "done", "Found online: " + ", ".join(found_online)
-               if found_online else "Nothing needed looking up")
+    unavailable = client.web_research_unavailable_reason()
+    if worth_it and unavailable:
+        run.update("places", "skipped", unavailable)
+    else:
+        run.update("places", "done", "Found online: " + ", ".join(found_online)
+                   if found_online else "Nothing needed looking up")
 
     # Facts only the ad text revealed can still rule a job out.
     left_out = Counter(job_pool.left_out)

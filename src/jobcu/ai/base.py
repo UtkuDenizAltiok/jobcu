@@ -96,6 +96,10 @@ class AIBadRequest(AIError):
     pass
 
 
+class AIWebSearchUnavailable(AIError):
+    """Web research is unsupported or unavailable for this model/account, not a brief outage."""
+
+
 class AIRefused(AIError):
     pass
 

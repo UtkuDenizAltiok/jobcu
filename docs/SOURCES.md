@@ -914,3 +914,19 @@ systems. No Swiss public or national source yet.
   boards. Career systems therefore need the employer directory (Phase 3).
 - German engineering ads include many from staffing agencies, often near-identical for different
   clients (see duplicate rules in `dedupe.py`).
+
+
+## Gemini web-research availability, checked 2026-10-06
+
+The official [Gemini pricing page](https://ai.google.dev/gemini-api/docs/pricing) lists
+Google Search grounding availability separately by model and tier; several Flash models have
+no free-tier grounding, while some other models do. Never infer access only from the provider
+name or a successful JSON connection test. The [troubleshooting guide](https://ai.google.dev/gemini-api/docs/troubleshooting)
+distinguishes unsupported requests and permissions from transient rate limits and outages.
+
+Jobcu now recognizes explicit Google Search/grounding capability refusals in research requests,
+including a search-specific zero quota, and skips further research for that search only.
+Non-search quotas, invalid keys and brief rate limits keep their usual handling. Regression
+tests use representative error messages; the exact response from a real free-tier project
+still needs checking. No credentials were present after the Mac reset, and none were requested
+in chat. This updates the implementation limitation above without claiming a live free-tier test.

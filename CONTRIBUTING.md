@@ -1,21 +1,26 @@
 # Contributing to Jobcu
 
-Jobcu is **private** (invited people only) and **not open source**: by contributing, you agree that
+Jobcu's source is **publicly readable** and **not open source**; the owner's proprietary
+license remains in place. User data stays private on each person's computer. By contributing,
+you agree that
 your changes become part of Jobcu under its [LICENSE](LICENSE). Everyday users need only the
 [README](README.md).
 
 Everything about how Jobcu is built and worked on is in **[AGENTS.md](AGENTS.md)**, the one
 rulebook for people and AI assistants alike. This page only gets you started.
 
-## Handover (2026-10-03)
+## Continuing development with ChatGPT (2026-10-06)
 
-The owner (Utku) handed development to a friend who works with **ChatGPT**. Where things stand
+The owner (Utku) now develops Jobcu directly with **ChatGPT/Codex on his restored Mac**.
+The assistant makes product and technical decisions and carries tested changes through review
+and merge; account changes, spending and licensing remain the owner's decisions. Where things stand
 is in [docs/PROGRESS.md](docs/PROGRESS.md) ("Right now": state, what to verify, what waits on
 the owner, next tasks in order); why things are as they are is in
 [docs/DECISIONS.md](docs/DECISIONS.md); facts about every source and service are in
 [docs/SOURCES.md](docs/SOURCES.md). To start:
 
-1. Ask Utku for **write access** to this GitHub repository (it stays private: hard rule 6).
+1. Clone the public repository. Contributors fork it and open a pull request; only authorized
+   maintainers need write access. Never upload any personal Jobcu data (AGENTS.md, hard rule 5).
 2. Set up your computer as below, and run `uv run pytest` once: all tests must pass.
 3. Open the repository in an assistant that can read and edit files and run commands (ChatGPT's
    coding agent Codex, or any of those listed below). Such assistants read `AGENTS.md` by
@@ -81,7 +86,8 @@ they are. Cloud sessions need a one-time setup: see AGENTS.md, "Working in a clo
 **At the start of every session:**
 
 ```text
-You are joining Jobcu, a private job search app. Read AGENTS.md in full and follow it: it is the
+You are joining Jobcu, a local job search app with public code and private user data. Read
+AGENTS.md in full and follow it: it is the
 project's rulebook. Then do what its section "Starting, or resuming after any interruption" says:
 read "Right now" in docs/PROGRESS.md and check the repository's real state. Tell me in plain words
 where the project stands, anything unfinished or needing a check, and what is waiting on me.

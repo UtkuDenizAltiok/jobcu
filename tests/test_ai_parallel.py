@@ -10,6 +10,7 @@ from jobcu.ai.base import (
     AIAuthError,
     AILimitReached,
     AIRateLimited,
+    AIWebSearchUnavailable,
     ProviderAdapter,
     RawReply,
     ResearchReply,
@@ -139,3 +140,29 @@ def test_one_item_or_one_request_at_a_time_runs_in_the_calling_thread():
     ai.parallel_requests = 1
     threads = in_parallel(ai, lambda item: threading.current_thread(), [1, 2, 3])
     assert set(threads) == {threading.current_thread()}
+
+
+def test_web_refusal_stops_queued_requests_and_announces_once():
+    class Refused(Counting):
+        def research(self, **request):
+            with self.lock:
+                self.calls += 1
+            time.sleep(0.01)
+            raise AIWebSearchUnavailable("Web search unavailable")
+
+    adapter = Refused()
+    ai = client(adapter)
+    notices = []
+    ai.notify = notices.append
+
+    def attempt(item):
+        try:
+            ai.research(step="employers", system="Find", prompt=str(item), max_searches=1)
+        except AIWebSearchUnavailable:
+            return False
+        return True
+
+    assert in_parallel(ai, attempt, list(range(20))) == [False] * 20
+    assert 1 <= adapter.calls <= PARALLEL_REQUESTS
+    assert notices == ["Web search unavailable"]
+    assert ai._web_searches_reserved == 0 and ai.web_searches_used == 0

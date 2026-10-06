@@ -10,6 +10,7 @@ from jobcu.ai.base import (
     AIOutputTruncated,
     AIRateLimited,
     AIUnavailable,
+    AIWebSearchUnavailable,
     ProviderAdapter,
     RawReply,
     ResearchReply,
@@ -302,3 +303,31 @@ def test_web_research_asks_again_without_a_thinking_setting_the_model_refuses():
     # Remembered: the next look-up doesn't try the setting again.
     client.research(step="job_places", system="Rules", prompt="Find it", effort="low")
     assert [call.get("effort") for call in adapter.calls] == ["medium", None, None]
+
+
+def test_web_refusal_is_announced_once_and_text_generation_still_works():
+    class NoWeb(SearchingAdapter):
+        def research(self, **request):
+            self.calls.append(request)
+            raise AIWebSearchUnavailable("Web research needs billing.")
+
+        def complete_json(self, **request):
+            return RawReply('{"ok": true, "word": "still works"}', Usage(10, 5))
+
+    adapter = NoWeb()
+    notices = []
+    usage = UsageLog()
+    client = AIClient(research_settings(), adapter=adapter, notify=notices.append, usage_log=usage)
+    for step in ("location", "employers", "job_places"):
+        with pytest.raises(AIWebSearchUnavailable):
+            client.research(step=step, system="Rules", prompt="Find places")
+    assert len(adapter.calls) == 1
+    assert notices == ["Web research needs billing."]
+    assert client._web_searches_reserved == 0 and client.web_searches_used == 0
+    assert client.generate(Answer, step="scoring", system="Rules", prompt="Score").ok
+    assert total_tokens(usage.this_month()) == 15
+    # A fresh search can try again after the user changes their model or billing.
+    fresh = AIClient(research_settings(), adapter=adapter)
+    with pytest.raises(AIWebSearchUnavailable):
+        fresh.research(step="location", system="Rules", prompt="Find places")
+    assert len(adapter.calls) == 2

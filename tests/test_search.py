@@ -128,6 +128,33 @@ def test_full_search_finds_filters_scores_and_remembers(ready):
     assert again["new_count"] == 0
 
 
+def test_web_research_refusal_keeps_search_results_and_skips_later_online_steps(ready, monkeypatch):
+    from jobcu.ai.base import AIWebSearchUnavailable
+
+    class NoWeb(FakeAI):
+        can_search_the_web = True
+        research_calls = 0
+
+        def research(self, **request):
+            self.research_calls += 1
+            raise AIWebSearchUnavailable("Web look-ups unavailable for this project.")
+
+    adapter = NoWeb()
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: adapter)
+    # Full ads unavailable: the online step would ordinarily look up both matching summaries.
+    monkeypatch.setattr(FakeSource, "load_details", lambda self, job, ctx: job)
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    result = wait_until_done(manager)
+    assert result["status"] == "finished", result["error"]
+    steps = {step["id"]: step for step in result["steps"]}
+    assert steps["employers"]["status"] == steps["places"]["status"] == "skipped"
+    assert adapter.research_calls == 1
+    assert result["notes"].count("Web look-ups unavailable for this project.") == 1
+    cards = result["result"]["jobs"]["cards"]
+    assert len(cards) == 2 and all(card["summary_only"] for card in cards)
+
+
 def test_one_job_the_memory_knows_twice_gets_one_card(ready, monkeypatch):
     # An agency's two summaries with the same title and town stay apart in the duplicate rules
     # but are one job in Jobcu's memory (search 10): one card, not two sharing Save.

@@ -27,7 +27,7 @@ from datetime import UTC, datetime, timedelta
 from urllib.parse import urljoin, urlsplit, urlunsplit
 
 from jobcu import db
-from jobcu.ai.base import AIError
+from jobcu.ai.base import AIError, AIWebSearchUnavailable
 from jobcu.ai.client import AIClient, in_parallel
 from jobcu.countries import COUNTRIES
 from jobcu.keystore import KeyStore
@@ -135,6 +135,10 @@ def _ask(client: AIClient, profile: Profile, countries: list[str],
                 max_searches=SEARCHES_PER_COUNTRY,
                 max_output_tokens=6000,
             )
+        except AIWebSearchUnavailable:
+            # A refused feature is not a completed two-week refresh. Try again next
+            # search, when the user may have changed their model or billing.
+            raise
         except AIError as exc:
             log.info("Finding employers in %s failed: %s", code, exc)
             return []

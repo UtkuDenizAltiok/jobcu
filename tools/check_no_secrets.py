@@ -27,7 +27,12 @@ ALWAYS_BLOCKED_EXTENSIONS = {
     ".db", ".db-journal", ".db-wal", ".db-shm", ".sqlite", ".sqlite3",
     ".key", ".pem", ".p12", ".pfx",
 }
-BLOCKED_FILENAMES = {"keys.json", "keys.json.damaged", "secrets.json", ".env"}
+BLOCKED_FILENAMES = {
+    "keys.json", "secrets.json", ".env", "settings.json", "documents.json",
+    "cv.txt", "cover_letter.txt", "cover-letter.txt",
+}
+# These are checked-in instructions for development tools, never Jobcu user settings.
+SHARED_SETTINGS = {".claude/settings.json", ".gemini/settings.json"}
 
 SECRET_PATTERNS = [
     ("an Anthropic API key", re.compile(r"\bsk-ant-[A-Za-z0-9_-]{20,}")),
@@ -58,7 +63,13 @@ def check_path(path: str) -> list[str]:
     posix = PurePosixPath(path.replace("\\", "/"))
     name = posix.name.lower()
     suffix = posix.suffix.lower()
-    if name in BLOCKED_FILENAMES or (name.startswith(".env.") and name != ".env.example"):
+    if posix.as_posix() in SHARED_SETTINGS:
+        return []
+    if name.removesuffix(".damaged") in BLOCKED_FILENAMES:
+        return [f"{path}: user settings, documents and keys must stay outside the repository"]
+    if suffix == ".log" or re.fullmatch(r"jobcu\.log\.\d+", name):
+        return [f"{path}: runtime logs can contain private search information"]
+    if name.startswith(".env.") and name != ".env.example":
         return [f"{path}: files like this hold keys or passwords"]
     if suffix in ALWAYS_BLOCKED_EXTENSIONS:
         return [f"{path}: database and key files can hold personal data or secrets"]

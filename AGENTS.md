@@ -8,7 +8,8 @@ which also has ready-made prompts for AI assistants.
 
 ## What Jobcu is
 
-Jobcu is a private job search app for 30 European countries (see `countries.py`). It runs on the
+Jobcu is a job search app with private user data and publicly readable source code, for
+30 European countries (see `countries.py`). It runs on the
 user's own Mac or Windows computer and is used through a browser. The user gives it a CV, a cover
 letter and a free-text description of where they want to work. On **Search**, it collects fresh
 job ads from as many sources as possible, removes duplicates, applies the location criteria,
@@ -175,9 +176,10 @@ always runs on the owner's and the friends' own computers.
 
 ## Who you are working with
 
-The owner (Utku), his invited friends who use Jobcu, and, since **2026-10-03**, a friend of the
-owner who **develops Jobcu further with ChatGPT** (the owner handed development over; DECISIONS.md,
-"Handover"). This file is written for any AI tool: read it in full, whatever assistant you are.
+The owner (Utku), his invited friends who use Jobcu, and developers contributing with his
+permission. Since **2026-10-06**, the owner works directly with **ChatGPT/Codex on his Mac**,
+following its reset (DECISIONS.md, "Public code, private data and ChatGPT development").
+This file is written for any AI tool: read it in full, whatever assistant you are.
 **Assume people have no programming experience**, unless they say otherwise. The owner uses a MacBook and prefers choosing from a few clear options over
 answering open questions.
 
@@ -217,10 +219,16 @@ answering open questions.
    price and performance for Jobcu, from a dated check recorded in SOURCES.md (the owner,
    2026-10-03: friends who don't know API keys need a clear recommendation). Re-check prices
    and free allowances before relying on that recommendation, and update both together.
-5. **Never commit keys, CVs or personal data.** Tests use fake data only.
-6. **The repository is private and its history is permanent:** never make it public, force-push,
-   rewrite or squash shared history, or delete commits. Pull requests are merged with a merge
-   commit, never squashed or rebased. Commit dates are the record of the owner's work.
+5. **Never commit keys, CVs, cover letters, search queries, results or any user-entered data.**
+   Tests use fake data only. Never copy a real user's words, account identifiers or documents
+   into documentation, issues, pull requests, screenshots, CI logs or test fixtures. Findings
+   use anonymous aggregate measurements and made-up examples. `JOBCU_DATA_DIR` must stay
+   outside every Git checkout; Jobcu refuses to create its data folder inside one.
+6. **The repository is public; user data is private; history is permanent** (owner, 2026-10-06).
+   The existing proprietary LICENSE and Utku's copyright stay; publicly readable code is not
+   permission to redistribute or commercially reuse it. Do not change its license without the
+   owner's instruction. Never force-push, rewrite or squash shared history, or delete commits.
+   Pull requests are merged with a merge commit, never squashed or rebased.
 7. English UI only. Supported countries only: the 30 in `countries.py`.
 
 ## When goals conflict, decide in this order
@@ -381,7 +389,11 @@ short script with that `JOBCU_DATA_DIR`.
   scripts. The Content-Security-Policy and a test enforce this.
 - **Local server:** listens on 127.0.0.1 only. Requests that change data must send the header
   `X-Jobcu: 1` from Jobcu's own page. Other requests are refused.
-- **User data** (documents, jobs, job states, settings, keys) lives only under `paths.data_dir()`.
+- **User data** (documents, search text, jobs, job states, settings, keys) lives only under
+  `paths.data_dir()`, outside Git repositories. `tools/check_no_secrets.py` blocks runtime
+  settings, documents, databases and logs as well as key patterns; only the exact shared
+  `.claude/settings.json` and `.gemini/settings.json` paths are permitted as settings files,
+  and their contents are still checked for keys.
 - **Database changes** are new numbered migrations in `db.py`; never change one that has been
   pushed, because people's databases have already applied it.
 - **Keys** go through `keystore.KeyStore`. Never log them, and show them only masked.

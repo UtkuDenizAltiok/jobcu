@@ -2,17 +2,16 @@
 
 ## 1. Download
 
-Jobcu's files are on **GitHub**, a website where programs are kept. Jobcu's page there is private,
-so Utku has to let you in first.
+Jobcu's files are on **GitHub**, a website where programs are kept. The code is publicly
+readable; the owner's [license](../../LICENSE) still applies to its use.
 
-1. Create a free account at [github.com/signup](https://github.com/signup) (an email address and a
-   password are enough) and send Utku your **username**.
-2. Open the invitation email from GitHub and click **Accept invitation**.
-3. Open the [Jobcu page](https://github.com/UtkuDenizAltiok/jobcu), click the green **Code** button
+1. Open the [Jobcu page](https://github.com/UtkuDenizAltiok/jobcu), click the green **Code** button
    → **Download ZIP**.
-4. Unpack it: **Mac** double-click the downloaded file · **Windows** right-click it → **Extract
+2. Unpack it: **Mac** double-click the downloaded file · **Windows** right-click it → **Extract
    All** → **Extract**.
-5. Move the unpacked `jobcu-main` folder into your **Documents** folder.
+3. Move the unpacked `jobcu-main` folder into your **Documents** folder.
+
+You don't need a GitHub account to download it.
 
 You need a Mac or a Windows 10 or 11 computer, and an internet connection.
 

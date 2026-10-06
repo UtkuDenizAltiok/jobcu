@@ -6,7 +6,7 @@ Where the project stands, and nothing else: git history says what was done, and
 
 ## Right now
 
-*Updated 2026-10-03. All tests pass; GitHub's tests pass on macOS and Windows.*
+*Updated 2026-10-06. Recovery implementation passes 593 local tests and GitHub checks on macOS and Windows (PR #42).*
 
 ### State
 
@@ -16,10 +16,23 @@ them company career systems and job sitemaps, reading 441 employers plus the one
 at the career-site titles the search words miss, removes duplicates, applies the rules and the
 location conditions, and scores what's left with every AI step at **medium** effort (the
 owner's choice). The location box takes any condition in the person's own words, shows how each
-was checked, with sources, and can be corrected with Edit. The owner has run eleven real
-searches on his Mac (2026-09-22 to 10-03). **Handover (2026-10-03):** development passes to a
-friend of the owner who works with ChatGPT (CONTRIBUTING.md, "Handover"); the owner's friends
-start using Jobcu with the guides (README.md), which now recommend Google Gemini.
+was checked, with sources, and can be corrected with Edit. Eleven real searches were measured before the Mac reset; the measurements below are
+historical, not results from the restored machine. **Development now continues directly with
+the owner through ChatGPT/Codex** (CONTRIBUTING.md). **The repository is public**, with the
+existing proprietary LICENSE; all user data stays outside it.
+
+**Recovered and improved on 2026-10-06:** uv and the locked Python environment are restored,
+the baseline 566 tests and launcher self-test passed; the improved version passes 593 tests
+and Ruff, with one upstream Starlette deprecation warning. First-run guidance now covers AI, CV and
+cover letter with direct actions and readiness checks. The app refuses personal data folders
+inside a Git checkout, and the safety guard also blocks private runtime settings and logs.
+A scan of all 209 inherited commits' 1,090 unique file versions found no blocked document/key
+files or matching secret patterns; this is a pattern-based check, not proof about every sentence.
+Definite Gemini web-research refusals now produce one explanation and skip further research
+in that search; sources and scoring continue, unsupported conditions stay unchecked, and the
+employer refresh is not falsely remembered as successful. The changed screens were checked on
+this Mac with fictional documents: direct uploads, missing provider address, completion after
+reload, document removal and a narrow layout. No real provider requests or paid tests were run.
 
 **Fixed on 2026-10-03 from search 11** (DECISIONS.md, "The owner's search 11"): jobs Jobcu
 showed before the window began, and jobs whose employer's own site shows an older copy, are left
@@ -87,9 +100,16 @@ Maps had no trouble. What it showed, most important first:
 
 ### In progress
 
-Nothing.
+Nothing. The recovery implementation and its checks are complete in PR #42;
+the restored app is running with an empty private data folder. Temporary previews and
+fictional documents have been removed. Personal setup and the first real search are next.
 
 ### Verify before relying on
+
+- **A real first search on the restored Mac:** documents and keys need entering again. Verify
+  actual provider access, progress, results and cost. The app's ordinary connection test does
+  not check web-research access. The exact free-tier refusal remains untested with a real key;
+  capability, quota and authentication distinctions are covered by scripted regression tests.
 
 - **The owner's next search** (the first with the 2026-10-03 fixes): "posted again" counted in
   Search details (search 11 would have had about 45, plus jobs like GE Vernova's Berlin one),
@@ -129,13 +149,13 @@ Nothing.
 
 ### Waiting on the owner
 
-1. **The next search, Wednesday 2026-10-07:** double-click the launcher first (it updates from
-   GitHub and replaces the Jobcu still running), a 72-hour search with his usual sentence; answer
-   **Always** if he wants every job scored and looked up (it now means no limit). Then a session
-   on his Mac with "Check my latest search" (CONTRIBUTING.md), in any assistant.
-2. **Friends:** invite each friend's GitHub username to the repository (they download the ZIP:
-   docs/guides/install-and-start.md), give the developer friend write access, and collect their
-   feedback (here, without personal details).
+1. **Restore personal setup in Jobcu:** enter the AI key in Settings, choose a model and test
+   the connection, then upload the CV and cover letter. No saved Jobcu data was present on the
+   reset Mac; GitHub contains code, not a backup of these private files. Never paste keys into chat.
+2. **The first new search:** a 72-hour search in the priority countries. Then a local session
+   can review it with permission, using a scratch copy and publishing only anonymous findings.
+   Friends can download the public code without GitHub invitations; the proprietary license
+   still applies to use and contributions.
 3. **Only if he wants to send them** (messages in his name): written permission from the
    Stepstone Group (one request covers StepStone.de, Totaljobs, IrishJobs and Jobs.ie; a draft is
    in SOURCES.md, "LinkedIn, StepStone…"), Denmark's Jobnet, Poland's CBOP, a private NAV token.
@@ -158,8 +178,9 @@ effort.** Cost: at most €25 a month for the owner; free, or under €10 a mont
 1. **Check the next search** ("Check my latest search"): "Verify before relying on" above, the
    ratings (`tools/score_check.py --rescore`) and a new coverage list; record the findings here
    and fix them first.
-2. **Friends on Gemini's free tier:** make Jobcu say plainly, once, that web look-ups need
-   billing, and skip those steps quietly (see "Verify before relying on").
+2. **Measure the new research fallback with a real key:** definite refusals now explain once
+   and skip the unavailable steps. Verify the account's actual response and that no known source
+   coverage disappears; do not assume every free-tier model has the same capabilities.
 3. **Cost at medium effort** (search 11: $2.43 and 471 web searches, over the owner's budget):
    Gemini cached none of the scoring and quick check's repeated instructions (about 1,400 tokens
    of system instruction plus the person's background) though it caches long shared prefixes by
@@ -181,11 +202,10 @@ effort.** Cost: at most €25 a month for the owner; free, or under €10 a mont
 8. **Paused until Germany, the UK and Ireland are as strong as possible:** sources for other
    countries (SOURCES.md), the licence limit for other professions, and the universality audit's
    rest.
-9. **Ready for friends (Phase 4):** a first-run setup screen, a "new version" notice for ZIP
-   installs, updating from GitHub while keeping
-   the data folder, the guides tested on a clean Mac and a clean Windows computer, and the
-   repository moved to a free GitHub organization, choosing with the owner how friends
-   contribute.
+9. **Ready for friends (Phase 4):** first-run guidance is implemented. Next: a "new version"
+   notice for ZIP installs, simpler updating while preserving private data, and a complete
+   manual install/use check on a clean Windows computer. The public repository already permits
+   downloads without invitations; an organization is optional, not a release prerequisite.
 
 ### Known limitations
 
@@ -202,17 +222,17 @@ effort.** Cost: at most €25 a month for the owner; free, or under €10 a mont
   town list doesn't know constituencies, so such an exception doesn't match its town. Edit fixes
   it ("Except Leipzig").
 
-## Owner's setup and reference numbers
+## Local setup and reference measurements
 
-- Data folder `~/Library/Application Support/Jobcu`, with the keys `adzuna_app_id`,
-  `adzuna_app_key`, `ai_gemini` and `reed_api_key` (`google_maps` once set up). AI: Google Gemini,
-  model `gemini-3.8-flash`, paid (€15 in advance), with Google's spend cap at €23 a month on the
-  project "Jobcu AI" (everything together never above €25); web search works on it.
-- Real tests only on a copy of that folder, deleted afterwards (AGENTS.md, Commands).
-- A German 24-hour search takes about 4 minutes (Workday is the slowest source: about 400
-  requests when no place is named); Munich or within 40 km over 72 hours about 3 minutes.
-  Re-checking the whole employer directory takes about 15 minutes; `--only-new` for new
-  candidates under a minute.
+- A restored Git checkout, uv, Python and locked dependencies are ready. Personal data uses
+  the standard separate Jobcu folder (AGENTS.md, Project layout); there are no restored keys,
+  documents, search history or quality ratings. Never record actual account/project identifiers
+  or user-entered values here.
+- Real provider checks need the owner's permission and keys through Jobcu's code, on a scratch
+  copy of the data folder that is deleted afterwards. Existing limits and medium effort remain.
+- Historical timings: a German 24-hour search took about four minutes; a 72-hour named-town
+  search about three. Re-check after recovery; the multi-country reference search above took
+  32 minutes and needs cost and lookup improvements.
 
 ## Milestones
 
@@ -273,7 +293,6 @@ effort.** Cost: at most €25 a month for the owner; free, or under €10 a mont
 
 - [ ] Full manual test on a real Windows computer and a real Mac
 - [ ] Complete everyday-user guides (HANDOVER §2.1), tested on clean computers
-- [ ] First-run setup screen and polished double-click launchers
+- [x] First-run guidance for AI, CV and cover letter; double-click launchers verified on the restored Mac
 - [ ] Updating from GitHub while keeping the data folder
-- [ ] Move the repository to a free GitHub organization and invite friends, choosing with the owner
-      how friends can contribute (see DECISIONS.md)
+- [x] Public code downloads without invitations; contributions through pull requests under the existing license
