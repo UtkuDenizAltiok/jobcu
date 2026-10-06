@@ -28,13 +28,13 @@ Implemented: explained README usage steps; installation, AI/key setup, first sea
 stopping/reopening and troubleshooting guides. Corrected document formats and separate key/model
 saves from code; simplified Settings copy and removed stale free-use promises. No AI/source
 behavior changed. OS instructions cite verified Apple/Microsoft guidance.
-Checks: baseline **617 tests**, 22 guide/link checks, Ruff and privacy passed. The first updated
-full run failed the app's external-URL check; added app links were removed, preserving guide
-navigation in README. Final full checks are next. Jobcu/preview remain stopped.
-Exact next action: rerun checks, push the correction and open a PR.
+Checks: final **617 tests**, Ruff and privacy passed after correcting the app's external-URL
+check; guide navigation stays in README. Jobcu/preview remain stopped.
+Exact next action: push the validated branch, open a PR and wait for Mac/Windows/privacy CI.
 
 ### Verify before relying on
 
+- Beginner guides: a first-time user's install/setup/search walkthrough remains untested.
 - First restored-Mac search: provider/model access, document parsing, criteria interpretation,
   source availability, progress, results and usage. A connection test does not prove research access.
 - Freshness: original posting/closing dates, old reposts and distinct requisitions.

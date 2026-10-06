@@ -84,7 +84,7 @@ During the search, Jobcu may pause to ask whether to go beyond a limit you set:
 | Button | What happens |
 |---|---|
 | **Score … more** or **Look up … more** | Continue this search with more AI work. This may use more of your allowance or cost more. |
-| **Show results now** | Finish with the work already done. Some remaining jobs may be unscored or have unchecked details. |
+| **Show results now** | Decline the extra work requested. Jobcu completes its remaining steps and shows results; some jobs may be unscored or have unchecked details. |
 | **Always score them all** or **Always look them up** | Continue now and remove that particular search limit for future searches. Monthly limits still apply. |
 
 Choose an **Always** option only if you want that lasting change. You can restore a number
