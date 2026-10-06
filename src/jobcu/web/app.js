@@ -64,7 +64,9 @@ const $ = (id) => document.getElementById(id);
 // ---------------------------------------------------------------------------
 
 const VIEWS = ["search", "score-check", "settings"];
-const state = { settings: null, provider: null, search: null, usage: null, quality: null };
+const state = {
+  settings: null, documents: null, provider: null, search: null, usage: null, quality: null,
+};
 
 function showView() {
   const requested = location.hash.replace("#/", "");
@@ -85,41 +87,41 @@ function showView() {
 function renderChecklist() {
   const list = $("setup-checklist");
   const settings = state.settings;
-  if (!settings) return;
+  if (!settings || !state.documents) return;
   const provider = settings.providers.find((p) => p.id === settings.ai.provider);
-  // Only the AI steps are needed; the job site keys just add two more sites.
+  const aiReady = Boolean(provider && (provider.key.saved || provider.key_optional)
+    && settings.ai.model.trim() && (!provider.needs_base_url || settings.ai.base_url.trim()));
   const items = [
-    ["Choose an AI provider", Boolean(provider), false],
-    [
-      "Save your AI key",
-      Boolean(provider && (provider.key.saved || provider.key_optional)),
-      false,
-    ],
-    ["Choose an AI model", Boolean(settings.ai.model), false],
-    [
-      "Save your Adzuna keys",
-      keySaved("adzuna_app_id") && keySaved("adzuna_app_key"),
-      true,
-    ],
-    ["Save your Reed key", keySaved("reed_api_key"), true],
+    ["Your AI", aiReady,
+      aiReady ? `${provider.name} · ${settings.ai.model}` : "Choose a provider, save your key and pick a model.",
+      el("a", { class: "button", href: "#/settings", text: "Set up AI" })],
+    ...["cv", "cover_letter"].map((kind) => {
+      const info = state.documents[kind];
+      return [DOCUMENT_LABELS[kind], Boolean(info), info ? info.original_name
+        : kind === "cv" ? "Your experience, skills and qualifications." : "What you enjoy and the work you want.",
+      el("button", { type: "button", class: "secondary", text: `Add ${DOCUMENT_LABELS[kind]}`,
+        onclick: () => document.querySelector(`[data-document="${kind}"] input[type="file"]`).click() })];
+    }),
   ];
-  $("setup-card").hidden = items.every(([, done, optional]) => done || optional);
+  const ready = items.every(([, done]) => done);
+  $("setup-card").hidden = ready;
+  $("setup-count").textContent = `${items.filter(([, done]) => done).length} of 3 ready`;
   list.replaceChildren(
-    ...items.map(([label, done, optional]) =>
+    ...items.map(([label, done, detail, action], index) =>
       el(
         "li",
         { class: done ? "done" : "" },
-        el("span", { class: "mark", "aria-hidden": "true", text: done ? "✓" : "○" }),
-        el("span", {
-          text: `${label}${done ? "" : optional ? " (optional, adds two more job sites)" : " (not done yet)"}`,
-        }),
+        el("span", { class: "mark", "aria-hidden": "true", text: done ? "✓" : String(index + 1) }),
+        el("div", { class: "setup-step" },
+          el("strong", { text: `${label}${done ? " · ready" : ""}` }),
+          el("p", { class: "muted", text: detail }), done ? null : action),
       ),
     ),
   );
-}
-
-function keySaved(name) {
-  return Boolean(state.settings.job_site_keys.find((k) => k.name === name)?.saved);
+  $("start-search").disabled = !ready || state.search?.status === "running";
+  $("search-readiness").textContent = ready
+    ? "Your setup is ready. Test your AI connection in Settings before your first search."
+    : "Before searching: " + items.filter(([, done]) => !done).map(([label]) => label).join(", ") + ".";
 }
 
 // ---------------------------------------------------------------------------
@@ -130,10 +132,12 @@ const DOCUMENT_LABELS = { cv: "CV", cover_letter: "Cover letter" };
 
 async function loadDocuments() {
   const data = await api("/api/documents");
+  state.documents = data.documents;
   for (const row of document.querySelectorAll("[data-document]")) {
     const kind = row.dataset.document;
     renderDocumentRow(row, kind, data.documents[kind], data.accepted[kind]);
   }
+  renderChecklist();
 }
 
 function renderDocumentRow(row, kind, info, accepted) {
@@ -155,7 +159,9 @@ function renderDocumentRow(row, kind, info, accepted) {
       chooseButton.textContent = "Reading…";
       try {
         const saved = await uploadDocument(kind, file);
+        state.documents[kind] = saved;
         renderDocumentRow(row, kind, saved, accepted);
+        renderChecklist();
       } catch (error) {
         chooseButton.textContent = info ? "Replace" : "Choose file…";
         message.textContent = error.message;
@@ -174,7 +180,9 @@ function renderDocumentRow(row, kind, info, accepted) {
           if (!confirm(`Remove your ${DOCUMENT_LABELS[kind].toLowerCase()} from Jobcu?`)) return;
           await busy(event.target, async () => {
             await api(`/api/documents/${kind}`, { method: "DELETE" });
+            state.documents[kind] = null;
             renderDocumentRow(row, kind, null, accepted);
+            renderChecklist();
           });
         },
       }),
@@ -822,7 +830,7 @@ function showSearch(search) {
         stopped: "Search stopped",
       })[search.status];
   $("stop-search").hidden = !running;
-  $("start-search").disabled = running;
+  renderChecklist();
 
   $("search-steps").replaceChildren(
     ...search.steps.map((step) =>
@@ -1289,6 +1297,7 @@ function renderDetails(search) {
 function setUpSearchActions() {
   $("search-form").addEventListener("submit", async (event) => {
     event.preventDefault();
+    if ($("start-search").disabled) return;
     const form = readSearchForm();
     if (!form.job_types.length) {
       setStatus($("search-form-status"), "problem", "Please tick at least one job type.");
@@ -1303,6 +1312,7 @@ function setUpSearchActions() {
         setStatus($("search-form-status"), "problem", error.message);
       }
     });
+    renderChecklist();
   });
   $("stop-search").addEventListener("click", async () => {
     if (state.search) await api(`/api/search/${state.search.id}/stop`, { method: "POST" });
@@ -1387,6 +1397,10 @@ function renderProviderDetails() {
   const provider = currentProvider();
   $("provider-details").hidden = !provider;
   if (!provider) return;
+  $("ai-web-hint").hidden = provider.id !== "gemini";
+  $("ai-web-hint").textContent = "Google web look-ups depend on your model and API project's allowance. "
+    + "If they aren't available, Jobcu will explain once and still search job sources and score ads. "
+    + "Conditions that need web research stay ‘not checked’.";
 
   // Model names belong to one provider, so switching provider starts empty.
   const saved = state.settings.ai;

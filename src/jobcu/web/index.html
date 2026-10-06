@@ -24,19 +24,29 @@
   <main class="page">
     <!-- Search -->
     <section id="view-search" class="view" hidden>
-      <h1>Search</h1>
+      <div class="search-intro">
+        <div>
+          <p class="eyebrow">Your next move</p>
+          <h1>Find work that fits you.</h1>
+          <p class="muted">Fresh jobs, fewer duplicates, and clear reasons for every match.</p>
+        </div>
+        <span class="privacy-badge">Runs on your computer</span>
+      </div>
 
-      <div class="card" id="setup-card" hidden>
-        <h2>Getting ready</h2>
-        <p class="muted">Finish these steps in Settings before your first search:</p>
-        <ul class="checklist" id="setup-checklist"></ul>
-        <p><a class="button" href="#/settings">Open Settings</a></p>
+      <div class="card setup-card" id="setup-card" hidden>
+        <div class="card-head">
+          <h2>Make Jobcu yours</h2>
+          <span class="setup-count" id="setup-count" role="status"></span>
+        </div>
+        <p class="muted">Set up your AI and add your two documents. You can do these in any order.</p>
+        <ol class="checklist" id="setup-checklist"></ol>
+        <p class="field-hint">Adzuna, Reed and Google Maps keys are optional. You can add them in Settings later.</p>
       </div>
 
       <div class="card search-panel">
         <h2>Your documents</h2>
-        <p class="muted">Jobcu reads your CV and cover letter again at the start of every search.
-          They stay on this computer.</p>
+        <p class="muted">Stored on this computer. When you search, their text is sent to the AI
+          provider you choose to understand your background and score jobs.</p>
         <div class="document-row" data-document="cv"></div>
         <div class="document-row" data-document="cover_letter"></div>
 
@@ -44,7 +54,7 @@
           <div class="field">
             <label for="about-you">Anything your documents don't say <span class="muted">(optional)</span></label>
             <input id="about-you" type="text" maxlength="500"
-              placeholder="For example: Turkish citizen · German B1 since this summer · no visa needed in the EU">
+              placeholder="For example: German B2 since this summer · eligible to work in Ireland">
             <p class="field-hint">Only used to judge job ads that ask for a citizenship, a security clearance or a language level.</p>
           </div>
 
@@ -77,10 +87,11 @@
           </label>
 
           <div class="actions">
-            <button type="submit" id="start-search">Search</button>
+            <button type="submit" id="start-search" disabled aria-describedby="search-readiness">Find matching jobs</button>
             <button type="button" class="link" id="show-profile">What Jobcu understood</button>
             <button type="button" class="link" id="show-details" hidden>Search details</button>
           </div>
+          <p class="field-hint search-readiness" id="search-readiness" role="status">Checking your setup…</p>
           <p class="status" id="search-form-status" role="status" hidden></p>
         </form>
       </div>
@@ -217,6 +228,8 @@
         <p class="muted">Jobcu uses an AI to read your CV and job ads and to score the jobs. Pick
           any provider and switch at any time; the guide "Get your keys" compares price and free
           use.</p>
+        <p class="field-hint">Your API key is saved only on this computer and sent only to its
+          provider. After saving it, choose a model and test the connection below.</p>
 
         <fieldset class="provider-choice">
           <legend>Provider</legend>
@@ -267,6 +280,8 @@
             <button type="button" class="secondary" id="check-ai">Test connection</button>
           </div>
           <p class="status" id="ai-status" role="status" hidden></p>
+          <p class="field-hint" id="ai-web-hint" hidden></p>
+          <p><a href="#/search">Back to your search →</a></p>
         </div>
       </div>
 

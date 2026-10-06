@@ -54,6 +54,14 @@ def test_normal_code_is_not_flagged(text):
         "jobcu.db",
         "data/jobcu.sqlite3",
         "keys.json",
+        "backup/keys.json.damaged",
+        "settings.json",
+        "backup/settings.json.damaged",
+        "documents/documents.json",
+        "documents/cover_letter.txt",
+        "cv.txt",
+        "logs/jobcu.log",
+        "logs/jobcu.log.2",
         ".env",
         ".env.local",
         "tests/fake_cv.pdf",
@@ -69,6 +77,8 @@ def test_personal_and_secret_file_types_are_blocked(path):
         ".env.example",
         "src/jobcu/app.py",
         "docs/images/step-1.png",
+        ".claude/settings.json",
+        ".gemini/settings.json",
     ],
 )
 def test_normal_files_are_allowed(path):
@@ -78,6 +88,10 @@ def test_normal_files_are_allowed(path):
 def test_binary_files_are_not_scanned_as_text():
     content = b"\x89PNG\0" + FAKE_KEYS["openai"].encode()
     assert guard.check_file("docs/images/step.png", content) == []
+
+
+def test_shared_settings_still_cannot_contain_keys():
+    assert guard.check_file(".claude/settings.json", FAKE_KEYS["openai"].encode())
 
 
 @pytest.mark.skipif(

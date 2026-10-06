@@ -169,6 +169,21 @@ def test_the_ai_names_employers_and_jobcu_keeps_the_lists_it_can_read(monkeypatc
     assert len(ai.asked) == 3
 
 
+def test_refused_web_research_does_not_record_a_successful_employer_refresh():
+    from jobcu.ai.base import AIWebSearchUnavailable
+
+    class Refused(FinderAI):
+        def research(self, **request):
+            raise AIWebSearchUnavailable("Web research unavailable")
+
+    with pytest.raises(AIWebSearchUnavailable):
+        employers.find(ai_client(Refused("")), web({}), NURSE, ["IE"], [], now=NOW)
+    # Billing or model changes take effect on the next search, not in two weeks.
+    working = FinderAI("")
+    found = employers.find(ai_client(working), web({}), NURSE, ["IE"], [], now=NOW)
+    assert found.looked and len(working.asked) == 1
+
+
 def test_a_careers_page_without_a_system_leads_to_its_job_list_or_job_host():
     import threading
 

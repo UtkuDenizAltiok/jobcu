@@ -14,6 +14,15 @@ from jobcu.app import create_app
 from jobcu.build import build_id
 
 
+def test_bad_personal_data_location_stops_with_a_plain_message(monkeypatch, capsys):
+    def invalid():
+        raise ValueError("Jobcu's personal data folder must be outside a Git repository.")
+
+    monkeypatch.setattr(launcher, "ensure_data_dir", invalid)
+    assert launcher.main() == 1
+    assert "outside a Git repository" in capsys.readouterr().out
+
+
 def test_find_free_port_gives_a_usable_port():
     port = launcher.find_free_port()
     assert launcher.is_port_free(port)

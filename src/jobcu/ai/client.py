@@ -34,6 +34,7 @@ from jobcu.ai.base import (
     AIOutputTruncated,
     AIRateLimited,
     AIUnavailable,
+    AIWebSearchUnavailable,
     ProviderAdapter,
     ResearchReply,
 )
@@ -106,6 +107,9 @@ class AIClient:
         self._requests_running = 0
         self._gate = threading.Condition()
         self._adapter_lock = threading.Lock()
+        # Remember a definite capability refusal for this search only. A later search
+        # gets a fresh client, so changing a model or enabling billing takes effect.
+        self._web_unavailable: str | None = None
 
     @property
     def provider_id(self) -> str:
@@ -278,16 +282,12 @@ class AIClient:
         section 6 and 9.6). The user's own AI provider does the searching; Jobcu never contacts
         a search engine itself.
         """
-        if not self.settings.use_web_search:
-            raise AIError(
-                "Looking things up on the web is switched off in Settings, so anything that "
-                'needs checking is shown as "not checked".'
-            )
+        reason = self.web_research_unavailable_reason()
+        if reason:
+            raise AIWebSearchUnavailable(reason)
         provider = self.provider_id
         model = self.model_for(reasoning=True)
         adapter = self.adapter()
-        if not adapter.can_search_the_web:
-            raise AIError(MSG_NO_WEB_SEARCH)
         self._check_monthly_limit()
         with self._gate:
             allowed = min(max_searches, self.web_searches_left())
@@ -308,6 +308,18 @@ class AIClient:
         self._record(step, provider, model, reply.usage)
         return reply
 
+    def web_research_unavailable_reason(self) -> str | None:
+        if not self.settings.use_web_search:
+            return (
+                "Looking things up on the web is switched off in Settings, so anything that "
+                'needs checking is shown as "not checked".'
+            )
+        if self._web_unavailable:
+            return self._web_unavailable
+        if not self.adapter().can_search_the_web:
+            return MSG_NO_WEB_SEARCH
+        return None
+
     def _research(self, adapter: ProviderAdapter, provider: str, model: str, system: str,
                   prompt: str, max_searches: int, max_output_tokens: int,
                   effort: Effort | None) -> ResearchReply:
@@ -318,6 +330,8 @@ class AIClient:
         while True:
             try:
                 with self._slot():
+                    if self._web_unavailable:
+                        raise AIWebSearchUnavailable(self._web_unavailable)
                     return adapter.research(
                         model=model,
                         system=system,
@@ -326,6 +340,13 @@ class AIClient:
                         max_output_tokens=with_thinking_room(max_output_tokens, effort),
                         effort=effort,
                     )
+            except AIWebSearchUnavailable as exc:
+                with self._gate:
+                    first = self._web_unavailable is None
+                    self._web_unavailable = exc.message
+                if first:
+                    self.notify(exc.message)
+                raise
             except AIBadRequest:
                 if effort is None:
                     raise
