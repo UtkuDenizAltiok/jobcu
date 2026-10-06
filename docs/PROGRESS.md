@@ -19,13 +19,12 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 **Documentation cleanup, `codex/documentation-cleanup`, from `feb760f`.** Establish one home per
 kind of information, combine the three reusable prompts, simplify guides and current records,
 and move dated history into `docs/archive/`. Preserve source evidence, license, private data
-and runtime paths. All edits are implemented; **22 document checks**, Ruff and the privacy
-guard passed. Full verification/publication remain pending. Historical records are preserved;
+and runtime paths. All edits are implemented; **617 tests**, Ruff and the privacy
+guard passed locally. Publication remains pending. Historical records are preserved;
 current documents were reduced from 3,306 to about 830 lines outside the archive.
 
-Exact next action: finish the diff review, stage every new/moved file, run the full suite and
-privacy guard, commit/push a PR, wait for
-Mac/Windows/privacy CI, then merge with a merge commit and return to clean main.
+Exact next action: commit/push a PR, wait for Mac/Windows/privacy CI, merge with a merge commit,
+retire only verified merged development branches, and return to clean main.
 
 ### Verify before relying on
 

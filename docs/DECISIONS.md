@@ -51,6 +51,8 @@ retain a superseded decision in the archive when replacing it.
 - Keep the established `src/`, `tests/`, `tools/` and root launcher layout. It already separates
   runtime code, verification and maintenance; documentation cleanup does not require moving
   working modules or user data.
+- Retire fully merged development branches after checking open PRs and attached worktrees.
+  Keep every commit reachable from main; unmerged or active branches are preserved.
 
 These choices give each document one purpose and avoid repeating instructions across guides,
 prompts and handovers. Future updates follow the information homes in AGENTS.md.

@@ -33,8 +33,7 @@ include fictional non-engineering profiles in matching regressions.
 
 1. **No job-site logins or bypasses.** Respect robots.txt, terms, request budgets and Retry-After.
    No account cookies, CAPTCHA solving or bot-protection evasion. A blocked source stays blocked;
-   find a
-   permitted alternative. Verify current terms before adding or changing a source.
+   find a permitted alternative. Verify current terms before adding or changing a source.
 2. **Device-local app.** No hosting, user accounts, telemetry, analytics or cloud storage.
    Connections are to job sources, the chosen AI provider and optional Google Maps. Explain
    that necessary text goes to that provider; local storage does not mean offline use.
