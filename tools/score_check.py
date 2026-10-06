@@ -9,10 +9,11 @@ title Jobcu left out was really unrelated). Then:
 
 `--rescore` uses your AI provider and costs tokens; the other form is free. The options exist to
 compare settings: batch size, reasoning effort, and scoring from a short summary instead of the
-full ad. Everything stays in your data folder.
+full ad. Saved data stays local; re-scoring sends profile and ad text to your chosen AI provider.
 """
 
 import argparse
+import json
 import statistics
 import sys
 from pathlib import Path
@@ -38,22 +39,26 @@ BANDS = {"good": (70, 100), "okay": (45, 85), "poor": (0, 60)}
 def as_job(ad: quality.Ad) -> FoundJob:
     return FoundJob(source=ad.kind, source_job_id=str(ad.id), url=ad.url, title=ad.title,
                     company=ad.company, location_text=ad.location, description=ad.text,
-                    description_is_complete=True)
+                    description_is_complete=ad.description_is_complete)
 
 
-def rescore(ads: list[quality.Ad], batch: int, effort: str | None, summary: bool) -> dict[int, int]:
+def rescore(ads: list[quality.Ad], batch: int, effort: str | None, summary: bool,
+            aggregate: bool = False) -> dict[int, int]:
     settings = load_settings()
     if effort:
         settings.ai.scoring_effort = effort
-    client = AIClient(settings, KeyStore(), usage_log=UsageLog(), notify=print)
+    client = AIClient(settings, KeyStore(), usage_log=UsageLog(), notify=(
+        (lambda message: print("AI notice received; inspect details locally."))
+        if aggregate else print))
     profile, reused = read_profile_reusing(
         client, documents.read_text("cv"), documents.read_text("cover_letter"),
         settings.search_form.about_you,
     )
-    print(f"Profile: {profile.current_or_last_role or profile.field}"
-          f"{' (reused)' if reused else ''}")
-    plan = LocationPlan(text="", understood_as="Anywhere.", countries=[], places=[],
-                        not_checked_yet=[], outside_supported_area=[], broad=True)
+    if not aggregate:
+        print(f"Profile: {profile.current_or_last_role or profile.field}"
+              f"{' (reused)' if reused else ''}")
+    fallback = LocationPlan(text="", understood_as="Anywhere.", countries=[], places=[],
+                            not_checked_yet=[], outside_supported_area=[], broad=True)
     groups = []
     for ad in ads:
         job = as_job(ad)
@@ -62,8 +67,17 @@ def rescore(ads: list[quality.Ad], batch: int, effort: str | None, summary: bool
                               "description_is_complete": False})
         groups.append(group_duplicates([job], {ad.kind: "job_board"})[0])
     before = total_tokens(UsageLog().this_month())
-    scored = score_groups(client, profile, plan, groups, list(range(len(groups))),
-                          batch_size=batch)
+    by_plan: dict[str, list[int]] = {}
+    if any(ad.location_plan is None for ad in ads):
+        print("Some older samples have no recorded location plan; "
+              "their re-score cannot validate location preferences.")
+    for index, ad in enumerate(ads):
+        by_plan.setdefault(json.dumps(ad.location_plan, sort_keys=True), []).append(index)
+    scored = {}
+    for indexes in by_plan.values():
+        recorded = ads[indexes[0]].location_plan
+        plan = LocationPlan.model_validate(recorded) if recorded else fallback
+        scored.update(score_groups(client, profile, plan, groups, indexes, batch_size=batch))
     used = total_tokens(UsageLog().this_month()) - before
     print(f"Scored {len(scored)} ads with batch {batch}, effort "
           f"{settings.ai.scoring_effort or 'default'}, "
@@ -71,12 +85,15 @@ def rescore(ads: list[quality.Ad], batch: int, effort: str | None, summary: bool
     return {ads[index].id: result["score"] for index, result in scored.items()}
 
 
-def report(ads: list[quality.Ad], scores: dict[int, int]) -> None:
+def report(ads: list[quality.Ad], scores: dict[int, int], aggregate: bool = False) -> None:
     rated = [ad for ad in ads if ad.kind == "scored" and ad.rating and ad.id in scores]
     if not rated:
         print("No answered jobs with scores yet. Open the Score check screen in Jobcu first.")
         return
     print(f"{len(rated)} answered jobs\n")
+    summaries = sum(not ad.description_is_complete for ad in rated)
+    if summaries:
+        print(f"Evidence warning: {summaries} were saved as summaries, not full ads.\n")
     in_band, rows = 0, []
     for ad in sorted(rated, key=lambda a: -scores[a.id]):
         low, high = BANDS[ad.rating]
@@ -84,9 +101,10 @@ def report(ads: list[quality.Ad], scores: dict[int, int]) -> None:
         fits = low <= score <= high
         in_band += fits
         rows.append((score, ad.rating, fits, ad))
-    for score, rating, fits, ad in rows:
-        mark = "ok " if fits else "OFF"
-        print(f"  {mark} {score:3}  you said {rating:5}  {ad.title[:52]:52} {ad.company or ''}")
+    if not aggregate:
+        for score, rating, fits, ad in rows:
+            mark = "ok " if fits else "OFF"
+            print(f"  {mark} {score:3}  you said {rating:5}  {ad.title[:52]:52} {ad.company or ''}")
     print(f"\nIn the region you'd expect: {in_band} of {len(rated)} "
           f"({in_band / len(rated):.0%})")
     for rating in ("good", "okay", "poor"):
@@ -95,7 +113,7 @@ def report(ads: list[quality.Ad], scores: dict[int, int]) -> None:
             print(f"  you said {rating:5}: scores {min(group)}–{max(group)}, "
                   f"median {statistics.median(group):.0f}")
     worst = [row for row in rows if not row[2]]
-    if worst:
+    if worst and not aggregate:
         print("\nThe ones to look at first (the prompt may need tuning):")
         for score, rating, _, ad in worst[:5]:
             print(f"  {score:3} but you said {rating}: {ad.title[:60]}")
@@ -105,8 +123,9 @@ def report(ads: list[quality.Ad], scores: dict[int, int]) -> None:
         wrong = [ad for ad in titles if ad.rating == "worth_a_look"]
         print(f"\nQuick check: of {len(titles)} answered titles it left out, you'd have looked at "
               f"{len(wrong)}.")
-        for ad in wrong[:5]:
-            print(f"  ✗ {ad.title[:60]} ({ad.company or ''})")
+        if not aggregate:
+            for ad in wrong[:5]:
+                print(f"  ✗ {ad.title[:60]} ({ad.company or ''})")
 
 
 def main() -> int:
@@ -117,16 +136,20 @@ def main() -> int:
                         choices=["minimal", "low", "medium", "high"])
     parser.add_argument("--summary", action="store_true",
                         help="score from the first 600 characters instead of the full ad")
+    parser.add_argument("--aggregate", action="store_true",
+                        help="omit profile, job titles and companies from printed output")
     args = parser.parse_args()
+    if args.batch < 1:
+        parser.error("--batch must be at least 1")
 
     ads = quality.all_ads()
     scored_ads = [ad for ad in ads if ad.kind == "scored"]
     if args.rescore and scored_ads:
-        scores = rescore(scored_ads, args.batch, args.effort, args.summary)
+        scores = rescore(scored_ads, args.batch, args.effort, args.summary, args.aggregate)
     else:
         scores = {ad.id: ad.score for ad in scored_ads if ad.score is not None}
         print("Using the scores Jobcu gave during your searches.\n")
-    report(ads, scores)
+    report(ads, scores, args.aggregate)
     return 0
 
 

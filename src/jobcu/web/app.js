@@ -1199,6 +1199,12 @@ function renderDetails(search) {
   const section = (title, ...content) =>
     el("section", { class: "profile-section" }, el("h3", { text: title }), ...content);
   const parts = [];
+  if (search.steps.some((step) => step.elapsed_seconds !== undefined)) {
+    parts.push(section("Time by step", el("ul", {}, ...search.steps.map((step) =>
+      el("li", { text: `${step.label}: ${Math.round(step.elapsed_seconds || 0)} seconds` }))),
+      el("p", { class: "muted", text:
+        `Includes ${Math.round(search.waiting_seconds || 0)} seconds waiting for your answers.` })));
+  }
   const jobs = result.jobs;
   if (jobs) {
     const row = (cells, header = false) =>
@@ -1560,6 +1566,10 @@ function qualityRow(ad, blockers) {
     el("span", { class: "muted", text: where }),
   );
   const parts = [head];
+  if (ad.kind === "scored" && ad.description_is_complete === false) {
+    parts.push(el("p", { class: "check-estimate", text:
+      "Only a short summary was saved. Open the original ad before rating; requirements may be missing." }));
+  }
   if (ad.url) {
     parts.push(el("p", {}, el("a", { href: safeUrl(ad.url), target: "_blank",
                                      rel: "noopener noreferrer", text: "Open the ad" })));

@@ -171,6 +171,12 @@ MIGRATIONS: list[str] = [
         PRIMARY KEY (subject, country)
     );
     """,
+    # 11: Review the same evidence and location preferences the search used. Old samples were
+    # full ads; new ones may be summaries, which must never silently become full ads on rescore.
+    """
+    ALTER TABLE quality_ads ADD COLUMN description_is_complete INTEGER NOT NULL DEFAULT 1;
+    ALTER TABLE quality_ads ADD COLUMN location_plan_json TEXT;
+    """,
 ]
 
 

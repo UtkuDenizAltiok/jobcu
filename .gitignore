@@ -9,14 +9,15 @@ keys.json.damaged
 secrets.json
 settings.json
 settings.json.damaged
-!.claude/settings.json
-!.gemini/settings.json
 documents.json
 cv.txt
 cover_letter.txt
 cover-letter.txt
 *.log
 jobcu.log.*
+search-review.json
+search-results.json
+coverage.csv
 *.key
 *.pem
 jobcu-data/
@@ -58,13 +59,12 @@ Thumbs.db
 desktop.ini
 
 # Editors and AI tools: personal settings and chat histories stay private.
-# (Shared AI instructions such as AGENTS.md, CLAUDE.md, .gemini/settings.json and
-# .aider.conf.yml ARE shared.)
+# AGENTS.md is the only shared assistant rulebook.
 .vscode/
 .idea/
-# Claude Code: only the shared settings (the cloud session setup) are shared.
-.claude/*
-!.claude/settings.json
+.codex/
+.claude/
+.gemini/
 .aider.chat.history.md
 .aider.input.history
 .aider.tags.cache.v*/

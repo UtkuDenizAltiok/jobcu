@@ -30,9 +30,8 @@ ALWAYS_BLOCKED_EXTENSIONS = {
 BLOCKED_FILENAMES = {
     "keys.json", "secrets.json", ".env", "settings.json", "documents.json",
     "cv.txt", "cover_letter.txt", "cover-letter.txt",
+    "search-review.json", "search-results.json", "coverage.csv",
 }
-# These are checked-in instructions for development tools, never Jobcu user settings.
-SHARED_SETTINGS = {".claude/settings.json", ".gemini/settings.json"}
 
 SECRET_PATTERNS = [
     ("an Anthropic API key", re.compile(r"\bsk-ant-[A-Za-z0-9_-]{20,}")),
@@ -63,8 +62,6 @@ def check_path(path: str) -> list[str]:
     posix = PurePosixPath(path.replace("\\", "/"))
     name = posix.name.lower()
     suffix = posix.suffix.lower()
-    if posix.as_posix() in SHARED_SETTINGS:
-        return []
     if name.removesuffix(".damaged") in BLOCKED_FILENAMES:
         return [f"{path}: user settings, documents and keys must stay outside the repository"]
     if suffix == ".log" or re.fullmatch(r"jobcu\.log\.\d+", name):

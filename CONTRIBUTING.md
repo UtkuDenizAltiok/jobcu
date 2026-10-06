@@ -1,149 +1,120 @@
-# Contributing to Jobcu
+# Develop Jobcu with Codex
 
-Jobcu's source is **publicly readable** and **not open source**; the owner's proprietary
-license remains in place. User data stays private on each person's computer. By contributing,
-you agree that
-your changes become part of Jobcu under its [LICENSE](LICENSE). Everyday users need only the
-[README](README.md).
+The source is publicly readable under the owner's proprietary [LICENSE](LICENSE). User data is
+private. [AGENTS.md](AGENTS.md) contains the working rules and decision authority; development
+continues locally with ChatGPT/Codex. Everyday users start with [README.md](README.md).
 
-Everything about how Jobcu is built and worked on is in **[AGENTS.md](AGENTS.md)**, the one
-rulebook for people and AI assistants alike. This page only gets you started.
+## Open a local Codex project
 
-## Continuing development with ChatGPT (2026-10-06)
+Use the existing `jobcu` folder containing `AGENTS.md`, `pyproject.toml`, `src` and the two launchers.
+In Codex, add a **local project**, name it **Jobcu**, and select that folder as its primary folder.
+Start a new chat inside that project in **Local** mode. The code folder is the project context;
+you do not need to upload the source, previous chats, CV or keys as project sources.
 
-The owner (Utku) now develops Jobcu directly with **ChatGPT/Codex on his restored Mac**.
-The assistant makes product and technical decisions and carries tested changes through review
-and merge; account changes, spending and licensing remain the owner's decisions. Where things stand
-is in [docs/PROGRESS.md](docs/PROGRESS.md) ("Right now": state, what to verify, what waits on
-the owner, next tasks in order); why things are as they are is in
-[docs/DECISIONS.md](docs/DECISIONS.md); facts about every source and service are in
-[docs/SOURCES.md](docs/SOURCES.md). To start:
+Codex discovers `AGENTS.md` in the primary folder. The checked-in state and instructions carry
+between chats, so paste only the start prompt below. Reference: [official project documentation,
+checked 2026-10-06](https://learn.chatgpt.com/docs/projects).
 
-1. Clone the public repository. Contributors fork it and open a pull request; only authorized
-   maintainers need write access. Never upload any personal Jobcu data (AGENTS.md, hard rule 5).
-2. Set up your computer as below, and run `uv run pytest` once: all tests must pass.
-3. Open the repository in an assistant that can read and edit files and run commands (ChatGPT's
-   coding agent Codex, or any of those listed below). Such assistants read `AGENTS.md` by
-   themselves; `CLAUDE.md` only points to it. A chat-only assistant needs AGENTS.md and
-   docs/PROGRESS.md pasted in.
-4. Paste the start prompt below. For real tests, put your own AI key in your own Jobcu's
-   Settings (never in a chat); the owner's CV and data stay on his Mac.
-
-## Set up
-
-Mac: `brew install git uv gh` · Windows: `winget install --id Git.Git -e`,
-`winget install --id astral-sh.uv -e`, `winget install --id GitHub.cli -e`
+The restored Mac already has Git, uv, GitHub CLI and the locked Python environment. For another
+computer, install Git and uv, clone the public repository, then let Codex run:
 
 ```bash
-gh auth login
-gh repo clone UtkuDenizAltiok/jobcu          # with write access (or: gh repo fork … --clone)
-cd jobcu
-uv sync
-git config core.hooksPath .githooks          # safety check before every commit
-uv run pytest && uv run ruff check .
-uv run jobcu
+uv sync --locked
+git config core.hooksPath .githooks
+uv run ruff check .
+uv run pytest
+uv run python tools/check_no_secrets.py --all
 ```
 
-## Cloud sessions with Claude Code (optional, claude.ai/code)
+For convenient project actions, these commands can be added in Codex's local environment settings:
+**Start Jobcu** `uv run jobcu`, **Tests** `uv run pytest`, **Review latest search**
+`uv run python tools/review_search.py`. They need no provider keys themselves; only an actual
+search needs your personal setup. [Official local-environment documentation](https://learn.chatgpt.com/docs/environments/local-environment).
 
-Only for Claude Code's cloud. One-time setup; how sessions work there is in AGENTS.md, "Working
-in a cloud session". Other assistants' cloud agents follow the same rules with their own setup.
-
-1. At claude.ai, **Settings → Usage**: check your credit balance. If paid **Usage credits** are on,
-   set the monthly spend limit to the lowest amount, so nothing beyond a credit is charged.
-2. At claude.ai/code, connect GitHub, and install the **Claude GitHub App** on this repository
-   only ("Only select repositories").
-3. In the environment menu, open **Default**'s settings (the icon next to it), set **Network
-   access** to **Full**, and save.
-4. Recommended: in the same dialog, **API credentials → Add credential** with a separate key of
-   your AI provider, so sessions can test with a real AI without seeing the key. For Gemini:
-   **Allowed websites** `generativelanguage.googleapis.com`, header **Name** `x-goog-api-key`,
-   **Prefix** empty, the key as **Value**, then **Connect**. Never paste a key into a chat.
-
-Each session: pick this repository and branch **main**, the model and effort you want, the mode
-**Auto** (or **Accept edits**), and paste the start prompt below. Run one session at a time.
-
-Optional, to test with your own CV (DECISIONS.md, 2026-09-24 night): attach your CV and cover
-letter with the **+** and add this paragraph to the start prompt:
+## Start a fresh session
 
 ```text
-Attached are my real CV and cover letter, for testing only. Save them only in a scratch folder
-outside the repository and delete it when you finish. Never put them, or any personal detail from
-them, in the repository, a commit, a branch name, a pull request, an issue, a comment, a test or
-CI output: friends and others with access to the repository must never see them. Use them as the
-main test person with the AI credential, next to made-up people from other fields: check how Jobcu
-reads them, which jobs it finds for me in my priority countries and how it scores them, and
-improve what falls short.
+Continue Jobcu from this local project. Follow AGENTS.md and its "Starting, or resuming after any
+interruption" routine. Read Right now in docs/PROGRESS.md and check reality. Make the product and
+engineering decisions, research relevant official sources, implement and verify useful changes,
+and merge tested PRs with merge commits. Preserve my ownership and private data. Focus first on
+electronics and technical engineering, in the recorded country order. Keep the repository ready
+for another session and end every response with simple next steps. My documents and keys go only
+in Jobcu; don't ask for them in chat. Until I complete a search, continue useful offline work
+without inventing results or starting paid tests.
 ```
 
-## Working with an AI assistant
+## Tomorrow's first search
 
-Any capable AI coding assistant works: Claude Code (on your computer, or in a cloud session at
-claude.ai/code), Codex, Gemini CLI, Cursor, GitHub Copilot, Aider, or a chat assistant such as
-ChatGPT, Gemini, Grok or Kimi. Open the project in your assistant and paste these prompts as
-they are. Cloud sessions need a one-time setup: see AGENTS.md, "Working in a cloud session".
+The planned day is **Wednesday, 2026-10-07**. In Jobcu itself:
 
-**At the start of every session:**
+1. Set up the AI provider, model and key; test the connection. Optional job-source keys improve
+   coverage; Jobcu explains which sources need them.
+2. Upload the CV and cover letter, then enter the private query and any additional background.
+3. Choose **Posted within: 72 hours**, check the job types, and select **Find matching jobs**.
+   This means ads posted in the previous three days, not a three-day running time. New installs
+   default to this window; existing saved choices are preserved. Read and answer any limit prompt.
+4. Once the search finishes, start a new Local chat in the Jobcu project with the review prompt.
+
+Your actual query decides which countries and roles are searched. The development priority order
+is not silently inserted into anyone's query. Keys and documents live outside the source folder.
+
+## Review the latest search locally
 
 ```text
-You are joining Jobcu, a local job search app with public code and private user data. Read
-AGENTS.md in full and follow it: it is the
-project's rulebook. Then do what its section "Starting, or resuming after any interruption" says:
-read "Right now" in docs/PROGRESS.md and check the repository's real state. Tell me in plain words
-where the project stands, anything unfinished or needing a check, and what is waiting on me.
-Then carry on with the mission and the next tasks in PROGRESS.md: decide the technical details
-yourself, research where needed, and work carefully in small, tested, recorded steps. Ask me only
-about decisions that are mine (AGENTS.md). You may merge your own pull requests with a merge
-commit once GitHub's tests pass. If you can't open files yourself, ask me to paste AGENTS.md and
-docs/PROGRESS.md.
+Analyse my latest Jobcu search on this Mac. Follow AGENTS.md's start routine, then the local review
+protocol in CONTRIBUTING.md. You may read my local Jobcu documents, query and results privately,
+and rate the saved quality sample on my behalf. Start with the read-only aggregate review; never
+print or publish my profile, query, documents, keys, job list or ratings. Decide which findings
+matter, fix confirmed defects with fictional regressions, verify and merge the changes. Use my
+saved keys only through Jobcu code for a focused re-score at medium effort, within my existing
+limits and at most EUR1 for this review if prices are configured; otherwise finish the free
+analysis first and give me one clear next step. Don't start another full search. Public project
+records get anonymous aggregate findings and fictional examples only. End with simple next steps.
 ```
 
-**Before you stop, or when the conversation is getting full:**
+The reviewer follows this order:
+
+1. **Measure first.** `uv run python tools/review_search.py` reads the latest saved results in
+   read-only SQLite mode. It makes no provider or job-site requests. Inspect all source messages,
+   skipped/unchecked conditions, unknown dates, scoring limits, summary shares, top-10 blockers,
+   per-step times and token/web usage. Separate time waiting for answers from app work. Corrections
+   have new timings but cumulative usage; compare complete original searches for performance.
+2. **Judge independently.** On a private scratch copy outside Git, judge full ads against the
+   CV, cover letter and actual criteria **before seeing their scores**. Include the top 10 and a
+   balanced 30–50-ad sample over time: good fits, near fits and blockers, across the priority
+   countries. Open original pages for summaries; do not treat missing requirements as satisfied.
+   The quality screen hides scores until rated. Add missing top-10 cards to the private sample
+   with `quality.add`, preserving their evidence and location plan; its 50-ad limit still applies.
+   Save approved labels with `quality.rate(...,
+   by="assistant")` in the real private folder; never overwrite owner ratings automatically.
+3. **Check ranking and stability.** Measure top-10 good/okay/poor counts and precision only when
+   all 10 have independent labels. Check role, seniority, languages, permits and requirements
+   separately. Use `tools/score_check.py --rescore` for a focused authorized repeat with current
+   documents and the stored location plan; old plan-less samples cannot validate preferences.
+   Use `--aggregate` to keep profile and job names out of tool output. Compare single versus
+   batch scoring and run twice on borderline specialisations. Broad
+   overlapping score bands are a diagnostic, not an accuracy claim. Where enough fully labelled
+   data exists, compare ranking quality as well as absolute scores. Don't tune to a single ad.
+4. **Measure misses.** Independently find 15–25 relevant, date-verified jobs, starting with Germany,
+   Ireland and the UK, then the other priority countries. Store the CSV outside Git and run
+   `tools/coverage_test.py` on the private copy. Verify original posting and closing dates and
+   requisition identity; search-engine snippets alone cannot establish freshness. Classify each
+   miss as source coverage, search words, deduplication, criteria, relevance or scoring limit.
+   Report recall of this sample with its size; never call it recall of the whole job market.
+5. **Improve and compare.** Fix the biggest measured issue with fictional regression cases.
+   Change one scoring/collection factor at a time. Keep recall and ranking quality while reducing
+   repeated requests, cost and time. Delete disposable private scratch data, update the records
+   with anonymous findings, test, push and wait for CI before a merge commit.
+
+## Wrap up a session
 
 ```text
-Wrap up for a fresh session: follow the section "Ending a session" in AGENTS.md. Stop at a safe
-point, make sure everything important from this session is recorded in the repository (not only
-in this chat), check the tests, commit and push. Merge your pull request with a merge commit once
-GitHub's tests pass. Then tell me in a few lines what was done, what comes
-next, what is waiting on me, and whether it's safe to start a new session.
+Follow "Ending a session" in AGENTS.md. Finish at a safe point, preserve any unfinished work in
+PROGRESS.md, verify and merge completed changes, remove temporary private copies and previews,
+and leave the project ready for a fresh local session. Tell me what changed, what is still
+unverified, and my simple next steps.
 ```
 
-**Check my latest search (only on your own computer, never in a cloud session):**
-
-```text
-Check my latest search: this session runs on my own computer. First follow "Starting, or
-resuming after any interruption" in AGENTS.md. With my permission, work on a scratch copy of my
-Jobcu data folder (JOBCU_DATA_DIR), and do three things:
-1. Study my latest search: the results, the scores and their limits, the places and conditions,
-   the notes and the sources, against "Verify before relying on" and the plan in PROGRESS.md.
-2. The quality set, on my behalf: rate the ads Jobcu kept for the score check (good, okay or
-   poor, with blockers), until 30-50 are rated over time. Judge each full ad against my CV and
-   cover letter as a careful recruiter would, before looking at Jobcu's score. Save the ratings
-   in my real data folder with quality.rate(..., by="assistant"), then run
-   tools/score_check.py --rescore (the stored scores are from when each ad was collected).
-3. The coverage list, on my behalf: search the web for 15-25 fresh, real jobs that fit my CV in
-   my priority countries (employers' own sites and job boards, including LinkedIn and StepStone
-   pages as search engines show them), and run tools/coverage_test.py with them. Before counting
-   a job as missed, check its date on the employer's own site: LinkedIn shows reposts as new.
-Record what you find, with examples, in docs/PROGRESS.md (decisions in DECISIONS.md, source facts
-in SOURCES.md), never my CV or other personal details. Delete the scratch copy, check the tests,
-commit and push. Then fix what you found, most important first, in small tested steps, and tell
-me in plain words what you found, what you fixed and what comes next.
-```
-
-**When a cloud credit is nearly used, before going back to local sessions:**
-
-```text
-Final handover: my cloud credit is nearly used, and I'll continue in a local session on my
-computer. Stop new work at a safe point and follow "Budget and the final handover" in AGENTS.md
-(section "Working in a cloud session") and "Ending a session": a complete check-up, everything
-merged with merge commits, and "Right now" in docs/PROGRESS.md rewritten for a local session.
-Then tell me in plain words what was done, what's next, what is waiting on me, and that it's
-safe to continue locally.
-```
-
-## Changes
-
-Work on a branch, keep every change tested (`uv run ruff check . && uv run pytest`), and open a
-pull request (`gh pr create`). GitHub runs the tests on macOS and Windows; the owner approves
-merges, always as a merge commit (never squash or rebase). Never force-push or rewrite history.
+Contributors work on a branch and propose a PR. The assistant may merge its own tested changes
+under the owner's authorization; other contributors' changes require review. Preserve Git history.

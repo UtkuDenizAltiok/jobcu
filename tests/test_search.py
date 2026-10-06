@@ -153,6 +153,58 @@ def test_web_research_refusal_keeps_search_results_and_skips_later_online_steps(
     assert result["notes"].count("Web look-ups unavailable for this project.") == 1
     cards = result["result"]["jobs"]["cards"]
     assert len(cards) == 2 and all(card["summary_only"] for card in cards)
+    from jobcu import quality
+
+    samples = [ad for ad in quality.all_ads() if ad.kind == "scored"]
+    assert len(samples) == 2 and all(not ad.description_is_complete for ad in samples)
+    assert all(ad.location_plan["countries"] == ["DE"] for ad in samples)
+
+
+def test_step_timers_survive_progress_updates_and_waiting_and_finish(monkeypatch):
+    ticks = [10.0]
+    monkeypatch.setattr(search.time, "monotonic", lambda: ticks[0])
+    run = search.SearchRun(id=1, form=SearchForm(), started_at="2026-10-06T12:00:00+00:00")
+    run.update("scoring", "running")
+    ticks[0] = 12
+    run.update("scoring", "running", "More progress")
+    assert run.snapshot()["steps"][8]["elapsed_seconds"] == 2
+
+    def wait(timeout):
+        ticks[0] = 17
+        run.answer(True)
+        return True
+
+    monkeypatch.setattr(run._answered, "wait", wait)
+    assert run.ask({"kind": "fake"})
+    ticks[0] = 20
+    run.update("scoring", "done")
+    ticks[0] = 30
+    snapshot = run.snapshot()
+    assert snapshot["steps"][8]["elapsed_seconds"] == 10
+    assert snapshot["waiting_seconds"] == 5
+    assert snapshot["steps"][0]["elapsed_seconds"] == 0
+
+
+def test_quality_sample_keeps_the_final_online_score(ready, monkeypatch):
+    from jobcu import jobplace, quality
+    from jobcu.scoring import LanguageAsked
+
+    monkeypatch.setattr(FakeSource, "load_details", lambda self, job, ctx: job)
+
+    def found(client, groups, indexes, profile, on_progress):
+        return jobplace.LookedUp(asked=set(indexes), requirements={i: jobplace.Requirements(
+            [LanguageAsked(language="German", level="C1", must_have=True)], 12) for i in indexes})
+
+    monkeypatch.setattr(jobplace, "find_online", found)
+    monkeypatch.setattr(FakeAI, "can_search_the_web", True)
+    monkeypatch.setattr(search, "_find_employers", lambda run, *args:
+                        run.update("employers", "skipped"))
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    cards = wait_until_done(manager)["result"]["jobs"]["cards"]
+    assert all(card["score"] == 75 for card in cards)
+    samples = [ad for ad in quality.all_ads() if ad.kind == "scored"]
+    assert [ad.score for ad in samples] == [card["score"] for card in cards]
 
 
 def test_one_job_the_memory_knows_twice_gets_one_card(ready, monkeypatch):
