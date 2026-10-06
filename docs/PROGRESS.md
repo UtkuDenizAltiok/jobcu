@@ -35,14 +35,17 @@ completed implementation detail belongs in Git. The two canonical start/end prom
 [SESSION-PROMPTS.md](SESSION-PROMPTS.md). AGENTS.md requires simple, direct next steps after
 every response. No source upload or copy of this chat is needed for the local project.
 
+This final documentation refresh is on `codex/final-handover`, based on `a08a09f`.
+Git and its PR/CI record establish the final commit and publication state. If interrupted
+before merge, finish that branch's checks/publication under AGENTS.md; once merged with
+passing CI, no handover publication remains. Leave main clean and Jobcu stopped.
+
 ### In progress
 
-**Final handover only**, on `codex/final-handover`, based on verified main `a08a09f`.
-No unfinished product implementation or search. This checkpoint shortens completed detail,
-records the actual merged state and preserves pending live validation. Next: run Ruff, pytest
-and the privacy guard; review the diff; push, open a PR, wait for Mac/Windows/privacy CI,
-then merge and leave clean main with Jobcu stopped. Current checks have not yet been repeated
-for this checkpoint; the preceding app state passed 609 tests and all required checks.
+No unfinished product implementation, running search or failed check. **609 tests**, Ruff,
+documentation links and the privacy guard passed locally for this handover. Pytest reported
+one upstream dependency deprecation warning, with no failure. No app code changed; launcher
+verification after relocation and Mac/Windows/privacy CI on `a08a09f` remain valid.
 
 **Next session's exact first action:** use the Start a session prompt in SESSION-PROMPTS.md;
 verify `git status`, this record and recent PR/CI state. The next product action is the first
