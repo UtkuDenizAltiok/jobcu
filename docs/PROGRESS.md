@@ -5,25 +5,37 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ## Right now
 
-*Updated 2026-10-07. Clear usage guides include richer query examples; personal setup is next.*
+*Updated 2026-10-07. Documentation work is complete; personal setup/search awaits confirmation.*
 
 ### State
 
-- Richer query examples are restored in [PR #52](https://github.com/UtkuDenizAltiok/jobcu/pull/52).
-  README is the entry point; [How to use Jobcu](guides/first-search.md) explains everyday steps
-  and election/shop/population/commuting conditions, including a combined request.
-  **617 tests**, Ruff and privacy passed locally; the PR/CI record establishes merge state.
-  PROMPTS holds all three project prompts; dated background stays in `archive/`.
+- Documentation organization, beginner guides and richer query examples are **implemented,
+  tested, pushed and merged** in [PR #50](https://github.com/UtkuDenizAltiok/jobcu/pull/50),
+  [PR #51](https://github.com/UtkuDenizAltiok/jobcu/pull/51) and
+  [PR #52](https://github.com/UtkuDenizAltiok/jobcu/pull/52). These changes are on main;
+  their latest merged-main Mac/Windows/privacy CI passed.
+- Closing **617 tests**, Ruff, privacy and diff whitespace passed; no failed local checks remain.
+  [PR #53](https://github.com/UtkuDenizAltiok/jobcu/pull/53) records handover publication.
+- The first closing Windows CI run failed the existing
+  `test_the_edit_api_explains_what_it_cant_do`: restored results reported `search` rather than
+  `reapply`. Mac/privacy passed. A save-completion timing issue is a hypothesis; no product fix
+  was attempted. Final PR checks must pass before merging; retain this investigation below.
+- README is the entry point; [How to use Jobcu](guides/first-search.md) explains everyday steps
+  and richer examples. PROMPTS holds all three project prompts; dated background is in `archive/`.
+  Beginner wording and preserving richer examples are recorded in DECISIONS.md.
 - Jobcu and the preview are stopped (ports 8765/8799). Preserve on-demand launcher use.
-- No private inputs/results were inspected and no live search or paid request was made.
+- This session inspected no private inputs/results and made no live searches or paid requests.
+  No private scratch copies were created; temporary PR-body files were removed.
 
 ### In progress
 
-No unfinished implementation or running search. When resuming, verify Git and PR #52.
-If still open after an interruption, finish Mac/Windows/privacy CI and merge
-`codex/restore-query-examples` with a merge commit. Otherwise continue with setup/results below.
-Examples were checked against code and fictional tests; no live research was run.
-No new paid work is authorized.
+Documentation implementation is complete; no search is running. Closing publication is the
+remaining session action: verify PR #53's final Mac/Windows/privacy checks, merge
+`codex/session-handover` with a merge commit when they pass, and synchronize clean main.
+If checks remain failed or interrupted, preserve this pushed branch and finish publication
+next chat. Once PR #53 is merged, closure is complete; investigate the Windows failure in
+the next development session. No new private-data access, paid calls or full searches are
+authorized by a start/end prompt.
 
 ### Verify before relying on
 
@@ -39,16 +51,20 @@ No new paid work is authorized.
 
 ### Waiting on the owner
 
-1. After cleanup, open Jobcu, enter keys/documents/query **inside the app**, choose job types
-   and the 72-hour posting window, and complete the first search and any limit prompt.
-2. Use [Review a search](PROMPTS.md#review-a-search) in the local project chat.
+1. Personal setup/search is awaiting confirmation; private app data was not inspected. If
+   still needed, open Jobcu on demand, enter keys/documents/query **inside the app**, choose
+   job types and the 72-hour posting window, and complete the search and any limit prompt.
+2. Once a search is complete, use [Review a search](PROMPTS.md#review-a-search) in the local
+   project chat. Start the next chat with [Start a session](PROMPTS.md#start-a-session).
 
 ### Next tasks
 
-1. Review those results with [REVIEW.md](REVIEW.md) before tuning.
-2. Fix confirmed freshness, coverage and matching gaps in the country order from AGENTS.md.
-3. Reduce summary dependence and repeated research; compare recall/ranking before optimizing cost/time.
-4. Fix confusion observed during use. ZIP-update notices and a full fresh-Windows check remain later work.
+1. Investigate result-save completion versus the finished status after condition edits, using
+   fictional tests. Windows CI exposed one restore failure; a rerun does not establish its cause.
+2. Review completed search results with [REVIEW.md](REVIEW.md) before tuning.
+3. Fix confirmed freshness, coverage and matching gaps in the country order from AGENTS.md.
+4. Reduce summary dependence and repeated research; compare recall/ranking before optimizing cost/time.
+5. Fix confusion observed during use. ZIP-update notices and a full fresh-Windows check remain later work.
 
 ### Known limitations
 
