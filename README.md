@@ -52,11 +52,12 @@ including conditions Jobcu asks your AI to research online. For example:
   national share in that country's latest national parliamentary election.*
 - *Somewhere with several Turkish supermarkets and shops open on Sunday.*
 - *A university town where more than 20% of the population are students.*
-- *Within 30 minutes of Munich city centre by public transport; exclude fully remote jobs.*
+- *Within 30 minutes of Munich city centre by public transport.*
 
 You can combine these conditions in one request. For an exact shop count, write something
 like *at least three Turkish supermarkets*. The [usage guide](docs/guides/first-search.md#more-detailed-requests)
 explains the examples and gives a combined request.
+To exclude remote jobs, tick **Don't include remote jobs** on the Search page.
 
 Jobcu searches its supported countries, computes population limits from its included data,
 and asks your chosen AI to research facts such as election results and shops where web
