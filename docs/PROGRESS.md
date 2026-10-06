@@ -5,25 +5,28 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ## Right now
 
-*Updated 2026-10-07. Documentation is organized; personal setup and the first search are next.*
+*Updated 2026-10-07. Beginner usage guides are ready; personal setup and the first search are next.*
 
 ### State
 
-- Cleanup is implemented and published in [PR #50](https://github.com/UtkuDenizAltiok/jobcu/pull/50).
-  README is the entry point; PROMPTS holds all three prompts. Dated background is in `archive/`.
-  **617 tests**, Ruff and the privacy guard passed locally. The PR/CI record establishes merge state.
+- Explained usage guides are published in [PR #51](https://github.com/UtkuDenizAltiok/jobcu/pull/51).
+  README is the entry point; [How to use Jobcu](guides/first-search.md) covers everyday steps.
+  **617 tests**, Ruff and privacy passed locally; the PR/CI record establishes merge state.
+  PROMPTS holds all three project prompts; dated background stays in `archive/`.
 - Jobcu and the preview are stopped (ports 8765/8799). Preserve on-demand launcher use.
 - No private inputs/results were inspected and no live search or paid request was made.
 
 ### In progress
 
-No unfinished implementation or running search. When resuming, verify Git and PR #50.
-If it is still open after an interruption, finish its Mac/Windows/privacy checks and merge
-`codex/documentation-cleanup` with a merge commit; preserve unmerged or active branches.
-Otherwise continue with the owner's setup/results below. No new paid work is authorized.
+No unfinished implementation or running search. When resuming, verify Git and PR #51.
+If still open after an interruption, finish Mac/Windows/privacy CI and merge
+`codex/plain-usage-guides` with a merge commit. Otherwise continue with setup/results below.
+Guide wording was checked against local code; first-time usability still needs a walkthrough.
+No new paid work is authorized.
 
 ### Verify before relying on
 
+- Beginner guides: a first-time user's install/setup/search walkthrough remains untested.
 - First restored-Mac search: provider/model access, document parsing, criteria interpretation,
   source availability, progress, results and usage. A connection test does not prove research access.
 - Freshness: original posting/closing dates, old reposts and distinct requisitions.
