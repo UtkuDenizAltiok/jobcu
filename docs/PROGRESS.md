@@ -5,14 +5,18 @@ Current state and next work. Decisions live in [DECISIONS.md](DECISIONS.md); sou
 
 ## Right now
 
-*Updated 2026-10-06. Session ending: project preparation and canonical prompts are implemented, tested, pushed and merged.*
+*Updated 2026-10-06. Project preparation is merged; the owner uses Jobcu on demand and it is stopped.*
 
 ### State
 
-Mac recovery, project readiness and session prompts are merged in PRs #42, #43 and #44.
-Main was clean and matched origin at `ce4d6c1` before this handover-only update; macOS, Windows
-and privacy checks passed on that merge commit. The actual app's current build is running at
-`http://127.0.0.1:8765/`. The preview port 8799 has no listener and its fictional data was removed.
+Mac recovery, project readiness, session prompts and handover are merged in PRs #42–#45.
+Main was clean and matched origin at `0bbcf60` before this preference update. The sole local
+checkout was moved into `Developer/jobcu` under the owner's home; it was moved, not copied.
+The rebuilt environment and Mac launcher self-test passed after relocation; Git stayed clean.
+**Jobcu is stopped by the owner's request.** His default is double-clicking **Start Jobcu.command**
+to open it, then closing that terminal window and choosing **Terminate** if prompted to stop it.
+Direct terminal commands are optional. Do not automatically start or keep his app running.
+The preview port 8799 has no listener and its fictional data was removed.
 Verified at close: no configured keys, uploaded documents, saved query or saved search. The
 posting window is 72 hours. No live AI or paid requests were made during this preparation.
 Historical measurements are references, not today's results.
@@ -38,11 +42,12 @@ or verify the latest state and resume, including recovery after an unexpected cu
 
 ### In progress
 
-No unfinished product implementation. **Session objective: preserve a verified handover.** This
-record is prepared on `codex/session-close`, based on verified main `ce4d6c1`. If a cutoff
-interrupts publication, find that branch's PR, review its diff/checks, then finish the normal
-merge/clean-main routine. Once it is merged with passing checks, no handover publication remains.
-Final commit/check state is in Git and GitHub; verify it rather than assuming it from this text.
+No unfinished product implementation. **On-demand use** is recorded in the working rules,
+ending prompt and launcher guide. The actual service is stopped and port 8765 was checked closed;
+609 tests, Ruff and the privacy guard passed locally. This preference update is prepared on
+`codex/on-demand-app`, based on main `0bbcf60`. If publication is interrupted, recover that
+branch's PR and final checks, then merge and leave clean main with the service stopped. Once
+merged with passing checks, no publication remains. No product code change or new search is needed.
 
 Completed evidence: **609 tests**, Ruff, documentation links and privacy checks passed for PR #44;
 macOS/Windows CI also passed on its merge. Prior app verification covered JavaScript syntax,
