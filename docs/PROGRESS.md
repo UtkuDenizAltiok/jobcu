@@ -5,14 +5,17 @@ Current state and next work. Decisions live in [DECISIONS.md](DECISIONS.md); sou
 
 ## Right now
 
-*Updated 2026-10-06. Codex project preparation is merged in PR #43; canonical start/end prompts are prepared.*
+*Updated 2026-10-06. Session ending: project preparation and canonical prompts are implemented, tested, pushed and merged.*
 
 ### State
 
-Mac recovery and project readiness are merged in PRs #42 and #43; their Mac/Windows CI passed.
-The restored app runs locally, with an empty private data folder. No keys, documents, query,
-ratings or search history survived the reset. No live AI or paid requests were made during
-recovery or project preparation. Historical measurements are references, not today's results.
+Mac recovery, project readiness and session prompts are merged in PRs #42, #43 and #44.
+Main was clean and matched origin at `ce4d6c1` before this handover-only update; macOS, Windows
+and privacy checks passed on that merge commit. The actual app's current build is running at
+`http://127.0.0.1:8765/`. The preview port 8799 has no listener and its fictional data was removed.
+Verified at close: no configured keys, uploaded documents, saved query or saved search. The
+posting window is 72 hours. No live AI or paid requests were made during this preparation.
+Historical measurements are references, not today's results.
 
 Development is local in **ChatGPT/Codex**. The human owns the project and retains the proprietary
 license; the assistant leads product/engineering work and tested merges. The public code is
@@ -35,18 +38,24 @@ or verify the latest state and resume, including recovery after an unexpected cu
 
 ### In progress
 
-No unfinished implementation. Session-prompt publication is tracked by the PR from
-`codex/session-prompts`. If resuming during publication, verify its final checks and merge state,
-then finish the merge/clean-main routine. The prompts, guide links and checkpoint rules have been
-reviewed; **609 tests**, Ruff and documentation links passed locally. GitHub checks must pass on
-the final commit before merging.
+No unfinished product implementation. **Session objective: preserve a verified handover.** This
+record is prepared on `codex/session-close`, based on verified main `ce4d6c1`. If a cutoff
+interrupts publication, find that branch's PR, review its diff/checks, then finish the normal
+merge/clean-main routine. Once it is merged with passing checks, no handover publication remains.
+Final commit/check state is in Git and GitHub; verify it rather than assuming it from this text.
 
-PR #43 is merged; macOS, Windows and privacy checks passed on merge commit `c59cff4`.
+Completed evidence: **609 tests**, Ruff, documentation links and privacy checks passed for PR #44;
+macOS/Windows CI also passed on its merge. Prior app verification covered JavaScript syntax,
+the Mac launcher and a fictional-data browser check of the 72-hour default, step/wait timings,
+summary warning and score reveal after rating. No failed check remains from that work. This
+checkpoint changes only the handover record; the final publication must pass the normal checks.
 
-Local verification passed: **608 tests**, Ruff, JavaScript syntax, full/staged privacy guards and
-the Mac launcher self-test. A fictional-data browser check confirmed the 72-hour default,
-step/wait timings, summary warning and score reveal only after an independent rating. Temporary
-preview data was removed. No real user inputs, live search or provider calls were used.
+**Next session's exact first action:** use the Start a session prompt in SESSION-PROMPTS.md,
+check `git status`, this record and the latest main/PR checks. After any interrupted publication
+is resolved, the next product action is the first real-results review using CONTRIBUTING.md;
+it waits for the owner's setup and completed search. `uv run python tools/review_search.py`
+currently reports no saved search. Actual provider access, coverage, scoring quality, cost and
+speed remain untested on the restored Mac; their verification list below is still open.
 
 ### Verify before relying on
 
@@ -72,8 +81,8 @@ preview data was removed. No real user inputs, live search or provider calls wer
 
 ### Waiting on the owner
 
-1. Add the existing source folder as a **local Jobcu project** in Codex and start its first chat
-   with CONTRIBUTING.md's start prompt.
+1. Add the existing source folder as a **local Jobcu project** in Codex and start a Local chat
+   with [SESSION-PROMPTS.md's starting prompt](SESSION-PROMPTS.md#start-a-session).
 2. On **Wednesday, 2026-10-07**, enter keys, CV, cover letter and private query **in Jobcu only**;
    choose the job types and 72-hour posting window, then complete the search and any limit prompt.
 3. Start a Local project chat with **Analyse my latest Jobcu search** using the prepared review
