@@ -63,8 +63,10 @@ Targeted regressions, Ruff, JS syntax and whitespace passed. The isolated fictio
 walkthrough passed: employer alternative, removal without an alternative, reload persistence,
 Saved history and undo; no browser console warnings/errors. Preview stopped and its tab closed.
 Review added monotonic report IDs to stop stale undo buttons deleting a newer report.
-Full checks and publication are pending. Exact next action: run the full local suite/privacy
-and isolated launcher self-test, then push/open a PR and wait for CI before merging.
+Implementation committed at `2b0eb98`; full local checks passed: **684 tests**, Ruff, privacy,
+JS syntax, whitespace and the isolated Mac launcher self-test. Only the existing dependency
+deprecation warning remains. Nothing is pushed or merged yet. Exact next action: publish this
+branch/open a PR, wait for final-head Mac/Windows/privacy CI, merge and synchronize main.
 Automatic final-host identification and real ranking/coverage/speed claims remain unverified;
 do not probe blocked pages or guess application URLs.
 
