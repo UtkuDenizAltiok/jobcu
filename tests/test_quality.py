@@ -1,9 +1,11 @@
 """The score check: ads kept from real searches and what the person thinks of them."""
 
+from contextlib import contextmanager
+
 import pytest
 from fastapi.testclient import TestClient
 
-from jobcu import quality
+from jobcu import db, quality
 from jobcu.app import create_app
 
 HEADERS = {"X-Jobcu": "1"}
@@ -96,3 +98,67 @@ def test_titles_have_their_own_answers(client):
                       json={"rating": "good"}).status_code == 400
     assert client.put("/api/quality/999", headers=HEADERS,
                       json={"rating": "good"}).status_code == 404
+
+
+@pytest.mark.parametrize("legacy", [False, True])
+def test_assistant_review_preserves_owner_and_legacy_labels(legacy):
+    quality.add("scored", [ad("one", score=80)])
+    ad_id = quality.all_ads()[0].id
+    owner = quality.rate(ad_id, "good", ["field"], "Owner's own assessment")
+    if legacy:
+        with db.connect() as conn:
+            conn.execute("UPDATE quality_ads SET rated_by = NULL WHERE id = ?", (ad_id,))
+        owner = quality.all_ads()[0]
+    for rating in ("poor", None):
+        actual = quality.rate(ad_id, rating, ["seniority"], "Assistant review", by="assistant")
+        assert actual == owner
+
+
+def test_assistant_can_rate_empty_ads_and_revise_its_own_labels():
+    quality.add("scored", [ad("one", score=80)])
+    ad_id = quality.all_ads()[0].id
+    first = quality.rate(ad_id, "okay", [], "Evidence checked", by="assistant")
+    assert first.rating == "okay" and first.rated_by == "assistant"
+    second = quality.rate(ad_id, "poor", ["seniority"], "Further evidence", by="assistant")
+    assert second.rating == "poor" and second.rated_by == "assistant"
+    owner = quality.rate(ad_id, "good", [], "Owner's judgement")
+    assert owner.rating == "good" and owner.rated_by == "owner"
+
+
+def test_owner_edit_between_assistant_read_and_write_survives(monkeypatch):
+    quality.add("scored", [ad("one", score=80)])
+    ad_id = quality.all_ads()[0].id
+    connect = db.connect
+    pending = True
+
+    class Cursor:
+        def __init__(self, cursor):
+            self.cursor = cursor
+
+        def fetchone(self):
+            row = self.cursor.fetchone()
+            self.cursor.fetchall()  # finish the read before the separate owner transaction
+            quality.rate(ad_id, "good", ["field"], "Owner edit during review")
+            return row
+
+    class Connection:
+        def __init__(self, conn):
+            self.conn = conn
+
+        def execute(self, sql, params=()):
+            nonlocal pending
+            cursor = self.conn.execute(sql, params)
+            if pending and sql.startswith("SELECT kind FROM quality_ads WHERE id"):
+                pending = False
+                return Cursor(cursor)
+            return cursor
+
+    @contextmanager
+    def controlled_connect(*args, **kwargs):
+        with connect(*args, **kwargs) as conn:
+            yield Connection(conn)
+
+    monkeypatch.setattr(db, "connect", controlled_connect)
+    actual = quality.rate(ad_id, "poor", ["seniority"], "Assistant review", by="assistant")
+    assert actual.rating == "good" and actual.rated_by == "owner"
+    assert actual.note == "Owner edit during review" and actual.blockers == ["field"]

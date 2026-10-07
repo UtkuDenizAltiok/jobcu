@@ -64,6 +64,12 @@ element within the configured limit and describes public transport/access rather
 old reposts. Distinct requisitions must stay distinct. Summaries and clipped excerpts remain
 incomplete evidence even when online research supplements their requirements.
 
+Online requirements replace the summary's languages and minimum years, including null when
+the full ad states no minimum. Retaining an earlier years value would leave a stale experience
+limit in the total. Other confirmed blockers survive this replacement; rubric parts are not
+retuned. Fictional engineering and hospitality checks cover clearing the limit and retaining
+an unrelated doctorate blocker.
+
 ## Project layout
 
 The root keeps launchers, README, CONTRIBUTING, AGENTS, LICENSE and Python/tool configuration.
@@ -115,6 +121,10 @@ per search. Existing items are removed before selecting fresh ones. Samples span
 full ads and summaries, retain final post-research scores and store the original location plan.
 Re-scoring uses current documents and that plan. Plan-less old samples fall back to Anywhere
 and cannot validate location preferences. Online requirements notes do not become full-ad text.
+
+`quality.rate(..., by="assistant")` updates only unrated items or prior assistant labels. Its
+ownership condition is in the SQL UPDATE, so owner and legacy labels survive even an edit
+between the assistant's read and write. The owner can still revise any label through Jobcu.
 
 ## Lessons
 

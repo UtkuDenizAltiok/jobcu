@@ -369,6 +369,31 @@ def test_a_citizenship_found_in_the_full_ad_online_limits_the_score():
     assert "unrelated_key" not in online["evidence"]
 
 
+@pytest.mark.parametrize("field,role", [("Electronics", "Hardware Engineer"),
+                                         ("Hospitality", "Pastry Chef")])
+def test_full_ad_without_minimum_years_removes_a_stale_summary_requirement(field, role):
+    from jobcu.scoring import with_ad_read_online
+
+    person = PROFILE.model_copy(update={"field": field, "target_roles": [role]})
+    summary = finish(JobScore.model_validate(score_json("J0", years_required=8)), person)
+    assert summary["score"] == 60
+    online = with_ad_read_online(summary, person, [], years_required=None)
+    assert online["evidence"]["years_required"] is None
+    assert online["limits"] == []
+    assert online["score"] == sum(online["parts"].values())
+    assert online["parts"] == summary["parts"]  # one evidence correction, no rubric retuning
+
+
+def test_clearing_old_years_keeps_other_confirmed_blockers():
+    from jobcu.scoring import with_ad_read_online
+
+    summary = finish(JobScore.model_validate(score_json(
+        "J0", years_required=8, doctorate="required_person_lacks_it")), PROFILE)
+    online = with_ad_read_online(summary, PROFILE, [], years_required=None)
+    assert online["score"] == 50
+    assert online["limits"] == [{"at": 50, "why": "A doctorate (PhD) is required"}]
+
+
 def test_the_ad_text_decides_the_job_type_when_the_job_site_leaves_it_open():
     from jobcu.pipeline import job_types_of
 

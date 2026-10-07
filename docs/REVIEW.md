@@ -3,6 +3,8 @@
 Use the [review prompt](PROMPTS.md#review-a-search) after Jobcu finishes. It grants bounded
 private access and re-scoring permission; a normal development prompt does not. Follow
 [AGENTS.md](../AGENTS.md), preserve owner ratings, and keep detailed evidence outside Git.
+The saved search can be reviewed whether Jobcu is running or stopped. Checking app state in
+the start routine preserves the owner's session; it is not a prerequisite for result analysis.
 
 ## 1. Measure
 
@@ -27,6 +29,8 @@ The Score check screen hides scores until rated. Add missing top cards with `qua
 preserving evidence completeness and the location plan; the 50-ad limit still applies. Save
 approved labels with `quality.rate(..., by="assistant")` in the real private folder.
 Never overwrite owner ratings automatically.
+`quality.rate(..., by="assistant")` preserves existing owner and legacy labels, including
+concurrent edits. Review uncertain evidence without inventing a label to fill the sample.
 
 ## 3. Check ranking and stability
 

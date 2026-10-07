@@ -19,6 +19,7 @@ retain a superseded decision in the archive when replacing it.
 | Measure travel to the nearest edge of a reference place unless the user asks for its centre. | The person could live anywhere in the place (2026-09-24). |
 | For Maps journeys into a reference city, compare the calculated edge point and city centre, keeping the faster available journey. Explicit centre requests still measure the centre alone; explain that sampling can miss faster districts. | A geometric edge can have a worse connection than the centre. Fictional regressions reproduce a reachable job rejected by an edge-only journey. This clarifies the anywhere-in-the-place intent above without claiming an exact fastest commute (2026-10-07). |
 | Prefer original employer ads and full descriptions. Keep summary evidence and missing conditions labelled. | Missing text must not appear to be complete evidence (2026-09-17; clarified 2026-10-06). |
+| Full-ad requirements replace earlier summary requirements, including an unstated experience minimum. Keep other blockers intact. | A fictional regression confirms that retaining the summary's years when the full ad says none leaves an obsolete score limit (2026-10-07). |
 | Use original posting/closing dates and job memory to suppress expired ads and old reposts. Keep distinct requisitions distinct. | A board's refreshed date is not a new vacancy (2026-09-24; fixes 2026-10-03). |
 | Explain scores with rubric parts and deterministic blocker limits; retain low-score jobs. | Users can see why a job ranks where it does; a score is not hiring probability (2026-09-23 to 2026-09-30). |
 | Ask before exceeding search limits. **Always** removes that limit for future searches; monthly limits still apply. | An arbitrary cap must not silently discard relevant work (2026-09-30). |
@@ -43,6 +44,7 @@ retain a superseded decision in the archive when replacing it.
 |---|---|
 | Sample full ads and labelled summaries across score bands; keep final scores, evidence completeness and the original location plan. | Avoid bias from summary omissions, duplicate-first selection or pre-research scores (2026-10-06). |
 | Judge every top card independently before reporting precision; use a date-verified independent list before reporting coverage recall. | Counts and broad score bands do not prove search quality (2026-10-06). Procedure: [REVIEW](REVIEW.md). |
+| Assistant ratings may fill empty labels or revise prior assistant labels; owner and legacy labels are protected atomically. | A concurrent owner edit must not be overwritten by a review. Fictional controlled-order tests cover the read/write gap (2026-10-07). |
 | Record step time and answer-wait time; label correction timings separately from cumulative usage. | Corrections and full searches cannot be compared as equivalent performance runs (2026-10-06). |
 | Warn when scoring reads only an excerpt of a lengthy ad. | Unseen requirements must not be assumed satisfied (2026-10-06). |
 
