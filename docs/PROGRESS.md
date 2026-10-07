@@ -5,7 +5,7 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ## Right now
 
-*Updated 2026-10-07. Session closing; Maps fix is locally tested, publication is unfinished.*
+*Updated 2026-10-07. Maps fix is merged; first search is planned for the next session.*
 
 ### State
 
@@ -20,14 +20,12 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
   An isolated Mac startup self-test passed on port 8799, stopped and deleted its empty data.
   Closing checks were rerun: **638 passed**, Ruff/privacy/whitespace passed. The existing
   dependency deprecation warning remains; no failed local product checks remain.
-- The implementation is **pushed, not merged** in
-  [PR #56](https://github.com/UtkuDenizAltiok/jobcu/pull/56), remote head `6d667bc`.
-  Local branch `codex/maps-route-probe` also has later handover commits. Repeated real pushes
-  returned GitHub Internal Server Error; run `37642326144` is queued with no jobs started.
-  Maps Mac/Windows/privacy CI and merge remain **unverified/pending**.
-- Closing diagnosis: local Git integrity and an authenticated push dry-run passed, the remote
-  URL/hooks are correct, and no local cause was identified. HTTPS writes still failed at GitHub.
-  The strict SSH fallback lacks a trusted host entry; no SSH/account configuration was changed.
+- Maps changes and all checkpoints are **implemented, tested, pushed and merged** in
+  [PR #56](https://github.com/UtkuDenizAltiok/jobcu/pull/56), using a merge commit.
+  Its final-head Mac/Windows/privacy CI passed; main was synchronized and dependencies synced.
+- GitHub publication recovered on a normal HTTPS retry. Local Git integrity and an authenticated
+  push dry-run passed; no local cause was identified. No remote, SSH or account settings changed.
+  The stale queued run is now completed; the failed cancellation attempt needed no further action.
 - The owner's Jobcu app on port 8765 remains running; preserve the owner's chosen state.
   Its existing process needs an on-demand restart to load the local changes. Port 8799 is stopped.
 - Only public app health/build and public routing inputs were inspected. No private keys,
@@ -37,18 +35,11 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ### In progress
 
-Scope is **session closeout and publication only**; start no new product work. Maps implementation,
-local review/tests and documentation are complete. GitHub publication is unfinished.
-
-The recoverable checkpoint was committed before closing checks; those checks passed.
-One final normal HTTPS push is the remaining closeout attempt. Merge PR #56 only if its
-final-head Mac/Windows/privacy CI actually passes. If writes/CI remain unavailable, leave this
-clean committed branch, preserve the pending checks and do not claim a merge.
-
-Exact next action in the next chat: follow the start/resume routine, retry the branch push,
-verify PR #56's final head and checks, merge with a merge commit when they pass, and synchronize
-main. Recover publication before new engineering work. No new private access, paid development
-calls or full searches are authorized by start/end prompts.
+None. Maps implementation and publication are complete; session closeout only remains.
+No new product work, private access, paid calls or full searches were started for closeout.
+Next action in the next chat: follow the start/resume routine and verify Git/CI/app state, then
+let the owner launch the updated app and complete the first search. Review results only under
+[Review a search](PROMPTS.md#review-a-search)'s explicit authorization and bounds.
 
 ### Verify before relying on
 
@@ -72,11 +63,10 @@ calls or full searches are authorized by start/end prompts.
 
 ### Next tasks
 
-1. Complete the Maps fix's pending push, final-head platform/privacy CI and merge.
-2. Review completed results under [REVIEW](REVIEW.md) with the review prompt's explicit scope.
-3. Fix confirmed freshness, coverage and matching gaps in AGENTS.md's country order.
-4. Compare recall/ranking before reducing repeated research, cost or time.
-5. Address observed usability issues; ZIP-update notices and fresh-Windows validation remain later.
+1. Review completed results under [REVIEW](REVIEW.md) with the review prompt's explicit scope.
+2. Fix confirmed freshness, coverage and matching gaps in AGENTS.md's country order.
+3. Compare recall/ranking before reducing repeated research, cost or time.
+4. Address observed usability issues; ZIP-update notices and fresh-Windows validation remain later.
 
 ### Known limitations
 
