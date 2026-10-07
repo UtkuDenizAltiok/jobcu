@@ -5,13 +5,14 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ## Right now
 
-*Updated 2026-10-07. Free review and search-usability fixes published; CI and merge pending.*
+*Updated 2026-10-07. Free aggregate review and search-usability fixes are merged; restart on demand.*
 
 ### State
 
-- Main was clean and synchronized at start; PRs #54–57 and recent main Mac/Windows/privacy CI
-  passed. No earlier implementation needed recovery.
-- Implemented, locally tested and pushed in
+- Main was clean and synchronized at start; no earlier implementation needed recovery.
+  PR #58's final-head Mac/Windows/privacy CI passed; its merge is synchronized locally.
+  Subsequent main Mac/Windows/privacy CI also passed; dependencies were synchronized.
+- Implemented, locally tested, pushed and merged with a merge commit in
   [PR #58](https://github.com/UtkuDenizAltiok/jobcu/pull/58): sought-role progress,
   explicit history label, optional document-understanding reset, cumulative online-check
   progress, original vacancy URL, combined medium-effort location interpretation with a format
@@ -29,12 +30,12 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ### In progress
 
-[PR #58](https://github.com/UtkuDenizAltiok/jobcu/pull/58) is open and pushed from
-`codex/search-review-usability`; implementation, free aggregate review and local verification
-are complete. Mac/Windows/privacy CI and merge remain pending. Exact next action: wait for
-final-head CI, inspect any failure, merge with a merge commit, synchronize main and save the
-final handover. Remove the PR-body temporary file. No private scratch or assistant instance
-remains; the owner's app state is preserved.
+None. Product fixes are implemented, tested, pushed and merged in PR #58. Closing local checks
+were rerun: 648 passed, Ruff/privacy/JS/whitespace passed. Free aggregate analysis is complete;
+independent full-evidence judgement and live comparisons remain in Next tasks. No measured
+precision, recall or improved live latency is claimed. All disposable private data and previews
+are cleaned up; the owner's data and app state are preserved. Next action: restart on demand
+and confirm the 24-hour selection; use [Review a search](PROMPTS.md#review-a-search) afterwards.
 
 ### Verify before relying on
 
