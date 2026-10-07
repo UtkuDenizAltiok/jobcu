@@ -1,5 +1,6 @@
 import dataclasses
 import json
+import sqlite3
 
 import pytest
 
@@ -48,10 +49,35 @@ def test_unknown_job_state_change_is_refused():
         jobstore.set_state(12345, saved=True)
 
 
-def test_latest_results_are_kept():
+def test_latest_results_and_completion_are_kept():
     search_id = new_search()
-    jobstore.save_results(search_id, json.dumps({"id": search_id}))
+    jobstore.finish_search(search_id, "finished", json.dumps({"id": search_id}))
     assert jobstore.latest_results() == (search_id, json.dumps({"id": search_id}))
+    with db.connect() as conn:
+        row = conn.execute("SELECT status, finished_at FROM searches WHERE id = ?",
+                           (search_id,)).fetchone()
+    assert row["status"] == "finished" and row["finished_at"] is not None
+
+
+def test_failed_completion_rolls_back_results_and_preserves_the_previous_save():
+    search_id = new_search()
+    previous = json.dumps({"id": search_id, "kind": "search"})
+    jobstore.finish_search(search_id, "finished", previous)
+    with db.connect() as conn:
+        before = tuple(conn.execute("SELECT status, finished_at FROM searches WHERE id = ?",
+                                    (search_id,)).fetchone())
+        conn.execute("""
+            CREATE TRIGGER fail_search_status BEFORE UPDATE ON searches
+            BEGIN SELECT RAISE(FAIL, 'Simulated storage failure'); END;
+        """)
+    correction = json.dumps({"id": search_id, "kind": "reapply"})
+    with pytest.raises(sqlite3.IntegrityError, match="Simulated storage failure"):
+        jobstore.finish_search(search_id, "stopped", correction)
+    assert jobstore.latest_results() == (search_id, previous)
+    with db.connect() as conn:
+        after = tuple(conn.execute("SELECT status, finished_at FROM searches WHERE id = ?",
+                                   (search_id,)).fetchone())
+    assert after == before
 
 
 def test_ad_texts_are_remembered_for_a_few_days_then_forgotten():

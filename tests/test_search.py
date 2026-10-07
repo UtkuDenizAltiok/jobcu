@@ -1,5 +1,6 @@
 import json
 import re
+import threading
 import time
 from datetime import UTC, datetime
 
@@ -7,7 +8,7 @@ import pytest
 from conftest import FAKE_CV_LINES, make_pdf
 from fastapi.testclient import TestClient
 
-from jobcu import documents, jobstore, search
+from jobcu import db, documents, jobstore, search
 from jobcu.ai.base import AIAuthError, ProviderAdapter, RawReply, Usage
 from jobcu.app import create_app
 from jobcu.settings import SearchForm, Settings, load_settings, save_settings
@@ -101,6 +102,105 @@ def wait_until_done(manager, answer=None, timeout=15):
             manager.current.answer(answer)
         time.sleep(0.02)
     return manager.current.snapshot()
+
+
+def track_search_worker(manager, monkeypatch):
+    """Let controlled-save tests clean up only after the background worker returns."""
+    worker_done = threading.Event()
+    original_run = manager._run
+
+    def tracked_run(*args):
+        try:
+            original_run(*args)
+        finally:
+            worker_done.set()
+
+    monkeypatch.setattr(manager, "_run", tracked_run)
+    return worker_done
+
+
+@pytest.mark.parametrize("outcome", ["finished", "stopped", "failed"])
+@pytest.mark.parametrize("with_jobs", [True, False])
+def test_completion_waits_for_saved_results_and_status(monkeypatch, outcome, with_jobs):
+    def runner(run):
+        run.update("documents", "running")
+        if with_jobs:
+            run.set_result("jobs", {"cards": [], "hidden": [], "date_unknown": []})
+        if outcome == "stopped":
+            raise search.SearchStopped
+        if outcome == "failed":
+            raise AIAuthError("The AI provider didn't accept the key.")
+
+    manager = search.SearchManager(runner=runner)
+    worker_done = track_search_worker(manager, monkeypatch)
+    saving, release = threading.Event(), threading.Event()
+    original_finish = jobstore.finish_search
+
+    def delayed_finish(*args):
+        saving.set()
+        assert release.wait(10), "Test did not release the final save"
+        original_finish(*args)
+
+    monkeypatch.setattr(jobstore, "finish_search", delayed_finish)
+    run = manager.start(SearchForm())
+    try:
+        assert saving.wait(10)
+        assert run.snapshot()["status"] == "running"
+        assert jobstore.latest_results() is None
+        with db.connect() as conn:
+            row = conn.execute("SELECT status, finished_at FROM searches WHERE id = ?",
+                               (run.id,)).fetchone()
+        assert row["status"] == "running" and row["finished_at"] is None
+        with pytest.raises(RuntimeError):
+            manager.start(SearchForm())
+        with pytest.raises(RuntimeError):
+            manager.reapply(run.id, [])
+    finally:
+        release.set()
+        assert worker_done.wait(10)
+
+    snapshot = run.snapshot()
+    assert snapshot["status"] == outcome
+    assert snapshot["steps"][0]["status"] == ("failed" if outcome == "failed" else "skipped")
+    with db.connect() as conn:
+        row = conn.execute("SELECT status, finished_at FROM searches WHERE id = ?",
+                           (run.id,)).fetchone()
+    assert row["status"] == outcome and row["finished_at"] is not None
+    saved = jobstore.latest_results()
+    if with_jobs:
+        assert json.loads(saved[1]) == snapshot
+    else:
+        assert saved is None
+
+
+@pytest.mark.parametrize("runner_fails", [False, True])
+def test_save_failure_keeps_results_visible_and_explains_the_problem(monkeypatch, runner_fails):
+    jobs = {"cards": [{"job_id": 9999, "title": "Library Assistant"}],
+            "hidden": [], "date_unknown": []}
+
+    def runner(run):
+        run.set_result("jobs", jobs)
+        if runner_fails:
+            raise AIAuthError("The AI provider didn't accept the key.")
+
+    def cannot_save(*args):
+        raise OSError("Simulated storage failure")
+
+    monkeypatch.setattr(jobstore, "finish_search", cannot_save)
+    manager = search.SearchManager(runner=runner)
+    worker_done = track_search_worker(manager, monkeypatch)
+    monkeypatch.setattr(search, "manager", manager)
+    manager.start(SearchForm())
+    assert worker_done.wait(10)
+    client = TestClient(create_app(), base_url="http://127.0.0.1:8765")
+    current = client.get("/api/search/current").json()["search"]
+    assert current["status"] == "failed"
+    assert "couldn't save this search" in current["error"]
+    assert "Keep Jobcu open" in current["error"]
+    assert current["result"]["jobs"] == jobs
+    if runner_fails:
+        assert current["error"].startswith("The AI provider didn't accept the key.")
+    assert jobstore.latest_results() is None
 
 
 def test_full_search_finds_filters_scores_and_remembers(ready):

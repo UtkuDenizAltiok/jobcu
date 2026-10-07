@@ -7,6 +7,12 @@ Older code comments mentioning HANDOVER refer to [the archived concept](archive/
 ## Search pipeline
 
 `search.py` runs a background thread; the page polls progress once a second.
+Searches and condition corrections stay running until `jobstore.finish_search` commits the
+final result snapshot and search status in one transaction. Only then does the manager publish
+finished, stopped or failed. A save failure reports failed, keeps results visible in the current
+app session and warns that the latest results may not survive closing Jobcu; the prior saved
+snapshot remains intact if the transaction rolls back. Controlled-save tests cover polling,
+overlapping starts/corrections, immediate restore and storage failures without timing guesses.
 
 1. Read documents into a profile, interpret the query into a location plan, and generate
    multilingual search words. Refresh discovered employers when due (two-week interval).

@@ -85,6 +85,15 @@ or **Show results now**. Continuing uses more AI; an **Always** choice also chan
 If there is no question, read the progress notes for retries or a reported problem. You can
 click **Stop** to cancel. Starting a new search can use AI again.
 
+## Jobcu says it could not save the search
+
+Keep Jobcu open while you read any results still shown. The latest search or condition changes
+may be lost if you close it; reopening Jobcu may show the earlier saved results instead.
+
+Check that your computer has free disk space and that Jobcu can write to its data folder.
+If the problem continues, follow [I still need help](#i-still-need-help). A new search uses AI
+again and may incur further charges.
+
 ## Some details say not checked, or research is unavailable
 
 Your model may answer ordinary AI requests without being able to research the web. A
