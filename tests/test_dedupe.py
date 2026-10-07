@@ -191,6 +191,12 @@ def test_exact_source_identity_survives_changed_full_ad_text():
     assert len(group_duplicates([before, after], KINDS)) == 1
 
 
+def test_identical_short_complete_copies_preserve_the_existing_match():
+    jobs = [job("adzuna", "copy", description="Full ad text", description_is_complete=True),
+            job("board", "original", description="Full ad text", description_is_complete=True)]
+    assert len(group_duplicates(jobs, KINDS)) == 1
+
+
 def test_comparison_text_is_prepared_once_per_distinct_ad(monkeypatch):
     from jobcu import dedupe
 

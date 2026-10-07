@@ -196,8 +196,9 @@ def group_duplicates(jobs: list[FoundJob], source_kinds: dict[str, str]) -> list
         if a == b or any(source in employer_ids[b] and employer_ids[b][source] != vacancy
                          for source, vacancy in employer_ids[a].items()):
             return
-        if not exact and any(_text_similarity(left, right, text_cache) < TEXT_MATCH
-                             for left in complete_texts[a] for right in complete_texts[b]):
+        if not exact and any(
+                left != right and _text_similarity(left, right, text_cache) < TEXT_MATCH
+                for left in complete_texts[a] for right in complete_texts[b]):
             return
         if sizes[a] > sizes[b]:
             a, b = b, a
