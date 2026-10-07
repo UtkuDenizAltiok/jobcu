@@ -5,19 +5,21 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ## Right now
 
-*Updated 2026-10-07. Result-save fix awaits publication; personal setup/search awaits confirmation.*
+*Updated 2026-10-07. Result-save fix is complete; personal setup/search awaits confirmation.*
 
 ### State
 
-- [PR #53](https://github.com/UtkuDenizAltiok/jobcu/pull/53) recovery is complete: merged,
-  final PR/merged-main Mac/Windows/privacy checks passed, and clean main was synchronized.
-  Dependencies were synced and the starting **617 tests** passed.
-- A controlled fictional correction reproduced the recorded Windows restore race: the app
-  reported finished while its save was paused. The fix keeps the run active until final
-  results/status commit together, blocks overlapping work and explains storage failures.
-  Code, regression checks and the usage/troubleshooting guides are **implemented**;
-  **72 targeted tests**, the closing **627 tests**, Ruff, privacy and diff whitespace passed.
-  GitHub publication/CI are pending.
+- [PR #53](https://github.com/UtkuDenizAltiok/jobcu/pull/53) recovery is complete; its final
+  PR and merged-main Mac/Windows/privacy checks passed. Startup found clean current main.
+- The result-save race is **implemented, tested, pushed and merged** in
+  [PR #54](https://github.com/UtkuDenizAltiok/jobcu/pull/54), using a merge commit.
+  Its final Mac/Windows/privacy checks passed; the Mac checkout was synchronized afterward.
+  Searches/corrections now stay active until final results/status commit together. Overlapping
+  work is blocked during saving; storage failures keep available results visible with a warning.
+- A controlled fictional correction reproduced finished-before-save on the old code and passed
+  with the fix. Ten new regression cases cover final statuses, optional results, correction
+  restore, overlap, storage failure and rollback. **627 local tests**, Ruff, privacy and diff
+  whitespace passed; no failed local checks remain. Usage/troubleshooting guides are updated.
 - README is the entry point; [How to use Jobcu](guides/first-search.md) explains everyday steps
   and richer examples. PROMPTS holds all three project prompts; dated background is in `archive/`.
   Beginner wording and preserving richer examples are recorded in DECISIONS.md.
@@ -28,18 +30,10 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ### In progress
 
-Goal: investigate and fix the recorded Windows restore failure on
-`codex/save-before-finished`, using only fictional data. PR #53 recovery is complete.
-
-Reproduction, implementation, targeted checks and diff review are complete. The controlled
-regression failed against the old completion order and passes with the fix. Ten new cases
-cover final statuses, optional results, correction restore, overlap, storage failure and rollback.
-
-Locally tested, committed and **pushed** in
-[PR #54](https://github.com/UtkuDenizAltiok/jobcu/pull/54); not yet merged.
-Exact next action: wait for final Mac/Windows/privacy CI, merge with a merge commit,
-synchronize clean main and clear this checkpoint.
-No private inputs/results, live searches or paid requests are authorized for this work.
+None. The result-save investigation and fix are complete. No search is running.
+Next development action: review completed results under REVIEW.md with explicit authorization,
+or continue free work where a concrete issue is identified. Start/end prompts grant no new
+private-data access, paid calls or full searches.
 
 ### Verify before relying on
 
@@ -63,11 +57,10 @@ No private inputs/results, live searches or paid requests are authorized for thi
 
 ### Next tasks
 
-1. Finish publishing the result-save fix described above.
-2. Review completed search results with [REVIEW.md](REVIEW.md) before tuning.
-3. Fix confirmed freshness, coverage and matching gaps in the country order from AGENTS.md.
-4. Reduce summary dependence and repeated research; compare recall/ranking before optimizing cost/time.
-5. Fix confusion observed during use. ZIP-update notices and a full fresh-Windows check remain later work.
+1. Review completed search results with [REVIEW.md](REVIEW.md) before tuning.
+2. Fix confirmed freshness, coverage and matching gaps in the country order from AGENTS.md.
+3. Reduce summary dependence and repeated research; compare recall/ranking before optimizing cost/time.
+4. Fix confusion observed during use. ZIP-update notices and a full fresh-Windows check remain later work.
 
 ### Known limitations
 
@@ -76,6 +69,8 @@ No private inputs/results, live searches or paid requests are authorized for thi
 - The quality set holds 50 ads and 40 titles. Older samples may lack location plans; missing timings
   and unlabelled quality remain unknown. Correction usage is cumulative.
 - Provider/model research support varies; token estimates can omit web fees and discounts.
+- If final saving fails, the latest results may not survive closing Jobcu; any earlier saved results
+  remain available. Follow the warning before closing the app.
 
 Historical measurements predate the Mac reset and are not a current baseline. See the
 [decision history](archive/DECISION-HISTORY.md) and [source evidence](SOURCES.md) when relevant.
