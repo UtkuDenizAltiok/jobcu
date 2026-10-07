@@ -16,7 +16,8 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
   reported finished while its save was paused. The fix keeps the run active until final
   results/status commit together, blocks overlapping work and explains storage failures.
   Code, regression checks and the usage/troubleshooting guides are **implemented**;
-  **72 targeted tests**, Ruff, privacy and diff whitespace passed. Full suite/publication pending.
+  **72 targeted tests**, the closing **627 tests**, Ruff, privacy and diff whitespace passed.
+  GitHub publication/CI are pending.
 - README is the entry point; [How to use Jobcu](guides/first-search.md) explains everyday steps
   and richer examples. PROMPTS holds all three project prompts; dated background is in `archive/`.
   Beginner wording and preserving richer examples are recorded in DECISIONS.md.
@@ -34,8 +35,8 @@ Reproduction, implementation, targeted checks and diff review are complete. The 
 regression failed against the old completion order and passes with the fix. Ten new cases
 cover final statuses, optional results, correction restore, overlap, storage failure and rollback.
 
-Not yet pushed/merged. Exact next action: run closing Ruff/full tests/privacy checks, update
-this checkpoint with results, commit/push and open a PR. Then wait for Mac/Windows/privacy CI,
+Locally tested and committed; not yet pushed/merged. Exact next action: push and open a PR,
+then wait for Mac/Windows/privacy CI,
 merge with a merge commit, synchronize clean main and clear this checkpoint.
 No private inputs/results, live searches or paid requests are authorized for this work.
 
