@@ -46,8 +46,8 @@ class LimitSettings(BaseModel):
     # Optional monthly limits. AI work stops when one is reached.
     monthly_token_limit: int | None = Field(default=None, ge=1)
     monthly_cost_limit: float | None = Field(default=None, gt=0)
-    # Google Maps, with the person's own key: kept below Google's free monthly allowance of
-    # 10,000 route-matrix elements (checked 2026-09-21).
+    # Local cap on Google Maps route-matrix elements, including sampled destinations.
+    # Billing allowances depend on Google's current terms; this is not a guarantee of free use.
     maps_monthly_routes: int = Field(default=9000, ge=0)
 
 

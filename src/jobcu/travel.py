@@ -11,14 +11,15 @@ is small. `location.py` reads the condition; this module measures it for each jo
 2. **Which reference places could be in reach:** straight-line distances rule out places no
    train or car could reach in time and settle jobs inside a reference town at once, so only
    the nearest few places in between are asked about.
-   A reference place is where the person would live (the owner, 2026-09-24), so trips are
-   measured to the nearest edge of its built-up area, not its centre (search 9: Weichs to
-   Munich's centre took 53 minutes, to its edge about 25), and a city's own districts in the
-   town list (Hamburg's Wandsbek) are part of the city, not reference places of their own.
+   A reference place is where the person would live (the owner, 2026-09-24), so a reachable
+   part of the city is enough unless the person asks for its centre. A city's own districts in
+   the town list (Hamburg's Wandsbek) are part of the city, not reference places of their own.
 3. **How long it takes:** Google Maps (the person's own key, the travel mode the person meant;
-   public transport on a weekday morning, car without live traffic), within a monthly limit below
-   Google's free allowance. Without a key, or when the limit is reached, the AI estimates the
-   times and the card says so.
+   public transport on a weekday morning, car without live traffic), within the configured monthly
+   route limit. Sample the calculated edge and the centre, keeping the faster available journey:
+   an arbitrary edge point may have a much slower connection than the centre. These samples do
+   not establish the fastest journey to every part of a city. Without a key or beyond the limit,
+   the AI estimates the times and the card says so.
 
 Each job's answer is kept in the condition (minutes per reference place), so a corrected limit
 is applied again without asking anyone. The AI's estimates are also remembered for 30 days (the
@@ -44,6 +45,7 @@ from jobcu.countries import COUNTRIES
 from jobcu.dedupe import JobGroup
 from jobcu.location import Anchor, Condition
 from jobcu.placenames import countries_in
+from jobcu.settings import load_settings
 from jobcu.sources.budget import BudgetExhausted, Limits, RequestBudget
 from jobcu.text import normalise
 
@@ -70,6 +72,7 @@ NEAREST = 2
 ESTIMATE_BATCH = 30
 MEMORY_DAYS = 30
 MAPS, ESTIMATE = "Google Maps", "AI estimate"
+MAPS_ROUTING_VERSION = 2
 
 _TIMEZONES = {"GB": "Europe/London", "IE": "Europe/Dublin", "PT": "Europe/Lisbon",
               "IS": "Atlantic/Reykjavik", "FI": "Europe/Helsinki", "EE": "Europe/Tallinn",
@@ -171,6 +174,19 @@ def edge_point(point: Point, town: place_list.Town,
     share = reach(town) / far
     return (town.latitude + (point.latitude - town.latitude) * share,
             town.longitude + (point.longitude - town.longitude) * share)
+
+
+def route_targets(point: Point, towns: list[place_list.Town],
+                  to_centre: bool = False) -> list[tuple[str, tuple[float, float]]]:
+    """Sample the edge and centre: a geometric edge can have a slower transit connection."""
+    targets = []
+    for town in towns:
+        edge = edge_point(point, town, to_centre)
+        targets.append((town.name, edge))
+        centre = (town.latitude, town.longitude)
+        if edge != centre:
+            targets.append((town.name, centre))
+    return targets
 
 
 def anchor_towns(anchor: Anchor | None, country: str) -> list[place_list.Town]:
@@ -277,7 +293,7 @@ def departure(country: str, now: datetime) -> str:
 
 
 class GoogleMaps:
-    """The two Google Maps services Jobcu uses, with the person's own key."""
+    """Google's Routes API, with the person's own key."""
 
     def __init__(self, key: str, http, now: Callable[[], datetime] = lambda: datetime.now(UTC)):
         self._key = key
@@ -311,29 +327,53 @@ class GoogleMaps:
 
     def minutes(self, origin: Point, towns: list[place_list.Town], mode: str,
                 to_centre: bool = False) -> dict[str, int | None]:
-        """Travel minutes from the job to the nearest edge of each town (or its centre); None
-        when there's no way."""
-        ends = [edge_point(origin, town, to_centre) for town in towns]
+        """The faster sampled journey into each town; centre only when explicitly requested."""
+        targets = route_targets(origin, towns, to_centre)
+        minutes = self._matrix(
+            {"location": {"latLng": {"latitude": origin.latitude,
+                                     "longitude": origin.longitude}}},
+            [{"location": {"latLng": {"latitude": latitude, "longitude": longitude}}}
+             for _, (latitude, longitude) in targets], mode, origin.country)
+        found: dict[str, int | None] = {town.name: None for town in towns}
+        for (name, _), value in zip(targets, minutes, strict=True):
+            if value is not None and (found[name] is None or value < found[name]):
+                found[name] = value
+        return found
+
+    def between_addresses(self, origin: str, destination: str, mode: str,
+                          country: str) -> int | None:
+        """A named public test journey, without using the search's city-edge approximation."""
+        return self._matrix({"address": origin}, [{"address": destination}], mode, country)[0]
+
+    def _matrix(self, origin: dict, destinations: list[dict], mode: str,
+                country: str) -> list[int | None]:
         body = {
-            "origins": [{"waypoint": {"location": {"latLng": {
-                "latitude": origin.latitude, "longitude": origin.longitude}}}}],
-            "destinations": [{"waypoint": {"location": {"latLng": {
-                "latitude": latitude, "longitude": longitude}}}} for latitude, longitude in ends],
+            "origins": [{"waypoint": origin}],
+            "destinations": [{"waypoint": destination} for destination in destinations],
             "travelMode": MODES[mode],
         }
-        # Timetables need a day and time. Car trips don't: with a time, Google wants live traffic,
-        # which is billed at a higher tier with half the free allowance (SOURCES.md).
+        # Timetables need a day and time. Car trips use traffic-unaware routing; adding a time
+        # is invalid for that mode. Higher traffic tiers depend on Google's current billing terms.
         if mode == "transit":
-            body["departureTime"] = departure(origin.country, self._now())
-        elements = self._post(ROUTES, body, "originIndex,destinationIndex,duration,condition")
-        found: dict[str, int | None] = {town.name: None for town in towns}
+            body["departureTime"] = departure(country, self._now())
+        elements = self._post(
+            ROUTES, body, "originIndex,destinationIndex,duration,condition,status")
+        found: list[int | None] = [None] * len(destinations)
         for element in elements if isinstance(elements, list) else []:
             index = element.get("destinationIndex", 0)
-            seconds = str(element.get("duration") or "").rstrip("s")
-            if element.get("condition") == "ROUTE_EXISTS" and seconds.isdigit() and (
-                0 <= index < len(towns)
-            ):
-                found[towns[index].name] = math.ceil(int(seconds) / 60)
+            duration = str(element.get("duration") or "")
+            if (element.get("status") or {}).get("code", 0) != 0 or (
+                    element.get("condition") != "ROUTE_EXISTS"):
+                continue
+            if not duration.endswith("s") or not isinstance(index, int) or (
+                    not 0 <= index < len(destinations)):
+                continue
+            try:
+                seconds = float(duration[:-1])
+            except ValueError:
+                continue
+            if math.isfinite(seconds) and seconds >= 0:
+                found[index] = math.ceil(seconds / 60)
         return found
 
 
@@ -423,7 +463,9 @@ class TravelMeter:
                 continue
             known = condition.travel.get(key) or {}
             if known.get("point") == point.key and all(
-                    town.name in (known.get("minutes") or {}) for town in reachable):
+                    town.name in (known.get("minutes") or {}) for town in reachable) and (
+                    known.get("by") != MAPS
+                    or known.get("routing_version") == MAPS_ROUTING_VERSION):
                 continue  # measured before (a corrected limit needs nothing new)
             place = wanted.setdefault(point.key, (point, [], []))
             place[2].append(key)
@@ -433,6 +475,9 @@ class TravelMeter:
         if not wanted:
             self._settle_status(condition)
             return
+        if self._maps and not centre:
+            self._note("Google Maps compares sampled city-edge and city-centre destinations; "
+                       "other districts may have faster connections.")
         found = self._minutes(list(wanted.values()), mode, centre)
         for point, _towns, keys in wanted.values():
             if point.key not in found:
@@ -441,6 +486,8 @@ class TravelMeter:
             for key in keys:
                 condition.travel[key] = {"minutes": minutes, "by": by, "from": point.how,
                                          "point": point.key}
+                if by == MAPS:
+                    condition.travel[key]["routing_version"] = MAPS_ROUTING_VERSION
         self._settle_status(condition)
 
     def _minutes(self, places, mode, centre=False
@@ -475,10 +522,10 @@ class TravelMeter:
         measured: dict[str, dict[str, int | None]] = {}
         for point, towns, _ in places:
             try:
-                self._routes.spend(len(towns))
+                self._routes.spend(len(route_targets(point, towns, centre)))
                 measured[point.key] = self._maps.minutes(point, towns, mode, centre)
             except BudgetExhausted:
-                self._note("Google Maps: this month's free route look-ups are used up, so the "
+                self._note("Google Maps: this month's route limit is used up, so the "
                            "remaining travel times are AI estimates.")
                 break
             except MapsError as exc:
@@ -569,14 +616,19 @@ def check_key(keys, http) -> tuple[bool, str]:
     key = keys.get(KEY_NAME)
     if not key:
         return False, "Please save a Google Maps key first."
-    munich = place_list.find("Munich", "DE")
-    freising = place_list.find("Freising", "DE")
-    origin = Point(freising.latitude, freising.longitude, "DE", "town", "Freising")
     try:
-        found = GoogleMaps(key, http).minutes(origin, [munich], "transit")
+        RequestBudget("google_maps_routes", "Google Maps",
+                      Limits(per_month=load_settings().limits.maps_monthly_routes)).spend()
+        minutes = GoogleMaps(key, http).between_addresses(
+            "Freising Bahnhof, Freising, Germany", "München Hauptbahnhof, München, Germany",
+            "transit", "DE")
+    except BudgetExhausted:
+        return False, "Google Maps: Jobcu's monthly route limit is used up. Please try next month."
     except MapsError as exc:
         return False, str(exc)
-    minutes = found.get(munich.name)
     if minutes is None:
-        return False, "Google Maps answered, but without a travel time. Is the Routes API on?"
-    return True, f"Google Maps works: Freising to Munich takes {minutes} minutes by train."
+        return False, ("Google Maps answered, but no sample public-transport journey was returned. "
+                       "Check the Routes API setup or try again later.")
+    return True, (f"Google Maps works. Sample: Freising station to Munich Hauptbahnhof, "
+                  f"{minutes} min by public transport, departing next Tuesday at 08:00 local time. "
+                  "This checks access, not travel-time accuracy.")

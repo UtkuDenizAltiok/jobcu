@@ -73,5 +73,13 @@ Archived price comparisons are historical; do not use them as current cost or mo
   free use. Jobcu also has its configured monthly route limit.
 - [Maps storage constraints](archive/SOURCE-RESEARCH.md#maps) are retained dated evidence;
   the app stores AI travel estimates, not Google route times.
+- [Transit routes](https://developers.google.com/maps/documentation/routes/transit-route)
+  can combine trains, buses, subways and walking. General TRANSIT is not train-only time.
+- [Route waypoints](https://developers.google.com/maps/documentation/routes/reference/rest/v2/Waypoint)
+  accept coordinates, place IDs or addresses; named public stations can be used for a key probe.
+- [Route-matrix durations](https://developers.google.com/maps/documentation/routes/reference/rest/v2/TopLevel/computeRouteMatrix)
+  are seconds and can be fractional; each element's status is independent of route-found condition.
+  [Billing counts origins times destinations](https://developers.google.com/maps/documentation/routes/usage-and-billing),
+  rather than HTTP requests; two sampled destinations use two elements for one origin.
 
 Source/data credits remain in [README](../README.md#ownership-and-data-credits).

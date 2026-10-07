@@ -172,7 +172,9 @@ def test_car_trips_are_measured_without_a_departure_time():
     meter(fake, notes=notes).measure([condition], [job], [0])
     (_, body, _), = fake.requests
     assert body["travelMode"] == "DRIVE" and "departureTime" not in body
-    assert condition_fit(condition, job) == "yes" and notes == []
+    assert condition_fit(condition, job) == "yes"
+    assert notes == ["Google Maps compares sampled city-edge and city-centre destinations; "
+                     "other districts may have faster connections."]
     assert travel.detail(condition, job) == ("Munich, 25 min by car", "Google Maps")
 
 
@@ -331,23 +333,189 @@ def test_testing_the_key_explains_problems_plainly():
     assert not ok and "didn't accept the key" in message
 
 
+def test_key_test_uses_stations_and_describes_public_transport():
+    requests = []
+
+    def reply(request):
+        requests.append(json.loads(request.content))
+        return httpx.Response(200, json=[{"originIndex": 0, "destinationIndex": 0,
+                                        "duration": "1620s", "condition": "ROUTE_EXISTS"}])
+
+    keys = KeyStore()
+    keys.set(travel.KEY_NAME, "fake-maps-key")
+    http = PoliteClient(min_intervals={}, sleep=lambda s: None,
+                        transport=httpx.MockTransport(reply))
+    ok, message = travel.check_key(keys, http)
+    assert ok
+    (body,) = requests
+    assert "Freising" in body["origins"][0]["waypoint"]["address"]
+    assert "Bahnhof" in body["origins"][0]["waypoint"]["address"]
+    assert "Hauptbahnhof" in body["destinations"][0]["waypoint"]["address"]
+    assert body["travelMode"] == "TRANSIT" and "departureTime" in body
+    assert "27 min by public transport" in message
+    assert "08:00" in message and "checks access" in message
+    assert "by train" not in message
+
+
+def test_key_test_counts_one_element_and_respects_the_route_limit():
+    from jobcu import db
+    from jobcu.settings import save_settings
+
+    def reply(request):
+        return httpx.Response(200, json=[{"duration": "1500s", "condition": "ROUTE_EXISTS"}])
+
+    settings = Settings()
+    settings.limits.maps_monthly_routes = 1
+    save_settings(settings)
+    keys = KeyStore()
+    keys.set(travel.KEY_NAME, "fake-maps-key")
+    http = PoliteClient(min_intervals={}, sleep=lambda s: None,
+                        transport=httpx.MockTransport(reply))
+    assert travel.check_key(keys, http)[0]
+    with db.connect() as conn:
+        assert conn.execute("SELECT SUM(count) FROM source_requests "
+                            "WHERE source = 'google_maps_routes'").fetchone()[0] == 1
+    refusing_http = PoliteClient(min_intervals={}, sleep=lambda s: None,
+                                 transport=httpx.MockTransport(_no_network))
+    ok, message = travel.check_key(keys, refusing_http)
+    assert not ok and "monthly route limit" in message
+
+
+def test_a_slow_edge_point_does_not_hide_a_reachable_city_centre():
+    requests = []
+
+    def reply(request):
+        body = json.loads(request.content)
+        requests.append(body)
+        munich = places.find("Munich", "DE")
+        elements = []
+        for index, destination in enumerate(body["destinations"]):
+            point = destination["waypoint"]["location"]["latLng"]
+            centre = (point["latitude"], point["longitude"]) == (munich.latitude, munich.longitude)
+            elements.append({"destinationIndex": index, "condition": "ROUTE_EXISTS",
+                             "duration": "2100s" if centre else "5400s"})
+        return httpx.Response(200, json=elements)
+
+    condition = near(minutes=50)
+    condition.anchor = Anchor(named=[TownRef(name="Munich", country="DE")])
+    job = group("Freising")
+    keys = KeyStore()
+    keys.set(travel.KEY_NAME, "fake-maps-key")
+    http = PoliteClient(min_intervals={}, sleep=lambda s: None,
+                        transport=httpx.MockTransport(reply))
+    tested = TravelMeter(None, keys, http, Settings(), now=lambda: NOW)
+    tested.measure([condition], [job], [0])
+    assert condition_fit(condition, job) == "yes"
+    assert travel.detail(condition, job) == ("Munich, 35 min by public transport", "Google Maps")
+    assert len(requests) == 1 and len(requests[0]["destinations"]) == 2
+    assert tested._routes.used_this_search == 2
+
+
+@pytest.mark.parametrize(("edge", "centre", "expected"), [
+    ("1140s", "2100s", 19),
+    (None, "2100.001s", 36),
+    ("5400s", None, 90),
+    ("bad", "infs", None),
+])
+def test_sampled_routes_keep_available_times_and_round_fractional_seconds(edge, centre, expected):
+    def reply(request):
+        return httpx.Response(200, json=[
+            {"destinationIndex": index,
+             "condition": "ROUTE_EXISTS" if duration is not None else "ROUTE_NOT_FOUND",
+             "duration": duration}
+            for index, duration in [(1, centre), (0, edge)]
+        ])
+
+    http = PoliteClient(min_intervals={}, sleep=lambda s: None,
+                        transport=httpx.MockTransport(reply))
+    origin = travel.Point(54, -6, "IE", "town", "Example Town")
+    town = places.Town("Example City", "IE", 53, -6, 200_000)
+    found = travel.GoogleMaps("fake-maps-key", http, now=lambda: NOW).minutes(
+        origin, [town], "transit")
+    assert found == {"Example City": expected}
+
+
+def test_a_matrix_element_error_is_not_used_as_a_successful_journey():
+    def reply(request):
+        assert "status" in request.headers["X-Goog-FieldMask"].split(",")
+        return httpx.Response(200, json=[
+            {"destinationIndex": 0, "status": {"code": 7}, "condition": "ROUTE_EXISTS",
+             "duration": "60s"},
+            {"destinationIndex": 1, "status": {}, "condition": "ROUTE_EXISTS",
+             "duration": "1200s"},
+        ])
+
+    http = PoliteClient(min_intervals={}, sleep=lambda s: None,
+                        transport=httpx.MockTransport(reply))
+    origin = travel.Point(54, -6, "IE", "town", "Example Town")
+    town = places.Town("Example City", "IE", 53, -6, 200_000)
+    found = travel.GoogleMaps("fake-maps-key", http, now=lambda: NOW).minutes(
+        origin, [town], "transit")
+    assert found == {"Example City": 20}
+
+
+def test_both_destination_samples_must_fit_within_the_existing_maps_limit():
+    condition = near()
+    condition.anchor = Anchor(named=[TownRef(name="Munich", country="DE")])
+    settings = Settings()
+    settings.limits.maps_monthly_routes = 1
+    notes = []
+    tested = meter(client=None, settings=settings, notes=notes)
+    job = group("Freising")
+    tested.measure([condition], [job], [0])  # the mocked HTTP refuses any unexpected request
+    assert tested._routes.used_this_search == 0
+    assert condition_fit(condition, job) == "unknown"
+    assert any("route limit" in note for note in notes)
+
+
+def test_an_old_single_edge_answer_is_rechecked_after_the_routing_change():
+    condition = near()
+    condition.anchor = Anchor(named=[TownRef(name="Munich", country="DE")])
+    job = group("Freising")
+    point = travel.job_point(job)
+    condition.travel[travel.job_key(job)] = {
+        "minutes": {"Munich": 90}, "by": "Google Maps", "from": "town", "point": point.key}
+    fake = FakeMaps({"Munich": 35})
+    meter(fake).measure([condition], [job], [0])
+    assert condition_fit(condition, job) == "yes" and len(fake.requests) == 1
+    assert condition.travel[travel.job_key(job)]["routing_version"] == travel.MAPS_ROUTING_VERSION
+
+
 # --- A whole search -----------------------------------------------------------------------
 
 
-def test_a_search_keeps_jobs_near_a_big_city_and_leaves_out_far_ones(ready, monkeypatch):  # noqa: F811
+@pytest.mark.parametrize(("role", "field"), [
+    ("Hardware Engineer", "Electronics"), ("Library Assistant", "Library services"),
+])
+def test_a_search_keeps_jobs_near_a_big_city_and_leaves_out_far_ones(
+        ready, monkeypatch, role, field):  # noqa: F811
     import re
 
-    from test_search import FakeAI, wait_until_done
+    from conftest import make_pdf
+    from test_search import PROFILE, FakeAI, wait_until_done
 
-    from jobcu import search
+    from jobcu import documents, search
     from jobcu.ai.base import RawReply, Usage
     from jobcu.settings import SearchForm
     from jobcu.sources.base import JobSource
 
+    documents.save_upload("cv", "cv.pdf", make_pdf([
+        "Alex Example", f"{role} with five years of professional experience.",
+        f"Field: {field}.", "Languages: English fluent."]))
+    documents.save_upload("cover_letter", "letter.txt",
+                          f"I would like to work as a {role}. ".encode() * 5)
+
     class NearAI(FakeAI):
         def complete_json(self, **request):
             name, prompt = request["schema_name"], request["prompt"]
-            if name == "LocationUnderstanding":
+            if name == "Profile":
+                answer = {**PROFILE, "summary": f"Experienced {role}.",
+                          "current_or_last_role": role, "field": field,
+                          "skills": ["Teamwork"], "technical_areas": [],
+                          "target_roles": [role], "target_fields": [field]}
+            elif name == "SearchWordsAnswer":
+                answer = {"terms": [{"text": role, "language": "en", "kind": "job_title"}]}
+            elif name == "LocationUnderstanding":
                 answer = {"understood_as": "Germany, near a big city.", "limits_countries": True,
                           "countries": ["DE"], "places": [],
                           "conditions_about_places": [OWNERS_TEXT],
@@ -372,7 +540,7 @@ def test_a_search_keeps_jobs_near_a_big_city_and_leaves_out_far_ones(ready, monk
         def search(self, query, ctx):
             for i, place in enumerate(["Fürstenfeldbruck", "Hof", "München"]):
                 yield FoundJob(source="placed", source_job_id=str(i), url=f"https://jobs.test/{i}",
-                               title="Hardware Engineer", company=f"Company {i}",
+                               title=role, company=f"Company {i}",
                                location_text=place, country="DE",
                                posted_at=datetime.now(UTC), date_precision="exact",
                                description="Full ad", description_is_complete=True)
@@ -383,6 +551,7 @@ def test_a_search_keeps_jobs_near_a_big_city_and_leaves_out_far_ones(ready, monk
     manager.start(SearchForm(location_text="Germany, " + OWNERS_TEXT))
     result = wait_until_done(manager)
     assert result["status"] == "finished", result["error"]
+    assert result["result"]["profile"]["field"] == field
     jobs = result["result"]["jobs"]
     assert sorted(card["location"] for card in jobs["cards"]) == ["Fürstenfeldbruck", "München"]
     assert [card["location"] for card in jobs["ruled_out_by_conditions"]] == ["Hof"]
@@ -708,6 +877,7 @@ def test_a_trip_to_the_city_centre_ends_at_the_centre_when_the_person_says_so():
     sent = body["destinations"][0]["waypoint"]["location"]["latLng"]
     munich = places.find("Munich", "DE")
     assert (sent["latitude"], sent["longitude"]) == (munich.latitude, munich.longitude)
+    assert len(body["destinations"]) == 2  # one centre for each of the two reference cities
     # A job 9 km from the centre is measured too, not counted as in the city.
     pasing = group("Somewhere", "2", latitude=48.150, longitude=11.460)
     assert travel.home_town(travel.job_point(pasing), [munich], to_centre=True) is None

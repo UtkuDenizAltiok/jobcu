@@ -126,5 +126,12 @@ If you want Maps, follow these steps on Google's website and in Jobcu:
 5. Return to Jobcu. Under **Settings → Travel times (optional)**, paste the key into
    **Google Maps API key**, click **Save** beside it, then click **Test Google Maps**.
 
+A successful message begins **Google Maps works** and describes a sample public-transport
+journey from Freising station to Munich Hauptbahnhof, departing next Tuesday at 08:00 local
+time. It checks that Jobcu can access the service; it does not prove travel-time accuracy.
+The result is a whole journey that can include walking and waiting, rather than time spent
+only on a train. Each test counts one route element against Jobcu's monthly Maps limit and
+Google's usage; it may incur a charge under your account's terms.
+
 These service references were checked on 2026-10-07. Prices and account access still depend
 on the services' current terms. Next: [How to use Jobcu](first-search.md).
