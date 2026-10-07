@@ -9,48 +9,32 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ### State
 
-- [PR #65](https://github.com/UtkuDenizAltiok/jobcu/pull/65) (application-link reporting) and
-  [PR #67](https://github.com/UtkuDenizAltiok/jobcu/pull/67) (vacancy identity and local matching
-  work) are tested and merged with merge commits. Main was synchronized at `75cc83e`;
-  dependencies/hooks are current. Final-head Mac/Windows/privacy PR CI passed.
-- Fresh employer references and ambiguous current groups retain separate dates/marks.
-  Proven copies share one identity. Migration 13 preserves historical keys, states and results;
-  previously merged history is not guessed apart. No scoring cache or collection change.
-- **718 tests**, Ruff, privacy, whitespace, isolated Mac startup and direct import passed.
-  Component measurements and their limits are in
+- [PR #65](https://github.com/UtkuDenizAltiok/jobcu/pull/65) (application-link reports),
+  [PR #67](https://github.com/UtkuDenizAltiok/jobcu/pull/67) (vacancy identity/local matching) and
+  [PR #68](https://github.com/UtkuDenizAltiok/jobcu/pull/68) (location
+  evidence and session prompts) are tested and merged with merge commits. The Mac checkout
+  was synchronized at `5106dc1`; dependencies/hooks are current. Final-head
+  Mac/Windows/privacy CI passed.
+- Distinct fresh employer references and ambiguous groups keep separate dates/marks. Proven
+  copies share one identity; historical keys/states/results are preserved. Local matching
+  measurements and limits are in
   [ARCHITECTURE](ARCHITECTURE.md#fictional-local-comparison--2026-10-08).
-  Live ranking/recall/end-to-end speed remain unverified. Existing dependency warning remains.
-- Both app/preview ports are stopped. Owner data and ratings are preserved. No private
-  material or real-result measurements belong in this handover; consult [REVIEW](REVIEW.md)
-  and applicable private records for authorized investigations.
+  Live ranking/recall/speed remain unverified.
+- A measured journey cannot verify a missing reference-city fact. New/rebuilt cards explain
+  partial research and estimates per job, preserving scores/filtering and saved-plan edits.
+- [Start/review/end prompts](PROMPTS.md) recover one active goal and prepare a fresh chat.
+  End completes a coherent step where safe, checkpoints remaining work, and opens no new goals.
+- 728 tests, Ruff, privacy, JS syntax, whitespace and fictional Mac UI/reload passed. Existing
+  dependency deprecation warning remains. Both app/preview ports are stopped; disposable test
+  state is removed. Owner data/ratings are preserved; private records stay outside Git.
 
 ### In progress
 
-**Location evidence and session handover**, branch `codex/location-check-confidence`, based on
-synchronized main `75cc83e`. Implementation complete; no PR yet.
-
-Goal: prevent a checked journey from presenting an unchecked reference-place fact as verified,
-and make start/review/end prompts recover work reliably in a fresh chat.
-
-1. Reproduce confidence loss with fictional engineering and non-engineering examples.
-2. Preserve reference-place research confidence through travel measurement, saved plans,
-   corrections and cards. Explain partial checks clearly without changing scores or recall.
-3. Refine the three prompts and AGENTS routine: one active goal, checkpoint before long work,
-   end drains the current coherent step without new scope, next chat needs no prior context.
-4. Run targeted/full checks, privacy and fictional UI verification; review, push, open PR,
-   wait for Mac/Windows/privacy CI, merge and synchronize main; clean up assistant state.
-
-Implemented reference-place confidence, conservative legacy handling, per-job estimate labels
-and explanatory card notes. Fictional library conditions reproduce the old false verification
-in engineering/nursing; checked, estimated, failed, in-city, saved-plan, limit-edit and mixed-route
-cases pass. Scores/filtering are preserved. The three prompts and session routine now recover
-one goal and prepare an explicit fresh-chat handover without starting extra work on end.
-Full local checks passed: **728 tests**, Ruff, privacy and JS syntax. Fictional Mac UI shows
-unchecked/partial facts separately from verified journeys; no console warnings/errors.
-Final concise-note adjustment passed refreshed full checks and the diff review. Fictional UI
-reload passed; the preview/tab are stopped/closed. Exact next action: commit/push/open PR,
-wait for final-head Mac/Windows/privacy CI, merge and sync main. Main CI for PR #67 passed.
-Preserve original private evidence and owner ratings outside Git.
+None. Completed implementation is merged; no partial code or pending feature PR remains.
+Exact next action: follow the session routine and verify actual Git/CI; if this handover
+publication is still on an unmerged branch, finish its checks/merge before choosing new work.
+Private investigations follow [REVIEW](REVIEW.md) and applicable private authorization/review
+records; no real-result measurements or identifying evidence are published here.
 
 ### Verify before relying on
 
@@ -67,9 +51,11 @@ Preserve original private evidence and owner ratings outside Git.
 ### Waiting on the owner
 
 - No new keys, documents or settings are needed for these changes. Keep private inputs in Jobcu.
-- The next planned on-demand search is **2026-10-08**, using the saved **24-hour** choice.
-  Double-click **Start Jobcu.command** when ready. After a completed search, use
-  [Review a search](PROMPTS.md#review-a-search) with explicit access/spending choices.
+- Search on demand: double-click **Start Jobcu.command**, choose **24 hours**, then search
+  when ready. After completion, use [Review a search](PROMPTS.md#review-a-search); existing
+  permissions apply within their scope and no keys/documents need to be shared in chat.
+- Before closing a chat, use [End](PROMPTS.md#end-a-session) and wait for the saved-state
+  confirmation. Open a fresh local project chat and use [Start](PROMPTS.md#start-a-session).
 - When a link leads to an unusable application site, use **Application link problem** in
   Jobcu; **Excluded links** can undo it. This uses no AI allowance.
 - Jobcu completes on-demand searches without assistant supervision. No scheduling or
@@ -87,6 +73,8 @@ Preserve original private evidence and owner ratings outside Git.
 ### Known limitations
 
 - Source/card counts do not measure market recall; scores are not hiring odds.
+- Historical cards keep their original check labels. New searches or rebuilt conditions apply
+  the reference-place confidence correction; original snapshots are not rewritten.
 - Summaries, unknown dates, unchecked conditions and unknown application sites affect decisions.
 - A changed redirect URL needs a new report. Undo restores a link where original results retain
   it; a later search that already omitted the vacancy needs the next on-demand search.
@@ -95,5 +83,5 @@ Preserve original private evidence and owner ratings outside Git.
 - Maps samples approximate city edges/centres and can miss faster districts.
 - A failed final save can lose visible results on closing; earlier saved searches remain.
 
-Historical measurements predate the Mac reset. See [SOURCES](SOURCES.md) and
+Archived historical measurements predate the Mac reset. See [SOURCES](SOURCES.md) and
 [the decision history](archive/DECISION-HISTORY.md) for dated background.
