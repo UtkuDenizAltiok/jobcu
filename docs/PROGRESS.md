@@ -27,7 +27,7 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 ### In progress
 
 **Location evidence and session handover**, branch `codex/location-check-confidence`, based on
-synchronized main `75cc83e`. No PR yet; implementation not started.
+synchronized main `75cc83e`. Implementation complete; no PR yet.
 
 Goal: prevent a checked journey from presenting an unchecked reference-place fact as verified,
 and make start/review/end prompts recover work reliably in a fresh chat.
@@ -40,8 +40,17 @@ and make start/review/end prompts recover work reliably in a fresh chat.
 4. Run targeted/full checks, privacy and fictional UI verification; review, push, open PR,
    wait for Mac/Windows/privacy CI, merge and synchronize main; clean up assistant state.
 
-Exact next action: add fictional failure regressions, implement confidence preservation and
-update the handover prompts. Preserve original private evidence and owner ratings outside Git.
+Implemented reference-place confidence, conservative legacy handling, per-job estimate labels
+and explanatory card notes. Fictional library conditions reproduce the old false verification
+in engineering/nursing; checked, estimated, failed, in-city, saved-plan, limit-edit and mixed-route
+cases pass. Scores/filtering are preserved. The three prompts and session routine now recover
+one goal and prepare an explicit fresh-chat handover without starting extra work on end.
+Full local checks passed: **728 tests**, Ruff, privacy and JS syntax. Fictional Mac UI shows
+unchecked/partial facts separately from verified journeys; no console warnings/errors.
+Final concise-note adjustment passed refreshed full checks and the diff review. Fictional UI
+reload passed; the preview/tab are stopped/closed. Exact next action: commit/push/open PR,
+wait for final-head Mac/Windows/privacy CI, merge and sync main. Main CI for PR #67 passed.
+Preserve original private evidence and owner ratings outside Git.
 
 ### Verify before relying on
 
@@ -68,8 +77,8 @@ update the handover prompts. Preserve original private evidence and owner rating
 
 ### Next tasks
 
-1. Independently judge every top-10 job from full evidence under [REVIEW](REVIEW.md) after
-   authorization. Keep observed hidden-route failures local; do not guess final hosts.
+1. Independently judge every top-10 job from full evidence under [REVIEW](REVIEW.md), within
+   applicable authorization. Keep observed hidden-route failures local; do not guess final hosts.
 2. Measure fresh-job misses in Germany, Ireland, UK, Switzerland, Netherlands, Belgium, Italy
    before changing collection/scoring; all 30 countries and other professions remain supported.
 3. Compare the next authorized search's interpretation, ranking and elapsed time.

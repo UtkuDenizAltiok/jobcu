@@ -80,10 +80,16 @@ Code/tests establish behavior; the latest current decision establishes intent.
 4. Read relevant architecture/decisions; read SOURCES before source work. Run the local suite once
    for a substantive session, then targeted checks as needed. Tests use fictional data and no network.
 5. Check abandoned previews/scratch copies; preserve user data and the owner's chosen app state.
+6. Treat a new chat as having no prior conversation context. Recover one active goal from the
+   handover and actual Git/CI state; do not start several replacements. Before authorized
+   private review, consult the private authorization and review checkpoint without publishing
+   their contents. Recheck scope and revocations; resuming or ending grants no extra authority.
 
 ### While working
 
 - Record a multi-step goal, steps and verification under **In progress** before starting it.
+- Keep one active goal. Finish or explicitly checkpoint its blocking dependency before choosing
+  another; do not accumulate unrelated unfinished changes. Checkpoint before lengthy work.
 - Work on a branch in small complete steps. Checkpoint before long checks or interruptions;
   distinguish implemented, tested, pushed and merged, with the exact next action.
 - Update the relevant record with the change. When reversing a decision, retain its reason and
@@ -95,7 +101,14 @@ Code/tests establish behavior; the latest current decision establishes intent.
 
 ### Ending a session
 
-1. Checkpoint first. Record the active goal, branch/PR, unfinished work, passed/failed/unrun checks
+An end request prepares a **fresh chat**, not a continuation that can rely on this context.
+Stop opening goals, searches, research and paid calls. Finish the current coherent step where
+safe and practical (including checks, publication and CI); do not abandon a write midway or
+expand scope to fix unrelated issues. If a dependency, context or usage prevents completion,
+leave a recoverable branch and exact next action instead of forcing a merge.
+
+1. Checkpoint first. Record the active goal, branch/PR and head, unfinished work,
+   passed/failed/unrun checks
    and exact next action under **In progress**. Clear it when complete; separate facts from hypotheses.
 2. Refresh Right now, live checks, owner inputs and next tasks. Keep it short; history belongs in Git.
 3. Run `uv run ruff check . && uv run pytest` and `uv run python tools/check_no_secrets.py --all`.
@@ -103,7 +116,10 @@ Code/tests establish behavior; the latest current decision establishes intent.
    If access/context/usage prevents completion, preserve safe work on its branch and record what
    remains. Never discard work or label unverified work done.
 4. Delete disposable private scratch copies and stop instances you started. Preserve user data
-   and the owner's chosen service state. Read back the handover against Git and running services.
+   and the owner's chosen service state. Save needed private evidence and review status in the
+   private data folder before deleting scratch; keep authorization records private and intact.
+   Read back the handover against Git and running services. A fresh chat must be able to find
+   the files, recover preserved work and run the exact next action without this conversation.
 5. Report what was saved, verified or unfinished and give direct next steps. Link to PROMPTS.md.
 
 ## Commands and conventions

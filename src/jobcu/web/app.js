@@ -1077,6 +1077,7 @@ function renderCard(card) {
     }[check.source] || `verified: ${check.source}`;
     // What was found for this job, such as "Munich, 17 min by public transport".
     const what = check.detail ? `${check.label.replace(/\.$/, "")} — ${check.detail}` : check.label;
+    const uncertainty = check.source === "AI estimate" ? "AI estimate" : "partly checked";
     const label = check.whole_sentence
       ? check.label
       : check.status === "fails"
@@ -1084,9 +1085,10 @@ function renderCard(card) {
         : check.status === "verified" && check.source
           ? `${what} (${how})`
           : check.status === "unclear"
-            ? `${what} — couldn't be checked for this job`
-            : `${what} (AI estimate — please check)`;
+            ? `${what} — couldn't be fully checked for this job`
+            : `${what} (${uncertainty} — please check)`;
     checks.append(el("span", { class: statusClass, text: label }));
+    if (check.note) checks.append(el("span", { class: "check-estimate", text: check.note }));
   }
   for (const note of card.score_notes || []) {
     checks.append(el("span", { class: "check-estimate", text: note }));
