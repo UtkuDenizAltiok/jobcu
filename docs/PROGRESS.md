@@ -54,9 +54,11 @@ then labels the returned whole-journey duration "by train". The particular walki
 breakdown of the owner's reported duration is unknown; no new Maps/provider calls were made.
 Both controlled regressions failed against the old code and pass with the fix. Targeted checks
 also cover fractional durations, missing routes, quota limits, old answers, explicit city-centre
-requests and fictional hardware/library profiles. Reviewed and fully tested locally; not yet
-pushed or merged. Exact next action: commit/push/open a PR, then wait for
-Mac/Windows/privacy CI and merge. No paid development test or full search is authorized.
+requests and fictional hardware/library profiles. Reviewed, fully tested and **pushed** in
+[PR #56](https://github.com/UtkuDenizAltiok/jobcu/pull/56); not yet merged. Exact next action:
+wait for final Mac/Windows/privacy CI, merge with a merge commit and synchronize clean main.
+Then publish the closing handover and tell the owner to restart before searching.
+No paid development test or full search is authorized.
 
 ### Verify before relying on
 
