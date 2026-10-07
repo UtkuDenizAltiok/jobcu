@@ -91,8 +91,12 @@ jobs. Read **Understood as** and the explanations; use **Edit** to correct them 
 ### Choose your travel, posting window and job types
 
 Be clear about any distance, travel method or place that matters to you. For travel conditions,
-Jobcu measures to the nearest edge of a place unless you ask for its centre. Travel estimates
-are labelled so you can check them. Leaving the box empty searches all supported countries,
+Jobcu tries to find a journey into the reference place unless you ask specifically for its centre.
+With Google Maps, it compares a calculated city-edge point and the city centre and keeps the
+faster available journey. Those two samples can miss faster connections to other districts.
+If an ad gives no address, the journey starts at its town's centre. Check the actual workplace
+and route before relying on a time. Travel estimates are labelled. Leaving the box empty
+searches all supported countries,
 which can take longer and use more AI.
 
 Next, choose **Posted within**. This is how recently an advertisement was posted:

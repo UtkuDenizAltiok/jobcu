@@ -5,7 +5,7 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ## Right now
 
-*Updated 2026-10-07. Result-save fix is complete; personal setup/search awaits confirmation.*
+*Updated 2026-10-07. Checking the Maps probe before the owner's first search.*
 
 ### State
 
@@ -20,20 +20,42 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
   with the fix. Ten new regression cases cover final statuses, optional results, correction
   restore, overlap, storage failure and rollback. **627 local tests**, Ruff, privacy and diff
   whitespace passed; no failed local checks remain. Usage/troubleshooting guides are updated.
+- The Maps probe's train-only label and town-centre-to-edge inputs were reproduced with mocked
+  requests. A fictional slow-edge/fast-centre case also reproduced a false rejection. The fixes
+  are implemented: named station probe, public-transport wording, access-only explanation,
+  edge/centre comparison, exact element counting, stale-answer refresh and a visible sampling
+  limit. **87 targeted tests**, Ruff, privacy and diff whitespace passed; closing suite/CI pending.
 - README is the entry point; [How to use Jobcu](guides/first-search.md) explains everyday steps
   and richer examples. PROMPTS holds all three project prompts; dated background is in `archive/`.
   Beginner wording and preserving richer examples are recorded in DECISIONS.md.
-- Jobcu and the preview are stopped (ports 8765/8799). Preserve on-demand launcher use.
-- This session inspected no private inputs/results and made no live searches or paid requests.
+- The owner started Jobcu on port 8765 and confirmed a successful Maps key test. The running
+  build matched clean current main; port 8799 is stopped. Preserve the owner's running app.
+- Only the running app's public health/build and public routing inputs were inspected; no
+  private keys/documents/queries/results/logs were read and no provider/Maps calls or searches ran.
   No private scratch copies or app/preview instances were created. No managed worktrees or
   attached artifacts were present at startup.
 
 ### In progress
 
-None. The result-save investigation and fix are complete. No search is running.
-Next development action: review completed results under REVIEW.md with explicit authorization,
-or continue free work where a concrete issue is identified. Start/end prompts grant no new
-private-data access, paid calls or full searches.
+Goal on `codex/maps-route-probe`: check the misleading Maps connection-test duration before
+the owner starts a search. Startup Git/PR/CI checks passed; the baseline **627 tests** passed.
+
+1. Inspect only app health/build and public routing inputs; do not read private keys,
+   documents, queries, results or logs. Keep the owner's app running.
+2. Make the connection test use explicit station endpoints and call its result public
+   transport, rather than train-only time. Check arbitrary edge-point routing in searches.
+3. Add fictional route/filter regressions, record verified service facts and limits, run
+   Ruff/tests/privacy, review/push/PR, wait for Mac/Windows/privacy CI and merge.
+4. Synchronize clean main; tell the owner how to restart on demand before searching.
+
+Confirmed: the old test sends town-centre-to-calculated-city-edge coordinates with TRANSIT,
+then labels the returned whole-journey duration "by train". The particular walking/waiting
+breakdown of the owner's reported duration is unknown; no new Maps/provider calls were made.
+Both controlled regressions failed against the old code and pass with the fix. Targeted checks
+also cover fractional durations, missing routes, quota limits, old answers, explicit city-centre
+requests and fictional hardware/library profiles. Reviewed locally; not yet pushed or merged.
+Exact next action: run closing Ruff/full tests/privacy, commit/push/open a PR, then wait for
+Mac/Windows/privacy CI and merge. No paid development test or full search is authorized.
 
 ### Verify before relying on
 

@@ -113,6 +113,17 @@ ad yourself before relying on a missing requirement or a travel estimate.
 A new search can use more AI. Jobcu does not cover every job site, so an empty result is not
 proof that no suitable jobs exist. Check original ads for jobs with unknown dates or incomplete text.
 
+## The Google Maps test gives an unexpected travel time
+
+**Google Maps works** confirms access to the service. The sample is a public-transport journey
+between named stations at the stated departure time; it can include walking and waiting.
+It is not a promise about the time spent on a particular train.
+
+For a job's travel condition, check the actual workplace address, destination and departure
+time. Jobcu compares a calculated city-edge point and city centre unless you ask for the centre
+alone. Other districts can have faster connections; a town-centre origin can also differ from
+the workplace. Do not change your key just because a duration is unexpected.
+
 ## I still need help
 
 Describe which step failed, the short error message, and whether you use Mac or Windows.

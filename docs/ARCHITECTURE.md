@@ -33,9 +33,17 @@ coordinates, population, local names and regions as measurement data, not interp
 Population constraints are computed; other facts may need provider web research. Estimates
 and unchecked conditions remain visible with sources and can be corrected through **Edit**.
 
-Travel constraints use job-ad locations and the nearest edge of reference places unless the
-query asks for a centre. `travel.py` uses Google Maps when configured, otherwise labelled AI
-estimates. AI estimates may be remembered for 30 days; Google route times are not stored.
+Travel constraints use job-ad coordinates when available, otherwise the named town's centre.
+Reference-city edges are approximated from population. `travel.route_targets` compares that
+edge point and the city centre in the same Maps matrix, keeping the faster available journey;
+an explicit centre request has one destination per city. These samples do not establish the
+fastest journey into every district. A visible note explains that limit. The route budget counts
+every destination element, including both samples. Prior single-edge Maps answers are rechecked
+using a routing version; current answers still survive condition-limit edits without new calls.
+`travel.py` uses Google Maps when configured, otherwise labelled AI estimates. AI estimates may
+be remembered for 30 days; Google route times are not stored in the cross-search travel cache.
+The key test uses named public stations rather than city-edge coordinates, makes one matrix
+element within the configured limit and describes public transport/access rather than train time.
 
 `dedupe.py` combines copies, prefers employer links and retains possible-duplicate warnings.
 `freshness.py`/`jobstore.py` use original dates, closing dates and first-seen memory to identify
