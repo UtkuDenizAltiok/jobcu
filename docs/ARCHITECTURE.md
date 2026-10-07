@@ -139,6 +139,24 @@ Real-data tools require the specific authorization described in REVIEW.md.
 | `tools/check_employers.py` | Inspect directory entries and candidate career systems; live source checks need current terms. |
 | `tools/update_places.py` | Rebuild public GeoNames town/region/postcode assets. |
 
+### Fictional local comparison — 2026-10-07
+
+Run `uv run python tools/benchmark_local_matching.py --baseline 61b133d` from a Git checkout.
+The tool uses a disposable database outside Git and prints aggregate counts/times only.
+It checks identical identities/group membership before timing; it never reads configured user
+data or calls sources/providers. Privacy regressions cover normal completion and failure.
+
+On the Mac, five warmed rounds produced these medians:
+
+| Fictional work | Before | After | Preserved output |
+|---|---|---|---|
+| Look up 1,000 known job copies | 10.300 ms; 1,000 identity SELECTs | 2.991 ms; 2 identity SELECTs | Every job ID, including order |
+| Compare 40 distinct full recruitment ads | 367.030 ms; 1,560 text preparations | 15.958 ms; 40 preparations | 40 distinct groups |
+
+The ad fixture uses disjoint repeated text to exercise repeated comparison. Timings depend on
+the device and fixture. Live end-to-end speed, ranking quality and market recall still require
+the authorized real evaluation in [REVIEW](REVIEW.md); this comparison makes no claims about them.
+
 ## Evaluation data and timing
 
 Step timers use a monotonic clock and continue across repeated progress updates. Answer-wait

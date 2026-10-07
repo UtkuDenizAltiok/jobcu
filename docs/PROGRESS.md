@@ -63,9 +63,14 @@ preserves 1,000 IDs and 40 groups: identity reads 1,000 -> 2; text preparation 1
 Timing is preliminary and does not establish live search speed. A reusable fictional benchmark
 is implemented; its privacy isolation/failure regression and document checks passed.
 Review also closed concurrent-allocation and summary-bridge gaps, with regressions passing.
-Full suite and publication remain pending. Exact next action: run all required checks and the
-reproducible benchmark, record final measurements, then publish. Real ranking/coverage/speed
-remain unverified.
+Implementation is checkpointed at `9b20d23`. Full local checks passed: **714 tests**, Ruff,
+privacy, whitespace and isolated Mac startup; direct import of the new identity module passed.
+The reproducible benchmark preserved every ID/group: lookup 10.300 -> 2.991 ms; comparison
+367.030 -> 15.958 ms (five warmed rounds). Definitions/limits live in
+[ARCHITECTURE](ARCHITECTURE.md#fictional-local-comparison--2026-10-07).
+Nothing is pushed or merged yet. Exact next action: publish this branch/open a PR, wait for
+final-head Mac/Windows/privacy CI, merge and synchronize main. Real ranking/coverage/speed
+remain unverified; no private data, paid calls or full search was used.
 The prior hidden-route fallback is complete; automatic hidden-host detection remains unverified.
 Do not probe blocked pages, guess application URLs, or request private jobs/links in chat.
 
