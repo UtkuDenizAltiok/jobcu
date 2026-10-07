@@ -18,7 +18,8 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
   Durable behavior/reasons, service facts and guides are in ARCHITECTURE, DECISIONS and SOURCES.
 - **638 local tests**, Ruff, privacy and whitespace passed; **87 targeted checks** passed.
   An isolated Mac startup self-test passed on port 8799, stopped and deleted its empty data.
-  No failed local product checks remain. This closeout will rerun the required checks.
+  Closing checks were rerun: **638 passed**, Ruff/privacy/whitespace passed. The existing
+  dependency deprecation warning remains; no failed local product checks remain.
 - The implementation is **pushed, not merged** in
   [PR #56](https://github.com/UtkuDenizAltiok/jobcu/pull/56), remote head `6d667bc`.
   Local branch `codex/maps-route-probe` also has later handover commits. Repeated real pushes
@@ -39,10 +40,10 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 Scope is **session closeout and publication only**; start no new product work. Maps implementation,
 local review/tests and documentation are complete. GitHub publication is unfinished.
 
-Before lengthy checks, this checkpoint is saved on `codex/maps-route-probe`. Run closing
-Ruff/full tests/privacy, record their results, commit and try one final normal push. Merge PR #56
-only if its final-head Mac/Windows/privacy CI actually passes. If writes/CI remain unavailable,
-leave this clean committed branch, preserve the pending checks and do not claim a merge.
+The recoverable checkpoint was committed before closing checks; those checks passed.
+One final normal HTTPS push is the remaining closeout attempt. Merge PR #56 only if its
+final-head Mac/Windows/privacy CI actually passes. If writes/CI remain unavailable, leave this
+clean committed branch, preserve the pending checks and do not claim a merge.
 
 Exact next action in the next chat: follow the start/resume routine, retry the branch push,
 verify PR #56's final head and checks, merge with a merge commit when they pass, and synchronize
