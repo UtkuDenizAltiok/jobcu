@@ -52,6 +52,24 @@ def test_unusable_application_route_is_excluded_before_ai_work():
         assert outcome.kept == [] and outcome.left_out["application_route"] == 1
 
 
+def test_reported_routes_are_loaded_once_for_the_free_filter(monkeypatch):
+    from jobcu import applications
+
+    calls = []
+
+    def reports():
+        calls.append(True)
+        return {"https://jobs.example.test/blocked"}
+
+    monkeypatch.setattr(applications, "reported_urls", reports)
+    jobs = [found("blocked", url="https://jobs.example.test/blocked", title="Nurse"),
+            *[found(str(i), url=f"https://jobs.example.test/{i}") for i in range(100)]]
+    groups, outcome = run(jobs)
+    assert len(calls) == 1 and len(outcome.kept) == 100
+    assert outcome.left_out["reported_application_route"] == 1
+    assert all(groups[i].main.url != "https://jobs.example.test/blocked" for i in outcome.kept)
+
+
 def test_a_job_is_kept_when_one_copy_states_a_ticked_type():
     jobs = [found("a", job_types=["part_time"]),
             found("b", title="Title a", company="Company a", job_types=["full_time_permanent"])]

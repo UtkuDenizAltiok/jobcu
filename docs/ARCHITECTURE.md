@@ -64,8 +64,16 @@ element within the configured limit and describes public transport/access rather
 and selects another already-matched copy. With no alternative, the free filter excludes the
 vacancy before scoring. Restored recommendations are filtered on a response copy; saved/applied
 history retains its state with blocked links disabled. Original snapshots remain unchanged.
-Opaque aggregator IDs do not reveal the final application host; destination verification is
-still unfinished, and a different allowed link does not prove universal registration access.
+Opaque aggregator IDs do not reveal the final application host. Migration 12 stores exact
+saved links the person marks unusable, with guarded reporting and undo APIs in `search_api.py`.
+The page's **Application link problem** control offers only that vacancy's saved links;
+**Excluded links** keeps undo available after a card disappears or a later search finishes.
+Reports never fetch links, change scores/ratings/marks or rewrite original snapshots. Matching
+reads the report set once per filter/build stage, rather than opening SQLite for every vacancy.
+Only an identical URL is remembered: a changed tracking URL requires a new report. Other links
+on the same site stay available. An opaque alternate is not proof of another final destination.
+Automatic destination verification remains unfinished, and a different allowed link does not
+prove universal registration access.
 `freshness.py`/`jobstore.py` use original dates, closing dates and first-seen memory to identify
 old reposts. Distinct requisitions must stay distinct. Summaries and clipped excerpts remain
 incomplete evidence even when online research supplements their requirements.

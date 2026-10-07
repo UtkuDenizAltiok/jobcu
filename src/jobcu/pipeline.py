@@ -210,6 +210,7 @@ def build_card(
     posted_within_hours: int,
     ruled_out: bool = False,
     first_seen_at: datetime | None = None,
+    reported_links: set[str] | None = None,
 ) -> dict:
     main = group.main
     best = group.best_description_copy
@@ -218,7 +219,8 @@ def build_card(
     work_mode = next((c.work_mode for c in group.copies if c.work_mode), None) or (
         scored or {}
     ).get("work_mode")
-    main_link, also_on = applications.links(group, source_names)
+    reported_links = applications.reported_urls() if reported_links is None else reported_links
+    main_link, also_on = applications.links(group, source_names, reported_links)
     country = main.country or next((c.country for c in group.copies if c.country), None)
     checks = []
     if ruled_out:
@@ -298,7 +300,7 @@ def build_card(
         "required_languages": scored["required_languages"] if scored else [],
         "main_link": main_link,
         "also_on": also_on,
-        "application_link_unavailable": applications.unavailable(group),
+        "application_link_unavailable": applications.unavailable(group, reported_links),
         "application_destination_unverified": applications.opaque(main_link["url"]),
         "possible_duplicate_of": possible_duplicate_of,
         "summary_only": not best.description_is_complete,

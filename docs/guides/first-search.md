@@ -174,6 +174,18 @@ Use these buttons to keep track of jobs:
 | **Save** | Mark a job to read later. Click **Saved** above the job list to find your saved jobs. Click the job's **Saved** button again to remove the mark. |
 | **Applied** | Mark a job after you have applied yourself. It does not submit an application. Click **Applied** above the list to see these jobs. |
 | **Not interested** | Hide a job you do not want. Tick **Show hidden**, then click **Undo Not interested** if you change your mind. |
+| **Application link problem** | If you tried an application link and cannot use that site, choose this button and exclude the link you tried. Jobcu remembers the exact link on this computer. |
+| **Excluded links** | View links you excluded and click **Undo exclusion** to allow one again. This button stays above the list even when an excluded job disappears. |
+
+If you exclude a link, Jobcu offers another saved link only when it belongs to the same matched
+vacancy. If no usable alternative remains, the job is left out and counted in **Search details**.
+Saved and Applied jobs keep their marks and scores. Other links on that site remain available.
+An alternate site may still have its own application restrictions; check it yourself.
+
+Undo brings a link back where the original saved result still contains it. If a later search
+already left the vacancy out, run your next search when ready to find it again. Reporting and
+undo use no AI allowance. A changed redirect URL needs a new report. Jobcu already excludes
+known CV-Library destinations; an unknown redirect shows **Application site not verified**.
 
 Read warnings on a job before making a decision:
 

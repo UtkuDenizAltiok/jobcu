@@ -8,7 +8,7 @@ import pytest
 from conftest import FAKE_CV_LINES, make_pdf
 from fastapi.testclient import TestClient
 
-from jobcu import db, documents, jobstore, search
+from jobcu import applications, db, documents, jobstore, search
 from jobcu.ai.base import AIAuthError, ProviderAdapter, RawReply, Usage
 from jobcu.app import create_app
 from jobcu.settings import SearchForm, Settings, load_settings, save_settings
@@ -354,6 +354,26 @@ def test_search_excludes_known_cvlibrary_only_application_routes(ready, monkeypa
     assert [c["title"] for c in jobs["cards"]] == ["Electronics Engineer"]
     assert {"reason": "CV-Library application route, with no other saved link", "count": 1} in (
         jobs["counts"]["left_out"])
+
+
+def test_search_remembers_reported_route_and_undo_allows_it_again(ready):
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    first = wait_until_done(manager)["result"]["jobs"]["cards"]
+    marked = first[0]
+    applications.report_link(marked["job_id"], marked["main_link"]["url"])
+    manager.start(SearchForm(location_text="Germany"))
+    result = wait_until_done(manager)
+    assert result["status"] == "finished", result["error"]
+    jobs = result["result"]["jobs"]
+    assert [c["title"] for c in jobs["cards"]] == [first[1]["title"]]
+    assert jobs["cards"][0]["score"] == first[1]["score"]
+    assert {"reason": applications.REPORTED_EXCLUSION_REASON, "count": 1} in (
+        jobs["counts"]["left_out"])
+    applications.undo_report(applications.reports()[0]["id"])
+    manager.start(SearchForm(location_text="Germany"))
+    restored = wait_until_done(manager)["result"]["jobs"]["cards"]
+    assert [c["title"] for c in restored] == [c["title"] for c in first]
 
 
 @pytest.mark.parametrize(("answer", "scored"), [(False, 1), (True, 2)])

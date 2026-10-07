@@ -1117,7 +1117,7 @@ function renderCard(card) {
           text: `Open job (${card.main_link.source})`,
         })
       : card.application_link_unavailable
-        ? el("span", { class: "muted", text: "CV-Library application link excluded" }) : null,
+        ? el("span", { class: "muted", text: "Application link excluded" }) : null,
   );
   const also = card.also_on
     .map((copy) => ({ ...copy, url: safeUrl(copy.url) }))
@@ -1132,6 +1132,12 @@ function renderCard(card) {
       span.append(el("a", { href: copy.url, target: "_blank", rel: "noopener noreferrer", text: copy.source }));
     });
     actions.append(span);
+  }
+  if (card.job_id && (link || also.length)) {
+    actions.append(el("button", {
+      type: "button", class: "link", text: "Application link problem",
+      onclick: () => openApplicationLinks(card),
+    }));
   }
   actions.append(el("span", { class: "spacer" }));
   actions.append(
@@ -1204,6 +1210,82 @@ async function switchList(list) {
   }
   view.marked = list === "results" ? [] : (await api(`/api/jobs/marked/${list}`)).cards;
   renderResults();
+}
+
+async function refreshApplicationLinks() {
+  const current = await api("/api/search/current");
+  if (view.list !== "results") {
+    view.marked = (await api(`/api/jobs/marked/${view.list}`)).cards;
+  }
+  if (current.search) showSearch(current.search);
+}
+
+async function loadApplicationLinkReports() {
+  const { links } = await api("/api/applications/excluded");
+  $("application-link-reports").replaceChildren(
+    ...(links.length ? links.map((report) => el("div", { class: "card" },
+      el("strong", { text: report.title }),
+      el("p", { class: "muted", text: `${report.source} · ${new URL(report.url).hostname}` }),
+      el("button", { type: "button", class: "secondary", text: "Undo exclusion",
+        onclick: async (event) => {
+          await busy(event.target, async () => {
+            try {
+              await api(`/api/applications/excluded/${report.id}`, { method: "DELETE" });
+              await loadApplicationLinkReports();
+              await refreshApplicationLinks();
+              setStatus($("application-links-status"), "success", "The link is allowed again.");
+            } catch (error) {
+              setStatus($("application-links-status"), "problem", error.message);
+            }
+          });
+        },
+      }),
+    )) : [el("p", { class: "muted", text: "You haven't excluded any links." })]),
+  );
+}
+
+async function openApplicationLinks(card = null) {
+  setStatus($("application-links-status"), "", "");
+  $("application-link-choices").replaceChildren();
+  $("application-link-reports").replaceChildren();
+  $("application-links-dialog").showModal();
+  if (card) {
+    const seen = new Set();
+    const links = [card.main_link, ...card.also_on].filter((link) => {
+      if (!safeUrl(link.url) || seen.has(link.url)) return false;
+      seen.add(link.url);
+      return true;
+    });
+    $("application-link-choices").append(
+      el("h3", { text: card.title }),
+      ...links.map((link) => el("div", { class: "card" },
+        el("p", { text: `${link.source} · ${new URL(link.url).hostname}` }),
+        el("button", { type: "button", class: "secondary", text: `Exclude ${link.source} link`,
+          onclick: async (event) => {
+            await busy(event.target, async () => {
+              try {
+                await api(`/api/jobs/${card.job_id}/application-link`, {
+                  method: "POST", body: { url: link.url },
+                });
+                event.target.closest(".card").remove();
+                await loadApplicationLinkReports();
+                await refreshApplicationLinks();
+                setStatus($("application-links-status"), "success",
+                  "The link is excluded. You can undo it below.");
+              } catch (error) {
+                setStatus($("application-links-status"), "problem", error.message);
+              }
+            });
+          },
+        }),
+      )),
+    );
+  }
+  try {
+    await loadApplicationLinkReports();
+  } catch (error) {
+    setStatus($("application-links-status"), "problem", error.message);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -1359,6 +1441,8 @@ function setUpSearchActions() {
     $("details-dialog").showModal();
   });
   $("close-details").addEventListener("click", () => $("details-dialog").close());
+  $("excluded-application-links").addEventListener("click", () => openApplicationLinks());
+  $("close-application-links").addEventListener("click", () => $("application-links-dialog").close());
   $("sort-order").addEventListener("change", (event) => {
     view.sort = event.target.value;
     renderResults();

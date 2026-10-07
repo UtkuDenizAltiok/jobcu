@@ -58,9 +58,15 @@ recorded fallback: a local, reversible way for the person to mark an unusable ap
 4. Review; run Ruff, full tests, privacy and JS checks; push a PR; wait for Mac/Windows/privacy
    CI; merge with a merge commit and synchronize clean main.
 
-Implementation has not started. Exact next action: implement the link-report migration and
-local route controls. Automatic final-host identification and real ranking/coverage/speed
-claims remain unverified; do not probe blocked pages or guess application URLs.
+Migration, guarded local APIs, route handling and report/undo controls are implemented.
+Targeted regressions, Ruff, JS syntax and whitespace passed. The isolated fictional Mac UI
+walkthrough passed: employer alternative, removal without an alternative, reload persistence,
+Saved history and undo; no browser console warnings/errors. Preview stopped and its tab closed.
+Review added monotonic report IDs to stop stale undo buttons deleting a newer report.
+Full checks and publication are pending. Exact next action: run the full local suite/privacy
+and isolated launcher self-test, then push/open a PR and wait for CI before merging.
+Automatic final-host identification and real ranking/coverage/speed claims remain unverified;
+do not probe blocked pages or guess application URLs.
 
 ### Verify before relying on
 
