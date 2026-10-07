@@ -5,13 +5,14 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ## Right now
 
-*Updated 2026-10-07. Free review and search-usability fixes verified locally; publication next.*
+*Updated 2026-10-07. Free review and search-usability fixes published; CI and merge pending.*
 
 ### State
 
 - Main was clean and synchronized at start; PRs #54–57 and recent main Mac/Windows/privacy CI
   passed. No earlier implementation needed recovery.
-- Implemented and locally tested on `codex/search-review-usability`: sought-role progress,
+- Implemented, locally tested and pushed in
+  [PR #58](https://github.com/UtkuDenizAltiok/jobcu/pull/58): sought-role progress,
   explicit history label, optional document-understanding reset, cumulative online-check
   progress, original vacancy URL, combined medium-effort location interpretation with a format
   fallback, separate travel usage, and a 24-hour new-install posting window.
@@ -28,10 +29,12 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ### In progress
 
-Publish and merge the verified changes on `codex/search-review-usability`.
-Implementation, free aggregate review and local verification are complete; not yet pushed or
-merged. Exact next action: push, open PR, wait for final-head Mac/Windows/privacy CI, merge with
-a merge commit, synchronize main and record the final handover. Remove any PR-body temp file.
+[PR #58](https://github.com/UtkuDenizAltiok/jobcu/pull/58) is open and pushed from
+`codex/search-review-usability`; implementation, free aggregate review and local verification
+are complete. Mac/Windows/privacy CI and merge remain pending. Exact next action: wait for
+final-head CI, inspect any failure, merge with a merge commit, synchronize main and save the
+final handover. Remove the PR-body temporary file. No private scratch or assistant instance
+remains; the owner's app state is preserved.
 
 ### Verify before relying on
 
