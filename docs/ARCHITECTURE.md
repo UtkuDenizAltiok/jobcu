@@ -20,6 +20,8 @@ overlapping starts/corrections, immediate restore and storage failures without t
    request. Initial interpretation and edited conditions share the same checking function;
    population rules stay local and researched facts still use the provider. Journey estimates
    record usage under `travel`, separately from `location` interpretation (older runs mix them).
+   An unusable combined answer falls back to the simpler geography/classification route.
+   Authentication, quota and spending-limit failures propagate without fallback calls.
 2. Collect sources in parallel. Screen career titles missed by the search words, merge copies,
    and apply fixed date/type/remote/country/dismissal rules.
 3. In `search._decide`, apply location conditions, quick relevance and travel limits; load full

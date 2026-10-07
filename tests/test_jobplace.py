@@ -11,7 +11,7 @@ from jobcu.ai.base import (
     Source,
     Usage,
 )
-from jobcu.dedupe import group_duplicates
+from jobcu.dedupe import JobGroup, group_duplicates
 from jobcu.sources.base import FoundJob
 
 NOW = datetime.now(UTC)
@@ -64,6 +64,21 @@ def test_only_jobs_nothing_places_are_looked_up():
     assert [jobplace.needs_looking_up(g) for g in groups] == [True, False, False]
     groups[0].place_from_web = []
     assert not jobplace.needs_looking_up(groups[0])  # looked up already, never again
+
+
+def test_original_employer_url_goes_with_the_best_description():
+    employer = FoundJob(source="employer", source_job_id="REQ-42", title="Nurse",
+                        url="https://employer.test/jobs/REQ-42", country="IE",
+                        company="Example Clinic", description="Employer teaser")
+    board = FoundJob(source="board", source_job_id="84", title="Nurse", company="Example Clinic",
+                     url="https://board.test/84", country="IE", description="Complete nursing ad",
+                     description_is_complete=True)
+    group = JobGroup(copies=[board, employer],
+                     source_kinds={"employer": "employer", "board": "job_board"})
+    researcher = Researcher(["notes"], [[online("J0", found=False)]])
+    jobplace.find_online(researcher, [group], [0])
+    assert "https://employer.test/jobs/REQ-42 | Complete nursing ad" in researcher.prompts[0]
+    assert "https://board.test/84" not in researcher.prompts[0]
 
 
 def test_towns_found_online_count_only_when_real_and_in_the_job_s_country():

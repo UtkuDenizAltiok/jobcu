@@ -1,5 +1,6 @@
 import pytest
 
+from jobcu.ai.base import AIInvalidOutput, AILimitReached
 from jobcu.countries import COUNTRIES, languages_for
 from jobcu.keywords import SearchTerm, tidy_terms
 from jobcu.location import (
@@ -8,6 +9,7 @@ from jobcu.location import (
     Place,
     SortedAnchor,
     SortedCondition,
+    SortedConditions,
     interpret_location,
     plan_from,
 )
@@ -109,6 +111,34 @@ def test_one_reading_preserves_countries_and_computable_conditions(text, countri
             assert checked.min_people == 50_000 and checked.status == "applied"
         else:
             assert checked.kind == "about_job" and checked.status == "not_checked"
+
+
+@pytest.mark.parametrize("failure", [AIInvalidOutput("Invalid format"),
+                                     AILimitReached("Monthly limit reached")])
+def test_combined_format_fallback_preserves_conditions_but_never_bypasses_limits(failure):
+    class FormatClient:
+        calls = []
+
+        def generate(self, output, **request):
+            self.calls.append(output)
+            if output is LocationInterpretation:
+                raise failure
+            if output is LocationUnderstanding:
+                return understanding(countries=["IE"], conditions_about_places=["50,000 people"])
+            assert output is SortedConditions
+            return output(conditions=[SortedCondition(
+                text="50,000 people", understood_as="Towns with at least 50,000 people",
+                kind="town_size", min_people=50_000)])
+
+    client = FormatClient()
+    if isinstance(failure, AILimitReached):
+        with pytest.raises(AILimitReached):
+            interpret_location(client, "Nursing jobs in Ireland, towns with 50,000 people")
+        assert client.calls == [LocationInterpretation]
+    else:
+        plan = interpret_location(client, "Nursing jobs in Ireland, towns with 50,000 people")
+        assert plan.countries == ["IE"] and plan.conditions[0].min_people == 50_000
+        assert client.calls == [LocationInterpretation, LocationUnderstanding, SortedConditions]
 
 
 def test_named_place_adds_its_country():

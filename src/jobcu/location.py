@@ -31,7 +31,7 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 from jobcu import places as place_list
-from jobcu.ai.base import AIError
+from jobcu.ai.base import AIError, AIInvalidOutput, AIOutputTruncated
 from jobcu.ai.client import AIClient
 from jobcu.countries import COUNTRIES, LANGUAGE_NAMES
 from jobcu.placenames import countries_in
@@ -444,26 +444,37 @@ def interpret_location(client: AIClient, text: str) -> LocationPlan:
     text = text.strip()
     if not text:
         return _everywhere(text, [], [])
-    understanding = client.generate(
-        LocationInterpretation,
-        step="location",
-        system=INTERPRET_SYSTEM,
-        prompt=f"Where the person wants to work (between the markers):\n<<<\n{text}\n>>>",
-        reasoning=True,
-        max_output_tokens=4000,
-    )
-    # Keep the plan builder shared with edits and the existing country/place rules.
-    plain = LocationUnderstanding.model_validate({
-        **understanding.model_dump(),
-        "conditions_about_places": [c.text for c in understanding.conditions_about_places],
-        "conditions_about_the_job": [c.text for c in understanding.conditions_about_the_job],
-    })
-    plan = plan_from(text, plain)
-    plan.conditions = _check_sorted_conditions(
-        client,
-        understanding.conditions_about_places + understanding.conditions_about_the_job,
-        plan.countries,
-    )
+    prompt = f"Where the person wants to work (between the markers):\n<<<\n{text}\n>>>"
+    try:
+        understanding = client.generate(
+            LocationInterpretation, step="location", system=INTERPRET_SYSTEM, prompt=prompt,
+            reasoning=True, max_output_tokens=4000,
+        )
+    except (AIInvalidOutput, AIOutputTruncated):
+        # Preserve the simpler route for models that cannot produce the combined format.
+        # Authentication, quota and spending-limit failures must still stop AI work.
+        log.info("Combined location format was unusable; trying the simpler interpretation.")
+        plain = client.generate(
+            LocationUnderstanding, step="location", system=SYSTEM_PROMPT, prompt=prompt,
+            reasoning=True, max_output_tokens=4000,
+        )
+        plan = plan_from(text, plain)
+        plan.conditions = check_conditions(
+            client, plain.conditions_about_places + plain.conditions_about_the_job,
+            plan.countries,
+        )
+    else:
+        # Keep the plan builder shared with edits and the existing country/place rules.
+        plain = LocationUnderstanding.model_validate({
+            **understanding.model_dump(),
+            "conditions_about_places": [c.text for c in understanding.conditions_about_places],
+            "conditions_about_the_job": [c.text for c in understanding.conditions_about_the_job],
+        })
+        plan = plan_from(text, plain)
+        plan.conditions = _check_sorted_conditions(
+            client, understanding.conditions_about_places + understanding.conditions_about_the_job,
+            plan.countries,
+        )
     _narrow_countries(plan)
     plan.not_checked_yet = [
         condition.text for condition in plan.conditions if condition.status == "not_checked"
