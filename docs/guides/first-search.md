@@ -166,6 +166,12 @@ the information it could read. It is not the chance that an employer will hire y
 reasons as well as the number, including any **Limited to …** explanation of a requirement
 that held the score down.
 
+**New** means Jobcu has not shown that vacancy before. An employer can have several openings
+with the same title in the same town. Jobcu keeps different references on that employer's
+job system separate, so an old **Not interested** choice does not hide a new opening.
+When names match several remembered vacancies, Jobcu keeps the uncertain match separately;
+check the original ad before applying twice. Your earlier saved history is preserved.
+
 Use these buttons to keep track of jobs:
 
 | Button | How to use it |

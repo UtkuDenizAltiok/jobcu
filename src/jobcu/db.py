@@ -187,6 +187,19 @@ MIGRATIONS: list[str] = [
         reported_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
     );
     """,
+    # 13: Names locate possible matches, but may belong to several distinct vacancies.
+    # Preserve every legacy key and state; exact source IDs remain in job_keys.
+    """
+    CREATE TABLE job_fingerprints (
+        key TEXT NOT NULL,
+        job_id INTEGER NOT NULL REFERENCES jobs (id),
+        country TEXT NOT NULL DEFAULT '',
+        PRIMARY KEY (key, job_id, country)
+    );
+    CREATE INDEX job_fingerprints_job_id ON job_fingerprints (job_id);
+    INSERT INTO job_fingerprints (key, job_id)
+        SELECT key, job_id FROM job_keys WHERE key LIKE 'job:%';
+    """,
 ]
 
 

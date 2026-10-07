@@ -2,6 +2,7 @@ import json
 import re
 import threading
 import time
+from dataclasses import replace
 from datetime import UTC, datetime
 
 import pytest
@@ -307,13 +308,15 @@ def test_quality_sample_keeps_the_final_online_score(ready, monkeypatch):
     assert [ad.score for ad in samples] == [card["score"] for card in cards]
 
 
-def test_one_job_the_memory_knows_twice_gets_one_card(ready, monkeypatch):
-    # An agency's two summaries with the same title and town stay apart in the duplicate rules
-    # but are one job in Jobcu's memory (search 10): one card, not two sharing Save.
+@pytest.mark.parametrize("same_reference", [False, True])
+def test_agency_names_cannot_replace_copy_evidence(ready, monkeypatch, same_reference):
+    # Two summaries do not prove one vacancy. An exact source reference does.
     class AgencyTwice(FakeSource):
         def search(self, query, ctx):
             for i, text in enumerate(["Short", "Another short text"]):
-                yield FoundJob(source="fake", source_job_id=f"a{i}", url=f"https://jobs.test/a{i}",
+                reference = "a0" if same_reference else f"a{i}"
+                yield FoundJob(source="fake", source_job_id=reference,
+                               url=f"https://jobs.test/{reference}",
                                title="Hardware Engineer", company="Augusta Personaldienst",
                                location_text="Berlin", country="DE",
                                posted_at=datetime.now(UTC), date_precision="exact",
@@ -323,7 +326,15 @@ def test_one_job_the_memory_knows_twice_gets_one_card(ready, monkeypatch):
     manager = search.SearchManager()
     manager.start(SearchForm(location_text="Germany"))
     jobs = wait_until_done(manager)["result"]["jobs"]
-    assert [card["title"] for card in jobs["cards"]] == ["Hardware Engineer"]
+    cards = jobs["cards"]
+    assert [card["title"] for card in cards] == ["Hardware Engineer"] * (
+        1 if same_reference else 2)
+    assert len({card["job_id"] for card in cards}) == len(cards)
+    if not same_reference:
+        jobstore.set_state(cards[0]["job_id"], saved=True)
+        states = jobstore.states([card["job_id"] for card in cards])
+        assert states[cards[0]["job_id"]].saved
+        assert cards[1]["job_id"] not in states
 
 
 def test_not_interested_jobs_are_hidden_from_later_searches(ready):
@@ -335,6 +346,63 @@ def test_not_interested_jobs_are_hidden_from_later_searches(ready):
     jobs = wait_until_done(manager)["result"]["jobs"]
     assert len(jobs["cards"]) == 1
     assert [c["title"] for c in jobs["hidden"]] == [first[0]["title"]]
+
+
+@pytest.mark.parametrize(("title", "field", "skill"), [
+    ("Power Electronics Engineer", "Electronics", "Power converter design"),
+    ("Registered Nurse", "Nursing", "Clinical patient care"),
+])
+def test_a_second_employer_opening_reaches_matching_with_fictional_profiles(
+        ready, monkeypatch, title, field, skill):
+    profile = {**PROFILE, "summary": f"Experienced {title}.", "field": field,
+               "skills": [skill], "technical_areas": [field], "target_fields": [field],
+               "target_roles": [title], "current_or_last_role": title}
+    documents.save_upload("cv", "fictional-cv.pdf", make_pdf([
+        "Alex Example", f"{title} with five years of experience. Skills: {skill}. " * 4]))
+    documents.save_upload("cover_letter", "fictional-cover-letter.txt",
+                          f"I am seeking work as a {title}. I enjoy {skill}. ".encode() * 4)
+
+    class MatchingAI(FakeAI):
+        def complete_json(self, **request):
+            if request["schema_name"] == "Profile":
+                return RawReply(json.dumps(profile), Usage(10, 5))
+            return super().complete_json(**request)
+
+    vacancies = ["example/old"]
+
+    class EmployerSource(FakeSource):
+        kind = "employer"
+
+        def search(self, query, ctx):
+            for vacancy in vacancies:
+                yield FoundJob("fake", vacancy, f"https://careers.example.test/{vacancy}", title,
+                               company="Example Employer", location_text="Berlin", country="DE",
+                               posted_at=datetime.now(UTC), date_precision="exact")
+
+        def load_details(self, job, ctx):
+            return replace(job, description=f"Work as a {title} using {skill}. " * 20,
+                           description_is_complete=True)
+
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: MatchingAI())
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [EmployerSource()])
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    first = wait_until_done(manager)
+    assert first["status"] == "finished", first["error"]
+    (old,) = first["result"]["jobs"]["cards"]
+    jobstore.set_state(old["job_id"], saved=True, dismissed=True)
+    vacancies.append("example/new")
+    manager.start(SearchForm(location_text="Germany"))
+    second = wait_until_done(manager)
+    assert second["status"] == "finished", second["error"]
+    jobs = second["result"]["jobs"]
+    (fresh,) = jobs["cards"]
+    assert fresh["job_id"] != old["job_id"] and fresh["is_new"]
+    assert fresh["title"] == title and fresh["score"] == old["score"]
+    assert not fresh["summary_only"]
+    assert not any(fresh["state"].values())
+    assert [c["job_id"] for c in jobs["hidden"]] == [old["job_id"]]
+    assert jobstore.states([old["job_id"]])[old["job_id"]].saved
 
 
 def test_search_excludes_known_cvlibrary_only_application_routes(ready, monkeypatch):

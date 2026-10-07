@@ -149,6 +149,15 @@ def test_older_copies_alone_are_no_job_and_never_count_against_their_own_site():
     assert rules(groups).kept == [0]
 
 
+def test_an_exact_source_id_still_proves_a_repost_when_one_copy_was_redated():
+    old = career_copy("same-req", 9, True)
+    redated = career_copy("same-req", 1, False)
+    collected = Collected([old, redated], [], {"workday": FakeSource("employer")})
+    (group,) = make_groups(collected)
+    assert len(group.copies) == 2 and group.posted_at == old.posted_at
+    assert dict(rules([group]).left_out) == {"repost": 1}
+
+
 def test_the_closing_date_survives_the_saved_pool_and_the_ad_memory():
     from jobcu import pool
 

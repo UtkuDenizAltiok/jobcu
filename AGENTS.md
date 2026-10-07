@@ -42,6 +42,9 @@ include fictional non-engineering profiles in matching regressions.
    screenshots or CI logs. Use fictional examples and approved aggregate findings.
    `paths.ensure_data_dir()` enforces the folder boundary; the commit guard cannot prove prose
    is private. Private investigations use an authorized scratch copy outside every checkout.
+   Check `assistant-authorization.json` in the private data folder for any standing owner
+   instructions before private work. Keep that record outside Git and public output; its
+   recipient, scope, limits and later revocations control access. Absence grants no access.
 4. **Preserve history and proprietary licensing.** Keep LICENSE and the owner's copyright.
    No force pushes, shared-history rewrite, squash or rebase merge. Use merge commits. Public
    source does not grant reuse permission. Cleanup changes current files, not Git history.

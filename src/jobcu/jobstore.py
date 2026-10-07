@@ -13,8 +13,10 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
 from jobcu import db
-from jobcu.dedupe import JobGroup, normal_city, normal_company, normal_title
+from jobcu.dedupe import JobGroup
 from jobcu.freshness import parse_iso
+from jobcu.jobidentity import IdentityIndex, copy_key, rows
+from jobcu.jobidentity import identity_keys as identity_keys  # preserved helper for local tools
 from jobcu.sources.base import FoundJob
 
 # How long a downloaded ad text is trusted. Job ads barely change while they are open.
@@ -34,40 +36,20 @@ class JobState:
     dismissed: bool = False
 
 
-def identity_keys(group: JobGroup) -> list[str]:
-    keys = []
-    for copy in group.copies:
-        keys.append(f"copy:{copy.source}:{copy.source_job_id}")
-        company, title = normal_company(copy.company), normal_title(copy.title)
-        if company and title:
-            keys.append(f"job:{company}|{title}|{normal_city(copy.location_text)}")
-    return list(dict.fromkeys(keys))
-
-
 def find_job_ids(groups: list[JobGroup]) -> list[int | None]:
     """The remembered job for each group, or None if this job was never seen."""
     with db.connect() as conn:
-        found: list[int | None] = []
-        for group in groups:
-            keys = identity_keys(group)
-            marks = ",".join("?" * len(keys))
-            row = conn.execute(
-                f"SELECT job_id FROM job_keys WHERE key IN ({marks}) ORDER BY job_id LIMIT 1", keys
-            ).fetchone()
-            found.append(row[0] if row else None)
-    return found
+        index = IdentityIndex.load(conn, groups)
+        return [index.resolve(group) for group in groups]
 
 
 def states(job_ids: list[int]) -> dict[int, JobState]:
     if not job_ids:
         return {}
     with db.connect() as conn:
-        marks = ",".join("?" * len(job_ids))
-        rows = conn.execute(
-            f"SELECT job_id, saved, applied, dismissed FROM job_states WHERE job_id IN ({marks})",
-            job_ids,
-        ).fetchall()
-    return {row[0]: JobState(bool(row[1]), bool(row[2]), bool(row[3])) for row in rows}
+        return {row[0]: JobState(bool(row[1]), bool(row[2]), bool(row[3])) for row in rows(
+            conn, "SELECT job_id, saved, applied, dismissed FROM job_states WHERE job_id IN ({})",
+            job_ids)}
 
 
 def remember(groups: list[JobGroup], search_id: int) -> tuple[list[int], list[bool]]:
@@ -75,29 +57,32 @@ def remember(groups: list[JobGroup], search_id: int) -> tuple[list[int], list[bo
     ids: list[int] = []
     new: list[bool] = []
     with db.connect() as conn:
+        # Serialize identity allocation, so another writer cannot register these copies
+        # between the lookup and bulk save. Owner marks are never rewritten here.
+        conn.execute("BEGIN IMMEDIATE")
+        index = IdentityIndex.load(conn, groups)
+        existing = [job_id for group in groups if (job_id := index.resolve(group)) is not None]
+        first_search = {row[0]: row[1] for row in rows(
+            conn, "SELECT id, first_seen_search_id FROM jobs WHERE id IN ({})", existing)}
+        copy_rows, name_rows = [], []
         for group in groups:
-            keys = identity_keys(group)
-            marks = ",".join("?" * len(keys))
-            row = conn.execute(
-                f"SELECT job_id FROM job_keys WHERE key IN ({marks}) ORDER BY job_id LIMIT 1", keys
-            ).fetchone()
-            if row:
-                job_id = row[0]
-                earlier = conn.execute(
-                    "SELECT first_seen_search_id FROM jobs WHERE id = ?", (job_id,)
-                ).fetchone()[0]
-                new.append(earlier == search_id)
-            else:
+            job_id = index.resolve(group)
+            if job_id is None:
                 job_id = conn.execute(
                     "INSERT INTO jobs (first_seen_search_id, title, company) VALUES (?, ?, ?)",
                     (search_id, group.main.title, group.main.company),
                 ).lastrowid
-                new.append(True)
-            conn.executemany(
-                "INSERT OR IGNORE INTO job_keys (key, job_id) VALUES (?, ?)",
-                [(key, job_id) for key in keys],
-            )
+                first_search[job_id] = search_id
+            new.append(first_search[job_id] == search_id)
+            copy_rows.extend((copy_key(c.source, c.source_job_id), job_id)
+                             for c in group.copies if c.source_job_id)
+            name_rows.extend((key, job_id, country) for key, country in index.name_entries(group))
+            index.register(group, job_id)
             ids.append(job_id)
+        conn.executemany("INSERT OR IGNORE INTO job_keys (key, job_id) VALUES (?, ?)", copy_rows)
+        conn.executemany(
+            "INSERT OR IGNORE INTO job_fingerprints (key, job_id, country) VALUES (?, ?, ?)",
+            name_rows)
     return ids, new
 
 
@@ -106,11 +91,9 @@ def first_seen(job_ids: list[int]) -> dict[int, datetime]:
     if not job_ids:
         return {}
     with db.connect() as conn:
-        marks = ",".join("?" * len(job_ids))
-        rows = conn.execute(
-            f"SELECT id, first_seen_at FROM jobs WHERE id IN ({marks})", job_ids
-        ).fetchall()
-    return {row[0]: when for row in rows if (when := parse_iso(row[1])) is not None}
+        return {row[0]: when for row in rows(
+            conn, "SELECT id, first_seen_at FROM jobs WHERE id IN ({})", job_ids)
+                if (when := parse_iso(row[1])) is not None}
 
 
 def set_state(job_id: int, **changes: bool) -> JobState:

@@ -106,8 +106,8 @@ def collected_again(reports: list[dict]) -> Collected:
 def make_groups(collected: Collected) -> list[JobGroup]:
     """The different jobs. A career site's older copy stays in a group only to give it its
     earliest date when another source found the job fresh; a group of older copies alone is no
-    job of this search. An older copy never counts against a fresh one from its own site, which
-    may be a second vacancy with the same title."""
+    job of this search. Different employer requisitions stay separate; an older copy with the
+    exact same source ID still establishes the original date."""
     kinds = {source_id: source.kind for source_id, source in collected.sources.items()}
     groups = group_duplicates(collected.jobs, kinds)
     kept: list[JobGroup] = []
@@ -116,8 +116,11 @@ def make_groups(collected: Collected) -> list[JobGroup]:
         fresh_sources = {copy.source for copy in group.copies if not copy.older_copy}
         if not fresh_sources:
             continue
+        fresh_ids = {(copy.source, copy.source_job_id) for copy in group.copies
+                     if not copy.older_copy and copy.source_job_id}
         copies = [copy for copy in group.copies
-                  if not copy.older_copy or copy.source not in fresh_sources]
+                  if not copy.older_copy or copy.source not in fresh_sources
+                  or (copy.source_job_id and (copy.source, copy.source_job_id) in fresh_ids)]
         position[index] = len(kept)
         kept.append(group if len(copies) == len(group.copies)
                     else dataclasses.replace(group, copies=copies))

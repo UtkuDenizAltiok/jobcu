@@ -60,6 +60,12 @@ The key test uses named public stations rather than city-edge coordinates, makes
 element within the configured limit and describes public transport/access rather than train time.
 
 `dedupe.py` combines copies, prefers employer links and retains possible-duplicate warnings.
+Different IDs from one employer source cannot share a group, even through a board copy.
+Complete descriptions across a proposed merged group must be similar; a summary cannot
+bridge conflicting full ads. An exact source ID can identify a revised ad despite changed
+text. Empty source IDs establish no exact match.
+Text comparison prepares each distinct description once in a per-call cache, shared with
+agency-repeat checks. The cache is discarded after grouping; scores are never cached.
 `applications.py` removes known CV-Library destinations, including exposed redirect targets,
 and selects another already-matched copy. With no alternative, the free filter excludes the
 vacancy before scoring. Restored recommendations are filtered on a response copy; saved/applied
@@ -75,7 +81,19 @@ on the same site stay available. An opaque alternate is not proof of another fin
 Automatic destination verification remains unfinished, and a different allowed link does not
 prove universal registration access.
 `freshness.py`/`jobstore.py` use original dates, closing dates and first-seen memory to identify
-old reposts. Distinct requisitions must stay distinct. Summaries and clipped excerpts remain
+old reposts. An older copy with the exact same source ID still dates a redated copy on that
+site; another employer requisition stays separate. `jobidentity.py` gives exact source IDs
+priority over name matches and rejects conflicting employer IDs or known country conflicts.
+Migration 13 preserves `job_keys` and copies legacy name keys to a non-unique candidate index;
+names can refer to several vacancies. An ambiguous name match cannot inherit old marks/dates.
+Separate current groups sharing a name/location cannot silently rejoin through job memory;
+known countries can disambiguate, and an exact copy still takes priority. Name preparation is
+reused within that transaction; a known-copy-only lookup needs no name processing.
+Known copies use bounded batch lookups; states and first-seen reads use the device's SQLite
+parameter limit too. Within one save, new aliases are registered for subsequent groups and
+allocation is serialized and all writes commit atomically. Historical merged identities
+and snapshots remain unchanged;
+unknown legacy country metadata cannot prove a conflict. Summaries and clipped excerpts remain
 incomplete evidence even when online research supplements their requirements.
 
 Online requirements replace the summary's languages and minimum years, including null when
@@ -98,7 +116,7 @@ The root keeps launchers, README, CONTRIBUTING, AGENTS, LICENSE and Python/tool 
 | Places/criteria | `countries.py`, `location.py`, `places.py`, `placenames.py`, `travel.py`; supported geography, query interpretation and measurements. |
 | Discovery | `keywords.py`, `employers.py`; multilingual words and periodically discovered employers. |
 | Evidence/matching | `text.py`, `jobposting.py`, `dedupe.py`, `filters.py`, `freshness.py`, `relevance.py`, `jobplace.py`, `scoring.py`; text extraction, filtering, research and fit. |
-| Results/evaluation | `applications.py`, `jobstore.py`, `quality.py`, `quality_api.py`; application routes, remembered jobs, saved results and independent score checks. |
+| Results/evaluation | `applications.py`, `jobidentity.py`, `jobstore.py`, `quality.py`, `quality_api.py`; application routes, remembered jobs, saved results and independent score checks. |
 | `ai/` | `client.py` is the sole AI entry point; provider adapters, schemas, errors and token/web usage. |
 | `sources/` | Isolated adapters and the registry. `base.py` defines `JobSource`; `http.py` applies polite requests/robots; `budget.py` tracks limits; `matching.py` matches lists; `careers.py` uses the directory; `careerlinks.py` recognizes career hosts. See [SOURCES](SOURCES.md). |
 | `data/` | Public reference assets: `employers.json`, `places.csv.gz`, `regions.csv.gz`, `postcodes.csv.gz`. User data never belongs here. |
@@ -115,6 +133,7 @@ Real-data tools require the specific authorization described in REVIEW.md.
 | Tool | Purpose |
 |---|---|
 | `tools/check_no_secrets.py` | Privacy guard for commits and CI; `--all` scans tracked files. |
+| `tools/benchmark_local_matching.py` | Fictional local identity/deduplication comparison against a Git baseline; no saved user data, network or provider calls. |
 | `tools/review_search.py` | Read-only, allowlisted aggregate review of saved results; no network/AI. |
 | `tools/score_check.py` | Compare scores with independent labels; focused authorized re-scoring and prompt variants. |
 | `tools/coverage_test.py` | Trace a private independent benchmark through collection/filtering/scoring. |
@@ -122,6 +141,24 @@ Real-data tools require the specific authorization described in REVIEW.md.
 | `tools/made_up_search.py` | A full fictional search in its own data folder. Live/paid runs still need authorization. |
 | `tools/check_employers.py` | Inspect directory entries and candidate career systems; live source checks need current terms. |
 | `tools/update_places.py` | Rebuild public GeoNames town/region/postcode assets. |
+
+### Fictional local comparison — 2026-10-08
+
+Run `uv run python tools/benchmark_local_matching.py --baseline 61b133d` from a Git checkout.
+The tool uses a disposable database outside Git and prints aggregate counts/times only.
+It checks identical identities/group membership before timing; it never reads configured user
+data or calls sources/providers. Privacy regressions cover normal completion and failure.
+
+On the Mac, five warmed rounds produced these medians:
+
+| Fictional work | Before | After | Preserved output |
+|---|---|---|---|
+| Look up 1,000 known job copies | 10.370 ms; 1,000 identity SELECTs | 2.983 ms; 2 identity SELECTs | Every job ID, including order |
+| Compare 40 distinct full recruitment ads | 368.320 ms; 1,560 text preparations | 16.020 ms; 40 preparations | 40 distinct groups |
+
+The ad fixture uses disjoint repeated text to exercise repeated comparison. Timings depend on
+the device and fixture. Live end-to-end speed, ranking quality and market recall still require
+the authorized real evaluation in [REVIEW](REVIEW.md); this comparison makes no claims about them.
 
 ## Evaluation data and timing
 
