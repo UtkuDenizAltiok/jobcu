@@ -568,9 +568,10 @@ class TravelMeter:
 
     @staticmethod
     def _settle_status(condition: Condition) -> None:
-        """Checked when every measured job was measured by Google Maps or by distance alone."""
+        """A journey measurement cannot upgrade missing or estimated reference-place facts."""
         ways = {entry.get("by") for entry in condition.travel.values()}
-        condition.status = "estimate" if "AI estimate" in ways else "applied"
+        condition.status = "estimate" if (
+            "AI estimate" in ways or condition.reference_status != "applied") else "applied"
 
 
 def _destination(country: str, town: str, centre: bool = False) -> str:

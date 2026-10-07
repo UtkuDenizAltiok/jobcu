@@ -46,6 +46,12 @@ a search is running. The next read rebuilds the cache and normal reuse resumes.
 coordinates, population, local names and regions as measurement data, not interpretation rules.
 Population constraints are computed; other facts may need provider web research. Estimates
 and unchecked conditions remain visible with sources and can be corrected through **Edit**.
+Reference-place research confidence is saved separately in `Anchor.research_status` and
+survives route measurement and limit edits. A passing journey cannot verify an unchecked city
+fact. Cards retain usable partial rules, explain the uncertainty and label estimated journeys
+per job; a checked route is not downgraded merely because another job used an estimate.
+Older plans with research notes but no saved confidence are treated conservatively on rebuild;
+historical result snapshots are preserved.
 
 Travel constraints use job-ad coordinates when available, otherwise the named town's centre.
 Reference-city edges are approximated from population. `travel.route_targets` compares that

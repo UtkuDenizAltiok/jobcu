@@ -251,11 +251,25 @@ def build_card(
             unanswered += 1
             continue
         found = travel.detail(condition, group)
+        measured_by = found[1] if found else None
+        status = {"yes": "verified", "unknown": "unclear"}.get(answer, "fails")
+        reference = condition.reference_status if condition.kind == "near" else "applied"
+        if answer == "yes":
+            if reference == "not_checked":
+                status = "unclear"
+            elif reference == "estimate" or measured_by == "AI estimate" or (
+                condition.kind != "near" and condition.status == "estimate"
+            ):
+                status = "estimate"
         checks.append({
             "label": condition.understood_as,
-            "status": {"yes": "verified", "unknown": "unclear"}.get(answer, "fails"),
-            "source": _checked_by(condition, found[1] if found else None),
+            "status": status,
+            "source": _checked_by(condition, measured_by),
             "detail": found[0] if found else None,
+            "note": (condition.note or (
+                "Reference-place facts couldn't be checked." if reference == "not_checked"
+                else "Reference-place facts are uncertain; please check."
+            )) if reference != "applied" else "",
         })
     if unanswered and not ruled_out:
         where = next((c.location_text for c in group.copies

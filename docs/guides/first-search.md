@@ -199,6 +199,8 @@ Read warnings on a job before making a decision:
   advertisement. Important requirements may be missing; open the original job to check.
 - **AI estimate**, **not checked**, or **couldn't be checked** means that detail is uncertain.
   Check the original ad or relevant travel information yourself.
+- **Partly checked** means some evidence is still uncertain. A measured journey does not prove
+  another requirement about the destination city; read the note beside the condition.
 - Jobs under **Posting date unknown** may be older than your chosen posting window.
   **First seen by Jobcu** is when Jobcu first found a job, not necessarily when it was posted.
   Check the original posting date and application deadline where available.

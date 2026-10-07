@@ -213,6 +213,8 @@ class Anchor(BaseModel):
     countries_avoided: list[str] = []
     looked_up: bool = False  # the towns come from a web look-up
     look_up: str = ""  # the fact that was looked up
+    # Separate from journey confidence: a measured route cannot verify a city fact.
+    research_status: Literal["applied", "estimate", "not_checked"] | None = None
     # Trips end at the centre only when the person said so; otherwise at the nearest edge of the
     # place, where the person could live (travel.py).
     to_centre: bool = False
@@ -252,6 +254,17 @@ class Condition(BaseModel):
         """Whether this condition decides which jobs are shown."""
         return (not self.switched_off and self.status != "not_checked"
                 and self.kind != "about_job")
+
+    @property
+    def reference_status(self) -> str:
+        if self.anchor is None:
+            return "applied"
+        if self.anchor.research_status is not None:
+            return self.anchor.research_status
+        # Older plans did not retain research confidence separately. Do not invent proof
+        # from a successful route or lose their explanatory failure note on correction.
+        return "estimate" if self.anchor.looked_up or self.anchor.look_up or self.note else (
+            "applied")
 
 
 class LocationPlan(BaseModel):
@@ -631,12 +644,14 @@ def _near_condition(
         min_share_of_country=wanted.min_share_of_country,
         named=[town for town in wanted.named if town.country in countries],
         to_centre=wanted.to_centre,
+        research_status="applied",
     )
     sources: list[Source] = []
     notes: list[str] = []
     if wanted.needs_the_web:
         anchor.look_up = (wanted.look_up or wanted.description or text).strip()
         found = research(anchor.look_up)
+        anchor.research_status = found.status
         sources = found.sources
         if found.kind == "town_size":
             anchor.min_people = found.min_people or anchor.min_people
@@ -680,9 +695,9 @@ def _near_condition(
     return Condition(
         text=text,
         understood_as=sorted_condition.understood_as or text,
-        # Until travel is measured, the limit counts as an estimate; travel.py marks it as
-        # checked when Google Maps answers.
-        status="estimate" if sorted_condition.max_minutes else "applied",
+        # Checked only when both reference facts and the needed journeys are checked.
+        status="estimate" if sorted_condition.max_minutes or anchor.research_status != "applied"
+        else "applied",
         kind="near",
         max_minutes=sorted_condition.max_minutes,
         travel_mode=sorted_condition.travel_mode or ("transit" if sorted_condition.max_minutes
