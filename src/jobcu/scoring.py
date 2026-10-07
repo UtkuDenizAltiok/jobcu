@@ -313,9 +313,8 @@ def with_ad_read_online(result: dict, profile: Profile, languages: list[Language
     """The score again, with what the full ad found online says about languages, years, and
     (in `blockers`) a doctorate, citizenship or clearance: a summary rarely says these, and
     Rolls-Royce's summaries scored 85 while its own ads ask for UK nationals (search 9)."""
-    evidence = {**result["evidence"], "languages_asked": [a.model_dump() for a in languages]}
-    if years_required is not None:
-        evidence["years_required"] = years_required
+    evidence = {**result["evidence"], "languages_asked": [a.model_dump() for a in languages],
+                "years_required": years_required}
     evidence.update({key: value for key, value in blockers.items() if key in EVIDENCE})
     return judge({**result, "evidence": evidence}, profile, note=ONLINE_NOTE)
 

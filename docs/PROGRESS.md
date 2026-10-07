@@ -30,12 +30,20 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ### In progress
 
-None. Product fixes are implemented, tested, pushed and merged in PR #58. Closing local checks
-were rerun: 648 passed, Ruff/privacy/JS/whitespace passed. Free aggregate analysis is complete;
-independent full-evidence judgement and live comparisons remain in Next tasks. No measured
-precision, recall or improved live latency is claimed. All disposable private data and previews
-are cleaned up; the owner's data and app state are preserved. Next action: restart on demand
-and confirm the 24-hour selection; use [Review a search](PROMPTS.md#review-a-search) afterwards.
+Finished-search evidence/ranking audit on `codex/finished-search-audit`.
+- Completed free evidence checks on the balanced private sample. A conservative supported
+  assistant label is saved privately; ambiguous evidence remains unrated and owner labels are
+  preserved. Candidate experience discrepancies are hypotheses, not confirmed extraction bugs.
+- Confirmed code defect: a full-ad answer with no minimum years retained the summary's old
+  years requirement and score limit. Corrected the replacement rule; other blockers remain.
+  Original saved results were not overwritten and live ranking impact is not claimed.
+- Implemented atomic ownership protection for assistant ratings, including legacy labels and
+  an owner edit between the review's read/write. No paid calls, source traffic or full search.
+- Checks: 655 tests, Ruff, privacy and whitespace passed; original PR #58/#59 and main CI passed.
+  New audit changes are implemented and locally tested, not yet pushed/merged. Private audit
+  scratch must be deleted before closeout; keep only permitted evidence/aggregate reports local.
+Exact next action: finish private aggregate report, remove disposable scratch, checkpoint/publish
+these fixes, wait for Mac/Windows/privacy CI, merge and synchronize main.
 
 ### Verify before relying on
 

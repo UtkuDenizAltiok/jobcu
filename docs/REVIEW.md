@@ -27,6 +27,8 @@ The Score check screen hides scores until rated. Add missing top cards with `qua
 preserving evidence completeness and the location plan; the 50-ad limit still applies. Save
 approved labels with `quality.rate(..., by="assistant")` in the real private folder.
 Never overwrite owner ratings automatically.
+`quality.rate(..., by="assistant")` preserves existing owner and legacy labels, including
+concurrent edits. Review uncertain evidence without inventing a label to fill the sample.
 
 ## 3. Check ranking and stability
 

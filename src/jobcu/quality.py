@@ -147,14 +147,18 @@ def all_ads() -> list[Ad]:
 def rate(ad_id: int, rating: str | None, blockers: list[str], note: str, by: str = "owner") -> Ad:
     kinds = {"scored": RATINGS, "title_only": TITLE_RATINGS}
     with db.connect() as conn:
-        row = conn.execute("SELECT kind FROM quality_ads WHERE id = ?", (ad_id,)).fetchone()
+        row = conn.execute("SELECT * FROM quality_ads WHERE id = ?", (ad_id,)).fetchone()
         if row is None:
             raise KeyError(ad_id)
         if rating is not None and rating not in kinds[row["kind"]]:
             raise ValueError(f"Unknown rating: {rating}")
+        # Check ownership in the UPDATE itself so an owner edit after the SELECT also survives.
+        condition = "id = ?"
+        if by == "assistant":
+            condition += " AND (rating IS NULL OR rated_by = 'assistant')"
         conn.execute(
-            """UPDATE quality_ads SET rating = ?, blockers_json = ?, note = ?, rated_by = ?,
-               rated_at = ? WHERE id = ?""",
+            f"""UPDATE quality_ads SET rating = ?, blockers_json = ?, note = ?, rated_by = ?,
+                rated_at = ? WHERE {condition}""",
             (rating, json.dumps([b for b in blockers if b in BLOCKERS]), note.strip()[:500],
              by if rating else None,
              datetime.now(UTC).isoformat(timespec="seconds") if rating else None, ad_id),
