@@ -147,7 +147,7 @@ def all_ads() -> list[Ad]:
 def rate(ad_id: int, rating: str | None, blockers: list[str], note: str, by: str = "owner") -> Ad:
     kinds = {"scored": RATINGS, "title_only": TITLE_RATINGS}
     with db.connect() as conn:
-        row = conn.execute("SELECT * FROM quality_ads WHERE id = ?", (ad_id,)).fetchone()
+        row = conn.execute("SELECT kind FROM quality_ads WHERE id = ?", (ad_id,)).fetchone()
         if row is None:
             raise KeyError(ad_id)
         if rating is not None and rating not in kinds[row["kind"]]:

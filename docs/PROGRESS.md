@@ -41,7 +41,7 @@ Finished-search evidence/ranking audit on `codex/finished-search-audit`.
   an owner edit between the review's read/write. No paid calls, source traffic or full search.
 - Checks: 655 tests, Ruff, privacy and whitespace passed; original PR #58/#59 and main CI passed.
   New audit changes are implemented and locally tested, not yet pushed/merged. Private audit
-  scratch must be deleted before closeout; keep only permitted evidence/aggregate reports local.
+  evidence/aggregates are retained locally; disposable scratch is deleted.
 Exact next action: finish private aggregate report, remove disposable scratch, checkpoint/publish
 these fixes, wait for Mac/Windows/privacy CI, merge and synchronize main.
 

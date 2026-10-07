@@ -3,6 +3,8 @@
 Use the [review prompt](PROMPTS.md#review-a-search) after Jobcu finishes. It grants bounded
 private access and re-scoring permission; a normal development prompt does not. Follow
 [AGENTS.md](../AGENTS.md), preserve owner ratings, and keep detailed evidence outside Git.
+The saved search can be reviewed whether Jobcu is running or stopped. Checking app state in
+the start routine preserves the owner's session; it is not a prerequisite for result analysis.
 
 ## 1. Measure
 

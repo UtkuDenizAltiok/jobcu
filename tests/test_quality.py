@@ -148,7 +148,7 @@ def test_owner_edit_between_assistant_read_and_write_survives(monkeypatch):
         def execute(self, sql, params=()):
             nonlocal pending
             cursor = self.conn.execute(sql, params)
-            if pending and sql.startswith("SELECT * FROM quality_ads WHERE id"):
+            if pending and sql.startswith("SELECT kind FROM quality_ads WHERE id"):
                 pending = False
                 return Cursor(cursor)
             return cursor
