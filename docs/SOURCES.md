@@ -55,6 +55,25 @@ These are retained decisions from dated checks; no new access was tested during 
   Engineers Ireland is a manual benchmark candidate pending collection checks; VDAB requires a
   partnership; Job-Room's employer-management API is not a public vacancy-search feed.
 
+## Identity and freshness evidence
+
+**Checked 2026-10-07:** [Google's job-posting reference](https://developers.google.com/search/docs/appearance/structured-data/job-posting)
+defines `identifier` as the hiring organization's unique job reference and `datePosted` as
+the employer's original posting date. [Schema.org](https://schema.org/JobPosting) distinguishes
+an identifier from a title/description. These are data definitions, not collection permission.
+Jobcu applies them conservatively: an employer source's different listing IDs cannot be
+collapsed by matching names or templates; an exact ID still supports repost detection.
+This is an engineering inference from the adapter contract, not proof that every system uses
+only one listing ID per real vacancy. Cross-site names and unknown legacy metadata remain
+imperfect identity evidence; old merged history is preserved rather than guessed apart.
+
+[SQLite's limits](https://www.sqlite.org/limits.html) allow device-specific parameter limits.
+`jobidentity.rows` uses [Python 3.13's connection limit](https://docs.python.org/3.13/library/sqlite3.html#sqlite3.Connection.getlimit)
+to bound batched reads; fictional regression checks lower the limit to 64.
+[SQLite's transaction reference](https://www.sqlite.org/lang_transaction.html) explains that
+`BEGIN IMMEDIATE` starts a write transaction before later reads/writes. Jobcu uses it to
+serialize identity allocation; fictional simultaneous-save and rollback checks verify behavior.
+
 ## AI and Maps
 
 Provider support is in `src/jobcu/ai/`; users choose their provider and model. Research access

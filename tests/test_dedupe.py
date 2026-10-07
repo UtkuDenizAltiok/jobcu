@@ -1,4 +1,7 @@
 from datetime import UTC, datetime
+from itertools import permutations
+
+import pytest
 
 from jobcu.dedupe import group_duplicates, normal_company, normal_title, title_similarity
 from jobcu.sources.base import FoundJob
@@ -123,3 +126,85 @@ def test_two_summaries_of_one_agency_ad_merge_only_when_nearly_word_for_word_the
     short = [job(job_id=n, company="AMF Recruitment", description="Electronics engineer wanted.")
              for n in ("4", "5")]
     assert len(group_duplicates(short, KINDS)) == 2
+
+
+@pytest.mark.parametrize("title", ["Power Electronics Engineer", "Registered Nurse", "Chef"])
+def test_distinct_employer_vacancies_stay_separate_even_with_identical_ad_templates(title):
+    kinds = {**KINDS, "employer": "employer"}
+    jobs = [job("employer", f"example/req-{n}", title=title, description=TEXT,
+                description_is_complete=True) for n in (1, 2)]
+    groups = group_duplicates(jobs, kinds)
+    assert len(groups) == 2
+    assert {g.main.source_job_id for g in groups} == {"example/req-1", "example/req-2"}
+    assert all(g.possible_duplicate_of is None for g in groups)
+
+
+def test_a_board_copy_cannot_transitively_merge_two_employer_requisitions():
+    kinds = {**KINDS, "employer": "employer"}
+    jobs = [job("employer", "example/req-1"), job("board", "copy"),
+            job("employer", "example/req-2")]
+    for order in permutations(jobs):
+        groups = group_duplicates(list(order), kinds)
+        assert len(groups) == 2
+        assert all(len({c.source_job_id for c in g.copies if c.source == "employer"}) == 1
+                   for g in groups)
+
+
+def test_empty_ids_do_not_merge_unrelated_jobs_or_countries():
+    jobs = [job("board", "", title="Power Electronics Engineer"),
+            job("board", "", title="Registered Nurse", company="Example Care"),
+            FoundJob("board", "", "https://example.test/chef", "Chef", country="IE")]
+    assert len(group_duplicates(jobs, KINDS)) == 3
+
+
+def test_matching_full_ads_are_needed_when_both_copies_supply_them():
+    jobs = [job("adzuna", "power", title="Engineer", description=(
+                "Design semiconductor power converters and validate electrical safety. " * 20),
+                description_is_complete=True),
+            job("board", "radio", title="Engineer", description=(
+                "Develop radio antennas and test wireless communications in a test room. " * 20),
+                description_is_complete=True)]
+    assert len(group_duplicates(jobs, KINDS)) == 2
+    jobs[1].description = jobs[0].description + " Apply today."
+    assert len(group_duplicates(jobs, KINDS)) == 1
+
+
+def test_a_summary_cannot_bridge_conflicting_complete_ads():
+    power = job("adzuna", "power", title="Engineer", description=(
+        "Design semiconductor power converters and validate electrical safety. " * 20),
+        description_is_complete=True)
+    radio = job("board", "radio", title="Engineer", description=(
+        "Develop radio antennas and test wireless communications in a test room. " * 20),
+        description_is_complete=True)
+    summary = job("other", "summary", title="Engineer", description="An engineer is wanted.")
+    for order in permutations([power, radio, summary]):
+        groups = group_duplicates(list(order), KINDS)
+        assert len(groups) == 2
+        assert all(not ({"power", "radio"} <= {c.source_job_id for c in g.copies}) for g in groups)
+
+
+def test_exact_source_identity_survives_changed_full_ad_text():
+    before = job("board", "same-req", description="An earlier full description. " * 20,
+                 description_is_complete=True)
+    after = job("board", "same-req", description="Revised duties and qualifications. " * 20,
+                description_is_complete=True)
+    assert len(group_duplicates([before, after], KINDS)) == 1
+
+
+def test_comparison_text_is_prepared_once_per_distinct_ad(monkeypatch):
+    from jobcu import dedupe
+
+    original = dedupe._shingles
+    calls = []
+
+    def prepare(text, size=5):
+        calls.append(text)
+        return original(text, size)
+
+    monkeypatch.setattr(dedupe, "_shingles", prepare)
+    jobs = [job(job_id=str(i), company="Example Recruitment", description=(
+                f"product{i} responsibility{i} qualification{i} location{i} benefit{i} " * 30),
+                description_is_complete=True) for i in range(12)]
+    groups = group_duplicates(jobs, KINDS)
+    assert len(groups) == len(jobs)
+    assert len(calls) == len(set(calls)) == len(jobs)

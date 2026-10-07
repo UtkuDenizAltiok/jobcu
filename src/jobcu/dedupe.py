@@ -3,6 +3,8 @@
 - One card per real job, even when it's posted in several places.
 - Copies match on normalised company, job title and location; when both copies carry a
   full ad, similar descriptions also confirm a match.
+- Different vacancy IDs from the same employer source remain separate, even through a
+  board copy that resembles both. Missing IDs never establish an exact match.
 - Ads from staffing agencies that hide the employer are tagged "possible duplicate"
   instead of being merged, because they may or may not be the same job.
 - The main link prefers the employer's own page, then LinkedIn, then job boards, then
@@ -176,6 +178,12 @@ class JobGroup:
 
 def group_duplicates(jobs: list[FoundJob], source_kinds: dict[str, str]) -> list[JobGroup]:
     parent = list(range(len(jobs)))
+    sizes = [1] * len(jobs)
+    employer_ids = [{job.source: job.source_job_id}
+                    if job.source_job_id and source_kinds.get(job.source) == "employer" else {}
+                    for job in jobs]
+    complete_texts = [{job.description} if job.description_is_complete else set() for job in jobs]
+    text_cache: dict[str, set[str]] = {}
 
     def find(i: int) -> int:
         while parent[i] != i:
@@ -183,8 +191,22 @@ def group_duplicates(jobs: list[FoundJob], source_kinds: dict[str, str]) -> list
             i = parent[i]
         return i
 
-    def union(a: int, b: int) -> None:
-        parent[find(a)] = find(b)
+    def union(a: int, b: int, *, exact: bool = False) -> None:
+        a, b = find(a), find(b)
+        if a == b or any(source in employer_ids[b] and employer_ids[b][source] != vacancy
+                         for source, vacancy in employer_ids[a].items()):
+            return
+        if not exact and any(_text_similarity(left, right, text_cache) < TEXT_MATCH
+                             for left in complete_texts[a] for right in complete_texts[b]):
+            return
+        if sizes[a] > sizes[b]:
+            a, b = b, a
+        parent[a] = b
+        sizes[b] += sizes[a]
+        employer_ids[b].update(employer_ids[a])
+        complete_texts[b].update(complete_texts[a])
+        employer_ids[a].clear()
+        complete_texts[a].clear()
 
     companies = [normal_company(j.company) for j in jobs]
     titles = [normal_title(j.title) for j in jobs]
@@ -194,9 +216,11 @@ def group_duplicates(jobs: list[FoundJob], source_kinds: dict[str, str]) -> list
     # The same ad from the same source is always one job.
     by_source_id: dict[tuple[str, str], int] = {}
     for i, job in enumerate(jobs):
+        if not job.source_job_id:
+            continue
         key = (job.source, job.source_job_id)
         if key in by_source_id:
-            union(i, by_source_id[key])
+            union(i, by_source_id[key], exact=True)
         else:
             by_source_id[key] = i
 
@@ -215,13 +239,13 @@ def group_duplicates(jobs: list[FoundJob], source_kinds: dict[str, str]) -> list
                 if is_agency(jobs[a].company):
                     # Agencies post near-identical ads for different clients: the text must match.
                     if title_score >= TITLE_MATCH and _both_full_and_similar(
-                        jobs[a], jobs[b], TEXT_MATCH
+                        jobs[a], jobs[b], TEXT_MATCH, text_cache
                     ):
                         union(a, b)
                 elif title_score >= TITLE_MATCH:
                     union(a, b)
                 elif title_score >= TITLE_MATCH_WITH_TEXT and _both_full_and_similar(
-                    jobs[a], jobs[b], TEXT_MATCH
+                    jobs[a], jobs[b], TEXT_MATCH, text_cache
                 ):
                     union(a, b)
 
@@ -230,7 +254,7 @@ def group_duplicates(jobs: list[FoundJob], source_kinds: dict[str, str]) -> list
         grouped.setdefault(find(i), []).append(i)
     groups = [JobGroup([jobs[i] for i in members], source_kinds=source_kinds)
               for members in grouped.values()]
-    _tag_agency_repeats(groups)
+    _tag_agency_repeats(groups, text_cache)
     return groups
 
 
@@ -272,26 +296,36 @@ def _shingles(text: str, size: int = 5) -> set[str]:
     return {" ".join(words[i : i + size]) for i in range(max(0, len(words) - size + 1))}
 
 
-def _text_similarity(a: str, b: str) -> float:
-    sa, sb = _shingles(a), _shingles(b)
+def _prepared_shingles(text: str, cache: dict[str, set[str]] | None) -> set[str]:
+    if cache is None:
+        return _shingles(text)
+    if text not in cache:
+        cache[text] = _shingles(text)
+    return cache[text]
+
+
+def _text_similarity(a: str, b: str, cache: dict[str, set[str]] | None = None) -> float:
+    sa, sb = _prepared_shingles(a, cache), _prepared_shingles(b, cache)
     if not sa or not sb:
         return 0.0
     return len(sa & sb) / min(len(sa), len(sb))
 
 
-def _both_full_and_similar(a: FoundJob, b: FoundJob, threshold: float) -> bool:
+def _both_full_and_similar(a: FoundJob, b: FoundJob, threshold: float,
+                         cache: dict[str, set[str]] | None = None) -> bool:
     """The texts say it's one job: two full ads alike, or two summaries (Adzuna's first 500
     characters) that are nearly word for word the same. Search 9 showed one recruiter's ad
     twice from two Adzuna summaries."""
     if a.description_is_complete and b.description_is_complete:
-        return _text_similarity(a.description, b.description) >= threshold
+        return _text_similarity(a.description, b.description, cache) >= threshold
     if a.description_is_complete or b.description_is_complete:
         return False
-    return (min(len(_shingles(a.description)), len(_shingles(b.description))) >= SUMMARY_SHINGLES
-            and _text_similarity(a.description, b.description) >= SUMMARY_TEXT_MATCH)
+    return (min(len(_prepared_shingles(a.description, cache)),
+                len(_prepared_shingles(b.description, cache))) >= SUMMARY_SHINGLES
+            and _text_similarity(a.description, b.description, cache) >= SUMMARY_TEXT_MATCH)
 
 
-def _tag_agency_repeats(groups: list[JobGroup]) -> None:
+def _tag_agency_repeats(groups: list[JobGroup], cache: dict[str, set[str]] | None = None) -> None:
     """Agency ads that closely match an employer's own ad are flagged, not merged."""
     employer_groups = [
         (i, g) for i, g in enumerate(groups) if not is_agency(g.main.company)
@@ -309,6 +343,7 @@ def _tag_agency_repeats(groups: list[JobGroup]) -> None:
                 continue
             best = group.best_description_copy
             other_best = other.best_description_copy
-            if _text_similarity(best.description, other_best.description) >= AGENCY_TEXT_MATCH:
+            if _text_similarity(best.description, other_best.description, cache) >= (
+                    AGENCY_TEXT_MATCH):
                 group.possible_duplicate_of = i
                 break

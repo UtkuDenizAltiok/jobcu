@@ -2,6 +2,7 @@ import json
 import re
 import threading
 import time
+from dataclasses import replace
 from datetime import UTC, datetime
 
 import pytest
@@ -335,6 +336,63 @@ def test_not_interested_jobs_are_hidden_from_later_searches(ready):
     jobs = wait_until_done(manager)["result"]["jobs"]
     assert len(jobs["cards"]) == 1
     assert [c["title"] for c in jobs["hidden"]] == [first[0]["title"]]
+
+
+@pytest.mark.parametrize(("title", "field", "skill"), [
+    ("Power Electronics Engineer", "Electronics", "Power converter design"),
+    ("Registered Nurse", "Nursing", "Clinical patient care"),
+])
+def test_a_second_employer_opening_reaches_matching_with_fictional_profiles(
+        ready, monkeypatch, title, field, skill):
+    profile = {**PROFILE, "summary": f"Experienced {title}.", "field": field,
+               "skills": [skill], "technical_areas": [field], "target_fields": [field],
+               "target_roles": [title], "current_or_last_role": title}
+    documents.save_upload("cv", "fictional-cv.pdf", make_pdf([
+        "Alex Example", f"{title} with five years of experience. Skills: {skill}. " * 4]))
+    documents.save_upload("cover_letter", "fictional-cover-letter.txt",
+                          f"I am seeking work as a {title}. I enjoy {skill}. ".encode() * 4)
+
+    class MatchingAI(FakeAI):
+        def complete_json(self, **request):
+            if request["schema_name"] == "Profile":
+                return RawReply(json.dumps(profile), Usage(10, 5))
+            return super().complete_json(**request)
+
+    vacancies = ["example/old"]
+
+    class EmployerSource(FakeSource):
+        kind = "employer"
+
+        def search(self, query, ctx):
+            for vacancy in vacancies:
+                yield FoundJob("fake", vacancy, f"https://careers.example.test/{vacancy}", title,
+                               company="Example Employer", location_text="Berlin", country="DE",
+                               posted_at=datetime.now(UTC), date_precision="exact")
+
+        def load_details(self, job, ctx):
+            return replace(job, description=f"Work as a {title} using {skill}. " * 20,
+                           description_is_complete=True)
+
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: MatchingAI())
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [EmployerSource()])
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    first = wait_until_done(manager)
+    assert first["status"] == "finished", first["error"]
+    (old,) = first["result"]["jobs"]["cards"]
+    jobstore.set_state(old["job_id"], saved=True, dismissed=True)
+    vacancies.append("example/new")
+    manager.start(SearchForm(location_text="Germany"))
+    second = wait_until_done(manager)
+    assert second["status"] == "finished", second["error"]
+    jobs = second["result"]["jobs"]
+    (fresh,) = jobs["cards"]
+    assert fresh["job_id"] != old["job_id"] and fresh["is_new"]
+    assert fresh["title"] == title and fresh["score"] == old["score"]
+    assert not fresh["summary_only"]
+    assert not any(fresh["state"].values())
+    assert [c["job_id"] for c in jobs["hidden"]] == [old["job_id"]]
+    assert jobstore.states([old["job_id"]])[old["job_id"]].saved
 
 
 def test_search_excludes_known_cvlibrary_only_application_routes(ready, monkeypatch):

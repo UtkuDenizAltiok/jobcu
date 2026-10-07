@@ -51,8 +51,21 @@ identity work while preserving proven copies. These are hypotheses until reprodu
 4. Review; run full Ruff/tests/privacy; publish a PR; wait for Mac/Windows/privacy CI;
    merge with a merge commit and synchronize clean main. Stop/delete assistant test state.
 
-No implementation is complete yet. Exact next action: reproduce same-title distinct employer
-requisitions in grouping and job memory. Real ranking/coverage/speed remain unverified.
+Reproduced in fictional electronics and nursing cases: two employer references became one
+group, and a fresh reference inherited an old Not interested mark. Implemented grouping guards,
+exact-ID memory precedence, a non-unique name index (migration 13), country/ambiguity checks,
+atomic saves, bounded reads and per-grouping-call text reuse. Historical keys/marks remain.
+
+Baseline: 684 tests/Ruff/privacy passed. New targeted regressions pass, including full mocked
+electronics/nursing searches, transitive matches, empty IDs, conflicting full ads, legacy
+state, low SQLite limits, rollback and exact-ID reposts. First fictional component benchmark
+preserves 1,000 IDs and 40 groups: identity reads 1,000 -> 2; text preparation 1,560 -> 40.
+Timing is preliminary and does not establish live search speed. A reusable fictional benchmark
+is implemented; its privacy isolation/failure regression and document checks passed.
+Review also closed concurrent-allocation and summary-bridge gaps, with regressions passing.
+Full suite and publication remain pending. Exact next action: run all required checks and the
+reproducible benchmark, record final measurements, then publish. Real ranking/coverage/speed
+remain unverified.
 The prior hidden-route fallback is complete; automatic hidden-host detection remains unverified.
 Do not probe blocked pages, guess application URLs, or request private jobs/links in chat.
 
