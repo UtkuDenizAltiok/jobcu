@@ -16,7 +16,18 @@ from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from typing import Literal
 
-from jobcu import db, documents, employers, jobplace, jobstore, pipeline, quality, scoring, travel
+from jobcu import (
+    applications,
+    db,
+    documents,
+    employers,
+    jobplace,
+    jobstore,
+    pipeline,
+    quality,
+    scoring,
+    travel,
+)
 from jobcu import pool as search_pool
 from jobcu.ai.base import AIError, AIWebSearchUnavailable
 from jobcu.ai.client import AIClient
@@ -505,7 +516,8 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     measured = [c for c in plan.conditions if c.kind == "near" and c.max_minutes and c.filters]
     at_once = [c for c in plan.conditions if all(c is not m for m in measured)]
     ruled_out = [i for i, group in enumerate(groups) if fails_a_condition(group, at_once)]
-    excluded = set(ruled_out)
+    unavailable_routes = {i for i, group in enumerate(groups) if applications.unavailable(group)}
+    excluded = set(ruled_out) | unavailable_routes
     in_running = [i for i in range(len(groups)) if i not in excluded]
     unchecked = [i for i in in_running if job_pool.jobs[i].unrelated is None]
     if unchecked:
@@ -679,13 +691,16 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
 
     # Facts only the ad text revealed can still rule a job out.
     left_out = Counter(job_pool.left_out)
+    left_out["application_route"] += len(unavailable_routes)
     if ruled_out:
         left_out["location_condition"] = len(ruled_out)
     shown: list[int] = []
     for index in candidates:
         result = job_pool.jobs[index].scored
         types = pipeline.job_types_of(groups[index], result)
-        if result and form.exclude_remote and result["fully_remote"]:
+        if applications.unavailable(groups[index]):
+            left_out["application_route"] += 1
+        elif result and form.exclude_remote and result["fully_remote"]:
             left_out["remote_text"] += 1
         elif types and not set(types) & set(form.job_types):
             # The rules above let it through; the ad text says it's a type not ticked.

@@ -3,6 +3,11 @@
 Jobcu looks for job advertisements and explains how well they appear to fit your background.
 You choose which jobs to read and apply for. Jobcu does not send applications for you.
 
+Known CV-Library application links are excluded. Jobcu uses another saved link for the same
+vacancy where available; otherwise it leaves the job out with a reason in Search details.
+Saved/applied history is kept with excluded links disabled. A redirect that conceals its
+destination cannot yet be checked, and another site may still have its own registration rules.
+
 This guide starts after you have [opened Jobcu](install-and-start.md#start-jobcu).
 Do everything below on the Jobcu page in your browser. Keep the separate text window open
 while you use it. Enter your keys and documents in Jobcu, never in chat or a public report.

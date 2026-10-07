@@ -60,6 +60,12 @@ The key test uses named public stations rather than city-edge coordinates, makes
 element within the configured limit and describes public transport/access rather than train time.
 
 `dedupe.py` combines copies, prefers employer links and retains possible-duplicate warnings.
+`applications.py` removes known CV-Library destinations, including exposed redirect targets,
+and selects another already-matched copy. With no alternative, the free filter excludes the
+vacancy before scoring. Restored recommendations are filtered on a response copy; saved/applied
+history retains its state with blocked links disabled. Original snapshots remain unchanged.
+Opaque aggregator IDs do not reveal the final application host; destination verification is
+still unfinished, and a different allowed link does not prove universal registration access.
 `freshness.py`/`jobstore.py` use original dates, closing dates and first-seen memory to identify
 old reposts. Distinct requisitions must stay distinct. Summaries and clipped excerpts remain
 incomplete evidence even when online research supplements their requirements.
@@ -84,7 +90,7 @@ The root keeps launchers, README, CONTRIBUTING, AGENTS, LICENSE and Python/tool 
 | Places/criteria | `countries.py`, `location.py`, `places.py`, `placenames.py`, `travel.py`; supported geography, query interpretation and measurements. |
 | Discovery | `keywords.py`, `employers.py`; multilingual words and periodically discovered employers. |
 | Evidence/matching | `text.py`, `jobposting.py`, `dedupe.py`, `filters.py`, `freshness.py`, `relevance.py`, `jobplace.py`, `scoring.py`; text extraction, filtering, research and fit. |
-| Results/evaluation | `jobstore.py`, `quality.py`, `quality_api.py`; remembered jobs, saved results and independent score checks. |
+| Results/evaluation | `applications.py`, `jobstore.py`, `quality.py`, `quality_api.py`; application routes, remembered jobs, saved results and independent score checks. |
 | `ai/` | `client.py` is the sole AI entry point; provider adapters, schemas, errors and token/web usage. |
 | `sources/` | Isolated adapters and the registry. `base.py` defines `JobSource`; `http.py` applies polite requests/robots; `budget.py` tracks limits; `matching.py` matches lists; `careers.py` uses the directory; `careerlinks.py` recognizes career hosts. See [SOURCES](SOURCES.md). |
 | `data/` | Public reference assets: `employers.json`, `places.csv.gz`, `regions.csv.gz`, `postcodes.csv.gz`. User data never belongs here. |
