@@ -129,11 +129,17 @@ def set_state(job_id: int, **changes: bool) -> JobState:
     return states([job_id])[job_id]
 
 
-def save_results(search_id: int, result_json: str) -> None:
+def finish_search(search_id: int, status: str, result_json: str | None) -> None:
+    """Commit the final results and search status together, before reporting completion."""
     with db.connect() as conn:
+        if result_json is not None:
+            conn.execute(
+                "INSERT OR REPLACE INTO search_results (search_id, result_json) VALUES (?, ?)",
+                (search_id, result_json),
+            )
         conn.execute(
-            "INSERT OR REPLACE INTO search_results (search_id, result_json) VALUES (?, ?)",
-            (search_id, result_json),
+            "UPDATE searches SET status = ?, finished_at = ? WHERE id = ?",
+            (status, datetime.now(UTC).isoformat(timespec="seconds"), search_id),
         )
 
 

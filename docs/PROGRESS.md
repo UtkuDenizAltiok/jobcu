@@ -5,37 +5,41 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ## Right now
 
-*Updated 2026-10-07. Documentation work is complete; personal setup/search awaits confirmation.*
+*Updated 2026-10-07. Result-save fix awaits publication; personal setup/search awaits confirmation.*
 
 ### State
 
-- Documentation organization, beginner guides and richer query examples are **implemented,
-  tested, pushed and merged** in [PR #50](https://github.com/UtkuDenizAltiok/jobcu/pull/50),
-  [PR #51](https://github.com/UtkuDenizAltiok/jobcu/pull/51) and
-  [PR #52](https://github.com/UtkuDenizAltiok/jobcu/pull/52). These changes are on main;
-  their latest merged-main Mac/Windows/privacy CI passed.
-- Closing **617 tests**, Ruff, privacy and diff whitespace passed; no failed local checks remain.
-  [PR #53](https://github.com/UtkuDenizAltiok/jobcu/pull/53) records handover publication.
-- The first closing Windows CI run failed the existing
-  `test_the_edit_api_explains_what_it_cant_do`: restored results reported `search` rather than
-  `reapply`. Mac/privacy passed. A save-completion timing issue is a hypothesis; no product fix
-  was attempted. Final PR checks must pass before merging; retain this investigation below.
+- [PR #53](https://github.com/UtkuDenizAltiok/jobcu/pull/53) recovery is complete: merged,
+  final PR/merged-main Mac/Windows/privacy checks passed, and clean main was synchronized.
+  Dependencies were synced and the starting **617 tests** passed.
+- A controlled fictional correction reproduced the recorded Windows restore race: the app
+  reported finished while its save was paused. The fix keeps the run active until final
+  results/status commit together, blocks overlapping work and explains storage failures.
+  Code, regression checks and the usage/troubleshooting guides are **implemented**;
+  **72 targeted tests**, the closing **627 tests**, Ruff, privacy and diff whitespace passed.
+  GitHub publication/CI are pending.
 - README is the entry point; [How to use Jobcu](guides/first-search.md) explains everyday steps
   and richer examples. PROMPTS holds all three project prompts; dated background is in `archive/`.
   Beginner wording and preserving richer examples are recorded in DECISIONS.md.
 - Jobcu and the preview are stopped (ports 8765/8799). Preserve on-demand launcher use.
 - This session inspected no private inputs/results and made no live searches or paid requests.
-  No private scratch copies were created; temporary PR-body files were removed.
+  No private scratch copies or app/preview instances were created. No managed worktrees or
+  attached artifacts were present at startup.
 
 ### In progress
 
-Documentation implementation is complete; no search is running. Closing publication is the
-remaining session action: verify PR #53's final Mac/Windows/privacy checks, merge
-`codex/session-handover` with a merge commit when they pass, and synchronize clean main.
-If checks remain failed or interrupted, preserve this pushed branch and finish publication
-next chat. Once PR #53 is merged, closure is complete; investigate the Windows failure in
-the next development session. No new private-data access, paid calls or full searches are
-authorized by a start/end prompt.
+Goal: investigate and fix the recorded Windows restore failure on
+`codex/save-before-finished`, using only fictional data. PR #53 recovery is complete.
+
+Reproduction, implementation, targeted checks and diff review are complete. The controlled
+regression failed against the old completion order and passes with the fix. Ten new cases
+cover final statuses, optional results, correction restore, overlap, storage failure and rollback.
+
+Locally tested, committed and **pushed** in
+[PR #54](https://github.com/UtkuDenizAltiok/jobcu/pull/54); not yet merged.
+Exact next action: wait for final Mac/Windows/privacy CI, merge with a merge commit,
+synchronize clean main and clear this checkpoint.
+No private inputs/results, live searches or paid requests are authorized for this work.
 
 ### Verify before relying on
 
@@ -59,8 +63,7 @@ authorized by a start/end prompt.
 
 ### Next tasks
 
-1. Investigate result-save completion versus the finished status after condition edits, using
-   fictional tests. Windows CI exposed one restore failure; a rerun does not establish its cause.
+1. Finish publishing the result-save fix described above.
 2. Review completed search results with [REVIEW.md](REVIEW.md) before tuning.
 3. Fix confirmed freshness, coverage and matching gaps in the country order from AGENTS.md.
 4. Reduce summary dependence and repeated research; compare recall/ranking before optimizing cost/time.

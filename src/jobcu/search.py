@@ -245,30 +245,36 @@ class SearchManager:
         return run
 
     def _run(self, run: SearchRun, runner: Callable[[SearchRun], None]) -> None:
+        status: RunStatus = "finished"
+        error = None
         try:
             runner(run)
-            run.status = "finished"
         except SearchStopped:
-            run.status = "stopped"
-            _mark_remaining(run, "skipped")
+            status = "stopped"
         except (AIError, DocumentError) as exc:
-            run.status = "failed"
-            run.error = getattr(exc, "message", None) or str(exc)
-            log.warning("Search %s failed: %s", run.id, getattr(exc, "detail", "") or run.error)
+            status = "failed"
+            error = getattr(exc, "message", None) or str(exc)
+            log.warning("Search %s failed: %s", run.id, getattr(exc, "detail", "") or error)
         except Exception:  # a bug: keep Jobcu running and tell the user plainly
             log.exception("Search %s failed unexpectedly", run.id)
-            run.status = "failed"
-            run.error = "Something went wrong in Jobcu. Please try again."
-        finally:
-            _mark_remaining(run, "failed" if run.status == "failed" else "skipped")
-            if "jobs" in run.result:
-                # Kept so the results are still there after Jobcu restarts.
-                jobstore.save_results(run.id, json.dumps(run.snapshot()))
-            with db.connect() as conn:
-                conn.execute(
-                    "UPDATE searches SET status = ?, finished_at = ? WHERE id = ?",
-                    (run.status, datetime.now(UTC).isoformat(timespec="seconds"), run.id),
-                )
+            status = "failed"
+            error = "Something went wrong in Jobcu. Please try again."
+
+        _mark_remaining(run, "failed" if status == "failed" else "skipped")
+        try:
+            # Polling and new searches must still see "running" until the save commits.
+            snapshot = {**run.snapshot(), "status": status, "error": error}
+            result_json = json.dumps(snapshot) if "jobs" in snapshot["result"] else None
+            jobstore.finish_search(run.id, status, result_json)
+        except Exception:
+            log.exception("Search %s could not be saved", run.id)
+            status = "failed"
+            message = ("Jobcu couldn't save this search. Keep Jobcu open to view any results; "
+                       "they may be lost when you close it. Please try again.")
+            error = f"{error} {message}" if error else message
+        with run._lock:
+            run.error = error
+            run.status = status
 
     def stop(self, search_id: int) -> bool:
         run = self._current

@@ -7,14 +7,23 @@ come back in are checked and scored, and nothing already worked out is asked of 
 
 import json
 import re
+import threading
 from datetime import UTC, datetime
 
 import pytest
 from fastapi.testclient import TestClient
 from test_location_conditions import ScriptedClient
-from test_search import HEADERS, PROFILE, WORDS, FakeAI, ready, wait_until_done  # noqa: F401
+from test_search import (  # noqa: F401
+    HEADERS,
+    PROFILE,
+    WORDS,
+    FakeAI,
+    ready,
+    track_search_worker,
+    wait_until_done,
+)
 
-from jobcu import pool, search
+from jobcu import jobstore, pool, search
 from jobcu.ai.base import RawReply, ResearchReply, Source, Usage
 from jobcu.app import create_app
 from jobcu.dedupe import JobGroup
@@ -317,6 +326,47 @@ def test_the_edit_api_explains_what_it_cant_do(conditions_ready, monkeypatch):
     monkeypatch.setattr(search, "manager", search.SearchManager())
     restored = client.get("/api/search/current").json()["search"]
     assert restored["can_edit_conditions"] and restored["kind"] == "reapply"
+    assert len(restored["result"]["jobs"]["cards"]) == 2
+
+
+def test_correction_stays_running_until_results_are_saved(conditions_ready, monkeypatch):
+    _, manager = conditions_ready
+    worker_done = track_search_worker(manager, monkeypatch)
+    first = manager.start(SearchForm(location_text="Germany, only big cities"))
+    assert worker_done.wait(10)
+    assert first.status == "finished"
+    worker_done.clear()
+    saving = threading.Event()
+    release = threading.Event()
+    original_save = jobstore.finish_search
+
+    def delayed_save(*args):
+        saving.set()
+        assert release.wait(10), "Test did not release the result save"
+        original_save(*args)
+
+    monkeypatch.setattr(jobstore, "finish_search", delayed_save)
+    client = TestClient(create_app(), base_url="http://127.0.0.1:8765")
+    try:
+        manager.reapply(first.id, [ConditionEdit(text="only big cities", original=0, use=False)])
+        assert saving.wait(10)
+        current = client.get("/api/search/current").json()["search"]
+        assert current["status"] == "running"
+        assert not current["can_edit_conditions"]
+        assert json.loads(jobstore.latest_results()[1])["kind"] == "search"
+        assert client.post("/api/search", json=SearchForm().model_dump(),
+                           headers=HEADERS).status_code == 409
+        assert client.post(f"/api/search/{first.id}/conditions", json={"conditions": []},
+                           headers=HEADERS).status_code == 409
+    finally:
+        release.set()
+        assert worker_done.wait(10)
+
+    assert manager.current.status == "finished"
+    monkeypatch.setattr(search, "manager", search.SearchManager())
+    restored = client.get("/api/search/current").json()["search"]
+    assert restored["status"] == "finished" and restored["kind"] == "reapply"
+    assert restored["can_edit_conditions"]
     assert len(restored["result"]["jobs"]["cards"]) == 2
 
 

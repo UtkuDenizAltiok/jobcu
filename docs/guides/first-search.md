@@ -109,6 +109,7 @@ jobs advertised as remote work.
 Click **Find matching jobs**. Jobcu shows **Searching…** and the steps it is working through.
 Keep the browser page and the text window open. The time needed depends on the places,
 sources, AI model and your account's limits. Wait until the heading says **Search finished**.
+That heading means the results have been saved on this computer.
 
 During the search, Jobcu may pause to ask whether to go beyond a limit you set:
 
@@ -133,6 +134,7 @@ If a condition is wrong, click **Edit** beside **Understood as**, correct it, an
 **Apply to the jobs found**. Jobcu checks the jobs it already collected against your change.
 This can use AI again. To look in a different country or collect a new set of jobs, change
 **Where do you want to work?** and start a new search instead.
+Wait for **Your changes are applied** before closing Jobcu; the corrected results are then saved.
 
 **What Jobcu understood** shows how it read your documents and, after a search, the choices
 that search used. Before your first search, this button asks your AI to read the documents
