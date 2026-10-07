@@ -49,8 +49,8 @@ new source, full search or private-result rewrite is part of this correction.
 Branch: `codex/application-links-closeout` from clean main `7154218`.
 Checkpoint: known-destination exclusion, alternative link selection, restored-result filtering,
 preserved saved/applied history and an unverified-application label are implemented.
-99 targeted fictional tests, Ruff, privacy and JS syntax passed. Full local suite, push, PR/CI
-and merge remain pending. The latest private link audit used a disposable read-only copy,
+99 targeted and 673 full-suite fictional tests, Ruff, privacy and JS syntax passed. Push,
+PR/CI and merge remain pending. The latest private link audit used a disposable read-only copy,
 made no job-site/provider requests, and deleted that copy. No private jobs/links were published.
 Exact next action: run closing checks, push, wait for CI and merge ready protection, then
 finalize the handover. Hidden final destinations are still unverified; this must not be labelled
