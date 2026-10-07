@@ -24,7 +24,8 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
   requests. A fictional slow-edge/fast-centre case also reproduced a false rejection. The fixes
   are implemented: named station probe, public-transport wording, access-only explanation,
   edge/centre comparison, exact element counting, stale-answer refresh and a visible sampling
-  limit. **87 targeted tests**, Ruff, privacy and diff whitespace passed; closing suite/CI pending.
+  limit. **87 targeted tests**, the closing **638 tests**, Ruff, privacy and diff whitespace
+  passed. Publication and platform CI are pending.
 - README is the entry point; [How to use Jobcu](guides/first-search.md) explains everyday steps
   and richer examples. PROMPTS holds all three project prompts; dated background is in `archive/`.
   Beginner wording and preserving richer examples are recorded in DECISIONS.md.
@@ -53,8 +54,8 @@ then labels the returned whole-journey duration "by train". The particular walki
 breakdown of the owner's reported duration is unknown; no new Maps/provider calls were made.
 Both controlled regressions failed against the old code and pass with the fix. Targeted checks
 also cover fractional durations, missing routes, quota limits, old answers, explicit city-centre
-requests and fictional hardware/library profiles. Reviewed locally; not yet pushed or merged.
-Exact next action: run closing Ruff/full tests/privacy, commit/push/open a PR, then wait for
+requests and fictional hardware/library profiles. Reviewed and fully tested locally; not yet
+pushed or merged. Exact next action: commit/push/open a PR, then wait for
 Mac/Windows/privacy CI and merge. No paid development test or full search is authorized.
 
 ### Verify before relying on

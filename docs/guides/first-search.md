@@ -96,8 +96,7 @@ With Google Maps, it compares a calculated city-edge point and the city centre a
 faster available journey. Those two samples can miss faster connections to other districts.
 If an ad gives no address, the journey starts at its town's centre. Check the actual workplace
 and route before relying on a time. Travel estimates are labelled. Leaving the box empty
-searches all supported countries,
-which can take longer and use more AI.
+searches all supported countries, which can take longer and use more AI.
 
 Next, choose **Posted within**. This is how recently an advertisement was posted:
 **72 hours** means the previous three days. It does not mean the search runs for three days.
