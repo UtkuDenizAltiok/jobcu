@@ -35,9 +35,10 @@ Reproduction, implementation, targeted checks and diff review are complete. The 
 regression failed against the old completion order and passes with the fix. Ten new cases
 cover final statuses, optional results, correction restore, overlap, storage failure and rollback.
 
-Locally tested and committed; not yet pushed/merged. Exact next action: push and open a PR,
-then wait for Mac/Windows/privacy CI,
-merge with a merge commit, synchronize clean main and clear this checkpoint.
+Locally tested, committed and **pushed** in
+[PR #54](https://github.com/UtkuDenizAltiok/jobcu/pull/54); not yet merged.
+Exact next action: wait for final Mac/Windows/privacy CI, merge with a merge commit,
+synchronize clean main and clear this checkpoint.
 No private inputs/results, live searches or paid requests are authorized for this work.
 
 ### Verify before relying on
