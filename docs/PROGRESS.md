@@ -5,23 +5,25 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ## Right now
 
-*Updated 2026-10-07. Free aggregate review and search-usability fixes are merged; restart on demand.*
+*Updated 2026-10-07. Finished-search audit and confirmed code fixes are merged.*
 
 ### State
 
 - Main was clean and synchronized at start; no earlier implementation needed recovery.
   PR #58's final-head Mac/Windows/privacy CI passed; its merge is synchronized locally.
   Subsequent main Mac/Windows/privacy CI also passed; dependencies were synchronized.
+  PR #60's final-head and subsequent main Mac/Windows/privacy CI also passed.
 - Implemented, locally tested, pushed and merged with a merge commit in
   [PR #58](https://github.com/UtkuDenizAltiok/jobcu/pull/58): sought-role progress,
   explicit history label, optional document-understanding reset, cumulative online-check
   progress, original vacancy URL, combined medium-effort location interpretation with a format
   fallback, separate travel usage, and a 24-hour new-install posting window.
-- **648 tests**, Ruff, privacy, JS syntax and whitespace passed. A fictional reset-screen check
+- **655 tests**, Ruff, privacy, JS syntax and whitespace passed. A fictional reset-screen check
   passed with no browser errors; isolated Mac startup self-test passed on port 8799 and stopped.
   The existing dependency deprecation warning remains; no failed product checks remain.
 - The authorized latest-search aggregate review is saved in the private data folder. Additional
-  balanced evidence was saved for Score check; existing owner ratings were preserved. No keys,
+  balanced evidence was saved for Score check and a supported assistant label was added;
+  existing owner ratings were preserved. No keys,
   provider calls, paid re-score, source requests or another full search were used in this review.
   No personal profile, query, documents, jobs or ratings were published.
 - The owner's requested next-search posting choice was saved as 24 hours. His app on port 8765
@@ -30,21 +32,18 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ### In progress
 
-Finished-search evidence/ranking audit on `codex/finished-search-audit`.
-- Completed free evidence checks on the balanced private sample. A conservative supported
-  assistant label is saved privately; ambiguous evidence remains unrated and owner labels are
-  preserved. Candidate experience discrepancies are hypotheses, not confirmed extraction bugs.
-- Confirmed code defect: a full-ad answer with no minimum years retained the summary's old
-  years requirement and score limit. Corrected the replacement rule; other blockers remain.
-  Original saved results were not overwritten and live ranking impact is not claimed.
-- Implemented atomic ownership protection for assistant ratings, including legacy labels and
-  an owner edit between the review's read/write. No paid calls, source traffic or full search.
-- Checks: 655 tests, Ruff, privacy and whitespace passed; original PR #58/#59 and main CI passed.
-  New audit changes are implemented, locally tested and pushed in
-  [PR #60](https://github.com/UtkuDenizAltiok/jobcu/pull/60); CI/merge remain. Private audit
-  evidence/aggregates are retained locally; disposable scratch is deleted.
-Exact next action: wait for final-head Mac/Windows/privacy CI on PR #60, merge with a merge
-commit, synchronize main and close the handover. Disposable scratch is already removed.
+None. The finished-search audit is saved privately. A supported assistant label is saved;
+owner labels and original result snapshots are preserved. Ambiguous cases remain unrated,
+including summary-only evidence; no full top-10 precision or market recall is claimed.
+
+The full-ad experience replacement and atomic rating-ownership fixes are implemented, tested,
+pushed and merged with a merge commit in
+[PR #60](https://github.com/UtkuDenizAltiok/jobcu/pull/60). Its final-head and subsequent main Mac/Windows/privacy
+CI passed; closing checks were rerun: 655 local tests, Ruff/privacy/JS/whitespace passed. No paid re-score, source traffic or
+full search ran. Private audit scratch is deleted; detailed evidence remains outside Git.
+Exact next action: configure current prices inside Jobcu for a bounded medium-effort re-score
+of the existing sample, using [Review a search](PROMPTS.md#review-a-search). No new search is
+needed to continue this review. Future on-demand daily searches remain set to 24 hours.
 
 ### Verify before relying on
 
