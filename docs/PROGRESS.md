@@ -40,10 +40,11 @@ Finished-search evidence/ranking audit on `codex/finished-search-audit`.
 - Implemented atomic ownership protection for assistant ratings, including legacy labels and
   an owner edit between the review's read/write. No paid calls, source traffic or full search.
 - Checks: 655 tests, Ruff, privacy and whitespace passed; original PR #58/#59 and main CI passed.
-  New audit changes are implemented and locally tested, not yet pushed/merged. Private audit
+  New audit changes are implemented, locally tested and pushed in
+  [PR #60](https://github.com/UtkuDenizAltiok/jobcu/pull/60); CI/merge remain. Private audit
   evidence/aggregates are retained locally; disposable scratch is deleted.
-Exact next action: finish private aggregate report, remove disposable scratch, checkpoint/publish
-these fixes, wait for Mac/Windows/privacy CI, merge and synchronize main.
+Exact next action: wait for final-head Mac/Windows/privacy CI on PR #60, merge with a merge
+commit, synchronize main and close the handover. Disposable scratch is already removed.
 
 ### Verify before relying on
 
@@ -60,10 +61,11 @@ these fixes, wait for Mac/Windows/privacy CI, merge and synchronize main.
 
 ### Waiting on the owner
 
-1. When ready, close the old Jobcu text window (Terminate on Mac if asked), then double-click
-   **Start Jobcu.command**. Check **Posted within: 24 hours** before the next daily search.
-2. For a later bounded paid re-score, configure current prices inside Jobcu first. Prices are
-   absent, so this review's conditional EUR1 permission was not used. Enter no private data here.
+1. To unlock a bounded medium-effort re-score of the existing sample, configure current prices
+   inside Jobcu. Prices are absent, so this review's conditional EUR1 permission was not used.
+   Keep all private inputs in Jobcu. A running app is not required for free saved-result review.
+2. Summary-based cards still need permitted original full-ad evidence for a complete ranking
+   assessment. The next on-demand daily search remains set to 24 hours; none was started here.
 
 ### Next tasks
 
