@@ -18,7 +18,8 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
   explicit history label, optional document-understanding reset, cumulative online-check
   progress, original vacancy URL, combined medium-effort location interpretation with a format
   fallback, separate travel usage, and a 24-hour new-install posting window.
-- Earlier merged work: **655 tests**, Ruff, privacy, JS syntax and whitespace passed. A fictional reset-screen check
+- Earlier merged work: **655 tests**, Ruff, privacy, JS syntax and whitespace passed.
+  A fictional reset-screen check
   passed with no browser errors; isolated Mac startup self-test passed on port 8799 and stopped.
   The existing dependency deprecation warning remains; no failed product checks remain.
 - The authorized latest-search aggregate review is saved in the private data folder. Additional
@@ -38,9 +39,10 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 Session closeout only, on `codex/review-budget-closeout` from synchronized main `65add76`.
 Default/settings/guidance corrections are implemented; the private settings save was read back
-and verified. Current branch checks, push, PR/CI and merge are pending. Earlier changes remain
-implemented, tested, pushed and merged in PRs #58 and #60.
-Exact next action: run Ruff, pytest and privacy checks; review and push the complete change,
+and verified. Closing checks: 655 tests, Ruff, privacy, JS syntax and whitespace passed.
+Push, PR/CI and merge remain pending. Earlier changes remain implemented, tested, pushed and
+merged in PRs #58 and #60. The initial outdated assertions/heading are corrected and pass.
+Exact next action: review and push the complete change,
 wait for Mac/Windows/privacy CI, merge with a merge commit, and read back the final handover.
 No new quality investigation, paid re-score, source requests or full search during closeout.
 
@@ -57,7 +59,7 @@ No new quality investigation, paid re-score, source requests or full search duri
 - Coverage: independent date-verified 15–25-job benchmark in AGENTS.md's country order remains.
 - Beginner install walkthrough and a fresh Windows install/upload/search remain untested.
 
-### Owner inputs and next session
+### Waiting on the owner
 
 - No keys, documents or price entry are needed for this closeout. Current prices are saved
   locally; dated public pricing evidence is in [SOURCES](SOURCES.md#ai-and-maps).
