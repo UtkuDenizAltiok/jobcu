@@ -7,14 +7,17 @@ def test_defaults_when_nothing_saved():
     settings = load_settings()
     assert settings.ai.provider is None
     assert settings.limits.scoring_cap > 0
+    assert settings.search_form.posted_within_hours == 24
 
 
 def test_saved_settings_come_back():
     settings = Settings()
     settings.ai.provider = "gemini"
     settings.ai.model = "some-model"
+    settings.search_form.posted_within_hours = 72
     save_settings(settings)
     assert load_settings().ai.model == "some-model"
+    assert load_settings().search_form.posted_within_hours == 72
 
 
 def test_damaged_settings_file_is_set_aside():

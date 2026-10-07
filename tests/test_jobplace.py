@@ -79,7 +79,7 @@ def test_towns_found_online_count_only_when_real_and_in_the_job_s_country():
     assert [g.place_from_web for g in groups] == [
         ["Freiburg im Breisgau"], ["Wietmarschen-Lohne", "Berlin"], [], [], [], []]
     assert len(researcher.prompts) == 2  # five jobs per request
-    assert "J0 | Job 0 | Acme | DE | Ein spannendes Team." in researcher.prompts[0]
+    assert "J0 | Job 0 | Acme | DE | https://x | Ein spannendes Team." in researcher.prompts[0]
     assert researcher.structure_prompts[0].endswith("Research notes:\nnotes")
 
 
@@ -87,10 +87,19 @@ def test_looking_up_stops_when_the_search_s_allowance_is_used():
     groups = jobs(*[("UK", "GB")] * 7)
     researcher = Researcher(["notes", AILimitReached("used up")],
                             [[online("J0", ["Leeds"])]])
-    looked_up = jobplace.find_online(researcher, groups, list(range(7)))
+    progress = []
+    looked_up = jobplace.find_online(researcher, groups, list(range(7)),
+                                     on_progress=lambda done, total: progress.append(done))
     assert looked_up.towns_found == 1 and looked_up.asked == set(range(5))
     assert groups[0].place_from_web == ["Leeds"]
     assert groups[5].place_from_web is None  # not looked up: can be later
+    assert progress == [5]  # deferred jobs must not make the counter appear complete
+    researcher.notes.append("notes")
+    researcher.structured.append([online("J5", ["Leeds"])])
+    offset = 7 - len(looked_up.not_asked)
+    jobplace.find_online(researcher, groups, looked_up.not_asked,
+                        on_progress=lambda done, total: progress.append(offset + done))
+    assert progress == [5, 7]  # continuing never moves backwards or counts a job twice
 
 
 def test_one_unusable_answer_loses_only_its_own_jobs_and_progress_is_counted():

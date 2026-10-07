@@ -34,7 +34,7 @@ from jobcu.location import (
     interpret_location,
     needs_checking,
 )
-from jobcu.profile import Profile, read_profile_reusing
+from jobcu.profile import Profile, progress_detail, read_profile_reusing
 from jobcu.relevance import quick_pass, screen_titles
 from jobcu.settings import SearchForm, load_settings, save_settings
 from jobcu.sources.base import JobQuery
@@ -314,9 +314,7 @@ def run_search(run: SearchRun) -> None:
     profile, reused = read_profile_reusing(client, cv_text, cover_letter_text,
                                            run.form.about_you)
     run.set_result("profile", profile.model_dump())
-    detail = profile.current_or_last_role or profile.field
-    run.update("profile", "done", f"{detail} (documents unchanged, read again not needed)"
-               if reused else detail)
+    run.update("profile", "done", progress_detail(profile, reused))
     checkpoint()
 
     run.update("location", "running", "Reading what you wrote")

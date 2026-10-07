@@ -7,13 +7,13 @@ from typing import Annotated
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 
-from jobcu import documents
+from jobcu import documents, search
 from jobcu.ai.base import AIError
 from jobcu.ai.client import AIClient
 from jobcu.ai.usage import UsageLog
 from jobcu.documents import DocumentError
 from jobcu.keystore import KeyStore
-from jobcu.profile import read_profile_reusing
+from jobcu.profile import read_profile_reusing, reset_profile_cache
 from jobcu.settings import load_settings
 
 log = logging.getLogger(__name__)
@@ -60,6 +60,15 @@ def delete_document(kind: str) -> dict:
 
 class PreviewRequest(BaseModel):
     about_you: str = Field(default="", max_length=500)
+
+
+@router.delete("/profile/cache")
+def reset_profile() -> dict:
+    run = search.manager.current
+    if run is not None and run.status == "running":
+        raise HTTPException(status_code=409, detail="Wait for your search to finish first.")
+    reset_profile_cache()
+    return {"reset": True}
 
 
 @router.post("/profile/preview")

@@ -35,11 +35,20 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ### In progress
 
-None. Maps implementation and publication are complete; session closeout only remains.
-No new product work, private access, paid calls or full searches were started for closeout.
-Next action in the next chat: follow the start/resume routine and verify Git/CI/app state, then
-let the owner launch the updated app and complete the first search. Review results only under
-[Review a search](PROMPTS.md#review-a-search)'s explicit authorization and bounds.
+Authorized review and search usability fixes on `codex/search-review-usability`.
+- Free aggregate review completed privately; no provider calls, source traffic or full search.
+  A balanced evidence set is saved in the real private folder; existing owner ratings preserved.
+  Independent full-ad/criteria judgement, top-10 precision and benchmark recall remain unfinished.
+  Prices are absent, so no paid re-score is permitted by this review's conditional budget.
+- Implemented: sought-role progress and history label, optional cache reset, cumulative online
+  checks, original URL identity, one-pass medium location interpretation, separate travel usage,
+  and 24-hour default. Owner's requested next-window choice was saved privately.
+- Tests: original 638 passed; current 645 passed. Ruff, privacy, JS syntax and whitespace passed.
+  The existing dependency deprecation warning remains. UI/startup verification and CI remain.
+- Owner port 8765 is preserved; preview 8799 remains stopped. Authorized private scratch exists
+  outside Git and must be deleted before closeout. No keys accessed or paid work performed.
+Exact next action: verify the reset UI using fictional data in an isolated preview; rerun closing
+checks, review the complete diff, publish PR, wait for Mac/Windows/privacy CI and merge commit.
 
 ### Verify before relying on
 

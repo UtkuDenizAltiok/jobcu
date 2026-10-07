@@ -55,7 +55,7 @@ class FakeAI(ProviderAdapter):
                 for job_id in re.findall(r"^JOB (J\d+)", prompt, re.MULTILINE)
             ]}
         else:
-            answer = {"Profile": PROFILE, "LocationUnderstanding": LOCATION,
+            answer = {"Profile": PROFILE, "LocationInterpretation": LOCATION,
                       "SearchWordsAnswer": WORDS}[name]
         return RawReply(json.dumps(answer), Usage(10, 5))
 
@@ -520,6 +520,15 @@ def test_when_the_web_look_ups_run_out_jobcu_asks_before_leaving_jobs_unread(rea
     settings.limits.web_search_cap = 1
     save_settings(settings)
     manager = search.SearchManager()
+    counters = []
+    update = search.SearchRun.update
+
+    def track(run, step, status, detail=""):
+        if step == "places" and (match := re.fullmatch(r"(\d+) of (\d+) jobs", detail)):
+            counters.append(tuple(map(int, match.groups())))
+        update(run, step, status, detail)
+
+    monkeypatch.setattr(search.SearchRun, "update", track)
     manager.start(SearchForm(location_text="Germany"))
     questions = []
     deadline = time.monotonic() + 15
@@ -535,6 +544,7 @@ def test_when_the_web_look_ups_run_out_jobcu_asks_before_leaving_jobs_unread(rea
     assert "about 1 minute" in questions[0]["message"]
     assert len(ai.looked_up) == 2  # both jobs, the second after the yes
     assert result["steps"][-1]["detail"] == "Found online: the requirements of 2 of 2 jobs"
+    assert counters == [(0, 2), (1, 2), (2, 2)]
 
 
 def test_answering_always_removes_the_limit_so_later_searches_don_t_ask(ready, monkeypatch):

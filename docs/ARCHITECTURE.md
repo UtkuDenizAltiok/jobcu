@@ -16,6 +16,10 @@ overlapping starts/corrections, immediate restore and storage failures without t
 
 1. Read documents into a profile, interpret the query into a location plan, and generate
    multilingual search words. Refresh discovered employers when due (two-week interval).
+   `LocationInterpretation` reads geography and classified conditions in one medium-effort
+   request. Initial interpretation and edited conditions share the same checking function;
+   population rules stay local and researched facts still use the provider. Journey estimates
+   record usage under `travel`, separately from `location` interpretation (older runs mix them).
 2. Collect sources in parallel. Screen career titles missed by the search words, merge copies,
    and apply fixed date/type/remote/country/dismissal rules.
 3. In `search._decide`, apply location conditions, quick relevance and travel limits; load full
@@ -23,10 +27,18 @@ overlapping starts/corrections, immediate restore and storage failures without t
 4. Score evidence through `ai/client.py`; `scoring.py` applies deterministic blocker limits.
 5. Research candidate towns and summary requirements where supported, then reapply conditions
    and limits. Preserve uncertainty and evidence-completeness labels.
+   Research includes the preferred original URL so title/company matches cannot silently
+   substitute another requisition. Quota-deferred batches do not advance progress; retries and
+   owner-approved continuation use the completed count from earlier rounds.
 6. Build ranked cards and job memory. **Edit** reuses the saved `pool.py` jobs and earlier answers
    to apply corrected conditions without collecting sources again.
 
 ## Location and evidence
+
+`profile.py` distinguishes completed study/placement history from sought work. Progress uses
+target roles, with a clearly labelled fallback field. The guarded `DELETE /api/profile/cache`
+forgets interpretations without deleting uploads/results or making AI calls; it refuses while
+a search is running. The next read rebuilds the cache and normal reuse resumes.
 
 `location.py` interprets each query afresh into explicit conditions. `places.py` supplies
 coordinates, population, local names and regions as measurement data, not interpretation rules.

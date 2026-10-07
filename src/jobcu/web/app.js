@@ -282,7 +282,7 @@ function renderProfile(profile) {
 
   return [
     section("Summary", text(profile.summary)),
-    section("Current or most recent role", text(profile.current_or_last_role)),
+    section("Current or most recent role in your history", text(profile.current_or_last_role)),
     section("Field", text(profile.field)),
     section(
       "Experience",
@@ -729,8 +729,20 @@ function setUpConditionActions() {
 
 function setUpDocumentActions() {
   $("close-profile").addEventListener("click", () => $("profile-dialog").close());
+  $("reset-profile").addEventListener("click", (event) =>
+    busy(event.target, async () => {
+      try {
+        await api("/api/profile/cache", { method: "DELETE" });
+        setStatus($("profile-reset-status"), "okay",
+          "Reset. Your next search will read the documents again. Earlier results stay saved.");
+      } catch (error) {
+        setStatus($("profile-reset-status"), "problem", error.message);
+      }
+    }),
+  );
   $("show-profile").addEventListener("click", (event) =>
     busy(event.target, async () => {
+      setStatus($("profile-reset-status"), "", "");
       // After a search, show exactly what that search used. Before one, read the documents now.
       const result = state.search?.result;
       if (result?.profile) {
@@ -744,7 +756,7 @@ function setUpDocumentActions() {
         $("profile-dialog").showModal();
         return;
       }
-      setStatus($("search-form-status"), "", "Reading your documents. This can take up to a minute…");
+      setStatus($("search-form-status"), "", "Understanding your documents with your AI…");
       try {
         const preview = await api("/api/profile/preview", {
           method: "POST", body: { about_you: $("about-you").value },

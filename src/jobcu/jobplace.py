@@ -63,10 +63,12 @@ ONE_ANSWER_PROBLEMS = (AIInvalidOutput, AIOutputTruncated, AIRefused)
 # with a strict one-line answer format it searched for none of 10 jobs and answered from memory).
 RESEARCH_SYSTEM = """\
 You look job ads up on the web for a personal job search app. For EACH job below (ID | title | \
-company | country | start of the ad), search the web for that exact ad by its title and \
-company, and read it on the employer's career site or a job board. Search for every job before \
-answering: an answer from memory is a guess. Then, for each job, write down what the ad itself \
-says about:
+company | country | original URL | start of the ad), use the original URL to identify the exact \
+vacancy. Search by that URL and, if necessary, its title and company. Read the same requisition \
+on the employer's career site or a job board; never substitute a different vacancy with the \
+same title. Respect blocked pages and do not log in or bypass restrictions. Search for every job \
+before answering: an answer from memory is a guess. Then, for each job, write down what the \
+ad itself says about:
 - the town or city where the work is. For a staffing agency or recruiter, that is the client's \
 site the ad names, never the agency's own office;
 - the languages it asks for, in the ad's own words, and whether each is required or a plus;
@@ -171,7 +173,7 @@ def find_online(client: AIClient, groups: list[JobGroup], indexes: list[int],
             job = groups[index].best_description_copy
             text = " ".join(job.description.split())[:TEXT_CHARS]
             lines.append(f"J{index} | {job.title} | {job.company or 'company unknown'} | "
-                         f"{job_country(groups[index])} | {text}")
+                         f"{job_country(groups[index])} | {groups[index].main.url} | {text}")
         try:
             return _look_up(client, lines, len(batch), profile)
         except AILimitReached:
@@ -188,6 +190,8 @@ def find_online(client: AIClient, groups: list[JobGroup], indexes: list[int],
 
     def finished(batch: list[int], answers) -> None:
         nonlocal done
+        if answers == _USED_UP:
+            return  # deferred work is still pending; count it when a later round attempts it
         done += len(batch)
         on_progress(done, len(indexes))
 
@@ -240,7 +244,8 @@ def _look_up(client: AIClient, lines: list[str], jobs: int,
         step="job_places",
         system=STRUCTURE_SYSTEM,
         prompt=f"The person: {person}\n\n"
-        "Jobs (ID | title | company | country | start of the ad):\n" + "\n".join(lines)
+        "Jobs (ID | title | company | country | original URL | start of the ad):\n"
+        + "\n".join(lines)
         + f"\n\nResearch notes:\n{reply.text}",
         max_output_tokens=400 * jobs + 500,
     )
