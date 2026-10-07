@@ -79,6 +79,8 @@ def test_ambiguous_title_match_cannot_pick_one_of_two_known_requisitions():
 def test_unique_cross_source_copy_preserves_marks_and_same_batch_new_status():
     first = group("board-copy", source="board", kind="job_board")
     original = group("example/original")
+    first.copies.append(original.main)
+    first.source_kinds.update(original.source_kinds)
     ids, new = jobstore.remember([first, original], new_search())
     assert ids[0] == ids[1] and new == [True, True]
     jobstore.set_state(ids[0], saved=True, dismissed=True)
@@ -87,6 +89,44 @@ def test_unique_cross_source_copy_preserves_marks_and_same_batch_new_status():
     again, flags = jobstore.remember([another], new_search())
     assert again == [ids[0]] and flags == [False]
     assert jobstore.states(again)[ids[0]].saved and jobstore.states(again)[ids[0]].dismissed
+
+
+def test_memory_cannot_join_current_groups_that_full_evidence_kept_separate():
+    from jobcu.dedupe import group_duplicates
+
+    first = group("oncology", title="Registered Nurse", source="a", kind="job_board")
+    second = group("community", title="Registered Nurse", source="b", kind="job_board")
+    first.main.description = (
+        "Provide hospital oncology care for patients receiving chemotherapy. " * 20)
+    second.main.description = (
+        "Visit families at home and provide community public health support. " * 20)
+    first.main.description_is_complete = second.main.description_is_complete = True
+    groups = group_duplicates([first.main, second.main], {"a": "job_board", "b": "job_board"})
+    assert len(groups) == 2
+    ids, new = jobstore.remember(groups, new_search())
+    assert len(set(ids)) == 2 and new == [True, True]
+    jobstore.set_state(ids[0], dismissed=True)
+    assert not jobstore.states([ids[1]])
+    assert jobstore.find_job_ids(groups) == ids
+
+
+def test_an_unknown_current_group_cannot_inherit_a_known_sibling_names_mark():
+    first = group("old", source="board", kind="job_board")
+    second = group("new", source="board", kind="job_board")
+    (old_id,), _ = jobstore.remember([first], new_search())
+    jobstore.set_state(old_id, dismissed=True)
+    assert jobstore.find_job_ids([first, second]) == [old_id, None]
+    ids, _ = jobstore.remember([first, second], new_search())
+    assert ids[0] == old_id and ids[1] != old_id
+
+
+def test_batch_name_ambiguity_keeps_proven_countries_distinct_without_losing_unique_copies():
+    first = group("old-de", source="a", kind="job_board")
+    second = group("old-ie", source="a", kind="job_board", country="IE")
+    ids, _ = jobstore.remember([first, second], new_search())
+    copies = [group("copy-de", source="b", kind="job_board"),
+              group("copy-ie", source="b", kind="job_board", country="IE")]
+    assert jobstore.find_job_ids(copies) == ids
 
 
 def test_new_requisition_cannot_use_an_old_board_copy_to_inherit_old_identity():

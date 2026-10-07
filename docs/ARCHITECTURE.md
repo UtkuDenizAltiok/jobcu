@@ -86,6 +86,9 @@ site; another employer requisition stays separate. `jobidentity.py` gives exact 
 priority over name matches and rejects conflicting employer IDs or known country conflicts.
 Migration 13 preserves `job_keys` and copies legacy name keys to a non-unique candidate index;
 names can refer to several vacancies. An ambiguous name match cannot inherit old marks/dates.
+Separate current groups sharing a name/location cannot silently rejoin through job memory;
+known countries can disambiguate, and an exact copy still takes priority. Name preparation is
+reused within that transaction; a known-copy-only lookup needs no name processing.
 Known copies use bounded batch lookups; states and first-seen reads use the device's SQLite
 parameter limit too. Within one save, new aliases are registered for subsequent groups and
 allocation is serialized and all writes commit atomically. Historical merged identities
@@ -139,7 +142,7 @@ Real-data tools require the specific authorization described in REVIEW.md.
 | `tools/check_employers.py` | Inspect directory entries and candidate career systems; live source checks need current terms. |
 | `tools/update_places.py` | Rebuild public GeoNames town/region/postcode assets. |
 
-### Fictional local comparison — 2026-10-07
+### Fictional local comparison — 2026-10-08
 
 Run `uv run python tools/benchmark_local_matching.py --baseline 61b133d` from a Git checkout.
 The tool uses a disposable database outside Git and prints aggregate counts/times only.
@@ -150,8 +153,8 @@ On the Mac, five warmed rounds produced these medians:
 
 | Fictional work | Before | After | Preserved output |
 |---|---|---|---|
-| Look up 1,000 known job copies | 10.300 ms; 1,000 identity SELECTs | 2.991 ms; 2 identity SELECTs | Every job ID, including order |
-| Compare 40 distinct full recruitment ads | 367.030 ms; 1,560 text preparations | 15.958 ms; 40 preparations | 40 distinct groups |
+| Look up 1,000 known job copies | 10.370 ms; 1,000 identity SELECTs | 2.983 ms; 2 identity SELECTs | Every job ID, including order |
+| Compare 40 distinct full recruitment ads | 368.320 ms; 1,560 text preparations | 16.020 ms; 40 preparations | 40 distinct groups |
 
 The ad fixture uses disjoint repeated text to exercise repeated comparison. Timings depend on
 the device and fixture. Live end-to-end speed, ranking quality and market recall still require

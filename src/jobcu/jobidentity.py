@@ -43,6 +43,27 @@ class IdentityIndex:
         self.names: dict[str, set[int]] = defaultdict(set)
         self.sources: dict[int, dict[str, set[str]]] = defaultdict(lambda: defaultdict(set))
         self.countries: dict[int, set[str]] = defaultdict(set)
+        self.ambiguous_names: dict[int, set[str]] = defaultdict(set)
+        self.entries: dict[int, list[tuple[str, str]]] = {}
+
+    def name_entries(self, group: JobGroup) -> list[tuple[str, str]]:
+        if id(group) not in self.entries:
+            self.entries[id(group)] = fingerprints(group)
+        return self.entries[id(group)]
+
+    def _batch_ambiguity(self, groups: list[JobGroup]) -> None:
+        owners = defaultdict(lambda: defaultdict(set))
+        for group in groups:
+            for key, country in self.name_entries(group):
+                owners[key][country].add(id(group))
+        for key, countries in owners.items():
+            all_owners = set().union(*countries.values())
+            unknown = countries.get("", set())
+            for country, group_ids in countries.items():
+                matches = group_ids | unknown if country else all_owners
+                if len(matches) > 1:
+                    for group_id in group_ids:
+                        self.ambiguous_names[group_id].add(key)
 
     @classmethod
     def load(cls, conn: sqlite3.Connection, groups: list[JobGroup]) -> "IdentityIndex":
@@ -55,12 +76,14 @@ class IdentityIndex:
         uncertain = [group for group in groups if index._fast_id(group) is None]
         if not uncertain:
             return index
-        names = [key for group in uncertain for key, _ in fingerprints(group)]
+        index._batch_ambiguity(groups)
+        names = [key for group in uncertain for key, _ in index.name_entries(group)]
         for row in rows(conn, "SELECT key, job_id, country FROM job_fingerprints "
                              "WHERE key IN ({})", names):
             index._add_name(row["key"], row["job_id"], row["country"])
-        candidates = {index.copies[key] for group in uncertain for key in identity_keys(group)
-                      if key in index.copies}
+        candidates = {index.copies[key] for group in uncertain for copy in group.copies
+                      if copy.source_job_id and (key := copy_key(copy.source, copy.source_job_id))
+                      in index.copies}
         candidates.update(job_id for key in names for job_id in index.names[key])
         for row in rows(conn, "SELECT key, job_id FROM job_keys WHERE job_id IN ({}) "
                              "AND key LIKE 'copy:%'", candidates):
@@ -126,7 +149,8 @@ class IdentityIndex:
             job_id = self.copies.get(copy_key(copy.source, copy.source_job_id))
             if copy.source_job_id and job_id is not None and self._compatible(group, job_id):
                 return job_id
-        candidates = {job_id for key, _ in fingerprints(group) for job_id in self.names[key]
+        candidates = {job_id for key, _ in self.name_entries(group)
+                      if key not in self.ambiguous_names[id(group)] for job_id in self.names[key]
                       if self._compatible(group, job_id, names_only=True)}
         # A title/employer/town match is insufficient when several vacancies share it.
         return next(iter(candidates)) if len(candidates) == 1 else None
@@ -137,5 +161,5 @@ class IdentityIndex:
                 key = copy_key(copy.source, copy.source_job_id)
                 owner = self.copies.get(key, job_id)
                 self._add_copy(key, owner)
-        for key, country in fingerprints(group):
+        for key, country in self.name_entries(group):
             self._add_name(key, job_id, country)

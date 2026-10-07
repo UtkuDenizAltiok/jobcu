@@ -38,7 +38,8 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 **Proactive freshness/identity review**, branch `codex/job-memory-identity`, started from
 clean synchronized main `61b133d`. PR #66 and final main Mac/Windows/privacy CI passed;
-no open PR or running app/preview remains. Private data and paid work remain unauthorized.
+no app/preview was running. Development checks use fictional data; private work follows
+[REVIEW](REVIEW.md) and any applicable private authorization record.
 
 Goal: prevent distinct fresh vacancies inheriting old jobs' dates/marks, and remove repeated
 identity work while preserving proven copies. These are hypotheses until reproduced.
@@ -63,14 +64,18 @@ preserves 1,000 IDs and 40 groups: identity reads 1,000 -> 2; text preparation 1
 Timing is preliminary and does not establish live search speed. A reusable fictional benchmark
 is implemented; its privacy isolation/failure regression and document checks passed.
 Review also closed concurrent-allocation and summary-bridge gaps, with regressions passing.
-Implementation is checkpointed at `9b20d23`. Full local checks passed: **714 tests**, Ruff,
-privacy, whitespace and isolated Mac startup; direct import of the new identity module passed.
-The reproducible benchmark preserved every ID/group: lookup 10.300 -> 2.991 ms; comparison
-367.030 -> 15.958 ms (five warmed rounds). Definitions/limits live in
-[ARCHITECTURE](ARCHITECTURE.md#fictional-local-comparison--2026-10-07).
-Nothing is pushed or merged yet. Exact next action: publish this branch/open a PR, wait for
-final-head Mac/Windows/privacy CI, merge and synchronize main. Real ranking/coverage/speed
-remain unverified; no private data, paid calls or full search was used.
+Final correction and regressions are implemented: separate current groups cannot rejoin on
+names alone; exact copies still share one card and country evidence disambiguates.
+Full local checks passed: **718 tests**, Ruff, privacy and whitespace. Isolated Mac startup
+and direct import passed before this final identity-only correction. The repeated fictional
+benchmark preserved every ID/group: lookup 10.370 -> 2.983 ms; comparison 368.320 -> 16.020 ms
+(five warmed rounds). Definitions/limits live in
+[ARCHITECTURE](ARCHITECTURE.md#fictional-local-comparison--2026-10-08).
+[PR #67](https://github.com/UtkuDenizAltiok/jobcu/pull/67) is open; initial-head
+Mac/Windows/privacy CI passed. The final correction and documentation are locally checked,
+awaiting commit/push and fresh CI. Exact next action: push, wait for final-head
+Mac/Windows/privacy CI, merge and synchronize main. Live ranking/coverage/speed remain
+unverified. No private material or real-result measurements are published here.
 The prior hidden-route fallback is complete; automatic hidden-host detection remains unverified.
 Do not probe blocked pages, guess application URLs, or request private jobs/links in chat.
 

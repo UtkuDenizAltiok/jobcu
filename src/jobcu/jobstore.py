@@ -15,7 +15,7 @@ from datetime import UTC, datetime, timedelta
 from jobcu import db
 from jobcu.dedupe import JobGroup
 from jobcu.freshness import parse_iso
-from jobcu.jobidentity import IdentityIndex, copy_key, fingerprints, rows
+from jobcu.jobidentity import IdentityIndex, copy_key, rows
 from jobcu.jobidentity import identity_keys as identity_keys  # preserved helper for local tools
 from jobcu.sources.base import FoundJob
 
@@ -76,7 +76,7 @@ def remember(groups: list[JobGroup], search_id: int) -> tuple[list[int], list[bo
             new.append(first_search[job_id] == search_id)
             copy_rows.extend((copy_key(c.source, c.source_job_id), job_id)
                              for c in group.copies if c.source_job_id)
-            name_rows.extend((key, job_id, country) for key, country in fingerprints(group))
+            name_rows.extend((key, job_id, country) for key, country in index.name_entries(group))
             index.register(group, job_id)
             ids.append(job_id)
         conn.executemany("INSERT OR IGNORE INTO job_keys (key, job_id) VALUES (?, ?)", copy_rows)

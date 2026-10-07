@@ -308,13 +308,15 @@ def test_quality_sample_keeps_the_final_online_score(ready, monkeypatch):
     assert [ad.score for ad in samples] == [card["score"] for card in cards]
 
 
-def test_one_job_the_memory_knows_twice_gets_one_card(ready, monkeypatch):
-    # An agency's two summaries with the same title and town stay apart in the duplicate rules
-    # but are one job in Jobcu's memory (search 10): one card, not two sharing Save.
+@pytest.mark.parametrize("same_reference", [False, True])
+def test_agency_names_cannot_replace_copy_evidence(ready, monkeypatch, same_reference):
+    # Two summaries do not prove one vacancy. An exact source reference does.
     class AgencyTwice(FakeSource):
         def search(self, query, ctx):
             for i, text in enumerate(["Short", "Another short text"]):
-                yield FoundJob(source="fake", source_job_id=f"a{i}", url=f"https://jobs.test/a{i}",
+                reference = "a0" if same_reference else f"a{i}"
+                yield FoundJob(source="fake", source_job_id=reference,
+                               url=f"https://jobs.test/{reference}",
                                title="Hardware Engineer", company="Augusta Personaldienst",
                                location_text="Berlin", country="DE",
                                posted_at=datetime.now(UTC), date_precision="exact",
@@ -324,7 +326,15 @@ def test_one_job_the_memory_knows_twice_gets_one_card(ready, monkeypatch):
     manager = search.SearchManager()
     manager.start(SearchForm(location_text="Germany"))
     jobs = wait_until_done(manager)["result"]["jobs"]
-    assert [card["title"] for card in jobs["cards"]] == ["Hardware Engineer"]
+    cards = jobs["cards"]
+    assert [card["title"] for card in cards] == ["Hardware Engineer"] * (
+        1 if same_reference else 2)
+    assert len({card["job_id"] for card in cards}) == len(cards)
+    if not same_reference:
+        jobstore.set_state(cards[0]["job_id"], saved=True)
+        states = jobstore.states([card["job_id"] for card in cards])
+        assert states[cards[0]["job_id"]].saved
+        assert cards[1]["job_id"] not in states
 
 
 def test_not_interested_jobs_are_hidden_from_later_searches(ready):

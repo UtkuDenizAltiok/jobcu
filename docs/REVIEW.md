@@ -1,7 +1,9 @@
 # Review a completed search
 
-Use the [review prompt](PROMPTS.md#review-a-search) after Jobcu finishes. It grants bounded
-private access and re-scoring permission; a normal development prompt does not. Follow
+Use the [review prompt](PROMPTS.md#review-a-search) after Jobcu finishes, or follow an existing
+owner authorization recorded privately as described in [AGENTS.md](../AGENTS.md). Check its
+recipient, scope, search window, spending limits and any revocation before using it. A normal
+development prompt grants no private access or paid testing permission. Follow
 [AGENTS.md](../AGENTS.md), preserve owner ratings, and keep detailed evidence outside Git.
 The saved search can be reviewed whether Jobcu is running or stopped. Checking app state in
 the start routine preserves the owner's session; it is not a prerequisite for result analysis.
@@ -54,5 +56,6 @@ Report recall for that sample and its size, never for the whole job market.
 Fix the biggest confirmed issue with fictional regressions. Change one collection/scoring
 factor at a time. Compare recall, ranking, requests, cost and elapsed time on the same sample
 at medium effort. Token estimates may omit provider fees and discounts; corrections have
-cumulative usage. Delete disposable scratch data, update anonymous records, test, push, wait
+cumulative usage. Delete disposable scratch data, record general lessons with fictional
+examples only (public real-result summaries require separate approval), test, push, wait
 for CI and merge with a merge commit.
