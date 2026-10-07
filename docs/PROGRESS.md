@@ -34,17 +34,28 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
   optional limits, corrected review prompt and independent on-demand product intent.
   The owner's per-search caps are cleared locally; verified current token prices are saved
   privately. Monthly choices, Maps control, documents, results and ratings are preserved.
+- [PR #62](https://github.com/UtkuDenizAltiok/jobcu/pull/62) is implemented, tested, pushed and
+  merged with a merge commit. Its final-head and main Mac/Windows/privacy CI passed.
 
 ### In progress
 
-Session closeout only, on `codex/review-budget-closeout` from synchronized main `65add76`.
-Default/settings/guidance corrections are implemented; the private settings save was read back
-and verified. Closing checks: 655 tests, Ruff, privacy, JS syntax and whitespace passed.
-Push, PR/CI and merge remain pending. Earlier changes remain implemented, tested, pushed and
-merged in PRs #58 and #60. The initial outdated assertions/heading are corrected and pass.
-Exact next action: review and push the complete change,
-wait for Mac/Windows/privacy CI, merge with a merge commit, and read back the final handover.
-No new quality investigation, paid re-score, source requests or full search during closeout.
+The budget/default correction is implemented, tested (655 tests plus Ruff/privacy/JS), pushed
+and merged in [PR #62](https://github.com/UtkuDenizAltiok/jobcu/pull/62).
+Its final-head Mac/Windows/privacy CI passed; synchronized main is `7154218`.
+
+Latest owner instruction adds one closing defect: exclude CV-Library application routes,
+keeping the same vacancy only when another saved application route exists. No paid lookup,
+new source, full search or private-result rewrite is part of this correction.
+Branch: `codex/application-links-closeout` from clean main `7154218`.
+Checkpoint: known-destination exclusion, alternative link selection, restored-result filtering,
+preserved saved/applied history and an unverified-application label are implemented.
+99 targeted fictional tests, Ruff, privacy and JS syntax passed. Full local suite, push, PR/CI
+and merge remain pending. The latest private link audit used a disposable read-only copy,
+made no job-site/provider requests, and deleted that copy. No private jobs/links were published.
+Exact next action: run closing checks, push, wait for CI and merge ready protection, then
+finalize the handover. Hidden final destinations are still unverified; this must not be labelled
+complete exclusion of CV-Library behind opaque redirects. Independent ranking/coverage work
+stays deferred to the next authorized review.
 
 ### Verify before relying on
 

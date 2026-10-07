@@ -62,6 +62,13 @@ varies by account/model/tier. A connection test checks generation, not web resea
 [2026-10-06 capability check](archive/SOURCE-RESEARCH.md#web-research) and [current key guide](guides/getting-your-keys.md).
 Archived price comparisons are historical; do not use them as current cost or model advice.
 
+**Application-link metadata checked 2026-10-07:** Adzuna's
+[API schema](https://developer.adzuna.com/swagger/spec/test2.json) supplies a `redirect_url`
+and describes it as the advertiser route required for API compliance. It does not supply the
+final application host. Existing blocked-site rules still prohibit probing Adzuna pages.
+Known CV-Library destinations are excluded by owner instruction; no CV-Library collection
+or application-form traffic was added. Opaque redirects remain an unverified destination.
+
 **Rechecked 2026-10-07 for the guides:**
 
 - [Gemini API standard pricing](https://ai.google.dev/gemini-api/docs/pricing):

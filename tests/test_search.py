@@ -337,6 +337,25 @@ def test_not_interested_jobs_are_hidden_from_later_searches(ready):
     assert [c["title"] for c in jobs["hidden"]] == [first[0]["title"]]
 
 
+def test_search_excludes_known_cvlibrary_only_application_routes(ready, monkeypatch):
+    class UnusableSource(FakeSource):
+        def search(self, query, ctx):
+            for job in super().search(query, ctx):
+                if job.source_job_id == "0":
+                    job.url = "https://www.cv-library.co.uk/job/fictional-1"
+                yield job
+
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [UnusableSource()])
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    result = wait_until_done(manager)
+    assert result["status"] == "finished", result["error"]
+    jobs = result["result"]["jobs"]
+    assert [c["title"] for c in jobs["cards"]] == ["Electronics Engineer"]
+    assert {"reason": "CV-Library application route, with no other saved link", "count": 1} in (
+        jobs["counts"]["left_out"])
+
+
 @pytest.mark.parametrize(("answer", "scored"), [(False, 1), (True, 2)])
 def test_scoring_limit_asks_before_doing_more(ready, answer, scored):
     settings = load_settings()

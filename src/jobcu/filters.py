@@ -19,7 +19,7 @@ from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from jobcu import travel
+from jobcu import applications, travel
 from jobcu.dedupe import JobGroup
 from jobcu.freshness import freshness, window_start
 from jobcu.jobstore import JobState
@@ -34,6 +34,7 @@ REASONS = {
     "job_type": "A job type you didn't tick",
     "remote": "Fully remote (you excluded remote jobs)",
     "country": "In a country you didn't search",
+    "application_route": applications.EXCLUSION_REASON,
 }
 
 
@@ -77,6 +78,8 @@ def _reason(group, state, start, wanted_types, exclude_remote, countries, condit
             now, shown=None) -> str | None:
     if state is not None and state.dismissed:
         return "dismissed"
+    if applications.unavailable(group):
+        return "application_route"
     if freshness(group.posted_at, group.date_precision, start) == "too_old":
         return "repost" if any(copy.older_copy for copy in group.copies) else "too_old"
     # Shown in an earlier search before the window began: the job existed then, whatever date

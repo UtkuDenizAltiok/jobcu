@@ -1116,11 +1116,15 @@ function renderCard(card) {
           rel: "noopener noreferrer",
           text: `Open job (${card.main_link.source})`,
         })
-      : null,
+      : card.application_link_unavailable
+        ? el("span", { class: "muted", text: "CV-Library application link excluded" }) : null,
   );
   const also = card.also_on
     .map((copy) => ({ ...copy, url: safeUrl(copy.url) }))
     .filter((copy) => copy.url);
+  if (card.application_destination_unverified) {
+    actions.append(el("span", { class: "muted", text: "Application site not verified" }));
+  }
   if (also.length) {
     const span = el("span", { class: "also-on", text: "Also on: " });
     also.forEach((copy, i) => {

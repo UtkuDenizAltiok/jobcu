@@ -45,6 +45,13 @@ def test_jobs_marked_not_interested_are_left_out_first():
     assert outcome.kept == [] and outcome.left_out["dismissed"] == 1
 
 
+def test_unusable_application_route_is_excluded_before_ai_work():
+    for title in ("Power Electronics Engineer", "Registered Nurse"):
+        _, outcome = run([found("blocked", title=title,
+                                url="https://www.cv-library.co.uk/job/fictional-1")])
+        assert outcome.kept == [] and outcome.left_out["application_route"] == 1
+
+
 def test_a_job_is_kept_when_one_copy_states_a_ticked_type():
     jobs = [found("a", job_types=["part_time"]),
             found("b", title="Title a", company="Company a", job_types=["full_time_permanent"])]
