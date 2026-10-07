@@ -5,78 +5,72 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ## Right now
 
-*Updated 2026-10-07. Maps fix is merged; first search is planned for the next session.*
+*Updated 2026-10-07. Free review and search-usability fixes published; CI and merge pending.*
 
 ### State
 
-- The result-save fix is **implemented, tested, pushed and merged** in
-  [PR #54](https://github.com/UtkuDenizAltiok/jobcu/pull/54). Main's subsequent Mac/Windows/privacy
-  CI passed; its closing handover was merged in PR #55.
-- Maps changes are **implemented and locally tested**: a named-station access probe with
-  public-transport wording, city-edge/centre comparison, per-element quota counting, fractional
-  duration/error handling and old-answer refresh. A visible note explains sampling limits.
-  Durable behavior/reasons, service facts and guides are in ARCHITECTURE, DECISIONS and SOURCES.
-- **638 local tests**, Ruff, privacy and whitespace passed; **87 targeted checks** passed.
-  An isolated Mac startup self-test passed on port 8799, stopped and deleted its empty data.
-  Closing checks were rerun: **638 passed**, Ruff/privacy/whitespace passed. The existing
-  dependency deprecation warning remains; no failed local product checks remain.
-- Maps changes and all checkpoints are **implemented, tested, pushed and merged** in
-  [PR #56](https://github.com/UtkuDenizAltiok/jobcu/pull/56), using a merge commit.
-  Its final-head Mac/Windows/privacy CI passed; main was synchronized and dependencies synced.
-- GitHub publication recovered on a normal HTTPS retry. Local Git integrity and an authenticated
-  push dry-run passed; no local cause was identified. No remote, SSH or account settings changed.
-  The stale queued run is now completed; the failed cancellation attempt needed no further action.
-- The owner's Jobcu app on port 8765 remains running; preserve the owner's chosen state.
-  Its existing process needs an on-demand restart to load the local changes. Port 8799 is stopped.
-- Only public app health/build and public routing inputs were inspected. No private keys,
-  documents, queries, results or logs were read; no Maps/provider calls or full searches ran.
-  No private scratch copies or assistant-started instances remain; PR-body temporary files
-  were removed. Existing user data and unrelated work were preserved.
+- Main was clean and synchronized at start; PRs #54–57 and recent main Mac/Windows/privacy CI
+  passed. No earlier implementation needed recovery.
+- Implemented, locally tested and pushed in
+  [PR #58](https://github.com/UtkuDenizAltiok/jobcu/pull/58): sought-role progress,
+  explicit history label, optional document-understanding reset, cumulative online-check
+  progress, original vacancy URL, combined medium-effort location interpretation with a format
+  fallback, separate travel usage, and a 24-hour new-install posting window.
+- **648 tests**, Ruff, privacy, JS syntax and whitespace passed. A fictional reset-screen check
+  passed with no browser errors; isolated Mac startup self-test passed on port 8799 and stopped.
+  The existing dependency deprecation warning remains; no failed product checks remain.
+- The authorized latest-search aggregate review is saved in the private data folder. Additional
+  balanced evidence was saved for Score check; existing owner ratings were preserved. No keys,
+  provider calls, paid re-score, source requests or another full search were used in this review.
+  No personal profile, query, documents, jobs or ratings were published.
+- The owner's requested next-search posting choice was saved as 24 hours. His app on port 8765
+  remains running in its original process; it needs an on-demand restart to load these changes.
+  Port 8799 is stopped. Disposable review/preview data and the temporary browser tab are deleted.
 
 ### In progress
 
-None. Maps implementation and publication are complete; session closeout only remains.
-No new product work, private access, paid calls or full searches were started for closeout.
-Next action in the next chat: follow the start/resume routine and verify Git/CI/app state, then
-let the owner launch the updated app and complete the first search. Review results only under
-[Review a search](PROMPTS.md#review-a-search)'s explicit authorization and bounds.
+[PR #58](https://github.com/UtkuDenizAltiok/jobcu/pull/58) is open and pushed from
+`codex/search-review-usability`; implementation, free aggregate review and local verification
+are complete. Mac/Windows/privacy CI and merge remain pending. Exact next action: wait for
+final-head CI, inspect any failure, merge with a merge commit, synchronize main and save the
+final handover. Remove the PR-body temporary file. No private scratch or assistant instance
+remains; the owner's app state is preserved.
 
 ### Verify before relying on
 
-- New Maps station probe and actual journey accuracy: mocked regressions pass; no real-key
-  recheck was made by the assistant. The earlier probe's walking/waiting breakdown is unknown.
-- First restored-Mac search: provider/research access, document parsing, interpretation, sources,
-  progress/results and usage still need a completed search and authorized review.
-- Quality/freshness: independent top-10 evidence and a balanced 30–50-ad sample remain unmeasured.
-- Coverage: a date-verified 15–25-job benchmark in AGENTS.md's country order remains open.
-- Efficiency: whole-search step/wait timings, tokens and web usage lack a current baseline.
+- Combined location interpretation: fictional country, commute, nursing and failure checks pass;
+  no live provider comparison was made. Fewer normal calls does not establish live speed or
+  equal interpretation quality. Confirm on the next authorized on-demand search.
+- Ranking: independent full-evidence/criteria judgement remains unfinished. Some sample ads
+  need original full text. No top-10 precision, score stability or benchmark recall is claimed.
+- Efficiency: an original-search timing baseline exists privately. Older travel estimates share
+  the location usage bucket; new runs separate them. Repeated-search savings remain unmeasured.
+- Maps: mocked station/edge/centre/quota checks pass; actual journeys still need live validation.
+- Coverage: independent date-verified 15–25-job benchmark in AGENTS.md's country order remains.
 - Beginner install walkthrough and a fresh Windows install/upload/search remain untested.
 
 ### Waiting on the owner
 
-1. The owner plans to start Jobcu and run the first search in the **next session**, then use
-   [Review a search](PROMPTS.md#review-a-search) here. Maps access was confirmed by the owner;
-   other private setup was not inspected.
-2. Next session, close any old Jobcu text window (Terminate on Mac if asked), then double-click
-   **Start Jobcu.command** to load the latest local code. Keep keys/documents/query inside Jobcu,
-   choose job types and the posting window, and answer any limit prompt there.
+1. When ready, close the old Jobcu text window (Terminate on Mac if asked), then double-click
+   **Start Jobcu.command**. Check **Posted within: 24 hours** before the next daily search.
+2. For a later bounded paid re-score, configure current prices inside Jobcu first. Prices are
+   absent, so this review's conditional EUR1 permission was not used. Enter no private data here.
 
 ### Next tasks
 
-1. Review completed results under [REVIEW](REVIEW.md) with the review prompt's explicit scope.
-2. Fix confirmed freshness, coverage and matching gaps in AGENTS.md's country order.
-3. Compare recall/ranking before reducing repeated research, cost or time.
-4. Address observed usability issues; ZIP-update notices and fresh-Windows validation remain later.
+1. Finish independent full-ad judgement and top-10 evidence checks under [REVIEW](REVIEW.md).
+2. Measure fresh-job misses in the priority country order before changing collection/scoring.
+3. Compare next-search interpretation, recall/ranking and elapsed time before further reductions.
+4. ZIP-update notices and fresh-Windows walkthrough remain later.
 
 ### Known limitations
 
-- A directory entry or blocked source is not a verified vacancy or measured recall.
-- Summaries, unknown dates and unchecked conditions can affect ranking; scores are not hiring odds.
-- Old quality samples can lack plans/timings; correction usage is cumulative.
-- Provider research access and charges vary; token estimates can omit web fees and discounts.
-- Failed final saving can lose the latest results on closing; earlier saved results remain intact.
-- Maps samples an approximate edge and centre, consuming up to two elements per city within
-  the existing cap. It can miss faster districts; town-centre origins are not exact workplaces.
+- Source/card counts do not measure market recall; scores are not hiring odds.
+- Summaries, unknown dates and unchecked conditions can affect ranking.
+- Corrections measure only the latest correction's time but accumulate original/correction usage.
+- Provider fees/discounts can be missing from token cost estimates.
+- Maps compares approximate edge/centre samples and can miss faster districts.
+- A failed final save can lose the latest visible results on closing; earlier saved results remain.
 
 Historical measurements predate the Mac reset. See [SOURCES](SOURCES.md) and
 [the decision history](archive/DECISION-HISTORY.md) for dated background.

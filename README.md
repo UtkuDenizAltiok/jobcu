@@ -25,8 +25,9 @@ choice. An **API key** is a secret code from that service which lets Jobcu use y
 4. **Say where you want to work.** In **Where do you want to work?**, write your preferred
    places and conditions in ordinary words. For example: *Dublin or Cork* or *Germany, within
    50 minutes of a city centre by public transport*.
-5. **Choose the age and types of jobs.** **Posted within: 72 hours** means ads posted in the
-   previous three days. Tick the job types you want, such as permanent work or internships.
+5. **Choose the age and types of jobs.** **Posted within: 24 hours** means ads posted in the
+   previous day and suits a daily search. Tick the job types you want, such as permanent work
+   or internships. Wider posting windows are available.
 6. **Start the search.** Click **Find matching jobs**. Keep Jobcu open and watch its progress.
    If it asks whether to use more AI, read the question and choose whether to continue.
 7. **Read the matches.** Each job has a score and reasons. Click **Open job** to read the

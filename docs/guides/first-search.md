@@ -43,6 +43,13 @@ your document editor. Help: [Document problems](troubleshooting.md#my-document-w
 Once a document is added, **Replace** lets you upload a newer version. **Remove** removes it
 from Jobcu; it does not delete the original file on your computer.
 
+**What Jobcu understood** shows the background and sought roles used in your last search.
+A thesis or student placement under **Current or most recent role in your history** describes
+past work; **Roles you're looking for** describes the jobs being sought. Unchanged documents
+normally reuse their saved understanding. To read them afresh, click **Reset document
+understanding** in that window. Your next search reads them again using your AI allowance;
+resetting itself uses no AI and keeps your documents and earlier results.
+
 **Anything your documents don't say** is optional. Use it for a language level, citizenship
 or security-clearance detail relevant to a job requirement, if your documents leave it out.
 You can leave this box empty. It is not a general place to add more skills or search locations.
@@ -99,8 +106,9 @@ and route before relying on a time. Travel estimates are labelled. Leaving the b
 searches all supported countries, which can take longer and use more AI.
 
 Next, choose **Posted within**. This is how recently an advertisement was posted:
-**72 hours** means the previous three days. It does not mean the search runs for three days.
-You can also choose 6 hours, 24 hours or 1 week.
+**24 hours** means the previous day and suits searching each day to apply early. New setups
+start with this choice; Jobcu remembers your saved selection. You can also choose 6 hours,
+72 hours (three days), or 1 week. This is the age of ads, not how long a search runs.
 
 Under **Job types**, tick at least one type you would accept. For example, tick **Full-time
 permanent** for ongoing full-time work, or **Internship or working student** for those roles.

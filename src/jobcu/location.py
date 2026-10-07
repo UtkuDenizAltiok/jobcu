@@ -31,7 +31,7 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 from jobcu import places as place_list
-from jobcu.ai.base import AIError
+from jobcu.ai.base import AIError, AIInvalidOutput, AIOutputTruncated
 from jobcu.ai.client import AIClient
 from jobcu.countries import COUNTRIES, LANGUAGE_NAMES
 from jobcu.placenames import countries_in
@@ -149,6 +149,13 @@ class SortedCondition(BaseModel):
 
 class SortedConditions(BaseModel):
     conditions: list[SortedCondition]
+
+
+class LocationInterpretation(LocationUnderstanding):
+    """Countries, places and classified conditions from one reading of the request."""
+
+    conditions_about_places: list[SortedCondition]
+    conditions_about_the_job: list[SortedCondition]
 
 
 class CheckedCondition(BaseModel):
@@ -425,24 +432,49 @@ model's own judgement.
 """
 
 
+INTERPRET_SYSTEM = SYSTEM_PROMPT + "\n\n" + """\
+Return each condition in conditions_about_places or conditions_about_the_job as a structured \
+condition using the rules below. Preserve the person's words in its text. Read related \
+conditions together so their reference places and facts stay connected. Do not research facts \
+or estimate journeys during this reading: the app checks them afterwards.
+\n""" + SORT_SYSTEM
+
+
 def interpret_location(client: AIClient, text: str) -> LocationPlan:
     text = text.strip()
     if not text:
         return _everywhere(text, [], [])
-    understanding = client.generate(
-        LocationUnderstanding,
-        step="location",
-        system=SYSTEM_PROMPT,
-        prompt=f"Where the person wants to work (between the markers):\n<<<\n{text}\n>>>",
-        reasoning=True,
-        max_output_tokens=4000,
-    )
-    plan = plan_from(text, understanding)
-    plan.conditions = check_conditions(
-        client,
-        understanding.conditions_about_places + understanding.conditions_about_the_job,
-        plan.countries,
-    )
+    prompt = f"Where the person wants to work (between the markers):\n<<<\n{text}\n>>>"
+    try:
+        understanding = client.generate(
+            LocationInterpretation, step="location", system=INTERPRET_SYSTEM, prompt=prompt,
+            reasoning=True, max_output_tokens=4000,
+        )
+    except (AIInvalidOutput, AIOutputTruncated):
+        # Preserve the simpler route for models that cannot produce the combined format.
+        # Authentication, quota and spending-limit failures must still stop AI work.
+        log.info("Combined location format was unusable; trying the simpler interpretation.")
+        plain = client.generate(
+            LocationUnderstanding, step="location", system=SYSTEM_PROMPT, prompt=prompt,
+            reasoning=True, max_output_tokens=4000,
+        )
+        plan = plan_from(text, plain)
+        plan.conditions = check_conditions(
+            client, plain.conditions_about_places + plain.conditions_about_the_job,
+            plan.countries,
+        )
+    else:
+        # Keep the plan builder shared with edits and the existing country/place rules.
+        plain = LocationUnderstanding.model_validate({
+            **understanding.model_dump(),
+            "conditions_about_places": [c.text for c in understanding.conditions_about_places],
+            "conditions_about_the_job": [c.text for c in understanding.conditions_about_the_job],
+        })
+        plan = plan_from(text, plain)
+        plan.conditions = _check_sorted_conditions(
+            client, understanding.conditions_about_places + understanding.conditions_about_the_job,
+            plan.countries,
+        )
     _narrow_countries(plan)
     plan.not_checked_yet = [
         condition.text for condition in plan.conditions if condition.status == "not_checked"
@@ -494,6 +526,14 @@ def check_conditions(
             SortedCondition(text=text, understood_as=text, kind="needs_the_web")
             for text in conditions
         ]
+    return _check_sorted_conditions(client, sorted_conditions, countries)
+
+
+def _check_sorted_conditions(
+    client: AIClient, sorted_conditions: list[SortedCondition], countries: list[str]
+) -> list[Condition]:
+    """Apply the same checks to initial interpretations and newly edited conditions."""
+    names = ", ".join(COUNTRIES[code].name for code in countries) or "the supported countries"
     # A fact about places, once per condition that names it in full. The travel condition's
     # reference places often depend on one of these, sometimes in fewer words ("the voting ratio
     # should be less than its country average"): then that condition's full wording is looked up.

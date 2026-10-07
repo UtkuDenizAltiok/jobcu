@@ -1,6 +1,18 @@
+import pytest
+
+from jobcu.ai.base import AIInvalidOutput, AILimitReached
 from jobcu.countries import COUNTRIES, languages_for
 from jobcu.keywords import SearchTerm, tidy_terms
-from jobcu.location import LocationUnderstanding, Place, interpret_location, plan_from
+from jobcu.location import (
+    LocationInterpretation,
+    LocationUnderstanding,
+    Place,
+    SortedAnchor,
+    SortedCondition,
+    SortedConditions,
+    interpret_location,
+    plan_from,
+)
 
 
 def understanding(**changes):
@@ -50,6 +62,83 @@ def test_empty_location_searches_everywhere_without_asking_the_ai():
 
     plan = interpret_location(NoAI(), "   ")
     assert plan.broad and len(plan.countries) == len(COUNTRIES)
+
+
+@pytest.mark.parametrize("text,countries,conditions", [
+    ("Germany, Ireland or the UK, within 45 minutes of a city centre with 0.3% of its people",
+     ["DE", "IE", "GB"], [SortedCondition(
+         text="within 45 minutes of a city centre with 0.3% of its people",
+         understood_as="45 minutes to a large city's centre", kind="near", max_minutes=45,
+         travel_mode="transit", anchor=SortedAnchor(description="large cities",
+                                                   min_share_of_country=0.003, to_centre=True))]),
+    ("Nursing jobs in German towns with 50,000 people; visa sponsorship",
+     ["DE"], [SortedCondition(text="towns with 50,000 people", understood_as="Large towns",
+                               kind="town_size", min_people=50_000),
+              SortedCondition(text="visa sponsorship", understood_as="Employer sponsors visa",
+                              kind="about_the_job")]),
+    ("Germany, Ireland, UK, Switzerland, Netherlands, Belgium or Italy",
+     ["DE", "IE", "GB", "CH", "NL", "BE", "IT"], []),
+])
+def test_one_reading_preserves_countries_and_computable_conditions(text, countries, conditions):
+    class OneReading:
+        calls = []
+
+        def generate(self, output, **request):
+            self.calls.append(request)
+            assert output is LocationInterpretation
+            return output(understood_as="The requested places and conditions.",
+                          limits_countries=True, countries=countries, places=[],
+                          conditions_about_places=[c for c in conditions
+                                                   if c.kind != "about_the_job"],
+                          conditions_about_the_job=[c for c in conditions
+                                                    if c.kind == "about_the_job"],
+                          outside_supported_area=[])
+
+        def research(self, **request):
+            raise AssertionError("Computable conditions need no web request")
+
+    client = OneReading()
+    plan = interpret_location(client, text)
+    assert len(client.calls) == 1 and client.calls[0]["reasoning"]
+    assert plan.countries == countries
+    assert len(plan.conditions) == len(conditions)
+    for expected, checked in zip(conditions, plan.conditions, strict=True):
+        assert checked.text == expected.text
+        if expected.kind == "near":
+            assert checked.max_minutes == 45 and checked.travel_mode == "transit"
+            assert checked.anchor.min_share_of_country == 0.003 and checked.anchor.to_centre
+        elif expected.kind == "town_size":
+            assert checked.min_people == 50_000 and checked.status == "applied"
+        else:
+            assert checked.kind == "about_job" and checked.status == "not_checked"
+
+
+@pytest.mark.parametrize("failure", [AIInvalidOutput("Invalid format"),
+                                     AILimitReached("Monthly limit reached")])
+def test_combined_format_fallback_preserves_conditions_but_never_bypasses_limits(failure):
+    class FormatClient:
+        calls = []
+
+        def generate(self, output, **request):
+            self.calls.append(output)
+            if output is LocationInterpretation:
+                raise failure
+            if output is LocationUnderstanding:
+                return understanding(countries=["IE"], conditions_about_places=["50,000 people"])
+            assert output is SortedConditions
+            return output(conditions=[SortedCondition(
+                text="50,000 people", understood_as="Towns with at least 50,000 people",
+                kind="town_size", min_people=50_000)])
+
+    client = FormatClient()
+    if isinstance(failure, AILimitReached):
+        with pytest.raises(AILimitReached):
+            interpret_location(client, "Nursing jobs in Ireland, towns with 50,000 people")
+        assert client.calls == [LocationInterpretation]
+    else:
+        plan = interpret_location(client, "Nursing jobs in Ireland, towns with 50,000 people")
+        assert plan.countries == ["IE"] and plan.conditions[0].min_people == 50_000
+        assert client.calls == [LocationInterpretation, LocationUnderstanding, SortedConditions]
 
 
 def test_named_place_adds_its_country():

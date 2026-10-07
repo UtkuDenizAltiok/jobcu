@@ -515,10 +515,14 @@ def test_a_search_keeps_jobs_near_a_big_city_and_leaves_out_far_ones(
                           "target_roles": [role], "target_fields": [field]}
             elif name == "SearchWordsAnswer":
                 answer = {"terms": [{"text": role, "language": "en", "kind": "job_title"}]}
-            elif name == "LocationUnderstanding":
+            elif name == "LocationInterpretation":
                 answer = {"understood_as": "Germany, near a big city.", "limits_countries": True,
                           "countries": ["DE"], "places": [],
-                          "conditions_about_places": [OWNERS_TEXT],
+                          "conditions_about_places": [{"text": OWNERS_TEXT,
+                              "understood_as": "Within 50 minutes of a big city",
+                              "kind": "near", "max_minutes": 50, "travel_mode": "transit",
+                              "anchor": {"description": "big cities",
+                                         "min_share_of_country": 0.003}}],
                           "conditions_about_the_job": [], "outside_supported_area": []}
             elif name == "SortedConditions":
                 answer = {"conditions": [{
@@ -755,8 +759,7 @@ def test_whole_regions_to_avoid_can_be_corrected_too():
 
 def test_a_fact_about_whole_countries_narrows_the_countries_searched():
     from jobcu.location import (
-        LocationUnderstanding,
-        SortedConditions,
+        LocationInterpretation,
         fits,
         interpret_location,
     )
@@ -767,16 +770,14 @@ def test_a_fact_about_whole_countries_narrows_the_countries_searched():
         research_calls = 0
 
         def generate(self, output, **request):
-            if output is LocationUnderstanding:
-                return LocationUnderstanding(
+            if output is LocationInterpretation:
+                return LocationInterpretation(
                     understood_as="Anywhere, in a top-10 work-life-balance country.",
                     limits_countries=False, countries=[], places=[],
-                    conditions_about_places=[text], conditions_about_the_job=[],
+                    conditions_about_places=[SortedCondition(
+                        text=text, understood_as="Top-10 countries for work-life balance",
+                        kind="needs_the_web")], conditions_about_the_job=[],
                     outside_supported_area=[])
-            if output is SortedConditions:
-                return SortedConditions(conditions=[SortedCondition(
-                    text=text, understood_as="Top-10 countries for work-life balance",
-                    kind="needs_the_web")])
             return CheckedCondition(understood_as="Top-10 work-life balance (OECD index)",
                                     kind="countries_that_fit", countries=["NL", "DK", "NO"],
                                     confidence="checked", note="OECD Better Life Index.")

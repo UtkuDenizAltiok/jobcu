@@ -554,7 +554,7 @@ class TravelMeter:
                              f"{point.longitude:.3f}) | to: {targets}")
             try:
                 reply = self._client.generate(
-                    TravelGuesses, step="location", system=system,
+                    TravelGuesses, step="travel", system=system,
                     prompt="Workplaces (ID | place | towns to reach):\n" + "\n".join(lines),
                     max_output_tokens=4000)
             except AIError as exc:

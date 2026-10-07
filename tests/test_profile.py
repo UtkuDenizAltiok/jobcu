@@ -4,11 +4,11 @@ import pytest
 from conftest import FAKE_CV_LINES, make_pdf
 from fastapi.testclient import TestClient
 
-from jobcu import documents
+from jobcu import db, documents, search
 from jobcu.ai.base import ProviderAdapter, RawReply, Usage
 from jobcu.ai.client import AIClient
 from jobcu.app import create_app
-from jobcu.profile import Profile, read_profile, read_profile_reusing
+from jobcu.profile import Profile, progress_detail, read_profile, read_profile_reusing
 from jobcu.settings import Settings
 
 PROFILE = {
@@ -154,6 +154,50 @@ def test_unchanged_documents_are_not_read_again(settings):
     settings.ai.reasoning_model = "another-model"
     read_profile_reusing(AIClient(settings, adapter=adapter), "CV TEXT", "LETTER TEXT")
     assert len(adapter.calls) == 3
+
+
+@pytest.mark.parametrize("history,target", [
+    ("Completed master's thesis in motor control", "Hardware Design Engineer"),
+    ("Completed nursing placement", "Registered Nurse"),
+])
+def test_profile_progress_distinguishes_history_from_sought_work(history, target):
+    profile = Profile.model_validate({**PROFILE, "current_or_last_role": history,
+                                      "target_roles": [target]})
+    for reused in (False, True):
+        detail = progress_detail(profile, reused)
+        assert f"Looking for: {target}" in detail and history not in detail
+        assert ("Using saved document understanding" in detail) == reused
+
+
+def test_reset_forgets_only_profile_cache_and_next_read_is_fresh(client, settings, monkeypatch):
+    monkeypatch.setattr(search, "manager", search.SearchManager())
+    adapter = RecordingAdapter()
+    ai = AIClient(settings, adapter=adapter)
+    first, _ = read_profile_reusing(ai, "CV TEXT", "LETTER TEXT")
+    documents.save_upload("cv", "cv.pdf", make_pdf(FAKE_CV_LINES))
+    with db.connect() as conn:
+        conn.execute("INSERT INTO searches (id, status, form_json) VALUES (1, 'finished', '{}')")
+        conn.execute("INSERT INTO search_results VALUES (1, ?)", ('{"kept": true}',))
+    assert client.delete("/api/profile/cache").status_code == 403
+    assert client.delete("/api/profile/cache", headers=HEADERS).json() == {"reset": True}
+    assert documents.read_text("cv")
+    with db.connect() as conn:
+        assert conn.execute("SELECT result_json FROM search_results").fetchone()[0] == (
+            '{"kept": true}')
+    assert len(adapter.calls) == 1  # reset itself never makes a paid request
+    again, reused = read_profile_reusing(ai, "CV TEXT", "LETTER TEXT")
+    assert not reused and again == first and len(adapter.calls) == 2
+    assert read_profile_reusing(ai, "CV TEXT", "LETTER TEXT")[1]
+
+
+def test_reset_cannot_race_a_running_search(client, settings, monkeypatch):
+    manager = search.SearchManager()
+    manager._current = search.SearchRun(1, settings.search_form, "2026-01-01T00:00:00Z")
+    monkeypatch.setattr(search, "manager", manager)
+    ai = AIClient(settings, adapter=RecordingAdapter())
+    read_profile_reusing(ai, "CV TEXT", "LETTER TEXT")
+    assert client.delete("/api/profile/cache", headers=HEADERS).status_code == 409
+    assert read_profile_reusing(ai, "CV TEXT", "LETTER TEXT")[1]
 
 
 def test_the_persons_note_is_read_with_the_documents_and_changes_the_profile(settings):

@@ -233,10 +233,10 @@ class ConditionAI(FakeAI):
 
     def complete_json(self, **request):
         name, prompt = request["schema_name"], request["prompt"]
-        if name == "LocationUnderstanding":
+        if name == "LocationInterpretation":
             answer = {"understood_as": "Big German cities.", "limits_countries": True,
                       "countries": ["DE"], "places": [],
-                      "conditions_about_places": ["only big cities"],
+                      "conditions_about_places": [BIG_CITIES],
                       "conditions_about_the_job": [], "outside_supported_area": []}
             return RawReply(json.dumps(answer), Usage(10, 5))
         if name == "SortedConditions":
