@@ -5,7 +5,7 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ## Right now
 
-*Updated 2026-10-07. Checking the Maps probe before the owner's first search.*
+*Updated 2026-10-07. Maps fix is locally ready; GitHub publication is waiting on server errors.*
 
 ### State
 
@@ -25,16 +25,21 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
   are implemented: named station probe, public-transport wording, access-only explanation,
   edge/centre comparison, exact element counting, stale-answer refresh and a visible sampling
   limit. **87 targeted tests**, the closing **638 tests**, Ruff, privacy and diff whitespace
-  passed. Publication and platform CI are pending.
+  passed. Implementation is pushed in [PR #56](https://github.com/UtkuDenizAltiok/jobcu/pull/56)
+  at `6d667bc`; subsequent handover commits remain local because three normal pushes returned
+  GitHub Internal Server Error. Its CI run `37642326144` is queued with no jobs started;
+  Mac/Windows/privacy CI and merge are **unverified/pending**.
 - README is the entry point; [How to use Jobcu](guides/first-search.md) explains everyday steps
   and richer examples. PROMPTS holds all three project prompts; dated background is in `archive/`.
   Beginner wording and preserving richer examples are recorded in DECISIONS.md.
-- The owner started Jobcu on port 8765 and confirmed a successful Maps key test. The running
-  build matched clean current main; port 8799 is stopped. Preserve the owner's running app.
+- The owner started Jobcu on port 8765 and confirmed a successful Maps key test. At startup,
+  its build matched then-current main; it still needs an on-demand restart to load this branch's
+  fix. Preserve the owner's running app and saved setup.
 - Only the running app's public health/build and public routing inputs were inspected; no
   private keys/documents/queries/results/logs were read and no provider/Maps calls or searches ran.
-  No private scratch copies or app/preview instances were created. No managed worktrees or
-  attached artifacts were present at startup.
+  No private scratch copies were made. An isolated startup self-test **passed** on port 8799,
+  stopped and removed its empty temporary data folder. The owner app on 8765 was preserved;
+  no assistant-started instance remains. No managed worktrees were present at startup.
 
 ### In progress
 
@@ -54,10 +59,14 @@ then labels the returned whole-journey duration "by train". The particular walki
 breakdown of the owner's reported duration is unknown; no new Maps/provider calls were made.
 Both controlled regressions failed against the old code and pass with the fix. Targeted checks
 also cover fractional durations, missing routes, quota limits, old answers, explicit city-centre
-requests and fictional hardware/library profiles. Reviewed, fully tested and **pushed** in
-[PR #56](https://github.com/UtkuDenizAltiok/jobcu/pull/56); not yet merged. Exact next action:
-wait for final Mac/Windows/privacy CI, merge with a merge commit and synchronize clean main.
-Then publish the closing handover and tell the owner to restart before searching.
+requests and fictional hardware/library profiles. Reviewed and fully tested locally. The code
+is **pushed** in [PR #56](https://github.com/UtkuDenizAltiok/jobcu/pull/56) at `6d667bc`;
+later handover commits are local only. Three push attempts failed with server errors, including
+a retry over HTTP/1.1; CI remains queued with no jobs. No merge was attempted without checks.
+Exact next action when GitHub recovers: push `codex/maps-route-probe`, wait for checks on the
+final head, merge with a merge commit, synchronize main and publish the closing handover.
+The owner can use the locally tested branch after closing/restarting Jobcu on demand; retain
+the pending platform verification and do not describe publication as complete.
 No paid development test or full search is authorized.
 
 ### Verify before relying on
@@ -74,18 +83,21 @@ No paid development test or full search is authorized.
 
 ### Waiting on the owner
 
-1. Personal setup/search is awaiting confirmation; private app data was not inspected. If
-   still needed, open Jobcu on demand, enter keys/documents/query **inside the app**, choose
-   job types and the 72-hour posting window, and complete the search and any limit prompt.
+1. Maps access was confirmed by the owner. Before the first search, close the Jobcu text
+   window (Terminate on Mac if asked), then double-click **Start Jobcu.command** to load the
+   local fix. The branch is tested locally but its GitHub platform checks and merge are pending.
+   Keep keys/documents/query inside the app, choose job types and the 72-hour posting window,
+   and complete the search and any limit prompt. Other private setup was not inspected.
 2. Once a search is complete, use [Review a search](PROMPTS.md#review-a-search) in the local
    project chat. Start the next chat with [Start a session](PROMPTS.md#start-a-session).
 
 ### Next tasks
 
-1. Review completed search results with [REVIEW.md](REVIEW.md) before tuning.
-2. Fix confirmed freshness, coverage and matching gaps in the country order from AGENTS.md.
-3. Reduce summary dependence and repeated research; compare recall/ranking before optimizing cost/time.
-4. Fix confusion observed during use. ZIP-update notices and a full fresh-Windows check remain later work.
+1. Complete the Maps fix's push, platform CI and merge after GitHub's server errors stop.
+2. Review completed search results with [REVIEW.md](REVIEW.md) before tuning.
+3. Fix confirmed freshness, coverage and matching gaps in the country order from AGENTS.md.
+4. Reduce summary dependence and repeated research; compare recall/ranking before optimizing cost/time.
+5. Fix confusion observed during use. ZIP-update notices and a full fresh-Windows check remain later work.
 
 ### Known limitations
 
@@ -96,6 +108,9 @@ No paid development test or full search is authorized.
 - Provider/model research support varies; token estimates can omit web fees and discounts.
 - If final saving fails, the latest results may not survive closing Jobcu; any earlier saved results
   remain available. Follow the warning before closing the app.
+- Maps now samples a calculated edge and city centre; this can still miss faster districts.
+  Each city uses up to two matrix elements within the existing cap. The new public station probe
+  and actual travel-time accuracy have not been retested with a real key by the assistant.
 
 Historical measurements predate the Mac reset and are not a current baseline. See the
 [decision history](archive/DECISION-HISTORY.md) and [source evidence](SOURCES.md) when relevant.
