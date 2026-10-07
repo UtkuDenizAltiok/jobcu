@@ -72,8 +72,9 @@ Your keys, documents, query and results stay outside the source folder and GitHu
 sends the necessary text to the AI provider you chose and search words to job sources.
 Jobcu has no user accounts, telemetry or cloud storage, and never logs in to job sites.
 
-Provider charges depend on your model, account and search. Check current prices and set limits
-before searching. Jobcu's usage estimate may omit web fees and discounts; it is not an invoice.
+Provider charges depend on your model, account and search. Prices and limits in Jobcu are
+optional controls; new installs have no per-search scoring or AI web-check cap. Jobcu's usage
+estimate may omit web fees and discounts; it is not an invoice.
 
 ## Project documents
 

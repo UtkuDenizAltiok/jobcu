@@ -38,9 +38,10 @@ print or publish my profile, query, documents, keys, job list or ratings; public
 anonymous aggregate findings and fictional examples only.
 
 Fix confirmed defects with fictional regressions, verify and merge. Use saved keys only
-through Jobcu code for a focused re-score at medium effort, within my existing limits and
-at most EUR1 for this review if prices are configured. Otherwise finish the free analysis
-first and give me one clear next step. Do not start another full search or overwrite my
+through Jobcu code for a focused re-score at medium effort, within my existing monthly budget
+and configured service limits, using verified current prices. There is no fixed per-review
+or per-search money ceiling. If prices are missing, finish the free analysis first and give
+me one clear next step. Do not start another full search or overwrite my
 ratings automatically. Delete disposable private scratch data and end with simple next steps.
 ```
 

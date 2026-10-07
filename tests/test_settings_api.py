@@ -96,10 +96,12 @@ def test_limits_and_source_switches_are_saved(client):
     }).json()
     assert data["limits"]["scoring_cap"] == 40
     assert data["limits"]["monthly_token_limit"] == 2_000_000
-    assert data["limits"]["web_search_cap"] == 50  # not sent: kept as it was
+    assert data["limits"]["web_search_cap"] is None  # not sent: default remains unlimited
     data = client.put("/api/settings/limits", headers=HEADERS, json={
         "scoring_cap": 40, "web_search_cap": 20}).json()
     assert data["limits"]["web_search_cap"] == 20 and load_settings().limits.web_search_cap == 20
+    data = client.put("/api/settings/limits", headers=HEADERS, json={"scoring_cap": 40}).json()
+    assert data["limits"]["web_search_cap"] == 20  # not sent: the saved choice is preserved
     # An empty box means no limit.
     data = client.put("/api/settings/limits", headers=HEADERS, json={
         "scoring_cap": None, "web_search_cap": None}).json()

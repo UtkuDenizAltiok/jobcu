@@ -6,7 +6,8 @@ from jobcu.settings import Settings, load_settings, save_settings, settings_path
 def test_defaults_when_nothing_saved():
     settings = load_settings()
     assert settings.ai.provider is None
-    assert settings.limits.scoring_cap > 0
+    assert settings.limits.scoring_cap is None
+    assert settings.limits.web_search_cap is None
     assert settings.search_form.posted_within_hours == 24
 
 
@@ -15,9 +16,15 @@ def test_saved_settings_come_back():
     settings.ai.provider = "gemini"
     settings.ai.model = "some-model"
     settings.search_form.posted_within_hours = 72
+    settings.limits.scoring_cap = 100
+    settings.limits.web_search_cap = 20
+    settings.limits.monthly_token_limit = 100000
+    settings.limits.monthly_cost_limit = 25
+    settings.limits.maps_monthly_routes = 1000
     save_settings(settings)
     assert load_settings().ai.model == "some-model"
     assert load_settings().search_form.posted_within_hours == 72
+    assert load_settings().limits == settings.limits
 
 
 def test_damaged_settings_file_is_set_aside():
