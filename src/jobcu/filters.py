@@ -35,6 +35,7 @@ REASONS = {
     "remote": "Fully remote (you excluded remote jobs)",
     "country": "In a country you didn't search",
     "application_route": applications.EXCLUSION_REASON,
+    "reported_application_route": applications.REPORTED_EXCLUSION_REASON,
 }
 
 
@@ -62,10 +63,11 @@ def apply_rules(
     outcome = FilterOutcome()
     start = window_start(started_at, posted_within_hours)
     wanted_types = set(job_types)
+    reported = applications.reported_urls()
     for index, group in enumerate(groups):
         reason = _reason(group, remembered_states[index], start, wanted_types, exclude_remote,
                          set(countries), conditions or [], started_at,
-                         first_shown[index] if first_shown else None)
+                         first_shown[index] if first_shown else None, reported)
         if reason:
             outcome.left_out[reason] += 1
             outcome.by_reason.setdefault(reason, []).append(index)
@@ -75,11 +77,11 @@ def apply_rules(
 
 
 def _reason(group, state, start, wanted_types, exclude_remote, countries, conditions,
-            now, shown=None) -> str | None:
+            now, shown=None, reported=None) -> str | None:
     if state is not None and state.dismissed:
         return "dismissed"
-    if applications.unavailable(group):
-        return "application_route"
+    if route := applications.exclusion_key(group, reported):
+        return route
     if freshness(group.posted_at, group.date_precision, start) == "too_old":
         return "repost" if any(copy.older_copy for copy in group.copies) else "too_old"
     # Shown in an earlier search before the window began: the job existed then, whatever date

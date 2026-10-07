@@ -41,18 +41,34 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ### In progress
 
-**CV-Library behind opaque redirects remains unfinished.** Known direct/exposed destinations
-are protected by merged PR #63; an opaque redirect is not a proven alternate route to a known
-blocked site. An unknown final host cannot yet be classified, and another platform does not
-prove universal registration access. Do not claim that all hidden CV-Library routes are removed.
+**Recover hidden application-route handling**, branch `codex/unusable-application-links`.
+The earlier handover PR #64 is merged; clean main at `ab00ee3` and its Mac/Windows/privacy
+CI passed. Dependencies are synchronized. Baseline: 673 tests, Ruff and privacy passed.
+Both app ports are stopped; no abandoned Jobcu scratch directories were found.
 
-No unmerged product implementation remains. This final handover is on
-`codex/session-closeout`; if interrupted on that branch, check its PR/CI and complete publication.
-Exact next engineering action: establish permitted final-destination evidence for the existing
-saved sample, retaining the exact vacancy identity. Do not probe blocked Adzuna pages, guess
-application URLs, or discard unrelated UK jobs because their destination is unknown. If source
-metadata cannot establish the route, add a private in-app way to identify an unusable destination;
-never request private jobs/links in chat. Verify with fictional regressions before a quality claim.
+This session authorizes free fictional checks only: no private saved evidence, provider calls,
+job-site traffic or full search. An opaque redirect cannot establish its final host. Use the
+recorded fallback: a local, reversible way for the person to mark an unusable application link.
+
+1. Add exact-link persistence and route selection/filtering without suppressing unrelated jobs,
+   changing scores, owner ratings or original snapshots.
+2. Add clear reporting/undo controls, update the guide and decision/architecture records.
+3. Verify fictional engineering and non-engineering routes, alternatives, restart, undo and
+   guarded API failures; inspect an isolated fictional preview and stop it.
+4. Review; run Ruff, full tests, privacy and JS checks; push a PR; wait for Mac/Windows/privacy
+   CI; merge with a merge commit and synchronize clean main.
+
+Migration, guarded local APIs, route handling and report/undo controls are implemented.
+Targeted regressions, Ruff, JS syntax and whitespace passed. The isolated fictional Mac UI
+walkthrough passed: employer alternative, removal without an alternative, reload persistence,
+Saved history and undo; no browser console warnings/errors. Preview stopped and its tab closed.
+Review added monotonic report IDs to stop stale undo buttons deleting a newer report.
+Implementation committed at `2b0eb98`; full local checks passed: **684 tests**, Ruff, privacy,
+JS syntax, whitespace and the isolated Mac launcher self-test. Only the existing dependency
+deprecation warning remains. Nothing is pushed or merged yet. Exact next action: publish this
+branch/open a PR, wait for final-head Mac/Windows/privacy CI, merge and synchronize main.
+Automatic final-host identification and real ranking/coverage/speed claims remain unverified;
+do not probe blocked pages or guess application URLs.
 
 ### Verify before relying on
 

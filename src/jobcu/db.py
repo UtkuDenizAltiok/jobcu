@@ -177,6 +177,16 @@ MIGRATIONS: list[str] = [
     ALTER TABLE quality_ads ADD COLUMN description_is_complete INTEGER NOT NULL DEFAULT 1;
     ALTER TABLE quality_ads ADD COLUMN location_plan_json TEXT;
     """,
+    # 12: Exact application links the person cannot use, reversible and device-local.
+    """
+    CREATE TABLE application_link_reports (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        url TEXT NOT NULL UNIQUE,
+        job_id INTEGER NOT NULL REFERENCES jobs (id),
+        source TEXT NOT NULL,
+        reported_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+    );
+    """,
 ]
 
 

@@ -57,3 +57,26 @@ def test_many_parts_of_jobcu_can_open_a_new_database_at_once():
     for thread in threads:
         thread.join()
     assert errors == []
+
+
+def test_application_link_migration_preserves_existing_marks_and_ratings(temporary_data_dir):
+    import sqlite3
+
+    temporary_data_dir.mkdir(parents=True)
+    conn = sqlite3.connect(temporary_data_dir / db.DB_FILENAME)
+    for migration in db.MIGRATIONS[:11]:
+        conn.executescript(migration)
+    conn.execute("PRAGMA user_version = 11")
+    conn.execute("INSERT INTO jobs (id, title) VALUES (1, 'Fictional Nurse')")
+    conn.execute("INSERT INTO job_states (job_id, saved, applied) VALUES (1, 1, 1)")
+    conn.execute("INSERT INTO quality_ads (kind, source, source_job_id, title, url, text, rating, "
+                 "rated_by) VALUES ('scored', 'fake', '1', 'Fictional Nurse', '', 'Full ad', "
+                 "'good', 'owner')")
+    conn.commit()
+    conn.close()
+    with db.connect() as conn:
+        assert conn.execute("PRAGMA user_version").fetchone()[0] == len(db.MIGRATIONS)
+        assert tuple(conn.execute("SELECT saved, applied FROM job_states").fetchone()) == (1, 1)
+        assert tuple(conn.execute("SELECT rating, rated_by FROM quality_ads").fetchone()) == (
+            "good", "owner")
+        assert conn.execute("SELECT COUNT(*) FROM application_link_reports").fetchone()[0] == 0

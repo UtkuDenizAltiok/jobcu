@@ -124,6 +124,7 @@
               <button type="button" data-list="results" aria-pressed="true">Results</button>
               <button type="button" data-list="saved" aria-pressed="false">Saved</button>
               <button type="button" data-list="applied" aria-pressed="false">Applied</button>
+              <button type="button" id="excluded-application-links">Excluded links</button>
             </div>
             <div class="toolbar-right">
               <label class="check small" for="sort-order">Sort
@@ -154,6 +155,22 @@
           <div id="ruled-out-list" class="job-list"></div>
         </details>
       </section>
+
+      <dialog id="application-links-dialog" aria-labelledby="application-links-title">
+        <div class="dialog-head">
+          <h2 id="application-links-title">Application links</h2>
+          <button type="button" class="secondary" id="close-application-links">Close</button>
+        </div>
+        <p>If you tried a link and cannot use its application site, exclude that link below.
+          Jobcu uses another available link for the same vacancy, or leaves the job out if none
+          remains. Other links on that site stay available.</p>
+        <div id="application-link-choices"></div>
+        <h3>Links you excluded</h3>
+        <p class="muted">These choices stay on this computer. Undo allows the link again.
+          It does not run a search.</p>
+        <div id="application-link-reports"></div>
+        <p class="status" id="application-links-status" role="status" hidden></p>
+      </dialog>
 
       <dialog id="details-dialog" aria-labelledby="details-title">
         <div class="dialog-head">

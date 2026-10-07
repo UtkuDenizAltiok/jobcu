@@ -471,11 +471,13 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
     hidden = [i for i, s in enumerate(remembered_states) if s is not None and s.dismissed]
     hidden_ids, hidden_new = jobstore.remember([groups[i] for i in hidden], run.id)
     hidden_states = jobstore.states(hidden_ids)
+    reported_links = applications.reported_urls()
     hidden_cards = [
         pipeline.build_card(
             groups[index], job_id=job_id, is_new=is_new, state=hidden_states.get(job_id),
             scored=None, plan=plan, source_names=names, possible_duplicate_of=None,
             started_at=query.started_at, posted_within_hours=form.posted_within_hours,
+            reported_links=reported_links,
         )
         for index, job_id, is_new in zip(hidden, hidden_ids, hidden_new, strict=True)
     ]
@@ -516,8 +518,10 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     measured = [c for c in plan.conditions if c.kind == "near" and c.max_minutes and c.filters]
     at_once = [c for c in plan.conditions if all(c is not m for m in measured)]
     ruled_out = [i for i, group in enumerate(groups) if fails_a_condition(group, at_once)]
-    unavailable_routes = {i for i, group in enumerate(groups) if applications.unavailable(group)}
-    excluded = set(ruled_out) | unavailable_routes
+    reported_links = applications.reported_urls()
+    unavailable_routes = {i: reason for i, group in enumerate(groups)
+                          if (reason := applications.exclusion_key(group, reported_links))}
+    excluded = set(ruled_out) | set(unavailable_routes)
     in_running = [i for i in range(len(groups)) if i not in excluded]
     unchecked = [i for i in in_running if job_pool.jobs[i].unrelated is None]
     if unchecked:
@@ -691,15 +695,17 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
 
     # Facts only the ad text revealed can still rule a job out.
     left_out = Counter(job_pool.left_out)
-    left_out["application_route"] += len(unavailable_routes)
+    left_out.update(unavailable_routes.values())
     if ruled_out:
         left_out["location_condition"] = len(ruled_out)
     shown: list[int] = []
+    # Reports can be added while a search runs; full ads may also expose another route.
+    reported_links = applications.reported_urls()
     for index in candidates:
         result = job_pool.jobs[index].scored
         types = pipeline.job_types_of(groups[index], result)
-        if applications.unavailable(groups[index]):
-            left_out["application_route"] += 1
+        if route := applications.exclusion_key(groups[index], reported_links):
+            left_out[route] += 1
         elif result and form.exclude_remote and result["fully_remote"]:
             left_out["remote_text"] += 1
         elif types and not set(types) & set(form.job_types):
@@ -738,6 +744,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             started_at=started_at,
             posted_within_hours=form.posted_within_hours,
             first_seen_at=first_seen.get(id_of[index]),
+            reported_links=reported_links,
         )
 
     cards = [card(i) for i in shown]
@@ -748,6 +755,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             groups[index], job_id=0, is_new=False, state=None, scored=None, plan=plan,
             source_names=names, possible_duplicate_of=None, started_at=started_at,
             posted_within_hours=form.posted_within_hours, ruled_out=True,
+            reported_links=reported_links,
         )
         for index in ruled_out[:MAX_RULED_OUT_SHOWN]
     ]

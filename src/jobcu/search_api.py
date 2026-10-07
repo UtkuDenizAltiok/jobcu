@@ -114,7 +114,37 @@ def change_state(job_id: int, change: StateChange) -> dict:
 def marked_jobs(kind: str) -> dict:
     if kind not in ("saved", "applied"):
         raise HTTPException(status_code=404, detail="Unknown list.")
-    return {"cards": [applications.clean_card(c) for c in jobstore.marked_cards(kind)]}
+    reported = applications.reported_urls()
+    return {"cards": [applications.clean_card(c, reported) for c in jobstore.marked_cards(kind)]}
+
+
+class ApplicationLinkReport(BaseModel):
+    url: str = Field(min_length=1, max_length=8192)
+
+
+@router.post("/jobs/{job_id}/application-link")
+def report_application_link(job_id: int, body: ApplicationLinkReport) -> dict:
+    try:
+        applications.report_link(job_id, body.url)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Unknown saved job.") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"excluded": True}
+
+
+@router.get("/applications/excluded")
+def excluded_application_links() -> dict:
+    return {"links": applications.reports()}
+
+
+@router.delete("/applications/excluded/{report_id}")
+def undo_application_link_report(report_id: int) -> dict:
+    try:
+        applications.undo_report(report_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="That link is no longer excluded.") from exc
+    return {"excluded": False}
 
 
 def _refresh_states(snapshot: dict) -> None:
