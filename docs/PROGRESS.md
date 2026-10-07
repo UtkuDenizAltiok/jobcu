@@ -5,79 +5,43 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ## Right now
 
-*Updated 2026-10-07. Free engineering session; no new search or paid test ran.*
+*Updated 2026-10-08. Current engineering checks use fictional data.*
 
 ### State
 
-- The previous handover, PR #64, is merged. The Mac checkout was clean at `ab00ee3` on
-  resumption; main was synchronized at `729db41` after PR #65. Dependencies and hooks are
-  synchronized. Both app ports were already stopped.
-- [PR #65](https://github.com/UtkuDenizAltiok/jobcu/pull/65) implements the recorded fallback
-  for hidden application destinations (implemented, tested, pushed and merged).
-  **Application link problem** excludes an exact saved link locally; **Excluded links**
-  offers undo even after the card disappears. Another
-  already-matched link is retained, or the vacancy is left out with a counted reason.
-- Reports preserve scores, owner ratings, Saved/Applied marks and original snapshots. They
-  never fetch destinations or block unrelated links on the same site. Matching reads the
-  report set once per filter/build stage. Changed tracking URLs need another report.
-- **684 tests**, Ruff, privacy, JS syntax, whitespace and isolated Mac startup passed.
-  Migration preservation, guarded APIs, restart, undo, storage failure and stale undo are
-  covered with fictional engineering, nursing and hospitality jobs. Existing dependency
-  deprecation warning remains. Final-head Mac/Windows/privacy PR CI passed for #65.
-  No real accuracy, coverage, cost or speed gain is claimed.
-- Fictional Mac UI walkthrough passed: employer fallback, exclusion without an alternative,
-  reload, Saved history and undo; no console warnings/errors. Preview stopped and tab closed.
-- No private-data access, provider calls, job-source requests or full search ran. Disposable
-  fictional preview/self-test data was deleted. The owner's app remains stopped; no assistant
-  instance remains. Start it on demand to load the merged changes.
-- Earlier private search aggregates/evidence and original owner ratings remain preserved;
-  none was read this session. Ambiguous review cases and independent top-10 labels remain
-  unfinished; no new full search is needed to inspect saved evidence after authorization.
+- [PR #65](https://github.com/UtkuDenizAltiok/jobcu/pull/65) (application-link reporting) and
+  [PR #67](https://github.com/UtkuDenizAltiok/jobcu/pull/67) (vacancy identity and local matching
+  work) are tested and merged with merge commits. Main was synchronized at `75cc83e`;
+  dependencies/hooks are current. Final-head Mac/Windows/privacy PR CI passed.
+- Fresh employer references and ambiguous current groups retain separate dates/marks.
+  Proven copies share one identity. Migration 13 preserves historical keys, states and results;
+  previously merged history is not guessed apart. No scoring cache or collection change.
+- **718 tests**, Ruff, privacy, whitespace, isolated Mac startup and direct import passed.
+  Component measurements and their limits are in
+  [ARCHITECTURE](ARCHITECTURE.md#fictional-local-comparison--2026-10-08).
+  Live ranking/recall/end-to-end speed remain unverified. Existing dependency warning remains.
+- Both app/preview ports are stopped. Owner data and ratings are preserved. No private
+  material or real-result measurements belong in this handover; consult [REVIEW](REVIEW.md)
+  and applicable private records for authorized investigations.
 
 ### In progress
 
-**Proactive freshness/identity review**, branch `codex/job-memory-identity`, started from
-clean synchronized main `61b133d`. PR #66 and final main Mac/Windows/privacy CI passed;
-no app/preview was running. Development checks use fictional data; private work follows
-[REVIEW](REVIEW.md) and any applicable private authorization record.
+**Location evidence and session handover**, branch `codex/location-check-confidence`, based on
+synchronized main `75cc83e`. No PR yet; implementation not started.
 
-Goal: prevent distinct fresh vacancies inheriting old jobs' dates/marks, and remove repeated
-identity work while preserving proven copies. These are hypotheses until reproduced.
+Goal: prevent a checked journey from presenting an unchecked reference-place fact as verified,
+and make start/review/end prompts recover work reliably in a fresh chat.
 
-1. Research primary identifier/date guidance; inspect grouping and remembered-job identity.
-2. Reproduce failures with fictional employer requisitions and non-engineering examples;
-   choose the smallest general correction, preserving existing state and history.
-3. Measure any optimization locally with fictional inputs; verify recall, reposts, marks,
-   alternatives, ambiguity and failures. Update the relevant records and guide.
-4. Review; run full Ruff/tests/privacy; publish a PR; wait for Mac/Windows/privacy CI;
-   merge with a merge commit and synchronize clean main. Stop/delete assistant test state.
+1. Reproduce confidence loss with fictional engineering and non-engineering examples.
+2. Preserve reference-place research confidence through travel measurement, saved plans,
+   corrections and cards. Explain partial checks clearly without changing scores or recall.
+3. Refine the three prompts and AGENTS routine: one active goal, checkpoint before long work,
+   end drains the current coherent step without new scope, next chat needs no prior context.
+4. Run targeted/full checks, privacy and fictional UI verification; review, push, open PR,
+   wait for Mac/Windows/privacy CI, merge and synchronize main; clean up assistant state.
 
-Reproduced in fictional electronics and nursing cases: two employer references became one
-group, and a fresh reference inherited an old Not interested mark. Implemented grouping guards,
-exact-ID memory precedence, a non-unique name index (migration 13), country/ambiguity checks,
-atomic saves, bounded reads and per-grouping-call text reuse. Historical keys/marks remain.
-
-Baseline: 684 tests/Ruff/privacy passed. New targeted regressions pass, including full mocked
-electronics/nursing searches, transitive matches, empty IDs, conflicting full ads, legacy
-state, low SQLite limits, rollback and exact-ID reposts. First fictional component benchmark
-preserves 1,000 IDs and 40 groups: identity reads 1,000 -> 2; text preparation 1,560 -> 40.
-Timing is preliminary and does not establish live search speed. A reusable fictional benchmark
-is implemented; its privacy isolation/failure regression and document checks passed.
-Review also closed concurrent-allocation and summary-bridge gaps, with regressions passing.
-Final correction and regressions are implemented: separate current groups cannot rejoin on
-names alone; exact copies still share one card and country evidence disambiguates.
-Full local checks passed: **718 tests**, Ruff, privacy and whitespace. Isolated Mac startup
-and direct import passed before this final identity-only correction. The repeated fictional
-benchmark preserved every ID/group: lookup 10.370 -> 2.983 ms; comparison 368.320 -> 16.020 ms
-(five warmed rounds). Definitions/limits live in
-[ARCHITECTURE](ARCHITECTURE.md#fictional-local-comparison--2026-10-08).
-[PR #67](https://github.com/UtkuDenizAltiok/jobcu/pull/67) is open; initial-head
-Mac/Windows/privacy CI passed. The final correction and documentation are locally checked,
-awaiting commit/push and fresh CI. Exact next action: push, wait for final-head
-Mac/Windows/privacy CI, merge and synchronize main. Live ranking/coverage/speed remain
-unverified. No private material or real-result measurements are published here.
-The prior hidden-route fallback is complete; automatic hidden-host detection remains unverified.
-Do not probe blocked pages, guess application URLs, or request private jobs/links in chat.
+Exact next action: add fictional failure regressions, implement confidence preservation and
+update the handover prompts. Preserve original private evidence and owner ratings outside Git.
 
 ### Verify before relying on
 
