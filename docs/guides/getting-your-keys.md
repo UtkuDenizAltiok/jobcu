@@ -68,12 +68,13 @@ These terms appear there:
 - **Web look-ups** are requests asking the AI to find information online.
 - **Jobs scored** are job ads the AI has evaluated against your background.
 
-Under **Limits**, enter the amounts you want to allow, then click **Save limits**.
-The per-search limits control when Jobcu asks whether to do more work. Monthly limits stop
+New installs have no per-search scoring or AI web look-up cap. To choose an optional limit,
+enter an amount under **Limits**, then click **Save limits**. Existing saved choices are kept.
+Per-search limits control when Jobcu asks whether to do more work. Monthly limits stop
 further AI work when Jobcu's recorded usage reaches them. A blank box means **No limit**;
 it does not mean zero use or free use.
 
-For a money estimate, add your model's prices:
+Prices are optional for searching. For a money estimate, add your model's prices:
 
 1. Under **Prices**, click **Add a model**.
 2. In the new row, select your provider and enter the same model name you chose above.

@@ -64,6 +64,11 @@ Archived price comparisons are historical; do not use them as current cost or mo
 
 **Rechecked 2026-10-07 for the guides:**
 
+- [Gemini API standard pricing](https://ai.google.dev/gemini-api/docs/pricing):
+  `gemini-3.8-flash` lists USD 0.75 input and USD 3.75 output per million tokens, including
+  thinking tokens, through 2026-12-31; USD 1.50/7.50 begins 2027-01-01. This is a dated
+  pricing fact, not a model recommendation. Jobcu's token estimate omits grounding fees and
+  cached-token discounts; provider billing remains the reference for actual charges.
 - [Gemini API keys](https://ai.google.dev/gemini-api/docs/api-key) are managed in AI Studio;
   follow its current project/key instructions rather than assume a fixed key format.
 - [Google Cloud alerts-only budgets](https://docs.cloud.google.com/billing/docs/how-to/budgets)

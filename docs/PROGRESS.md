@@ -5,7 +5,7 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ## Right now
 
-*Updated 2026-10-07. Finished-search audit and confirmed code fixes are merged.*
+*Updated 2026-10-07. Closing the session; no new search or paid review is running.*
 
 ### State
 
@@ -18,7 +18,7 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
   explicit history label, optional document-understanding reset, cumulative online-check
   progress, original vacancy URL, combined medium-effort location interpretation with a format
   fallback, separate travel usage, and a 24-hour new-install posting window.
-- **655 tests**, Ruff, privacy, JS syntax and whitespace passed. A fictional reset-screen check
+- Earlier merged work: **655 tests**, Ruff, privacy, JS syntax and whitespace passed. A fictional reset-screen check
   passed with no browser errors; isolated Mac startup self-test passed on port 8799 and stopped.
   The existing dependency deprecation warning remains; no failed product checks remain.
 - The authorized latest-search aggregate review is saved in the private data folder. Additional
@@ -29,21 +29,20 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 - The owner's requested next-search posting choice was saved as 24 hours. His app on port 8765
   remains running in its original process; it needs an on-demand restart to load these changes.
   Port 8799 is stopped. Disposable review/preview data and the temporary browser tab are deleted.
+- Closeout corrections are implemented: no default scoring/web-check cap, preserved saved
+  optional limits, corrected review prompt and independent on-demand product intent.
+  The owner's per-search caps are cleared locally; verified current token prices are saved
+  privately. Monthly choices, Maps control, documents, results and ratings are preserved.
 
 ### In progress
 
-None. The finished-search audit is saved privately. A supported assistant label is saved;
-owner labels and original result snapshots are preserved. Ambiguous cases remain unrated,
-including summary-only evidence; no full top-10 precision or market recall is claimed.
-
-The full-ad experience replacement and atomic rating-ownership fixes are implemented, tested,
-pushed and merged with a merge commit in
-[PR #60](https://github.com/UtkuDenizAltiok/jobcu/pull/60). Its final-head and subsequent main Mac/Windows/privacy
-CI passed; closing checks were rerun: 655 local tests, Ruff/privacy/JS/whitespace passed. No paid re-score, source traffic or
-full search ran. Private audit scratch is deleted; detailed evidence remains outside Git.
-Exact next action: configure current prices inside Jobcu for a bounded medium-effort re-score
-of the existing sample, using [Review a search](PROMPTS.md#review-a-search). No new search is
-needed to continue this review. Future on-demand daily searches remain set to 24 hours.
+Session closeout only, on `codex/review-budget-closeout` from synchronized main `65add76`.
+Default/settings/guidance corrections are implemented; the private settings save was read back
+and verified. Current branch checks, push, PR/CI and merge are pending. Earlier changes remain
+implemented, tested, pushed and merged in PRs #58 and #60.
+Exact next action: run Ruff, pytest and privacy checks; review and push the complete change,
+wait for Mac/Windows/privacy CI, merge with a merge commit, and read back the final handover.
+No new quality investigation, paid re-score, source requests or full search during closeout.
 
 ### Verify before relying on
 
@@ -58,13 +57,15 @@ needed to continue this review. Future on-demand daily searches remain set to 24
 - Coverage: independent date-verified 15–25-job benchmark in AGENTS.md's country order remains.
 - Beginner install walkthrough and a fresh Windows install/upload/search remain untested.
 
-### Waiting on the owner
+### Owner inputs and next session
 
-1. To unlock a bounded medium-effort re-score of the existing sample, configure current prices
-   inside Jobcu. Prices are absent, so this review's conditional EUR1 permission was not used.
-   Keep all private inputs in Jobcu. A running app is not required for free saved-result review.
-2. Summary-based cards still need permitted original full-ad evidence for a complete ranking
-   assessment. The next on-demand daily search remains set to 24 hours; none was started here.
+- No keys, documents or price entry are needed for this closeout. Current prices are saved
+  locally; dated public pricing evidence is in [SOURCES](SOURCES.md#ai-and-maps).
+- The owner plans the next 24-hour on-demand search on 2026-10-08. Restart through
+  **Start Jobcu.command** when ready to load merged code, then use
+  [Review a search](PROMPTS.md#review-a-search) in the next local project chat.
+- Summary-based cards still need permitted original full-ad evidence for complete independent
+  judgement. Ambiguous sample cases remain unrated; owner labels/results are preserved.
 
 ### Next tasks
 

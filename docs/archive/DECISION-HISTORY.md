@@ -740,3 +740,16 @@ The 2026-10-06 decision made new installs start with 72 hours, because a three-d
 the first restored-Mac evaluation. The owner chose daily 24-hour searches on 2026-10-07 to apply
 earlier. The current default is 24 hours; existing saved choices and wider windows remain
 supported. See [current search decisions](../DECISIONS.md#search-behavior).
+
+## Superseded search defaults and review allowance — 2026-10-07
+
+Earlier installs started with per-search caps of 200 scored jobs and 50 AI web look-ups;
+continuation asked the user, and **Always** removed the cap. The owner now chooses searches
+that finish without these arbitrary pauses. New defaults have no scoring/web cap; saved user
+choices remain optional controls. Provider/source request rules and monthly controls remain.
+
+The earlier private-review prompt allowed a focused development re-score up to EUR1 when
+prices were configured. It never imposed a EUR1 cap on normal searches. The owner removed
+this review allowance on 2026-10-07; current review permission uses the existing monthly
+budget and configured service limits, with verified prices. No paid work was performed under
+the superseded allowance. See [current evaluation decisions](../DECISIONS.md#evaluation).
