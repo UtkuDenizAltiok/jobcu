@@ -36,16 +36,25 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ### In progress
 
-No unfinished product implementation. Hidden-host detection remains unverified; the local
-report/undo fallback is complete. Do not claim that every opaque CV-Library redirect is removed.
+**Proactive freshness/identity review**, branch `codex/job-memory-identity`, started from
+clean synchronized main `61b133d`. PR #66 and final main Mac/Windows/privacy CI passed;
+no open PR or running app/preview remains. Private data and paid work remain unauthorized.
 
-The final documentation handover is on `codex/application-link-handover`. If interrupted
-on that branch, check its PR/CI, merge with a merge commit after green Mac/Windows/privacy
-checks, then pull clean main. Preserve any later work.
-The next product action is independent full-ad/top-10 evaluation under [REVIEW](REVIEW.md),
-when a completed search and explicit private-review authorization are available. This resume
-prompt grants no private access or paid work. Do not probe blocked pages, guess application
-URLs, or request private jobs/links in chat.
+Goal: prevent distinct fresh vacancies inheriting old jobs' dates/marks, and remove repeated
+identity work while preserving proven copies. These are hypotheses until reproduced.
+
+1. Research primary identifier/date guidance; inspect grouping and remembered-job identity.
+2. Reproduce failures with fictional employer requisitions and non-engineering examples;
+   choose the smallest general correction, preserving existing state and history.
+3. Measure any optimization locally with fictional inputs; verify recall, reposts, marks,
+   alternatives, ambiguity and failures. Update the relevant records and guide.
+4. Review; run full Ruff/tests/privacy; publish a PR; wait for Mac/Windows/privacy CI;
+   merge with a merge commit and synchronize clean main. Stop/delete assistant test state.
+
+No implementation is complete yet. Exact next action: reproduce same-title distinct employer
+requisitions in grouping and job memory. Real ranking/coverage/speed remain unverified.
+The prior hidden-route fallback is complete; automatic hidden-host detection remains unverified.
+Do not probe blocked pages, guess application URLs, or request private jobs/links in chat.
 
 ### Verify before relying on
 
