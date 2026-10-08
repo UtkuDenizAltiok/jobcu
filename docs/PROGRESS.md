@@ -14,8 +14,10 @@ Completed details live in Git and PRs. Private evaluation follows
 - Title-screen recovery, vacancy identity, local matching and location-confidence changes
   are merged. Behavior, reasons and measured local limits live in [ENGINEERING](ENGINEERING.md).
   Live recall, accuracy, speed and cost remain unverified.
-- Cleanup combines developer records into ENGINEERING and CONTRIBUTING; PROMPTS has one
-  complete block per task. Detailed user guides, runtime behavior and dependencies are preserved.
+- [PR #73](https://github.com/UtkuDenizAltiok/jobcu/pull/73) is implemented, tested, pushed
+  and merged with a merge commit. Merged implementation head: `7ccb045`; Mac was synchronized
+  before this handover. Final-head PR and merged-main Mac/Windows/privacy CI passed.
+  Developer records are consolidated and PROMPTS has one full block per task; detailed human guides and runtime behavior are preserved.
 - Local checks passed: **741 tests**, Ruff, privacy, JS syntax and whitespace. The two fewer
   document cases reflect consolidation; no behavioral tests were removed. Executable Python
   comparison, unchanged AI/JS instructions and preserved-guide/review checks passed.
@@ -24,11 +26,13 @@ Completed details live in Git and PRs. Private evaluation follows
 
 ### In progress
 
-None on merged main. If still on `codex/simplify-project` (base `cc3d66f`), publication is the
-remaining goal: implementation and local verification are complete. Recover the branch PR,
-verify final-head Mac/Windows/privacy CI, merge with a merge commit and synchronize main
-before new work. Exact next action: follow the start routine and check actual Git/PR/CI state.
-No private review, provider/source call, job search or owner app start was performed.
+None on merged main; all implementation is tested, pushed and merged. If this handover is
+still on `codex/fresh-chat-handover` (base `7ccb045`), its only remaining step is publication:
+recover the branch PR, verify final-head Mac/Windows/privacy CI, merge and synchronize main.
+Required end checks passed: **741 tests**, Ruff, privacy and whitespace; no failed check remains.
+Exact next action in a fresh chat: run the start routine, confirm actual Git/PR/CI/app state,
+then begin Next tasks item 1 using the private authorization and saved review checkpoint.
+Detailed private evidence and authorization stay outside Git; no new search or paid work started.
 
 ### Verify before relying on
 
