@@ -198,6 +198,12 @@ already left the vacancy out, run your next search when ready to find it again. 
 undo use no AI allowance. A changed redirect URL needs a new report. Jobcu already excludes
 known CV-Library destinations; an unknown redirect shows **Application site not verified**.
 
+Before scoring, Jobcu looks for recent full text already stored on your computer. If it still
+needs the full ad, it prefers the employer's original and can try another matched copy through
+an available source. This uses the same source limits; it may take longer when the first copy
+is incomplete or unavailable. It does not start another search. Scores are worked out afresh
+for each new search. If full text still cannot be read, the job stays with its summary warning.
+
 Read warnings on a job before making a decision:
 
 - **Scored from a short summary** or an excerpt warning means Jobcu did not read the whole

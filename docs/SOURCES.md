@@ -74,6 +74,29 @@ to bound batched reads; fictional regression checks lower the limit to 64.
 `BEGIN IMMEDIATE` starts a write transaction before later reads/writes. Jobcu uses it to
 serialize identity allocation; fictional simultaneous-save and rollback checks verify behavior.
 
+## Full-ad evidence and existing detail APIs
+
+**Rechecked 2026-10-08:** [Google's job-posting reference](https://developers.google.com/search/docs/appearance/structured-data/job-posting)
+requires a full description including duties, qualifications, skills, hours, education and
+experience; `datePosted` means the employer's original posting date. These are data definitions,
+not collection permission or proof that a particular site's text includes every condition.
+
+[Greenhouse's Job Board API](https://docs.greenhouse.io/job-board.html) documents public GET
+endpoints without authentication. Its job-list response omits content by default (the optional
+`content=true` includes it); the individual job endpoint returns the full content. This supports
+the existing separate list/detail reader, not unrestricted employer crawling or applications.
+[Reed's jobseeker API](https://www.reed.co.uk/developers/jobseeker) likewise documents separate
+search and job-ID detail endpoints: details include description and expiration, and a missing
+job returns a blank response. It requires an API key via HTTP Basic authentication. Recruiter
+API limits must not be assumed to apply to these jobseeker endpoints.
+
+Inference for Jobcu: a list summary or failed detail read does not establish that the vacancy's
+requirements are unavailable everywhere. Read another already-matched copy through its
+existing permitted adapter; prefer the original employer when live reading is necessary.
+Existing endpoints, terms/robots checks, source limits and access decisions are retained;
+no source or collection permission is added by this coordinator change. Full text still needs
+identity, completeness and bounded-age checks. Live recall/fit benefits need independent review.
+
 ## Job-source cooldown protocol
 
 **Checked 2026-10-08:** [RFC 9110 section 10.2.3](https://www.rfc-editor.org/rfc/rfc9110.html#name-retry-after)

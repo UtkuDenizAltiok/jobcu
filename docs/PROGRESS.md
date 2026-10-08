@@ -37,17 +37,35 @@ Completed details live in Git and PRs. Private evaluation follows
 
 ### In progress
 
-None on merged main; the source-cooldown goal is tested, pushed and merged. If this handover
-is still on `codex/source-cooldown-handover` (base `c7a49eb`), its only remaining work is
-publication: recover the branch PR, verify final-head Mac/Windows/privacy CI, merge and
-synchronize main. Required end checks passed: **774 tests**, Ruff, privacy and whitespace;
-no failed check remains. Detailed private evidence and authority stay outside Git.
+Active goal: recover complete evidence from already-matched ad copies on
+`codex/full-ad-recovery`, base `76f405f`. Main and PR/CI/app state are verified; startup checks
+passed **774 tests**. The saved private review still needs missing original ads/new title
+decisions; recovery inspection used a read-only scratch copy, now deleted. No new search or
+paid/provider/job-site call started, and owner data/ratings/authority are preserved.
 
-Exact next action in a fresh chat: run the start routine, recheck private authority/checkpoint
-and compare saved evidence. If its missing-evidence dependency persists, checkpoint it and
-begin the full-ad fallback goal below: reproduce the first-copy-only behavior with fictional
-ads before changing it. Keep one goal; no new search or paid experiment is granted by this
-handover. Source permissions and budgets still apply.
+Shortlist by benefit, evidence, effort and risk:
+1. Full-ad recovery: confirmed first-copy-only behavior; high evidence benefit, moderate effort
+   and identity/concurrency/budget risk. Select it; verify cache-first and failure fallback
+   with fictional electronics, nursing and hospitality searches.
+2. Unresolved places: confirmed mismatch with keep-unknown intent; potentially high recall
+   benefit, low effort, needs geographic exclusion/matching regressions before implementation.
+3. Retry accounting: budget charges precede internal HTTP retries; needs a focused limit audit
+   before any claim of correct attempt accounting. No live budget experiment is authorized.
+
+Steps: recheck full-evidence and existing API documentation/permissions; reproduce missed full
+ads; reuse valid cached text across copies; try permitted copies in sequence until full text
+is found, preserving source serialization, identity, source limits and Stop; document behavior;
+run full checks and review; publish, verify final-head Mac/Windows/privacy CI, merge and sync.
+Implemented locally: cache-first across matched copies, employer-first fallback, identity and
+mutation guards, retained summaries, Stop/source serialization, correction-reader budgets and
+pre-scoring objective-fact checks. The original loader failed 18 focused cases. Final local
+checks passed **819 tests**, Ruff, privacy, whitespace and an isolated startup self-test; the
+diff was reviewed. Self-test stopped and its disposable data was deleted.
+Dated public evidence and fictional before/after reader counts are recorded in SOURCES and
+ENGINEERING; no live benefit is claimed. Implementation and records are ready for publication;
+no merge is claimed by this checkpoint. Recover actual HEAD/PR from Git and GitHub.
+Exact next action: push/open the branch PR if absent; verify its exact-head Mac/Windows/privacy
+CI, merge with a merge commit, synchronize main, then refresh this handover against actual state.
 
 ### Verify before relying on
 
