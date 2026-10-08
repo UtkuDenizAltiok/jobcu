@@ -12,6 +12,10 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 - [PR #70](https://github.com/UtkuDenizAltiok/jobcu/pull/70) is implemented, tested, pushed
   and merged with a merge commit. The Mac checkout was synchronized at `65177e5`;
   dependencies/hooks are current. Final-head Mac/Windows/privacy PR CI passed.
+- [Deep improvement](PROMPTS.md#deep-improvement) is a reusable research/implementation
+  prompt with a short paste command. It discovers and prioritizes new ideas, completes one
+  active goal at a time and preserves quality, privacy and existing service limits. Local
+  documentation checks passed: 743 tests, Ruff, privacy and whitespace.
 - Career titles are rejected only on an explicit unrelated decision. Unseen titles beyond the
   preliminary bound and independent failed batches remain for normal matching; successful
   decisions survive. Critical account/model/quota/monthly-limit errors and Stop propagate.
@@ -32,10 +36,13 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ### In progress
 
-None. Implementation is merged; no partial code or pending feature PR remains.
-Exact next action: follow the session routine and verify Git/CI; if this handover publication
-is still on an unmerged branch, finish its checks/merge before choosing new work. Private
-investigations follow [REVIEW](REVIEW.md) and applicable private authorization/review records.
+None on merged main. If this handover is still on `codex/deep-improvement-prompt`, publication
+is the active goal: prompt/navigation are implemented and local checks passed (743 tests,
+Ruff, privacy, whitespace). Based on synchronized main `623fdda`; no app/private investigation,
+provider call or job search was started. Exact next action: push/open or recover the branch PR,
+verify final-head Mac/Windows/privacy CI, merge with a merge commit and synchronize main.
+Before choosing new work, follow the session routine and confirm actual Git/PR/CI state.
+Private investigations follow [REVIEW](REVIEW.md) and applicable private authorization/records.
 
 ### Verify before relying on
 
@@ -57,6 +64,8 @@ investigations follow [REVIEW](REVIEW.md) and applicable private authorization/r
 - Search on demand: double-click **Start Jobcu.command**, choose **24 hours**, then search
   when ready. After completion, use [Review a search](PROMPTS.md#review-a-search); existing
   permissions apply within their scope and no keys/documents need to be shared in chat.
+- With spare assistant usage and time, paste [Deep improvement](PROMPTS.md#deep-improvement)
+  for original research and complete engineering work; its short command loads the full prompt.
 - Before closing a chat, use [End](PROMPTS.md#end-a-session) and wait for the saved-state
   confirmation. Open a fresh local project chat and use [Start](PROMPTS.md#start-a-session).
 - When a link leads to an unusable application site, use **Application link problem** in
