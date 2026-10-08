@@ -8,6 +8,17 @@ Detailed formats, rate limits, site quirks and past measurements live in
 [dated source research](archive/SOURCE-RESEARCH.md). Its checks span 2026-09-17 to 2026-10-06;
 follow each section's date. Add newly verified facts here with a date and primary source link.
 
+## Local deletion evidence
+
+**Checked 2026-10-09.** SQLite's [secure_delete documentation](https://www.sqlite.org/pragma.html#pragma_secure_delete)
+says ordinary deleted content is overwritten when enabled; virtual/shadow tables have caveats.
+[VACUUM](https://www.sqlite.org/lang_vacuum.html) rebuilds the database, removes deleted content
+and needs temporary disk space; active transactions/readers can prevent completion.
+[Journal modes](https://www.sqlite.org/pragma.html#pragma_journal_mode) distinguish DELETE
+(journal removed at commit), PERSIST (header cleared, file retained) and persistent WAL mode.
+Jobcu restores DELETE mode before resetting rows and compacts afterwards, with fictional tests
+for all three starting modes. This verifies app-file behavior, not SSD/OS-snapshot erasure.
+
 ## Implemented job sources
 
 The registry is `src/jobcu/sources/__init__.py`; requests go through `sources/http.py` and budgets

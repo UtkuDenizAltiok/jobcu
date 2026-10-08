@@ -190,13 +190,17 @@ def test_unknown_future_table_is_not_silently_left_behind(client, populated):
     assert count("jobs") == 1
 
 
-def test_deleted_profile_text_is_not_left_in_compacted_database(client, populated):
+@pytest.mark.parametrize("journal_mode", ["DELETE", "PERSIST", "WAL"])
+def test_deleted_profile_text_is_not_left_in_compacted_database(client, populated, journal_mode):
     marker = "fictional-private-profile-for-reset-verification"
     with db.connect() as conn:
+        conn.execute(f"PRAGMA journal_mode = {journal_mode}")
         conn.execute("UPDATE profile_cache SET profile_json = ?", (marker,))
     assert marker.encode() in db.db_path().read_bytes()
     assert request_reset(client, "search").status_code == 200
     assert marker.encode() not in db.db_path().read_bytes()
+    assert not db.db_path().with_name(db.DB_FILENAME + "-journal").exists()
+    assert not db.db_path().with_name(db.DB_FILENAME + "-wal").exists()
 
 
 def test_full_reset_closes_and_recreates_its_log_on_windows_too(client, populated):

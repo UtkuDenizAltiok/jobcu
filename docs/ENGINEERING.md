@@ -82,7 +82,8 @@ Code/tests establish behavior; the latest current decision establishes intent.
   corrections and competing uploads/provider checks; starts and corrections share the manager
   lock. Successful database deletion forgets the in-memory run even if later file deletion or
   compaction is incomplete. A failed reset reports partial deletion and can be retried.
-- Database rows are deleted with secure_delete and compacted. Full reset closes/recreates the
+- Database deletion first restores DELETE journal mode, then uses secure_delete and compaction
+  so earlier text is not retained in a persistent journal/WAL. Full reset closes/recreates the
   owned log handler for Windows. Symlink targets/external originals are not traversed. This is
   local deletion, not secure erasure of SSDs, snapshots or separate backups. The page reloads
   after success and broadcasts a transient reload signal to other Jobcu tabs, without storing

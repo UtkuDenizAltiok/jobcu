@@ -68,8 +68,8 @@ Branch `codex/reset-and-review`, base `c406224`; prior handover PR #85 and final
 
 Implemented: all three scopes, explicit confirmation, idle-search and competing-write protection,
 database compaction, partial-failure/retry handling, log closure for Windows and page refresh.
-Baseline 920 tests and the implementation's 938-test full suite passed; the additional database
-erasure regression also passed targeted checks (939 cases now). Ruff/privacy/JS/whitespace and
+Baseline 920 tests and the final implementation's **941-test full suite** passed, including
+database erasure/journal regressions. Ruff/privacy/JS/whitespace and
 manual diff review passed. Fictional browser checks verified disabled confirmation, cancellation,
 optional navigation and score reveal after rating. Preview/scratch were stopped/deleted.
 Exact next action: commit/push, open the PR, verify exact-head Mac/Windows/privacy CI, merge

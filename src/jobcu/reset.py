@@ -103,6 +103,10 @@ def clear_data(scope: Scope) -> bool:
         )}
         if tables != set(SEARCH_TABLES) | {"quality_ads", "ai_usage", "source_requests"}:
             raise OSError("Unrecognized data tables; preserve them rather than omit a reset.")
+        # Jobcu normally uses DELETE mode. Refuse a busy mode change rather than leave a
+        # persistent rollback journal or WAL containing earlier copies of deleted text.
+        if conn.execute("PRAGMA journal_mode = DELETE").fetchone()[0].lower() != "delete":
+            raise OSError("The database journal could not be cleared.")
         conn.execute("PRAGMA secure_delete = ON")
         conn.execute("BEGIN IMMEDIATE")
         if scope != "review":

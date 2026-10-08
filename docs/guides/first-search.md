@@ -294,5 +294,7 @@ Deleted data cannot be restored through Jobcu. A full reset means uploading your
 before the next search. Your original documents and separate backups outside Jobcu's data folder
 are not deleted. This does not promise secure erasure from SSDs or operating-system snapshots.
 Usage counters stay because deleting search data does not undo provider charges or site requests.
+After clearing search history, previously seen or hidden jobs can appear again and their New
+badges start fresh. Your posting-window and filter choices still apply to the next search.
 Other open Jobcu tabs reload after success. If a reset cannot finish, some data may be cleared;
 reload and repeat the same reset. Do not assume an error means nothing was deleted.
