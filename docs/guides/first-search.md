@@ -257,8 +257,8 @@ whether a limit reduced the search. See [Few or no jobs](troubleshooting.md#i-se
 
 **Search details → Extra employer titles** explains the early check for titles the search
 words missed. **Unreviewed** titles are kept for normal matching; they have not been judged a
-fit. You can also see early rejections and rate sampled titles in **Score check**. **Ads found**
-now counts what each source collected, before those rejections. Earlier searches keep their
+fit. You can also see early rejections and rate sampled titles in **Settings → Review results**.
+**Ads found** now counts what each source collected, before those rejections. Earlier searches keep their
 original counts. Retaining unknowns may use more AI in later matching; your existing scoring
 and monthly limits still apply.
 
@@ -271,6 +271,28 @@ Next time, double-click the same start file. Your keys, documents, settings and 
 are kept on this computer. Check your search choices, then run another search when you want
 new results. You only need to replace documents or change settings when something changes.
 
-The **Score check** page is optional. It keeps a small sample of jobs for you to rate as a
-good, okay or poor fit before showing Jobcu's score. This helps compare its judgement with
+**Settings → Review results** is optional (formerly the **Score check** tab). It keeps a sample
+for you to rate as a good, okay or poor fit before showing Jobcu's score. This helps compare its judgement with
 yours. You can use Jobcu without filling it in; ratings remain private on your computer.
+Ratings do not automatically train the AI or change scores. Assistant development reviews use
+the [private review procedure](../../CONTRIBUTING.md#review-a-completed-search) within your
+existing authorization and limits, without requiring you to fill in this page.
+
+## Clear data and start fresh
+
+Choose the smallest reset you need; each shows a confirmation before deleting anything.
+Nothing is cleared just by opening the confirmation. Finish or stop any search first, and wait
+for other actions such as uploads or connection tests to finish. Reset itself makes no paid calls.
+
+| Control | Removed | Kept |
+|---|---|---|
+| **Search → Clear search data** | Search text and extra note, history/results, Saved/Applied/hidden marks, excluded links and search caches | Uploaded documents, review samples/ratings, settings/filter choices, keys and usage counters |
+| **Settings → Review results → Clear review sample** | Sampled ads, ratings and notes | Search results, marked jobs, documents, settings, keys and counters |
+| **Settings → Reset Jobcu data** | Both groups above and all other files in Jobcu's data folder, including uploaded document copies, logs and private assistant review records/checkpoints | Saved settings/filter choices, keys, assistant permissions and usage counters |
+
+Deleted data cannot be restored through Jobcu. A full reset means uploading your documents again
+before the next search. Your original documents and separate backups outside Jobcu's data folder
+are not deleted. This does not promise secure erasure from SSDs or operating-system snapshots.
+Usage counters stay because deleting search data does not undo provider charges or site requests.
+Other open Jobcu tabs reload after success. If a reset cannot finish, some data may be cleared;
+reload and repeat the same reset. Do not assume an error means nothing was deleted.

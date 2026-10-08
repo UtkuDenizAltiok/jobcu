@@ -296,6 +296,16 @@ class SearchManager:
         run.answer(False)
         return True
 
+    def reset(self, action: Callable[[], bool], *, clear_search: bool) -> bool:
+        """Keep starts/corrections out until a deliberate local reset finishes."""
+        with self._lock:
+            if self._current is not None and self._current.status == "running":
+                raise RuntimeError("Wait for your search to finish, or stop it first.")
+            completed = action()
+            if clear_search:
+                self._current = None
+            return completed
+
 
 def _mark_remaining(run: SearchRun, status: StepStatus) -> None:
     for step in run.steps:

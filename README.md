@@ -4,6 +4,11 @@ Jobcu finds fresh job ads, ranks their fit to your CV and cover letter, and expl
 It runs on your Mac or Windows computer and connects to job sources and your chosen AI provider.
 This is an early test version; live coverage and scoring quality still need measured validation.
 
+Everyday navigation is **Search** and **Settings**. Optional **Settings → Review results** helps
+compare scores with independent ratings; it is not required to use Jobcu. To start fresh, use
+the [confirmed reset controls](docs/guides/first-search.md#clear-data-and-start-fresh), which keep
+your settings, keys and real usage counters.
+
 ## Use Jobcu
 
 You do not need programming experience. You use Jobcu through a page in your web browser.

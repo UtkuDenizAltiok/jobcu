@@ -16,6 +16,8 @@ from jobcu.build import build_id
 from jobcu.documents_api import router as documents_router
 from jobcu.paths import data_dir
 from jobcu.quality_api import router as quality_router
+from jobcu.reset import Mutations, ResetBusy
+from jobcu.reset import router as reset_router
 from jobcu.search_api import router as search_router
 from jobcu.settings_api import router as settings_router
 
@@ -52,6 +54,7 @@ def create_app() -> FastAPI:
         redoc_url=None,
         openapi_url=None,
     )
+    mutations = Mutations()
 
     @app.middleware("http")
     async def protect_local_app(request: Request, call_next):
@@ -65,7 +68,17 @@ def create_app() -> FastAPI:
                     {"error": "This request didn't come from the Jobcu page."},
                     status_code=403,
                 )
-        response = await call_next(request)
+        try:
+            if request.method in UNSAFE_METHODS:
+                with mutations.enter(reset=request.url.path == "/api/data/reset"):
+                    response = await call_next(request)
+            else:
+                response = await call_next(request)
+        except ResetBusy:
+            response = JSONResponse(
+                {"detail": "Wait for the current action to finish, then try again."},
+                status_code=409,
+            )
         for name, value in SECURITY_HEADERS.items():
             response.headers.setdefault(name, value)
         return response
@@ -99,6 +112,7 @@ def create_app() -> FastAPI:
     app.include_router(documents_router)
     app.include_router(search_router)
     app.include_router(quality_router)
+    app.include_router(reset_router)
 
     @app.get("/", include_in_schema=False)
     def index() -> FileResponse:
