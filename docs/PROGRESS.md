@@ -42,13 +42,16 @@ Completed details live in Git and PRs. Private evaluation follows
   evidence; quote presence and assistant labels alone cannot prove semantic accuracy.
 - Prior Maps recovery, full-ad copy recovery and source reliability changes remain merged.
   No new search, paid test or provider/Maps/vacancy request was made by this session. Owner
-  documents, results, ratings and authorization remain preserved. Both app ports are stopped
-  as the owner chose; development can also proceed with the owner app open.
+  documents, results, ratings and authorization remain preserved. The owner reopened Jobcu
+  during the final handover: port 8765 was observed answering with the current code build;
+  preview 8799 was stopped. On resume, preserve the owner's then-current app state.
+  Development does not require closing it; app-state checks prevent interference.
 
 ### In progress
 
-The scoring implementation is merged. If this record remains on `codex/requirements-handover`
-(base `38e6895`), only handover publication/final verification remains. Local end checks passed
+The scoring implementation and PR #84 handover are merged. Final-main CI `37848105339`
+passed at `620254c`. If this record remains on `codex/owner-app-state-handover` (base `620254c`),
+only publication/final verification of the updated owner-app state remains. Local checks passed
 **920 tests**, Ruff, privacy and whitespace; the startup self-test stopped. No failed check remains.
 Exact next action: publish/recover this branch's PR, verify exact-head Mac/Windows/privacy CI,
 merge with a merge commit, synchronize main and
