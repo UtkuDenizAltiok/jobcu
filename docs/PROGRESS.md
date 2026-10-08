@@ -1,9 +1,8 @@
 # Jobcu progress
 
 Current state and recovery only. Rules: [AGENTS](../AGENTS.md); reusable actions:
-[PROMPTS](PROMPTS.md); decisions and implementation: [ENGINEERING](ENGINEERING.md).
-Completed details live in Git and PRs. Private evaluation follows
-[CONTRIBUTING](../CONTRIBUTING.md#review-a-completed-search).
+[PROMPTS](PROMPTS.md); decisions/implementation: [ENGINEERING](ENGINEERING.md); dated
+contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and PRs.
 
 ## Right now
 
@@ -11,149 +10,103 @@ Completed details live in Git and PRs. Private evaluation follows
 
 ### State
 
-- [PR #86](https://github.com/UtkuDenizAltiok/jobcu/pull/86) reset/review controls are merged
-  at `4a640b8`. Exact-head CI `37852624981` passed at `f0199fb`; local **941 tests** passed.
-  Implementation-main CI `37852889391` also passed at `4a640b8`.
-  Everyday navigation is Search/Settings; optional Review results preserves independent labels.
-  Confirmed Search/Review/full-data resets preserve settings, keys, permissions and usage.
-  No owner data was reset. Guides, decisions and existing prompts are updated together.
-- [PR #83](https://github.com/UtkuDenizAltiok/jobcu/pull/83) is implemented, tested, pushed
-  and merged with a merge commit. Final implementation head: `1fe6b37`; merge: `38e6895`.
-  Exact-head Mac/Windows/privacy CI `37846790670` passed and the Mac checkout was synchronized.
-  Implementation-main CI `37847169524` also passed at `38e6895`.
-- Ordinary mandatory requirements now carry ad/profile quotes and met/unmet/unknown verdicts.
-  Unsupported or conflicting comparisons stay unknown. Existing rubric bands and named limits
-  follow these checks; known special blockers take precedence over other missing evidence.
-  Research quotes are scoped to one job. Incomplete notes preserve known ordinary blockers;
-  explicit resolutions recalculate points. Empty/clipped text cannot establish complete evidence.
-  Saved snapshots/legacy limits remain intact; no historical score was silently changed.
-- The owner expects proactive whole-pipeline assessment in every active development session.
-  That standing direction and the blinded review method live in [ENGINEERING](ENGINEERING.md)
-  and [CONTRIBUTING](../CONTRIBUTING.md#review-a-completed-search). It grants no extra access,
-  paid-test budget or background searches. The app remains on demand.
-- Local checks passed: **920 tests**, Ruff, privacy, whitespace, complete diff review and an
-  isolated startup self-test. The 65 added cases include all countries, fictional engineering/
-  nursing/teaching/hospitality, quotes, research boundaries, unknowns, legacy preservation and
-  visible named limits. Controlled before/after scores and local validation timings live in
-  [ENGINEERING](ENGINEERING.md#mandatory-requirements--2026-10-09); dated primary facts live in
-  [SOURCES](SOURCES.md#requirement-evidence-and-independent-review). No live extraction, ranking,
-  recall, cost or end-to-end latency gain is claimed. Existing deprecation warning remains.
-- An authorized private shuffled review included every top card and a balanced saved sample.
-  Documents predate the original run; independent assistant judgements were saved before
-  scores were revealed. Supported labels and missing top-card samples were saved privately
-  with owner/legacy ratings protected. Unknown cases stayed unrated; complete precision remains
-  unavailable. Review context, evidence and status are saved outside Git. Scratch was deleted.
-- Full originals for summaries, original posting-date verification and independent coverage
-  evidence remain dependencies. Clearance/visa certainty and seniority calibration need more
-  evidence; quote presence and assistant labels alone cannot prove semantic accuracy.
-- Prior Maps recovery, full-ad copy recovery and source reliability changes remain merged.
-  No new search, paid test or provider/Maps/vacancy request was made by this session. Owner
-  documents, results, ratings and authorization remain preserved. The owner reopened Jobcu
-  during the final handover: port 8765 was observed answering with the current code build;
-  preview 8799 was stopped. On resume, preserve the owner's then-current app state.
-  Development does not require closing it; app-state checks prevent interference.
+- [PR #86](https://github.com/UtkuDenizAltiok/jobcu/pull/86) is implemented, tested, pushed
+  and merged with a merge commit: final head `f0199fb`, merge `4a640b8`. Exact-head CI
+  `37852624981` and implementation-main CI `37852889391` passed on Mac, Windows and privacy.
+- Everyday navigation is Search/Settings. **Settings → Review results** replaces the main
+  Score check tab, preserving samples/ratings, blind score reveal and old links. It is optional;
+  ratings do not automatically train AI. Assistant development review remains proactive within
+  authority and does not require owner homework. Guides, decisions and existing prompts agree.
+- Confirmed **Clear search data**, **Clear review sample** and **Reset Jobcu data** controls
+  preserve saved settings/filter choices, keys, assistant permission and real usage counters.
+  Reset refuses active work, prevents stale in-memory restoration, compacts deleted database
+  evidence and reports incomplete deletion for retry. Full reset removes other private-folder
+  files, including uploaded copies and review records. No owner reset was performed.
+- [PR #87](https://github.com/UtkuDenizAltiok/jobcu/pull/87) is implemented, tested, pushed
+  and merged with a merge commit: final head `b2e2cda`, merge `382f1fd`. Exact-head Mac/Windows/
+  privacy CI `37854114719` and implementation-main CI `37854462545` passed at their exact heads.
+- Greenhouse edits no longer prove original freshness. Missing/invalid dates stay unknown;
+  date-only originals keep day precision. Existing details can recover first publication and
+  deadline even without text; proven old/closed cases stop before scoring. Reader versions
+  prevent old cached metadata from restoring the defect. Corrected warm caches still reuse
+  evidence. Saved snapshots are not rewritten; all AI steps remain medium by default.
+- Local checks passed: **993 tests**, Ruff, privacy, JS syntax, whitespace, complete diff review
+  and an isolated startup self-test. Added cases cover all 30 countries, fictional engineering/
+  nursing/teaching, scopes/preservation/failures/races, date precision/deadlines and legacy cache
+  refresh followed by reuse. Before/after evidence and limits live in ENGINEERING. No live
+  accuracy/recall/cost/latency improvement is claimed.
+- Prior grounded requirement scoring, Maps recovery and full-ad/source reliability fixes remain
+  merged. The earlier shuffled private review/evidence/labels are preserved, not repeated under
+  the new reader. Its latest `score_review_resume` is the dated scoring review; older fields are
+  not a complete current quality judgement. Full originals, independent labels and coverage
+  evidence remain dependencies. No paid call, new search or live vacancy fetch occurred.
+- Owner documents/results/ratings/authorization and app state were preserved. Fictional preview
+  and disposable scratch were stopped/deleted; the self-test stopped. Development works with
+  the owner app open. New backend code loads on the next owner-initiated launch; do not restart
+  or stop the owner app automatically.
 
 ### In progress
 
-Active goal: the owner's final deep improvement before the next on-demand search.
-Branch `codex/freshness-evidence`, base `4a640b8`. Reset/review implementation is complete,
-tested and merged; implementation-main CI `37852889391` also passed.
-Owner data/app state remain untouched; the fictional reset preview was stopped/deleted.
+No unfinished feature remains. The final documentation checkpoint is on
+`codex/final-improvement-handover`, base `382f1fd`. If still on that branch, only publication
+and exact-head/final-main verification remain: recover its PR, verify Mac/Windows/privacy CI,
+merge with a merge commit, synchronize main and verify final-main CI. A pushed or merged
+change is not a passed check. On verified merged main, no active goal remains.
 
-1. Compare a small shortlist by benefit/evidence/effort/risk/checks; trace date provenance and
-   relevant exclusion/evidence paths. Read SOURCES and verify current primary contracts.
-2. Choose one confirmed defect, preserve uncertain jobs and implement a general correction.
-   Use fictional engineering and non-engineering regressions and a controlled before/after.
-3. Update dated evidence/decisions/guides, review the complete diff, run meaningful targeted
-   checks plus Ruff/full suite/privacy; publish exact-head Mac/Windows/privacy CI and merge.
-4. Synchronize main, verify final-main CI and save an exact fresh-chat handover.
-
-Exact next action: inspect date fields and consumers, research primary meanings, rank the
-shortlist and select the strongest justified defect. No new provider call, search or paid test.
-
-Shortlist (benefit/evidence/effort/risk/verification):
-1. Original Greenhouse dates and deadline recovery: high / reproduced fallback + documented
-   detail fields / small / low with unknown retention / list/detail/cache/filter regressions.
-2. Per-element Maps errors: high / documented lead, no new reproduction / medium / medium /
-   partial matrix and uncertainty regressions plus bounded live evidence later.
-3. Clearance/seniority calibration: high / incomplete saved evidence / high / high /
-   full originals and independent labels; live provider comparison needs bounded authority.
-4. Greenhouse post-vs-job IDs and bulk full content: possible coverage/speed benefit / primary
-   contract only / medium-high / identity/latency risk / independent identities and paired timings.
-
-Chosen: original-date/deadline evidence. Remove updated_at as a posting-date fallback, recover
-first publication/deadline from the already-used detail response, and prevent legacy cached
-metadata from restoring the defect. This preserves unknown jobs and all countries/professions.
-Exact next action: implement source parsing and general reader cache-version checks, then
-prove before/after freshness, deadline and uncertainty behavior with fictional ads.
-
-Implemented and tested: original/date-only parsing, deadline/detail recovery without text,
-reader cache-version checks, one legacy refresh followed by warm reuse, unavailable-reader
-unknown retention, and three full-search before-scoring/display regressions. Local **993 tests**,
-Ruff/privacy/whitespace passed. Controlled before/after evidence is in ENGINEERING; dated
-public API/robots/legal evidence is in SOURCES. No vacancy fetch, provider call, live search
-or paid test. Exact next action: finish documentation/diff review, publish this branch's
-PR, verify exact-head Mac/Windows/privacy CI, merge with a merge commit and synchronize main.
-Missing originals/independent labels and live-test budget remain checkpointed dependencies;
-this UI goal does not claim new scoring accuracy, coverage or live performance.
-
-If interrupted, recover this goal first. In a fresh chat, run
-AGENTS' start routine, recheck private authority/checkpoint and read the latest private
-`score_review_resume` entry/evidence directory. `saved_evidence_resume` contains the earlier
-saved-search audit; older review fields must not be mistaken for a complete current judgement.
-Checkpoint missing originals/independent labels and the live-test budget dependency before
-choosing new work. The next free lead is original-date provenance: audit original versus modified
-date fields source by source against primary contracts, preserve unknowns and prove behavior
-with fictional cases. Read SOURCES before source work. Keep one active goal; no new paid test
-or search is granted by this handover.
+In a fresh chat, run AGENTS' start routine, verify Git/PR/CI and preserve the owner's then-current
+app state. Before private work recheck authorization/revocations and the private checkpoint.
+Read the latest `engineering_handover` and dated `score_review_resume`; verify the saved evidence
+still exists, especially if the owner has since chosen a full reset. Adding a reset control is
+not authority to reset owner data. Checkpoint missing original ads/independent labels and the
+live-test budget dependency before selecting one new goal.
 
 ### Verify before relying on
 
-- Ranking/title screening: review judgements exist for supported evidence; incomplete top
-  originals/unknown labels and independent early-rejection checks still limit accuracy claims.
+- Freshness: other adapters still need original-date audits. A first post date is not proof of
+  a new underlying requisition; the three-day cache and full-text reader-selection gate can
+  leave temporal metadata unchecked. Unknown and secondary-board dates remain incomplete proof.
+- Ranking/title screening: unknown top cards and incomplete originals/independent early-title
+  labels still limit accuracy claims. Scores/counts are not hiring odds or recall measurements.
 - Coverage: an independent date-verified 15–25-job benchmark remains, in AGENTS' country order.
-- Interpretation/location: live quality, timing and repeated-search savings remain unmeasured;
-  Maps journeys and faster districts need live validation.
-- Beginner installation and fresh Windows install/upload/search walkthroughs remain untested.
+- Maps: persistent request failures are handled, but per-element errors versus confirmed no-route
+  outcomes still need their own reproduction; journey sampling is approximate.
+- Live timing/ranking comparisons need bounded authority/current prices. No spare assistant
+  allowance grants private APIs, spending, site logins or background searches.
+- Fresh Windows installation/upload/search walkthrough remains untested; launcher CI is narrower.
 
 ### Waiting on the owner
 
-- No owner input is required for the next free engineering goal. No new keys, documents or
-  settings are required; enter private inputs only in Jobcu.
-- Search on demand: double-click **Start Jobcu.command**, choose **24 hours**, then search
-  when ready. During authorized development, review saved evidence proactively; the
-  [Review](PROMPTS.md#review-a-search) prompt is available for a focused review request.
-- With spare assistant usage/time, copy [Deep improvement](PROMPTS.md#deep-improvement).
-  Before closing a chat, use [End](PROMPTS.md#end-a-session), wait for the saved confirmation,
-  then use [Start](PROMPTS.md#start-a-session) in a fresh local chat.
-- Report an unusable route with **Application link problem**; **Excluded links** can undo it.
-  This uses no AI allowance. Searches run on demand without assistant supervision.
+- No new keys/settings or rating homework is required. When ready, close/reopen Jobcu once to
+  load the new backend, then choose **24 hours** and search on demand. Existing documents/results
+  stay unless you deliberately choose a reset. A full reset requires uploading documents again.
+- [Reset scopes](guides/first-search.md#clear-data-and-start-fresh) explain what is deleted/kept.
+  Optional **Settings → Review results** remains available for your own feedback.
+- In a fresh local chat use [Start](PROMPTS.md#start-a-session); before ending a later chat use
+  [End](PROMPTS.md#end-a-session). [Review](PROMPTS.md#review-a-search) and
+  [Deep improvement](PROMPTS.md#deep-improvement) remain one prompt per task.
 
 ### Next tasks
 
-1. Audit original-date provenance source by source, including modification-time fallbacks.
-   Use primary contracts and independent dates; keep uncertain evidence labelled. Do not tune
-   collection to a smaller raw count or call saved metadata independent freshness proof.
-2. Recover missing original evidence, reassess unknown top cards and early titles, then trace
-   an independent date-verified coverage sample within authority and country work order.
-   Check clearance certainty, either/or language requirements and seniority/role explanations
-   as separate evidence-backed goals; no threshold tuning from one ad or count is justified.
-3. Reproduce per-element Maps errors versus confirmed no-route outcomes; preserve partial
-   valid measurements and retain uncertain jobs before changing filtering.
-   [Research leads](ENGINEERING.md#research-leads-requiring-their-own-verified-goal) also cover
-   newly revealed workplace evidence and unresolved-place rejection.
-4. Review slower online/interpretation work on saved evidence; paired live timing/ranking work
-   needs its own bounded authority. Other-source retry accounting remains a separate audit.
-5. Fresh Windows installation/upload/search walkthrough remains later free engineering work;
-   launcher CI is not a beginner's installation or live-search validation.
+1. Reproduce per-element Maps service errors versus confirmed no-route outcomes. Preserve valid
+   partial measurements and uncertain jobs; verify general fictional cases before live claims.
+2. Continue original-date audits in other adapters; examine future timestamps and metadata
+   skipped when another copy already provides full text. Keep unknowns rather than cut counts.
+3. Recover full originals/independent labels, review unknown top cards and title rejections,
+   then trace an independent date-verified coverage sample. Clearance/seniority tuning needs
+   evidence; do not tune thresholds to one ad or score distribution.
+4. Compare structured public API opportunities, including post-vs-requisition IDs and bulk
+   full-content lists. Terms/identity/coverage/latency proof come first; private/internal APIs
+   require documented permission/account authority and are not bypass alternatives.
+5. Review slow/repeated work on saved evidence; paired live testing needs its own bounded
+   authority. Fresh Windows beginner setup remains later free work.
 
 ### Known limitations
 
-- Counts do not measure market recall; scores are not hiring odds. Summaries, unknown dates
-  and unchecked conditions are incomplete evidence. Historical snapshots keep original labels.
-- Opaque application destinations and automatic final-host checks are unverified. A changed
+- Historical snapshots keep their original scores/date labels; a new search uses current rules.
+  Summaries, unknown posting dates and unchecked conditions remain incomplete evidence.
+- Opaque application destinations and automatic final-host checks remain unverified. A changed
   redirect needs a new report; undo restores retained links, while an omitted vacancy may need
   the next on-demand search. An alternative link does not prove registration access.
 - Maps edge/centre samples are approximate. Correction timings cover the latest correction;
-  usage accumulates. Token estimates can omit fees/discounts and are not invoices.
+  usage accumulates. Token cost estimates can omit fees/discounts and are not invoices.
 - A failed final save can lose visible results on closing; earlier saved searches remain.
