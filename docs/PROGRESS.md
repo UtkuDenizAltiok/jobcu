@@ -30,11 +30,28 @@ Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md
 
 ### In progress
 
-None. Completed implementation is merged; no partial code or pending feature PR remains.
-Exact next action: follow the session routine and verify actual Git/CI; if this handover
-publication is still on an unmerged branch, finish its checks/merge before choosing new work.
-Private investigations follow [REVIEW](REVIEW.md) and applicable private authorization/review
-records; no real-result measurements or identifying evidence are published here.
+**Recall under incomplete career-title screening**, branch `codex/preserve-unreviewed-titles`,
+based on clean synchronized main `02cc673`. No PR yet. Baseline 728 tests/Ruff/privacy passed;
+main Mac/Windows/privacy CI passed, no open PR, and app/preview ports were stopped.
+
+Goal: never classify unexamined career titles as irrelevant, and retain useful batch decisions
+when an independent title-screen batch fails. Account/quota/spending failures must still stop
+new paid work. These are code-path findings, not measured market recall.
+
+1. Review the saved-evidence checkpoint privately and inspect the collection/title/filter path;
+   check primary guidance on structured answers and independent task failures.
+2. Reproduce cap, partial failure and invalid-answer cases with fictional engineering and
+   non-engineering roles. Preserve unknown jobs for normal matching; expose checked/unknown
+   outcomes without changing scores or increasing the title-screen request bound.
+3. Verify matching continuity, per-source counts, cancellation, critical errors and histories;
+   update decisions, architecture and the affected guide. Keep real evidence outside Git.
+4. Run full Ruff/tests/privacy and relevant UI checks; review/publish, wait for final-head
+   Mac/Windows/privacy CI, merge and synchronize main. Save needed private notes and delete
+   disposable scratch; preserve the owner's stopped app state.
+
+Exact next action: add failure regressions before implementing conservative title screening.
+The independent live coverage benchmark and full-evidence ranking remain unfinished; no live
+improvement is claimed. No new search or paid development test has started.
 
 ### Verify before relying on
 
