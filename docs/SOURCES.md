@@ -74,6 +74,32 @@ to bound batched reads; fictional regression checks lower the limit to 64.
 `BEGIN IMMEDIATE` starts a write transaction before later reads/writes. Jobcu uses it to
 serialize identity allocation; fictional simultaneous-save and rollback checks verify behavior.
 
+## Job-source cooldown protocol
+
+**Checked 2026-10-08:** [RFC 9110 section 10.2.3](https://www.rfc-editor.org/rfc/rfc9110.html#name-retry-after)
+defines Retry-After as either non-negative integer seconds or an HTTP date. It gives a minimum
+delay before a follow-up request. [RFC 6585 section 4](https://www.rfc-editor.org/rfc/rfc6585.html#section-4)
+defines 429 rate limiting, allows Retry-After and forbids caching a 429 response. It does not
+prescribe whether a service applies limits per resource, host or account.
+
+Jobcu conservatively shares a 429/5xx cooldown across readers of that host within one search,
+including the last failed attempt. This is an engineering choice to avoid parallel readers
+undercutting a delay, not proof that every provider has host-wide limits. Other hosts continue.
+Valid delays are not shortened to Jobcu's ordinary backoff bound; zero and past dates remain
+zero, while invalid headers use ordinary backoff. The established bot-protection test now
+stops that host on its first recognized refusal, without retries or later network reads in
+the same client. Already-running requests may finish; saved evidence remains usable.
+
+[Python 3.13 date parsing](https://docs.python.org/3.13/library/email.utils.html#email.utils.parsedate_to_datetime)
+supports HTTP-date forms, including legacy representations; invalid dates can raise ValueError.
+[Timed lock acquisition](https://docs.python.org/3.13/library/threading.html#lock-objects)
+allows queued readers to check Stop instead of waiting behind a long cooldown. Search and
+condition-correction clients check Stop during waits. Fake-clock tests establish request
+ordering and cancellation; they do not measure live source availability or job recall.
+
+This changes retry coordination only: adapters, endpoints, minimum intervals, source limits
+and robots/terms permissions are unchanged. No new vacancy collection permission is inferred.
+
 ## AI and Maps
 
 **Classification/error guidance checked 2026-10-08:**

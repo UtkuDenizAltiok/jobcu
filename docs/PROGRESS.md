@@ -33,17 +33,31 @@ Completed details live in Git and PRs. Private evaluation follows
 
 ### In progress
 
-None on merged main; implementation is tested, pushed and merged. If this handover is still
-on `codex/zip-update-handover` (base `4ecf8ce`), its only remaining step is publication:
-recover the branch PR, verify final-head Mac/Windows/privacy CI, merge and synchronize main.
-Required local end checks passed: **747 tests**, Ruff, privacy and whitespace; no failed
-check remains. Detailed private evidence and authority stay outside Git.
+Active goal: honor job-source cooldowns across parallel readers while keeping Stop responsive.
+Branch `codex/source-cooldowns`, base `bafc21b`. Startup main/PR/CI and app state are verified;
+the local startup suite passed **747 tests**. The saved private review dependency remains
+checkpointed; no private investigation or paid work is needed for this goal.
 
-Exact next action in a fresh chat: run the start routine, consult the private authority and
-checkpoint, and compare saved evidence before resuming review. If the missing original ads
-and new title decisions remain unavailable within authority, retain unknown labels and
-checkpoint that dependency before the later free Windows walkthrough work. Never reconstruct
-discarded titles or start a search without applicable authorization.
+Research shortlist, ranked by confirmed benefit and verification needs:
+1. Source cooldowns: confirmed ignored HTTP dates, shortened delays and uncoordinated readers;
+   moderate effort/risk, verified with fake clocks, concurrency and Stop tests. Selected.
+2. Full-ad fallback: one eligible copy is tried even when another matched copy could supply
+   full text; moderate effort, needs identity/budget/cache failure regressions.
+3. Unknown local places: unresolved names are rejected despite the documented keep-unknown
+   rule; low effort, needs fictional engineering/non-engineering collection regressions.
+4. Source/vocabulary expansion: potential recall benefit, but permission and independent
+   date-verified coverage evidence are still dependencies. No recall gain is established.
+
+Protocol evidence is recorded in SOURCES. Mocked baseline requests reproduced a 600-second
+delay shortened to 120 seconds and four CAPTCHA attempts. Shared host deadlines, integer/date
+Retry-After parsing, cancellable waits, first-refusal blocking and progress notes are implemented.
+Targeted checks passed **100 tests**, Ruff and whitespace. Independent-host, cache, terminal
+failure, extended-deadline and engineering/nursing/hospitality retention checks are included.
+
+Full local checks passed **774 tests**, Ruff, privacy and whitespace. Final diff review is in
+progress. Exact next action: finish the review, commit/push and open a PR; verify final-head
+Mac/Windows/privacy CI before a merge commit and synchronize main. No provider calls or live
+vacancy traffic are planned; no live quality claim is made.
 
 ### Verify before relying on
 

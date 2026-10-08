@@ -141,6 +141,11 @@ in **Settings → Usage and limits**, then click **Save limits**.
 To cancel a running search, click **Stop**. To try again, wait for it to stop, then click
 **Find matching jobs** again. A new search uses AI again and may incur further charges.
 
+If a job site asks Jobcu to pause, the progress notes explain the wait. It can last several
+minutes. Jobcu respects that site's delay while other sites continue; it keeps ads already
+found. **Stop** cancels readers waiting for a retry. A request already being sent can finish
+before stopping completes. A site that refuses automated access is skipped without retries.
+
 ## 5. Check that Jobcu understood you
 
 Above the results, **Understood as** shows how Jobcu interpreted your location conditions.

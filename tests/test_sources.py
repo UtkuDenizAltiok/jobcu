@@ -265,6 +265,11 @@ def test_daily_request_limit_is_kept():
 
 def test_polite_client_waits_as_asked_and_remembers_answers():
     calls, sleeps = [], []
+    now = [100.0]
+
+    def sleep(seconds):
+        sleeps.append(seconds)
+        now[0] += seconds
 
     def handler(request):
         calls.append(1)
@@ -272,7 +277,7 @@ def test_polite_client_waits_as_asked_and_remembers_answers():
             return httpx.Response(429, headers={"retry-after": "7"})
         return httpx.Response(200, json={"ok": True})
 
-    http = PoliteClient(min_intervals={}, sleep=sleeps.append,
+    http = PoliteClient(min_intervals={}, sleep=sleep, clock=lambda: now[0],
                         transport=httpx.MockTransport(handler))
     assert http.get("https://example.test/a").json() == {"ok": True}
     assert sleeps[0] == 7.0  # waited as the site asked

@@ -360,7 +360,8 @@ def run_search(run: SearchRun) -> None:
         posted_within_hours=run.form.posted_within_hours,
         started_at=started_at,
     )
-    http = PoliteClient()
+    http = PoliteClient(should_stop=lambda: run.stop_requested,
+                        on_wait=lambda host, seconds: _source_wait_note(run, host, seconds))
     try:
         _find_and_score(run, settings, client, keys, http, profile, plan, query, checkpoint)
     finally:
@@ -830,7 +831,8 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
             run.note(f"\"{condition.text}\": {condition.note}")
     _checkpoint(run)
 
-    http = PoliteClient()
+    http = PoliteClient(should_stop=lambda: run.stop_requested,
+                        on_wait=lambda host, seconds: _source_wait_note(run, host, seconds))
     try:
         collected = pipeline.collected_again(job_pool.reports)
         _decide(run, client, KeyStore(), http, settings, plan, job_pool, collected,
@@ -839,6 +841,12 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
         http.close()
         usage = UsageLog().for_search(run.id)
         run.set_result("usage", {step: asdict(used) for step, used in usage.items()})
+
+
+def _source_wait_note(run: SearchRun, host: str, seconds: float) -> None:
+    run.note(f"{host} is temporarily unavailable or limiting requests. Jobcu will wait about "
+             f"{seconds:.0f} seconds before asking again. Other sites can continue; "
+             "you can click Stop to cancel waiting.")
 
 
 def _no_limit(name: str, run: SearchRun, message: str) -> None:
