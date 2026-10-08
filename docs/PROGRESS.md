@@ -43,8 +43,9 @@ Completed details live in Git and PRs. Private evaluation follows
 - Prior Maps recovery, full-ad copy recovery and source reliability changes remain merged.
   No new search, paid test or provider/Maps/vacancy request was made by this session. Owner
   documents, results, ratings and authorization remain preserved. The owner reopened Jobcu
-  during the final handover: port 8765 answers with the current code build; preview 8799 is
-  stopped. Preserve the running owner app. Development does not require closing it.
+  during the final handover: port 8765 was observed answering with the current code build;
+  preview 8799 was stopped. On resume, preserve the owner's then-current app state.
+  Development does not require closing it; app-state checks prevent interference.
 
 ### In progress
 
