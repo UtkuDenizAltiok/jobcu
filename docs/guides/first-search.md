@@ -135,8 +135,11 @@ good coverage. Use the final results and their explanations to decide what fits.
 
 **Posted within** uses the available posting-date evidence. Day-only dates are kept when
 that day may overlap the window; unknown dates have their own section. A source's date is
-not independent proof of the original employer posting date. Check originals for uncertain
-dates rather than assume every collected ad first appeared within exactly 24 hours.
+not independent proof of the original employer posting date. Greenhouse edit dates are not
+treated as new postings. Its existing detail read can recover the original publication and
+application deadline before scoring. If none of the matched ads provides a posting date, the
+job stays in **Posting date unknown**. Check originals for uncertain dates rather than assume
+every collected ad first appeared within exactly 24 hours.
 
 During the search, Jobcu may pause to ask whether to go beyond a limit you set:
 
@@ -236,6 +239,9 @@ needs the full ad, it prefers the employer's original and can try another matche
 an available source. This uses the same source limits; it may take longer when the first copy
 is incomplete or unavailable. It does not start another search. Scores are worked out afresh
 for each new search. If full text still cannot be read, the job stays with its summary warning.
+When a reader's evidence rules are corrected, Jobcu refreshes incompatible cached details
+within your existing source limits. It does not reuse metadata known to have been parsed
+incorrectly; unchanged readers and corrected warm caches still reuse their full text.
 
 Read warnings on a job before making a decision:
 

@@ -11,7 +11,9 @@ Completed details live in Git and PRs. Private evaluation follows
 
 ### State
 
-- Reset/review controls are implemented on `codex/reset-and-review`; publication is pending.
+- [PR #86](https://github.com/UtkuDenizAltiok/jobcu/pull/86) reset/review controls are merged
+  at `4a640b8`. Exact-head CI `37852624981` passed at `f0199fb`; local **941 tests** passed.
+  Implementation-main CI `37852889391` also passed at `4a640b8`.
   Everyday navigation is Search/Settings; optional Review results preserves independent labels.
   Confirmed Search/Review/full-data resets preserve settings, keys, permissions and usage.
   No owner data was reset. Guides, decisions and existing prompts are updated together.
@@ -53,28 +55,45 @@ Completed details live in Git and PRs. Private evaluation follows
 
 ### In progress
 
-Active goal: add clear, deliberate local reset controls and simplify optional result review.
-Branch `codex/reset-and-review`, base `c406224`; prior handover PR #85 and final-main CI
-`37850572061` are verified merged/passed. Existing owner data/app state remain untouched.
+Active goal: the owner's final deep improvement before the next on-demand search.
+Branch `codex/freshness-evidence`, base `4a640b8`. Reset/review implementation is complete,
+tested and merged; implementation-main CI `37852889391` also passed.
+Owner data/app state remain untouched; the fictional reset preview was stopped/deleted.
 
-1. Trace storage, search-thread lifecycle and the Score check workflow; decide precise reset
-   scopes and preserve settings/keys and usage limits. No actual owner reset is authorized.
-2. Implement confirmed resets with running-work protection, including in-memory/browser state;
-   make independent review optional without deleting its useful evidence or owner labels.
-3. Test deletion, preservation, failures, restart and active-search races with fictional data;
-   inspect an isolated preview, update guides/architecture and review the complete diff.
-4. Run Ruff/full suite/privacy/JS checks, publish and verify exact-head Mac/Windows/privacy CI,
-   merge with a merge commit, synchronize main and verify final-main CI.
+1. Compare a small shortlist by benefit/evidence/effort/risk/checks; trace date provenance and
+   relevant exclusion/evidence paths. Read SOURCES and verify current primary contracts.
+2. Choose one confirmed defect, preserve uncertain jobs and implement a general correction.
+   Use fictional engineering and non-engineering regressions and a controlled before/after.
+3. Update dated evidence/decisions/guides, review the complete diff, run meaningful targeted
+   checks plus Ruff/full suite/privacy; publish exact-head Mac/Windows/privacy CI and merge.
+4. Synchronize main, verify final-main CI and save an exact fresh-chat handover.
 
-Implemented: all three scopes, explicit confirmation, idle-search and competing-write protection,
-database compaction, partial-failure/retry handling, log closure for Windows and page refresh.
-Baseline 920 tests and the final implementation's **941-test full suite** passed, including
-database erasure/journal regressions. Ruff/privacy/JS/whitespace and
-manual diff review passed. Fictional browser checks verified disabled confirmation, cancellation,
-optional navigation and score reveal after rating. Preview/scratch were stopped/deleted.
-Exact next action: commit/push, open the PR, verify exact-head Mac/Windows/privacy CI, merge
-with a merge commit and synchronize main. Then complete the owner's requested additional
-deep improvement as one separate researched/implemented/verified goal before tomorrow's search.
+Exact next action: inspect date fields and consumers, research primary meanings, rank the
+shortlist and select the strongest justified defect. No new provider call, search or paid test.
+
+Shortlist (benefit/evidence/effort/risk/verification):
+1. Original Greenhouse dates and deadline recovery: high / reproduced fallback + documented
+   detail fields / small / low with unknown retention / list/detail/cache/filter regressions.
+2. Per-element Maps errors: high / documented lead, no new reproduction / medium / medium /
+   partial matrix and uncertainty regressions plus bounded live evidence later.
+3. Clearance/seniority calibration: high / incomplete saved evidence / high / high /
+   full originals and independent labels; live provider comparison needs bounded authority.
+4. Greenhouse post-vs-job IDs and bulk full content: possible coverage/speed benefit / primary
+   contract only / medium-high / identity/latency risk / independent identities and paired timings.
+
+Chosen: original-date/deadline evidence. Remove updated_at as a posting-date fallback, recover
+first publication/deadline from the already-used detail response, and prevent legacy cached
+metadata from restoring the defect. This preserves unknown jobs and all countries/professions.
+Exact next action: implement source parsing and general reader cache-version checks, then
+prove before/after freshness, deadline and uncertainty behavior with fictional ads.
+
+Implemented and tested: original/date-only parsing, deadline/detail recovery without text,
+reader cache-version checks, one legacy refresh followed by warm reuse, unavailable-reader
+unknown retention, and three full-search before-scoring/display regressions. Local **993 tests**,
+Ruff/privacy/whitespace passed. Controlled before/after evidence is in ENGINEERING; dated
+public API/robots/legal evidence is in SOURCES. No vacancy fetch, provider call, live search
+or paid test. Exact next action: finish documentation/diff review, publish this branch's
+PR, verify exact-head Mac/Windows/privacy CI, merge with a merge commit and synchronize main.
 Missing originals/independent labels and live-test budget remain checkpointed dependencies;
 this UI goal does not claim new scoring accuracy, coverage or live performance.
 

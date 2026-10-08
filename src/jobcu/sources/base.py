@@ -87,6 +87,8 @@ class JobSource(ABC):
     id: str
     name: str
     kind: SourceKind
+    # Increment when a reader correction makes its old cached evidence unsafe to reuse.
+    detail_cache_version = 1
     countries: frozenset[str] | None = None  # None means every supported country
 
     def covers(self, query: JobQuery) -> bool:
