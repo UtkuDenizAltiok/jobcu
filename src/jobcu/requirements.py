@@ -87,6 +87,11 @@ class Judgement:
     notes: list[str] = field(default_factory=list)
 
 
+def special_blocker(evidence: dict) -> bool:
+    return (evidence.get("doctorate") == "required_person_lacks_it"
+            or evidence.get("citizenship_or_clearance") == "required_definitely_out_of_reach")
+
+
 def judge(evidence: dict, points: int) -> Judgement:
     """The existing rubric bands, made consistent with supported comparison verdicts."""
     if "requirements_complete" not in evidence:
@@ -106,12 +111,10 @@ def judge(evidence: dict, points: int) -> Judgement:
         ], notes)
     if evidence.get("legacy_requirement_blocker"):
         return Judgement(min(points, BLOCKED_POINTS), notes=notes)
+    if special_blocker(evidence):
+        return Judgement(min(points, BLOCKED_POINTS), notes=notes)
     if unknown or checks is None or not evidence["requirements_complete"] or (
         evidence.get("citizenship_or_clearance") == "required_possible_or_unclear"
     ):
         return Judgement(max(BLOCKED_POINTS + 1, min(points, MAX_POINTS - 1)), notes=notes)
-    # Explicit special blockers retain their independent, stronger limits.
-    if (evidence.get("doctorate") == "required_person_lacks_it"
-            or evidence.get("citizenship_or_clearance") == "required_definitely_out_of_reach"):
-        return Judgement(min(points, BLOCKED_POINTS), notes=notes)
     return Judgement(MAX_POINTS, notes=notes)

@@ -80,7 +80,7 @@ Shortlist (benefit / evidence / effort / risk / verification):
 Implemented locally: quote-grounded ordinary requirement comparisons, deterministic rubric
 consistency/named limits, per-job research boundaries, preserved unknowns/legacy blockers and
 recomputed points after explicit resolution. Standing proactive-development guidance and
-private blinded-review procedure are recorded. Full checks passed **918 tests**, including
+private blinded-review procedure are recorded. Full checks passed **920 tests**, including
 the end-to-end named-limit card check. Ruff, privacy,
 whitespace and an isolated startup self-test passed. Earlier fixture/map failures were fixed.
 The complete diff was reviewed. Controlled fictional
@@ -88,7 +88,8 @@ before/after scores and validation timings are in ENGINEERING; no live accuracy 
 Private judgements/context and the updated saved aggregate review are preserved outside Git;
 owner/legacy ratings were protected and unknowns stayed unrated. Scratch was deleted. No paid
 test, provider/Maps/vacancy request or new search was made. Exact next action: commit/push/open
-PR and verify exact-head
+PR #83 (`c954923` was pushed/passed CI; a reviewed precedence refinement is now ready) and verify
+the updated exact-head
 Mac/Windows/privacy CI before a merge commit and synchronized/final-verified main.
 
 ### Verify before relying on

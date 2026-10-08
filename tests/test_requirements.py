@@ -81,6 +81,19 @@ def test_missing_checks_are_unknown_even_for_a_complete_ad():
     assert result["notes"] == ["Mandatory requirements were not fully checked"]
 
 
+@pytest.mark.parametrize(("field", "value", "limit"), [
+    ("doctorate", "required_person_lacks_it", 50),
+    ("citizenship_or_clearance", "required_definitely_out_of_reach", 30),
+])
+def test_separate_known_blocker_takes_precedence_over_other_missing_evidence(field, value, limit):
+    raw = answer(None, hard=0).model_copy(update={field: value})
+    result = scoring.finish(raw, PROFILE, ad_text="Incomplete summary", complete=False)
+    assert result["parts"]["hard_requirements"] == 0
+    assert result["score"] == limit
+    assert [c["at"] for c in result["limits"]] == [limit]
+    assert any("requirements may be missing" in n for n in result["notes"])
+
+
 def test_summary_is_incomplete_even_when_all_observed_requirements_are_met():
     result = score([], hard=15, complete=False)
     assert result["parts"]["hard_requirements"] == 14

@@ -310,7 +310,10 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
     parts = {**result["parts"], "languages": language.points,
              "hard_requirements": required.points}
     rubric_limits = fit_limits(parts)
-    if required.limits:
+    if required.limits or (
+        "requirements_complete" in result["evidence"]
+        and requirements.special_blocker(result["evidence"])
+    ):
         rubric_limits = [limit for limit in rubric_limits
                          if limit["why"] != "A requirement you clearly don't meet"]
     limits = sorted([*language.limits, *other_limits(score, profile), *rubric_limits,
