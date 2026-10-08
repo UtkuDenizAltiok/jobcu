@@ -371,8 +371,7 @@ def run_search(run: SearchRun) -> None:
 
 def _screen_career_titles(run, client, profile, collected) -> str:
     """Career-site titles the search words missed: the person's AI decides which deserve a
-    closer look (relevance.screen_titles); the rest are left out, as before. Says what it did,
-    for the step's detail."""
+    closer look. Only explicitly unrelated titles are dropped; unknown titles keep matching."""
     unmatched = [job for job in collected.jobs if job.title_unmatched]
     if not unmatched:
         return ""
@@ -380,20 +379,34 @@ def _screen_career_titles(run, client, profile, collected) -> str:
                f"Your AI is looking at {len(unmatched)} more job titles from company career sites")
     # Each title of each company is looked at once, however many places list it.
     pairs = list(dict.fromkeys((job.title.strip(), job.company) for job in unmatched))
-    try:
-        picked = {pairs[index] for index in screen_titles(client, profile, pairs)}
-    except AIError as exc:
-        log.info("Career-site titles couldn't be checked: %s", exc)
-        run.note("Job titles from company career sites that the search words missed couldn't "
-                 f"be checked by your AI, so they were left out. {exc.message}")
-        picked = set()
+    checked = screen_titles(client, profile, pairs, before_batch=lambda: _checkpoint(run))
+    picked = {pairs[index] for index in checked.kept}
     keep = {id(job) for job in unmatched if (job.title.strip(), job.company) in picked}
-    dropped = Counter(job.source for job in unmatched if id(job) not in keep)
+    rejected = [{"source": job.source, "source_job_id": job.source_job_id, "title": job.title,
+                 "company": job.company, "location": job.location_text, "url": job.url}
+                for job in unmatched if id(job) not in keep and not job.older_copy]
     collected.jobs = [job for job in collected.jobs if not job.title_unmatched or id(job) in keep]
-    for report in collected.reports:
-        report.jobs_found -= dropped.get(report.source, 0)
-    return (f" ({len(keep)} of {len(unmatched)} more titles from company career sites kept by "
-            "your AI)")
+    run.set_result("career_titles", {
+        "total": len(pairs), "reviewed": len(checked.reviewed),
+        "unrelated": len(checked.unrelated), "unreviewed": len(checked.unreviewed),
+        "failed_batches": checked.failed_batches,
+        "unrelated_ads": len(rejected), "left_out": rejected,
+    })
+    if rejected:
+        try:
+            quality.collect_from_search([], rejected)
+        except Exception:  # evaluation storage must not turn a successful search into a failure
+            log.exception("Keeping career-title decisions for the score check failed")
+    if checked.unreviewed:
+        unknown = len(checked.unreviewed)
+        subject = "It was" if unknown == 1 else "They were"
+        run.note(f"{unknown} additional employer title{'s' if unknown != 1 else ''} couldn't be "
+                 f"checked early. {subject} kept for normal matching, which may use more AI. "
+                 "Your existing scoring and monthly limits still apply.")
+    return (f" ({len(checked.reviewed)} additional employer "
+            f"title{'s' if len(checked.reviewed) != 1 else ''} checked, "
+            f"{len(checked.unrelated)} clearly unrelated, "
+            f"{len(checked.unreviewed)} unreviewed and kept for matching)")
 
 
 def _find_employers(run, settings, client, http, profile, plan) -> None:
@@ -441,11 +454,13 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
     checkpoint()
     run.update("sources", "running")
     collected = pipeline.collect(query, http, keys, settings.sources_disabled, run)
+    ads_found = collected.ads_found  # source collection count, before the title filter
     names = {source_id: source.name for source_id, source in collected.sources.items()}
     working = [r for r in collected.reports if r.status in ("ok", "partial")]
+    checkpoint()
     screened = _screen_career_titles(run, client, profile, collected)
     run.update("sources", "done" if working else "failed",
-               f"{collected.ads_found} job ads found" + screened)
+               f"{ads_found} job ads found" + screened)
     for report in collected.reports:
         if report.message and report.status in ("partial", "failed", "unavailable"):
             run.note(report.message if report.message.startswith(report.name)
@@ -495,7 +510,7 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
         profile=profile.model_dump(),
         left_out=dict(outcome.left_out),
         source_names=names,
-        ads_found=collected.ads_found,
+        ads_found=ads_found,
         different_jobs=len(groups),
     )
     _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden_cards, checkpoint)

@@ -24,6 +24,16 @@ overlapping starts/corrections, immediate restore and storage failures without t
    Authentication, quota and spending-limit failures propagate without fallback calls.
 2. Collect sources in parallel. Screen career titles missed by the search words, merge copies,
    and apply fixed date/type/remote/country/dismissal rules.
+   Title screening returns only explicitly unrelated IDs. Its 3,000-pair preliminary bound
+   limits requests, not recall: unseen titles and independent failed batches remain for normal
+   matching. Successful batch decisions survive recoverable errors; critical account/model/
+   quota/spending errors and Stop propagate without later matching calls. Batch callbacks
+   check Stop before starting a request; already-running requests may finish.
+   Source Ads found counts stay as collected. `result.career_titles` records reviewed,
+   unreviewed and rejected outcomes; rejected ads remain in the private snapshot and bounded
+   title-only Score check sample. Search details separates this gate from duplicate removal.
+   Legacy snapshots retain their original post-screen counts and lack rejected-title evidence;
+   do not infer retrospective rejection counts or compare them as raw collection measurements.
 3. In `search._decide`, apply location conditions, quick relevance and travel limits; load full
    ads for candidates still in the running.
 4. Score evidence through `ai/client.py`; `scoring.py` applies deterministic blocker limits.

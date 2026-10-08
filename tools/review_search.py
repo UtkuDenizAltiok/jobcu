@@ -116,6 +116,7 @@ def review(snapshot: dict, ads: list[dict]) -> dict:
     sample = [a for a in ads if a.get("kind") == "scored"]
     rated = [a for a in sample if a.get("rating") in {"good", "okay", "poor"}]
     summary_count = sum(bool(c.get("summary_only")) for c in visible)
+    titles = result.get("career_titles")
     report = {
         "status": snapshot.get("status") if snapshot.get("status") in STATUSES else "unknown",
         "kind": kind,
@@ -143,6 +144,9 @@ def review(snapshot: dict, ads: list[dict]) -> dict:
         "conditions": {status: sum(c.get("status") == status for c in conditions)
                        for status in ("applied", "estimate", "not_checked")},
         "sources": sources, "seconds_by_step": timings,
+        "career_titles": {k: int(number(titles.get(k))) for k in
+                          ("total", "reviewed", "unrelated", "unreviewed", "failed_batches",
+                           "unrelated_ads")} if isinstance(titles, dict) else None,
         "waiting_seconds": (round(number(snapshot["waiting_seconds"]), 3)
                             if "waiting_seconds" in snapshot else None),
         "usage_by_step": usage,
@@ -170,6 +174,9 @@ def review(snapshot: dict, ads: list[dict]) -> dict:
         checks.append("No visible jobs: inspect source availability and filtering locally.")
     if summary_count:
         checks.append("Verify top summaries against original ads before trusting their rank.")
+    if isinstance(titles, dict) and number(titles.get("unreviewed")):
+        checks.append("Unreviewed employer titles were retained for normal matching; this does "
+                      "not establish fit. Review early rejections for missed related roles.")
     if report["conditions"]["not_checked"]:
         checks.append("Some requested conditions were not checked; inspect them locally.")
     if any(s["status"] in {"failed", "unavailable", "partial"} for s in sources):

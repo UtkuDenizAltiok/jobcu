@@ -49,7 +49,21 @@ new paid work. These are code-path findings, not measured market recall.
    Mac/Windows/privacy CI, merge and synchronize main. Save needed private notes and delete
    disposable scratch; preserve the owner's stopped app state.
 
-Exact next action: add failure regressions before implementing conservative title screening.
+All three failures were reproduced by full mocked searches before the correction. Implemented
+explicit-negative screening, per-batch recovery, unknown-tail retention, critical-error/Stop
+propagation and raw source counts. Saved early rejections feed the existing bounded Score check
+sample; Search details and the read-only review separate title screening from later matching.
+Fictional engineering/nursing/hospitality checks pass, including 3,001 pairs with exactly 20
+screen calls, parallel partial failures, unchanged scored-card results, cancellation, all four
+critical errors, ID allowlisting, row injection and aggregate-output privacy.
+Full local checks passed: **743 tests**, Ruff, privacy, JS syntax and whitespace. The final
+wording adjustment passed targeted checks. Fictional Mac UI/reload shows the retained RF job,
+raw/filtered counts, unreviewed explanations and expandable early rejections; no console errors/
+warnings. Preview/tab are stopped/closed and disposable fictional data was deleted.
+Final wording passed the refreshed full suite: **743 tests**, Ruff, privacy, JS syntax and
+whitespace. Diff review is complete. Exact next action: commit/push/open PR, wait for final-head
+Mac/Windows/privacy CI, merge and synchronize main. Private review notes are saved; delete
+the disposable private scratch before ending.
 The independent live coverage benchmark and full-evidence ranking remain unfinished; no live
 improvement is claimed. No new search or paid development test has started.
 

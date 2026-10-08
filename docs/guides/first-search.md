@@ -211,6 +211,13 @@ not scored. If a condition was misunderstood, use **Edit** as described above.
 If there are few or no matches, open **Search details** to see which sources worked and
 whether a limit reduced the search. See [Few or no jobs](troubleshooting.md#i-see-few-or-no-jobs).
 
+**Search details → Extra employer titles** explains the early check for titles the search
+words missed. **Unreviewed** titles are kept for normal matching; they have not been judged a
+fit. You can also see early rejections and rate sampled titles in **Score check**. **Ads found**
+now counts what each source collected, before those rejections. Earlier searches keep their
+original counts. Retaining unknowns may use more AI in later matching; your existing scoring
+and monthly limits still apply.
+
 ## 7. Finish and use Jobcu again
 
 Close the text window that opened when you started Jobcu. On Mac, choose **Terminate** if
