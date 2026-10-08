@@ -85,6 +85,23 @@ to bound batched reads; fictional regression checks lower the limit to 64.
 `BEGIN IMMEDIATE` starts a write transaction before later reads/writes. Jobcu uses it to
 serialize identity allocation; fictional simultaneous-save and rollback checks verify behavior.
 
+### Greenhouse temporal evidence
+
+**Rechecked 2026-10-09:** the [Job Board contract](https://docs.greenhouse.io/job-board.html)
+separates `first_published`, `updated_at` and detail `application_deadline`; GET data is public.
+The [API overview](https://support.greenhouse.io/hc/en-us/articles/10568627186203-Greenhouse-API-overview)
+describes exporting public posts. The [legal portal](https://www.greenhouse.com/legal) links
+subscription/privacy agreements; this is not a new license or permission for private APIs.
+An actual public robots.txt read on boards-api.greenhouse.io returned HTTP 200 and disallowed
+only `/embed/`. No vacancies were fetched for this research; existing budgets/blocked-host
+rules remain. Only fields in the already-used list/detail response change interpretation.
+
+Inference: modification does not establish first publication; missing/invalid original dates
+stay unknown. A post date also cannot prove the underlying requisition is new: the contract
+distinguishes post `id` from `internal_job_id`. Bulk `content=true` is a research lead requiring
+latency/coverage measurements, not an adopted collection change. The same API overview says
+Harvest endpoints require authentication; no private API access is introduced.
+
 ## Full-ad evidence and existing detail APIs
 
 **Rechecked 2026-10-08:** [Google's job-posting reference](https://developers.google.com/search/docs/appearance/structured-data/job-posting)

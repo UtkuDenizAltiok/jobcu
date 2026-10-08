@@ -30,6 +30,7 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Let the person exclude an exact saved application link and undo that choice locally. Reuse an already-matched alternative or count the vacancy as left out before further matching. Keep other links on that site available. | Opaque redirects cannot establish their final host. A local report handles an observed unusable link without probing blocked pages, guessing URLs or classifying unrelated vacancies. No automatic final-host verification is claimed (2026-10-07). |
 | Full-ad requirements replace earlier summary requirements, including an unstated experience minimum. Keep other blockers intact. | A fictional regression confirms that retaining the summary's years when the full ad says none leaves an obsolete score limit (2026-10-07). |
 | Use original posting/closing dates and job memory to suppress expired ads and old reposts. Keep distinct requisitions distinct. | A board's refreshed date is not a new vacancy (2026-09-24; fixes 2026-10-03). |
+| Greenhouse modification timestamps are never posting-date fallbacks. Read original publication/deadline from existing details and invalidate caches parsed under the old reader policy. | Missing originals stay unknown, and cached full text must not restore an invalid date. Supersedes the Greenhouse updated_at fallback; saved results are not rewritten (2026-10-09). |
 | Prefer exact source IDs in job memory. Distinct IDs on the same employer source stay separate, including through other copies. Require similar text when both matching ads are complete. Keep ambiguous name matches as separate jobs; preserve all historical keys, marks and snapshots. | Fictional electronics, nursing and hospitality openings reproduced a fresh vacancy inheriting an old date or Not interested mark. Titles and templates do not establish a unique vacancy. Previously merged history cannot be automatically split without evidence (2026-10-07). |
 | Groups kept separate by duplicate checks cannot rejoin solely through remembered names in the same batch. Exact copy evidence still wins; known countries can disambiguate. | The former one-card heuristic for two vague agency summaries could silently share Save/Not interested state without vacancy evidence. Supersedes that title-only assumption while retaining one card for proven copies (2026-10-08). |
 | Explain scores with rubric parts and deterministic blocker limits; retain low-score jobs. | Users can see why a job ranks where it does; a score is not hiring probability (2026-09-23 to 2026-09-30). |
@@ -302,6 +303,44 @@ The root keeps launchers, README, CONTRIBUTING, AGENTS, LICENSE and Python/tool 
 
 ## Source reliability
 
+### Greenhouse original temporal evidence — 2026-10-09
+
+The [dated public contract and access check](SOURCES.md#greenhouse-temporal-evidence) separate
+first publication from modification. The reader keeps missing/invalid originals unknown,
+uses day precision for a date without a time, and recovers original publication and application
+deadline from its existing full-detail response even when text is empty. Search's existing
+post-detail rules exclude proven old/closed ads before scoring; unknowns remain visible.
+
+`JobSource.detail_cache_version` defaults to 1. `jobstore` records/checks the reader version in
+full-ad JSON; legacy unversioned entries are version 1. Greenhouse uses 2, so an old cache
+cannot restore a modification timestamp as original publication. Old caches/snapshots are not
+rewritten; incompatible cached details are refreshed within the existing source budgets, or
+the job stays with incomplete/unknown evidence if unavailable. Corrected warm caches still
+reuse full evidence, and scores are always new. The three-day text expiry remains unchanged.
+
+A controlled no-network comparison against `4a640b8` used fictional teaching/nursing ads:
+
+| Temporal evidence | Before | After | Detail stub reads per version |
+|---|---|---|---|
+| Only a recent edit date | Fresh | Unknown, retained | 0 |
+| Only an old edit date | Too old | Unknown, retained | 0 |
+| Existing details reveal old first publication | Fresh | Too old | 1 |
+| Existing details reveal a passed deadline | Fresh/open | Closed | 1 |
+| Original day overlaps the 24-hour boundary | Too old at invented midnight | Retained with day precision | 0 |
+
+The cache regression proves a legacy cache needs one corrected detail read, then zero new
+reads on warm reuse. End-to-end fictional searches prove old/closed cases make no scoring
+call and the unknown case is scored/displayed. All 30 countries and non-engineering cases
+are covered. These are behavior/request comparisons, not market freshness, recall, live speed
+or paid-cost measurements. More unknowns can require more matching work within existing limits.
+
+Original dates in other adapters still need independent source-specific audits. First post
+publication does not prove a new underlying requisition. Post-vs-job IDs, bulk full-content
+lists and private/internal API permission are separate evidence/measurement dependencies.
+When another copy already supplies full text, the existing reader-selection gate can skip a
+detail-only temporal check; dates/deadlines may also change within the unchanged cache window.
+This correction does not claim complete original-date/deadline verification for every result.
+
 ### Maps recovery
 
 **2026-10-08:** [Dated primary evidence](SOURCES.md#maps-request-limits-and-recovery) distinguishes
@@ -396,8 +435,8 @@ Request budgets are charged by adapters before the HTTP client, whose
 internal retries need a separate attempt-accounting audit outside Maps. Per-element Maps
 service errors currently share an empty-duration outcome with unavailable routes; preserve
 partial valid measurements and distinguish uncertainty before changing those outcomes.
-Original-date provenance also needs a source-specific audit: Greenhouse falls back from
-first publication to modification time, which does not independently prove original freshness.
+The Greenhouse modification fallback is superseded by the original-date correction above.
+Original-date provenance in other adapters still needs a source-specific audit.
 Provider retry/date handling and
 redirect-specific delays also need their own scope; the source change above does not validate
 them. New permitted sources and multilingual vocabulary still require date-verified coverage

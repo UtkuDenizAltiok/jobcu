@@ -106,6 +106,58 @@ def wait_until_done(manager, answer=None, timeout=15):
     return manager.current.snapshot()
 
 
+@pytest.mark.parametrize("case", ["old", "closed", "unknown"])
+def test_greenhouse_detail_dates_decide_before_scoring_and_unknown_stays_visible(
+    ready, monkeypatch, case,
+):
+    from jobcu.sources.careers import Employer
+    from jobcu.sources.greenhouse import GreenhouseSource, to_found_job
+
+    scored_calls, detail_calls = [], []
+
+    class TrackedAI(FakeAI):
+        def complete_json(self, **request):
+            if request["schema_name"] == "ScoringAnswer":
+                scored_calls.append(request)
+            return super().complete_json(**request)
+
+    class FictionalGreenhouse(GreenhouseSource):
+        def covers(self, query):
+            return True
+
+        def search(self, query, ctx):
+            yield replace(to_found_job({"id": 1, "title": "Hardware Engineer",
+                         "updated_at": datetime.now(UTC).isoformat(),
+                         "absolute_url": "https://example.test/job",
+                         "location": {"name": "Berlin"}},
+                         Employer("Fictional Devices", "greenhouse", "fictional", ("DE",))),
+                         country="DE")
+
+        def get_json(self, url, ctx):
+            detail_calls.append(url)
+            data = {"content": "<p>Full fictional hardware engineering requirements.</p>"}
+            if case == "old":
+                data["first_published"] = (datetime.now(UTC) - timedelta(days=20)).isoformat()
+            if case == "closed":
+                data["first_published"] = (datetime.now(UTC) - timedelta(hours=2)).isoformat()
+                data["application_deadline"] = (datetime.now(UTC) - timedelta(hours=1)).isoformat()
+            return data
+
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [FictionalGreenhouse()])
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: TrackedAI())
+    manager = search.SearchManager()
+    manager.start(SearchForm())
+    result = wait_until_done(manager)
+    assert result["status"] == "finished" and len(detail_calls) == 1
+    cards = result["result"]["jobs"]
+    if case == "unknown":
+        assert len(scored_calls) == 1 and len(cards["date_unknown"]) == 1
+        assert not cards["cards"] and cards["date_unknown"][0]["posted_at"] is None
+    else:
+        assert scored_calls == []
+        assert not cards["cards"] and not cards["date_unknown"]
+
+
 def track_search_worker(manager, monkeypatch):
     """Let controlled-save tests clean up only after the background worker returns."""
     worker_done = threading.Event()

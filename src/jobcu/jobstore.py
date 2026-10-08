@@ -160,11 +160,12 @@ def marked_cards(kind: str) -> list[dict]:
     return cards
 
 
-def remember_ad(job: FoundJob) -> None:
+def remember_ad(job: FoundJob, *, reader_version: int = 1) -> None:
     """Keeps the text of a full ad, so the next search doesn't download it again."""
     if not job.description_is_complete or not job.source_job_id:
         return
     details = {field: getattr(job, field) for field in AD_DETAIL_FIELDS}
+    details["_reader_version"] = reader_version
     for name in _TIMES:
         details[name] = details[name].isoformat() if details[name] else None
     with db.connect() as conn:
@@ -179,7 +180,7 @@ def remember_ad(job: FoundJob) -> None:
         )
 
 
-def remembered_ad(job: FoundJob) -> FoundJob | None:
+def remembered_ad(job: FoundJob, *, reader_version: int = 1) -> FoundJob | None:
     """The same ad's text from an earlier search, if it was downloaded in the last few days."""
     if not job.source_job_id:
         return None
@@ -195,6 +196,8 @@ def remembered_ad(job: FoundJob) -> FoundJob | None:
     try:
         details = json.loads(row["details_json"])
     except ValueError:
+        return None
+    if not isinstance(details, dict) or details.get("_reader_version", 1) != reader_version:
         return None
     details = {field: value for field, value in details.items()
                if field in AD_DETAIL_FIELDS and value not in (None, "", [])}

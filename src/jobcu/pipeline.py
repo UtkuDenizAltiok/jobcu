@@ -161,7 +161,11 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
                                            "kind", "aggregator")), 3))
         for copy_index in order:
             try:
-                known = jobstore.remembered_ad(group.copies[copy_index])
+                copy = group.copies[copy_index]
+                reader = collected.sources.get(copy.source)
+                known = jobstore.remembered_ad(
+                    copy, reader_version=getattr(reader, "detail_cache_version", 1)
+                )
             except Exception:
                 log.exception("Reading remembered full-ad evidence failed")
                 continue
@@ -220,7 +224,7 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
                                                    description_is_complete=False)
                     groups[index].copies[copy_index] = full
                     try:
-                        jobstore.remember_ad(full)
+                        jobstore.remember_ad(full, reader_version=source.detail_cache_version)
                     except Exception:
                         log.exception("Keeping full-ad evidence for later searches failed")
                 except RequestStopped:
