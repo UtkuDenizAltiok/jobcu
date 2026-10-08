@@ -3,7 +3,7 @@ import re
 import threading
 import time
 from dataclasses import replace
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from conftest import FAKE_CV_LINES, make_pdf
@@ -13,7 +13,7 @@ from jobcu import applications, db, documents, jobstore, search
 from jobcu.ai.base import AIAuthError, ProviderAdapter, RawReply, Usage
 from jobcu.app import create_app
 from jobcu.settings import SearchForm, Settings, load_settings, save_settings
-from jobcu.sources.base import FoundJob, JobSource
+from jobcu.sources.base import FoundJob, JobSource, SourceError
 
 HEADERS = {"X-Jobcu": "1"}
 PROFILE = {
@@ -227,6 +227,125 @@ def test_full_search_finds_filters_scores_and_remembers(ready):
     manager.start(SearchForm(location_text="Germany"))
     again = wait_until_done(manager)["result"]["jobs"]
     assert again["new_count"] == 0
+
+
+@pytest.mark.parametrize(("title", "field", "skill"), [
+    ("Power Electronics Engineer", "Electronics", "Power converter design"),
+    ("Registered Nurse", "Nursing", "Clinical patient care"),
+])
+def test_recovered_full_requirements_reach_matching_and_change_the_explanation(
+        ready, monkeypatch, title, field, skill):
+    full = f"{title}. Full fictional ad: at least eight years of experience are required."
+    profile = {**PROFILE, "summary": f"Experienced {title}.", "field": field,
+               "skills": [skill], "technical_areas": [field], "target_fields": [field],
+               "target_roles": [title], "current_or_last_role": title}
+    documents.save_upload("cv", "fictional-cv.pdf", make_pdf([
+        "Alex Example", f"{title} with five years of experience. Skills: {skill}. " * 4]))
+    documents.save_upload("cover_letter", "fictional-letter.txt",
+                          f"I am seeking work as a {title}. I enjoy {skill}. ".encode() * 4)
+
+    class MatchingAI(FakeAI):
+        evidence = []
+
+        def complete_json(self, **request):
+            if request["schema_name"] == "Profile":
+                return RawReply(json.dumps(profile), Usage(10, 5))
+            reply = super().complete_json(**request)
+            if request["schema_name"] == "ScoringAnswer":
+                self.evidence.append(request["prompt"])
+                answer = json.loads(reply.text)
+                for score in answer["scores"]:
+                    score["years_required"] = 8 if full in request["prompt"] else None
+                return RawReply(json.dumps(answer), reply.usage)
+            return reply
+
+    class MatchedCopy(FakeSource):
+        def __init__(self, name, kind):
+            self.id, self.name, self.kind = name, name, kind
+            self.reads = 0
+
+        def search(self, query, ctx):
+            yield FoundJob(source=self.id, source_job_id="1", url=f"https://{self.id}.test/1",
+                           title=title, company="Fictional Employer", location_text="Berlin",
+                           country="DE", posted_at=datetime.now(UTC), date_precision="exact",
+                           description="Short summary without requirements")
+
+        def load_details(self, job, ctx):
+            self.reads += 1
+            if self.kind == "employer":
+                raise SourceError("Fictional unavailable detail")
+            return replace(job, description=full, description_is_complete=True)
+
+    adapter = MatchingAI()
+    employer, board = MatchedCopy("employer", "employer"), MatchedCopy("board", "job_board")
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: adapter)
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [employer, board])
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    result = wait_until_done(manager)
+    assert result["status"] == "finished", result["error"]
+    cards = result["result"]["jobs"]["cards"]
+    assert len(cards) == 1 and employer.reads == board.reads == 1
+    assert len(adapter.evidence) == 1 and full in adapter.evidence[0]
+    assert not cards[0]["summary_only"] and cards[0]["score"] == 80
+    assert any("8+ years" in limit["why"] for limit in cards[0]["limits"])
+    # A new search reuses bounded-age text but makes a fresh matching judgement.
+    manager.start(SearchForm(location_text="Germany"))
+    again = wait_until_done(manager)
+    assert again["status"] == "finished", again["error"]
+    assert len(adapter.evidence) == 2 and full in adapter.evidence[1]
+    assert employer.reads == board.reads == 1
+    assert again["result"]["jobs"]["cards"][0]["score"] == 80
+
+
+@pytest.mark.parametrize(("new_fact", "reason"), [
+    ({"posted_at": datetime.now(UTC) - timedelta(days=10)}, "too_old"),
+    ({"closes_at": datetime.now(UTC) - timedelta(days=1)}, "closed"),
+    ({"country": "AT"}, "country"),
+    ({"job_types": ["part_time"]}, "job_type"),
+    ({"work_mode": "remote"}, "remote"),
+])
+@pytest.mark.parametrize("cached", [False, True])
+def test_objective_facts_in_full_evidence_are_checked_before_scoring(
+        ready, monkeypatch, new_fact, reason, cached):
+    from jobcu.filters import REASONS
+
+    copy = FoundJob(source="fake", source_job_id="1", url="https://jobs.test/1",
+                    title="Hardware Engineer", company="Fictional Employer",
+                    country="DE", location_text="Berlin", posted_at=datetime.now(UTC),
+                    date_precision="exact", description="Short summary")
+    full = replace(copy, description="Full fictional requirements", description_is_complete=True,
+                   **new_fact)
+
+    class OneCopy(FakeSource):
+        reads = 0
+
+        def search(self, query, ctx):
+            yield copy
+
+        def load_details(self, job, ctx):
+            self.reads += 1
+            return full
+
+    class NoScoring(FakeAI):
+        def complete_json(self, **request):
+            assert request["schema_name"] != "ScoringAnswer", "Ineligible job reached scoring"
+            return super().complete_json(**request)
+
+    source = OneCopy()
+    if cached:
+        jobstore.remember_ad(full)
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [source])
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: NoScoring())
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany", exclude_remote=True,
+                             job_types=["full_time_permanent"]))
+    result = wait_until_done(manager)
+    assert result["status"] == "finished", result["error"]
+    jobs = result["result"]["jobs"]
+    assert jobs["cards"] == jobs["date_unknown"] == []
+    assert jobs["counts"]["left_out"] == [{"reason": REASONS[reason], "count": 1}]
+    assert source.reads == (0 if cached else 1)
 
 
 def test_web_research_refusal_keeps_search_results_and_skips_later_online_steps(ready, monkeypatch):

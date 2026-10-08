@@ -24,6 +24,7 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | For Maps journeys into a reference city, compare the calculated edge point and city centre, keeping the faster available journey. Explicit centre requests still measure the centre alone; explain that sampling can miss faster districts. | A geometric edge can have a worse connection than the centre. Fictional regressions reproduce a reachable job rejected by an edge-only journey. This clarifies the anywhere-in-the-place intent above without claiming an exact fastest commute (2026-10-07). |
 | Preserve confidence in facts about reference places separately from journey confidence. Keep usable partial rules, but explain missing facts and label estimates on each card. | A fictional city-library condition reproduced a measured journey upgrading unverified library access to verified. Distance, limit edits and Maps cannot prove that fact; scores and filtering remain unchanged (2026-10-08). |
 | Prefer original employer ads and full descriptions. Keep summary evidence and missing conditions labelled. | Missing text must not appear to be complete evidence (2026-09-17; clarified 2026-10-06). |
+| Reuse bounded-age full text across matched copies before live reads; then prefer employer originals and try other permitted matched copies if needed. Recheck revealed objective facts before scoring. | A first-copy failure does not prove full evidence is unavailable; scores remain fresh per search (2026-10-08). |
 | Exclude known CV-Library application destinations. Keep the same vacancy with another already-matched link, preferably the employer; otherwise exclude it with a counted reason. Preserve saved/applied history and original snapshots. | The owner reports that the application form rejects contact details from outside the UK. This is an explicit destination exclusion, not proof that every alternate platform accepts every applicant. Opaque redirect destinations still need verification (owner, 2026-10-07). |
 | Let the person exclude an exact saved application link and undo that choice locally. Reuse an already-matched alternative or count the vacancy as left out before further matching. Keep other links on that site available. | Opaque redirects cannot establish their final host. A local report handles an observed unusable link without probing blocked pages, guessing URLs or classifying unrelated vacancies. No automatic final-host verification is claimed (2026-10-07). |
 | Full-ad requirements replace earlier summary requirements, including an unstated experience minimum. Keep other blockers intact. | A fictional regression confirms that retaining the summary's years when the full ad says none leaves an obsolete score limit (2026-10-07). |
@@ -107,7 +108,17 @@ overlapping starts/corrections, immediate restore and storage failures without t
    Legacy snapshots retain their original post-screen counts and lack rejected-title evidence;
    do not infer retrospective rejection counts or compare them as raw collection measurements.
 3. In `search._decide`, apply location conditions, quick relevance and travel limits; load full
-   ads for candidates still in the running.
+   ads for candidates still in the running. Check every matched copy's existing three-day text
+   cache first; if no complete nonempty text is available, prefer the employer and try available
+   adapters in rounds until one supplies it. Keep each source serial while independent sources
+   run together. No unrelated vacancy or new endpoint is fetched. Reject mismatched identities,
+   preserve richer summaries after incomplete responses, and isolate failed adapter mutations.
+   Cache failures cannot discard successfully recovered text. Stop prevents later rounds.
+   A career reader created for corrections without `search()` also retains the normal request
+   budget, carrying forward that saved search's reported requests; reaching it is reported as
+   partial. Internal HTTP retry accounting is a separate lead.
+   Recheck original/closing dates, stated countries, job types, remote status and application
+   routes before scoring. Conflicting copies still follow the existing conservative free rules.
 4. Score evidence through `ai/client.py`; `scoring.py` applies deterministic blocker limits.
 5. Research candidate towns and summary requirements where supported, then reapply conditions
    and limits. Preserve uncertainty and evidence-completeness labels.
@@ -215,6 +226,29 @@ The root keeps launchers, README, CONTRIBUTING, AGENTS, LICENSE and Python/tool 
 
 ## Source reliability
 
+### Fictional full-ad recovery comparison — 2026-10-08
+
+Public API/evidence findings live in [SOURCES](SOURCES.md#full-ad-evidence-and-existing-detail-apis).
+The first-eligible-copy rule is superseded: it could stop at a summary or failure although a
+second matched copy supplied full evidence. A no-network comparison against `76f405f` used
+fictional ads, stub readers and separate disposable databases:
+
+| Two matched copies | Before | After | Evidence retained |
+|---|---|---|---|
+| First stays a summary, second has full requirements | 1 reader call; summary only | 2 calls; full text | Same vacancy/copy identities |
+| Second already has a valid full-text cache entry | 1 unnecessary live-reader call | 0 reader calls | Same full requirements |
+| Neither can supply full text | 1 call; summary | 2 calls; summary | Job retained with incomplete label |
+
+These count stub reader invocations, not HTTP retry attempts or live latency. Additional reads
+deliberately seek missing evidence within existing limits. A slow source can delay later rounds;
+these results do not promise an end-to-end speed or recall gain. Existing text expiry is unchanged
+and cannot prove an ad has not been revised within that window; no previous score is reused.
+Fictional power-electronics and nursing searches verify that recovered eight-year requirements
+reach scoring and its explanation, and a second search uses cached text with a fresh judgement.
+Cached/live detail cases verify that known old/closed/wrong-country/unticked-type/remote jobs
+do not reach scoring. Failure, Stop, budget, identity/marks, expiry and serialization checks use
+no owner inputs, real sources or providers. Independent live quality remains unverified.
+
 ### Fictional cooldown comparison — 2026-10-08
 
 `tests/test_source_cooldowns.py` uses mocked HTTP and controlled clocks/events. It preserves
@@ -236,10 +270,11 @@ account-wide or cross-process enforcement. Normal retry counts and source budget
 
 ### Research leads requiring their own verified goal
 
-The 2026-10-08 pipeline inspection found that full-ad loading tries only the first eligible
-matched copy, and local place matching returns false for unresolved named places despite its
-keep-unknown contract. Both need focused fictional reproductions and an independent review
-before implementation. Request budgets are charged by adapters before the HTTP client, whose
+The 2026-10-08 pipeline inspection found that local place matching returns false for unresolved
+named places despite its keep-unknown contract. This needs a focused fictional reproduction
+and review before implementation. Full-ad fallback is resolved above; location checks made
+before full text arrives still need a focused audit of newly revealed place evidence.
+Request budgets are charged by adapters before the HTTP client, whose
 internal retries need a separate attempt-accounting audit. Provider retry/date handling and
 redirect-specific delays also need their own scope; the source change above does not validate
 them. New permitted sources and multilingual vocabulary still require date-verified coverage

@@ -22,10 +22,34 @@ from jobcu.sources import (
 )
 from jobcu.sources import workday as wd
 from jobcu.sources.base import FoundJob, JobQuery, SourceContext, SourceError, SourceReport
+from jobcu.sources.budget import Limits
 from jobcu.sources.careers import Employer, job_types_from_text, keep_job
 from jobcu.sources.http import PoliteClient
 
 NOW = datetime.now(UTC)
+
+
+@pytest.mark.parametrize("previous_requests", [0, 1])
+def test_detail_reader_created_without_search_still_shares_its_request_budget(
+        monkeypatch, previous_requests):
+    calls = []
+    def handler(request):
+        calls.append(request.url.path)
+        return httpx.Response(200, json={"content": "Full fictional requirements"})
+    monkeypatch.setattr(careers, "LIMITS", Limits(per_search=1))
+    source = greenhouse.GreenhouseSource()
+    ctx = context(handler, source.id)
+    ctx.report.requests = previous_requests
+    try:
+        first = source.load_details(job(), ctx)
+        second = source.load_details(job(), ctx)
+        assert first.description_is_complete == (previous_requests == 0)
+        assert not second.description_is_complete
+        assert len(calls) == 1 - previous_requests
+        assert ctx.report.requests == source._budget.used_this_search == 1
+        assert ctx.report.status == "partial" and "most requests" in ctx.report.message
+    finally:
+        ctx.http.close()
 
 
 def term(text, language="en", kind="job_title"):

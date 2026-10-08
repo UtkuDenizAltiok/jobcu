@@ -231,8 +231,17 @@ class CareerSystemSource(JobSource):
     def get(self, url: str, ctx: SourceContext, **kwargs) -> httpx.Response:
         """One request, counted and checked. 404 means the company's list doesn't exist."""
         budget = getattr(self, "_budget", None)
-        if budget is not None:
+        if budget is None:
+            # Condition corrections/directory tools can create a reader without search().
+            # Carry forward reported requests on a correction of this saved search.
+            resumed = RequestBudget(self.id, self.name, LIMITS)
+            resumed.used_this_search = ctx.report.requests
+            budget = self.__dict__.setdefault("_budget", resumed)
+        try:
             budget.spend()
+        except BudgetExhausted as exc:
+            ctx.report.status, ctx.report.message = "partial", exc.message
+            raise
         ctx.report.requests += 1
         method = kwargs.pop("method", "GET")
         try:

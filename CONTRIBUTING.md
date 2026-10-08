@@ -39,6 +39,10 @@ uv run python tools/check_no_secrets.py --all
 
 Tests use disposable fictional data and need no API keys. Use the
 [architecture and tool map](docs/ENGINEERING.md#project-layout) for targeted work.
+For full-ad evidence changes, use `tests/test_full_ad_recovery.py`, `tests/test_search.py` and
+`tests/test_careers.py`: verify recovered requirements reach matching, objective facts are
+checked before scoring, cache reuse makes fresh judgements and failed reads retain labelled
+evidence. Mock readers and HTTP transports exercise source limits without vacancy traffic.
 Work on a branch, review the diff, open a PR and wait for Mac, Windows and privacy CI.
 Merge with a merge commit; preserve shared history. Other contributors' PRs require review.
 

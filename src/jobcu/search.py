@@ -576,6 +576,17 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     run.update("details", "done", "Full ads read where available")
     checkpoint()
 
+    # Full or remembered text can reveal an original date, closing date or other objective
+    # fact absent from the list summary. Recheck those facts before spending AI on scoring.
+    detail_rules = apply_rules(
+        [groups[i] for i in candidates], [None] * len(candidates), started_at=started_at,
+        posted_within_hours=form.posted_within_hours, job_types=form.job_types,
+        exclude_remote=form.exclude_remote, countries=plan.countries,
+    )
+    candidates = [candidates[i] for i in detail_rules.kept]
+    kept = set(candidates)
+    to_score = [i for i in to_score if i in kept]
+
     run.update("scoring", "running")
     order = pipeline.newest_first(groups, to_score)
     cap = settings.limits.scoring_cap or len(order)  # None: no limit
@@ -711,6 +722,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
 
     # Facts only the ad text revealed can still rule a job out.
     left_out = Counter(job_pool.left_out)
+    left_out.update(detail_rules.left_out)
     left_out.update(unavailable_routes.values())
     if ruled_out:
         left_out["location_condition"] = len(ruled_out)

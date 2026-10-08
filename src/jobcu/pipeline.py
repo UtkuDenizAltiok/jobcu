@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from jobcu import applications, jobstore, travel
 from jobcu import places as place_list
 from jobcu.countries import COUNTRIES
-from jobcu.dedupe import JobGroup, group_duplicates
+from jobcu.dedupe import SOURCE_KIND_RANK, JobGroup, group_duplicates
 from jobcu.filters import condition_fit
 from jobcu.freshness import earliest_possible, freshness, window_start
 from jobcu.jobstore import JobState
@@ -27,6 +27,7 @@ from jobcu.sources.base import (
     SourceError,
     SourceReport,
 )
+from jobcu.sources.budget import BudgetExhausted
 from jobcu.sources.http import Blocked, PoliteClient, RequestStopped
 from jobcu.text import normalise
 
@@ -131,59 +132,125 @@ def make_groups(collected: Collected) -> list[JobGroup]:
         group.possible_duplicate_of)) for group in kept]
 
 
-def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> None:
-    """Fetch the full ad for jobs still in the running, where only a short version is known.
+def _complete_ad(job: FoundJob) -> bool:
+    return bool(job.description_is_complete and (job.description or "").strip())
 
-    An ad downloaded in the last few days is taken from what Jobcu remembers instead
-    (docs/ENGINEERING.md), which saves time and requests without ever reusing a score.
+
+def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> None:
+    """Reuse full text across matched copies, then try available readers until one succeeds.
+
+    Scores are never reused. Each source stays serial, independent sources run together,
+    and failed/empty/incomplete responses leave the job available with its existing evidence.
     """
     reports = {r.source: r for r in collected.reports}
-    work: dict[str, list[tuple[int, int]]] = {}
+    pending: dict[int, list[int]] = {}
     remembered = 0
-    for index in indexes:
+    for index in dict.fromkeys(indexes):
+        if run.stop_requested:
+            return
         group = groups[index]
-        if group.best_description_copy.description_is_complete:
+        # A completeness flag without text is not usable evidence.
+        group.copies = [dataclasses.replace(c, description_is_complete=False)
+                        if c.description_is_complete and not _complete_ad(c) else c
+                        for c in group.copies]
+        if _complete_ad(group.best_description_copy):
             continue
-        for copy_index, copy in enumerate(group.copies):
-            source = collected.sources.get(copy.source)
-            if source is None or type(source).load_details is JobSource.load_details:
+        order = sorted(range(len(group.copies)), key=lambda i: SOURCE_KIND_RANK.get(
+            group.source_kinds.get(group.copies[i].source,
+                                   getattr(collected.sources.get(group.copies[i].source),
+                                           "kind", "aggregator")), 3))
+        for copy_index in order:
+            try:
+                known = jobstore.remembered_ad(group.copies[copy_index])
+            except Exception:
+                log.exception("Reading remembered full-ad evidence failed")
                 continue
-            known = jobstore.remembered_ad(copy)
-            if known is not None:
+            if known is not None and _complete_ad(known):
                 group.copies[copy_index] = known
                 remembered += 1
-            else:
-                work.setdefault(copy.source, []).append((index, copy_index))
-            break
-    total = sum(len(items) for items in work.values())
+                break
+        if _complete_ad(group.best_description_copy):
+            continue
+        options, seen = [], set()
+        for copy_index in order:
+            copy = group.copies[copy_index]
+            identity = (copy.source, copy.source_job_id,
+                        None if copy.source_job_id else copy.url)
+            source, report = collected.sources.get(copy.source), reports.get(copy.source)
+            if (identity in seen or source is None or report is None
+                    or type(source).load_details is JobSource.load_details
+                    or report.status in {"skipped", "unavailable"}
+                    or source.unavailable_reason(keys)):
+                continue
+            seen.add(identity)
+            options.append(copy_index)
+        if options:
+            pending[index] = options
+    total = len(pending)
     known_note = f", {remembered} already known" if remembered else ""
     if not total:
         run.update("details", "done", f"Nothing more to read{known_note}")
         return
     lock = threading.Lock()
-    done = [0]
+    stopped = threading.Event()
+    exhausted: set[str] = set()
+    done, tried = [0], [0]
 
     def run_source(source_id: str, items: list[tuple[int, int]]) -> None:
         source = collected.sources[source_id]
-        ctx = SourceContext(http, keys, reports[source_id], lambda: run.stop_requested, run.note)
+        ctx = SourceContext(http, keys, reports[source_id],
+                            lambda: run.stop_requested or stopped.is_set(), run.note)
         for index, copy_index in items:
-            if run.stop_requested:
+            if ctx.should_stop():
                 return
-            try:
-                full = source.load_details(groups[index].copies[copy_index], ctx)
-                groups[index].copies[copy_index] = full
-                jobstore.remember_ad(full)
-            except RequestStopped:
-                return
-            except Exception:
-                log.exception("Reading a full ad from %s failed", source_id)
+            copy = groups[index].copies[copy_index]
+            if source_id not in exhausted:
+                try:
+                    # Adapters may mutate their argument. Failed or mismatched responses
+                    # must not mutate the retained copy or change its remembered identity.
+                    full = source.load_details(dataclasses.replace(
+                        copy, job_types=list(copy.job_types)), ctx)
+                    if ((full.source, full.source_job_id) != (copy.source, copy.source_job_id)
+                            or (not copy.source_job_id and full.url != copy.url)):
+                        raise SourceError("The full-ad response did not match the requested copy.")
+                    if (not (full.description or "").strip()
+                            or (not full.description_is_complete
+                                and len(full.description) < len(copy.description))):
+                        full = dataclasses.replace(full, description=copy.description,
+                                                   description_is_complete=False)
+                    groups[index].copies[copy_index] = full
+                    try:
+                        jobstore.remember_ad(full)
+                    except Exception:
+                        log.exception("Keeping full-ad evidence for later searches failed")
+                except RequestStopped:
+                    stopped.set()
+                    return
+                except BudgetExhausted as exc:
+                    exhausted.add(source_id)
+                    reports[source_id].status, reports[source_id].message = "partial", exc.message
+                except (Blocked, SourceError):
+                    log.info("Full-ad reader %s could not supply this copy", source_id)
+                except Exception:
+                    log.exception("Reading a full ad from %s failed", source_id)
+            complete = _complete_ad(groups[index].best_description_copy)
             with lock:
-                done[0] += 1
-                if done[0] % 5 == 0 or done[0] == total:
-                    run.update("details", "running", f"{done[0]} of {total} ads{known_note}")
+                tried[0] += 1
+                if complete or not pending[index]:
+                    done[0] += 1
+                if tried[0] % 5 == 0 or done[0] == total:
+                    run.update("details", "running", f"{done[0]} of {total} jobs checked for full "
+                               f"ads, {tried[0]} copies checked{known_note}")
 
-    with ThreadPoolExecutor(max_workers=len(work), thread_name_prefix="details") as pool:
-        list(pool.map(lambda pair: run_source(*pair), work.items()))
+    while pending and not run.stop_requested and not stopped.is_set():
+        work: dict[str, list[tuple[int, int]]] = {}
+        for index, options in pending.items():
+            copy_index = options.pop(0)
+            work.setdefault(groups[index].copies[copy_index].source, []).append((index, copy_index))
+        with ThreadPoolExecutor(max_workers=len(work), thread_name_prefix="details") as pool:
+            list(pool.map(lambda pair: run_source(*pair), work.items()))
+        pending = {i: options for i, options in pending.items()
+                   if options and not _complete_ad(groups[i].best_description_copy)}
 
 
 def newest_first(groups: list[JobGroup], indexes: list[int]) -> list[int]:
