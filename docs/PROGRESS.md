@@ -37,19 +37,50 @@ Completed details live in Git and PRs. Private evaluation follows
 
 ### In progress
 
-None on completed main; the full-ad feature is merged. If this record is still on
-`codex/full-ad-handover` (base `f078539`), only publication and final verification remain.
-Required local end checks passed **819 tests**, Ruff, privacy and whitespace; startup self-test
-also passed and stopped. Diff reviewed; no failed check remains. Implementation PR and merged
-main CI passed. Exact next action: publish/recover this branch's PR, verify its exact-head
-Mac/Windows/privacy CI, merge with a merge commit, synchronize main and verify final-main CI.
-Do not mistake an existing push or merge for a passed final-main check.
+Active goal: make Maps quota recovery respect request limits and explain failures accurately,
+on `codex/maps-recovery-limits`, base `97713bb`. Startup verified clean main, merged PRs and
+final-main Mac/Windows/privacy CI; locked sync and **819 tests** passed. The owner subsequently
+closed Jobcu; preserve that choice. Preview 8799 is stopped. Development works with either
+owner app state and does not require closing it.
 
-In a fresh chat, run the start routine, recheck private authority/checkpoint and compare saved
-evidence. If the missing-evidence dependency persists, checkpoint it and begin the strongest
-free goal below: reproduce unresolved-place rejection against the keep-unknown intent, with
-fictional engineering and non-engineering cases before changing matching. No new search or
-paid experiment is granted by this handover. Keep one active goal and preserve owner state.
+The owner requested review after an on-demand search. Standing private authority/checkpoint
+were checked; saved results/logs were inspected on a private SQLite backup outside Git.
+Detailed counts, criteria, timings and quota diagnostics remain private. No new search or
+provider/Maps/vacancy request was made. Independent top-card labels/original posting-date
+provenance still limit quality claims; newly saved early-title evidence is now available.
+
+Shortlist ranked by benefit, evidence, effort, risk and verification:
+1. Maps recovery/accounting: confirmed retry loop and budget charged once before multiple
+   transport attempts; high reliability/limit benefit, medium effort and retry/evidence risk.
+   Select this goal; verify recoverable throttling, persistent quotas, cancellation, budget
+   exhaustion and measured/estimated labels without live calls.
+2. Original-date provenance: high freshness benefit; some adapters fall back to modification
+   dates. Needs source-by-source primary evidence, independent original dates and fictional
+   regressions before changing collection. Saved dates alone cannot prove posting freshness.
+3. Unresolved-place rejection: high potential recall benefit, low/moderate effort; retain
+   proven geographic exclusions and include fictional non-engineering matching cases.
+
+Steps: check primary quota/error/terms guidance; reproduce failures and retry accounting;
+distinguish persistent from transient limits; count each attempted matrix's elements; preserve
+successful measurements and avoid retrying a confirmed persistent quota again in the same search;
+provide clear bounded diagnostics; compare fictional behavior/requests/waits; update guides
+and records; review, run full checks, publish, verify exact-head Mac/Windows/privacy CI, merge
+with merge commits and synchronize main. Do not lower AI effort, omit candidates or cache
+Google travel times across searches. No account/billing changes or paid tests are authorized.
+
+Implemented locally: persistent quota classification, per-attempt element accounting with
+atomic spending, allowance preflight, preserved cached measurements, shared measurement-round
+state, single wait notice/current-step timing and explicit collected-ad wording. The original
+implementation failed 12 focused cases. Final local checks passed **855 tests**, Ruff, privacy,
+whitespace and an isolated startup self-test. The full diff was reviewed; no failed check remains.
+Fictional before/after comparisons and primary evidence are recorded in ENGINEERING/SOURCES.
+No live quality, cost or end-to-end speed gain is claimed. Implementation is ready for publication;
+no merge is claimed by this checkpoint. Recover actual branch HEAD/PR from Git and GitHub.
+Exact next action: push/open the branch PR if absent, verify exact-head Mac/Windows/privacy CI,
+merge with a merge commit, synchronize main and verify merged-main CI before final handover.
+Private review evidence and updated status were saved outside Git; its scratch copy was deleted.
+Owner data, ratings and private authority are preserved. Both app ports are stopped as chosen
+by the owner. No paid test, provider/Maps/vacancy call or new search was made by this session.
 
 ### Verify before relying on
 

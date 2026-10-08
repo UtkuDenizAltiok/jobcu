@@ -178,16 +178,18 @@ def test_car_trips_are_measured_without_a_departure_time():
     assert travel.detail(condition, job) == ("Munich, 25 min by car", "Google Maps")
 
 
-def test_google_s_own_words_go_to_the_log_when_it_refuses(caplog):
+def test_google_diagnostics_do_not_log_account_specific_error_text(caplog):
     def refuse(request):
-        return httpx.Response(400, json=[{"error": {"code": 400, "message": "Bad field."}}])
+        return httpx.Response(400, json=[{"error": {
+            "code": 400, "message": "Bad field for projects/fictional-account."}}])
 
     http = PoliteClient(min_intervals={}, sleep=lambda s: None,
                         transport=httpx.MockTransport(refuse))
     with caplog.at_level("WARNING"), pytest.raises(travel.MapsError, match="code 400"):
         travel.GoogleMaps("fake-maps-key", http, now=lambda: NOW).minutes(
             travel.job_point(group("Freising")), [places.find("Munich", "DE")], "transit")
-    assert "Google Maps answered 400: Bad field." in caplog.text
+    assert "Google Maps refused a request (code 400)" in caplog.text
+    assert "fictional-account" not in caplog.text and "Bad field" not in caplog.text
 
 
 def test_google_s_daily_limit_is_named_as_such(caplog):
@@ -198,10 +200,10 @@ def test_google_s_daily_limit_is_named_as_such(caplog):
 
     http = PoliteClient(min_intervals={}, sleep=lambda s: None,
                         transport=httpx.MockTransport(used_up))
-    with caplog.at_level("WARNING"), pytest.raises(travel.MapsError, match="daily limit"):
+    with caplog.at_level("WARNING"), pytest.raises(travel.MapsError, match="daily quota"):
         travel.GoogleMaps("fake-maps-key", http, now=lambda: NOW).minutes(
             travel.job_point(group("Freising")), [places.find("Munich", "DE")], "transit")
-    assert "elements per day" in caplog.text
+    assert "quota scope: day" in caplog.text
 
 
 def test_clear_cases_need_no_route_look_up():

@@ -43,6 +43,9 @@ For full-ad evidence changes, use `tests/test_full_ad_recovery.py`, `tests/test_
 `tests/test_careers.py`: verify recovered requirements reach matching, objective facts are
 checked before scoring, cache reuse makes fresh judgements and failed reads retain labelled
 evidence. Mock readers and HTTP transports exercise source limits without vacancy traffic.
+For Maps reliability, `tests/test_maps_recovery.py` covers persistent/transient quotas,
+attempted-element accounting, cached evidence, Stop, concurrent allowance checks and truthful
+wait progress. Fake clocks establish protocol waits; they do not measure live search speed.
 Work on a branch, review the diff, open a PR and wait for Mac, Windows and privacy CI.
 Merge with a merge commit; preserve shared history. Other contributors' PRs require review.
 

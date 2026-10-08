@@ -189,7 +189,11 @@ class PoliteClient:
     def post(self, url: str, **kwargs) -> httpx.Response:
         return self.request("POST", url, **kwargs)
 
-    def request(self, method: str, url: str, *, cache: bool = True, **kwargs) -> httpx.Response:
+    def request(self, method: str, url: str, *, cache: bool = True,
+                check_attempt: Callable[[], None] | None = None,
+                before_attempt: Callable[[], None] | None = None,
+                retry_response: Callable[[httpx.Response], bool] | None = None,
+                **kwargs) -> httpx.Response:
         self._check_stop()
         key = (method, url, repr(sorted((kwargs.get("params") or {}).items())),
                repr(kwargs.get("json")))
@@ -197,7 +201,12 @@ class PoliteClient:
             return self._cache[key]
         host = urlsplit(url).hostname or ""
         for attempt in range(MAX_RETRIES + 1):
+            self._check_stop()
+            if check_attempt is not None:
+                check_attempt()
             self._wait_turn(host)
+            if before_attempt is not None:
+                before_attempt()
             try:
                 response = self._client.request(method, url, **kwargs)
             except httpx.TransportError as exc:
@@ -206,6 +215,8 @@ class PoliteClient:
                 if attempt == MAX_RETRIES or (isinstance(exc, httpx.ConnectError)
                                               and not self._exists(host)):
                     raise
+                if check_attempt is not None:
+                    check_attempt()
                 log.info("Network problem with %s (%s), retrying", host, type(exc).__name__)
                 self._pause(min(2 ** attempt * 2, MAX_BACKOFF_SECONDS)
                             + random.uniform(0, 1), host)
@@ -226,10 +237,14 @@ class PoliteClient:
                     self._cooldowns[host] = max(
                         self._cooldowns.get(host, 0.0), self._clock() + wait,
                     )
-                if wait > 0 and self._on_wait is not None:
-                    self._on_wait(host, wait)
+                if retry_response is not None and not retry_response(response):
+                    break
                 if attempt == MAX_RETRIES:
                     break
+                if check_attempt is not None:
+                    check_attempt()
+                if wait > 0 and self._on_wait is not None:
+                    self._on_wait(host, wait)
                 log.info("%s answered %s, waiting %.0fs", host, response.status_code, wait)
                 continue
             break

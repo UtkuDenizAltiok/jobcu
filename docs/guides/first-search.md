@@ -127,6 +127,17 @@ Keep the browser page and the text window open. The time needed depends on the p
 sources, AI model and your account's limits. Wait until the heading says **Search finished**.
 That heading means the results have been saved on this computer.
 
+The first source count says **ads collected before matching and duplicate removal**. It can
+be much larger than the final results: employer lists include other professions, and several
+sites may list the same vacancy. Jobcu checks additional titles because fixed search words
+can miss relevant work. A large collected count is not a count of suitable jobs or proof of
+good coverage. Use the final results and their explanations to decide what fits.
+
+**Posted within** uses the available posting-date evidence. Day-only dates are kept when
+that day may overlap the window; unknown dates have their own section. A source's date is
+not independent proof of the original employer posting date. Check originals for uncertain
+dates rather than assume every collected ad first appeared within exactly 24 hours.
+
 During the search, Jobcu may pause to ask whether to go beyond a limit you set:
 
 | Button | What happens |
@@ -145,6 +156,18 @@ If a job site asks Jobcu to pause, the progress notes explain the wait. It can l
 minutes. Jobcu respects that site's delay while other sites continue; it keeps ads already
 found. **Stop** cancels readers waiting for a retry. A request already being sent can finish
 before stopping completes. A site that refuses automated access is skipped without retries.
+
+For **Google Maps**, the current step shows the retry wait and one progress note explains it.
+Jobcu retries temporary failures within **Settings → Usage and limits → Maps routes per month**.
+Every attempted matrix element counts toward that limit, including retries; reading an already
+known response does not count again. Known daily/monthly or zero Google quotas are handled
+immediately. A Google quota and Jobcu's monthly limit are separate controls.
+
+Times already measured remain usable. Jobs that still need travel times use labelled AI
+estimates within your AI limits. If Google's response does not identify when a quota resets,
+Jobcu says so. Check your project's Routes API quotas when needed; raising them can increase
+spending. Historical saved results keep their original messages. Development can proceed
+while Jobcu is open; the assistant preserves your app state and uses isolated tests/previews.
 
 ## 5. Check that Jobcu understood you
 

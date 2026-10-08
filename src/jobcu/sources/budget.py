@@ -98,10 +98,19 @@ class RequestBudget:
     def spend(self, count: int = 1) -> None:
         """Count one request (or `count` billed items), or raise BudgetExhausted if a limit
         would be passed."""
+        self._use(count, commit=True)
+
+    def check(self, count: int = 1) -> None:
+        """Check allowance before waiting; spending rechecks it atomically before sending."""
+        self._use(count, commit=False)
+
+    def _use(self, count: int, *, commit: bool) -> None:
         with self._lock:
             today = self._now().strftime("%Y-%m-%d")
             month = today[:7]
             with db.connect() as conn:
+                if commit:
+                    conn.execute("BEGIN IMMEDIATE")
                 used_today = conn.execute(
                     "SELECT COALESCE(SUM(count), 0) FROM source_requests "
                     "WHERE source = ? AND day = ?",
@@ -133,9 +142,11 @@ class RequestBudget:
                         f"{self.name}: this month's free requests are used up. It will work again "
                         "next month."
                     )
-                conn.execute(
-                    "INSERT INTO source_requests (day, source, count) VALUES (?, ?, ?) "
-                    "ON CONFLICT (day, source) DO UPDATE SET count = count + excluded.count",
-                    (today, self.source, count),
-                )
-            self.used_this_search += count
+                if commit:
+                    conn.execute(
+                        "INSERT INTO source_requests (day, source, count) VALUES (?, ?, ?) "
+                        "ON CONFLICT (day, source) DO UPDATE SET count = count + excluded.count",
+                        (today, self.source, count),
+                    )
+            if commit:
+                self.used_this_search += count
