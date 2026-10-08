@@ -40,9 +40,9 @@ goto fail
 
 :start
 rem A copy made with git first updates itself from GitHub (see Start Jobcu.command): only when
-rem nothing is changed here and it's on main, never asking for a password. ZIP copies skip this.
+rem nothing is changed here and it's on main, never asking for a password.
 if "%JOBCU_SELFTEST%"=="1" goto run
-if not exist ".git" goto run
+if not exist ".git" goto manual_update
 where git >nul 2>nul
 if errorlevel 1 goto run
 git diff --quiet HEAD >nul 2>nul
@@ -54,6 +54,14 @@ echo Checking for a newer Jobcu...
 set "GIT_TERMINAL_PROMPT=0"
 git pull --ff-only --quiet >nul 2>nul
 if errorlevel 1 echo Jobcu couldn't be updated right now, so it starts the version you have.
+goto run
+
+:manual_update
+echo This Jobcu folder does not update automatically.
+echo To update, download and unpack a new ZIP from:
+echo   https://github.com/UtkuDenizAltiok/jobcu
+echo Steps: docs\guides\install-and-start.md ^(Update Jobcu^).
+echo.
 
 :run
 echo Preparing Jobcu. The first start can take a few minutes...
