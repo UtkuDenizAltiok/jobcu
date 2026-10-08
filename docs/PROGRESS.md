@@ -26,13 +26,23 @@ Completed details live in Git and PRs. Private evaluation follows
 
 ### In progress
 
-None on merged main; all implementation is tested, pushed and merged. If this handover is
-still on `codex/fresh-chat-handover` (base `7ccb045`), its only remaining step is publication:
-recover the branch PR, verify final-head Mac/Windows/privacy CI, merge and synchronize main.
-Required end checks passed: **741 tests**, Ruff, privacy and whitespace; no failed check remains.
-Exact next action in a fresh chat: run the start routine, confirm actual Git/PR/CI/app state,
-then begin Next tasks item 1 using the private authorization and saved review checkpoint.
-Detailed private evidence and authorization stay outside Git; no new search or paid work started.
+Active goal: explain ZIP updates at startup on `codex/saved-review-update-notices`,
+based on merged main `c0e5455`. PR #74 and merged-main Mac/Windows/privacy CI passed;
+the startup checkout was clean and synchronized. The startup suite passed **741 tests**.
+
+Saved-evidence review is checkpointed privately: completion needs permitted original full ads
+or later saved early-title decisions. No provider/job-site requests, paid work or new search
+started; owner data and ratings are preserved and disposable private scratch is deleted.
+The dependency is explicit before moving to the next available free engineering task.
+
+The Mac/Windows reminders and installation guide are implemented. Local checks passed
+**747 tests**, Ruff, privacy, shell syntax and whitespace; the final diff is reviewed.
+The six new launcher cases use fictional local helpers; Windows execution still requires CI.
+
+Exact next action: commit/push/open the PR,
+then wait for final-head Mac/Windows/privacy CI, merge and synchronize main.
+No new paid work is authorized by this session prompt.
+Both app ports are stopped; preserve owner data, ratings and the authorization record.
 
 ### Verify before relying on
 

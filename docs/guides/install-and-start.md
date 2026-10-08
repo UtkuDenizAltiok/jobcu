@@ -84,6 +84,8 @@ If you downloaded a ZIP:
 
 Your keys, documents, settings and saved jobs are in a separate data folder, so replacing
 the app folder keeps them. The ZIP version does not download app updates automatically.
+Each time you start it, the text window reminds you to download a new ZIP when you want to
+update and points to these steps. This reminder does not check whether a newer copy exists.
 
 If your copy is managed with Git, such as the owner's Mac development folder, the start file
 checks for updates when it is safe to do so. If it cannot update, it shows a warning and starts

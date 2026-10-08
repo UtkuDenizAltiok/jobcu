@@ -6,6 +6,7 @@ import threading
 import time
 from pathlib import Path
 
+import pytest
 import uvicorn
 from fastapi.testclient import TestClient
 
@@ -90,3 +91,47 @@ def test_launchers_update_a_git_copy_first_but_never_ask_or_touch_local_changes(
     assert "git diff --quiet HEAD" in windows
     assert mac.index("update_from_github\n\n") < mac.index("uv run --frozen")
     assert windows.index("git pull") < windows.index("uv run --frozen")
+
+
+@pytest.mark.parametrize("git_metadata", [None, "directory", "file"])
+@pytest.mark.parametrize("selftest", [False, True])
+def test_zip_update_reminder_runs_without_network_and_preserves_startup(
+    tmp_path, git_metadata, selftest,
+):
+    root = Path(__file__).resolve().parents[1]
+    name = "Start Jobcu.bat" if os.name == "nt" else "Start Jobcu.command"
+    script = tmp_path / name
+    script.write_bytes((root / name).read_bytes())
+    if git_metadata == "directory":
+        (tmp_path / ".git").mkdir()
+    elif git_metadata == "file":
+        (tmp_path / ".git").write_text("gitdir: absent-test-worktree\n", encoding="utf-8")
+    env = {**os.environ, "JOBCU_SELFTEST": "1" if selftest else "0"}
+    # Replace only the local helper. The actual launcher must reach it with its usual args;
+    # no installation, app server, source or provider request can run in this test.
+    if os.name == "nt":
+        (tmp_path / "uv.cmd").write_text(
+            "@echo off\necho LOCAL_HELPER_STUB %*\nexit /b 0\n", encoding="utf-8",
+        )
+        command = ["cmd", "/d", "/c", str(script)]
+    else:
+        stub = tmp_path / "helper-stub.sh"
+        stub.write_text(
+            'uv() { echo "LOCAL_HELPER_STUB $*"; }\n'
+            'git() { return 1; }\n'
+            'curl() { echo "UNEXPECTED_INSTALL"; return 1; }\n', encoding="utf-8",
+        )
+        env["BASH_ENV"] = str(stub)
+        command = ["bash", str(script)]
+    result = subprocess.run(command, env=env, capture_output=True, text=True, timeout=15)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "LOCAL_HELPER_STUB run --frozen --no-dev --quiet jobcu" in result.stdout
+    assert "UNEXPECTED_INSTALL" not in result.stdout
+    reminder = "This Jobcu folder does not update automatically."
+    if git_metadata is None and not selftest:
+        assert reminder in result.stdout
+        assert "https://github.com/UtkuDenizAltiok/jobcu" in result.stdout
+        assert "install-and-start.md" in result.stdout
+        assert result.stdout.index(reminder) < result.stdout.index("Preparing Jobcu.")
+    else:
+        assert reminder not in result.stdout

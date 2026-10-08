@@ -46,9 +46,17 @@ fi
 
 # A copy made with git (the owner's, developers') first updates itself from GitHub, so it runs
 # the newest version: only when nothing is changed here and it's on main, never asking for a
-# password. If the update fails, the version already here starts. Copies from a ZIP skip this.
+# password. If the update fails, the version already here starts. ZIP copies get update steps.
 update_from_github() {
   [ "$JOBCU_SELFTEST" = "1" ] && return
+  if [ ! -e .git ]; then
+    echo "This Jobcu folder does not update automatically."
+    echo "To update, download and unpack a new ZIP from:"
+    echo "  https://github.com/UtkuDenizAltiok/jobcu"
+    echo "Steps: docs/guides/install-and-start.md (Update Jobcu)."
+    echo
+    return
+  fi
   { [ -d .git ] && command -v git >/dev/null 2>&1; } || return
   [ -z "$(git status --porcelain --untracked-files=no 2>/dev/null)" ] || return
   [ "$(git rev-parse --abbrev-ref HEAD 2>/dev/null)" = "main" ] || return
