@@ -11,6 +11,10 @@ Completed details live in Git and PRs. Private evaluation follows
 
 ### State
 
+- Reset/review controls are implemented on `codex/reset-and-review`; publication is pending.
+  Everyday navigation is Search/Settings; optional Review results preserves independent labels.
+  Confirmed Search/Review/full-data resets preserve settings, keys, permissions and usage.
+  No owner data was reset. Guides, decisions and existing prompts are updated together.
 - [PR #83](https://github.com/UtkuDenizAltiok/jobcu/pull/83) is implemented, tested, pushed
   and merged with a merge commit. Final implementation head: `1fe6b37`; merge: `38e6895`.
   Exact-head Mac/Windows/privacy CI `37846790670` passed and the Mac checkout was synchronized.
@@ -49,15 +53,32 @@ Completed details live in Git and PRs. Private evaluation follows
 
 ### In progress
 
-The scoring implementation and PR #84 handover are merged. Final-main CI `37848105339`
-passed at `620254c`. If this record remains on `codex/owner-app-state-handover` (base `620254c`),
-only publication/final verification of the updated owner-app state remains. Local checks passed
-**920 tests**, Ruff, privacy and whitespace; the startup self-test stopped. No failed check remains.
-Exact next action: publish/recover this branch's PR, verify exact-head Mac/Windows/privacy CI,
-merge with a merge commit, synchronize main and
-verify final-main CI. A pushed or merged change is not a passed check.
+Active goal: add clear, deliberate local reset controls and simplify optional result review.
+Branch `codex/reset-and-review`, base `c406224`; prior handover PR #85 and final-main CI
+`37850572061` are verified merged/passed. Existing owner data/app state remain untouched.
 
-After completed handover publication, no unfinished feature remains. In a fresh chat, run
+1. Trace storage, search-thread lifecycle and the Score check workflow; decide precise reset
+   scopes and preserve settings/keys and usage limits. No actual owner reset is authorized.
+2. Implement confirmed resets with running-work protection, including in-memory/browser state;
+   make independent review optional without deleting its useful evidence or owner labels.
+3. Test deletion, preservation, failures, restart and active-search races with fictional data;
+   inspect an isolated preview, update guides/architecture and review the complete diff.
+4. Run Ruff/full suite/privacy/JS checks, publish and verify exact-head Mac/Windows/privacy CI,
+   merge with a merge commit, synchronize main and verify final-main CI.
+
+Implemented: all three scopes, explicit confirmation, idle-search and competing-write protection,
+database compaction, partial-failure/retry handling, log closure for Windows and page refresh.
+Baseline 920 tests and the final implementation's **941-test full suite** passed, including
+database erasure/journal regressions. Ruff/privacy/JS/whitespace and
+manual diff review passed. Fictional browser checks verified disabled confirmation, cancellation,
+optional navigation and score reveal after rating. Preview/scratch were stopped/deleted.
+Exact next action: commit/push, open the PR, verify exact-head Mac/Windows/privacy CI, merge
+with a merge commit and synchronize main. Then complete the owner's requested additional
+deep improvement as one separate researched/implemented/verified goal before tomorrow's search.
+Missing originals/independent labels and live-test budget remain checkpointed dependencies;
+this UI goal does not claim new scoring accuracy, coverage or live performance.
+
+If interrupted, recover this goal first. In a fresh chat, run
 AGENTS' start routine, recheck private authority/checkpoint and read the latest private
 `score_review_resume` entry/evidence directory. `saved_evidence_resume` contains the earlier
 saved-search audit; older review fields must not be mistaken for a complete current judgement.

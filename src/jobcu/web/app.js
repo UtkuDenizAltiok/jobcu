@@ -63,21 +63,25 @@ const $ = (id) => document.getElementById(id);
 // Views
 // ---------------------------------------------------------------------------
 
-const VIEWS = ["search", "score-check", "settings"];
+const VIEWS = ["search", "review", "settings"];
 const state = {
   settings: null, documents: null, provider: null, search: null, usage: null, quality: null,
 };
 
 function showView() {
-  const requested = location.hash.replace("#/", "");
+  const hash = location.hash.replace("#/", "");
+  const requested = hash === "score-check" ? "review" : hash;
   const view = VIEWS.includes(requested) ? requested : "search";
   for (const name of VIEWS) $(`view-${name}`).hidden = name !== view;
   for (const link of document.querySelectorAll("[data-view-link]")) {
-    if (link.dataset.viewLink === view) link.setAttribute("aria-current", "page");
+    if (link.dataset.viewLink === view
+        || (view === "review" && link.dataset.viewLink === "settings")) {
+      link.setAttribute("aria-current", "page");
+    }
     else link.removeAttribute("aria-current");
   }
   if (view === "search") renderChecklist();
-  if (view === "score-check") loadQuality();
+  if (view === "review") loadQuality();
 }
 
 // ---------------------------------------------------------------------------
@@ -827,6 +831,7 @@ function readSearchForm() {
 function showSearch(search) {
   state.search = search;
   const running = search.status === "running";
+  for (const button of document.querySelectorAll("[data-reset]")) button.disabled = running;
   $("progress-card").hidden = false;
   $("progress-title").textContent = (search.kind === "reapply"
     ? {
@@ -1991,12 +1996,79 @@ function setUpSettingsActions() {
 // Start
 // ---------------------------------------------------------------------------
 
+const RESET_SCOPES = {
+  search: {
+    title: "Clear search data?",
+    description: "Delete search text, history, results, saved/applied/hidden jobs, excluded links and search caches.",
+    preserved: "Your documents, optional review sample, saved settings, keys and usage counters stay.",
+  },
+  review: {
+    title: "Clear review sample?",
+    description: "Delete the sampled ads and all ratings and notes in this review tool. Future searches can collect a new sample.",
+    preserved: "Your search results, documents, saved jobs, settings, keys and usage counters stay.",
+  },
+  all: {
+    title: "Reset Jobcu data?",
+    description: "Delete all other files in Jobcu's data folder, including uploaded documents, search text/history/results, marked jobs, excluded links, review records, caches and logs.",
+    preserved: "Saved settings, keys, assistant permissions and usage counters stay. Original files and backups outside this folder stay. This does not securely erase OS snapshots or backups.",
+  },
+};
+
+function setUpResetActions() {
+  // This is a transient signal, never a copy of private data in browser storage.
+  const channel = typeof BroadcastChannel === "function" ? new BroadcastChannel("jobcu-reset") : null;
+  if (channel) channel.onmessage = () => location.reload();
+  let scope = null;
+  let resetting = false;
+  const dialog = $("reset-dialog");
+  for (const button of document.querySelectorAll("[data-reset]")) {
+    button.addEventListener("click", () => {
+      scope = button.dataset.reset;
+      const details = RESET_SCOPES[scope];
+      $("reset-title").textContent = details.title;
+      $("reset-description").textContent = details.description;
+      $("reset-preserved").textContent = details.preserved;
+      $("reset-confirmed").checked = false;
+      $("confirm-reset").disabled = true;
+      setStatus($("reset-status"), "", "");
+      dialog.showModal();
+    });
+  }
+  $("reset-confirmed").addEventListener("change", () => {
+    $("confirm-reset").disabled = !$("reset-confirmed").checked || resetting;
+  });
+  $("cancel-reset").addEventListener("click", () => dialog.close());
+  dialog.addEventListener("cancel", (event) => { if (resetting) event.preventDefault(); });
+  $("confirm-reset").addEventListener("click", async () => {
+    if (!scope || !$("reset-confirmed").checked || resetting) return;
+    resetting = true;
+    $("confirm-reset").disabled = true;
+    $("cancel-reset").disabled = true;
+    $("reset-confirmed").disabled = true;
+    setStatus($("reset-status"), "", "Clearing data…");
+    try {
+      await api("/api/data/reset", { method: "POST", body: { scope, confirm: "RESET" } });
+      clearTimeout(pollTimer);
+      if (channel) channel.postMessage("reset");
+      location.reload();
+    } catch (error) {
+      setStatus($("reset-status"), "problem", error.message);
+    } finally {
+      resetting = false;
+      $("cancel-reset").disabled = false;
+      $("reset-confirmed").disabled = false;
+      $("confirm-reset").disabled = !$("reset-confirmed").checked;
+    }
+  });
+}
+
 async function start() {
   window.addEventListener("hashchange", showView);
   setUpSettingsActions();
   setUpDocumentActions();
   setUpConditionActions();
   setUpSearchActions();
+  setUpResetActions();
   showView();
   try {
     const about = await api("/api/about");

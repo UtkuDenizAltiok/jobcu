@@ -16,7 +16,6 @@
     </a>
     <nav class="nav" aria-label="Main">
       <a href="#/search" data-view-link="search">Search</a>
-      <a href="#/score-check" data-view-link="score-check">Score check</a>
       <a href="#/settings" data-view-link="settings">Settings</a>
     </nav>
   </header>
@@ -90,6 +89,7 @@
             <button type="submit" id="start-search" disabled aria-describedby="search-readiness">Find matching jobs</button>
             <button type="button" class="link" id="show-profile">What Jobcu understood</button>
             <button type="button" class="link" id="show-details" hidden>Search details</button>
+            <button type="button" class="link" data-reset="search">Clear search data</button>
           </div>
           <p class="field-hint search-readiness" id="search-readiness" role="status">Checking your setup…</p>
           <p class="status" id="search-form-status" role="status" hidden></p>
@@ -217,14 +217,17 @@
       </dialog>
     </section>
 
-    <!-- Score check -->
-    <section id="view-score-check" class="view" hidden>
-      <h1>Score check</h1>
+    <!-- Optional review, reached from Settings -->
+    <section id="view-review" class="view" hidden>
+      <p><a href="#/settings">Back to Settings</a></p>
+      <h1>Review results <span class="muted">(optional)</span></h1>
       <div class="card">
         <p>Jobcu keeps a few real jobs from your searches here. Say what <em>you</em> think of
           each one, and Jobcu's scoring can be checked against your own judgement. Nothing here
-          leaves your computer.</p>
+          leaves your computer. Ratings do not automatically train the AI or change scores.
+          You can use Jobcu without filling this in; development reviews do not depend on it.</p>
         <p class="muted" id="quality-progress"></p>
+        <button type="button" class="secondary" data-reset="review">Clear review sample</button>
       </div>
 
       <div class="card">
@@ -411,12 +414,41 @@
       </div>
 
       <div class="card">
+        <h2>Review and reset</h2>
+        <p>Independent reviews help check scoring and titles left out of searches. This is an
+          optional tool, with no extra AI calls. Your ratings remain on this computer.</p>
+        <p><a class="button secondary" href="#/review">Review results</a></p>
+        <h3>Start fresh</h3>
+        <p>Remove documents uploaded to Jobcu, search text, history, results, saved/applied
+          jobs, excluded links, review records, caches and logs from Jobcu's data folder.</p>
+        <p class="field-hint">Saved settings, API keys, assistant permissions and usage counters
+          stay. A reset cannot restore allowance already spent. Original files and backups
+          outside Jobcu's data folder stay. No search or paid call is started.</p>
+        <button type="button" class="secondary" data-reset="all">Reset Jobcu data</button>
+      </div>
+
+      <div class="card">
         <h2>About</h2>
         <p><span id="about-version">Jobcu</span> · <span id="about-copyright"></span></p>
         <p class="muted">Your data is kept only on this computer, in
           <code id="about-data-folder"></code></p>
       </div>
     </section>
+
+    <dialog id="reset-dialog" aria-labelledby="reset-title" aria-describedby="reset-description">
+      <h2 id="reset-title"></h2>
+      <p id="reset-description"></p>
+      <p class="muted" id="reset-preserved"></p>
+      <label class="check">
+        <input type="checkbox" id="reset-confirmed">
+        <span>I understand this deletion cannot be undone.</span>
+      </label>
+      <div class="actions">
+        <button type="button" class="secondary" id="cancel-reset">Cancel</button>
+        <button type="button" id="confirm-reset" disabled>Delete this data</button>
+      </div>
+      <p class="status" id="reset-status" role="status" hidden></p>
+    </dialog>
 
     <p class="status problem" id="engine-problem" role="alert" hidden>Jobcu's engine isn't
       answering. Close this page, then double-click Start Jobcu again.</p>

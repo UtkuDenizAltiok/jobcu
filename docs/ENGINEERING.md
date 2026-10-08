@@ -65,6 +65,30 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Record step time and answer-wait time; label correction timings separately from cumulative usage. | Corrections and full searches cannot be compared as equivalent performance runs (2026-10-06). |
 | Warn when scoring reads only an excerpt of a lengthy ad. | Unseen requirements must not be assumed satisfied (2026-10-06). |
 
+### Local reset and optional review — 2026-10-09
+
+- Keep everyday navigation to Search and Settings. **Settings → Review results** replaces the
+  main Score check tab; old `#/score-check` links still open the review. Independent ratings
+  remain useful evidence, not automatic model training. Assistant development reviews remain
+  proactive within standing authority and never require the owner to complete the sample.
+- Offer confirmed Search, Review and full data resets. Search clears query/note, results,
+  job memory/marks/excluded links and search caches, keeping documents and review samples.
+  Review clears only samples/ratings/notes. Full reset clears both plus all other private-folder
+  files, including uploaded copies, logs and assistant review evidence/checkpoints.
+- Keep saved settings/filter choices, keys, assistant authorization and real usage/request
+  counters. Detach deleted searches from AI usage so reused search IDs cannot inherit spending.
+  Usage counters cannot be reset through these controls; that would restore spent allowances.
+- `reset.py` owns scopes, deletion and the API mutation gate. Reset refuses active searches,
+  corrections and competing uploads/provider checks; starts and corrections share the manager
+  lock. Successful database deletion forgets the in-memory run even if later file deletion or
+  compaction is incomplete. A failed reset reports partial deletion and can be retried.
+- Database deletion first restores DELETE journal mode, then uses secure_delete and compaction
+  so earlier text is not retained in a persistent journal/WAL. Full reset closes/recreates the
+  owned log handler for Windows. Symlink targets/external originals are not traversed. This is
+  local deletion, not secure erasure of SSDs, snapshots or separate backups. The page reloads
+  after success and broadcasts a transient reload signal to other Jobcu tabs, without storing
+  private content in the browser. No owner reset is performed during development.
+
 ### Project organization — 2026-10-08
 
 - Keep current decisions and implementation/tool knowledge in this engineering reference.
@@ -107,7 +131,7 @@ overlapping starts/corrections, immediate restore and storage failures without t
    check Stop before starting a request; already-running requests may finish.
    Source Ads found counts stay as collected. `result.career_titles` records reviewed,
    unreviewed and rejected outcomes; rejected ads remain in the private snapshot and bounded
-   title-only Score check sample. Search details separates this gate from duplicate removal.
+   title-only optional review sample. Search details separates this gate from duplicate removal.
    Legacy snapshots retain their original post-screen counts and lack rejected-title evidence;
    do not infer retrospective rejection counts or compare them as raw collection measurements.
 3. In `search._decide`, apply location conditions, quick relevance and travel limits; load full
@@ -261,7 +285,7 @@ The root keeps launchers, README, CONTRIBUTING, AGENTS, LICENSE and Python/tool 
 | Area | Modules and purpose |
 |---|---|
 | Startup/server | `launcher.py`, `__main__.py`, `app.py`; local server/browser and request safety. `build.py` fingerprints code to replace an older running version. |
-| Local persistence | `paths.py` locates private data; `keystore.py` stores masked keys; `settings.py`/`settings_api.py` handle settings; `db.py` owns SQLite migrations; `logs.py` masks keys in private logs. |
+| Local persistence | `paths.py` locates private data; `keystore.py` stores masked keys; `settings.py`/`settings_api.py` handle settings; `db.py` owns SQLite migrations; `logs.py` masks keys in private logs; `reset.py` owns deliberate deletion and competing-write protection. |
 | Documents/profile | `documents.py`, `documents_api.py`, `profile.py`; uploads, text and cached structured profiles. |
 | Search coordination | `search.py`, `search_api.py`, `pipeline.py`, `pool.py`; progress, collection, decisions, cards and condition reapplication. |
 | Places/criteria | `countries.py`, `location.py`, `places.py`, `placenames.py`, `travel.py`; supported geography, query interpretation and measurements. |

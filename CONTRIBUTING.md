@@ -89,8 +89,10 @@ Save unknown cases and their exact missing evidence in the private review record
 inventing ratings to complete precision. Assistant judgement is an independent comparison
 with Jobcu's output, not a replacement for original evidence or owner judgement.
 
-The Score check screen hides scores until rated. Add missing top cards with `quality.add`,
-preserving evidence completeness and the location plan; the 50-ad limit still applies. Save
+Settings → Review results (formerly Score check) hides scores until rated. The owner does not
+need to fill in this optional tool for assistant development reviews. Add missing top cards with
+`quality.add`, preserving evidence completeness and the location plan; the 50-ad limit still
+applies. Save
 approved labels with `quality.rate(..., by="assistant")` in the real private folder.
 Never overwrite owner ratings automatically.
 `quality.rate(..., by="assistant")` preserves existing owner and legacy labels, including

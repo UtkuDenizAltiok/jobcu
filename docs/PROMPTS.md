@@ -38,6 +38,9 @@ This prompt grants no new private access, paid calls or searches. Check any exis
 authorization and review checkpoint before authorized private work; prefer saved evidence.
 Respect on-demand app use and existing limits. If evidence or authority is missing, do useful
 free work and identify the exact dependency. End with a verified handover and simple next steps.
+Assess the whole pipeline proactively in active development sessions. Optional Settings →
+Review results is not homework for the owner. Do not reset owner data unless explicitly asked
+to perform that deletion; adding or testing reset controls is not permission to use them on it.
 ```
 
 ## Review a search
@@ -60,6 +63,8 @@ search timings from correction timings and cumulative usage. On a private scratc
 Git, judge full evidence against the actual documents and criteria before seeing scores.
 Include every top-10 job; keep incomplete or ambiguous cases unknown rather than inventing
 labels. Counts and scores do not prove accuracy or coverage.
+Use your own independent judgement; do not require me to fill in Settings → Review results
+(formerly Score check). Ratings are evaluation evidence, not automatic model training.
 
 Fix the biggest confirmed defect with general fictional regressions, verify and merge before
 opening another improvement. Prefer saved evidence to another search. Use saved keys only
@@ -91,6 +96,9 @@ original full ads, better understanding of user criteria, accurate fit explanati
 API work, safe local reuse, slow steps, recovery and a clean, simple interface. These examples
 are not a limit: discover and compare alternatives yourself. Simplify workflows, files and
 systems where that removes unnecessary work; keep one home for each fact and one prompt per task.
+Make this whole-pipeline assessment routine during active development, without requiring me
+to name every defect or complete the optional review screen. Preserve my data unless I explicitly
+ask you to reset it. Update the relevant guides, decisions and existing prompts with our decisions.
 
 Actively use public web research and available network/tools to resolve important questions
 and uncover opportunities. Prefer primary documentation and original research; verify current

@@ -93,6 +93,9 @@ the version already installed. Development updates follow the project rules in A
 
 ## Remove Jobcu
 
+To start fresh while keeping settings and keys, use **Settings → Reset Jobcu data** instead.
+See [reset scopes and what stays](first-search.md#clear-data-and-start-fresh).
+
 Stop Jobcu first. Delete its application folder to remove the app. This keeps your personal
 data in case you install Jobcu again.
 
