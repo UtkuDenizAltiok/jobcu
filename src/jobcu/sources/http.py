@@ -14,6 +14,8 @@ import socket
 import threading
 import time
 from collections.abc import Callable
+from datetime import UTC
+from email.utils import parsedate_to_datetime
 from urllib.parse import urlsplit
 
 import httpx
@@ -26,7 +28,8 @@ USER_AGENT = f"Jobcu/{__version__} (personal job search app)"
 TIMEOUT = httpx.Timeout(30.0, connect=10.0)
 DEFAULT_MIN_INTERVAL = 1.0  # seconds between requests to the same site
 MAX_RETRIES = 3
-MAX_WAIT = 120.0
+MAX_BACKOFF_SECONDS = 120.0
+STOP_POLL_SECONDS = 0.2
 
 
 def client(**kwargs) -> httpx.Client:
@@ -77,6 +80,10 @@ class KeyCheck:
 
 class Blocked(Exception):
     """The site refused Jobcu (e.g. bot protection). Jobcu never tries to get around this."""
+
+
+class RequestStopped(Exception):
+    """Stop was requested before a source request could start."""
 
 
 class RobotsRules:
@@ -145,6 +152,10 @@ class PoliteClient:
         sleep: Callable[[float], None] = time.sleep,
         transport: httpx.BaseTransport | None = None,
         resolve: Callable[[str], object] | None = None,
+        should_stop: Callable[[], bool] | None = None,
+        clock: Callable[[], float] = time.monotonic,
+        wall_clock: Callable[[], float] = time.time,
+        on_wait: Callable[[str, float], None] | None = None,
     ) -> None:
         self._client = httpx.Client(
             headers={"User-Agent": USER_AGENT},
@@ -155,10 +166,16 @@ class PoliteClient:
         )
         self._min_intervals = SITE_INTERVALS if min_intervals is None else min_intervals
         self._last_request: dict[str, float] = {}
+        self._cooldowns: dict[str, float] = {}
+        self._blocked_hosts: set[str] = set()
         self._host_locks: dict[str, threading.Lock] = {}
         self._lock = threading.Lock()
         self._cache: dict[tuple, httpx.Response] = {}
         self._sleep = sleep
+        self._should_stop = should_stop
+        self._clock = clock
+        self._wall_clock = wall_clock
+        self._on_wait = on_wait
         self.request_count: dict[str, int] = {}
         self._resolve = resolve or (lambda host: socket.getaddrinfo(host, 443))
         self._hosts_exist: dict[str, bool] = {}
@@ -173,6 +190,7 @@ class PoliteClient:
         return self.request("POST", url, **kwargs)
 
     def request(self, method: str, url: str, *, cache: bool = True, **kwargs) -> httpx.Response:
+        self._check_stop()
         key = (method, url, repr(sorted((kwargs.get("params") or {}).items())),
                repr(kwargs.get("json")))
         if cache and key in self._cache:
@@ -189,21 +207,32 @@ class PoliteClient:
                                               and not self._exists(host)):
                     raise
                 log.info("Network problem with %s (%s), retrying", host, type(exc).__name__)
-                self._sleep(min(2 ** attempt * 2, MAX_WAIT) + random.uniform(0, 1))
+                self._pause(min(2 ** attempt * 2, MAX_BACKOFF_SECONDS)
+                            + random.uniform(0, 1), host)
                 continue
             finally:
                 with self._lock:
                     self.request_count[host] = self.request_count.get(host, 0) + 1
+            if response.status_code in (401, 403, 429) and _looks_like_bot_protection(response):
+                with self._lock:
+                    self._blocked_hosts.add(host)
+                raise Blocked(host)
             if response.status_code == 429 or response.status_code >= 500:
+                wait = _retry_after(response, now=self._wall_clock())
+                if wait is None:
+                    wait = min(2 ** attempt * 5, MAX_BACKOFF_SECONDS)
+                # Even the final failed attempt tells other readers when they may resume.
+                with self._lock:
+                    self._cooldowns[host] = max(
+                        self._cooldowns.get(host, 0.0), self._clock() + wait,
+                    )
+                if wait > 0 and self._on_wait is not None:
+                    self._on_wait(host, wait)
                 if attempt == MAX_RETRIES:
                     break
-                wait = _retry_after(response) or min(2 ** attempt * 5, MAX_WAIT)
                 log.info("%s answered %s, waiting %.0fs", host, response.status_code, wait)
-                self._sleep(min(wait, MAX_WAIT))
                 continue
             break
-        if response.status_code in (401, 403, 429) and _looks_like_bot_protection(response):
-            raise Blocked(host)
         if cache and response.status_code == 200:
             self._cache[key] = response
         return response
@@ -224,19 +253,61 @@ class PoliteClient:
     def _wait_turn(self, host: str) -> None:
         with self._lock:
             host_lock = self._host_locks.setdefault(host, threading.Lock())
-        with host_lock:
+        while True:
+            self._check_request(host)
+            if host_lock.acquire(timeout=STOP_POLL_SECONDS):
+                break
+        try:
             interval = self._min_intervals.get(host, DEFAULT_MIN_INTERVAL)
-            elapsed = time.monotonic() - self._last_request.get(host, 0.0)
-            if elapsed < interval:
-                self._sleep(interval - elapsed)
-            self._last_request[host] = time.monotonic()
+            while True:
+                self._check_request(host)
+                with self._lock:
+                    until = max(self._last_request.get(host, 0.0) + interval,
+                                self._cooldowns.get(host, 0.0))
+                self._pause(max(0.0, until - self._clock()), host)
+                # An in-flight response can extend the deadline while this reader waits.
+                with self._lock:
+                    if self._cooldowns.get(host, 0.0) <= until:
+                        break
+            self._last_request[host] = self._clock()
+        finally:
+            host_lock.release()
+
+    def _check_stop(self) -> None:
+        if self._should_stop is not None and self._should_stop():
+            raise RequestStopped("Search stopped before another source request.")
+
+    def _check_request(self, host: str) -> None:
+        self._check_stop()
+        with self._lock:
+            if host in self._blocked_hosts:
+                raise Blocked(host)
+
+    def _pause(self, seconds: float, host: str) -> None:
+        self._check_request(host)
+        if self._should_stop is None:
+            if seconds > 0:
+                self._sleep(seconds)
+        else:
+            while seconds > 0:
+                step = min(seconds, STOP_POLL_SECONDS)
+                self._sleep(step)
+                seconds -= step
+                self._check_request(host)
+        self._check_request(host)
 
 
-def _retry_after(response: httpx.Response) -> float | None:
-    value = response.headers.get("retry-after")
+def _retry_after(response: httpx.Response, *, now: float | None = None) -> float | None:
+    """RFC 9110: non-negative integer seconds or an HTTP date, never a shortened delay."""
+    value = (response.headers.get("retry-after") or "").strip()
+    if re.fullmatch(r"[0-9]+", value):
+        return float(value)
     try:
-        return float(value) if value else None
-    except ValueError:
+        when = parsedate_to_datetime(value)
+        if when.tzinfo is None:  # obsolete asctime form still denotes GMT
+            when = when.replace(tzinfo=UTC)
+        return max(0.0, when.timestamp() - (time.time() if now is None else now))
+    except (TypeError, ValueError, OverflowError):
         return None
 
 

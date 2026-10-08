@@ -42,6 +42,7 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Search requires AI configuration, CV and cover letter; first-run guidance links to each. | Make the route to a first search complete (2026-10-06). |
 | The finished app completes each on-demand search without assistant supervision. During development, the assistant owns implementation, review and measured improvements; the owner chooses when to search. | Development oversight must not become a requirement for everyday use or automatic background operation (owner, 2026-10-07). |
 | When a launcher has no Git metadata, show manual ZIP-update steps before preparing Jobcu. Skip the reminder during self-tests. | ZIP copies otherwise start silently without explaining how to receive fixes. The reminder uses no network and does not claim a newer version exists; Git-copy updates stay unchanged (2026-10-08). |
+| Share job-source rate-limit/service cooldowns per host within a search; honor integer and HTTP-date Retry-After values without shortening them. Keep waiting readers cancellable and recognized blocked hosts stopped for that client. | Fictional requests reproduced a 600-second delay shortened to 120 seconds and four attempts at a CAPTCHA response. Independent hosts and collected ads are preserved; no live availability/recall gain is established. Protocol evidence is in SOURCES (2026-10-08). |
 | The Maps key test uses named stations, says public transport, shows the weekday-morning departure assumption and explains that it checks access. Count it against the local route limit. | General TRANSIT includes walking and other modes; a successful sample must not be presented as a train-only timetable or overall accuracy check (2026-10-07). |
 | A successful connection test checks ordinary generation, not web-research access. Definite research refusals explain once and skip that research for one search. | Account/model capability can differ from basic generation; preserve collection/scoring and show uncertainty (2026-10-06). |
 | Retry research on a later search; never mark a refused employer lookup as a successful refresh. | A temporary restriction must not suppress future employer discovery (2026-10-06). |
@@ -211,6 +212,38 @@ The root keeps launchers, README, CONTRIBUTING, AGENTS, LICENSE and Python/tool 
 | `tests/` | Scripted providers and mocked HTTP; `conftest.py` gives disposable fictional data. `test_imports.py` checks import order; `test_docs.py` checks navigation and recovery sections. |
 | `docs/` | PROMPTS, PROGRESS, ENGINEERING, SOURCES; `guides/` for users and `archive/` for dated background. |
 | `.githooks/`, `.github/` | Commit privacy guard, issue/PR templates, Mac/Windows/privacy CI. |
+
+## Source reliability
+
+### Fictional cooldown comparison — 2026-10-08
+
+`tests/test_source_cooldowns.py` uses mocked HTTP and controlled clocks/events. It preserves
+successful full-ad responses and cached answers while exercising 429/503 recovery, parallel
+readers, later deadline extensions, terminal failures, malformed/date headers and Stop.
+
+| Fictional failure | Before | After |
+|---|---|---|
+| Source asks for 600 seconds | Retry after 120 seconds | Retry after the full 600 seconds |
+| 429 asks for a future HTTP date | Date ignored; ordinary 5-second backoff | Date-derived delay honored |
+| 429 contains a recognized CAPTCHA | Four requests before blocking | One request; later readers blocked in that client |
+| Stop during a 600-second delay | Sleep cannot observe Stop | Waiting reader stops after one 0.2-second simulated polling step; no retry |
+
+These are protocol/request-order measurements, not live latency or market recall. Longer
+source delays deliberately make that source take longer; independent hosts continue and
+already collected ads survive cancellation. An active network request may finish before Stop
+completes. Cooldown/block state is scoped to the current HTTP client; it does not establish
+account-wide or cross-process enforcement. Normal retry counts and source budgets are unchanged.
+
+### Research leads requiring their own verified goal
+
+The 2026-10-08 pipeline inspection found that full-ad loading tries only the first eligible
+matched copy, and local place matching returns false for unresolved named places despite its
+keep-unknown contract. Both need focused fictional reproductions and an independent review
+before implementation. Request budgets are charged by adapters before the HTTP client, whose
+internal retries need a separate attempt-accounting audit. Provider retry/date handling and
+redirect-specific delays also need their own scope; the source change above does not validate
+them. New permitted sources and multilingual vocabulary still require date-verified coverage
+evidence; neither public documentation nor counts establish a recall gain.
 
 ## Tools
 

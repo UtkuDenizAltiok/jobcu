@@ -27,7 +27,7 @@ from jobcu.sources.base import (
     SourceError,
     SourceReport,
 )
-from jobcu.sources.http import Blocked, PoliteClient
+from jobcu.sources.http import Blocked, PoliteClient, RequestStopped
 from jobcu.text import normalise
 
 log = logging.getLogger(__name__)
@@ -77,6 +77,9 @@ def collect(query: JobQuery, http: PoliteClient, keys, disabled: list[str], run)
                     report.jobs_found += 1
                     if report.jobs_found % 10 == 0:
                         progress()
+        except RequestStopped:
+            report.status = "partial" if jobs else "skipped"
+            report.message = "Stopped before more requests were sent."
         except Blocked:
             report.status = "unavailable"
             report.message = "Refused Jobcu's requests right now, so it was skipped."
@@ -170,6 +173,8 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
                 full = source.load_details(groups[index].copies[copy_index], ctx)
                 groups[index].copies[copy_index] = full
                 jobstore.remember_ad(full)
+            except RequestStopped:
+                return
             except Exception:
                 log.exception("Reading a full ad from %s failed", source_id)
             with lock:
