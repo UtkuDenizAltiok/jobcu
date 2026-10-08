@@ -14,35 +14,36 @@ Completed details live in Git and PRs. Private evaluation follows
 - Title-screen recovery, vacancy identity, local matching and location-confidence changes
   are merged. Behavior, reasons and measured local limits live in [ENGINEERING](ENGINEERING.md).
   Live recall, accuracy, speed and cost remain unverified.
-- [PR #73](https://github.com/UtkuDenizAltiok/jobcu/pull/73) is implemented, tested, pushed
-  and merged with a merge commit. Merged implementation head: `7ccb045`; Mac was synchronized
-  before this handover. Final-head PR and merged-main Mac/Windows/privacy CI passed.
-  Developer records are consolidated and PROMPTS has one full block per task; detailed human guides and runtime behavior are preserved.
-- Local checks passed: **741 tests**, Ruff, privacy, JS syntax and whitespace. The two fewer
-  document cases reflect consolidation; no behavioral tests were removed. Executable Python
-  comparison, unchanged AI/JS instructions and preserved-guide/review checks passed.
+- ZIP copies now show manual update steps on startup; the reminder makes no update request.
+  [PR #75](https://github.com/UtkuDenizAltiok/jobcu/pull/75) is implemented, tested, pushed
+  and merged with a merge commit. Implementation head: `cb234f1`; merge: `4ecf8ce`.
+  The Mac checkout was synchronized after merging. Final-head PR and merged-main
+  Mac/Windows/privacy CI passed.
+- Local checks passed: **747 tests**, Ruff, privacy, Bash syntax and whitespace. The six new
+  launcher cases cover ZIP copies, Git directories/worktree files and self-tests with local
+  helpers. The installation guide explains the reminder. AI instructions and JavaScript
+  are unchanged; live search quality remains unverified.
   Existing dependency deprecation warning remains.
-- Both app ports are stopped. No owner data, private records or ratings were changed.
+- Saved-evidence review remains dependent on permitted original full ads or later saved
+  early-title decisions. Standing authority and the private checkpoint were rechecked;
+  detailed evidence and review status remain private. No new search, paid call or job-site
+  request started. Disposable private scratch was deleted and ratings were preserved.
+- Both app ports are stopped. Owner data, ratings and private authority are preserved;
+  only the assistant's private review checkpoint was refreshed.
 
 ### In progress
 
-Active goal: explain ZIP updates at startup on `codex/saved-review-update-notices`,
-based on merged main `c0e5455`. PR #74 and merged-main Mac/Windows/privacy CI passed;
-the startup checkout was clean and synchronized. The startup suite passed **741 tests**.
+None on merged main; implementation is tested, pushed and merged. If this handover is still
+on `codex/zip-update-handover` (base `4ecf8ce`), its only remaining step is publication:
+recover the branch PR, verify final-head Mac/Windows/privacy CI, merge and synchronize main.
+Required local end checks passed: **747 tests**, Ruff, privacy and whitespace; no failed
+check remains. Detailed private evidence and authority stay outside Git.
 
-Saved-evidence review is checkpointed privately: completion needs permitted original full ads
-or later saved early-title decisions. No provider/job-site requests, paid work or new search
-started; owner data and ratings are preserved and disposable private scratch is deleted.
-The dependency is explicit before moving to the next available free engineering task.
-
-The Mac/Windows reminders and installation guide are implemented. Local checks passed
-**747 tests**, Ruff, privacy, shell syntax and whitespace; the final diff is reviewed.
-The six new launcher cases use fictional local helpers; Windows execution still requires CI.
-
-Exact next action: commit/push/open the PR,
-then wait for final-head Mac/Windows/privacy CI, merge and synchronize main.
-No new paid work is authorized by this session prompt.
-Both app ports are stopped; preserve owner data, ratings and the authorization record.
+Exact next action in a fresh chat: run the start routine, consult the private authority and
+checkpoint, and compare saved evidence before resuming review. If the missing original ads
+and new title decisions remain unavailable within authority, retain unknown labels and
+checkpoint that dependency before the later free Windows walkthrough work. Never reconstruct
+discarded titles or start a search without applicable authorization.
 
 ### Verify before relying on
 
@@ -69,7 +70,8 @@ Both app ports are stopped; preserve owner data, ratings and the authorization r
 1. Independently judge full evidence and early title outcomes within applicable private authority.
 2. Measure fresh-job misses, separating source coverage, title screening, duplicates and criteria.
 3. Compare the next authorized search's interpretation, ranking and original elapsed time.
-4. ZIP-update notices and the fresh-Windows walkthrough remain later free engineering work.
+4. Fresh Windows installation/upload/search walkthrough remains later free engineering work;
+   launcher CI is not a beginner's installation or a live search validation.
 
 ### Known limitations
 
