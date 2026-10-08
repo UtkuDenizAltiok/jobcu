@@ -278,8 +278,8 @@ class AIClient:
         """Ask the AI to look something up on the web and say which pages it used. The
         reasoning effort is the person's setting for reasoning steps unless `effort` says.
 
-        Used for conditions Jobcu can only answer by checking current information (HANDOVER
-        section 6 and 9.6). The user's own AI provider does the searching; Jobcu never contacts
+        Used for conditions Jobcu can only answer by checking current information.
+        The user's own AI provider does the searching; Jobcu never contacts
         a search engine itself.
         """
         reason = self.web_research_unavailable_reason()

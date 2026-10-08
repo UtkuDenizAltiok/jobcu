@@ -58,11 +58,10 @@ include fictional non-engineering profiles in matching regressions.
 | Information | Home |
 |---|---|
 | Current state, interrupted work, pending checks and priorities | [PROGRESS](docs/PROGRESS.md) |
-| Current product decisions and reasons | [DECISIONS](docs/DECISIONS.md) |
+| Current decisions, architecture, module/tool map and lessons | [ENGINEERING](docs/ENGINEERING.md) |
 | Source/service facts, terms and dated evidence | [SOURCES](docs/SOURCES.md) |
-| Architecture, module/tool map and lessons | [ARCHITECTURE](docs/ARCHITECTURE.md) |
 | All reusable prompts | [PROMPTS](docs/PROMPTS.md) |
-| Developer setup; private-results procedure | [CONTRIBUTING](CONTRIBUTING.md); [REVIEW](docs/REVIEW.md) |
+| Developer setup and private-results procedure | [CONTRIBUTING](CONTRIBUTING.md) |
 | Everyday use and navigation | [README](README.md) and [guides](docs/guides/) |
 | Historical concept, decisions and research | [archive](docs/archive/) |
 | Detailed change history | Git commits and PRs |
@@ -97,7 +96,8 @@ Code/tests establish behavior; the latest current decision establishes intent.
 - Test meaningful behavior and failures without real documents, provider calls or job-site traffic.
 - Review the diff; run Ruff/privacy checks; push/open a PR; wait for Mac, Windows and privacy CI.
   The assistant may merge its own tested PR with a **merge commit**.
-- Claims about quality, coverage, cost and speed need measurements. Use REVIEW.md for real results.
+- Claims about quality, coverage, cost and speed need measurements. Use CONTRIBUTING.md's
+  private review procedure for real results.
 
 ### Ending a session
 
@@ -145,4 +145,4 @@ Bind only to 127.0.0.1: preview port **8799**, owner app **8765**.
   label summaries and unchecked conditions.
 - Real tests use saved keys only through Jobcu code on an authorized private scratch copy.
   Never print/log keys or pass them as shell arguments. Delete scratch data; retain lessons in
-  ARCHITECTURE.md. Shared code and fixtures contain fictional data only.
+  ENGINEERING.md. Shared code and fixtures contain fictional data only.

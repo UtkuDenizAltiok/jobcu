@@ -1,9 +1,9 @@
-"""Understands the "Where do you want to work?" text (HANDOVER section 6).
+"""Understands the "Where do you want to work?" text.
 
 People write a sentence, not a filter: *"Dublin or Cork"*, *"Germany or Ireland, at most 50
 minutes by public transport from a city centre with at least 0.3% of the country's people"*,
 *"cities where far-right parties polled below the national average"*, *"somewhere with shops
-open on Sunday"*. Every search reads that text from scratch (DECISIONS.md).
+open on Sunday"*. Every search reads that text from scratch (docs/ENGINEERING.md).
 
 Jobcu splits it into conditions and picks a way to check each one:
 
@@ -245,7 +245,7 @@ class Condition(BaseModel):
     max_km: float | None = None
     anchor: Anchor | None = None
     travel: dict[str, dict] = {}
-    # The person's own corrections after the search (HANDOVER section 6, "Edit").
+    # The person's own corrections after the search.
     switched_off: bool = False
     changed_by_you: bool = False
 
@@ -885,7 +885,7 @@ def _check_near_edit(condition: Condition, edit: ConditionEdit, countries: list[
 
 
 def apply_edits(client: AIClient, plan: LocationPlan, edits: list[ConditionEdit]) -> LocationPlan:
-    """The plan with the person's corrections (HANDOVER section 6, "Edit").
+    """The plan with the person's corrections.
 
     Reworded and new conditions are checked again, exactly like in a search. Everything else
     keeps what the search found, so nothing is looked up twice. A corrected list of towns or a

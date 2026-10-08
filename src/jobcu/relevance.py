@@ -1,4 +1,4 @@
-"""The quick first pass (HANDOVER section 13, saving 5).
+"""The quick first pass.
 
 A cheap AI check on the title, company and first lines of each job, which leaves out
 only jobs that are clearly unrelated to what the person wants (a nurse job for an
@@ -10,7 +10,7 @@ The same pass reads where a job is when its job sites don't say: many Adzuna ads
 the ad itself names is accepted, so the conditions about places and travel times can be applied
 to these jobs too (`JobGroup.place_from_text`).
 
-This must pass the quality test set before it's trusted (HANDOVER section 13).
+This must pass the quality test set before it's trusted.
 """
 
 from collections.abc import Callable

@@ -1,14 +1,14 @@
-"""Scoring jobs against the profile (HANDOVER section 11).
+"""Scoring jobs against the profile.
 
 The AI first reads the evidence in each ad: the languages it asks for and at what level, the
 years of experience, a required doctorate, citizenship or security clearance. Then it scores the
 rubric parts that need judgement. Jobcu works out the language part and the limits for clear
-blockers in code, from that evidence and the owner's rules (DECISIONS.md, 2026-09-23 evening),
+blockers in code, from that evidence and the rules in docs/ENGINEERING.md,
 and adds everything up. So the total always matches the parts, and the same evidence always
 gives the same result. Low scores rank lower but are never hidden.
 
 Jobs are scored in small batches to save tokens, with a clear instruction to score each
-job on its own. Batch size is checked against the quality test set (HANDOVER section 13).
+job on its own. Batch size is checked against the quality test set.
 """
 
 import re
@@ -52,10 +52,8 @@ LIMIT_LANGUAGE = 65  # a must-have language two or more levels above the person'
 LIMIT_CITIZENSHIP = 30  # a citizenship or clearance the person definitely can't get
 LIMIT_DOCTORATE = 50  # a required doctorate the person doesn't have
 LIMITS_YEARS = [(8, 60), (5, 75), (3, 80)]  # this many years short of what the ad asks: at most
-# How far a job that fits the person's kind of work only partly can go, by the rubric's own bands
-# for "role and skills" (at most these points: at most this total). The other 60 points come to
-# any job without a blocker, so jobs in other fields scored 62-75 (search 10's quality set,
-# 2026-09-30); with these, 39 of the 40 rated ads scored where the owner's ratings put them.
+# Role/skills bands also bound the total; points from unrelated rubric parts cannot turn a
+# clear profession mismatch into a good fit.
 LIMITS_ROLE = [
     (7, 30, "Another field than yours"),
     (17, 45, "Only loosely related to your work"),

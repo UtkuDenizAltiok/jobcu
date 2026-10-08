@@ -2,8 +2,7 @@
 
 Company career systems can't be searched across companies, so Jobcu reads the employers it
 knows: the shipped directory (sources/careers.py). The person's own AI adds the ones that hire
-for their kind of work in the countries searched (HANDOVER section 9.3, "live AI web search for
-career pages that match the role and target locations"): it searches the web for employers and
+for their kind of work in the countries searched: it searches the web for employers and
 the address of each one's job list. Jobcu recognises the career system from the address, or
 opens the employer's careers page once to find it (sources/careerlinks.py), checks the list
 with that system's own reader as the directory check does, and remembers the employers whose

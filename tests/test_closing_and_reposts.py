@@ -1,4 +1,4 @@
-"""Closing dates for applications, and ads posted again (DECISIONS.md, 2026-09-24 evening)."""
+"""Closing dates for applications, and ads posted again."""
 
 from datetime import UTC, date, datetime, timedelta
 from zoneinfo import ZoneInfo

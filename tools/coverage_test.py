@@ -1,4 +1,4 @@
-"""Measures how many real jobs Jobcu found (HANDOVER section 9.0, point 5).
+"""Measures how many real jobs Jobcu found.
 
 You give it a list of jobs you found yourself — on LinkedIn, StepStone, Indeed, a company's own
 page, anywhere — for a search you have already run in Jobcu. It says how many of them Jobcu found,

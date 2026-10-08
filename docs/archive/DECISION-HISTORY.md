@@ -1,7 +1,7 @@
-# Jobcu decision history through 2026-10-06
+# Jobcu decision history
 
 > Archived background. Current rules are in [AGENTS.md](../../AGENTS.md), current product
-> decisions in [DECISIONS.md](../DECISIONS.md), and reusable prompts in [PROMPTS.md](../PROMPTS.md).
+> decisions in [ENGINEERING.md](../ENGINEERING.md), and reusable prompts in [PROMPTS.md](../PROMPTS.md).
 
 Every decision made while building Jobcu, with a short reason, newest at the bottom. Decisions
 marked **Decided** in the [original concept](HANDOVER.md) come from the owner and aren't repeated
@@ -691,7 +691,7 @@ as the documents say.
 
 | Decision | Reason |
 |---|---|
-| *Superseded (2026-10-07): current guides use neutral setup steps and current service links; see [current decisions](../DECISIONS.md#setup-and-provider-behavior).* **The user guide recommends Google Gemini** (a free key to start; billing with a monthly spend cap for the best results, `gemini-3.8-flash`), with the other providers listed after it. The code and the screen still default to none and hard-code no model; the Settings screen points to the guide. AGENTS.md hard rule 4 says so. | The owner, 2026-10-03: his friends are starting to use Jobcu and don't know API keys, so they need a clear recommendation, not a comparison. The check of that day (SOURCES.md, "AI providers for Jobcu"): Gemini is the only big provider with a free allowance, and with billing it costs about a third of OpenAI or Anthropic for a search like the owner's, because 5,000 web look-ups a month are included. |
+| *Superseded (2026-10-07): current guides use neutral setup steps and current service links; see [current decisions](../ENGINEERING.md#setup-and-provider-behavior).* **The user guide recommends Google Gemini** (a free key to start; billing with a monthly spend cap for the best results, `gemini-3.8-flash`), with the other providers listed after it. The code and the screen still default to none and hard-code no model; the Settings screen points to the guide. AGENTS.md hard rule 4 says so. | The owner, 2026-10-03: his friends are starting to use Jobcu and don't know API keys, so they need a clear recommendation, not a comparison. The check of that day (SOURCES.md, "AI providers for Jobcu"): Gemini is the only big provider with a free allowance, and with billing it costs about a third of OpenAI or Anthropic for a search like the owner's, because 5,000 web look-ups a month are included. |
 | *Superseded (2026-10-06): see "Public code, private data and ChatGPT development".* **Development is handed over to a friend of the owner who works with ChatGPT.** AGENTS.md stays the one rulebook for any AI tool; CONTRIBUTING.md has the start and wrap-up prompts and a handover note; PROGRESS.md's "Right now" is written for him. | The owner, 2026-10-03. Everything that matters lives in the repository, so the next developer and his assistant start from the same knowledge. |
 | *Superseded in its invitation/setup steps (2026-10-06 and 2026-10-07): public downloads and current guides in [README](../../README.md#use-jobcu).* **Friends start using Jobcu** with the guides as they are: GitHub account, the owner's invitation, the ZIP download, a Gemini key. | The owner, 2026-10-03; their feedback joins the owner's searches as the real test. |
 
@@ -739,7 +739,7 @@ as the documents say.
 The 2026-10-06 decision made new installs start with 72 hours, because a three-day sample suited
 the first restored-Mac evaluation. The owner chose daily 24-hour searches on 2026-10-07 to apply
 earlier. The current default is 24 hours; existing saved choices and wider windows remain
-supported. See [current search decisions](../DECISIONS.md#search-behavior).
+supported. See [current search decisions](../ENGINEERING.md#search-behavior).
 
 ## Superseded search defaults and review allowance — 2026-10-07
 
@@ -752,4 +752,16 @@ The earlier private-review prompt allowed a focused development re-score up to E
 prices were configured. It never imposed a EUR1 cap on normal searches. The owner removed
 this review allowance on 2026-10-07; current review permission uses the existing monthly
 budget and configured service limits, with verified prices. No paid work was performed under
-the superseded allowance. See [current evaluation decisions](../DECISIONS.md#evaluation).
+the superseded allowance. See [current evaluation decisions](../ENGINEERING.md#evaluation).
+
+
+## 2026-10-08: Simpler project records
+
+The 2026-10-07 split into separate current decisions, architecture and private-review records
+kept intent, implementation and evaluation distinct. **Superseded:** the owner prefers fewer
+entry points. These records are consolidated into ENGINEERING and CONTRIBUTING, retaining
+reasons, behavior and the complete evaluation procedure. PROGRESS, PROMPTS and SOURCES keep
+their distinct current-state, action and dated-evidence roles; human guides and archives remain.
+The short Deep improvement loader saved copying but created an unnecessary second choice;
+**superseded:** each task has one complete pasteable prompt. See
+[current organization](../ENGINEERING.md#project-organization--2026-10-08).

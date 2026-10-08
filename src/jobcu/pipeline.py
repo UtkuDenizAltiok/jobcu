@@ -132,7 +132,7 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
     """Fetch the full ad for jobs still in the running, where only a short version is known.
 
     An ad downloaded in the last few days is taken from what Jobcu remembers instead
-    (DECISIONS.md), which saves time and requests without ever reusing a score.
+    (docs/ENGINEERING.md), which saves time and requests without ever reusing a score.
     """
     reports = {r.source: r for r in collected.reports}
     work: dict[str, list[tuple[int, int]]] = {}
@@ -236,7 +236,7 @@ def build_card(
         })
     elif not country:
         checks.append({"label": "Location unclear", "status": "unclear", "source": None})
-    # What the conditions the person wrote say about this job (HANDOVER section 6). When its town
+    # What the conditions the person wrote say about this job. When its town
     # isn't known, one line says so instead of one "couldn't be checked" per condition.
     town_known = travel.job_point(group) is not None
     unanswered = 0
@@ -352,7 +352,7 @@ def _checked_by(condition, measured_by: str | None = None) -> str:
 
 
 def sort_cards(cards: list[dict]) -> list[dict]:
-    """Highest score first; newer first when scores are equal (HANDOVER section 12)."""
+    """Highest score first; newer first when scores are equal."""
     return sorted(
         cards,
         key=lambda c: (
@@ -371,7 +371,7 @@ def _timestamp(iso: str | None) -> float:
 
 
 def unique_counts(groups: list[JobGroup], shown: list[int]) -> Counter:
-    """Jobs found only by one source, per source (HANDOVER section 9.0, point 6)."""
+    """Jobs found only by one source, per source."""
     counts: Counter = Counter()
     for index in shown:
         sources = {copy.source for copy in groups[index].copies}

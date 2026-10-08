@@ -82,7 +82,7 @@ class SearchForm(BaseModel):
 
 
 # Settings files from before version 2 hold "low" for scoring, the old default nobody could change
-# on screen; the owner then chose medium everywhere (DECISIONS.md, 2026-09-24).
+# on screen; the owner then chose medium everywhere (docs/ENGINEERING.md, 2026-09-24).
 SETTINGS_VERSION = 2
 
 

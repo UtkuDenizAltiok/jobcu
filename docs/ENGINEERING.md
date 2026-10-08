@@ -1,8 +1,78 @@
-# Jobcu architecture
+# Jobcu engineering
 
-Use this for code navigation and implementation detail. Rules: [AGENTS](../AGENTS.md).
-Current tasks: [PROGRESS](PROGRESS.md). Private evaluation: [REVIEW](REVIEW.md).
-Older code comments mentioning HANDOVER refer to [the archived concept](archive/HANDOVER.md).
+Current decisions, implementation and tools in one reference. Read the section needed for the
+work. Rules: [AGENTS](../AGENTS.md); current work: [PROGRESS](PROGRESS.md); source permissions
+and dated evidence: [SOURCES](SOURCES.md); development and private evaluation:
+[CONTRIBUTING](../CONTRIBUTING.md#review-a-completed-search).
+Historical reasons remain in the [decision history](archive/DECISION-HISTORY.md).
+Code/tests establish behavior; the latest current decision establishes intent.
+
+## Current decisions
+
+### Search behavior
+
+| Decision | Reason and date |
+|---|---|
+| Reject career titles only when explicitly classified as clearly unrelated. Keep unreviewed titles for normal matching; preserve independent batch decisions and stop on critical account/quota/monthly-limit errors. Retain raw source counts and private rejection evidence. | Fictional searches reproduced unseen late titles disappearing, a bad batch erasing healthy decisions, and matching continuing after a limit error. Supersedes dropping all titles beyond the 3,000-pair early-screen bound or after a failed screen. The request bound remains; later matching of unknowns may use more AI, subject to existing limits (2026-10-08). |
+| Read documents into a structured profile; reuse it only while documents, prompt and model are unchanged. Never reuse job scores. | Save repeated document work while keeping each search's judgement fresh (2026-09-17). |
+| Show sought roles in profile progress; label the most recent role as history. Offer **Reset document understanding** to forget cached profiles and read again on the next search. | Completed study or placement work must not look like a requested role. Reset costs no AI calls itself, keeps documents/results, and preserves default reuse (2026-10-07). |
+| Interpret each new query afresh. Conditions can name places, population, travel limits or researched facts; label estimates and unchecked conditions. | People's wording and intentions differ; no personal query is hard-coded (2026-09-17 to 2026-09-24). |
+| Interpret countries, places and condition types together in one medium-effort request; apply the existing population, travel and research checks afterwards. | Avoid asking the AI to read and classify the same request twice. Fictional country/commute/nursing checks verify preserved conditions; live speed and interpretation still need measurement (2026-10-07). |
+| **Edit** reapplies corrected conditions to the same job pool and reuses earlier evidence. | Correct interpretation without collecting every ad again (2026-09-17; implemented 2026-09-21). |
+| Report completion only after final results and status are saved together. If saving fails, keep available results visible and explain that closing Jobcu may lose them. | A finished heading must mean the latest results can be restored; a controlled fictional test reproduced completion preceding persistence after the Windows CI restore failure (2026-10-07). |
+| Measure travel to the nearest edge of a reference place unless the user asks for its centre. | The person could live anywhere in the place (2026-09-24). |
+| For Maps journeys into a reference city, compare the calculated edge point and city centre, keeping the faster available journey. Explicit centre requests still measure the centre alone; explain that sampling can miss faster districts. | A geometric edge can have a worse connection than the centre. Fictional regressions reproduce a reachable job rejected by an edge-only journey. This clarifies the anywhere-in-the-place intent above without claiming an exact fastest commute (2026-10-07). |
+| Preserve confidence in facts about reference places separately from journey confidence. Keep usable partial rules, but explain missing facts and label estimates on each card. | A fictional city-library condition reproduced a measured journey upgrading unverified library access to verified. Distance, limit edits and Maps cannot prove that fact; scores and filtering remain unchanged (2026-10-08). |
+| Prefer original employer ads and full descriptions. Keep summary evidence and missing conditions labelled. | Missing text must not appear to be complete evidence (2026-09-17; clarified 2026-10-06). |
+| Exclude known CV-Library application destinations. Keep the same vacancy with another already-matched link, preferably the employer; otherwise exclude it with a counted reason. Preserve saved/applied history and original snapshots. | The owner reports that the application form rejects contact details from outside the UK. This is an explicit destination exclusion, not proof that every alternate platform accepts every applicant. Opaque redirect destinations still need verification (owner, 2026-10-07). |
+| Let the person exclude an exact saved application link and undo that choice locally. Reuse an already-matched alternative or count the vacancy as left out before further matching. Keep other links on that site available. | Opaque redirects cannot establish their final host. A local report handles an observed unusable link without probing blocked pages, guessing URLs or classifying unrelated vacancies. No automatic final-host verification is claimed (2026-10-07). |
+| Full-ad requirements replace earlier summary requirements, including an unstated experience minimum. Keep other blockers intact. | A fictional regression confirms that retaining the summary's years when the full ad says none leaves an obsolete score limit (2026-10-07). |
+| Use original posting/closing dates and job memory to suppress expired ads and old reposts. Keep distinct requisitions distinct. | A board's refreshed date is not a new vacancy (2026-09-24; fixes 2026-10-03). |
+| Prefer exact source IDs in job memory. Distinct IDs on the same employer source stay separate, including through other copies. Require similar text when both matching ads are complete. Keep ambiguous name matches as separate jobs; preserve all historical keys, marks and snapshots. | Fictional electronics, nursing and hospitality openings reproduced a fresh vacancy inheriting an old date or Not interested mark. Titles and templates do not establish a unique vacancy. Previously merged history cannot be automatically split without evidence (2026-10-07). |
+| Groups kept separate by duplicate checks cannot rejoin solely through remembered names in the same batch. Exact copy evidence still wins; known countries can disambiguate. | The former one-card heuristic for two vague agency summaries could silently share Save/Not interested state without vacancy evidence. Supersedes that title-only assumption while retaining one card for proven copies (2026-10-08). |
+| Explain scores with rubric parts and deterministic blocker limits; retain low-score jobs. | Users can see why a job ranks where it does; a score is not hiring probability (2026-09-23 to 2026-09-30). |
+| Default to no per-search scoring or AI web-check cap. Preserve explicitly saved caps; if selected, ask before exceeding them and let **Always** remove them. Monthly controls and source/provider request rules still apply. | A normal on-demand search should complete its work without arbitrary pauses. Optional user controls remain available; supersedes the 200-score/50-web-check defaults (owner, 2026-10-07). |
+| Count attempted online checks cumulatively; deferred jobs remain pending when a limit is reached. Supply the original URL to research the same vacancy. | Fictional regressions reproduce the counter moving backwards on continuation. Titles alone can identify different requisitions (2026-10-07). |
+| New installs use a **24-hour posting lookback**; preserve existing saved choices. The owner chooses daily 24-hour searches. | Support earlier applications with daily on-demand use (owner, 2026-10-07). Supersedes the 72-hour first-evaluation default of 2026-10-06; wider windows remain available. |
+
+### Setup and provider behavior
+
+| Decision | Reason and date |
+|---|---|
+| Search requires AI configuration, CV and cover letter; first-run guidance links to each. | Make the route to a first search complete (2026-10-06). |
+| The finished app completes each on-demand search without assistant supervision. During development, the assistant owns implementation, review and measured improvements; the owner chooses when to search. | Development oversight must not become a requirement for everyday use or automatic background operation (owner, 2026-10-07). |
+| The Maps key test uses named stations, says public transport, shows the weekday-morning departure assumption and explains that it checks access. Count it against the local route limit. | General TRANSIT includes walking and other modes; a successful sample must not be presented as a train-only timetable or overall accuracy check (2026-10-07). |
+| A successful connection test checks ordinary generation, not web-research access. Definite research refusals explain once and skip that research for one search. | Account/model capability can differ from basic generation; preserve collection/scoring and show uncertainty (2026-10-06). |
+| Retry research on a later search; never mark a refused employer lookup as a successful refresh. | A temporary restriction must not suppress future employer discovery (2026-10-06). |
+| Keep guides provider-neutral and link to current provider instructions/prices. Remove fixed model recommendations and unmeasured cost/runtime promises. | Capabilities and charges change; the restored Mac has no measured search baseline yet (2026-10-07). This supersedes the guide's 2026-10-03 provider recommendation. |
+| Write everyday guides for first-time users: explain terms, give one clear action per step, name the actual controls and say how to confirm success. Put optional setup after the basic route; keep owner/Codex review instructions in their project documents. | Friends using Jobcu may have little technical experience. Plain language needs enough explanation to complete a task, rather than the shortest possible text (owner, 2026-10-07). |
+| Keep concrete examples of richer place requests in README and the usage guide, including election vote shares, Turkish supermarkets, Sunday opening, student populations and combined commute conditions. Define thresholds and label research limits. | The examples help users understand the range of requests they can make; simplifying the guides should preserve them without claiming unmeasured accuracy (owner, 2026-10-07). |
+
+### Evaluation
+
+| Decision | Reason and date |
+|---|---|
+| Sample full ads and labelled summaries across score bands; keep final scores, evidence completeness and the original location plan. | Avoid bias from summary omissions, duplicate-first selection or pre-research scores (2026-10-06). |
+| Judge every top card independently before reporting precision; use a date-verified independent list before reporting coverage recall. | Counts and broad score bands do not prove search quality (2026-10-06). Procedure: [private review](../CONTRIBUTING.md#review-a-completed-search). |
+| Focused paid reviews follow the owner's existing monthly budget and configured service limits, with current verified prices. No fixed EUR1 review allowance or per-search money cap is imposed. | The earlier review prompt's EUR1 permission applied only to development review, never ordinary searches. The owner removed that restriction; a session-ending instruction still stops new paid work (2026-10-07). |
+| Assistant ratings may fill empty labels or revise prior assistant labels; owner and legacy labels are protected atomically. | A concurrent owner edit must not be overwritten by a review. Fictional controlled-order tests cover the read/write gap (2026-10-07). |
+| Record step time and answer-wait time; label correction timings separately from cumulative usage. | Corrections and full searches cannot be compared as equivalent performance runs (2026-10-06). |
+| Warn when scoring reads only an excerpt of a lengthy ad. | Unseen requirements must not be assumed satisfied (2026-10-06). |
+
+### Project organization — 2026-10-08
+
+- Keep current decisions and implementation/tool knowledge in this engineering reference.
+  Keep the private review procedure with developer instructions in CONTRIBUTING. This
+  supersedes separate DECISIONS, ARCHITECTURE and REVIEW files: the owner wants fewer places
+  to look, without losing the setup, usage, contribution or evaluation detail.
+- Keep one complete prompt per task in PROMPTS. The short loader introduced on 2026-10-08
+  saved copying but added a choice and indirection; the owner prefers a single pasteable block.
+- PROGRESS holds current state, one active goal, pending checks and next actions. Completed
+  details belong in Git/PRs; dated source permissions belong in SOURCES. Standing rules stay
+  in AGENTS. Link to the relevant section rather than repeat the same procedure.
+- Preserve detailed human guides, licensing and historical records in the archive. Keep the
+  established runtime/test/tool layout; consolidate only where responsibilities actually overlap.
+  Retire merged branches after checking PRs/worktrees; preserve unmerged or active work.
 
 ## Search pipeline
 
@@ -138,13 +208,13 @@ The root keeps launchers, README, CONTRIBUTING, AGENTS, LICENSE and Python/tool 
 | `data/` | Public reference assets: `employers.json`, `places.csv.gz`, `regions.csv.gz`, `postcodes.csv.gz`. User data never belongs here. |
 | `web/` | `index.html`, `app.js`, `style.css`, `favicon.svg`; plain UI, system fonts, no external scripts. |
 | `tests/` | Scripted providers and mocked HTTP; `conftest.py` gives disposable fictional data. `test_imports.py` checks import order; `test_docs.py` checks navigation and recovery sections. |
-| `docs/` | PROMPTS, PROGRESS, DECISIONS, ARCHITECTURE, SOURCES, REVIEW; `guides/` for users and `archive/` for dated background. |
+| `docs/` | PROMPTS, PROGRESS, ENGINEERING, SOURCES; `guides/` for users and `archive/` for dated background. |
 | `.githooks/`, `.github/` | Commit privacy guard, issue/PR templates, Mac/Windows/privacy CI. |
 
 ## Tools
 
 Run these from the repository root with `uv run python tools/<name>.py`.
-Real-data tools require the specific authorization described in REVIEW.md.
+Real-data tools follow [CONTRIBUTING](../CONTRIBUTING.md#review-a-completed-search).
 
 | Tool | Purpose |
 |---|---|
@@ -174,7 +244,7 @@ On the Mac, five warmed rounds produced these medians:
 
 The ad fixture uses disjoint repeated text to exercise repeated comparison. Timings depend on
 the device and fixture. Live end-to-end speed, ranking quality and market recall still require
-the authorized real evaluation in [REVIEW](REVIEW.md); this comparison makes no claims about them.
+the authorized real evaluation in [private review](../CONTRIBUTING.md#review-a-completed-search); this comparison makes no claims about them.
 
 ## Evaluation data and timing
 

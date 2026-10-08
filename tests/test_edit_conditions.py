@@ -1,4 +1,4 @@
-"""Correcting the location conditions after a search (HANDOVER section 6, "Edit").
+"""Correcting the location conditions after a search.
 
 The person can switch a condition off, correct its towns or its size, reword it (Jobcu checks it
 again) or add one. The corrections are applied to the jobs the search already found: jobs that

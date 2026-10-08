@@ -1,8 +1,7 @@
 """What every job source has in common.
 
 Each source is an isolated module that turns its own format into `FoundJob`s. A source
-that fails only marks itself as failed in the report; the search carries on
-(HANDOVER section 9.1).
+that fails only marks itself as failed in the report; the search carries on.
 """
 
 from abc import ABC, abstractmethod
@@ -49,10 +48,8 @@ class FoundJob:
     # A career site's title that none of the search words match: the person's AI looks at the
     # title before rejecting it as clearly unrelated; unreviewed titles remain for matching.
     title_unmatched: bool = False
-    # A career site's copy older than the search's window: never shown or counted, only kept so
-    # the same job on a job board, dated later because it was posted again, is known to be old
-    # (HANDOVER §7: the earliest copy's date). GE Vernova's Berlin job said "Posted 4 Days Ago"
-    # on its own site while Adzuna dated it the day before search 11.
+    # Older employer copies are retained only as freshness evidence, never shown or counted.
+    # A newer board date cannot make the same employer vacancy fresh again.
     older_copy: bool = False
 
 

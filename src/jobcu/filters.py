@@ -1,4 +1,4 @@
-"""The free rules filter (HANDOVER section 11, step 1): objective facts only, no AI.
+"""The free rules filter: objective facts only, no AI.
 
 A job is left out only when a fact proves it doesn't fit:
 - it was marked Not interested before

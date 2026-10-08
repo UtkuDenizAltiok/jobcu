@@ -1,4 +1,4 @@
-"""Internal API behind the Score check screen (HANDOVER section 13)."""
+"""Internal API behind the Score check screen."""
 
 from dataclasses import asdict
 

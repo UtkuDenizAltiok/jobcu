@@ -1,4 +1,4 @@
-"""Runs a search in the background and reports its progress (HANDOVER sections 3 and 9).
+"""Runs a search in the background and reports its progress.
 
 A search is a list of steps. Each step updates what the screen shows, so the user
 can see what Jobcu is doing. Only one search runs at a time. Every search starts
@@ -68,7 +68,7 @@ STEPS: list[tuple[str, str]] = [
     ("scoring", "Scoring jobs"),
     ("places", "Checking the best jobs online"),
 ]
-# Applying corrected conditions to the jobs a search already found (HANDOVER section 6, "Edit").
+# Applying corrected conditions to the jobs a search already found.
 REAPPLY_STEPS: list[tuple[str, str]] = [
     ("conditions", "Checking the conditions you changed"),
     ("filtering", "Applying your conditions to the jobs found"),
@@ -814,7 +814,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
 def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
                        edits: list[ConditionEdit]) -> None:
     """The person corrected the conditions after a search: check what they reworded, then
-    decide again about the jobs that search found (HANDOVER section 6, "Edit")."""
+    decide again about the jobs that search found."""
     settings = load_settings()
     client = AIClient(
         settings, KeyStore(), usage_log=UsageLog(), search_id=run.id, notify=run.note
@@ -861,8 +861,10 @@ def _checkpoint(run: SearchRun) -> None:
 
 
 def _keep_for_the_score_check(groups, shown, scored, unrelated, plan) -> None:
-    """Keeps a few of this search's real ads and left-out titles for the score check
-    (HANDOVER section 13). It costs nothing: everything is already in hand."""
+    """Keep a sample of scored ads and left-out titles for the score check.
+
+    It costs nothing: everything is already in hand.
+    """
     ads = []
     for index in shown:
         if index not in scored:

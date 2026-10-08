@@ -1,4 +1,4 @@
-"""Posting dates and the "Posted within" filter (HANDOVER section 7).
+"""Posting dates and the "Posted within" filter.
 
 - A job **proven** older than the chosen window is hidden.
 - A job whose date can't be found is shown in a separate "Posting date unknown" section.

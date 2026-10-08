@@ -5,7 +5,7 @@
 
 What Jobcu knows about each source, verified with real requests (dates are when it was checked).
 Update this whenever a source changes or something new is learned. Decisions are in
-[DECISIONS.md](../DECISIONS.md).
+[ENGINEERING.md](../ENGINEERING.md).
 
 <a id="adzuna"></a>
 
