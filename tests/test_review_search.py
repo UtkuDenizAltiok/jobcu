@@ -72,6 +72,23 @@ def test_empty_and_legacy_results_do_not_invent_quality_or_timing():
     assert report["waiting_seconds"] is None
     assert report["top_10_quality"]["precision_good"] is None
     assert any("did not finish" in c for c in report["checks_needed"])
+    assert report["career_titles"] is None
+
+
+def test_career_title_report_allows_counts_but_never_rejected_jobs_or_notes():
+    saved = snapshot([])
+    saved["result"]["career_titles"] = {
+        "total": 4, "reviewed": 3, "unrelated": 2, "unreviewed": 1,
+        "failed_batches": 1, "unrelated_ads": 3,
+        "left_out": [{"title": "PRIVATE FICTIONAL TITLE", "company": "PRIVATE COMPANY",
+                      "url": "https://private.example.test/ad"}],
+        "note": "PRIVATE NOTE",
+    }
+    report = tool.review(saved, [])
+    assert report["career_titles"] == {k: saved["result"]["career_titles"][k] for k in
+                                        ("total", "reviewed", "unrelated", "unreviewed",
+                                         "failed_batches", "unrelated_ads")}
+    assert "PRIVATE" not in json.dumps(report)
 
 
 @pytest.mark.parametrize("kind,timing_scope,usage_scope", [

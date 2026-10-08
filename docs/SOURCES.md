@@ -76,6 +76,16 @@ serialize identity allocation; fictional simultaneous-save and rollback checks v
 
 ## AI and Maps
 
+**Classification/error guidance checked 2026-10-08:**
+[Google's structured-output guide](https://ai.google.dev/gemini-api/docs/structured-output)
+distinguishes valid JSON from correct values and recommends application validation/error
+handling. This is capability guidance, not a provider recommendation or proof of classifier
+accuracy. Jobcu accepts unrelated-title decisions only for IDs in that batch; an unexamined
+title is never a rejection. [Python 3.13 futures](https://docs.python.org/3.13/library/concurrent.futures.html)
+raise a task's exception when its result is retrieved; cancelling cannot stop an already-running
+task. Jobcu handles recoverable title failures within that independent batch, while critical
+errors and Stop propagate through its existing cancellation helper.
+
 Provider support is in `src/jobcu/ai/`; users choose their provider and model. Research access
 varies by account/model/tier. A connection test checks generation, not web research. See the
 [2026-10-06 capability check](archive/SOURCE-RESEARCH.md#web-research) and [current key guide](guides/getting-your-keys.md).

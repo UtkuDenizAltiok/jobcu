@@ -1325,9 +1325,13 @@ function renderDetails(search) {
       ),
     );
     const c = jobs.counts;
+    const titles = result.career_titles;
     const funnel = [
       `${c.ads_found} job ads found`,
-      `${c.different_jobs} different jobs after removing duplicates`,
+      titles?.unrelated_ads
+        ? `${titles.unrelated_ads} left out by the early check of employer titles as clearly unrelated`
+        : null,
+      `${c.different_jobs} different jobs after ${titles ? "checking extra titles and " : ""}removing duplicates`,
       ...c.left_out.map((item) => `${item.count} left out: ${item.reason}`),
       `${c.unrelated} left out as clearly unrelated to what you're looking for`,
       c.not_scored ? `${c.not_scored} not scored (scoring limit)` : null,
@@ -1341,6 +1345,19 @@ function renderDetails(search) {
     );
     parts.push(section("What happened to the jobs", el("ul", {}, ...funnel.map((t) => el("li", { text: t }))),
       c.unrelated ? unrelated : null));
+    if (titles) {
+      const early = el("details", { class: "advanced" },
+        el("summary", { text: "See the extra employer titles left out early" }),
+        el("ul", {}, ...(titles.left_out || []).map((job) =>
+          el("li", { text: `${job.title}${job.company ? ` — ${job.company}` : ""}` }))));
+      parts.push(section("Extra employer titles",
+        el("p", { text: `${titles.reviewed} checked; ${titles.unrelated} clearly unrelated; ` +
+          `${titles.unreviewed} unreviewed and kept for normal matching.` }),
+        titles.unreviewed ? el("p", { class: "muted", text:
+          "Unreviewed means the early check did not decide. It is not evidence of a fit. " +
+          "These jobs still go through normal matching and your existing limits." }) : null,
+        titles.unrelated_ads ? early : null));
+    }
   }
   parts.push(section("Countries searched", el("p", { text: (result.country_names || []).join(", ") })));
   for (const language of result.languages || []) {

@@ -10,6 +10,7 @@ retain a superseded decision in the archive when replacing it.
 
 | Decision | Reason and date |
 |---|---|
+| Reject career titles only when explicitly classified as clearly unrelated. Keep unreviewed titles for normal matching; preserve independent batch decisions and stop on critical account/quota/monthly-limit errors. Retain raw source counts and private rejection evidence. | Fictional searches reproduced unseen late titles disappearing, a bad batch erasing healthy decisions, and matching continuing after a limit error. Supersedes dropping all titles beyond the 3,000-pair early-screen bound or after a failed screen. The request bound remains; later matching of unknowns may use more AI, subject to existing limits (2026-10-08). |
 | Read documents into a structured profile; reuse it only while documents, prompt and model are unchanged. Never reuse job scores. | Save repeated document work while keeping each search's judgement fresh (2026-09-17). |
 | Show sought roles in profile progress; label the most recent role as history. Offer **Reset document understanding** to forget cached profiles and read again on the next search. | Completed study or placement work must not look like a requested role. Reset costs no AI calls itself, keeps documents/results, and preserves default reuse (2026-10-07). |
 | Interpret each new query afresh. Conditions can name places, population, travel limits or researched facts; label estimates and unchecked conditions. | People's wording and intentions differ; no personal query is hard-coded (2026-09-17 to 2026-09-24). |

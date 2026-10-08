@@ -47,7 +47,7 @@ class FoundJob:
     via: str | None = None  # e.g. "Found through Reed" for career-system jobs
     closes_at: datetime | None = None  # when applications close, if the source says (aware)
     # A career site's title that none of the search words match: the person's AI looks at the
-    # title before the job is dropped (relevance.screen_titles).
+    # title before rejecting it as clearly unrelated; unreviewed titles remain for matching.
     title_unmatched: bool = False
     # A career site's copy older than the search's window: never shown or counted, only kept so
     # the same job on a job board, dated later because it was posted again, is known to be old
