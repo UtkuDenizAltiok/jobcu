@@ -30,6 +30,7 @@ asked for: the Routes API terms (section 19.3) allow keeping only coordinates, n
 
 import logging
 import math
+import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
@@ -47,6 +48,7 @@ from jobcu.location import Anchor, Condition
 from jobcu.placenames import countries_in
 from jobcu.settings import load_settings
 from jobcu.sources.budget import BudgetExhausted, Limits, RequestBudget
+from jobcu.sources.http import Blocked
 from jobcu.text import normalise
 
 log = logging.getLogger(__name__)
@@ -295,30 +297,61 @@ def departure(country: str, now: datetime) -> str:
 class GoogleMaps:
     """Google's Routes API, with the person's own key."""
 
-    def __init__(self, key: str, http, now: Callable[[], datetime] = lambda: datetime.now(UTC)):
+    def __init__(self, key: str, http, now: Callable[[], datetime] = lambda: datetime.now(UTC),
+                 routes: RequestBudget | None = None):
         self._key = key
         self._http = http
         self._now = now
+        self._routes = routes if routes is not None else RequestBudget(
+            "google_maps_routes", "Google Maps",
+            Limits(per_month=load_settings().limits.maps_monthly_routes), now=now)
+        self._unavailable: str | None = None
 
     def _post(self, url: str, body: dict, fields: str):
         headers = {"X-Goog-Api-Key": self._key, "X-Goog-FieldMask": fields}
+        count = len(body["origins"]) * len(body["destinations"])
+
+        def check():
+            if self._unavailable:
+                raise MapsError(self._unavailable)
+            self._routes.check(count)
+
         try:
-            response = self._http.post(url, json=body, headers=headers)
+            response = self._http.post(
+                url, json=body, headers=headers,
+                check_attempt=check,
+                before_attempt=lambda: self._routes.spend(count),
+                retry_response=lambda reply: not (
+                    reply.status_code == 429 and _quota_scope(reply) in {"day", "month", "zero"}),
+            )
+        except Blocked as exc:
+            self._unavailable = "Google Maps refused Jobcu's requests for now."
+            raise MapsError(self._unavailable) from exc
         except httpx.HTTPError as exc:
             raise MapsError("Google Maps couldn't be reached.") from exc
         if response.status_code in (401, 403):
-            raise MapsError("Google Maps didn't accept the key. Check it in Settings.")
+            self._unavailable = "Google Maps didn't accept the key. Check it in Settings."
+            raise MapsError(self._unavailable)
         if response.status_code == 429:
-            problem = _problem(response)
-            log.warning("Google Maps answered 429: %s", problem)
-            if "per day" in problem.lower() or "daily" in problem.lower():
-                raise MapsError(
-                    "Google Maps' daily limit is used up. It resets at midnight in California "
-                    "(about 9 in the morning in central Europe).")
-            raise MapsError("Google Maps asked Jobcu to slow down for now.")
+            scope = _quota_scope(response)
+            # Raw error messages/metadata can name the owner's project or account.
+            log.warning("Google Maps refused a request (code 429; quota scope: %s)", scope)
+            messages = {
+                "day": "Google Maps' daily quota is used up. Wait for Google to reset it.",
+                "month": "Google Maps' monthly quota is used up. Wait for Google to reset it.",
+                "zero": "Google Maps reports a zero request quota. Check Routes API quotas "
+                        "in your Google Cloud project.",
+                "minute": "Google Maps is temporarily limiting requests. Jobcu tried again "
+                          "within its route allowance.",
+                "unknown": "Google Maps reached a request or quota limit but did not say "
+                           "when it resets. Check Routes API quotas in your Google Cloud project.",
+            }
+            message = messages[scope]
+            if scope in {"day", "month", "zero"}:
+                self._unavailable = message
+            raise MapsError(message)
         if response.status_code != 200:
-            # Google says what it didn't like; the key is only ever in a header, never in this.
-            log.warning("Google Maps answered %s: %s", response.status_code, _problem(response))
+            log.warning("Google Maps refused a request (code %s)", response.status_code)
             raise MapsError(f"Google Maps answered with a problem (code {response.status_code}).")
         try:
             return response.json()
@@ -377,13 +410,37 @@ class GoogleMaps:
         return found
 
 
-def _problem(response: httpx.Response) -> str:
+def _quota_scope(response: httpx.Response) -> str:
+    """Prefer structured quota units/names; prose is a fallback, never a logged identifier."""
     try:
         errors = response.json()
         error = (errors[0] if isinstance(errors, list) else errors).get("error") or {}
-        return str(error.get("message") or "")[:300]
-    except (ValueError, AttributeError, IndexError):
-        return ""
+        details = error.get("details") or []
+        hints = []
+        for detail in details:
+            if not isinstance(detail, dict):
+                continue
+            if str(detail.get("@type", "")).endswith("/google.rpc.ErrorInfo"):
+                metadata = detail.get("metadata") or {}
+                if str(metadata.get("quota_limit_value", "")) == "0":
+                    return "zero"
+                hints.extend(str(metadata.get(key) or "") for key in (
+                    "quota_limit_unit", "quota_unit", "quota_limit", "quota_limit_name"))
+            elif str(detail.get("@type", "")).endswith("/google.rpc.QuotaFailure"):
+                hints.extend(str(v.get("description") or "")
+                             for v in detail.get("violations") or [] if isinstance(v, dict))
+        for text in (" ".join(hints), str(error.get("message") or "")):
+            text = re.sub(r"([a-z])([A-Z])", r"\1 \2", text).lower().replace("_", " ")
+            text = text.replace("-", " ")
+            if re.search(r"\bdaily\b|\bper day\b|/d(?:/|$)", text):
+                return "day"
+            if re.search(r"\bmonthly\b|\bper month\b|/mo(?:/|$)", text):
+                return "month"
+            if re.search(r"\bper minute\b|/min(?:/|$)", text):
+                return "minute"
+    except (ValueError, AttributeError, IndexError, TypeError):
+        pass
+    return "unknown"
 
 
 class TravelGuess(BaseModel):
@@ -421,11 +478,11 @@ class TravelMeter:
         self._client = client
         self._note = note
         key = keys.get(KEY_NAME) if keys is not None else None
-        self._maps = GoogleMaps(key, http, now) if key else None
         self._now = now
         limits = settings.limits
         self._routes = RequestBudget("google_maps_routes", "Google Maps",
                                      Limits(per_month=limits.maps_monthly_routes), now=now)
+        self._maps = GoogleMaps(key, http, now, routes=self._routes) if key else None
 
     def measure(self, conditions: list[Condition], groups: list[JobGroup],
                 indexes: list[int]) -> None:
@@ -522,7 +579,6 @@ class TravelMeter:
         measured: dict[str, dict[str, int | None]] = {}
         for point, towns, _ in places:
             try:
-                self._routes.spend(len(route_targets(point, towns, centre)))
                 measured[point.key] = self._maps.minutes(point, towns, mode, centre)
             except BudgetExhausted:
                 self._note("Google Maps: this month's route limit is used up, so the "
@@ -618,8 +674,6 @@ def check_key(keys, http) -> tuple[bool, str]:
     if not key:
         return False, "Please save a Google Maps key first."
     try:
-        RequestBudget("google_maps_routes", "Google Maps",
-                      Limits(per_month=load_settings().limits.maps_monthly_routes)).spend()
         minutes = GoogleMaps(key, http).between_addresses(
             "Freising Bahnhof, Freising, Germany", "München Hauptbahnhof, München, Germany",
             "transit", "DE")

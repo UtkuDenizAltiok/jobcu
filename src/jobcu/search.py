@@ -461,7 +461,7 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
     checkpoint()
     screened = _screen_career_titles(run, client, profile, collected)
     run.update("sources", "done" if working else "failed",
-               f"{ads_found} job ads found" + screened)
+               f"{ads_found} ads collected before matching and duplicate removal" + screened)
     for report in collected.reports:
         if report.message and report.status in ("partial", "failed", "unavailable"):
             run.note(report.message if report.message.startswith(report.name)
@@ -532,6 +532,8 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     # Travel times cost a request each, so they're measured last, only for jobs still worth a
     # closer look; everything else about places is worked out at once.
     measured = [c for c in plan.conditions if c.kind == "near" and c.max_minutes and c.filters]
+    travel_meter = (travel.TravelMeter(client, keys, http, settings, note=run.note)
+                    if measured else None)
     at_once = [c for c in plan.conditions if all(c is not m for m in measured)]
     ruled_out = [i for i, group in enumerate(groups) if fails_a_condition(group, at_once)]
     reported_links = applications.reported_urls()
@@ -558,8 +560,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         if not keys.get(travel.KEY_NAME):
             run.note("Travel times are AI estimates. A Google Maps key in Settings gives real "
                      "ones.")
-        travel.TravelMeter(client, keys, http, settings, note=run.note).measure(
-            measured, groups, candidates)
+        travel_meter.measure(measured, groups, candidates)
         too_far = {i for i in candidates if fails_a_condition(groups[i], measured)}
         candidates = [i for i in candidates if i not in too_far]
         ruled_out += sorted(too_far)
@@ -702,8 +703,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     fails = [i for i in placed if fails_a_condition(groups[i], at_once)]
     if measured and placed:
         in_reach = [i for i in placed if i not in fails]
-        travel.TravelMeter(client, keys, http, settings, note=run.note).measure(
-            measured, groups, in_reach)
+        travel_meter.measure(measured, groups, in_reach)
         fails += [i for i in in_reach if fails_a_condition(groups[i], measured)]
     ruled_out = sorted([*ruled_out, *fails])
     candidates = [i for i in candidates if i not in set(fails)]
@@ -856,6 +856,15 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
 
 
 def _source_wait_note(run: SearchRun, host: str, seconds: float) -> None:
+    if host == "routes.googleapis.com":
+        run.note("Google Maps delayed requests. Jobcu retries within your route limit; "
+                 "the current step shows waits, and Stop cancels waiting.")
+        with run._lock:
+            active = next((step.id for step in run.steps if step.status == "running"), None)
+        if active:
+            run.update(active, "running", f"Google Maps: waiting about {seconds:.0f} seconds "
+                       "before retrying. Click Stop to cancel waiting.")
+        return
     run.note(f"{host} is temporarily unavailable or limiting requests. Jobcu will wait about "
              f"{seconds:.0f} seconds before asking again. Other sites can continue; "
              "you can click Stop to cancel waiting.")

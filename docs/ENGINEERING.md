@@ -23,6 +23,7 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Measure travel to the nearest edge of a reference place unless the user asks for its centre. | The person could live anywhere in the place (2026-09-24). |
 | For Maps journeys into a reference city, compare the calculated edge point and city centre, keeping the faster available journey. Explicit centre requests still measure the centre alone; explain that sampling can miss faster districts. | A geometric edge can have a worse connection than the centre. Fictional regressions reproduce a reachable job rejected by an edge-only journey. This clarifies the anywhere-in-the-place intent above without claiming an exact fastest commute (2026-10-07). |
 | Preserve confidence in facts about reference places separately from journey confidence. Keep usable partial rules, but explain missing facts and label estimates on each card. | A fictional city-library condition reproduced a measured journey upgrading unverified library access to verified. Distance, limit edits and Maps cannot prove that fact; scores and filtering remain unchanged (2026-10-08). |
+| Charge attempted Maps elements before each network attempt, preserve cached/earlier measurements and stop known persistent quotas. Keep transient recovery bounded and uncertainty visible. | A single budget charge before HTTP retries can exceed the owner's route allowance; quota scope and retry waits must not be guessed (2026-10-08). |
 | Prefer original employer ads and full descriptions. Keep summary evidence and missing conditions labelled. | Missing text must not appear to be complete evidence (2026-09-17; clarified 2026-10-06). |
 | Reuse bounded-age full text across matched copies before live reads; then prefer employer originals and try other permitted matched copies if needed. Recheck revealed objective facts before scoring. | A first-copy failure does not prove full evidence is unavailable; scores remain fresh per search (2026-10-08). |
 | Exclude known CV-Library application destinations. Keep the same vacancy with another already-matched link, preferably the employer; otherwise exclude it with a counted reason. Preserve saved/applied history and original snapshots. | The owner reports that the application form rejects contact details from outside the UK. This is an explicit destination exclusion, not proof that every alternate platform accepts every applicant. Opaque redirect destinations still need verification (owner, 2026-10-07). |
@@ -155,6 +156,10 @@ every destination element, including both samples. Prior single-edge Maps answer
 using a routing version; current answers still survive condition-limit edits without new calls.
 `travel.py` uses Google Maps when configured, otherwise labelled AI estimates. AI estimates may
 be remembered for 30 days; Google route times are not stored in the cross-search travel cache.
+One `TravelMeter` serves both measurement rounds of a decision, so confirmed daily/monthly/
+zero quotas and key refusals do not trigger fresh attempts later in that same decision.
+Temporary/unidentified failures can still recover in later rounds. Historical result messages
+remain unchanged. [Maps recovery](#maps-recovery) defines request accounting and measured limits.
 The key test uses named public stations rather than city-edge coordinates, makes one matrix
 element within the configured limit and describes public transport/access rather than train time.
 
@@ -226,6 +231,48 @@ The root keeps launchers, README, CONTRIBUTING, AGENTS, LICENSE and Python/tool 
 
 ## Source reliability
 
+### Maps recovery
+
+**2026-10-08:** [Dated primary evidence](SOURCES.md#maps-request-limits-and-recovery) distinguishes
+quota exhaustion from recoverable throttling. `GoogleMaps` reads supported ErrorInfo/QuotaFailure
+hints before falling back to the full message; missing scope remains unknown. Known daily,
+monthly or zero quotas stop after one attempt and remain unavailable within that meter.
+Key/access refusals also stop; other hosts continue. No account quota is raised automatically.
+The same meter is reused when online research reveals additional workplace locations.
+
+`PoliteClient` has optional per-attempt preflight/charge and response-retry hooks. A preflight
+checks allowance before waits; committed spending rechecks just before sending. Cache hits
+bypass both, and Stop during a wait spends nothing for the unsent attempt. Retry-After remains
+shared with other readers even when a caller declines a retry. Terminal responses keep the
+cooldown but do not announce a retry that will not happen. Other source retry budgets remain a
+separate audit; this change meters Maps, including its key test, without inferring extra access.
+`RequestBudget` serializes committed check-and-spend in SQLite across independent instances;
+preflight checks cannot reserve allowance or override a later failed check.
+
+Maps wait details update the active step without restarting its timer; one stable note replaces
+repeated different-delay warnings. Sanitized logs retain HTTP code/quota scope, without raw
+provider messages that can name private accounts. Successful in-search cached responses remain
+usable after a later quota failure or exhausted allowance. After request-level failures,
+remaining jobs retain labelled AI estimates or unchecked routes within existing AI limits;
+no scoring effort or criteria changed.
+The source count now explicitly describes collected ads before matching/duplicate removal.
+
+A no-network comparison against `97713bb` used two sampled destinations and a fake clock:
+
+| Fictional case | Before | After | Evidence/limit |
+|---|---|---|---|
+| Structured daily quota | 4 attempts, 35 s simulated waits; 8 elements attempted, 2 recorded | 1 attempt, 0 s waits; 2 elements attempted/recorded | Same unavailable routes; jobs use labelled estimates/unknowns |
+| 503 then success, allowance 4 | 2 attempts, 7 s wait; 4 elements attempted, 2 recorded | Same attempts/wait; 4 recorded | Same 19-minute measured journey |
+| Same retry with allowance 2 | 4 elements attempted despite limit 2 | 1 attempt/2 elements, no unfunded wait | Unavailable measurement is labelled; no unauthorized extra attempt |
+| Identical successful matrix read twice | 1 network attempt, 4 elements recorded | Same attempt, 2 recorded | Same measured journey; cache reuse spends nothing |
+
+These are controlled retry/ledger measurements, not live end-to-end latency, charges or recall.
+The ledger conservatively counts attempted elements, including refusals; Google decides actual
+billing and other apps' requests are outside this counter. Missing originals/independent
+ratings still limit live quality claims. Step timings include the activities of that stage;
+filtering includes initial journey work, and online checking can include later journey work.
+Answer waiting is recorded separately; compare original runs, not correction totals.
+
 ### Fictional full-ad recovery comparison — 2026-10-08
 
 Public API/evidence findings live in [SOURCES](SOURCES.md#full-ad-evidence-and-existing-detail-apis).
@@ -275,7 +322,12 @@ named places despite its keep-unknown contract. This needs a focused fictional r
 and review before implementation. Full-ad fallback is resolved above; location checks made
 before full text arrives still need a focused audit of newly revealed place evidence.
 Request budgets are charged by adapters before the HTTP client, whose
-internal retries need a separate attempt-accounting audit. Provider retry/date handling and
+internal retries need a separate attempt-accounting audit outside Maps. Per-element Maps
+service errors currently share an empty-duration outcome with unavailable routes; preserve
+partial valid measurements and distinguish uncertainty before changing those outcomes.
+Original-date provenance also needs a source-specific audit: Greenhouse falls back from
+first publication to modification time, which does not independently prove original freshness.
+Provider retry/date handling and
 redirect-specific delays also need their own scope; the source change above does not validate
 them. New permitted sources and multilingual vocabulary still require date-verified coverage
 evidence; neither public documentation nor counts establish a recall gain.

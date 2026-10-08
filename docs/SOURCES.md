@@ -125,6 +125,34 @@ and robots/terms permissions are unchanged. No new vacancy collection permission
 
 ## AI and Maps
 
+### Maps request limits and recovery
+
+**Rechecked 2026-10-08:** [Routes usage and billing](https://developers.google.com/maps/documentation/routes/usage-and-billing)
+counts matrix elements as origins × destinations; its documented standard rate is 3,000
+elements/minute and transit matrices allow at most 100 elements. An owner's project can have
+different configured quotas. Jobcu keeps its existing request dimensions and route cap.
+[Current global pricing](https://developers.google.com/maps/billing-and-pricing/pricing) lists
+10,000 free monthly Matrix Essentials elements, then USD5/1,000 in the first paid tier;
+Matrix Pro lists 5,000 then USD10/1,000. Features determine the SKU. These are dated price facts,
+not a guarantee of free requests, account eligibility or a recommendation to increase limits.
+
+[Google's error design](https://google.aip.dev/193) identifies causes through ErrorInfo and
+QuotaFailure details; raw messages can contain account/resource identifiers.
+[Google's retry guidance](https://google.aip.dev/194) treats RESOURCE_EXHAUSTED as generally
+non-retryable when replenishment may take hours or retries have billing implications.
+[Maps web-service guidance](https://developers.google.com/maps/documentation/routes/web-service-best-practices)
+supports increasing delays for recoverable failures. Inference: known daily/monthly/zero
+quotas should stop immediately; temporary or unidentified throttling may recover through
+bounded retries. Metadata availability is not promised for every response. Jobcu parses known
+units/names when present, falls back to prose and labels an unidentified quota honestly.
+
+[Routes policies](https://developers.google.com/maps/documentation/routes/policies) retain
+content caching restrictions and Google Maps attribution; EEA terms depend on billing address.
+No cross-search duration cache or new access is introduced. Attempted elements are counted
+conservatively before every network attempt, including errors; this ledger is not a Google
+invoice and cannot track usage from other apps. No live call or account/billing change was
+made for this check. Measured fictional limits live in [ENGINEERING](ENGINEERING.md#maps-recovery).
+
 **Classification/error guidance checked 2026-10-08:**
 [Google's structured-output guide](https://ai.google.dev/gemini-api/docs/structured-output)
 distinguishes valid JSON from correct values and recommends application validation/error

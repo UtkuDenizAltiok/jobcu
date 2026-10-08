@@ -87,7 +87,8 @@ def test_a_search_keeps_the_titles_the_ai_picks_and_says_how_many(ready, monkeyp
     result = wait_until_done(manager)
     assert result["status"] == "finished", result["error"]
     step = next(s for s in result["steps"] if s["id"] == "sources")
-    assert step["detail"] == ("6 job ads found (3 additional employer titles checked, "
+    assert step["detail"] == ("6 ads collected before matching and duplicate removal "
+                              "(3 additional employer titles checked, "
                               "1 clearly unrelated, 0 unreviewed and kept for matching)")
     titles = {card["title"] for card in result["result"]["jobs"]["cards"]}
     assert {"R&D Electrical Engineering Graduate Program", "RF Design Engineer"} <= titles

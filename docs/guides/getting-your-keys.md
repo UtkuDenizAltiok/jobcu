@@ -131,8 +131,17 @@ A successful message begins **Google Maps works** and describes a sample public-
 journey from Freising station to Munich Hauptbahnhof, departing next Tuesday at 08:00 local
 time. It checks that Jobcu can access the service; it does not prove travel-time accuracy.
 The result is a whole journey that can include walking and waiting, rather than time spent
-only on a train. Each test counts one route element against Jobcu's monthly Maps limit and
-Google's usage; it may incur a charge under your account's terms.
+only on a train. Each network attempt for this test counts one route element against Jobcu's
+monthly Maps limit; retries also count. A cached response adds no attempt. Google's billing
+follows its own rules and the request may incur a charge under your account's terms.
+
+If Maps reports a daily/monthly quota or a zero allowance, check **Routes API → Quotas** in
+your Google Cloud project. Jobcu cannot change those account limits. Temporary throttling
+can be retried within the app's allowance; an unidentified quota is shown without guessing
+its reset time. **Settings → Usage and limits** controls Jobcu's own monthly attempt limit,
+which does not replace Google quotas or cover requests made by other apps.
 
 These service references were checked on 2026-10-07. Prices and account access still depend
-on the services' current terms. Next: [How to use Jobcu](first-search.md).
+on the services' current terms. Maps retry/quota handling was rechecked on 2026-10-08;
+the dated evidence is in [SOURCES](../SOURCES.md#maps-request-limits-and-recovery).
+Next: [How to use Jobcu](first-search.md).
