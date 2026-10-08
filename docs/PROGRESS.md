@@ -11,61 +11,45 @@ Completed details live in Git and PRs. Private evaluation follows
 
 ### State
 
-- Title-screen recovery, vacancy identity, local matching and location-confidence changes
-  are merged. Behavior, reasons and measured local limits live in [ENGINEERING](ENGINEERING.md).
-  Live recall, accuracy, speed and cost remain unverified.
-- [PR #77](https://github.com/UtkuDenizAltiok/jobcu/pull/77) is implemented, tested, pushed
-  and merged with a merge commit. Implementation head: `bfafe1e`; merge: `c7a49eb`.
-  Source readers share rate-limit/service cooldowns, honor integer/date Retry-After, stop
-  waiting on cancellation and recognize blocked hosts before retrying. Progress explains waits.
-  Final-head PR and merged-main Mac/Windows/privacy CI passed.
-  The Mac checkout was synchronized after merging.
-- Local checks passed: **774 tests**, Ruff, privacy and whitespace. The 27 new mocked cases
-  compare request ordering, full/cached evidence, concurrent/extended waits, blocked responses
-  and retained engineering/nursing/hospitality ads. Dated protocol evidence and measured local
-  limits live in [SOURCES](SOURCES.md#job-source-cooldown-protocol) and
-  [ENGINEERING](ENGINEERING.md#source-reliability). AI effort/scoring and JavaScript are unchanged.
-  Live recall, accuracy, speed and cost remain unverified. Existing deprecation warning remains.
-- ZIP copies show manual update steps on startup, with no update request. The installation
-  guide remains detailed; the search guide now explains source waits and Stop.
-- Saved-evidence review remains dependent on permitted original full ads or later saved
-  early-title decisions. Standing authority and the private checkpoint were rechecked;
-  detailed evidence and review status remain private. No new search, paid call or job-site
-  request started. Disposable private scratch was deleted and ratings were preserved.
-- Both app ports are stopped. Owner data, ratings and private authority are preserved;
-  only the assistant's private review checkpoint was refreshed.
+- [PR #79](https://github.com/UtkuDenizAltiok/jobcu/pull/79) is implemented, tested, pushed
+  and merged with a merge commit. Implementation head: `7726a51`; merge: `f078539`.
+  Final-head PR Mac/Windows/privacy CI passed. The Mac checkout was synchronized after merging.
+  Merged-main run `37790261867` also passed Mac/Windows/privacy checks.
+- Full-ad loading reuses valid recent text across matched copies, prefers original employer
+  readers when live reading is necessary and falls back after incomplete/failed reads.
+  Known dates, countries, types, remote status and application routes are checked again before
+  scoring. Corrections carry forward reported source requests into the normal reader budget.
+  Source serialization, Stop, identities/marks and incomplete-evidence labels are preserved.
+- Local checks passed: **819 tests**, Ruff, privacy, whitespace and isolated startup self-test.
+  The 45 added fictional cases cover recovered requirements and fresh matching, cache reuse/
+  expiry, objective-fact checks, source limits, concurrency and failures. Dated primary evidence
+  lives in [SOURCES](SOURCES.md#full-ad-evidence-and-existing-detail-apis); before/after reader
+  counts and practical limits live in [ENGINEERING](ENGINEERING.md#fictional-full-ad-recovery-comparison--2026-10-08).
+  No live recall, fit, cost or latency improvement is claimed. Existing deprecation warning remains.
+- Earlier title-screen recovery, vacancy identity, local matching/location confidence, source
+  cooldowns and manual ZIP startup guidance remain merged. AI medium/provider choice,
+  scoring rules and JavaScript are unchanged by this goal. Guides remain detailed.
+- Saved-evidence review still needs permitted original full ads or later saved early-title
+  decisions. Authority and the private checkpoint were rechecked; detailed findings remain
+  private. No new search, paid/provider call or vacancy request started. Disposable private
+  review data was deleted; only the assistant's private engineering checkpoint was updated.
+- Both app ports are stopped. Owner data, ratings, private authority and app state are preserved.
 
 ### In progress
 
-Active goal: recover complete evidence from already-matched ad copies on
-`codex/full-ad-recovery`, base `76f405f`. Main and PR/CI/app state are verified; startup checks
-passed **774 tests**. The saved private review still needs missing original ads/new title
-decisions; recovery inspection used a read-only scratch copy, now deleted. No new search or
-paid/provider/job-site call started, and owner data/ratings/authority are preserved.
+None on completed main; the full-ad feature is merged. If this record is still on
+`codex/full-ad-handover` (base `f078539`), only publication and final verification remain.
+Required local end checks passed **819 tests**, Ruff, privacy and whitespace; startup self-test
+also passed and stopped. Diff reviewed; no failed check remains. Implementation PR and merged
+main CI passed. Exact next action: publish/recover this branch's PR, verify its exact-head
+Mac/Windows/privacy CI, merge with a merge commit, synchronize main and verify final-main CI.
+Do not mistake an existing push or merge for a passed final-main check.
 
-Shortlist by benefit, evidence, effort and risk:
-1. Full-ad recovery: confirmed first-copy-only behavior; high evidence benefit, moderate effort
-   and identity/concurrency/budget risk. Select it; verify cache-first and failure fallback
-   with fictional electronics, nursing and hospitality searches.
-2. Unresolved places: confirmed mismatch with keep-unknown intent; potentially high recall
-   benefit, low effort, needs geographic exclusion/matching regressions before implementation.
-3. Retry accounting: budget charges precede internal HTTP retries; needs a focused limit audit
-   before any claim of correct attempt accounting. No live budget experiment is authorized.
-
-Steps: recheck full-evidence and existing API documentation/permissions; reproduce missed full
-ads; reuse valid cached text across copies; try permitted copies in sequence until full text
-is found, preserving source serialization, identity, source limits and Stop; document behavior;
-run full checks and review; publish, verify final-head Mac/Windows/privacy CI, merge and sync.
-Implemented locally: cache-first across matched copies, employer-first fallback, identity and
-mutation guards, retained summaries, Stop/source serialization, correction-reader budgets and
-pre-scoring objective-fact checks. The original loader failed 18 focused cases. Final local
-checks passed **819 tests**, Ruff, privacy, whitespace and an isolated startup self-test; the
-diff was reviewed. Self-test stopped and its disposable data was deleted.
-Dated public evidence and fictional before/after reader counts are recorded in SOURCES and
-ENGINEERING; no live benefit is claimed. Implementation and records are ready for publication;
-no merge is claimed by this checkpoint. Recover actual HEAD/PR from Git and GitHub.
-Exact next action: push/open the branch PR if absent; verify its exact-head Mac/Windows/privacy
-CI, merge with a merge commit, synchronize main, then refresh this handover against actual state.
+In a fresh chat, run the start routine, recheck private authority/checkpoint and compare saved
+evidence. If the missing-evidence dependency persists, checkpoint it and begin the strongest
+free goal below: reproduce unresolved-place rejection against the keep-unknown intent, with
+fictional engineering and non-engineering cases before changing matching. No new search or
+paid experiment is granted by this handover. Keep one active goal and preserve owner state.
 
 ### Verify before relying on
 
@@ -89,9 +73,10 @@ CI, merge with a merge commit, synchronize main, then refresh this handover agai
 
 ### Next tasks
 
-1. Reproduce and improve full-ad fallback among already-matched copies, preserving identity,
-   budgets and cached evidence. [Research leads](ENGINEERING.md#research-leads-requiring-their-own-verified-goal)
-   also cover unresolved-place rejection, retry accounting and remaining protocol scopes.
+1. Reproduce unresolved-place rejection and compare it with the keep-unknown intent; retain
+   proven geographic exclusions, all countries/professions and source limits. This is the next
+   free lead, not an implemented fix. [Research leads](ENGINEERING.md#research-leads-requiring-their-own-verified-goal)
+   also cover place evidence revealed after full-ad reading, retry accounting and protocol scopes.
 2. Independently judge full evidence/early titles and trace a date-verified coverage sample
    within private authority. Missing originals/new saved decisions remain dependencies.
 3. Compare the next authorized search's interpretation, ranking and original elapsed time;
