@@ -697,7 +697,9 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             summary = not groups[index].best_description_copy.description_is_complete
             if found is not None and summary:
                 scored = scoring.with_ad_read_online(scored, profile, found.languages,
-                                                     found.years_required, **found.blockers)
+                                                     found.years_required,
+                                                     requirement_checks=found.requirement_checks,
+                                                     **found.blockers)
             job_pool.jobs[index].scored = {**scored, "read_online": True}
     placed = [i for i in need_town if groups[i].place_from_web]
     fails = [i for i in placed if fails_a_condition(groups[i], at_once)]

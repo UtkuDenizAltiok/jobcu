@@ -7,7 +7,7 @@ Completed details live in Git and PRs. Private evaluation follows
 
 ## Right now
 
-*Updated 2026-10-08. Engineering checks use fictional data.*
+*Updated 2026-10-09. Engineering checks use fictional data.*
 
 ### State
 
@@ -43,20 +43,54 @@ Completed details live in Git and PRs. Private evaluation follows
 
 ### In progress
 
-The Maps implementation is merged. If this record remains on `codex/maps-recovery-handover`
-(base `e223222`), only publication/final verification remains. Local end checks passed
-**855 tests**, Ruff, privacy and whitespace; startup self-test passed and stopped. No failed
-check remains. Exact next action: publish/recover this branch's PR, verify its exact-head
-Mac/Windows/privacy CI, merge with a merge commit,
-synchronize main and verify final-main CI. A pushed/merged change is not a passed check.
+Active goal: independently assess saved ranking evidence and implement the strongest confirmed
+scoring defect, on `codex/scoring-evidence-review`, base `225492d`. The owner prioritizes this
+quality review and expects proactive whole-pipeline analysis in every development session.
+This supersedes choosing partial Maps element handling next; that remains a separate lead.
+Startup verified clean synchronized main, merged PR #82 and passed final-main CI `37840251225`;
+locked sync and **855 tests** passed. Both app ports are stopped; preserve that owner state.
+Standing private authority and the review checkpoint were rechecked. Saved evidence is available
+outside Git. Independent original posting dates, full originals for summaries and a date-verified
+coverage benchmark remain dependencies; do not manufacture labels or claim market recall.
 
-After completed handover publication, no unfinished feature remains. In a fresh chat, run
-AGENTS' start routine and recheck private authority/checkpoint. Read the latest private
-`saved_evidence_resume` entry/evidence directory; older review fields describe earlier searches.
-Independent originals/labels remain a dependency; new early-title evidence is preserved.
-Checkpoint that dependency before the next free goal: reproduce partial matrix service errors
-being treated as no route, preserve successful samples and keep uncertain jobs, with fictional
-engineering and non-engineering cases. Keep one active goal. No new paid test or search is granted.
+Steps: copy authorized saved data to disposable private scratch outside Git; judge every top
+card and a balanced sample against documents/criteria before revealing scores; save detailed
+judgements privately and preserve owner ratings. Trace profile, filtering, full-ad reading,
+scoring, online requirement updates and cards. Rank evidence-handling defects against language
+alternatives, date provenance and partial route failures; select one justified implementation.
+Reproduce it with fictional engineering and non-engineering cases, compare meaningful behavior,
+update records/guides, review the diff, run full Ruff/tests/privacy checks, publish, verify exact-head
+Mac/Windows/privacy CI, merge with a merge commit and synchronize/verify final main. No new paid
+test or search is granted. A private backup and blinded balanced review are saved outside Git;
+each top card was included. Judgements were saved before scores were revealed. Many originals
+remain missing, so no complete top-card precision or coverage claim is made.
+
+Shortlist (benefit / evidence / effort / risk / verification):
+1. Mandatory-requirement integrity: high / confirmed rubric-verdict inconsistency / medium /
+   evidence validation and legacy compatibility / quoted requirements, unknowns, contradictory
+   points and later research. Selected: make ordinary hard-requirement points/limits follow
+   explicit met/unmet/unknown checks grounded in supplied ad/profile text. Preserve existing
+   language, doctorate, citizenship and experience policies; do not tune arbitrary thresholds.
+2. Clearance certainty and language alternatives: high / schema/prompt risks, originals still
+   needed / medium / incorrect legal inference or lost alternatives / primary policy and
+   profession-independent fictional cases. Keep as separate measured goals.
+3. Original-date provenance and partial route errors: high / saved/code leads / medium /
+   wrongly excluded jobs / independent dates and partial matrix regressions. Still pending.
+
+Implemented locally: quote-grounded ordinary requirement comparisons, deterministic rubric
+consistency/named limits, per-job research boundaries, preserved unknowns/legacy blockers and
+recomputed points after explicit resolution. Standing proactive-development guidance and
+private blinded-review procedure are recorded. Full checks passed **920 tests**, including
+the end-to-end named-limit card check. Ruff, privacy,
+whitespace and an isolated startup self-test passed. Earlier fixture/map failures were fixed.
+The complete diff was reviewed. Controlled fictional
+before/after scores and validation timings are in ENGINEERING; no live accuracy gain is claimed.
+Private judgements/context and the updated saved aggregate review are preserved outside Git;
+owner/legacy ratings were protected and unknowns stayed unrated. Scratch was deleted. No paid
+test, provider/Maps/vacancy request or new search was made. Exact next action: commit/push/open
+PR #83 (`c954923` was pushed/passed CI; a reviewed precedence refinement is now ready) and verify
+the updated exact-head
+Mac/Windows/privacy CI before a merge commit and synchronized/final-verified main.
 
 ### Verify before relying on
 

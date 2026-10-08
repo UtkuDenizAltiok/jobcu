@@ -46,6 +46,11 @@ evidence. Mock readers and HTTP transports exercise source limits without vacanc
 For Maps reliability, `tests/test_maps_recovery.py` covers persistent/transient quotas,
 attempted-element accounting, cached evidence, Stop, concurrent allowance checks and truthful
 wait progress. Fake clocks establish protocol waits; they do not measure live search speed.
+For scoring evidence, `tests/test_requirements.py` checks ad/profile quote support, met/unmet/
+unknown rubric consistency, clipped text, per-job research boundaries, late resolution and
+legacy blockers. `tests/test_search.py` verifies the notes reach results. These scripted checks
+prove application behavior, not live extraction or matching accuracy; use the private procedure
+below for those claims. Keep fictional non-engineering cases and all countries supported.
 Work on a branch, review the diff, open a PR and wait for Mac, Windows and privacy CI.
 Merge with a merge commit; preserve shared history. Other contributors' PRs require review.
 
@@ -77,6 +82,12 @@ On an authorized private scratch copy, read the full evidence against the docume
 criteria **before seeing scores**. Include every top-10 card and build a balanced 30–50-ad set:
 good fits, near fits and blockers across the priority countries. Open originals for summaries;
 unseen requirements are not satisfied requirements.
+
+Shuffle the review packet and record each judgement before revealing scores. A known blocker
+can establish poor fit despite missing text; an incomplete promising ad remains unknown.
+Save unknown cases and their exact missing evidence in the private review record without
+inventing ratings to complete precision. Assistant judgement is an independent comparison
+with Jobcu's output, not a replacement for original evidence or owner judgement.
 
 The Score check screen hides scores until rated. Add missing top cards with `quality.add`,
 preserving evidence completeness and the location plan; the 50-ad limit still applies. Save

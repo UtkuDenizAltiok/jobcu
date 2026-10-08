@@ -47,6 +47,7 @@ class FakeAI(ProviderAdapter):
         elif name == "ScoringAnswer":
             answer = {"scores": [
                 {"job_id": job_id, "ad_language": "English", "languages_asked": [],
+                 "requirement_checks": [],
                  "years_required": None, "doctorate": "not_required",
                  "citizenship_or_clearance": "no_such_requirement",
                  "citizenship_or_clearance_words": "", "role_and_skills": 35, "seniority": 18,
@@ -730,10 +731,12 @@ def test_summaries_near_the_top_are_read_online_and_the_rules_applied(ready, mon
     assert card["summary_only"] and card["score"] == 65
     assert card["limits"] == [{"at": 65, "why": "German B2 required, you have A2"}]
     assert card["score_notes"] == [
-        "Languages, experience and other requirements read from the full ad online"]
-    # Only what the doctorate and citizenship rules need goes with the look-up.
-    assert ai.person_sent and all("work_authorisation" in line and "skills" not in line
-                                  for line in ai.person_sent)
+        "Languages, experience and other requirements read from the full ad online",
+        "Only incomplete ad evidence was available; other requirements may be missing"]
+    # Eligibility comparisons need stated qualifications, study status and skills too.
+    assert ai.person_sent and all("work_authorisation" in line and "skills" in line
+                                  and "education" in line for line in ai.person_sent)
+    assert all("ignored_as_application_specific" not in line for line in ai.person_sent)
     assert card["required_languages"] == ["German B2", "English B2"]
 
 
@@ -820,3 +823,48 @@ def test_look_ups_that_lost_their_turn_to_others_running_are_done_before_asking(
     assert result["status"] == "finished", result["error"]
     assert result["question"] is None and sorted(ai.looked_up) == ["J0", "J1"]
     assert result["steps"][-1]["detail"] == "Found online: the requirements of 2 of 2 jobs"
+
+
+def test_grounded_eligibility_limit_reaches_visible_card_without_hiding_job(ready, monkeypatch):
+    fact = "Laboratory safety certificate has expired."
+    clause = "Must hold a current laboratory safety certificate"
+
+    class EligibilityAI(FakeAI):
+        def complete_json(self, **request):
+            if request["schema_name"] == "Profile":
+                return RawReply(json.dumps({**PROFILE, "summary": "Hardware engineer. " + fact}),
+                                Usage(10, 5))
+            reply = super().complete_json(**request)
+            if request["schema_name"] == "ScoringAnswer":
+                answer = json.loads(reply.text)
+                for score in answer["scores"]:
+                    score["hard_requirements"] = 14  # contradicts the explicit comparison
+                    score["requirement_checks"] = [{
+                        "requirement": "Current laboratory safety certificate",
+                        "ad_words": clause, "profile_words": fact, "status": "not_met",
+                    }]
+                return RawReply(json.dumps(answer), reply.usage)
+            return reply
+
+    class EligibilitySource(FakeSource):
+        titles = ["Hardware Engineer"]
+
+        def load_details(self, job, ctx):
+            job.description, job.description_is_complete = clause + ". Hardware design.", True
+            return job
+
+    documents.save_upload("cover_letter", "letter.txt",
+                          ("I seek regular hardware design work and enjoy laboratory teamwork. "
+                           + fact).encode("utf-8"))
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: EligibilityAI())
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [EligibilitySource()])
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    result = wait_until_done(manager)
+    assert result["status"] == "finished", result["error"]
+    card = result["result"]["jobs"]["cards"][0]
+    assert card["title"] == "Hardware Engineer" and card["score"] == 55
+    assert card["parts"]["hard_requirements"] == 10
+    assert card["limits"] == [{
+        "at": 55, "why": "Current laboratory safety certificate: not met by the stated profile",
+    }]

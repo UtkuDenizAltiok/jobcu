@@ -125,6 +125,28 @@ and robots/terms permissions are unchanged. No new vacancy collection permission
 
 ## AI and Maps
 
+### Requirement evidence and independent review
+
+**Checked 2026-10-09:** [Google's structured-output documentation](https://ai.google.dev/gemini-api/docs/structured-output)
+distinguishes schema-valid JSON from semantically correct values and recommends application
+validation. Inference for Jobcu: a numerical rubric part cannot substitute for evidence that
+a mandatory requirement is met, unmet or unknown. Check short quotes against the supplied
+ad/profile text, scope research quotes to the identified vacancy and keep unsupported
+comparisons unknown. Quote presence cannot prove the interpretation or the original ad's truth.
+
+[Zheng et al., 2023](https://arxiv.org/abs/2306.05685) study position, verbosity and
+self-enhancement bias in model evaluation. This is chatbot-evaluation research, not evidence
+of Jobcu accuracy. It supports blinded, independently recorded assessments as a useful
+precaution; saved scores and assistant labels are not ground truth or market recall.
+
+[UKSV's vetting explanation](https://www.gov.uk/government/publications/vetting-explained-and-our-vetting-charter/vetting-explained)
+describes nationality/residence as factors considered and notes that few posts are reserved
+to UK nationals. [Clearance-level guidance](https://www.gov.uk/government/publications/united-kingdom-security-vetting-clearance-levels/national-security-vetting-clearance-levels)
+says the departmental authority sets the vetting requirement for the post. Inference: a
+clearance acronym alone does not establish a particular applicant's ineligibility. Require
+explicit excluding rules and relevant stated facts; otherwise retain uncertainty. These
+pages do not prove eligibility for a particular vacancy; no personal vetting decision is made.
+
 ### Maps request limits and recovery
 
 **Rechecked 2026-10-08:** [Routes usage and billing](https://developers.google.com/maps/documentation/routes/usage-and-billing)

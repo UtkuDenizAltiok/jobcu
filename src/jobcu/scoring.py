@@ -17,6 +17,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from jobcu import requirements
 from jobcu.ai.client import AIClient, in_parallel
 from jobcu.countries import language_code
 from jobcu.dedupe import JobGroup
@@ -31,7 +32,7 @@ PARTS = {
     "role_and_skills": 40,
     "seniority": 20,
     "languages": 15,
-    "hard_requirements": 15,
+    "hard_requirements": requirements.MAX_POINTS,
     "location_and_preferences": 10,
 }
 LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"]
@@ -61,7 +62,8 @@ LIMITS_ROLE = [
 ]
 # The rubric's "a requirement the person clearly doesn't meet" (0-10 of 15 points), such as a
 # placement only for students or a licence the person lacks.
-LIMIT_REQUIREMENT_POINTS, LIMIT_REQUIREMENT = 10, 55
+LIMIT_REQUIREMENT_POINTS = requirements.BLOCKED_POINTS
+LIMIT_REQUIREMENT = requirements.BLOCKER_LIMIT
 
 Level = Literal["A1", "A2", "B1", "B2", "C1", "C2", "not_needed"]
 Doctorate = Literal["not_required", "required_person_has_it", "required_person_lacks_it"]
@@ -88,7 +90,7 @@ class LanguageAsked(BaseModel):
 # What the AI read in an ad, kept with the score so the rules can be applied again when the full
 # ad is found online (jobplace.py).
 EVIDENCE = ("ad_language", "languages_asked", "years_required", "doctorate",
-            "citizenship_or_clearance", "citizenship_or_clearance_words")
+            "citizenship_or_clearance", "citizenship_or_clearance_words", "requirement_checks")
 
 
 class JobScore(BaseModel):
@@ -99,6 +101,7 @@ class JobScore(BaseModel):
     doctorate: Doctorate
     citizenship_or_clearance: CitizenshipOrClearance
     citizenship_or_clearance_words: str = Field(description="The ad's words, or empty")
+    requirement_checks: list[requirements.RequirementCheck] | None = None
     role_and_skills: int
     seniority: int
     hard_requirements: int
@@ -135,7 +138,10 @@ security clearance whose rules clearly exclude the person, AND the person's prof
 citizenship or work status that doesn't qualify. When the profile doesn't state the person's \
 citizenship, or you aren't sure, use required_possible_or_unclear. no_such_requirement when the \
 ad asks for neither. citizenship_or_clearance_words: the ad's words about it, at most 8 words, \
-or empty."""
+or empty. A clearance name alone (SC, DV or another scheme), a foreign citizenship or missing \
+residence/clearance history does not establish ineligibility. Do not invent nationality or \
+residency exclusions; use required_possible_or_unclear without an explicit excluding rule and \
+the corresponding stated profile fact."""
 
 SYSTEM_PROMPT = f"""\
 You score how well job ads fit one person, for a personal job search app. Score every job \
@@ -155,6 +161,7 @@ ad is written in it.
 - years_required: {YEARS_RULES}
 - doctorate: {DOCTORATE_RULES}
 - citizenship_or_clearance: {CITIZENSHIP_RULES}
+- {requirements.RULES}
 
 THEN SCORE THESE PARTS (maximum points in brackets)
 
@@ -234,13 +241,16 @@ def score_groups(
             prompt=background + "\n\n" + "\n\n".join(
                 _job_block(job_id, groups[index]) for job_id, index in ids.items()
             ),
-            max_output_tokens=800 * len(batch) + 1000,
+            max_output_tokens=1600 * len(batch) + 1000,
         )
         found: dict[int, dict] = {}
         for score in answer.scores:
             if score.job_id in ids and ids[score.job_id] not in found:
                 index = ids[score.job_id]
-                found[index] = finish(score, profile)
+                description, complete = _description(groups[index])
+                found[index] = finish(
+                    score, profile, ad_text=description, complete=complete,
+                )
                 if len(groups[index].best_description_copy.description) > MAX_DESCRIPTION_CHARS:
                     found[index]["notes"].insert(
                         0, "Only part of this lengthy ad was read for scoring")
@@ -265,7 +275,8 @@ def score_groups(
     return results
 
 
-def finish(score: JobScore, profile: Profile) -> dict:
+def finish(score: JobScore, profile: Profile, *, ad_text: str | None = None,
+           complete: bool = False) -> dict:
     """The parts, the limits and the total, worked out from the AI's answer."""
     parts = {name: max(0, min(getattr(score, name), most))
              for name, most in PARTS.items() if name != "languages"}
@@ -277,6 +288,14 @@ def finish(score: JobScore, profile: Profile) -> dict:
         "fully_remote": score.fully_remote,
         "evidence": score.model_dump(include=set(EVIDENCE)),
     }
+    if ad_text is not None:
+        result["evidence"].update({
+            "requirement_checks": requirements.ground(
+                score.requirement_checks, ad_text, str(profile.model_dump(
+                    exclude={"ignored_as_application_specific"}))),
+            "requirements_complete": complete and bool(ad_text.strip()),
+            "requirement_points_proposed": parts["hard_requirements"],
+        })
     return judge(result, profile)
 
 
@@ -285,9 +304,20 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
     Used after scoring, and again when the full ad was read online (then `note` says so)."""
     score = JobScore.model_construct(**_full_evidence(result["evidence"]))
     language = judge_languages(score, profile)
-    parts = {name: language.points if name == "languages" else result["parts"][name]
-             for name in PARTS}
-    limits = sorted([*language.limits, *other_limits(score, profile), *fit_limits(parts)],
+    required = requirements.judge(
+        result["evidence"], result["evidence"].get(
+            "requirement_points_proposed", result["parts"]["hard_requirements"]))
+    parts = {**result["parts"], "languages": language.points,
+             "hard_requirements": required.points}
+    rubric_limits = fit_limits(parts)
+    if required.limits or (
+        "requirements_complete" in result["evidence"]
+        and requirements.special_blocker(result["evidence"])
+    ):
+        rubric_limits = [limit for limit in rubric_limits
+                         if limit["why"] != "A requirement you clearly don't meet"]
+    limits = sorted([*language.limits, *other_limits(score, profile), *rubric_limits,
+                     *required.limits],
                     key=lambda x: x["at"])
     return {
         **result,
@@ -295,7 +325,7 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
         "parts": parts,
         # Why the total is lower than the parts add up to, lowest limit first.
         "limits": limits,
-        "notes": ([note] if note else []) + language.notes,
+        "notes": ([note] if note else []) + language.notes + required.notes,
         "required_languages": [
             f"{asked.language} {asked.level}" + ("" if asked.must_have else " (a plus)")
             for asked in score.languages_asked if asked.level != "not_needed"
@@ -307,13 +337,19 @@ ONLINE_NOTE = "Languages, experience and other requirements read from the full a
 
 
 def with_ad_read_online(result: dict, profile: Profile, languages: list[LanguageAsked],
-                        years_required: float | None, **blockers: str) -> dict:
-    """The score again, with what the full ad found online says about languages, years, and
-    (in `blockers`) a doctorate, citizenship or clearance: a summary rarely says these, and
-    Rolls-Royce's summaries scored 85 while its own ads ask for UK nationals (search 9)."""
+                        years_required: float | None,
+                        requirement_checks: list[dict] | None = None, **blockers: str) -> dict:
+    """Reapply limits using researched evidence; research notes do not become a full ad."""
     evidence = {**result["evidence"], "languages_asked": [a.model_dump() for a in languages],
                 "years_required": years_required}
     evidence.update({key: value for key, value in blockers.items() if key in EVIDENCE})
+    if requirement_checks is not None:
+        if ("requirements_complete" not in evidence
+                and result["parts"]["hard_requirements"] <= LIMIT_REQUIREMENT_POINTS):
+            evidence["legacy_requirement_blocker"] = True
+        evidence["requirement_checks"] = requirements.merge(
+            evidence.get("requirement_checks"), requirement_checks)
+        evidence.setdefault("requirements_complete", False)
     return judge({**result, "evidence": evidence}, profile, note=ONLINE_NOTE)
 
 
@@ -458,8 +494,7 @@ def _background(profile: Profile, plan: LocationPlan) -> str:
 def _job_block(job_id: str, group: JobGroup) -> str:
     main = group.main
     best = group.best_description_copy
-    description = best.description[:MAX_DESCRIPTION_CHARS]
-    complete = best.description_is_complete and len(best.description) <= MAX_DESCRIPTION_CHARS
+    description, complete = _description(group)
     note = "" if complete else " (only the start of the ad is available)"
     stated_types = sorted({t for c in group.copies for t in c.job_types})
     return (
@@ -472,3 +507,10 @@ def _job_block(job_id: str, group: JobGroup) -> str:
         f"Salary: {best.salary_text or main.salary_text or 'not stated'}\n"
         f"Ad text{note}:\n<<<\n{description}\n>>>"
     )
+
+
+def _description(group: JobGroup) -> tuple[str, bool]:
+    best = group.best_description_copy
+    description = best.description[:MAX_DESCRIPTION_CHARS]
+    return description, (bool(description.strip()) and best.description_is_complete
+                         and len(best.description) <= MAX_DESCRIPTION_CHARS)

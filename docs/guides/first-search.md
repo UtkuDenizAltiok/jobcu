@@ -194,6 +194,16 @@ the information it could read. It is not the chance that an employer will hire y
 reasons as well as the number, including any **Limited to …** explanation of a requirement
 that held the score down.
 
+For mandatory requirements such as current student enrolment, a professional licence or work
+permission, Jobcu compares the stated requirement with the facts in your profile. A supported
+mismatch limits the score and names the requirement. Missing information is shown as
+**could not be confirmed**; it does not prove that you are ineligible. A summary or excerpt
+may omit other requirements even when its visible duties match well. Open the original ad
+before applying. Eligibility for a visa is not the same as already holding it.
+
+New searches use the current scoring rules. Saved results keep the scores from their search;
+updating Jobcu does not silently re-score them or use AI on its own.
+
 **New** means Jobcu has not shown that vacancy before. An employer can have several openings
 with the same title in the same town. Jobcu keeps different references on that employer's
 job system separate, so an old **Not interested** choice does not hide a new opening.
