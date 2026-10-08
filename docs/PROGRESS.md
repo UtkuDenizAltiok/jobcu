@@ -14,16 +14,20 @@ Completed details live in Git and PRs. Private evaluation follows
 - Title-screen recovery, vacancy identity, local matching and location-confidence changes
   are merged. Behavior, reasons and measured local limits live in [ENGINEERING](ENGINEERING.md).
   Live recall, accuracy, speed and cost remain unverified.
-- ZIP copies now show manual update steps on startup; the reminder makes no update request.
-  [PR #75](https://github.com/UtkuDenizAltiok/jobcu/pull/75) is implemented, tested, pushed
-  and merged with a merge commit. Implementation head: `cb234f1`; merge: `4ecf8ce`.
-  The Mac checkout was synchronized after merging. Final-head PR and merged-main
-  Mac/Windows/privacy CI passed.
-- Local checks passed: **747 tests**, Ruff, privacy, Bash syntax and whitespace. The six new
-  launcher cases cover ZIP copies, Git directories/worktree files and self-tests with local
-  helpers. The installation guide explains the reminder. AI instructions and JavaScript
-  are unchanged; live search quality remains unverified.
-  Existing dependency deprecation warning remains.
+- [PR #77](https://github.com/UtkuDenizAltiok/jobcu/pull/77) is implemented, tested, pushed
+  and merged with a merge commit. Implementation head: `bfafe1e`; merge: `c7a49eb`.
+  Source readers share rate-limit/service cooldowns, honor integer/date Retry-After, stop
+  waiting on cancellation and recognize blocked hosts before retrying. Progress explains waits.
+  Final-head PR and merged-main Mac/Windows/privacy CI passed.
+  The Mac checkout was synchronized after merging.
+- Local checks passed: **774 tests**, Ruff, privacy and whitespace. The 27 new mocked cases
+  compare request ordering, full/cached evidence, concurrent/extended waits, blocked responses
+  and retained engineering/nursing/hospitality ads. Dated protocol evidence and measured local
+  limits live in [SOURCES](SOURCES.md#job-source-cooldown-protocol) and
+  [ENGINEERING](ENGINEERING.md#source-reliability). AI effort/scoring and JavaScript are unchanged.
+  Live recall, accuracy, speed and cost remain unverified. Existing deprecation warning remains.
+- ZIP copies show manual update steps on startup, with no update request. The installation
+  guide remains detailed; the search guide now explains source waits and Stop.
 - Saved-evidence review remains dependent on permitted original full ads or later saved
   early-title decisions. Standing authority and the private checkpoint were rechecked;
   detailed evidence and review status remain private. No new search, paid call or job-site
@@ -33,31 +37,17 @@ Completed details live in Git and PRs. Private evaluation follows
 
 ### In progress
 
-Active goal: honor job-source cooldowns across parallel readers while keeping Stop responsive.
-Branch `codex/source-cooldowns`, base `bafc21b`. Startup main/PR/CI and app state are verified;
-the local startup suite passed **747 tests**. The saved private review dependency remains
-checkpointed; no private investigation or paid work is needed for this goal.
+None on merged main; the source-cooldown goal is tested, pushed and merged. If this handover
+is still on `codex/source-cooldown-handover` (base `c7a49eb`), its only remaining work is
+publication: recover the branch PR, verify final-head Mac/Windows/privacy CI, merge and
+synchronize main. Required end checks passed: **774 tests**, Ruff, privacy and whitespace;
+no failed check remains. Detailed private evidence and authority stay outside Git.
 
-Research shortlist, ranked by confirmed benefit and verification needs:
-1. Source cooldowns: confirmed ignored HTTP dates, shortened delays and uncoordinated readers;
-   moderate effort/risk, verified with fake clocks, concurrency and Stop tests. Selected.
-2. Full-ad fallback: one eligible copy is tried even when another matched copy could supply
-   full text; moderate effort, needs identity/budget/cache failure regressions.
-3. Unknown local places: unresolved names are rejected despite the documented keep-unknown
-   rule; low effort, needs fictional engineering/non-engineering collection regressions.
-4. Source/vocabulary expansion: potential recall benefit, but permission and independent
-   date-verified coverage evidence are still dependencies. No recall gain is established.
-
-Protocol evidence is recorded in SOURCES. Mocked baseline requests reproduced a 600-second
-delay shortened to 120 seconds and four CAPTCHA attempts. Shared host deadlines, integer/date
-Retry-After parsing, cancellable waits, first-refusal blocking and progress notes are implemented.
-Targeted checks passed **100 tests**, Ruff and whitespace. Independent-host, cache, terminal
-failure, extended-deadline and engineering/nursing/hospitality retention checks are included.
-
-Full local checks passed **774 tests**, Ruff, privacy and whitespace. Final diff review is in
-progress. Exact next action: finish the review, commit/push and open a PR; verify final-head
-Mac/Windows/privacy CI before a merge commit and synchronize main. No provider calls or live
-vacancy traffic are planned; no live quality claim is made.
+Exact next action in a fresh chat: run the start routine, recheck private authority/checkpoint
+and compare saved evidence. If its missing-evidence dependency persists, checkpoint it and
+begin the full-ad fallback goal below: reproduce the first-copy-only behavior with fictional
+ads before changing it. Keep one goal; no new search or paid experiment is granted by this
+handover. Source permissions and budgets still apply.
 
 ### Verify before relying on
 
@@ -81,9 +71,13 @@ vacancy traffic are planned; no live quality claim is made.
 
 ### Next tasks
 
-1. Independently judge full evidence and early title outcomes within applicable private authority.
-2. Measure fresh-job misses, separating source coverage, title screening, duplicates and criteria.
-3. Compare the next authorized search's interpretation, ranking and original elapsed time.
+1. Reproduce and improve full-ad fallback among already-matched copies, preserving identity,
+   budgets and cached evidence. [Research leads](ENGINEERING.md#research-leads-requiring-their-own-verified-goal)
+   also cover unresolved-place rejection, retry accounting and remaining protocol scopes.
+2. Independently judge full evidence/early titles and trace a date-verified coverage sample
+   within private authority. Missing originals/new saved decisions remain dependencies.
+3. Compare the next authorized search's interpretation, ranking and original elapsed time;
+   source expansion/vocabulary changes need independent recall evidence and current permission.
 4. Fresh Windows installation/upload/search walkthrough remains later free engineering work;
    launcher CI is not a beginner's installation or a live search validation.
 
