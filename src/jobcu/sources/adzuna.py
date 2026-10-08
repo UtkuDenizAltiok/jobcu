@@ -12,7 +12,7 @@ ran out before the precise searches did):
   of this search's requests, so a broad one reads its best ads instead of the newest noise.
 
 The API gives only the start of each ad (~500 characters). Jobcu doesn't read Adzuna's own job
-pages: its firewall and robots.txt refuse Jobcu (SOURCES.md, DECISIONS.md 2026-09-24). The full
+pages: its firewall and robots.txt refuse Jobcu (docs/SOURCES.md). The full
 ad comes from the same job on another site when Jobcu finds one (dedupe.py), and for the jobs
 worth it, from the person's AI reading it online (jobplace.py).
 """

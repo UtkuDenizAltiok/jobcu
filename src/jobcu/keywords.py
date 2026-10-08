@@ -1,4 +1,4 @@
-"""Hidden search words (HANDOVER section 5).
+"""Hidden search words.
 
 Job sources can't read a CV, so Jobcu turns the profile into short job titles and
 field words, in English and in the job-ad languages of the countries searched.

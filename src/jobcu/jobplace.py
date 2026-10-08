@@ -1,17 +1,13 @@
-"""The best jobs, looked up online: where they are, and what their full ad asks.
+"""Research full-ad requirements and stated job locations for the best candidates.
 
-Many Adzuna ads give only "Deutschland" or "UK", their pages refuse Jobcu, and the start of the
-ad often names no town (the owner's request, 2026-09-22). And a job scored from a 500-character
-summary can't show the language level or the years it asks (search 8, 2026-09-23). For the jobs
-worth it (the best-scoring ones), the person's own AI looks the ad up on the web, on the
-employer's site or a job board, and reads the town, the languages, the years, and whether it
-requires a doctorate, a citizenship or a security clearance (search 9: Rolls-Royce's summaries
-scored 85 while its own ads ask for UK nationals).
+Summary evidence can omit towns, required language levels, experience, qualifications,
+citizenship or clearance. The chosen provider looks up the same vacancy and reads those facts;
+missing requirements remain unknown. Summary omissions cannot prove that a blocker is absent.
 
-A town counts only if the town list knows it in the job's country; guesses from a company's head
-office are ruled out in the instructions, because a company can have several sites (DECISIONS.md,
-2026-09-21 night). The town is kept with the job (`JobGroup.place_from_web`) and the
-requirements with its score (scoring.with_ad_read_online), so Edit never asks again.
+A town counts only if the town list knows it in the job's country. A company can have several
+sites, so its head office is not evidence of this vacancy's location. Jobcu keeps the town with
+the job (`JobGroup.place_from_web`) and requirements with its score (scoring.with_ad_read_online),
+so Edit reuses the same evidence without another request.
 """
 
 import logging
@@ -130,7 +126,7 @@ class LookedUp:
     # Every job asked about, found or not, so it's never asked about again.
     asked: set[int] = field(default_factory=set)
     # Jobs not asked about because the search's web look-ups were used up: the person is asked
-    # whether to look them up too (HANDOVER section 13: caps never silently reduce coverage).
+    # whether to look them up too (caps never silently reduce coverage).
     not_asked: list[int] = field(default_factory=list)
 
     def add(self, more: "LookedUp") -> "LookedUp":

@@ -80,12 +80,11 @@ estimate may omit web fees and discounts; it is not an invoice.
 
 | You need | Open |
 |---|---|
-| Copy a start, end or search-review prompt | [PROMPTS](docs/PROMPTS.md) |
+| Copy a session, search-review or improvement prompt | [PROMPTS](docs/PROMPTS.md) |
 | See current work and the next action | [PROGRESS](docs/PROGRESS.md) |
 | Develop Jobcu with Codex | [CONTRIBUTING](CONTRIBUTING.md) |
 | Read the working rules | [AGENTS](AGENTS.md) |
-| Understand current product decisions | [DECISIONS](docs/DECISIONS.md) |
-| Find code, tools and technical lessons | [ARCHITECTURE](docs/ARCHITECTURE.md) |
+| Find product decisions, code, tools and lessons | [ENGINEERING](docs/ENGINEERING.md) |
 | Check source methods, restrictions and evidence | [SOURCES](docs/SOURCES.md) |
 | Look up dated background | [Original concept](docs/archive/HANDOVER.md), [decision history](docs/archive/DECISION-HISTORY.md), [source research](docs/archive/SOURCE-RESEARCH.md) |
 

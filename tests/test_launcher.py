@@ -76,7 +76,7 @@ def test_a_running_jobcu_can_be_asked_to_stop():
 
 
 def test_launchers_update_a_git_copy_first_but_never_ask_or_touch_local_changes():
-    # The owner's copy should run the newest version after cloud sessions (DECISIONS.md,
+    # The owner's copy should run the newest version after merged updates (docs/ENGINEERING.md,
     # 2026-09-24): an update from GitHub before starting, only on main with nothing changed
     # locally, never asking for a password, and never during the self-test.
     root = Path(__file__).resolve().parents[1]

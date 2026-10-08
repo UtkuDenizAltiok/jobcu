@@ -42,13 +42,15 @@ free work and identify the exact dependency. End with a verified handover and si
 
 ## Review a search
 
-Use this after Jobcu finishes. The procedure is in [REVIEW.md](REVIEW.md). Existing private
-instructions may already authorize review; there is no need to repeat an approved permission.
+Use this after Jobcu finishes. Follow the
+[private review procedure](../CONTRIBUTING.md#review-a-completed-search).
+Existing private instructions may already authorize review; do not repeat an approved permission.
 
 ```text
 Analyse my latest completed Jobcu search on this Mac. Follow AGENTS.md's start routine and
-recover any active work before beginning the review in docs/REVIEW.md. You may read my Jobcu
-documents, query and saved evidence privately and add assistant ratings without overwriting
+recover active work before using CONTRIBUTING.md's "Review a completed search" procedure.
+You may read my Jobcu documents, query and saved evidence privately and add assistant ratings
+without overwriting
 owner or legacy ratings. Check existing private authorization for any further scope or limits.
 Never echo keys or publish any personal information, including real-result aggregates. Public
 changes use general lessons and fictional examples; save detailed evidence privately.
@@ -71,75 +73,53 @@ checkpoint before deleting scratch, preserve owner data/app state, and give simp
 ## Deep improvement
 
 Use this when you have spare assistant usage and time for a complete improvement session.
-It can replace Start in a fresh chat or steer an ongoing chat; unfinished work is recovered first.
-The assistant should research, choose and implement, with enough room left to verify and save.
-For a shorter paste, use this command; it loads the full prompt below from the local project:
+Copy this one block into an ongoing or fresh local Jobcu chat; unfinished work comes first.
 
 ```text
-Run the Deep improvement prompt in docs/PROMPTS.md in full. I have spare assistant usage and
-time. Recover unfinished work first, then use your own analysis and public research to choose
-and implement the most valuable justified improvement. Carry it through verification, merge
-and a saved handover, and give me simple next steps.
-```
+Deeply analyse and improve Jobcu using your own judgement, original ideas and useful research.
+Aim for an exceptional job search app. Go beyond my examples and the current backlog: question
+assumptions and investigate better approaches, including ideas I have not thought of.
 
-Full prompt:
+Follow AGENTS.md's start/resume routine. Recover Right now and In progress in PROGRESS, verify
+Git/PR/CI and app state, and preserve existing work. A fresh chat has no earlier context.
+Read relevant ENGINEERING sections and inspect the code/tests needed to trace the pipeline;
+read SOURCES before source work. Keep setup, usage and contribution guidance detailed.
 
-```text
-I have spare assistant usage and time. Take responsibility for deeply understanding and
-improving Jobcu: aim for an exceptional job search app through original thinking, useful
-research and measured engineering. Go beyond my examples and the current backlog. Challenge
-assumptions, consider better approaches and discover opportunities I have not thought of.
+Investigate where fresh relevant jobs are missed, misunderstood, wrongly excluded, duplicated
+or ranked from incomplete evidence. Consider new permitted sources, multilingual discovery,
+original full ads, better understanding of user criteria, accurate fit explanations, repeated
+API work, safe local reuse, slow steps, recovery and a clean, simple interface. These examples
+are not a limit: discover and compare alternatives yourself. Simplify workflows, files and
+systems where that removes unnecessary work; keep one home for each fact and one prompt per task.
 
-First follow AGENTS.md's start/resume routine. Read Right now in docs/PROGRESS.md, verify
-Git, PR/CI and app/preview state, preserve work and recover In progress before choosing a new
-goal. Treat a fresh chat as having no earlier context. Read relevant current decisions and
-architecture, then inspect the code and tests needed to understand the search pipeline.
+Actively use public web research and available network/tools to resolve important questions
+and uncover opportunities. Prefer primary documentation and original research; verify current
+terms, capabilities and prices. Record dated evidence in SOURCES and distinguish facts from
+hypotheses. Keep private inputs out of public web queries and shared output; authorized provider
+processing goes through Jobcu. Respect the access rules, request budgets and limits in AGENTS.
 
-Trace where relevant fresh jobs can be missed, misunderstood, wrongly excluded, duplicated
-or ranked from incomplete evidence. Look for repeated API work, slow steps, weak recovery,
-confusing controls and unnecessary complexity. Consider new permitted sources/integrations,
-original full ads, multilingual discovery, better understanding of user criteria, trustworthy
-fit explanations, safe local reuse and a clean, simple interface. These are starting points,
-not a complete list. Keep all supported countries and professions working; follow the current
-country priorities and include fictional non-engineering cases when changing matching.
+Make a small shortlist ranked by expected benefit, evidence, effort, risk and verification needs.
+Choose the strongest justified goal, explain why briefly, record steps/checks in In progress and
+implement it. Do not stop at an audit or suggestions. Keep one active goal; finish or checkpoint
+its blocking dependency before another. Leave enough allowance, time and context for checks,
+publication and recovery; avoid accumulating unfinished features or working just to use allowance.
 
-Actively use public web research and available tools where they can resolve a real question
-or uncover a valuable alternative. Prefer primary documentation, original research and source
-terms; verify current permissions, capabilities and prices before relying on them. Read SOURCES
-before source changes. Keep research purposeful, cite dated evidence in its proper home and
-distinguish facts, hypotheses and measurements. Keep private inputs out of public web queries
-and shared artifacts; authorized provider processing goes through Jobcu code within its limits.
-Respect robots, terms and request budgets; no logins, cookies, CAPTCHA solving or bypasses.
+Never trade quality for cost or speed. Preserve coverage, freshness, necessary evidence and
+accurate criteria/scoring; do not drop uncertain jobs, reuse stale judgements or lower AI effort
+to claim savings. Jobcu AI defaults to medium. Support every existing country/profession and use
+fictional non-engineering cases when changing matching. Compare meaningful behavior and
+performance before/after; use CONTRIBUTING's private review procedure for live claims. Counts
+and scores are not proof of accuracy/recall. Identify missing evidence and do useful free work.
 
-Form a small shortlist of the strongest opportunities. Compare expected benefit, supporting
-evidence, effort, risk and verification needs. Choose the highest-value justified goal, explain
-why briefly and record its steps and checks in In progress before implementing. Do the work,
-not just an audit or list of suggestions. Keep one active goal; close or clearly checkpoint it
-before another. Continue only while enough time/context/allowance remains to finish and verify
-a coherent step. Do not accumulate half-finished features or make changes just to use allowance.
+Respect standing private authorization and revocations, existing service budgets and app limits.
+Spare assistant usage grants no extra private access or paid testing. Prefer saved evidence;
+start a new job search only within existing authority, for a clear benefit, and with 24 hours.
+Preserve the owner's app state, keep private records outside Git and stop your isolated previews.
 
-Coverage, freshness and accurate matching come before cost and speed. Do not trade quality for
-savings. Never obtain savings by narrowing coverage/freshness, dropping uncertain jobs, skipping
-necessary evidence, reusing stale judgements, reducing AI effort or weakening scores/criteria.
-Jobcu AI steps default to medium.
-Use meaningful fictional regressions and before/after measurements. For live claims, follow
-REVIEW.md: counts and scores do not prove accuracy or recall. If evidence is missing, say what
-is unverified, do useful free work and identify the exact inputs needed.
-
-Respect existing private authorization, revocations, provider/service budgets and app limits.
-This prompt adds public research and engineering authority, not private access or paid-test
-permission. Prefer saved search evidence. Start a new job search only if existing authority
-allows it, it has a clear benefit and its window is 24 hours. Preserve the owner's chosen app
-state; use isolated previews and stop instances you start. Keep private review records outside
-Git and never publish personal information, keys, documents, queries, results or logs.
-
-Implement in complete steps, update the relevant records/guides, review the diff and run the
-required checks. Push/open a PR, wait for final-head Mac/Windows/privacy CI, merge ready work
-with a merge commit and synchronize the Mac checkout and GitHub. Do not call untested work
-complete or promise perfection. Before ending or running low, follow the ending routine:
-finish the current coherent step where practical, save exact recovery steps, clean disposable
-state and read back the handover. Finish with what improved, evidence and limits, anything
-unfinished, and simple direct next steps. Link to docs/PROMPTS.md for the next fresh chat.
+Follow AGENTS for verification, diff review, final-head Mac/Windows/privacy CI, merge commits
+and synchronized Mac/GitHub state. Update the relevant records/guides. Before ending or running
+low, finish the coherent step where practical and save an exact fresh-chat handover. Report what
+improved, evidence and limits, unfinished work, and simple direct next steps; link to PROMPTS.
 ```
 
 ## End a session

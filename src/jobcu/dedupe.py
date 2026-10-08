@@ -1,4 +1,4 @@
-"""Duplicates and the main link (HANDOVER section 10).
+"""Duplicates and the main link.
 
 - One card per real job, even when it's posted in several places.
 - Copies match on normalised company, job title and location; when both copies carry a

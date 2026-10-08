@@ -48,7 +48,7 @@ def test_links_between_documents_work(doc):
 # "Information homes" and "Sessions").
 
 def _project_map() -> str:
-    text = (ROOT / "docs" / "ARCHITECTURE.md").read_text(encoding="utf-8")
+    text = (ROOT / "docs" / "ENGINEERING.md").read_text(encoding="utf-8")
     return text.split("## Project layout", 1)[1].split("## Evaluation data and timing", 1)[0]
 
 
@@ -59,7 +59,7 @@ def test_the_project_map_lists_every_module_and_tool():
     names += [f"{p.name}/" for p in package.iterdir() if p.is_dir() and not p.name.startswith("_")]
     names += [f"tools/{p.name}" for p in (ROOT / "tools").glob("*.py")]
     missing = [name for name in names if name not in listed]
-    assert not missing, f"ARCHITECTURE.md's project map doesn't mention {missing}"
+    assert not missing, f"ENGINEERING.md's project map doesn't mention {missing}"
 
 
 def test_progress_keeps_the_sections_a_new_session_needs():

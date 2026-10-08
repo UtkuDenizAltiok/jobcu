@@ -1,5 +1,5 @@
-"""Reads the standard job data many job pages carry for search engines (schema.org JobPosting,
-HANDOVER section 9.0 point 3). It gives the full ad text, the posting date, the job type and
+"""Reads the standard job data many job pages carry for search engines (schema.org JobPosting).
+It gives the full ad text, the posting date, the job type and
 whether the job is remote, in the same format on thousands of different sites.
 """
 

@@ -513,7 +513,7 @@ function howChecked(condition) {
 }
 
 // ---------------------------------------------------------------------------
-// Correcting the conditions after a search (HANDOVER section 6, "Edit")
+// Correcting the conditions after a search
 // ---------------------------------------------------------------------------
 
 const TOWN_LIST_LABELS = {

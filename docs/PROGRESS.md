@@ -1,100 +1,69 @@
 # Jobcu progress
 
-Current work only. Follow [AGENTS](../AGENTS.md); use [PROMPTS](PROMPTS.md) across sessions.
-Completed details live in Git and PRs. Product reasons: [DECISIONS](DECISIONS.md).
+Current state and recovery only. Rules: [AGENTS](../AGENTS.md); reusable actions:
+[PROMPTS](PROMPTS.md); decisions and implementation: [ENGINEERING](ENGINEERING.md).
+Completed details live in Git and PRs. Private evaluation follows
+[CONTRIBUTING](../CONTRIBUTING.md#review-a-completed-search).
 
 ## Right now
 
-*Updated 2026-10-08. Current engineering checks use fictional data.*
+*Updated 2026-10-08. Engineering checks use fictional data.*
 
 ### State
 
-- [PR #70](https://github.com/UtkuDenizAltiok/jobcu/pull/70) is implemented, tested, pushed
-  and merged with a merge commit. The Mac checkout was synchronized at `65177e5`;
-  dependencies/hooks are current. Final-head Mac/Windows/privacy PR CI passed.
-- [Deep improvement](PROMPTS.md#deep-improvement) is a reusable research/implementation
-  prompt with a short paste command. It discovers and prioritizes new ideas, completes one
-  active goal at a time and preserves quality, privacy and existing service limits. Local
-  documentation checks passed: 743 tests, Ruff, privacy and whitespace.
-- Career titles are rejected only on an explicit unrelated decision. Unseen titles beyond the
-  preliminary bound and independent failed batches remain for normal matching; successful
-  decisions survive. Critical account/model/quota/monthly-limit errors and Stop propagate.
-  The early request bound remains; retained unknowns may use more AI later within existing limits.
-- Source counts now retain collection totals. **Search details → Extra employer titles**
-  shows early outcomes and rejection evidence; sampled rejections enter Score check privately.
-  The read-only review emits counts only. Historical snapshots retain their original counts;
-  they cannot retrospectively establish discarded titles or comparable raw collection totals.
-- **743 tests**, Ruff, privacy, JS syntax, whitespace and fictional Mac UI/reload/expansion
-  passed. The boundary check retains the last of 3,001 pairs with exactly 20 screen calls.
-  Full mocked searches reproduce cap/batch/limit failures and preserve the late card's score.
-  Fictional nursing/hospitality, parallel failures, cancellation and privacy checks pass.
-  Live recall, accuracy, speed and cost remain unverified; existing dependency warning remains.
-- Prior vacancy-identity, local matching and location-confidence changes remain merged; details
-  and measurements live in [ARCHITECTURE](ARCHITECTURE.md). Both app/preview ports are stopped,
-  disposable data is deleted, and owner data/ratings are preserved. No private material,
-  real-result measurements, provider calls or job-source traffic were used in shared validation.
+- Title-screen recovery, vacancy identity, local matching and location-confidence changes
+  are merged. Behavior, reasons and measured local limits live in [ENGINEERING](ENGINEERING.md).
+  Live recall, accuracy, speed and cost remain unverified.
+- Cleanup combines developer records into ENGINEERING and CONTRIBUTING; PROMPTS has one
+  complete block per task. Detailed user guides, runtime behavior and dependencies are preserved.
+- Local checks passed: **741 tests**, Ruff, privacy, JS syntax and whitespace. The two fewer
+  document cases reflect consolidation; no behavioral tests were removed. Executable Python
+  comparison, unchanged AI/JS instructions and preserved-guide/review checks passed.
+  Existing dependency deprecation warning remains.
+- Both app ports are stopped. No owner data, private records or ratings were changed.
 
 ### In progress
 
-None on merged main. If this handover is still on `codex/deep-improvement-prompt`, publication
-is the active goal: prompt/navigation are implemented and local checks passed (743 tests,
-Ruff, privacy, whitespace). Based on synchronized main `623fdda`; no app/private investigation,
-provider call or job search was started. Exact next action: push/open or recover the branch PR,
-verify final-head Mac/Windows/privacy CI, merge with a merge commit and synchronize main.
-Before choosing new work, follow the session routine and confirm actual Git/PR/CI state.
-Private investigations follow [REVIEW](REVIEW.md) and applicable private authorization/records.
+None on merged main. If still on `codex/simplify-project` (base `cc3d66f`), publication is the
+remaining goal: implementation and local verification are complete. Recover the branch PR,
+verify final-head Mac/Windows/privacy CI, merge with a merge commit and synchronize main
+before new work. Exact next action: follow the start routine and check actual Git/PR/CI state.
+No private review, provider/source call, job search or owner app start was performed.
 
 ### Verify before relying on
 
-- Hidden destinations: exact-link reports cover observed failures; automatic final-host
-  identification and application access at alternate sites remain unverified.
-- Title screening: independent judgement of early rejections and retained unknowns is pending;
-  fictional cases do not establish live accuracy. Use new saved evidence, not old source counts.
-- Ranking: independent full-evidence judgement and every top-10 label remain unfinished;
-  summary cards need permitted original full ads. A balanced saved sample is not accuracy.
-- Location/speed: combined medium-effort interpretation has fictional geography, commute,
-  nursing and failure checks; live quality, latency and repeated-search savings are unmeasured.
-- Maps: mocked station/edge/centre/quota checks pass; actual journeys need live validation.
-- Coverage: independent date-verified 15–25-job benchmark in priority country order remains.
-- Beginner install walkthrough and fresh Windows install/upload/search remain untested.
+- Ranking/title screening: independent full-ad judgement, every top-10 label and new early
+  rejection/unknown evidence remain unfinished; old counts cannot reconstruct discarded titles.
+- Coverage: an independent date-verified 15–25-job benchmark remains, in AGENTS' country order.
+- Interpretation/location: live quality, timing and repeated-search savings remain unmeasured;
+  Maps journeys and faster districts need live validation.
+- Beginner installation and fresh Windows install/upload/search walkthroughs remain untested.
 
 ### Waiting on the owner
 
-- No new keys, documents or settings are needed for these changes. Keep private inputs in Jobcu.
+- No new keys, documents or settings are required; enter private inputs only in Jobcu.
 - Search on demand: double-click **Start Jobcu.command**, choose **24 hours**, then search
-  when ready. After completion, use [Review a search](PROMPTS.md#review-a-search); existing
-  permissions apply within their scope and no keys/documents need to be shared in chat.
-- With spare assistant usage and time, paste [Deep improvement](PROMPTS.md#deep-improvement)
-  for original research and complete engineering work; its short command loads the full prompt.
-- Before closing a chat, use [End](PROMPTS.md#end-a-session) and wait for the saved-state
-  confirmation. Open a fresh local project chat and use [Start](PROMPTS.md#start-a-session).
-- When a link leads to an unusable application site, use **Application link problem** in
-  Jobcu; **Excluded links** can undo it. This uses no AI allowance.
-- Jobcu completes on-demand searches without assistant supervision. No scheduling or
-  background app operation was added.
+  when ready. After completion, use [Review](PROMPTS.md#review-a-search).
+- With spare assistant usage/time, copy [Deep improvement](PROMPTS.md#deep-improvement).
+  Before closing a chat, use [End](PROMPTS.md#end-a-session), wait for the saved confirmation,
+  then use [Start](PROMPTS.md#start-a-session) in a fresh local chat.
+- Report an unusable route with **Application link problem**; **Excluded links** can undo it.
+  This uses no AI allowance. Searches run on demand without assistant supervision.
 
 ### Next tasks
 
-1. Independently judge full evidence and early title rejections under [REVIEW](REVIEW.md),
-   within applicable authorization. Keep observed hidden-route failures local; do not guess hosts.
-2. Measure date-verified fresh-job misses in Germany, Ireland, UK, Switzerland, Netherlands,
-   Belgium, Italy, distinguishing collection from early-title filtering, duplicates and criteria;
-   all 30 countries and other professions remain supported.
-3. Compare the next authorized search's interpretation, ranking and elapsed time.
+1. Independently judge full evidence and early title outcomes within applicable private authority.
+2. Measure fresh-job misses, separating source coverage, title screening, duplicates and criteria.
+3. Compare the next authorized search's interpretation, ranking and original elapsed time.
 4. ZIP-update notices and the fresh-Windows walkthrough remain later free engineering work.
 
 ### Known limitations
 
-- Source/card counts do not measure market recall; scores are not hiring odds.
-- Historical cards keep their original check labels. New searches or rebuilt conditions apply
-  the reference-place confidence correction; original snapshots are not rewritten.
-- Summaries, unknown dates, unchecked conditions and unknown application sites affect decisions.
-- A changed redirect URL needs a new report. Undo restores a link where original results retain
-  it; a later search that already omitted the vacancy needs the next on-demand search.
-- Correction timings cover only the latest correction; usage accumulates across corrections.
-- Token cost estimates can omit provider fees and discounts; they are not invoices.
-- Maps samples approximate city edges/centres and can miss faster districts.
+- Counts do not measure market recall; scores are not hiring odds. Summaries, unknown dates
+  and unchecked conditions are incomplete evidence. Historical snapshots keep original labels.
+- Opaque application destinations and automatic final-host checks are unverified. A changed
+  redirect needs a new report; undo restores retained links, while an omitted vacancy may need
+  the next on-demand search. An alternative link does not prove registration access.
+- Maps edge/centre samples are approximate. Correction timings cover the latest correction;
+  usage accumulates. Token estimates can omit fees/discounts and are not invoices.
 - A failed final save can lose visible results on closing; earlier saved searches remain.
-
-Archived historical measurements predate the Mac reset. See [SOURCES](SOURCES.md) and
-[the decision history](archive/DECISION-HISTORY.md) for dated background.

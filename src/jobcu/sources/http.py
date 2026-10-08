@@ -1,4 +1,4 @@
-"""Polite HTTP for job sources (HANDOVER section 9.1).
+"""Polite HTTP for job sources.
 
 - a clear User-Agent naming Jobcu
 - a minimum pause between requests to the same site

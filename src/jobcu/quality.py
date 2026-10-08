@@ -1,4 +1,4 @@
-"""The score check (HANDOVER section 13): does Jobcu's scoring match the person's own judgement?
+"""The score check: does Jobcu's scoring match the person's own judgement?
 
 Every search quietly keeps a few of its real job ads, spread across the whole score range, and a
 few of the titles the quick relevance check left out. On the **Score check** screen the person

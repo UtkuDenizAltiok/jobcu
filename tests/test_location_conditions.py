@@ -75,7 +75,7 @@ def test_a_town_size_condition_is_computed_per_country():
     condition = Condition(text="at least 0.3% of the country's people",
                           understood_as="Towns with at least 0.3% of the country's people",
                           status="applied", kind="town_size", min_share_of_country=0.003)
-    # 0.3% is about 250,000 people in Germany and about 16,000 in Ireland (DECISIONS.md).
+    # 0.3% is about 250,000 people in Germany and about 16,000 in Ireland (docs/ENGINEERING.md).
     assert 245_000 < smallest_town(condition, "DE") < 255_000
     assert 15_000 < smallest_town(condition, "IE") < 17_000
     assert fits(condition, "DE", "München") == "yes"

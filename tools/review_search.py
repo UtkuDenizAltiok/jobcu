@@ -4,7 +4,8 @@
 
 Only aggregate measurements are printed: never a query, profile, title, URL, note or key.
 Keep even these measurements local unless the owner approves a public summary. Detailed
-investigation uses an authorized private scratch copy, as described in docs/REVIEW.md.
+investigation uses an authorized private scratch copy, as described in CONTRIBUTING.md's
+private review procedure.
 """
 
 import argparse

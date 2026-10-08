@@ -1,12 +1,12 @@
-"""Reads the CV and cover letter into a structured profile (HANDOVER section 4).
+"""Reads the CV and cover letter into a structured profile.
 
 The AI is told only to understand the person: never to rate, critique or rewrite documents, and
 never to guess personal characteristics such as nationality, gender or age.
 
 Reading the documents is the same work every time, so the result is kept in the data folder for
-**exactly these documents** with the same prompt and model (the owner's decision in
-DECISIONS.md). Everything about the job search itself stays fresh in every search. The kept
-profile never leaves the computer, and changing a document makes a new one.
+**exactly these documents** with the same prompt and model. Job-search judgements stay fresh
+in every search. The cache stays in the private data folder; changing a document makes a new
+profile. Necessary profile text is sent to the chosen provider for matching.
 """
 
 import hashlib

@@ -1,4 +1,4 @@
-"""Getting from a job to the places a condition measures to (HANDOVER section 6).
+"""Getting from a job to the places a condition measures to.
 
 "At most 50 minutes by public transport to a city with at least 0.3% of the country's people"
 is one condition: a limit (50 minutes, public transport) and reference places (the cities of

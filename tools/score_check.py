@@ -1,4 +1,4 @@
-"""Measures Jobcu's scoring against your own judgement (HANDOVER section 13).
+"""Measures Jobcu's scoring against your own judgement.
 
 Answer a few jobs on the **Score check** screen in Jobcu first (good / okay / poor, and whether a
 title Jobcu left out was really unrelated). Then:

@@ -1,7 +1,7 @@
 """The jobs of the latest search that the conditions about places decide about.
 
-After a search, the person may correct how Jobcu read their location (HANDOVER section 6,
-"Edit") and apply the corrected conditions to the jobs already found, without searching again.
+After a search, the person may correct how Jobcu read their location and apply the corrected
+conditions to the jobs already found, without searching again.
 For that, Jobcu keeps every job of the latest search that passed the other rules (dates, job
 types, remote, countries, Not interested), together with what the search already worked out for
 each one: the quick relevance check and the score. Jobs that come back in are checked and scored

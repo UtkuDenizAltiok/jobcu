@@ -51,7 +51,7 @@ def test_pages_without_job_data_give_nothing():
 
 
 def test_adzuna_never_reads_its_own_job_pages():
-    # Its firewall and robots.txt refuse Jobcu (DECISIONS.md 2026-09-24): the full ad comes from
+    # Its firewall and robots.txt refuse Jobcu: the full ad comes from
     # the same job on another site, or from the person's AI reading it online.
     from jobcu.sources.base import JobSource
 

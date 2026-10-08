@@ -1,4 +1,4 @@
-"""Company career systems and the employer directory (HANDOVER section 9.3).
+"""Company career systems and the employer directory.
 
 Career systems (Greenhouse, Lever, Workday and others) publish each company's job list. They
 are usually the original and earliest source of a job, but can't be searched across companies,
@@ -10,7 +10,7 @@ person's data folder.
 
 Each search reads the job lists of the employers that hire in the countries searched, keeps
 jobs that are fresh, in those countries and match the search words, and treats the result as
-the employer's own ad (the best main link, HANDOVER section 10). One company failing never
+the employer's own ad (the best main link). One company failing never
 stops the others.
 """
 

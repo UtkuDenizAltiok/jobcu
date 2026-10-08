@@ -1,8 +1,8 @@
-"""What Jobcu remembers about jobs between searches (HANDOVER section 12).
+"""What Jobcu remembers about jobs between searches.
 
 Only this is remembered: which jobs were shown before (for the "New" badge), which the user
 marked Saved, Applied or Not interested, and the **text of ads already downloaded**, for a few
-days, so the same ad isn't fetched again (DECISIONS.md). A job is recognised again through any
+days, so the same ad isn't fetched again. A job is recognised again through any
 of its copies, so if one copy was marked Not interested, every copy stays hidden. Scores and
 everything else about a search are always made fresh.
 """

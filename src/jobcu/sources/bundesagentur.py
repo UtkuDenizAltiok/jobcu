@@ -1,7 +1,7 @@
 """Bundesagentur für Arbeit (Jobsuche): Germany's largest job database.
 
 There is no official API; this uses the public endpoint documented by the community
-project github.com/bundesAPI/jobsuche-api (HANDOVER section 9.2). It may change
+project github.com/bundesAPI/jobsuche-api. It may change
 without notice, so failures are reported plainly and never break a search.
 
 It gives the date a job was **first** published, which catches reposted old jobs.
