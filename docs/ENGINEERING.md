@@ -33,6 +33,7 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Prefer exact source IDs in job memory. Distinct IDs on the same employer source stay separate, including through other copies. Require similar text when both matching ads are complete. Keep ambiguous name matches as separate jobs; preserve all historical keys, marks and snapshots. | Fictional electronics, nursing and hospitality openings reproduced a fresh vacancy inheriting an old date or Not interested mark. Titles and templates do not establish a unique vacancy. Previously merged history cannot be automatically split without evidence (2026-10-07). |
 | Groups kept separate by duplicate checks cannot rejoin solely through remembered names in the same batch. Exact copy evidence still wins; known countries can disambiguate. | The former one-card heuristic for two vague agency summaries could silently share Save/Not interested state without vacancy evidence. Supersedes that title-only assumption while retaining one card for proven copies (2026-10-08). |
 | Explain scores with rubric parts and deterministic blocker limits; retain low-score jobs. | Users can see why a job ranks where it does; a score is not hiring probability (2026-09-23 to 2026-09-30). |
+| Ordinary mandatory-requirement points follow grounded met/unmet/unknown comparisons. Preserve known blockers when incomplete research omits them; explicit resolutions recompute points. | Supersedes accepting contradictory raw hard-requirement points in new scoring. Fictional comparisons reproduce an unmet eligibility condition retaining 14 points, and unsupported comparisons imposing definite limits. Existing band/limit values and separate policies remain (2026-10-09). |
 | Default to no per-search scoring or AI web-check cap. Preserve explicitly saved caps; if selected, ask before exceeding them and let **Always** remove them. Monthly controls and source/provider request rules still apply. | A normal on-demand search should complete its work without arbitrary pauses. Optional user controls remain available; supersedes the 200-score/50-web-check defaults (owner, 2026-10-07). |
 | Count attempted online checks cumulatively; deferred jobs remain pending when a limit is reached. Supply the original URL to research the same vacancy. | Fictional regressions reproduce the counter moving backwards on continuation. Titles alone can identify different requisitions (2026-10-07). |
 | New installs use a **24-hour posting lookback**; preserve existing saved choices. The owner chooses daily 24-hour searches. | Support earlier applications with daily on-demand use (owner, 2026-10-07). Supersedes the 72-hour first-evaluation default of 2026-10-06; wider windows remain available. |
@@ -56,6 +57,7 @@ Code/tests establish behavior; the latest current decision establishes intent.
 
 | Decision | Reason and date |
 |---|---|
+| In every development session, assess the whole search pipeline and choose improvements proactively, including independent judgement of saved evidence and scoring where authorized. Complete one verified improvement at a time. | The owner expects initiative beyond examples or the current backlog. This standing direction applies during active development; it adds no private access, paid-test budget or background searches (owner, 2026-10-08). |
 | Sample full ads and labelled summaries across score bands; keep final scores, evidence completeness and the original location plan. | Avoid bias from summary omissions, duplicate-first selection or pre-research scores (2026-10-06). |
 | Judge every top card independently before reporting precision; use a date-verified independent list before reporting coverage recall. | Counts and broad score bands do not prove search quality (2026-10-06). Procedure: [private review](../CONTRIBUTING.md#review-a-completed-search). |
 | Focused paid reviews follow the owner's existing monthly budget and configured service limits, with current verified prices. No fixed EUR1 review allowance or per-search money cap is imposed. | The earlier review prompt's EUR1 permission applied only to development review, never ordinary searches. The owner removed that restriction; a session-ending instruction still stops new paid work (2026-10-07). |
@@ -120,7 +122,8 @@ overlapping starts/corrections, immediate restore and storage failures without t
    partial. Internal HTTP retry accounting is a separate lead.
    Recheck original/closing dates, stated countries, job types, remote status and application
    routes before scoring. Conflicting copies still follow the existing conservative free rules.
-4. Score evidence through `ai/client.py`; `scoring.py` applies deterministic blocker limits.
+4. Score evidence through `ai/client.py`; `requirements.py` grounds ordinary mandatory
+   comparisons in the supplied ad/profile text and `scoring.py` applies deterministic limits.
 5. Research candidate towns and summary requirements where supported, then reapply conditions
    and limits. Preserve uncertainty and evidence-completeness labels.
    Research includes the preferred original URL so title/company matches cannot silently
@@ -206,6 +209,50 @@ limit in the total. Other confirmed blockers survive this replacement; rubric pa
 retuned. Fictional engineering and hospitality checks cover clearing the limit and retaining
 an unrelated doctorate blocker.
 
+### Mandatory requirements — 2026-10-09
+
+`requirements.py` owns ordinary eligibility comparisons, including enrolment, professional
+registration/licences, qualifications and work permission. Each AI check supplies a short
+requirement name, exact ad/profile quotes and a met/not-met/unclear verdict. Unsupported or
+conflicting comparisons become unclear. Quote validation uses the actual scoring excerpt;
+it cannot support a clause beyond the 12,000-character bound or establish semantic truth.
+Requirements and applicant facts still need accurate model interpretation and original evidence.
+
+Supported unmet requirements force the existing 0–10 hard-requirement band and named 55 limit.
+Unknown, missing checks or incomplete text use the existing 11–14 band, without a definite
+ordinary blocker. Complete checked evidence with no missing ordinary requirement uses 15.
+Language, doctorate, citizenship/clearance and experience retain their separate policies.
+The citizenship prompt explicitly rejects inference from clearance names, foreign nationality
+or absent history alone; live extraction and vacancy-specific exclusions remain unverified.
+
+Online research collects these additional requirement facts in the existing requests. The
+structuring step receives the profile needed for comparisons. Quotes must appear in that job's
+identified research paragraph; missing/ambiguous multi-job headings do not support a blocker.
+Notes never become full-ad text. Omission or an unclear later comparison cannot erase an
+earlier known ordinary blocker; explicit supported resolution can replace its comparison.
+Keep the original proposed points so a resolved limit does not leave a sticky points penalty.
+Legacy evidence retains its original behaviour and ordinary limits until fresh scoring;
+historical snapshots are not rewritten. Medium effort, batch sizes and service limits remain.
+Output room is increased for the additional structured evidence, with no extra AI step.
+
+A no-network comparison using a fictional ward applicant, identical other rubric parts and
+scripted evidence (not a live model accuracy measurement):
+
+| Evidence | Before | After | Preserved limit |
+|---|---|---|---|
+| Explicit unmet registration, contradictory 14 points | 94, no ordinary limit | 55, named eligibility limit | Job remains available |
+| Unsupported negative comparison, proposed 0 points | 55, definite generic limit | Unknown, 11 points, no definite ordinary limit | Missing evidence stays visible |
+| Explicit met registration, contradictory 2 points | 55, generic limit | 95, 15 requirement points | Established rubric bands |
+
+Regression coverage includes all 30 countries, fictional engineering/nursing/teaching/
+hospitality facts, quotes, conflicts, clipping, missing answers, research boundaries, later
+resolution and legacy preservation. One initial scripted request per job remains one;
+no live ranking, recall, latency or cost gain is claimed. Primary evidence:
+[SOURCES](SOURCES.md#requirement-evidence-and-independent-review).
+Seven warmed 100-call rounds on this Mac measured median local `finish` time of
+0.0073–0.0078 ms before and 0.0203–0.0214 ms after for those three cases. Grounding adds
+local validation work; these short fictional texts do not represent whole-search latency.
+
 ## Project layout
 
 The root keeps launchers, README, CONTRIBUTING, AGENTS, LICENSE and Python/tool configuration.
@@ -219,7 +266,7 @@ The root keeps launchers, README, CONTRIBUTING, AGENTS, LICENSE and Python/tool 
 | Search coordination | `search.py`, `search_api.py`, `pipeline.py`, `pool.py`; progress, collection, decisions, cards and condition reapplication. |
 | Places/criteria | `countries.py`, `location.py`, `places.py`, `placenames.py`, `travel.py`; supported geography, query interpretation and measurements. |
 | Discovery | `keywords.py`, `employers.py`; multilingual words and periodically discovered employers. |
-| Evidence/matching | `text.py`, `jobposting.py`, `dedupe.py`, `filters.py`, `freshness.py`, `relevance.py`, `jobplace.py`, `scoring.py`; text extraction, filtering, research and fit. |
+| Evidence/matching | `text.py`, `jobposting.py`, `dedupe.py`, `filters.py`, `freshness.py`, `relevance.py`, `jobplace.py`, `requirements.py`, `scoring.py`; text extraction, filtering, research, grounded requirements and fit. |
 | Results/evaluation | `applications.py`, `jobidentity.py`, `jobstore.py`, `quality.py`, `quality_api.py`; application routes, remembered jobs, saved results and independent score checks. |
 | `ai/` | `client.py` is the sole AI entry point; provider adapters, schemas, errors and token/web usage. |
 | `sources/` | Isolated adapters and the registry. `base.py` defines `JobSource`; `http.py` applies polite requests/robots; `budget.py` tracks limits; `matching.py` matches lists; `careers.py` uses the directory; `careerlinks.py` recognizes career hosts. See [SOURCES](SOURCES.md). |

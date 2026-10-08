@@ -27,6 +27,7 @@ PLAN = LocationPlan(text="", understood_as="Anywhere.", countries=["DE"], places
 
 def score_json(job_id, role=30, **evidence):
     return {"job_id": job_id, "ad_language": "English", "languages_asked": [],
+            "requirement_checks": [],
             "years_required": None, "doctorate": "not_required",
             "citizenship_or_clearance": "no_such_requirement",
             "citizenship_or_clearance_words": "", "role_and_skills": role, "seniority": 15,
@@ -95,7 +96,7 @@ def scored(profile=SPEAKER, **evidence):
 
 
 def test_a_language_two_levels_above_gives_no_language_points_and_limits_the_total_to_65():
-    # FERCHAU in search 8: "Gute Deutsch- und Englischkenntnisse", German B2+; the person has A2.
+    # Fictional ad asks for German B2+; the person has A2.
     result = scored(ad_language="German",
                     languages_asked=[asked("German", "B2"), asked("English", "B2")])
     assert result["parts"]["languages"] == 0
@@ -162,7 +163,7 @@ def test_the_owners_limits_for_citizenship_doctorate_and_experience():
     assert scored(doctorate="required_person_lacks_it")["score"] == 50
     assert scored(doctorate="required_person_has_it")["limits"] == []
     assert scored(years_required=2)["limits"] == []
-    # Search with the owner's CV (2026-09-24): a senior role asking 4+ years scored 88.
+    # Fictional graduate is four years short of an explicit experience requirement.
     four = scored(years_required=4)
     assert four["score"] == 80 and four["limits"][0]["why"] == (
         "Asks for 4+ years of experience, you have no full-time years yet")
