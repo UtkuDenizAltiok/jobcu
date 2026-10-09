@@ -211,6 +211,53 @@ they are estimates, not limits for full-ad scoring. Optional **Use balance** all
 overage. Native upstream tool support does not establish Go entitlement. Retention/training
 differences are recorded below; these are service claims, not independently audited guarantees.
 
+**One-model capability recheck, 2026-10-09:** Google's
+[Gemini 3.8 Flash model reference](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash)
+lists medium thinking, structured output and Search grounding. Its
+[Search guide](https://ai.google.dev/gemini-api/docs/google-search) documents cited current
+information using that same model. These capabilities support a one-key/model setup; they do
+not establish independent matching superiority or success on every fact. The
+[billing guide](https://ai.google.dev/gemini-api/docs/billing#prepay) explicitly restricts prepaid
+credit to Gemini API usage; other Cloud services remain separately billed. No owner balance,
+account identifier or expiry is recorded here.
+
+**Shared allowance and reset verification, 2026-10-09:** the published
+[billing handler](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/app/src/routes/zen/util/handler.ts#L1191)
+adds `round(cost * model.costMultiplier)` to the same subscriber/workspace monthly, weekly
+and five-hour counters. The row is not keyed by model. Switching models does not reset it.
+The [subscription checks](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/app/src/routes/zen/util/handler.ts#L897)
+check those counters before balance fallback. The
+[model configuration loader](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/core/src/model.ts#L85)
+and [limits loader](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/core/src/subscription.ts#L44)
+read deployed resource configuration; exact live multipliers/limits are not public in these
+files. Do not claim this code inspects the owner's account or guarantees deployed behavior.
+
+A normalized example derived from the published Go table: USD1.50 of GPT-6 Luna usage value
+out of its USD15 monthly equivalent is **10%**. USD6 of DeepSeek V4.1 Flash usage value out of
+USD60 is another **10%**. Mixed consumption is **20% of the shared monthly allowance**, and
+would consume the published five-hour allowance if performed in one window. The percentages
+also count toward the weekly 50% ceiling. These dollar usage values describe token work at
+the listed rates, not additional cash invoices on top of the subscription. A weekly dashboard
+percentage may use the weekly ceiling as its denominator, rather than the monthly equivalent.
+This arithmetic is a planning interpretation of the published table and shared-counter code,
+not a live capacity measurement. Model rotation cannot multiply the monthly allowance.
+
+The published [date helpers](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/core/src/util/date.ts#L1)
+anchor weeks at Monday 00:00 UTC and months to the subscription's UTC creation date/time,
+clamping the day for shorter months. The
+[five-hour check](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/core/src/subscription.ts#L53)
+uses the stored window-start timestamp; the handler preserves it within a window and starts
+another after expiry. It is not an automatic daily refresh or a new allowance for each model.
+Use the actual console's reset notice for an account-specific wait. **Use balance** must stay
+off to avoid optional pay-as-you-go fallback when a shared ceiling is reached.
+
+**Buying decision evidence, 2026-10-09:** repeated public searches did not find an official
+permission statement for this non-coding workload. Go's current client instructions explicitly
+request typical coding traffic; its API protocols do not override that guidance. This supports
+not recommending a Go purchase solely for Jobcu today, without declaring its models inferior
+or claiming every non-coding request is forbidden. Written provider confirmation is the exact
+remaining permission dependency. No support message, payment or disguised request was made.
+
 **Second pass, 2026-10-09:** the public [Go model list](https://opencode.ai/zen/go/v1/models)
 responded without a key and includes the five candidates. Its IDs do not prove tool or effort
 support. The [published Responses helper](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/app/src/routes/zen/util/provider/openai.ts#L14)

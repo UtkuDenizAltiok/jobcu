@@ -2,9 +2,9 @@
 
 Jobcu finds fresh job ads, ranks their fit to your CV and cover letter, and explains each score.
 It runs on your Mac or Windows computer and connects to job sources and your chosen AI provider.
-Custom APIs can use Chat Completions, Responses or Messages. An optional separate provider can
-handle cited online research while your main AI reads documents and scores jobs; see
-[AI setup](docs/guides/getting-your-keys.md#if-you-choose-other).
+Start with one provider and one model for all AI tasks. Settings keeps optional model/research
+overrides in one advanced section and shows which choices are active. Custom APIs can use Chat
+Completions, Responses or Messages; see [AI setup](docs/guides/getting-your-keys.md).
 This is an early test version; live coverage and scoring quality still need measured validation.
 
 Everyday navigation is **Search** and **Settings**. Optional **Settings → Review results** helps

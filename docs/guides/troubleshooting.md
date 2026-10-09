@@ -52,7 +52,7 @@ Open **Settings → AI provider** and read the message under **Test connection**
   own website. Jobcu cannot change your account or add credit.
 - If a search reports a temporary rate limit, allow Jobcu's retry to run. If the allowance is
   exhausted, check the provider's usage page and when access becomes available again.
-- For **Other**, check **Custom API format and reasoning** against the service's instructions.
+- For **Other**, check **API format and advanced settings** against the service's instructions.
   Responses, Messages and Chat Completions are different formats. A custom reasoning refusal
   stops the request; choose documented controls rather than expect Jobcu to turn thinking off.
   Old custom settings may report unconfirmed provider-default effort.

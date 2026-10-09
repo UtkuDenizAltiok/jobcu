@@ -1528,8 +1528,6 @@ function renderProviderDetails() {
   const provider = currentProvider();
   $("provider-details").hidden = !provider;
   if (!provider) return;
-  renderAiWebHint();
-
   // Model names belong to one provider, so switching provider starts empty.
   const saved = state.settings.ai;
   const same = provider.id === saved.provider;
@@ -1540,6 +1538,10 @@ function renderProviderDetails() {
   $("compatible-reasoning").value = same ? saved.compatible_reasoning : "effort";
   $("compatible-medium").value = same ? saved.compatible_medium : "medium";
   $("custom-api-fields").hidden = !provider.needs_base_url;
+  $("advanced-ai-label").textContent = provider.needs_base_url
+    ? "API format and advanced settings" : "Advanced AI settings (optional)";
+  // Custom formats are part of setup; native one-model setups need no advanced choices.
+  $("advanced-ai").open = provider.needs_base_url;
   renderCustomReasoning();
   $("model-list").replaceChildren();
   $("model-list-status").textContent = "";
@@ -1552,6 +1554,7 @@ function renderProviderDetails() {
     ? "API key (only if the provider needs one)"
     : "API key";
   renderKeyRow($("ai-key-row"), provider.key, $("ai-key-label").textContent);
+  renderAiWebHint();
 }
 
 function renderCustomReasoning() {
@@ -1581,6 +1584,19 @@ function renderResearchDetails() {
 
 function renderAiWebHint() {
   const research = state.settings.providers.find((p) => p.id === $("research-provider").value);
+  const main = $("model").value.trim();
+  const documentModel = $("reasoning-model").value.trim();
+  const separateDocument = documentModel && documentModel !== main;
+  const tasks = separateDocument
+    ? `Documents and interpretation use ${documentModel}; job matching uses your main model.`
+    : "Your main model reads your documents and matches jobs.";
+  $("ai-setup-summary").textContent = tasks + (research
+    ? ` Online research uses ${research.name} / ${$("research-model").value.trim() || "choose a model"}.`
+    : currentProvider()?.needs_base_url
+      ? " Add an online research provider in advanced settings for web checks."
+      : separateDocument
+        ? ` Online research also uses ${documentModel}, where supported.`
+        : " It also handles online research where supported. No second AI is needed.");
   $("ai-web-hint").hidden = false;
   if (research) {
     $("ai-web-hint").textContent = `Online research uses your separate ${research.name} model. `
@@ -1589,7 +1605,7 @@ function renderAiWebHint() {
     $("ai-web-hint").textContent = currentProvider()?.needs_base_url
       ? "Custom APIs have no supported online research in Jobcu. Choose a separate online research "
         + "provider to keep those checks. Otherwise conditions needing research stay ‘not checked’."
-      : "Online checks depend on the research model and account allowance. If unavailable, Jobcu "
+      : "Online checks use your chosen model and provider allowance. If unavailable, Jobcu "
         + "explains once and conditions needing research stay ‘not checked’.";
   }
 }
@@ -1692,6 +1708,7 @@ async function saveAiChoice() {
   };
   // Only the AI part is replaced, so the key rows keep their live status objects.
   state.settings.ai = (await api("/api/settings/ai", { method: "PUT", body })).ai;
+  renderAiWebHint();
   renderChecklist();
 }
 
@@ -1971,6 +1988,9 @@ function setUpUsageActions() {
 
 function setUpSettingsActions() {
   setUpUsageActions();
+  for (const id of ["model", "reasoning-model", "research-model"]) {
+    $(id).addEventListener("input", renderAiWebHint);
+  }
   $("compatible-protocol").addEventListener("change", renderCustomReasoning);
   $("compatible-reasoning").addEventListener("change", renderCustomReasoning);
   $("research-provider").addEventListener("change", () => {

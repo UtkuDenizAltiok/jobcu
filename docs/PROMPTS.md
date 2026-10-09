@@ -73,6 +73,9 @@ Compare the complete current catalogue, shared token allowances and direct API a
 preserve fresh cited research when separating main and research providers. Reuse only evidence
 whose rights, request identity and freshness permit it, not stale route or scoring judgements.
 Make technical model/source decisions yourself and give me simple account/setup steps.
+Prefer one provider/model when it meets the task; extra models are options, not user homework.
+Do not recommend a subscription from model count alone; verify its intended app use and shared
+allowance, and implement clarity rather than repeatedly hand unresolved choices back to me.
 Before recommending spending, use saved usage when authorized, include thinking/tool charges
 and shared allowances, and distinguish a spending ceiling from an invoice or enforceable cap.
 Ask me only for a necessary new spending ceiling or account instruction, not to choose models.
@@ -121,6 +124,9 @@ Compare the complete current catalogue, shared token allowances and direct API a
 preserve fresh cited research when separating main and research providers. Reuse only evidence
 whose rights, request identity and freshness permit it, not stale route or scoring judgements.
 Make technical model/source decisions yourself and give me simple account/setup steps.
+Prefer one provider/model when it meets the task; extra models are options, not user homework.
+Do not recommend a subscription from model count alone; verify its intended app use and shared
+allowance, and implement clarity rather than repeatedly hand unresolved choices back to me.
 Before recommending spending, use saved usage when authorized, include thinking/tool charges
 and shared allowances, and distinguish a spending ceiling from an invoice or enforceable cap.
 Ask me only for a necessary new spending ceiling or account instruction, not to choose models.
