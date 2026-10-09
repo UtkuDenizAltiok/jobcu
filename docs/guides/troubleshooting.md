@@ -122,7 +122,9 @@ not solve every cause. Read the final Maps note in **Search details**:
   attempt allowance; changing Google billing alone does not change it.
 - **Google daily/monthly/zero quota:** open your project in [Google Cloud](https://console.cloud.google.com/),
   then **Google Maps Platform → Quotas**, select **Routes API** and inspect the exhausted limit.
-  A daily limit can stop one search while a monthly allowance is still available.
+  Check **DistanceMatrix – ComputeRouteMatrix per-element quota per day** separately from
+  its per-minute limit. Jobcu uses this matrix operation; the **ComputeRoutes** quota is
+  different. A daily limit can stop one search while a monthly allowance is still available.
 - **Temporary or unidentified limit:** check the project's quota/usage page and whether
   billing and **Routes API** access are active. An unidentified message does not establish
   when the limit resets. Keep account identifiers and raw error details private.

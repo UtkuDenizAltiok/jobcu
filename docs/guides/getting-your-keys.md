@@ -105,6 +105,10 @@ explains quota messages and uncertainty. Changing billing alone cannot prove bet
 ### Considering OpenCode Go
 
 The current operational recommendation is **keep Gemini while evaluating a cheaper main API**.
+MiMo-V2.6-Pro, DeepSeek V4.1 Flash and GLM-5.3 are also serious candidates. The
+[current assessment](../ENGINEERING.md#additional-model-assessment--2026-10-09) explains their
+test priority and limits. Gemini has not been proved better at matching jobs; working today,
+lower prices and coding benchmarks are different evidence from accurate job understanding.
 Research checked on **2026-10-09** found a provisional five-model shortlist with GPT-6 Luna
 first, plus important migration dependencies. Read the
 [decision and workload examples](../ENGINEERING.md#ai-subscription-decision--2026-10-09) and
@@ -214,6 +218,10 @@ your Google Cloud project. Jobcu cannot change those account limits. Temporary t
 can be retried within the app's allowance; an unidentified quota is shown without guessing
 its reset time. **Settings → Usage and limits** controls Jobcu's own monthly attempt limit,
 which does not replace Google quotas or cover requests made by other apps.
+A configured **Compute Route Matrix daily** cap can stop one search even when Jobcu's monthly
+allowance remains. It differs from the per-minute rate and the **Compute Routes** operation.
+Adjust only the diagnosed limit using actual usage and the agreed budget. A higher daily
+limit does not enlarge Jobcu's monthly allowance, guarantee free use, or improve route accuracy.
 An individual route can fail even when Google answers the request. Jobcu keeps other measured
 times and labels unavailable journeys or fallback estimates; it does not turn a service error
 into proof that a job is unreachable. The [usage guide](first-search.md#4-start-the-search-and-answer-any-questions)

@@ -254,6 +254,32 @@ clearance acronym alone does not establish a particular applicant's ineligibilit
 explicit excluding rules and relevant stated facts; otherwise retain uncertainty. These
 pages do not prove eligibility for a particular vacancy; no personal vetting decision is made.
 
+### Additional reasoning-model candidates
+
+**Checked 2026-10-09:** [MiMo-V2.6-Pro's own specification](https://mimo.mi.com/models/en-US/mimo-v2.6-pro)
+lists deep thinking, tool calls, web search, structured output and a 1M context. Direct uncached
+input/output is USD0.435/0.87 per million. These advertised capabilities and benchmark claims
+are not Jobcu accuracy measurements; Go tool entitlement and effort mapping remain separate.
+
+[DeepSeek's model metadata guide](https://api-docs.deepseek.com/api/list-models/)
+illustrates V4.1 Flash as `deepseek-flash`, 1M context, native low/high/max efforts and high
+default. Its [original model card](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash/raw/main/README.md)
+describes a continuous 1–100 model-level reasoning control. Inference: serving interfaces can
+expose different controls; inspect the chosen host rather than transferring a parameter from
+another host or assuming a literal medium exists. Neither source proves job-fit quality.
+
+[GLM-5.3's specification](https://docs.z.ai/guides/llm/glm-5.3) documents always-on reasoning,
+low/high/max controls with max default, 1M context, and the same base as GLM-5.2 with coding/agent
+post-training improvements. A coding benchmark gain does not establish a job-matching gain.
+
+The [Go table](https://opencode.ai/docs/go/) currently gives MiMo Pro and GLM-5.3 USD15 monthly
+equivalents, versus USD60 for DeepSeek V4.1 Flash and GLM-5.2. MiMo rates match the direct rates
+above; GLM-5.3 is USD1.40/4.40 per million. DeepSeek is USD0.15/0.60 off-peak and USD0.30/1.20
+peak; peak is weekdays 01:00–04:00 and 06:00–10:00 UTC. Limits/regions and shared weighted
+capacity still apply. These are allowance units, not subscription surcharges or intelligence
+rankings. The [model assessment](ENGINEERING.md#additional-model-assessment--2026-10-09)
+keeps quality hypotheses separate from these facts. No model API request or paid comparison.
+
 ### Gemini running costs
 
 **Rechecked 2026-10-09:** [Gemini pricing](https://ai.google.dev/gemini-api/docs/pricing)

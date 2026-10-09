@@ -22,10 +22,15 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 - Go's permitted non-coding use, hosted research entitlement/fees and correct medium/schema/
   protocol behavior need verification. Model equivalents share weighted capacity; advertised
   cached coding-request counts do not establish daily-search capacity. AI Studio prepaid credit
-  cannot pay for Maps; actual credit type/expiry and Maps quota remain unchecked. Dated facts
-  are in SOURCES. No account inspection/change, key use, model/provider call, paid trial or
-  new search was used. Authorized saved diagnostic evidence and spending calculations are
-  retained only in the private review record; exact account quota/SKU/billing remains unknown.
+  cannot pay for Maps; actual credit type/expiry remains unchecked. Dated facts are in SOURCES.
+  Relevant Maps quota/billing was inspected privately; a targeted daily-quota correction was
+  visibly verified. Exact account values/proof stay outside Git. No key, paid/provider test or
+  new search was used; the app's monthly allowance, owner settings and EUR30 total stay intact.
+- [PR #93](https://github.com/UtkuDenizAltiok/jobcu/pull/93) is verified merged at `597701d`;
+  exact merged-main Mac/Windows/privacy CI `37969222262` passed. Integration ease and vendor
+  effort labels are not quality verdicts. The [additional model assessment](ENGINEERING.md#additional-model-assessment--2026-10-09)
+  puts MiMo Pro alongside GPT-6 Luna in the first comparison, with DeepSeek V4.1 Flash and
+  GLM-5.3 also serious candidates. No evidence establishes Gemini's matching superiority.
 - [PR #92](https://github.com/UtkuDenizAltiok/jobcu/pull/92) is verified merged at `8a5b132`;
   exact merged-main Mac/Windows/privacy CI `37963987419` passed. Its publication is complete.
 - The Maps correction is merged in [PR #90](https://github.com/UtkuDenizAltiok/jobcu/pull/90)
@@ -45,7 +50,8 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   Maps allocation proposed under the earlier EUR25 total remains provisional pending account/
   combined-workload checks; willingness to pay does not establish sufficient headroom.
   No billing, quota, setting, provider or filtering change was made.
-  Exact live refusal/account allowance and route/fit quality remain unverified.
+  That account dependency was subsequently inspected and a targeted correction verified;
+  post-change live route/search success and fit quality remain unmeasured.
 - Local checks passed: **1,098 tests**, Ruff, privacy, whitespace, document links and complete
   diff review, plus an isolated startup self-test that stopped and removed its disposable data.
   Fictional cases cover all 30 countries, engineering/teaching/nursing, partial/malformed data,
@@ -70,31 +76,25 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
-The **practical AI/Maps setup decision** is complete; final publication remains.
-Branch `codex/practical-service-setup`, base `8a5b132`, PR #93, last pushed head `cedc829`.
-The owner explicitly approves EUR30/month total and declines the proposed larger ceiling.
-Go is not judged inferior: native-format support, permitted non-coding use and fresh research
-remain gates. GPT-6 Luna medium is the first cheaper-main candidate; compare its direct API
-with Go plus necessary research, preserving the working Gemini setup until quality is checked.
-Hybrid research routing and a migration are not implemented or an active coding goal here.
+No unfinished app/account implementation remains for the **Maps quota/model follow-up**.
+Only publication remains if this branch is still unmerged or exact merged-main CI is missing.
+Branch `codex/maps-quota-model-review`, base/known head before commit `597701d`. The daily quota
+correction is applied and visibly verified; actual SKU/billing findings and cropped proof stay
+in the private `maps_account_resume` checkpoint/evidence. No paid API call or new search was
+run; keys, owner data, app settings and monthly attempt allowance were preserved.
+The additional model assessment/dated sources/guides/prompts are updated; no model switch,
+reasoning mapping or hybrid provider feature is shipped. No fit-accuracy improvement is claimed.
 
-Private authority/checkpoint were rechecked; read-only saved diagnosis and forecast are retained
-privately, and the disposable copy is removed. Current decision, dated service evidence,
-setup guidance and prompts are updated. No search, paid test, account or owner-setting change
-was made. Both app ports have no listener; no instance was started/stopped.
-
-Private forecasting was refreshed with comparable original runs; do not mix different posting
-windows or corrections into a daily-search projection. Detailed observations remain private.
-Public evidence, ranked approaches,
-budget authority, setup guidance and prompts are updated; no paid/provider call or new search.
-Pre-publication checkpoint: 20 document checks, Ruff, privacy and whitespace passed. Runtime/
-tests/dependencies are unchanged; prior 1,098-test checks remain valid.
-Exact next action: review the complete final diff, commit/push the six changed files to PR #93;
-require Mac/Windows/privacy CI on its exact final head, merge commit, synchronize main and
-verify exact merged-main CI. Earlier `cedc829` checks do not cover this update. If verified
-merged, this decision goal is complete and no implementation goal remains; do not repeat the
-private diagnosis or open new development during Start. Actual Maps quota/SKU/shared allowance,
-migration acceptance and separately bounded paid comparison remain independent dependencies.
+Checkpoint before publication: 20 document checks, Ruff, privacy and whitespace passed;
+review the final complete diff after these handover changes. Runtime/tests/dependencies are
+unchanged; reuse their valid prior checks locally, require exact final-head CI in publication.
+Exact next action if unmerged: commit/push the six document files, create/recover its PR with
+`gh pr list --state all --head codex/maps-quota-model-review`, require Mac/Windows/privacy CI,
+merge commit, synchronize main and verify exact merged-main CI. If already merged and verified,
+this goal is complete: do not repeat the account edit/private inspection or select new work
+in Start. The private checkpoint records exact account/publication status. Post-change live
+confirmation and independently labelled model comparisons remain separate dependencies; paid
+development tests still need a bounded budget, not another full search by default.
 
 ### Verify before relying on
 
@@ -114,7 +114,8 @@ migration acceptance and separately bounded paid comparison remain independent d
 - Maps: per-element uncertainty is covered by fictional regressions; live route accuracy
   remains unmeasured. AI negative estimates and complete negative city samples can still
   reject jobs. City-edge/centre sampling is approximate. Price/cap changes need the actual
-  account SKU, refused quota, shared allowance, reset alignment and combined AI/Maps forecast.
+  account controls, reset alignment and forecast before changing any further allowance. Daily
+  quota/SKU/billing were verified privately; post-change live success/accuracy remains untested.
 - Live timing/ranking comparisons need bounded authority/current prices. Spare assistant usage
   grants no private APIs, spending, site logins or new/background searches.
 - A fresh Windows installation/upload/search walkthrough remains untested; launcher CI is narrower.
@@ -122,12 +123,12 @@ migration acceptance and separately bounded paid comparison remain independent d
 ### Waiting on the owner
 
 - Keep the working Gemini medium setup; no Go purchase, replacement key or model choice is
-  needed. Account-only next step: open the existing Routes project's
-  [quota/billing pages](guides/getting-your-keys.md#recommended-setup-now). The exact refused
-  matrix quota, billing SKU/shared allowance and any eligible credit remain the dependency;
-  do not blindly raise limits or repeat a search as a diagnostic.
+  needed. The relevant Maps account investigation and targeted daily-quota correction are
+  complete; no further payment/quota homework is needed for that correction. The next normal
+  on-demand search can provide post-change evidence. Its monthly attempt allowance still
+  applies; this is not a promise of measured journeys on every daily search.
 - The owner approved EUR30/month total; no larger ceiling or particular allocation is approved.
-  No paid test or account/limit change has been performed; a focused live diagnostic or model
+  No paid test or app-limit change has been performed; a focused live diagnostic or model
   comparison needs a separately bounded paid-test budget. No extra provider key is needed
   until its integration path and trial scope are ready.
   The assistant chooses technical options; the owner need only decide actual spending and
