@@ -86,7 +86,9 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 ### In progress
 
 **Simple AI setup and verified subscription decision:** implementation and free research are
-complete; publication remains. Branch `codex/simple-ai-setup`, base `d4ac53c`. No paid call,
+complete; publication remains in [PR #96](https://github.com/UtkuDenizAltiok/jobcu/pull/96).
+Branch `codex/simple-ai-setup`, base `d4ac53c`, implementation head `f57b73c` committed/pushed;
+this checkpoint is a documentation-only follow-up. No paid call,
 new search, purchase, provider switch or owner settings/data change was performed.
 
 Verified: **1,125 tests** (unchanged baseline at the base reused, final suite rerun), affected
@@ -95,8 +97,8 @@ preserved closed overrides, returned to one model and retained custom Messages/r
 no console warnings/errors or provider calls. Isolated preview/tab/data are cleaned up.
 Owner app 8765 remains running. Complete diff review passed; publication checks remain.
 
-Exact next action: commit/push this branch and open its PR; require
-Mac/Windows/privacy CI at its actual final head, merge with a merge commit, synchronize main
+Exact next action if unmerged: commit/push this checkpoint if needed, recover PR #96's actual
+final head, require Mac/Windows/privacy CI there, merge with a merge commit, synchronize main
 and verify exact merged-main CI. If Git shows this branch merged and that CI green, this goal
 is complete and no active goal remains; clear this conditional entry on the next owner task.
 Do not repeat account edits, launch an extra search or infer paid-comparison authority.
