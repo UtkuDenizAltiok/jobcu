@@ -140,8 +140,12 @@ your Google Cloud project. Jobcu cannot change those account limits. Temporary t
 can be retried within the app's allowance; an unidentified quota is shown without guessing
 its reset time. **Settings → Usage and limits** controls Jobcu's own monthly attempt limit,
 which does not replace Google quotas or cover requests made by other apps.
+An individual route can fail even when Google answers the request. Jobcu keeps other measured
+times and labels unavailable journeys or fallback estimates; it does not turn a service error
+into proof that a job is unreachable. The [usage guide](first-search.md#4-start-the-search-and-answer-any-questions)
+explains these outcomes.
 
 These service references were checked on 2026-10-07. Prices and account access still depend
-on the services' current terms. Maps retry/quota handling was rechecked on 2026-10-08;
+on the services' current terms. Maps retry/quota handling was rechecked on 2026-10-09;
 the dated evidence is in [SOURCES](../SOURCES.md#maps-request-limits-and-recovery).
 Next: [How to use Jobcu](first-search.md).

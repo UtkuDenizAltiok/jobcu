@@ -100,7 +100,7 @@ def test_temporary_failure_recovers_full_measurement_and_counts_every_attempt(st
     meter, http, clock, requested = setup(handler, limit=4, clock=clock, notes=notes)
     try:
         found = meter._with_maps(requested, "transit")
-        assert found[requested[0][0].key] == {"Munich": 19}
+        assert found[requested[0][0].key].minutes == {"Munich": 19}
         assert times == [100, 107] and notes == [7]
         assert meter._routes.used_this_search == 4
         with db.connect() as conn:

@@ -266,7 +266,11 @@ def test_without_a_key_the_ai_estimates_and_says_so():
 def test_the_monthly_limit_stops_google_maps_and_the_ai_takes_over():
     class GuessingClient:
         def generate(self, output, **request):
-            return TravelGuesses(answers=[TravelGuess(id="P0", town="Munich", minutes=70)])
+            import re
+            towns = re.findall(r"([^,|]+) \(edge \d+ km\)",
+                               request["prompt"].split("| to:", 1)[1])
+            return TravelGuesses(answers=[
+                TravelGuess(id="P0", town=town.strip(), minutes=70) for town in towns])
 
     settings = Settings()
     settings.limits.maps_monthly_routes = 0
@@ -434,7 +438,10 @@ def test_sampled_routes_keep_available_times_and_round_fractional_seconds(edge, 
     town = places.Town("Example City", "IE", 53, -6, 200_000)
     found = travel.GoogleMaps("fake-maps-key", http, now=lambda: NOW).minutes(
         origin, [town], "transit")
-    assert found == {"Example City": expected}
+    if edge == "bad":
+        assert found.minutes == {} and found.unchecked == {"Example City"}
+    else:
+        assert found.minutes == {"Example City": expected} and not found.unchecked
 
 
 def test_a_matrix_element_error_is_not_used_as_a_successful_journey():
@@ -453,7 +460,8 @@ def test_a_matrix_element_error_is_not_used_as_a_successful_journey():
     town = places.Town("Example City", "IE", 53, -6, 200_000)
     found = travel.GoogleMaps("fake-maps-key", http, now=lambda: NOW).minutes(
         origin, [town], "transit")
-    assert found == {"Example City": 20}
+    assert found.minutes == {"Example City": 20}
+    assert found.unchecked == {"Example City"}
 
 
 def test_both_destination_samples_must_fit_within_the_existing_maps_limit():
@@ -533,9 +541,12 @@ def test_a_search_keeps_jobs_near_a_big_city_and_leaves_out_far_ones(
                     "anchor": {"description": "big cities", "min_share_of_country": 0.003}}]}
             elif name == "TravelGuesses":
                 answer = {"answers": [
-                    {"id": pid, "town": "Munich" if "Fürstenfeldbruck" in line else "Nuremberg",
-                     "minutes": 25 if "Fürstenfeldbruck" in line else 95}
-                    for pid, line in re.findall(r"^(P\d+) \| (.*)$", prompt, re.MULTILINE)]}
+                    {"id": pid, "town": town.strip(),
+                     "minutes": 25 if "Fürstenfeldbruck" in line and town.strip() == "Munich"
+                     else 95}
+                    for pid, line in re.findall(r"^(P\d+) \| (.*)$", prompt, re.MULTILINE)
+                    for town in re.findall(r"([^,|]+) \(edge \d+ km\)",
+                                           line.split("| to:", 1)[1])]}
             else:
                 return super().complete_json(**request)
             return RawReply(json.dumps(answer), Usage(10, 5))
