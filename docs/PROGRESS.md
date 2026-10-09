@@ -11,8 +11,9 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 ### State
 
 - Custom APIs now have Chat Completions, Responses and Messages configuration, explicit
-  thinking controls, and an optional separate native online-research provider. Implemented
-  on the active branch below; local checks pass, publication remains. The [complete current catalogue assessment](ENGINEERING.md#complete-catalogue-and-universal-api-decision--2026-10-09)
+  thinking controls, and an optional separate native online-research provider in
+  [PR #95](https://github.com/UtkuDenizAltiok/jobcu/pull/95). Local checks pass; verify its actual
+  final head and merged-main CI before relying on publication. The [complete current catalogue assessment](ENGINEERING.md#complete-catalogue-and-universal-api-decision--2026-10-09)
   prioritizes GPT-6 Luna, MiMo-V2.6-Pro, DeepSeek V4.1 Flash, Haiku 5.5 and GLM-5.3-Flash.
   The documented catalogue has 32 models despite the landing page's 31. This replaces the
   older shortlist order, not the requirement for independent quality evidence before a switch.
@@ -78,38 +79,30 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   snapshots keep their original scores/date labels. Reset preserves settings, keys, assistant
   authorization and real usage counters; full reset deletes review evidence/checkpoints.
 - The owner app 8765 stays closed. The assistant's isolated fictional Settings preview at 8799
-  is stopped, its tab closed and disposable data removed. Authorized saved service evidence/forecast and its recovery checkpoint stay
+  is stopped, its tab closed and disposable data removed. Authorized saved service evidence/
+  forecast and its recovery checkpoint stay
   private; the disposable diagnostic copy is removed. Owner search data/settings are preserved.
 
 ### In progress
 
-**Universal AI configuration and service decision**, authorized by the owner's model/API/reuse
-request. Branch `codex/universal-ai-service-choice`, base `92df256`. PR #94 is merged and its
-exact merged-main Mac/Windows/privacy run `37973648884` passed; its old publication entry is
-complete. Owner app/preview ports are closed; preserve that state and all owner data/settings.
+No unfinished implementation remains for **universal AI configuration/service decision**.
+Publication recovery only if [PR #95](https://github.com/UtkuDenizAltiok/jobcu/pull/95) is unmerged
+or exact merged-main CI is missing. Branch `codex/universal-ai-service-choice`, base `92df256`;
+implementation head `c962116` is committed/pushed, this final handover is a docs-only follow-up.
+The complete catalogue, custom formats/controls and separate online research are implemented;
+no model switch, paid comparison, purchase, new search or Maps-cap/cache change was performed.
 
-Scope: assess the complete current Go catalogue and select five evaluation candidates; implement
-custom Chat Completions/Responses/Messages formats and optional separate native web-research
-provider through the central client. Preserve medium defaults, correct keys/usage, shared caps
-and truthful failures. Inspect existing Maps reuse and current storage terms; retain freshness
-and existing limits rather than introduce stale route judgements. No paid comparison, model
-switch, purchase, new search or owner-data deletion is authorized by this implementation.
-
-Steps/checks: full-suite baseline; protocol/key/effort and mixed-provider research regressions;
-affected and final full tests, JS syntax, Ruff/privacy/whitespace, complete diff review; isolated
-preview if useful, stop it; update dated source facts, decisions, guides/prompts; publish with
-exact-head Mac/Windows/privacy CI, merge commit, synchronize main and verify merged-main CI.
-Implemented and locally verified: baseline **1,098 passed**, final **1,125 passed**, Ruff,
-privacy/whitespace and JS syntax pass. Before/after fictional custom refusal: six requests
-versus one, without removing reasoning. Isolated fictional Settings preview verifies controls,
-Save and persistence after reload, no console errors; stopped, tab closed, disposable data
-removed. Owner app remains closed. No paid calls, job traffic or owner settings changes.
-Not pushed/merged yet. Exact next action: review final complete diff and document changes,
-commit/push, create/recover PR, require its exact-head Mac/Windows/privacy CI, merge commit,
-synchronize main and verify exact merged-main CI. Reuse final runtime checks for docs-only edits.
-Go non-coding
-permission and independently labelled live model quality remain adoption dependencies, not
-reasons to stop this free implementation.
+Verified locally: **1,125 tests**, Ruff/privacy/whitespace, JS syntax, complete diff review,
+and fictional Settings Save/reload with no console errors. Preview/tab/scratch are cleaned up;
+owner app/data/settings remain preserved. Reuse unchanged runtime checks for this handover.
+Exact next action if unmerged: commit/push the handover, recover PR #95's actual final head,
+require Mac/Windows/privacy CI on that head, merge commit, synchronize main and verify its
+exact-head CI. If already merged and verified, this goal is complete and no active goal remains;
+clear this conditional entry when updating progress for the next owner task. Do not repeat
+private account edits, start a paid comparison or choose backlog work during Start.
+Adoption dependencies: Go non-coding permission, independent matching labels and a separately
+bounded paid comparison through Jobcu. Main/research format compatibility is now implemented;
+no extra full search or owner ratings are needed to prepare that comparison.
 
 ### Verify before relying on
 
