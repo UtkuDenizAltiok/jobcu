@@ -115,7 +115,47 @@ Code/tests establish behavior; the latest current decision establishes intent.
   established runtime/test/tool layout; consolidate only where responsibilities actually overlap.
   Retire merged branches after checking PRs/worktrees; preserve unmerged or active work.
 
+## Practical service choice — 2026-10-09
+
+The owner delegates technical service/model decisions and is willing to pay for useful APIs.
+The assistant chooses **keep Gemini 3.8 Flash at medium and diagnose Google Routes**, with
+**no OpenCode Go purchase for Jobcu at present**. This supersedes treating the earlier Go
+shortlist as the current setup recommendation or asking the owner to choose an integration.
+It does not establish that Gemini has the best intrinsic matching accuracy. Preserve the
+working structured-output/research workflow until a labelled comparison justifies a replacement.
+No provider-specific application default is introduced.
+
+Go remains a candidate after its permitted app use, protocol, medium effort and research
+dependencies are resolved. Buying it now would add a fixed fee without a demonstrated Jobcu
+quality benefit. Direct APIs remain alternatives for a bounded comparison, not a reason to
+switch an untested provider or lose research. The shortlist below retains the reasons/evidence.
+
+Choose setup using total work, not subscription advertising: count output including thinking
+once; distinguish original searches from corrections and non-search usage; include grounding,
+shared allowances, route elements/retries, currency and tax. Gemini's current grounding
+allowance is separate from Routes API usage; see [SOURCES](SOURCES.md#gemini-running-costs).
+Private saved observations and forecasts belong only in the private review record, never in
+these documents. Sparse history cannot establish a fixed daily bill or future workload.
+
+Willingness to pay does not choose a new maximum. **EUR25/month remains the authorized total**
+unless the owner explicitly replaces it. The earlier EUR10 Maps allocation is provisional,
+not an implemented cap or evidence that the remaining EUR15 supports daily AI work. Do not
+change limits or reduce medium effort, required evidence or coverage to make an estimate fit.
+If the measured forecast cannot fit, present one concrete total-budget recommendation to the
+owner; technical model choices remain the assistant's responsibility.
+
+For Maps, inspect saved error/quota evidence first. Older generic 429 warnings do not identify
+which quota failed. The account dependency is the actual Routes project billing state,
+**Compute Route Matrix** quota/usage and billed SKU/shared allowance. The owner can open the
+relevant Cloud page using the [setup guide](guides/getting-your-keys.md#recommended-setup-now).
+Do not reset data, repeat a whole search, raise a local counter or buy credit as a diagnostic.
+Any live diagnostic still needs a bounded paid-test authorization through Jobcu. Keep the
+estimate/sample negative-evidence safeguard as a separate development goal, not a completed fix.
+
 ## AI subscription decision — 2026-10-09
+
+**Superseded as the current setup recommendation by the practical service choice above.**
+The model shortlist and migration gates remain evaluation evidence, not a selected replacement.
 
 The owner intends to replace Gemini 3.8 Flash with OpenCode Go for daily searches and considers
 using Google credit for Maps. [Current service/model facts](SOURCES.md#opencode-go-and-ai-credit-eligibility)
