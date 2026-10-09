@@ -43,6 +43,54 @@ def test_ai_choice_is_saved(client):
     assert load_settings().ai.provider == "openai"
 
 
+def test_custom_format_and_research_choice_save_without_calls_or_key_exposure(client):
+    body = {"provider": "openai_compatible", "model": " main-example ",
+            "base_url": " https://provider.example/v1 ", "compatible_protocol": "responses",
+            "compatible_reasoning": "effort", "compatible_medium": "medium",
+            "research_provider": "gemini", "research_model": " research-example "}
+    data = client.put("/api/settings/ai", json=body, headers=HEADERS).json()
+    assert data["ai"]["compatible_protocol"] == "responses"
+    assert data["ai"]["research_model"] == "research-example"
+    assert data["ai"]["scoring_effort"] == data["ai"]["reasoning_effort"] == "medium"
+    assert [p["id"] for p in data["providers"] if p["can_research"]] == [
+        "anthropic", "gemini", "openai"]
+    client.put("/api/settings/ai", json={"provider": "openai_compatible", "model": "another"},
+               headers=HEADERS)
+    assert load_settings().ai.research_provider == "gemini"
+    assert load_settings().ai.compatible_protocol == "responses"
+
+
+@pytest.mark.parametrize("field,value", [("compatible_protocol", "unknown"),
+                                        ("compatible_medium", "low"),
+                                        ("research_provider", "openai_compatible")])
+def test_invalid_protocol_effort_and_unsupported_research_are_refused(client, field, value):
+    response = client.put("/api/settings/ai", json={"provider": "openai", field: value},
+                          headers=HEADERS)
+    assert response.status_code == 422
+
+
+def test_custom_model_list_uses_selected_protocol(client, monkeypatch):
+    from jobcu import settings_api
+    calls = []
+    class Listed:
+        def list_models(self):
+            return ["fictional-model"]
+    def configured(provider, key, ai, *, timeout):
+        calls.append((provider, key, ai.compatible_protocol, ai.base_url, timeout))
+        return Listed()
+    monkeypatch.setattr(settings_api, "configured_adapter", configured)
+    response = client.post("/api/ai/models", json={"provider": "openai_compatible",
+                           "base_url": "https://provider.example/v1",
+                           "compatible_protocol": "messages"}, headers=HEADERS)
+    assert response.json()["models"] == ["fictional-model"]
+    assert calls == [("openai_compatible", "", "messages", "https://provider.example/v1", 30)]
+
+
+def test_research_probe_without_configuration_has_no_provider_calls(client):
+    data = client.post("/api/ai/research-check", headers=HEADERS).json()
+    assert not data["ok"] and "choose an online research provider and model" in data["message"]
+
+
 def test_model_list_needs_a_saved_key(client):
     data = client.post("/api/ai/models", json={"provider": "anthropic"}, headers=HEADERS).json()
     assert data["models"] == [] and "save your key" in data["error"]

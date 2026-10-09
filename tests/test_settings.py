@@ -1,6 +1,6 @@
 import json
 
-from jobcu.settings import Settings, load_settings, save_settings, settings_path
+from jobcu.settings import AISettings, Settings, load_settings, save_settings, settings_path
 
 
 def test_defaults_when_nothing_saved():
@@ -9,6 +9,18 @@ def test_defaults_when_nothing_saved():
     assert settings.limits.scoring_cap is None
     assert settings.limits.web_search_cap is None
     assert settings.search_form.posted_within_hours == 24
+    assert settings.ai.compatible_reasoning == "effort"
+    assert settings.ai.compatible_medium == "medium"
+    assert settings.ai.research_provider is None
+
+
+def test_legacy_custom_api_keeps_its_unsent_effort_without_changing_medium_default():
+    ai = AISettings.model_validate({"provider": "openai_compatible", "model": "old-model"})
+    assert ai.compatible_protocol == "chat_completions"
+    assert ai.compatible_reasoning == "provider_default"
+    assert ai.scoring_effort == ai.reasoning_effort == "medium"
+    new = AISettings(provider="openai_compatible", compatible_protocol="responses")
+    assert new.compatible_reasoning == "effort"
 
 
 def test_saved_settings_come_back():

@@ -8,11 +8,22 @@ from pydantic import BaseModel, Field
 
 from jobcu import db, travel
 from jobcu.ai.base import AIError
-from jobcu.ai.client import check_setup
-from jobcu.ai.providers import PROVIDERS
+from jobcu.ai.client import check_research_setup, check_setup
+from jobcu.ai.providers import PROVIDERS, configured_adapter
 from jobcu.ai.usage import ModelUsage, UsageLog, estimate_cost, total_tokens
 from jobcu.keystore import KeyStore, KeyStoreError, mask
-from jobcu.settings import LimitSettings, ModelPrice, ProviderId, load_settings, save_settings
+from jobcu.settings import (
+    AISettings,
+    CompatibleMedium,
+    CompatibleProtocol,
+    CompatibleReasoning,
+    LimitSettings,
+    ModelPrice,
+    ProviderId,
+    ResearchProviderId,
+    load_settings,
+    save_settings,
+)
 from jobcu.sources import adzuna, all_sources, reed
 from jobcu.sources.http import PoliteClient
 
@@ -49,6 +60,7 @@ def get_settings() -> dict:
                 "key_page": info.key_page,
                 "needs_base_url": info.needs_base_url,
                 "key_optional": info.key_optional,
+                "can_research": not info.needs_base_url,
                 "key": _key_status(keys, info.key_name),
             }
             for info in PROVIDERS.values()
@@ -67,15 +79,22 @@ class AIChoice(BaseModel):
     model: str = ""
     reasoning_model: str = ""
     base_url: str = ""
+    compatible_protocol: CompatibleProtocol = "chat_completions"
+    compatible_reasoning: CompatibleReasoning = "effort"
+    compatible_medium: CompatibleMedium = "medium"
+    research_provider: ResearchProviderId | None = None
+    research_model: str = ""
 
 
 @router.put("/settings/ai")
 def put_ai_settings(choice: AIChoice) -> dict:
     settings = load_settings()
-    settings.ai.provider = choice.provider
-    settings.ai.model = choice.model.strip()
-    settings.ai.reasoning_model = choice.reasoning_model.strip()
-    settings.ai.base_url = choice.base_url.strip()
+    updates = choice.model_dump(exclude_unset=True)
+    for name in ("model", "reasoning_model", "base_url", "research_model"):
+        if name in updates:
+            updates[name] = updates[name].strip()
+    # Validate the complete result, preserving fields older clients don't send.
+    settings.ai = AISettings.model_validate({**settings.ai.model_dump(), **updates})
     save_settings(settings)
     return get_settings()
 
@@ -110,6 +129,7 @@ def delete_key(name: str) -> dict:
 class ModelListRequest(BaseModel):
     provider: ProviderId
     base_url: str = ""
+    compatible_protocol: CompatibleProtocol = "chat_completions"
 
 
 @router.post("/ai/models")
@@ -121,7 +141,9 @@ def list_models(request: ModelListRequest) -> dict:
     if info.needs_base_url and not request.base_url.strip():
         return {"models": [], "error": "Please enter the provider's address first."}
     try:
-        models = info.adapter(key, base_url=request.base_url.strip(), timeout=30).list_models()
+        ai = AISettings(provider=request.provider, base_url=request.base_url,
+                        compatible_protocol=request.compatible_protocol)
+        models = configured_adapter(request.provider, key, ai, timeout=30).list_models()
     except AIError as exc:
         return {"models": [], "error": exc.message}
     return {"models": models, "error": None}
@@ -130,6 +152,12 @@ def list_models(request: ModelListRequest) -> dict:
 @router.post("/ai/check")
 def check_ai() -> dict:
     result = check_setup(load_settings(), KeyStore(), usage_log=UsageLog())
+    return {"ok": result.ok, "message": result.message}
+
+
+@router.post("/ai/research-check")
+def check_research_ai() -> dict:
+    result = check_research_setup(load_settings(), KeyStore(), usage_log=UsageLog())
     return {"ok": result.ok, "message": result.message}
 
 

@@ -152,6 +152,8 @@ class ProviderAdapter(ABC):
 
     # True when the provider can search the web itself during an answer.
     can_search_the_web = False
+    # Custom protocols must not silently remove a chosen reasoning control on a generic 400.
+    strict_reasoning = False
 
     def __init__(self, api_key: str, base_url: str = "", timeout: float = 180.0) -> None:
         self.api_key = api_key

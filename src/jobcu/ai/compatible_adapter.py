@@ -1,16 +1,20 @@
-"""'Other (OpenAI-compatible)' providers: any service that offers the Chat Completions
-format at its own address, including models running on the user's own computer.
+"""Custom API addresses using Chat Completions, Responses or Messages.
 
-These services differ in what they support. Jobcu first asks for strict JSON that
-follows the schema; if the service refuses, it asks for plain JSON; if that fails
-too, it describes the format in the prompt. Every answer is checked afterwards.
+These services differ in what they support. Chat format negotiates explicit schema
+refusals through plain JSON and a schema prompt. Responses/Messages require native
+schema support. Every answer is validated and chosen reasoning controls are preserved.
 """
 
 import json
 from typing import ClassVar
+from urllib.parse import urlsplit
+from uuid import uuid4
 
+import anthropic
 import openai
 
+from jobcu import __version__
+from jobcu.ai.anthropic_adapter import AnthropicAdapter
 from jobcu.ai.base import (
     MSG_REFUSED,
     MSG_TRUNCATED,
@@ -21,17 +25,38 @@ from jobcu.ai.base import (
     RawReply,
     Usage,
 )
-from jobcu.ai.openai_adapter import list_openai_style_models, translate_openai_error
-from jobcu.settings import Effort
+from jobcu.ai.openai_adapter import OpenAIAdapter, list_openai_style_models, translate_openai_error
+from jobcu.settings import CompatibleReasoning, Effort
 
 MODES = ("json_schema", "json_object", "prompt_only")
 
 
-class CompatibleAdapter(ProviderAdapter):
+class _CustomEndpoint:
+    def __init__(self, *args, session_id: str = "", **kwargs):
+        super().__init__(*args, **kwargs)
+        self._session_id = session_id or str(uuid4())
+
+    def _headers(self) -> dict[str, str]:
+        headers = {"User-Agent": f"Jobcu/{__version__}"}
+        # A gateway-specific routing requirement, not a coding-client impersonation. The ID
+        # lasts for this client/search only and contains no user, document or query identifier.
+        if urlsplit(self.base_url).hostname == "opencode.ai":
+            headers["x-opencode-session"] = self._session_id
+        return headers
+
+
+class CompatibleAdapter(_CustomEndpoint, ProviderAdapter):
+    strict_reasoning = True
     # Remembers which mode worked for each (address, model) while Jobcu runs.
     _mode_cache: ClassVar[dict[tuple[str, str], str]] = {}
 
     _sdk_client: openai.OpenAI | None = None
+
+    def __init__(self, *args, reasoning: CompatibleReasoning = "effort",
+                 medium: str = "medium", **kwargs):
+        super().__init__(*args, **kwargs)
+        self.reasoning = reasoning
+        self.medium = medium
 
     def _client(self) -> openai.OpenAI:
         with self._client_lock:
@@ -40,6 +65,7 @@ class CompatibleAdapter(ProviderAdapter):
                     # Local services often need no key, but the library requires some value.
                     api_key=self.api_key or "not-needed",
                     base_url=self.base_url,
+                    default_headers=self._headers(),
                     max_retries=0,
                     timeout=self.timeout,
                 )
@@ -56,15 +82,20 @@ class CompatibleAdapter(ProviderAdapter):
         effort: Effort | None,
         max_output_tokens: int,
     ) -> RawReply:
-        # Reasoning settings aren't sent: services name them differently or reject them.
         cache_key = (self.base_url, model)
         start = MODES.index(self._mode_cache.get(cache_key, MODES[0]))
         last_error: Exception | None = None
         for mode in MODES[start:]:
             try:
                 reply = self._request(mode, model, system, prompt, schema, schema_name,
-                                      max_output_tokens)
+                                      max_output_tokens, effort)
             except AIBadRequest as exc:
+                # Schema negotiation is not permission to retry an unrelated refusal or
+                # discard thinking. Only an explicit format rejection changes format.
+                detail = exc.detail.lower()
+                if not any(word in detail for word in (
+                        "response_format", "json_schema", "json_object")):
+                    raise
                 last_error = exc
                 continue
             self._mode_cache[cache_key] = mode
@@ -72,8 +103,13 @@ class CompatibleAdapter(ProviderAdapter):
         assert last_error is not None
         raise last_error
 
-    def _request(self, mode, model, system, prompt, schema, schema_name, max_output_tokens):
+    def _request(self, mode, model, system, prompt, schema, schema_name, max_output_tokens,
+                 effort):
         extra: dict = {}
+        if self.reasoning == "effort" and effort:
+            extra["reasoning_effort"] = self.medium if effort == "medium" else effort
+        elif self.reasoning == "thinking":
+            extra["extra_body"] = {"thinking": {"type": "enabled"}}
         if mode == "json_schema":
             extra["response_format"] = {
                 "type": "json_schema",
@@ -119,6 +155,45 @@ class CompatibleAdapter(ProviderAdapter):
 
     def list_models(self) -> list[str]:
         return list_openai_style_models(self._client())
+
+
+class CompatibleResponsesAdapter(_CustomEndpoint, OpenAIAdapter):
+    """Native Responses format at the chosen address, without assuming hosted search rights."""
+
+    can_search_the_web = False
+    strict_reasoning = True
+
+    def _client(self) -> openai.OpenAI:
+        with self._client_lock:
+            if self._sdk_client is None:
+                self._sdk_client = openai.OpenAI(
+                    api_key=self.api_key or "not-needed", base_url=self.base_url,
+                    default_headers=self._headers(),
+                    max_retries=0, timeout=self.timeout,
+                )
+        return self._sdk_client
+
+
+class CompatibleMessagesAdapter(_CustomEndpoint, AnthropicAdapter):
+    """Native Messages format at the chosen address; upstream tools are not a proxy entitlement."""
+
+    can_search_the_web = False
+    strict_reasoning = True
+
+    def _messages_base(self) -> str:
+        # The Messages SDK adds /v1 itself. Accept the same /v1 base people use with
+        # Chat/Responses, as well as a documented unversioned Messages base.
+        return self.base_url.rstrip("/").removesuffix("/v1")
+
+    def _client(self) -> anthropic.Anthropic:
+        with self._client_lock:
+            if self._sdk_client is None:
+                self._sdk_client = anthropic.Anthropic(
+                    api_key=self.api_key or "not-needed", base_url=self._messages_base(),
+                    default_headers=self._headers(),
+                    max_retries=0, timeout=self.timeout,
+                )
+        return self._sdk_client
 
 
 def _detail(usage, group: str, name: str) -> int:

@@ -1488,6 +1488,7 @@ async function loadSettings() {
   state.settings = await api("/api/settings");
   state.provider = state.settings.ai.provider;
   renderProviderOptions();
+  renderResearchOptions();
   renderProviderDetails();
   const keyStatuses = [...state.settings.job_site_keys, ...state.settings.travel_keys];
   for (const row of document.querySelectorAll("[data-key-name]")) {
@@ -1527,10 +1528,7 @@ function renderProviderDetails() {
   const provider = currentProvider();
   $("provider-details").hidden = !provider;
   if (!provider) return;
-  $("ai-web-hint").hidden = provider.id !== "gemini";
-  $("ai-web-hint").textContent = "Google web look-ups depend on your model and API project's allowance. "
-    + "If they aren't available, Jobcu will explain once and still search job sources and score ads. "
-    + "Conditions that need web research stay ‘not checked’.";
+  renderAiWebHint();
 
   // Model names belong to one provider, so switching provider starts empty.
   const saved = state.settings.ai;
@@ -1538,6 +1536,11 @@ function renderProviderDetails() {
   $("model").value = same ? saved.model : "";
   $("reasoning-model").value = same ? saved.reasoning_model : "";
   $("base-url").value = same ? saved.base_url : "";
+  $("compatible-protocol").value = same ? saved.compatible_protocol : "chat_completions";
+  $("compatible-reasoning").value = same ? saved.compatible_reasoning : "effort";
+  $("compatible-medium").value = same ? saved.compatible_medium : "medium";
+  $("custom-api-fields").hidden = !provider.needs_base_url;
+  renderCustomReasoning();
   $("model-list").replaceChildren();
   $("model-list-status").textContent = "";
   setStatus($("ai-status"), "", "");
@@ -1551,11 +1554,57 @@ function renderProviderDetails() {
   renderKeyRow($("ai-key-row"), provider.key, $("ai-key-label").textContent);
 }
 
+function renderCustomReasoning() {
+  $("chat-reasoning-fields").hidden = $("compatible-protocol").value !== "chat_completions";
+  $("compatible-medium-field").hidden = $("compatible-reasoning").value !== "effort";
+}
+
+function renderResearchOptions() {
+  $("research-provider").replaceChildren(
+    el("option", { value: "", text: "Same as main AI" }),
+    ...state.settings.providers.filter((p) => p.can_research).map((provider) =>
+      el("option", { value: provider.id, text: provider.name })),
+  );
+  $("research-provider").value = state.settings.ai.research_provider || "";
+  $("research-model").value = state.settings.ai.research_model || "";
+  renderResearchDetails();
+}
+
+function renderResearchDetails() {
+  const id = $("research-provider").value;
+  const provider = state.settings.providers.find((p) => p.id === id);
+  $("research-provider-details").hidden = !provider;
+  if (provider) renderKeyRow($("research-key-row"), provider.key, "Research provider API key");
+  setStatus($("research-ai-status"), "", "");
+  renderAiWebHint();
+}
+
+function renderAiWebHint() {
+  const research = state.settings.providers.find((p) => p.id === $("research-provider").value);
+  $("ai-web-hint").hidden = false;
+  if (research) {
+    $("ai-web-hint").textContent = `Online research uses your separate ${research.name} model. `
+      + "Access depends on that model and account allowance; unchecked conditions stay labelled.";
+  } else {
+    $("ai-web-hint").textContent = currentProvider()?.needs_base_url
+      ? "Custom APIs have no supported online research in Jobcu. Choose a separate online research "
+        + "provider to keep those checks. Otherwise conditions needing research stay ‘not checked’."
+      : "Online checks depend on the research model and account allowance. If unavailable, Jobcu "
+        + "explains once and conditions needing research stay ‘not checked’.";
+  }
+}
+
 /** Shows "Saved (ends in ••••abcd)" with Replace/Remove, or an input with Save. */
 function renderKeyRow(row, status, label, editing = false) {
   const update = (newStatus) => {
     Object.assign(status, newStatus);
     renderKeyRow(row, status, label);
+    // The main and research choices can share a saved key. Keep both visible rows truthful.
+    if (row !== $("ai-key-row") && currentProvider()?.key === status) {
+      renderKeyRow($("ai-key-row"), status, $("ai-key-label").textContent);
+    }
+    const research = state.settings.providers.find((p) => p.id === $("research-provider").value);
+    if (row !== $("research-key-row") && research?.key === status) renderResearchDetails();
     renderChecklist();
   };
 
@@ -1635,6 +1684,11 @@ async function saveAiChoice() {
     model: $("model").value,
     reasoning_model: $("reasoning-model").value,
     base_url: $("base-url").value,
+    compatible_protocol: $("compatible-protocol").value,
+    compatible_reasoning: $("compatible-reasoning").value,
+    compatible_medium: $("compatible-medium").value,
+    research_provider: $("research-provider").value || null,
+    research_model: $("research-model").value,
   };
   // Only the AI part is replaced, so the key rows keep their live status objects.
   state.settings.ai = (await api("/api/settings/ai", { method: "PUT", body })).ai;
@@ -1917,6 +1971,25 @@ function setUpUsageActions() {
 
 function setUpSettingsActions() {
   setUpUsageActions();
+  $("compatible-protocol").addEventListener("change", renderCustomReasoning);
+  $("compatible-reasoning").addEventListener("change", renderCustomReasoning);
+  $("research-provider").addEventListener("change", () => {
+    const same = $("research-provider").value === state.settings.ai.research_provider;
+    $("research-model").value = same ? state.settings.ai.research_model : "";
+    renderResearchDetails();
+  });
+  $("check-research-ai").addEventListener("click", (event) =>
+    busy(event.target, async () => {
+      setStatus($("research-ai-status"), "", "Testing the research model connection…");
+      try {
+        await saveAiChoice();
+        const result = await api("/api/ai/research-check", { method: "POST" });
+        setStatus($("research-ai-status"), result.ok ? "ok" : "problem", result.message);
+      } catch (error) {
+        setStatus($("research-ai-status"), "problem", error.message);
+      }
+    }),
+  );
   $("save-ai").addEventListener("click", (event) =>
     busy(event.target, async () => {
       try {
@@ -1948,7 +2021,8 @@ function setUpSettingsActions() {
       try {
         const result = await api("/api/ai/models", {
           method: "POST",
-          body: { provider: state.provider, base_url: $("base-url").value },
+          body: { provider: state.provider, base_url: $("base-url").value,
+            compatible_protocol: $("compatible-protocol").value },
         });
         if (result.error) {
           status.textContent = result.error;

@@ -64,6 +64,12 @@ unknown rubric consistency, clipped text, per-job research boundaries, late reso
 legacy blockers. `tests/test_search.py` verifies the notes reach results. These scripted checks
 prove application behavior, not live extraction or matching accuracy; use the private procedure
 below for those claims. Keep fictional non-engineering cases and all countries supported.
+For custom APIs, `tests/test_custom_ai.py` sends fictional requests through SDK mock transports
+to check the actual host/path/key, schema, thinking and token payloads. Mixed-provider research
+must keep one web allowance/monthly ledger and record the real provider; tests also cover
+refusals, explicit probes and legacy configuration. `tests/test_ai_parallel.py` verifies shared
+concurrent web reservations. Changing API formats must not imply hosted search entitlement or
+silently remove reasoning. A connection probe is generation, not matching-quality validation.
 Work on a branch, review the diff, open a PR and wait for Mac, Windows and privacy CI.
 Merge with a merge commit; preserve shared history. Other contributors' PRs require review.
 

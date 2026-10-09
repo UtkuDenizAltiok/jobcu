@@ -52,6 +52,13 @@ Open **Settings → AI provider** and read the message under **Test connection**
   own website. Jobcu cannot change your account or add credit.
 - If a search reports a temporary rate limit, allow Jobcu's retry to run. If the allowance is
   exhausted, check the provider's usage page and when access becomes available again.
+- For **Other**, check **Custom API format and reasoning** against the service's instructions.
+  Responses, Messages and Chat Completions are different formats. A custom reasoning refusal
+  stops the request; choose documented controls rather than expect Jobcu to turn thinking off.
+  Old custom settings may report unconfirmed provider-default effort.
+- If you configured a separate online research provider, its key/model are independent of the
+  main connection. Use **Test research connection** for ordinary generation; actual online
+  search access remains a separate capability. Saving settings makes no provider request.
 
 After correcting setup, click **Test connection** again. This can use provider allowance or
 paid credit. See [Set up your keys](getting-your-keys.md) for the full setup steps.
@@ -137,6 +144,14 @@ account can use the same allowance; Jobcu cannot see their use. The dated
 [service evidence](../SOURCES.md#maps-spending-and-alternatives) explains the limits.
 After correcting the specific problem, test once in Jobcu within your allowance; that test
 may use paid credit. You do not need a new full search to test access.
+
+Daily and monthly limits are separate: 9,000 elements over 30 days averages 300/day, while
+450/day permits 13,500. Daily headroom can allow a busy search; the app's monthly allowance
+still stops later calls when used up. Several sampled destinations can cost several elements
+for one workplace. Jobcu already reuses identical requests within a search. A location alone
+does not identify a journey: destination, transport mode and departure time matter. It does
+not indefinitely reuse yesterday's Google travel time; timetables change and storage terms
+restrict that cache. This preserves current evidence rather than promise an unverified saving.
 
 Jobs without checked travel evidence need further checking. Current AI fallback times are
 labelled estimates, and a long estimate can still exclude a job; city-edge/centre samples

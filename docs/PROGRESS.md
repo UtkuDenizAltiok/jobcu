@@ -10,10 +10,17 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
+- Custom APIs now have Chat Completions, Responses and Messages configuration, explicit
+  thinking controls, and an optional separate native online-research provider. Implemented
+  on the active branch below; local checks pass, publication remains. The [complete current catalogue assessment](ENGINEERING.md#complete-catalogue-and-universal-api-decision--2026-10-09)
+  prioritizes GPT-6 Luna, MiMo-V2.6-Pro, DeepSeek V4.1 Flash, Haiku 5.5 and GLM-5.3-Flash.
+  The documented catalogue has 32 models despite the landing page's 31. This replaces the
+  older shortlist order, not the requirement for independent quality evidence before a switch.
 - The owner delegates technical service decisions and is willing to pay for useful APIs.
-  The [current recommendation](ENGINEERING.md#practical-service-choice--2026-10-09) is keep
+  The [current recommendation](ENGINEERING.md#complete-catalogue-and-universal-api-decision--2026-10-09) is keep
   Gemini medium during a cheaper-main-model comparison, with GPT-6 Luna medium first.
-  Compare direct API plus Gemini research before Go-only or Go plus research; resolve Routes.
+  Compare direct API plus Gemini research before Go-only or Go plus research; Routes quota
+  correction is already verified, while post-change live success remains unmeasured.
   This supersedes treating the earlier five-model evaluation shortlist as a selected upgrade
   or asking the owner to choose a model/integration. No matching superiority is claimed.
   Current provider, keys and settings are preserved. The owner explicitly raised the monthly
@@ -52,7 +59,7 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   No billing, quota, setting, provider or filtering change was made.
   That account dependency was subsequently inspected and a targeted correction verified;
   post-change live route/search success and fit quality remain unmeasured.
-- Local checks passed: **1,098 tests**, Ruff, privacy, whitespace, document links and complete
+- Local checks passed: **1,125 tests**, Ruff, privacy, whitespace, document links and complete
   diff review, plus an isolated startup self-test that stopped and removed its disposable data.
   Fictional cases cover all 30 countries, engineering/teaching/nursing, partial/malformed data,
   Maps/AI attribution, persistence, limits and two full engineering/library search pipelines.
@@ -70,31 +77,39 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   corrected Greenhouse original-date evidence and reader-version cache recovery. Historical
   snapshots keep their original scores/date labels. Reset preserves settings, keys, assistant
   authorization and real usage counters; full reset deletes review evidence/checkpoints.
-- The owner app 8765 and preview 8799 have no listener at the latest check. No instance was
-  started/stopped. Authorized saved service evidence/forecast and its recovery checkpoint stay
+- The owner app 8765 stays closed. The assistant's isolated fictional Settings preview at 8799
+  is stopped, its tab closed and disposable data removed. Authorized saved service evidence/forecast and its recovery checkpoint stay
   private; the disposable diagnostic copy is removed. Owner search data/settings are preserved.
 
 ### In progress
 
-No unfinished app/account implementation remains for the **Maps quota/model follow-up**.
-Only publication remains if this branch is still unmerged or exact merged-main CI is missing.
-Branch `codex/maps-quota-model-review`, base/known head before commit `597701d`. The daily quota
-correction is applied and visibly verified; actual SKU/billing findings and cropped proof stay
-in the private `maps_account_resume` checkpoint/evidence. No paid API call or new search was
-run; keys, owner data, app settings and monthly attempt allowance were preserved.
-The additional model assessment/dated sources/guides/prompts are updated; no model switch,
-reasoning mapping or hybrid provider feature is shipped. No fit-accuracy improvement is claimed.
+**Universal AI configuration and service decision**, authorized by the owner's model/API/reuse
+request. Branch `codex/universal-ai-service-choice`, base `92df256`. PR #94 is merged and its
+exact merged-main Mac/Windows/privacy run `37973648884` passed; its old publication entry is
+complete. Owner app/preview ports are closed; preserve that state and all owner data/settings.
 
-Checkpoint before publication: 20 document checks, Ruff, privacy and whitespace passed;
-review the final complete diff after these handover changes. Runtime/tests/dependencies are
-unchanged; reuse their valid prior checks locally, require exact final-head CI in publication.
-Exact next action if unmerged: commit/push the six document files, create/recover its PR with
-`gh pr list --state all --head codex/maps-quota-model-review`, require Mac/Windows/privacy CI,
-merge commit, synchronize main and verify exact merged-main CI. If already merged and verified,
-this goal is complete: do not repeat the account edit/private inspection or select new work
-in Start. The private checkpoint records exact account/publication status. Post-change live
-confirmation and independently labelled model comparisons remain separate dependencies; paid
-development tests still need a bounded budget, not another full search by default.
+Scope: assess the complete current Go catalogue and select five evaluation candidates; implement
+custom Chat Completions/Responses/Messages formats and optional separate native web-research
+provider through the central client. Preserve medium defaults, correct keys/usage, shared caps
+and truthful failures. Inspect existing Maps reuse and current storage terms; retain freshness
+and existing limits rather than introduce stale route judgements. No paid comparison, model
+switch, purchase, new search or owner-data deletion is authorized by this implementation.
+
+Steps/checks: full-suite baseline; protocol/key/effort and mixed-provider research regressions;
+affected and final full tests, JS syntax, Ruff/privacy/whitespace, complete diff review; isolated
+preview if useful, stop it; update dated source facts, decisions, guides/prompts; publish with
+exact-head Mac/Windows/privacy CI, merge commit, synchronize main and verify merged-main CI.
+Implemented and locally verified: baseline **1,098 passed**, final **1,125 passed**, Ruff,
+privacy/whitespace and JS syntax pass. Before/after fictional custom refusal: six requests
+versus one, without removing reasoning. Isolated fictional Settings preview verifies controls,
+Save and persistence after reload, no console errors; stopped, tab closed, disposable data
+removed. Owner app remains closed. No paid calls, job traffic or owner settings changes.
+Not pushed/merged yet. Exact next action: review final complete diff and document changes,
+commit/push, create/recover PR, require its exact-head Mac/Windows/privacy CI, merge commit,
+synchronize main and verify exact merged-main CI. Reuse final runtime checks for docs-only edits.
+Go non-coding
+permission and independently labelled live model quality remain adoption dependencies, not
+reasons to stop this free implementation.
 
 ### Verify before relying on
 
