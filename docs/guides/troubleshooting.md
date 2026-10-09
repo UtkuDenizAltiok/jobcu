@@ -113,6 +113,34 @@ ad yourself before relying on a missing requirement or a travel estimate.
 A new search can use more AI. Jobcu does not cover every job site, so an empty result is not
 proof that no suitable jobs exist. Check original ads for jobs with unknown dates or incomplete text.
 
+## Google Maps keeps asking Jobcu to slow down
+
+The retry warning can mean a temporary service problem or an account quota. Paying more does
+not solve every cause. Read the final Maps note in **Search details**:
+
+- **Jobcu's monthly route limit:** check **Settings → Usage and limits**. This is Jobcu's
+  attempt allowance; changing Google billing alone does not change it.
+- **Google daily/monthly/zero quota:** open your project in [Google Cloud](https://console.cloud.google.com/),
+  then **Google Maps Platform → Quotas**, select **Routes API** and inspect the exhausted limit.
+  A daily limit can stop one search while a monthly allowance is still available.
+- **Temporary or unidentified limit:** check the project's quota/usage page and whether
+  billing and **Routes API** access are active. An unidentified message does not establish
+  when the limit resets. Keep account identifiers and raw error details private.
+- **Key rejected:** check its Routes API permission and the project's billing/access setup.
+  Use the [key guide](getting-your-keys.md#optional-google-maps); enter keys only in Jobcu.
+
+Choose any increase from actual usage and current prices, with a spending limit and margin.
+A Google budget alert is a notification, not a hard cap. Other projects on the same billing
+account can use the same allowance; Jobcu cannot see their use. The dated
+[service evidence](../SOURCES.md#maps-spending-and-alternatives) explains the limits.
+After correcting the specific problem, test once in Jobcu within your allowance; that test
+may use paid credit. You do not need a new full search to test access.
+
+Jobs without checked travel evidence need further checking. Current AI fallback times are
+labelled estimates, and a long estimate can still exclude a job; city-edge/centre samples
+are also approximate. Extra paid usage alone does not establish that good jobs were retained
+or that their scores are accurate.
+
 ## The Google Maps test gives an unexpected travel time
 
 **Google Maps works** confirms access to the service. The sample is a public-transport journey

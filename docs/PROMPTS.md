@@ -64,6 +64,7 @@ Investigate freshness, misses, duplicates, exclusions, requirements, travel evid
 and explanations across the whole pipeline. Distinguish original search timing from corrections
 and cumulative usage. Keep missing evidence unknown; counts and scores alone do not prove
 accuracy or recall.
+Separate service limits from missing evidence before recommending more paid usage.
 Use your own judgement and relevant public primary research; optional user ratings are not
 homework or automatic model training.
 
@@ -100,6 +101,7 @@ Investigate coverage/freshness, multilingual discovery, permitted sources and or
 criteria understanding, travel evidence, exclusions/duplicates, scoring/explanations, repeated
 API work, recovery and a simple interface. These are starting points, not a limit. Simplify
 overlapping workflows/files while preserving detailed setup, usage and contribution guidance.
+Separate service limits from missing evidence before recommending more paid usage.
 
 Assess coverage independently of result counts. Compare existing and potential sources/search
 methods for unique fresh relevant jobs, original evidence, country/profession gaps, reliability

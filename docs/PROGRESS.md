@@ -10,7 +10,8 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
-- The Maps correction is implemented and locally verified; publication recovery is below.
+- The Maps correction is merged in [PR #90](https://github.com/UtkuDenizAltiok/jobcu/pull/90)
+  at `3d8cb30`; exact main Mac/Windows/privacy CI `37914682388` passed.
   Per-route service errors, missing/invalid answers and unchecked alternatives stay uncertain
   rather than proving a travel failure. Valid partial Maps times remain; fallback estimates
   have per-town attribution and only AI values enter AI memory. Explicit no-route results
@@ -18,6 +19,13 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 - Existing condition edits reuse sufficient readings; routing version 3 refreshes old Maps
   entries that could not distinguish errors from no route. Historical result snapshots and
   scoring criteria are preserved. Every AI step still defaults to medium.
+- The owner's Maps spending question has a documented
+  [recommendation](ENGINEERING.md#maps-spending-proposal--2026-10-09), public price/SKU/control
+  evidence and fictional cost scenarios. Retain Google for now; diagnose actual quota/access
+  and protect uncertain negative travel evidence before enlarging usage. A proposed EUR10
+  Maps allocation inside the existing EUR25 total is pending the owner's decision and account/
+  combined-workload checks. No billing, quota, setting, provider or filtering change was made.
+  Exact live refusal/account allowance and route/fit quality remain unverified.
 - Local checks passed: **1,098 tests**, Ruff, privacy, whitespace, document links and complete
   diff review, plus an isolated startup self-test that stopped and removed its disposable data.
   Fictional cases cover all 30 countries, engineering/teaching/nursing, partial/malformed data,
@@ -41,20 +49,24 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
-No implementation remains in the authorized **Maps uncertainty** goal. Publication checkpoint
-written before commit: branch `codex/deep-search-improvement`, base/known head `786ccf2`.
-The shortlist/choice, before/after evidence and limitations live in ENGINEERING; source facts
-live in SOURCES. Final local checks passed above. Exact PR/head/CI must be recovered from Git.
+The **Maps reliability and bounded spending proposal** is complete; only publication remains.
+Branch `codex/maps-spending-proposal`, base/known head `3d8cb30`. Recommendations/cost scenarios
+are in ENGINEERING; dated contracts/prices are in SOURCES; guides/prompts are updated.
+No runtime, billing, quota, owner-setting or account change is included. The proposed EUR10
+allocation remains pending; actual account refusal/allowance and combined-workload checks
+are dependencies, not a new implementation goal.
 
-If still on this branch, the exact next action is to commit/push the changed code/test/doc
-files and create/recover its PR (`gh pr list --state all --head codex/deep-search-improvement`).
-Require Mac/Windows/privacy CI on the exact final head, merge with a merge commit, synchronize
-main and verify its exact-head CI. If already pushed, finish only outstanding publication;
-reuse unchanged checks and preserve unmerged work if blocked. No new improvement is active.
+Checkpoint before commit: 20 document checks, Ruff, privacy, whitespace, fictional price
+arithmetic and complete diff review passed. Code/tests/dependencies are unchanged; prior
+1,098-test code verification remains valid. No private result review, cloud access, live
+route/provider call, paid test or new search occurred. No app or scratch copy was started.
 
-On verified merged main this goal is complete: **no active goal remains**. Start reports
-readiness and waits for an owner task; candidates below do not authorize new work during Start.
-No extra handover PR is needed just to insert the merge's own hash.
+Exact next action: commit/push these six document files and create/recover the PR
+(`gh pr list --state all --head codex/maps-spending-proposal`). Require Mac/Windows/privacy CI
+on its exact head, merge with a merge commit, synchronize main and verify its exact-head CI.
+If pushed, finish only outstanding publication. If verified merged, this proposal is complete
+and **no active goal remains**; Start prepares and waits. No extra PR is needed to insert its
+own merge hash. Budget/diagnostic dependencies do not authorize account changes during Start.
 
 ### Verify before relying on
 
@@ -68,14 +80,20 @@ No extra handover PR is needed just to insert the merge's own hash.
   limit accuracy claims. Scores/counts are not hiring odds or recall measurements.
 - Coverage: an independent date-verified 15–25-job benchmark remains, in AGENTS' country order.
   Source value includes unique jobs, better evidence and backup coverage, not total ad counts.
-- Maps: per-element uncertainty is now covered by fictional regressions; live route accuracy
-  remains unmeasured. City-edge/centre sampling remains approximate.
+- Maps: per-element uncertainty is covered by fictional regressions; live route accuracy
+  remains unmeasured. AI negative estimates and complete negative city samples can still
+  reject jobs. City-edge/centre sampling is approximate. Price/cap changes need the actual
+  account SKU, refused quota, shared allowance, reset alignment and combined AI/Maps forecast.
 - Live timing/ranking comparisons need bounded authority/current prices. Spare assistant usage
   grants no private APIs, spending, site logins or new/background searches.
 - A fresh Windows installation/upload/search walkthrough remains untested; launcher CI is narrower.
 
 ### Waiting on the owner
 
+- Maps proposal: choose whether to allocate up to EUR10/month within the existing EUR25 total.
+  This is not an implemented cap or permission to change billing. Diagnose the account issue
+  first; a live diagnostic, if necessary, needs separately bounded authority. No new search,
+  keys in chat, reset or optional rating homework is required.
 - In a fresh local chat use [Start](PROMPTS.md#start-a-session), then send
   [Review](PROMPTS.md#review-a-search) after a completed search or
   [Deep improvement](PROMPTS.md#deep-improvement) without needing a new search. Use
@@ -91,17 +109,21 @@ No extra handover PR is needed just to insert the merge's own hash.
 
 Candidates for an owner-requested development task, not automatic work during Start:
 
-1. Reproduce unresolved source-place exclusions, including regions and multiple locations;
+1. In an owner-requested Maps development task, reproduce estimated/sampled negative travel
+   exclusions and keep incomplete evidence unknown through filtering/scoring. Then inspect
+   authorized saved diagnostics before any proposed quota increase. The next free reproduction
+   belongs in `travel.answer`, its filter callers and scoring background; use fictional jobs.
+2. Reproduce unresolved source-place exclusions, including regions and multiple locations;
    verify affected permissions and preserve unknowns before changing the helper.
-2. Continue original-date audits in other adapters, including future timestamps and metadata
+3. Continue original-date audits in other adapters, including future timestamps and metadata
    skipped when another copy provides full text. Keep unknowns rather than cut counts.
-3. Recover originals/independent labels, review unknown top cards and title rejections, then
+4. Recover originals/independent labels, review unknown top cards and title rejections, then
    trace an independent date-verified coverage sample. Do not tune to one ad or score distribution.
-4. Reproduce Ashby secondary-country metadata handling, then compare new/existing methods and
+5. Reproduce Ashby secondary-country metadata handling, then compare new/existing methods and
    structured public APIs for unique useful jobs, evidence, country/profession gaps and
    reliability. Improve/add/replace/remove based on
    verified terms and contribution. Private/internal APIs need documented authority.
-5. Review repeated/slow work on saved evidence; paired live tests need bounded authorization.
+6. Review repeated/slow work on saved evidence; paired live tests need bounded authorization.
    A fresh Windows beginner walkthrough remains later free work.
 
 ### Known limitations
