@@ -13,7 +13,8 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 - AI Settings now has one optional advanced section, a visible summary of active model/
   research overrides and an honest **Other API** label. Custom formats open their required
   setup controls. Existing choices, keys, routing and medium defaults are preserved.
-  Verification/publication status and exact recovery action are under **In progress**.
+  [PR #96](https://github.com/UtkuDenizAltiok/jobcu/pull/96) is verified merged at `61e6d9c`;
+  exact merged-main Mac/Windows/privacy CI `37984746346` passed.
 - The current [simple setup decision](ENGINEERING.md#simple-ai-setup-and-buying-decision--2026-10-09)
   is one Gemini 3.8 Flash model at medium plus Google Maps. Do not buy Go solely for Jobcu now:
   published client guidance targets coding traffic; no positive official permission for this
@@ -78,34 +79,31 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   corrected Greenhouse original-date evidence and reader-version cache recovery. Historical
   snapshots keep their original scores/date labels. Reset preserves settings, keys, assistant
   authorization and real usage counters; full reset deletes review evidence/checkpoints.
-- The owner app 8765 is now running; preserve its state. The assistant's isolated fictional
-  Settings preview at 8799 is stopped, its tab closed and disposable data removed. Authorized saved service evidence/
-  forecast and its recovery checkpoint stay
-  private; the disposable diagnostic copy is removed. Owner search data/settings are preserved.
+- Last observed owner app state at the final check: closed (8765); it was running earlier in
+  the task. Neither state was changed by the assistant. The isolated fictional preview at
+  8799 is stopped, its tab closed and disposable data removed. Authorized saved evidence and
+  checkpoints stay private; owner data/settings are preserved. Recheck actual app state once
+  on resume and preserve the owner's choice.
 
 ### In progress
 
-**Simple AI setup and verified subscription decision:** implementation and free research are
-complete; publication remains in [PR #96](https://github.com/UtkuDenizAltiok/jobcu/pull/96).
-Branch `codex/simple-ai-setup`, base `d4ac53c`, implementation head `f57b73c` committed/pushed;
-this checkpoint is a documentation-only follow-up. No paid call,
-new search, purchase, provider switch or owner settings/data change was performed.
+No active product goal. **Simple AI setup and verified subscription decision** is complete:
+[PR #96](https://github.com/UtkuDenizAltiok/jobcu/pull/96), final PR head `63880f2`, exact-head
+Mac/Windows/privacy CI `37984316352` passed; merge commit `61e6d9c`, exact-main CI `37984746346`
+passed. The Mac checkout synchronized cleanly. **1,125 tests**, affected API/format/document
+checks, JS/Ruff/privacy/whitespace, complete diff and fictional Save/reload behavior passed.
+No paid call, new search, purchase, provider switch or owner settings/data change occurred.
 
-Verified: **1,125 tests** (unchanged baseline at the base reused, final suite rerun), affected
-API/format/document checks, JS syntax, Ruff/privacy/whitespace. Fictional browser Save/reload
-preserved closed overrides, returned to one model and retained custom Messages/research;
-no console warnings/errors or provider calls. Isolated preview/tab/data are cleaned up.
-Owner app 8765 remains running. Complete diff review passed; publication checks remain.
+Publication recovery only if the documentation-only branch `codex/simple-ai-handover` exists
+unmerged: base `61e6d9c`; commit/push any remaining handover changes, recover its actual PR/head,
+require Mac/Windows/privacy CI there, merge commit, synchronize main and verify exact-head CI.
+Runtime inputs are unchanged; reuse the recorded full-suite check and run document checks.
+If already merged/verified, there is no remaining work; do not open a replacement goal in Start.
 
-Exact next action if unmerged: commit/push this checkpoint if needed, recover PR #96's actual
-final head, require Mac/Windows/privacy CI there, merge with a merge commit, synchronize main
-and verify exact merged-main CI. If Git shows this branch merged and that CI green, this goal
-is complete and no active goal remains; clear this conditional entry on the next owner task.
-Do not repeat account edits, launch an extra search or infer paid-comparison authority.
-
-Go adoption is deferred: written provider permission for this non-coding use and independently
-labelled bounded paid model comparison are the exact dependencies. The buying decision is
-one working Gemini model plus existing Maps, not an instruction for the owner to choose models.
+Go adoption remains deferred, not active work: written provider permission for this non-coding
+use and an independently labelled bounded paid comparison are its exact dependencies. The
+current buying decision is one working Gemini model plus existing Maps. No model-choice,
+extra-search or payment homework is required from the owner.
 
 ### Verify before relying on
 
