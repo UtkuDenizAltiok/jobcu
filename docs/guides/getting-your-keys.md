@@ -99,17 +99,22 @@ documents, score jobs and research current information with the same key/model. 
 AI is required. The visible setup summary tells you if an existing override is still selected;
 closing advanced settings does not remove it. Your current saved setup is preserved.
 
-Do not buy OpenCode Go just for Jobcu now. Its published client guidance requests coding
-traffic, and no official statement allowing this job-matching workload was found. This is a
-service-use issue, not evidence that its models are worse. A written provider answer to the
-following generic question could change that decision:
+OpenCode Go remains a serious candidate. Several of its models support documents, structured
+answers and, through appropriate services, online research. A shared allowance can be sufficient
+for one daily search; it does not by itself rule Go out. Keep Gemini working while the assistant
+checks the chosen Go model's matching quality, current hosted tools and intended-use fit.
+The published coding-agent guidance describes expected service use, not an inability to read
+job ads. Jobcu's current custom-API research guard is a fixable integration limit.
+The following generic provider question would settle the remaining service ambiguity:
 
-> Does Go permit a local personal job-search app to use its API for document interpretation
-> and JSON job matching, with an honest app user agent and stable session header?
+> Does Go permit a local personal non-coding app to interpret documents and return JSON job
+> matches on demand, with an honest app user agent and stable session header? Does GPT-6 Luna
+> through Go Responses include hosted web search with citations, and how do its queries count
+> toward the allowance or any separate charges?
 
 No message has been sent on your behalf. The assistant makes technical choices; you do not
 need to select another model, obtain another key or run an extra search to decide the basic
-setup. The [current decision](../ENGINEERING.md#simple-ai-setup-and-buying-decision--2026-10-09)
+setup. The [current decision](../ENGINEERING.md#go-feasibility-and-interruption-continuity--2026-10-09)
 and [service evidence](../SOURCES.md#opencode-go-and-ai-credit-eligibility) explain the basis.
 Your agreed total ceiling is **EUR30/month**, not a promised invoice or automatic spending cap.
 AI Studio prepaid credit pays for Gemini only; Maps uses separate Cloud billing. A paid Maps
@@ -155,7 +160,11 @@ compared on actual job understanding before adoption. The
 keeps GPT-6 Luna, MiMo-V2.6-Pro, DeepSeek V4.1 Flash, Haiku 5.5 and GLM-5.3-Flash as comparison
 candidates. There is no measured winner or automatic model rotation.
 
-Models use different published API formats. Jobcu's **Other** option now accepts these formats,
+Current custom APIs in Jobcu need a separate native research provider for web checks. Positive
+reports of Go-hosted web search warrant investigating a one-provider integration; this guard
+does not mean Go's models cannot search. Verify current sources, citations and fees before
+replacing working research. Models use different published API formats. Jobcu's **Other**
+option now accepts these formats,
 with explicit thinking controls and a separate online-research option. Configure from the
 service's documented format; compatibility still needs verification. Keep the one-model working
 setup described above. Do not enter a Go key in Jobcu's native **OpenAI** or **Anthropic**
