@@ -185,6 +185,28 @@ Do not reset data, repeat a whole search, raise a local counter or buy credit as
 Any live diagnostic still needs a bounded paid-test authorization through Jobcu. Keep the
 estimate/sample negative-evidence safeguard as a separate development goal, not a completed fix.
 
+### Additional model assessment — 2026-10-09
+
+There is **no measured evidence that Gemini 3.8 Flash matches jobs better** than MiMo-V2.6-Pro,
+DeepSeek V4.1 Flash or GLM-5.3. The initial shortlist favored documented effort, integration and
+allowance headroom, not intrinsic intelligence. Its position must not be described as a model
+quality verdict. [Dated native and Go facts](SOURCES.md#additional-reasoning-model-candidates)
+support the following evaluation decision:
+
+| Candidate | Product judgement | Gate before adoption |
+|---|---|---|
+| MiMo-V2.6-Pro | Put alongside GPT-6 Luna in the first quality comparison: flagship reasoning/structured-output capability and comparatively low output rate justify testing | Explicit enabled thinking/effort behavior on the chosen host; labelled multilingual requirements/unknowns/scoring comparison and research preservation |
+| DeepSeek V4.1 Flash | Serious value candidate; Go's larger equivalent allowance warrants including it after the first pair | Region/privacy permission, host-specific reasoning controls, schema/quotes and multilingual fit measured on the same independent cases |
+| GLM-5.3 | Include in a focused quality comparison; stronger coding post-training is neither evidence of better job matching nor a reason to call it poor | Control the native max default, validate allowance headroom; its Go equivalent is smaller than GLM-5.2 despite the same token rate |
+| Gemini 3.8 Flash | Keep as the working baseline, with native research; familiarity is not evidence it wins | Independently labelled fit/exclusion quality remains necessary even without changing provider |
+
+Jobcu's default remains **medium**. Vendors' effort labels are not a common computation or
+accuracy scale. Absence of a literal medium is a solvable adapter/calibration question, not
+automatic model rejection. A future mapping must explicitly preserve enabled reasoning,
+disclose the actual native control and measure quality/cost; do not silently choose low/off,
+pretend native max is medium, or claim equal effort merely because a request succeeded.
+No mapping, model switch or quality claim was implemented in this assessment.
+
 ## AI subscription decision — 2026-10-09
 
 **Superseded as the current setup recommendation by the practical service choice above.**
@@ -568,6 +590,20 @@ filtering includes initial journey work, and online checking can include later j
 Answer waiting is recorded separately; compare original runs, not correction totals.
 
 #### Maps spending proposal — 2026-10-09
+
+**Follow-up:** the relevant account quota/billing dependency was inspected privately and a
+targeted daily-quota correction was visibly verified. Exact account observations, limits and
+proof remain outside Git. The app's monthly attempt allowance and total budget were preserved;
+no paid route test or new search was run. The daily restriction is consistent with the saved
+refusal pattern, but a successful post-change route/search is not yet measured. The current
+owner-approved total is EUR30; the earlier EUR25 allocation proposal below is historical.
+
+General lesson: distinguish daily project caps, per-minute throttling and the app's monthly
+allowance before recommending extra credit. A daily cap can interrupt one run while monthly
+headroom remains. Fix that specific restriction without automatically expanding monthly use,
+enabling another API operation or buying a subscription. Keeping the monthly allowance still
+means later work can reach it; do not promise measured journeys for every daily search or
+solved fit quality from a quota edit. The estimate/sample-negative safeguard remains separate.
 
 The owner asked whether reasonable paid Maps use would solve recurring errors without losing
 good jobs or harming scores. This request authorizes a proposal; it does not choose a paid
