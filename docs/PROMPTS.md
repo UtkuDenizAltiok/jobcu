@@ -76,6 +76,9 @@ Make technical model/source decisions yourself and give me simple account/setup 
 Prefer one provider/model when it meets the task; extra models are options, not user homework.
 Do not recommend a subscription from model count alone; verify its intended app use and shared
 allowance, and implement clarity rather than repeatedly hand unresolved choices back to me.
+Separate model capability, hosted features, current Jobcu integration and permitted use.
+Do not reject a provider from shared limits alone; calculate daily/monthly demand and sensitivity.
+Treat original hosted-tool reports as leads to verify, not universal support or fee guarantees.
 Before recommending spending, use saved usage when authorized, include thinking/tool charges
 and shared allowances, and distinguish a spending ceiling from an invoice or enforceable cap.
 Ask me only for a necessary new spending ceiling or account instruction, not to choose models.
@@ -127,6 +130,9 @@ Make technical model/source decisions yourself and give me simple account/setup 
 Prefer one provider/model when it meets the task; extra models are options, not user homework.
 Do not recommend a subscription from model count alone; verify its intended app use and shared
 allowance, and implement clarity rather than repeatedly hand unresolved choices back to me.
+Separate model capability, hosted features, current Jobcu integration and permitted use.
+Do not reject a provider from shared limits alone; calculate daily/monthly demand and sensitivity.
+Treat original hosted-tool reports as leads to verify, not universal support or fee guarantees.
 Before recommending spending, use saved usage when authorized, include thinking/tool charges
 and shared allowances, and distinguish a spending ceiling from an invoice or enforceable cap.
 Ask me only for a necessary new spending ceiling or account instruction, not to choose models.

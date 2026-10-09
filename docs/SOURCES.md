@@ -211,6 +211,41 @@ they are estimates, not limits for full-ad scoring. Optional **Use balance** all
 overage. Native upstream tool support does not establish Go entitlement. Retention/training
 differences are recorded below; these are service claims, not independently audited guarantees.
 
+**Capability versus service recheck, 2026-10-09:** the upstream
+[GPT-6 Luna reference](https://developers.openai.com/api/docs/models/gpt-6-luna) lists structured
+output and Responses web search; [MiMo Pro's specification](https://mimo.mi.com/models/en-US/mimo-v2.6-pro)
+lists structured output, thinking and web search; [GLM-5.3-Flash's guide](https://docs.z.ai/guides/vlm/glm-5.3-flash)
+explicitly describes professional document/research work beyond coding. These models are not
+limited to generating code. Their Go-hosted controls/tool access and Jobcu matching accuracy
+are separate questions. No evidence supports saying that all 32 models cannot perform the AI
+work. An API supplies a transport/protocol; its host still chooses models, tools and allowance.
+
+Go's client guidance says clients should send typical coding-agent traffic. That describes the
+service's expected workload, not a technical model restriction. The landing page's any-agent
+wording does not settle this specific use, and the checked terms restrict unintended purposes.
+Neither establishes a precise all-non-coding-request ban. Confirm the intended-use fit rather
+than turn ambiguity into a model-capability verdict or disguise requests. The repository's
+[contact configuration](https://github.com/anomalyco/opencode/blob/dev/.github/ISSUE_TEMPLATE/config.yml)
+directs support/how-to questions to its Discord community; no message was sent.
+
+**Hosted research evidence, 2026-10-09:** an
+[original test report dated 2026-08-13](https://github.com/lidge-jun/opencodex/issues/1616)
+describes DeepSeek V4 Flash on Go's Responses endpoint performing hosted web searches and
+returning source URLs. This is a useful positive lead, not current official entitlement,
+quality or fee verification. Its reported zero cost is not a promise of free tool use.
+Go's [published native Responses helper](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/app/src/routes/zen/util/provider/openai.ts#L14)
+preserves the native body; its [request passthrough](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/app/src/routes/zen/util/requestBody.ts#L1)
+rewrites the model while preserving the rest. These support investigating native hosted tools,
+not assuming all models/formats share them. A separate
+[upstream conversion report](https://github.com/anomalyco/opencode/issues/42090) describes
+non-function tool rejection in converted Responses requests; native format and current model
+routing matter. No paid probe was made, and reports were not treated as provider permission.
+
+The current [OpenCode client search documentation](https://opencode.ai/v2/docs/websearch)
+lists separate search providers. That is another research path, not proof that hosted Go
+research is impossible or that external search fees are included in a Go subscription.
+Distinguish client tools, model-native tools, gateway passthrough and actual plan entitlement.
+
 **One-model capability recheck, 2026-10-09:** Google's
 [Gemini 3.8 Flash model reference](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash)
 lists medium thinking, structured output and Search grounding. Its
@@ -266,10 +301,11 @@ off to avoid optional pay-as-you-go fallback when a shared ceiling is reached.
 
 **Buying decision evidence, 2026-10-09:** repeated public searches did not find an official
 permission statement for this non-coding workload. Go's current client instructions explicitly
-request typical coding traffic; its API protocols do not override that guidance. This supports
-not recommending a Go purchase solely for Jobcu today, without declaring its models inferior
-or claiming every non-coding request is forbidden. Written provider confirmation is the exact
-remaining permission dependency. No support message, payment or disguised request was made.
+request typical coding traffic; its API protocols do not override that guidance. The later
+capability recheck above supersedes interpreting this as blanket Go rejection.
+This leaves intended-use confirmation before paid adoption, without declaring its models
+inferior or claiming every non-coding request is forbidden. Written provider confirmation is
+the exact remaining permission dependency. No support message, payment or disguised request was made.
 
 **Second pass, 2026-10-09:** the public [Go model list](https://opencode.ai/zen/go/v1/models)
 responded without a key and includes the five candidates. Its IDs do not prove tool or effort

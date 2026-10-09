@@ -15,12 +15,13 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   setup controls. Existing choices, keys, routing and medium defaults are preserved.
   [PR #96](https://github.com/UtkuDenizAltiok/jobcu/pull/96) is verified merged at `61e6d9c`;
   exact merged-main Mac/Windows/privacy CI `37984746346` passed.
-- The current [simple setup decision](ENGINEERING.md#simple-ai-setup-and-buying-decision--2026-10-09)
-  is one Gemini 3.8 Flash model at medium plus Google Maps. Do not buy Go solely for Jobcu now:
-  published client guidance targets coding traffic; no positive official permission for this
-  workload was found. Gemini can handle all AI tasks with one key/model. This is an operational
-  recommendation, not proof it matches better than other models. The earlier top-five list
-  remains a comparison priority, not an adoption instruction or authorized paid experiment.
+- The [current Go reassessment](ENGINEERING.md#go-feasibility-and-interruption-continuity--2026-10-09)
+  keeps Go as a viable candidate, with GPT-6 Luna first and MiMo Pro as an interpretation
+  challenger. Preserve working Gemini medium meanwhile. Several candidates support documents,
+  structured output and research features; shared limits alone do not reject one daily search.
+  This supersedes interpreting the earlier do-not-buy-now wording as permanent exclusion or
+  claiming all 32 models are unable to do Jobcu's work. No candidate's matching superiority is
+  measured. Intended-use fit, hosted research/fees and labelled quality remain adoption checks.
 - The owner delegates technical decisions and explicitly raised the total ceiling to EUR30/
   month, superseding EUR25 and the larger proposal. Preserve working settings/keys and limits.
   No new purchase, top-up, provider switch, paid test, new search or further account edit was
@@ -87,23 +88,25 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
-No active product goal. **Simple AI setup and verified subscription decision** is complete:
-[PR #96](https://github.com/UtkuDenizAltiok/jobcu/pull/96), final PR head `63880f2`, exact-head
-Mac/Windows/privacy CI `37984316352` passed; merge commit `61e6d9c`, exact-main CI `37984746346`
-passed. The Mac checkout synchronized cleanly. **1,125 tests**, affected API/format/document
-checks, JS/Ruff/privacy/whitespace, complete diff and fictional Save/reload behavior passed.
-No paid call, new search, purchase, provider switch or owner settings/data change occurred.
+**Go feasibility/capacity and interruption continuity:** free investigation and records are
+complete; publication remains. Branch `codex/go-feasibility-reassessment`, base `07006ea`.
+Git object integrity, synchronized base and PR #97 exact-main CI `37985687468` were verified.
+Relevant private authorization/checkpoint were rechecked; read-only continuity and workload
+forecasts are saved outside Git. SQLite scratch and disposable research files are removed. No provider/route call, new search, purchase, message or owner setting change.
 
-Publication recovery only if the documentation-only branch `codex/simple-ai-handover` exists
-unmerged: base `61e6d9c`; commit/push any remaining handover changes, recover its actual PR/head,
-require Mac/Windows/privacy CI there, merge commit, synchronize main and verify exact-head CI.
-Runtime inputs are unchanged; reuse the recorded full-suite check and run document checks.
-If already merged/verified, there is no remaining work; do not open a replacement goal in Start.
+Verified checks: the unchanged 1,125-test runtime baseline is reused; document links, JS syntax,
+Ruff/privacy/whitespace and complete diff review passed for the final records. No runtime feature
+was changed. The public examples are fictional; real workload forecasts remain private.
+Exact next action: commit/push and open this branch's PR, require
+Mac/Windows/privacy CI at its actual final head, merge commit, synchronize main and verify
+exact-main CI. When merged and verified this goal is complete; no product goal remains.
 
-Go adoption remains deferred, not active work: written provider permission for this non-coding
-use and an independently labelled bounded paid comparison are its exact dependencies. The
-current buying decision is one working Gemini model plus existing Maps. No model-choice,
-extra-search or payment homework is required from the owner.
+Go adoption is deferred, not rejected. A generic support question is prepared in the key guide;
+explicit owner instructions are required before sending it in his name. Hosted custom research
+is currently disabled by Jobcu's integration guard; positive reports warrant verification,
+not an assumption that all models lack it. Intended-use/tool/fee confirmation, a saved key
+entered only in Jobcu and bounded fictional matching comparison are the exact adoption steps.
+Do not infer new paid-test authority or launch another search to answer this question.
 
 ### Verify before relying on
 
@@ -132,7 +135,8 @@ extra-search or payment homework is required from the owner.
 ### Waiting on the owner
 
 - Keep one working Gemini model at medium; no Go purchase, replacement key or model choice is
-  needed. The relevant Maps account investigation and targeted daily-quota correction are
+  needed for the working setup. Go remains a candidate. The relevant Maps account investigation
+  and targeted daily-quota correction are
   complete; no further payment/quota homework is needed for that correction. The next normal
   on-demand search can provide post-change evidence. Its monthly attempt allowance still
   applies; this is not a promise of measured journeys on every daily search.

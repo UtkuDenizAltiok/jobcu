@@ -115,15 +115,57 @@ Code/tests establish behavior; the latest current decision establishes intent.
   established runtime/test/tool layout; consolidate only where responsibilities actually overlap.
   Retire merged branches after checking PRs/worktrees; preserve unmerged or active work.
 
+## Go feasibility and interruption continuity — 2026-10-09
+
+Current decision: **keep Go as a viable evaluation candidate**, with GPT-6 Luna first and
+MiMo Pro as the first interpretation challenger. Preserve the working one-model Gemini setup
+while resolving Go's intended-use fit, hosted research/fees and independent matching quality.
+This supersedes reading the earlier do-not-buy-now wording as a permanent exclusion. Shared
+allowances and coding-oriented client guidance alone do not establish inadequate capacity or
+model inability. Dated capability/tool evidence lives in [SOURCES](SOURCES.md#opencode-go-and-ai-credit-eligibility);
+private workload calculations and continuity details stay outside Git.
+
+| Question | Evidence / decision |
+|---|---|
+| Can the models understand documents and return structured matching answers? | Several upstream specifications explicitly support those capabilities and non-coding work. Gemini is not uniquely capable; actual matching quality still needs independent cases. |
+| Does Go expose cited research through the chosen endpoint? | Native Responses passthrough and an original hosted-search report provide a positive lead. Check current tool behavior, citations and fees for the chosen model rather than claim all 32 lack research. |
+| Does Jobcu currently enable that custom-host research? | Custom Responses/Messages deliberately set `can_search_the_web=False`; generation already supports the three formats. This is a fixable integration guard, not a permanent provider/model limitation. A separate native research provider works today. |
+| Is this workload appropriate for the subscription? | Published guidance requests coding-agent traffic; obtain clarification for this personal non-coding workload. Use honest client/session identity and do not infer rights from a successful request. |
+
+For a once-daily search, forecast token work including thinking once, with all work assumed in
+one five-hour window, seven runs per week and 30 per month. Use current uncached rates and
+context/peak tiers; add retries, variance and other model use. The
+[fictional examples](#complete-catalogue-and-universal-api-decision--2026-10-09) demonstrate
+plausible headroom for several candidates, while larger MiMo demand can exceed the monthly
+allowance. Private saved usage was evaluated separately, not copied into the examples.
+One saved search cannot establish future variance or an equivalent reasoning/token workload
+on another model. Shared capacity is not inherently a blocker; decide from measured workload,
+quality and necessary tools. A 24-hour posting window determines ad age, not token consumption.
+
+Continuity verification after the reported short network loss: main matched GitHub at `07006ea`,
+PR #97 was merged, and exact-main Mac/Windows/privacy CI `37985687468` passed. Git's full object
+check found no missing/corrupt objects; ordinary unreachable blobs were retained. Authorized
+read-only private database/checkpoint checks passed; disposable SQLite scratch was deleted.
+No pending development write needed recovery, no owner data/settings/key changed, and no
+provider call or search was made. A temporary network outage does not by itself prove either
+corruption or uninterrupted provider work; report only the verified saved state.
+
+Exact adoption dependency: the prepared generic support question asks whether Go permits
+personal non-coding document/JSON matching and whether the chosen Responses model includes
+hosted cited web search, with its applicable charges/allowance. Sending it in the owner's name
+needs explicit instructions under AGENTS; no support message was sent. A subsequent bounded
+fictional paired comparison through Jobcu must preserve medium effort and necessary evidence.
+No new subscription, provider switch, research toggle or paid experiment is introduced here.
+
 ## Simple AI setup and buying decision — 2026-10-09
 
 Current operational decision: **one Gemini 3.8 Flash model at medium plus Google Maps**.
 Gemini supports structured output, medium thinking and native cited research; one AI key/model
 can perform all Jobcu AI tasks. This is the simplest working setup, not a claim that Gemini
 beats MiMo, DeepSeek, GLM or GPT on matching. The earlier replacement shortlist remains an
-evaluation order, not a purchase instruction or an active paid comparison. Do not buy Go
-solely for Jobcu now: its published client guidance targets coding traffic and no official
-positive permission for this workload was found. The complete allowance, policy and credit
+evaluation order, not a purchase instruction or an active paid comparison. Go remains a viable
+candidate as clarified above; defer a Jobcu-only purchase/switch until its intended-use fit,
+necessary tools and matching quality are established. The complete allowance, policy and credit
 facts live in [SOURCES](SOURCES.md#opencode-go-and-ai-credit-eligibility). Model count supplies
 choice, not an accuracy improvement or independent allowances.
 
@@ -261,9 +303,12 @@ Complete individual disposition, based on fit to this investigation, not intrins
 Fictional capacity planning extends the earlier smaller/larger scenarios (500K/100K and
 1M/250K fresh input/output daily for 30 days, thinking included once, no cache/retries):
 
-| Newly prioritized model | Smaller monthly equivalent share | Larger share |
+| Candidate | Smaller monthly equivalent share | Larger share |
 |---|---:|---:|
+| GPT-6 Luna | 20% | 45% |
+| MiMo-V2.6-Pro | 60.9% | 130.5% |
 | DeepSeek V4.1 Flash, off-peak / peak | 6.75% / 13.5% | 15% / 30% |
+| Claude Haiku 5.5, prompts within 100K | 20% | 45% |
 | GLM-5.3-Flash | 6.25% | 13.75% |
 
 These calculations do not establish equal tokenization, reasoning, accuracy or billed demand.
