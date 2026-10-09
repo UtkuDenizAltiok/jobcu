@@ -221,6 +221,19 @@ not establish independent matching superiority or success on every fact. The
 credit to Gemini API usage; other Cloud services remain separately billed. No owner balance,
 account identifier or expiry is recorded here.
 
+**Maps-tool distinction, 2026-10-09:** Gemini also offers
+[Maps grounding](https://ai.google.dev/gemini-api/docs/maps-grounding), documented as a textual
+search tool for places, reviews, addresses and opening hours, returning cited model text.
+Its [Gemini pricing](https://ai.google.dev/gemini-api/docs/pricing#gemini-3.8-flash) lists 5,000
+free monthly Maps-grounding requests shared across Gemini 3/newer models, then USD14 per
+1,000 search queries, plus model tokens. This is Gemini API work, distinct from Cloud Routes
+billing. Jobcu currently uses Routes for structured origin/destination journey measurements,
+not Gemini Maps grounding. The checked grounding guide does not establish an equivalent
+transit-departure matrix contract. Inference: retain Routes for measured travel; do not replace
+it with generated location answers or promise the existing Gemini balance pays Routes.
+Maps grounding is a possible future place-evidence method, not an implemented feature or a
+permission/price comparison proving it is a better route source. No tool call was made.
+
 **Shared allowance and reset verification, 2026-10-09:** the published
 [billing handler](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/app/src/routes/zen/util/handler.ts#L1191)
 adds `round(cost * model.costMultiplier)` to the same subscriber/workspace monthly, weekly
