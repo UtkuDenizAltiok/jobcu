@@ -22,6 +22,9 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   This supersedes interpreting the earlier do-not-buy-now wording as permanent exclusion or
   claiming all 32 models are unable to do Jobcu's work. No candidate's matching superiority is
   measured. Intended-use fit, hosted research/fees and labelled quality remain adoption checks.
+  [PR #98](https://github.com/UtkuDenizAltiok/jobcu/pull/98) is verified merged at `fae35e2`;
+  exact merged-main Mac/Windows/privacy CI `37989205909` passed. Git object and read-only
+  saved-search integrity checks found no interruption damage or newer unfinished search.
 - The owner delegates technical decisions and explicitly raised the total ceiling to EUR30/
   month, superseding EUR25 and the larger proposal. Preserve working settings/keys and limits.
   No new purchase, top-up, provider switch, paid test, new search or further account edit was
@@ -88,25 +91,11 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
-**Go feasibility/capacity and interruption continuity:** free investigation and records are
-complete; publication remains. Branch `codex/go-feasibility-reassessment`, base `07006ea`.
-Git object integrity, synchronized base and PR #97 exact-main CI `37985687468` were verified.
-Relevant private authorization/checkpoint were rechecked; read-only continuity and workload
-forecasts are saved outside Git. SQLite scratch and disposable research files are removed. No provider/route call, new search, purchase, message or owner setting change.
-
-Verified checks: the unchanged 1,125-test runtime baseline is reused; document links, JS syntax,
-Ruff/privacy/whitespace and complete diff review passed for the final records. No runtime feature
-was changed. The public examples are fictional; real workload forecasts remain private.
-Exact next action: commit/push and open this branch's PR, require
-Mac/Windows/privacy CI at its actual final head, merge commit, synchronize main and verify
-exact-main CI. When merged and verified this goal is complete; no product goal remains.
-
-Go adoption is deferred, not rejected. A generic support question is prepared in the key guide;
-explicit owner instructions are required before sending it in his name. Hosted custom research
-is currently disabled by Jobcu's integration guard; positive reports warrant verification,
-not an assumption that all models lack it. Intended-use/tool/fee confirmation, a saved key
-entered only in Jobcu and bounded fictional matching comparison are the exact adoption steps.
-Do not infer new paid-test authority or launch another search to answer this question.
+**None.** The Go reassessment and interruption checks are complete and verified published.
+Relevant private authorization/checkpoint were rechecked; workload forecasts and continuity
+evidence stay outside Git. Disposable scratch is removed. No provider/route call, new search,
+purchase, message or owner setting change was made. No runtime feature was changed.
+Start prepares the next chat and waits; adoption dependencies below do not open a new goal.
 
 ### Verify before relying on
 
@@ -134,6 +123,12 @@ Do not infer new paid-test authority or launch another search to answer this que
 
 ### Waiting on the owner
 
+- Go adoption is deferred, not rejected. The [generic support question](guides/getting-your-keys.md)
+  is ready; sending it in the owner's name requires explicit instructions. Intended-use fit,
+  hosted tools/fees, a key entered only in Jobcu and an explicitly bounded fictional matching
+  comparison are the next adoption steps. Hosted custom research is currently disabled by an
+  integration guard; positive reports justify verification. Do not infer new paid-test authority
+  or start another search for this investigation.
 - Keep one working Gemini model at medium; no Go purchase, replacement key or model choice is
   needed for the working setup. Go remains a candidate. The relevant Maps account investigation
   and targeted daily-quota correction are
