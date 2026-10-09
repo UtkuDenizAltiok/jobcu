@@ -60,9 +60,10 @@ queries. Preserve my data and app state; use an authorized isolated copy for inv
 
 Start with the read-only saved review; flag a newer unfinished attempt. Judge full evidence
 against the actual documents and criteria before seeing scores, including every top-10 job.
-Investigate freshness, misses, duplicates, exclusions, requirements, ranking and explanations
-across the whole pipeline. Distinguish original search timing from corrections and cumulative
-usage. Keep missing evidence unknown; counts and scores alone do not prove accuracy or recall.
+Investigate freshness, misses, duplicates, exclusions, requirements, travel evidence, ranking
+and explanations across the whole pipeline. Distinguish original search timing from corrections
+and cumulative usage. Keep missing evidence unknown; counts and scores alone do not prove
+accuracy or recall.
 Use your own judgement and relevant public primary research; optional user ratings are not
 homework or automatic model training.
 
@@ -96,9 +97,9 @@ code/tests and any older saved evidence already authorized for private review.
 
 Question assumptions across the whole app and pipeline, beyond my examples and the backlog.
 Investigate coverage/freshness, multilingual discovery, permitted sources and original ads,
-criteria understanding, exclusions/duplicates, scoring/explanations, repeated API work,
-recovery and a simple interface. These are starting points, not a limit. Simplify overlapping
-workflows/files while preserving detailed setup, usage and contribution guidance.
+criteria understanding, travel evidence, exclusions/duplicates, scoring/explanations, repeated
+API work, recovery and a simple interface. These are starting points, not a limit. Simplify
+overlapping workflows/files while preserving detailed setup, usage and contribution guidance.
 
 Assess coverage independently of result counts. Compare existing and potential sources/search
 methods for unique fresh relevant jobs, original evidence, country/profession gaps, reliability

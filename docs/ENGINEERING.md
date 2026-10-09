@@ -393,6 +393,58 @@ ratings still limit live quality claims. Step timings include the activities of 
 filtering includes initial journey work, and online checking can include later journey work.
 Answer waiting is recorded separately; compare original runs, not correction totals.
 
+#### Partial route outcomes — 2026-10-09
+
+The Deep improvement investigation ranked these alternatives before implementing one:
+
+| Rank / candidate | Expected benefit and evidence | Effort / risk | Verification |
+|---|---|---|---|
+| 1. Maps per-route uncertainty | High: documented errors became failed conditions; 9 fictional baseline failures | Medium / medium | Partial data, no-route, fallback attribution, limits, persistence and scoring; implemented below |
+| 2. Unresolved source-place filtering | High potential: the helper contradicts its keep-unknown contract | Small / medium | Regions/multiple locations, affected source permissions and independent coverage evidence |
+| 3. Ashby secondary-country metadata | Potential country misses: parser/contract mismatch recorded in SOURCES | Medium / medium | API shapes, country/identity handling, terms and coverage sample |
+| 4. Bulk full-content career lists | Possible fewer detail requests; documented capability already exists | Medium / medium | Payload/latency/evidence comparison; no assumed recall or cost saving |
+
+Maps had a direct false-exclusion path and free reproducible evidence. Source additions/removals
+were not justified by counts or documentation alone. These other candidates remain separate
+leads; [SOURCES](SOURCES.md#search-method-research-leads--2026-10-09) records public contracts.
+
+The empty-duration interpretation is superseded: a per-element service error, missing/invalid
+answer or failed alternative is not a confirmed no-route outcome. `TravelReading` keeps usable
+durations, unchecked towns and per-town attribution. A successful journey within the limit can
+establish a pass; a longer partial journey cannot prove the unchecked alternative fails.
+Only successful explicit no-route elements supply a known null. Raw response text is not shown
+or logged; known access refusals or persistent per-element quota scopes stop later attempts.
+
+The existing fallback estimates only unresolved towns without a usable Maps time. It preserves
+Maps evidence and labels each town separately; only AI values reach `travel_memory`. Omitted,
+unrequested or conflicting AI answers stay unknown. A passing known route needs no extra cache
+read or estimate just to complete alternatives. Corrected limits reuse sufficient evidence;
+changed reference towns need their own evidence. Routing version 3 refreshes old Maps readings
+whose nulls did not distinguish errors; original saved result snapshots remain unchanged.
+
+Fictional comparison with `786ccf2` (`tests/test_maps_elements.py`; no live calls):
+
+| Case | Before | After | Meaningful check |
+|---|---|---|---|
+| Two service errors / missing or invalid answer | Failing travel condition; job excluded | Unknown condition; job retained for scoring | One matrix / two attempted elements; no raw account text |
+| 60-minute valid sample, other sample fails; limit 35 | Excluded | Retained with 60-minute partial evidence and unchecked alternative | Valid duration retained, no invented fast journey |
+| 19-minute valid sample, other sample fails | Pass | Same measured pass | No unnecessary fallback call; truthful Maps attribution |
+| All samples explicitly no route | Fail | Same fail | No fallback call; distinct no-route wording |
+| Failed town plus another town measured at 60 min | Null treated as no route | Existing 60 min retained; missing town can get labelled 22 min estimate | Only estimated town enters AI memory; card stays an estimate |
+| Omitted AI alternative | Implicit null could reject a job | Unknown until supplied | No fabricated route or cached judgement |
+| Known persistent quota in a partial response | Two attempts/four elements/1 s simulated host wait | One attempt/two elements/0 s wait; valid partial route retained | Same two fictional workplaces; remaining journey stays unknown |
+
+A direct replay of baseline/current readers confirmed the service-error and long-partial
+cases change from no to unknown with the same one attempt/two elements/zero waits. The short
+19-minute partial route remains a pass with the same request count. The quota row above uses
+a fake clock and identical response data; it does not measure actual latency or Google billing.
+
+The initial 12-case reproduction had 9 failures on the baseline; these now pass. Broader
+regressions cover all 30 countries, fictional engineering/teaching/nursing and two end-to-end
+engineering/library searches where uncertain jobs reach scoring while confirmed no-route
+jobs do not. They establish application behavior, not live route accuracy, market recall,
+provider fit quality, cost or latency. Live review still needs the private procedure/evidence.
+
 ### Fictional full-ad recovery comparison — 2026-10-08
 
 Public API/evidence findings live in [SOURCES](SOURCES.md#full-ad-evidence-and-existing-detail-apis).
@@ -442,9 +494,8 @@ named places despite its keep-unknown contract. This needs a focused fictional r
 and review before implementation. Full-ad fallback is resolved above; location checks made
 before full text arrives still need a focused audit of newly revealed place evidence.
 Request budgets are charged by adapters before the HTTP client, whose
-internal retries need a separate attempt-accounting audit outside Maps. Per-element Maps
-service errors currently share an empty-duration outcome with unavailable routes; preserve
-partial valid measurements and distinguish uncertainty before changing those outcomes.
+internal retries need a separate attempt-accounting audit outside Maps. The per-element Maps
+empty-duration outcome is superseded by [partial route outcomes](#partial-route-outcomes--2026-10-09).
 The Greenhouse modification fallback is superseded by the original-date correction above.
 Original-date provenance in other adapters still needs a source-specific audit.
 Provider retry/date handling and

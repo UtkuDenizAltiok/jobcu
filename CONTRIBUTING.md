@@ -56,6 +56,9 @@ evidence. Mock readers and HTTP transports exercise source limits without vacanc
 For Maps reliability, `tests/test_maps_recovery.py` covers persistent/transient quotas,
 attempted-element accounting, cached evidence, Stop, concurrent allowance checks and truthful
 wait progress. Fake clocks establish protocol waits; they do not measure live search speed.
+`tests/test_maps_elements.py` distinguishes service errors, incomplete samples and confirmed
+no-route outcomes, preserves mixed Maps/AI attribution and memory boundaries, and exercises
+retention/scoring across fictional professions and all supported countries.
 For scoring evidence, `tests/test_requirements.py` checks ad/profile quote support, met/unmet/
 unknown rubric consistency, clipped text, per-job research boundaries, late resolution and
 legacy blockers. `tests/test_search.py` verifies the notes reach results. These scripted checks

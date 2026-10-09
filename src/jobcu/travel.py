@@ -32,7 +32,7 @@ import logging
 import math
 import re
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -74,7 +74,7 @@ NEAREST = 2
 ESTIMATE_BATCH = 30
 MEMORY_DAYS = 30
 MAPS, ESTIMATE = "Google Maps", "AI estimate"
-MAPS_ROUTING_VERSION = 2
+MAPS_ROUTING_VERSION = 3
 
 _TIMEZONES = {"GB": "Europe/London", "IE": "Europe/Dublin", "PT": "Europe/Lisbon",
               "IS": "Atlantic/Reykjavik", "FI": "Europe/Helsinki", "EE": "Europe/Tallinn",
@@ -84,6 +84,20 @@ _TIMEZONES = {"GB": "Europe/London", "IE": "Europe/Dublin", "PT": "Europe/Lisbon
 
 class MapsError(Exception):
     """Google Maps can't be used right now, in words for the person."""
+
+
+@dataclass
+class TravelReading:
+    """Known journeys and explicitly unchecked alternatives, with per-town attribution.
+
+    A known null means no journey was found/estimated. An omitted or unchecked town is not
+    evidence of that outcome. A usable Maps duration can coexist with an unchecked sample.
+    """
+
+    minutes: dict[str, int | None]
+    unchecked: set[str] = field(default_factory=set)
+    by_town: dict[str, str] = field(default_factory=dict)
+    by: str = MAPS
 
 
 @dataclass(frozen=True)
@@ -249,6 +263,8 @@ def answer(condition: Condition, group: JobGroup) -> str:
     minutes = [m for m in (entry.get("minutes") or {}).values() if m is not None]
     if minutes and min(minutes) <= (condition.max_minutes or 0):
         return "yes"
+    if entry.get("unchecked"):
+        return "unknown"
     return "no"
 
 
@@ -279,11 +295,17 @@ def detail(condition: Condition, group: JobGroup) -> tuple[str, str] | None:
     if minutes:
         town, best = min(minutes.items(), key=lambda item: item[1])
         text = f"in {town}" if best == 0 else f"{town}, {best} min {words}"
+        by = (entry.get("by_town") or {}).get(town) or entry.get("by") or "estimate"
+        if entry.get("unchecked"):
+            text += "; another sampled journey couldn't be checked"
+    elif entry.get("unchecked"):
+        text, by = f"Journey couldn't be checked {words}", "Not checked"
     elif entry.get("nearest"):
-        text = f"nearest is {entry['nearest']}, too far {words}"
+        text, by = f"nearest is {entry['nearest']}, too far {words}", "distance"
     else:
-        text = "no such place in reach"
-    return text, entry.get("by") or "estimate"
+        by = entry.get("by") or "estimate"
+        text = f"No sampled journey found {words}" if by == MAPS else "no such place in reach"
+    return text, by
 
 
 def departure(country: str, now: datetime) -> str:
@@ -336,17 +358,7 @@ class GoogleMaps:
             scope = _quota_scope(response)
             # Raw error messages/metadata can name the owner's project or account.
             log.warning("Google Maps refused a request (code 429; quota scope: %s)", scope)
-            messages = {
-                "day": "Google Maps' daily quota is used up. Wait for Google to reset it.",
-                "month": "Google Maps' monthly quota is used up. Wait for Google to reset it.",
-                "zero": "Google Maps reports a zero request quota. Check Routes API quotas "
-                        "in your Google Cloud project.",
-                "minute": "Google Maps is temporarily limiting requests. Jobcu tried again "
-                          "within its route allowance.",
-                "unknown": "Google Maps reached a request or quota limit but did not say "
-                           "when it resets. Check Routes API quotas in your Google Cloud project.",
-            }
-            message = messages[scope]
+            message = _quota_message(scope)
             if scope in {"day", "month", "zero"}:
                 self._unavailable = message
             raise MapsError(message)
@@ -359,7 +371,7 @@ class GoogleMaps:
             raise MapsError("Google Maps answered in an unexpected way.") from exc
 
     def minutes(self, origin: Point, towns: list[place_list.Town], mode: str,
-                to_centre: bool = False) -> dict[str, int | None]:
+                to_centre: bool = False) -> TravelReading:
         """The faster sampled journey into each town; centre only when explicitly requested."""
         targets = route_targets(origin, towns, to_centre)
         minutes = self._matrix(
@@ -367,19 +379,28 @@ class GoogleMaps:
                                      "longitude": origin.longitude}}},
             [{"location": {"latLng": {"latitude": latitude, "longitude": longitude}}}
              for _, (latitude, longitude) in targets], mode, origin.country)
-        found: dict[str, int | None] = {town.name: None for town in towns}
-        for (name, _), value in zip(targets, minutes, strict=True):
-            if value is not None and (found[name] is None or value < found[name]):
+        found: dict[str, int | None] = {}
+        unchecked: set[str] = set()
+        for index, (name, _) in enumerate(targets):
+            if index not in minutes:
+                unchecked.add(name)
+                continue
+            value = minutes[index]
+            if name not in found or value is not None and (
+                    found[name] is None or value < found[name]):
                 found[name] = value
-        return found
+        return TravelReading(found, unchecked, dict.fromkeys(found, MAPS))
 
     def between_addresses(self, origin: str, destination: str, mode: str,
                           country: str) -> int | None:
         """A named public test journey, without using the search's city-edge approximation."""
-        return self._matrix({"address": origin}, [{"address": destination}], mode, country)[0]
+        found = self._matrix({"address": origin}, [{"address": destination}], mode, country)
+        if 0 not in found:
+            raise MapsError(self._unavailable or "Google Maps couldn't check the sample journey.")
+        return found[0]
 
     def _matrix(self, origin: dict, destinations: list[dict], mode: str,
-                country: str) -> list[int | None]:
+                country: str) -> dict[int, int | None]:
         body = {
             "origins": [{"waypoint": origin}],
             "destinations": [{"waypoint": destination} for destination in destinations],
@@ -391,15 +412,43 @@ class GoogleMaps:
             body["departureTime"] = departure(country, self._now())
         elements = self._post(
             ROUTES, body, "originIndex,destinationIndex,duration,condition,status")
-        found: list[int | None] = [None] * len(destinations)
-        for element in elements if isinstance(elements, list) else []:
-            index = element.get("destinationIndex", 0)
-            duration = str(element.get("duration") or "")
-            if (element.get("status") or {}).get("code", 0) != 0 or (
-                    element.get("condition") != "ROUTE_EXISTS"):
+        if not isinstance(elements, list):
+            raise MapsError("Google Maps answered in an unexpected way.")
+        found: dict[int, int | None] = {}
+        seen: set[int] = set()
+        for element in elements:
+            if not isinstance(element, dict):
                 continue
-            if not duration.endswith("s") or not isinstance(index, int) or (
-                    not 0 <= index < len(destinations)):
+            index = element.get("destinationIndex", 0)
+            origin_index = element.get("originIndex", 0)
+            if type(index) is not int or not 0 <= index < len(destinations) or (
+                    type(origin_index) is not int or origin_index != 0):
+                continue
+            if index in seen:
+                found.pop(index, None)  # conflicting/repeated elements cannot prove a journey
+                continue
+            seen.add(index)
+            status = element.get("status") or {}
+            if not isinstance(status, dict):
+                continue
+            code = status.get("code", 0)
+            if type(code) is not int:
+                continue
+            if code != 0:
+                if code in {7, 16}:
+                    self._unavailable = "Google Maps refused access to route calculations. " \
+                                        "Check the key in Settings and permissions in Google Cloud."
+                if code == 8:
+                    scope = _quota_scope_error(status)
+                    if scope in {"day", "month", "zero"}:
+                        self._unavailable = _quota_message(scope)
+                continue
+            if element.get("condition") == "ROUTE_NOT_FOUND":
+                found[index] = None
+                continue
+            duration = element.get("duration")
+            if element.get("condition") != "ROUTE_EXISTS" or not isinstance(duration, str) or (
+                    not duration.endswith("s")):
                 continue
             try:
                 seconds = float(duration[:-1])
@@ -410,11 +459,32 @@ class GoogleMaps:
         return found
 
 
+def _quota_message(scope: str) -> str:
+    return {
+        "day": "Google Maps' daily quota is used up. Wait for Google to reset it.",
+        "month": "Google Maps' monthly quota is used up. Wait for Google to reset it.",
+        "zero": "Google Maps reports a zero request quota. Check Routes API quotas "
+                "in your Google Cloud project.",
+        "minute": "Google Maps is temporarily limiting requests. Jobcu tried again "
+                  "within its route allowance.",
+        "unknown": "Google Maps reached a request or quota limit but did not say "
+                   "when it resets. Check Routes API quotas in your Google Cloud project.",
+    }[scope]
+
+
 def _quota_scope(response: httpx.Response) -> str:
     """Prefer structured quota units/names; prose is a fallback, never a logged identifier."""
     try:
         errors = response.json()
         error = (errors[0] if isinstance(errors, list) else errors).get("error") or {}
+        return _quota_scope_error(error)
+    except (ValueError, AttributeError, IndexError, TypeError):
+        return "unknown"
+
+
+def _quota_scope_error(error: dict) -> str:
+    """The same quota classifier for HTTP errors and individual route status objects."""
+    try:
         details = error.get("details") or []
         hints = []
         for detail in details:
@@ -446,7 +516,8 @@ def _quota_scope(response: httpx.Response) -> str:
 class TravelGuess(BaseModel):
     id: str
     town: str
-    minutes: int | None = Field(description="Whole minutes door to door; null if no sensible way")
+    minutes: int | None = Field(
+        ge=0, description="Whole minutes door to door; null if no sensible way")
 
 
 class TravelGuesses(BaseModel):
@@ -519,8 +590,11 @@ class TravelMeter:
                                          "nearest": ranked[0][1].name}
                 continue
             known = condition.travel.get(key) or {}
-            if known.get("point") == point.key and all(
-                    town.name in (known.get("minutes") or {}) for town in reachable) and (
+            complete = all(town.name in (known.get("minutes") or {}) and
+                           town.name not in (known.get("unchecked") or []) for town in reachable)
+            passes = any((value := (known.get("minutes") or {}).get(town.name)) is not None
+                         and value <= condition.max_minutes for town in reachable)
+            if known.get("point") == point.key and (complete or passes) and (
                     known.get("by") != MAPS
                     or known.get("routing_version") == MAPS_ROUTING_VERSION):
                 continue  # measured before (a corrected limit needs nothing new)
@@ -535,57 +609,86 @@ class TravelMeter:
         if self._maps and not centre:
             self._note("Google Maps compares sampled city-edge and city-centre destinations; "
                        "other districts may have faster connections.")
-        found = self._minutes(list(wanted.values()), mode, centre)
+        found = self._minutes(list(wanted.values()), mode, centre,
+                              max_minutes=condition.max_minutes)
         for point, _towns, keys in wanted.values():
             if point.key not in found:
                 continue
-            minutes, by = found[point.key]
+            reading = found[point.key]
             for key in keys:
-                condition.travel[key] = {"minutes": minutes, "by": by, "from": point.how,
-                                         "point": point.key}
-                if by == MAPS:
+                condition.travel[key] = {"minutes": reading.minutes, "by": reading.by,
+                                         "by_town": reading.by_town,
+                                         "unchecked": sorted(reading.unchecked),
+                                         "from": point.how, "point": point.key}
+                if reading.by == MAPS or MAPS in reading.by_town.values():
                     condition.travel[key]["routing_version"] = MAPS_ROUTING_VERSION
         self._settle_status(condition)
 
-    def _minutes(self, places, mode, centre=False
-                 ) -> dict[str, tuple[dict[str, int | None], str]]:
+    def _minutes(self, places, mode, centre=False, *, max_minutes=None
+                 ) -> dict[str, TravelReading]:
         """Minutes to each town for each place, with who measured them: Google Maps when there
         is a key, otherwise the AI (its estimates from the last 30 days first)."""
-        found: dict[str, tuple[dict[str, int | None], str]] = {}
-        measured = self._with_maps(places, mode, centre) if self._maps else {}
-        for point, _towns, _keys in places:
-            if point.key in measured:
-                found[point.key] = (measured[point.key], MAPS)
+        found = self._with_maps(places, mode, centre) if self._maps else {}
         missing = []
         for point, towns, keys in places:
-            if point.key in found:
-                continue
-            known = recall(point, towns, mode, now=self._now(), centre=centre)
-            still = [town for town in towns if town.name not in known]
-            if still:
-                missing.append((point, still, keys, known))
-            else:
-                found[point.key] = (known, ESTIMATE)
-        guesses = self._estimate([(p, t, k) for p, t, k, _ in missing], mode, centre)
-        for point, towns, _, known in missing:
+            reading = found.setdefault(point.key, TravelReading(
+                {}, {town.name for town in towns}, by=ESTIMATE))
+            # Preserve a usable Maps time even when its other sample failed. It proves a pass
+            # if short enough; a long partial time cannot prove the unchecked alternative fails.
+            unresolved = [town for town in towns if town.name in reading.unchecked
+                          and reading.minutes.get(town.name) is None]
+            if not unresolved or max_minutes is not None and any(
+                    value is not None and value <= max_minutes
+                    for value in reading.minutes.values()):
+                continue  # sufficient measured evidence needs no AI cache read or fallback call
+            known = recall(point, unresolved, mode, now=self._now(), centre=centre)
+            reading.minutes.update(known)
+            reading.by_town.update(dict.fromkeys(known, ESTIMATE))
+            reading.unchecked.difference_update(known)
+            still = [town for town in unresolved if town.name not in known]
+            passes = max_minutes is not None and any(
+                value is not None and value <= max_minutes for value in reading.minutes.values())
+            if still and not passes:
+                missing.append((point, still, keys))
+        guesses = self._estimate(missing, mode, centre)
+        for point, towns, _ in missing:
             if point.key not in guesses:
                 continue
-            new = {town.name: guesses[point.key].get(town.name) for town in towns}
+            new = {town.name: guesses[point.key][town.name] for town in towns
+                   if town.name in guesses[point.key]}
             remember(point, new, mode, now=self._now(), centre=centre)
-            found[point.key] = ({**known, **new}, ESTIMATE)
+            reading = found[point.key]
+            reading.minutes.update(new)
+            reading.by_town.update(dict.fromkeys(new, ESTIMATE))
+            reading.unchecked.difference_update(new)
+        for reading in found.values():
+            usable = {town: value for town, value in reading.minutes.items() if value is not None}
+            if usable:
+                best = min(usable, key=usable.get)
+                reading.by = reading.by_town.get(best, reading.by)
+            elif ESTIMATE in reading.by_town.values():
+                reading.by = ESTIMATE
         return found
 
-    def _with_maps(self, places, mode, centre=False) -> dict[str, dict[str, int | None]]:
-        measured: dict[str, dict[str, int | None]] = {}
+    def _with_maps(self, places, mode, centre=False) -> dict[str, TravelReading]:
+        measured: dict[str, TravelReading] = {}
+        reported = False
         for point, towns, _ in places:
             try:
                 measured[point.key] = self._maps.minutes(point, towns, mode, centre)
+                if measured[point.key].unchecked and not reported:
+                    self._note("Google Maps couldn't check some sampled journeys. Unchecked "
+                               "journeys use labelled AI estimates where available; otherwise "
+                               "they remain unknown.")
+                    reported = True
             except BudgetExhausted:
                 self._note("Google Maps: this month's route limit is used up, so the "
-                           "remaining travel times are AI estimates.")
+                           "remaining travel times use AI estimates where available, "
+                           "otherwise they remain unknown.")
                 break
             except MapsError as exc:
-                self._note(f"{exc} The remaining travel times are AI estimates.")
+                self._note(f"{exc} The remaining travel times use AI estimates where "
+                           "available, otherwise they remain unknown.")
                 break
         return measured
 
@@ -599,9 +702,10 @@ class TravelMeter:
             system = system.replace(TO_EDGE, TO_CENTRE)
         for start in range(0, len(places), ESTIMATE_BATCH):
             batch = places[start:start + ESTIMATE_BATCH]
-            lines, ids = [], {}
+            lines, ids, destinations = [], {}, {}
             for number, (point, towns, _) in enumerate(batch):
                 ids[f"P{number}"] = point
+                destinations[f"P{number}"] = {town.name for town in towns}
                 where = f"{point.town or 'a workplace'}, {COUNTRIES[point.country].name}"
                 targets = ", ".join(
                     f"{town.name} ({'centre' if centre else 'edge'} "
@@ -616,18 +720,30 @@ class TravelMeter:
             except AIError as exc:
                 self._note(f"Travel times couldn't be estimated: {exc.message}")
                 return guesses
+            seen, conflicts = {}, set()
             for guess in reply.answers:
                 point = ids.get(guess.id)
-                if point is not None:
-                    guesses.setdefault(point.key, {})[guess.town] = guess.minutes
+                if point is None or guess.town not in destinations[guess.id]:
+                    continue
+                key = (guess.id, guess.town)
+                if key in conflicts:
+                    continue
+                if key in seen and seen[key] != guess.minutes:
+                    conflicts.add(key)
+                    guesses.get(point.key, {}).pop(guess.town, None)
+                    continue
+                seen[key] = guess.minutes
+                guesses.setdefault(point.key, {})[guess.town] = guess.minutes
         return guesses
 
     @staticmethod
     def _settle_status(condition: Condition) -> None:
         """A journey measurement cannot upgrade missing or estimated reference-place facts."""
-        ways = {entry.get("by") for entry in condition.travel.values()}
+        ways = {way for entry in condition.travel.values()
+                for way in [entry.get("by"), *(entry.get("by_town") or {}).values()]}
         condition.status = "estimate" if (
-            "AI estimate" in ways or condition.reference_status != "applied") else "applied"
+            ESTIMATE in ways or condition.reference_status != "applied"
+            or any(entry.get("unchecked") for entry in condition.travel.values())) else "applied"
 
 
 def _destination(country: str, town: str, centre: bool = False) -> str:

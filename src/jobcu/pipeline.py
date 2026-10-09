@@ -414,6 +414,8 @@ def job_types_of(group: JobGroup, scored: dict | None) -> list[str]:
 
 
 def _checked_by(condition, measured_by: str | None = None) -> str:
+    if measured_by == "Not checked":
+        return measured_by
     if measured_by == "AI estimate":
         return "AI estimate"
     if measured_by == "Google Maps":

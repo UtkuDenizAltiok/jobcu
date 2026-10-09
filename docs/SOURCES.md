@@ -177,6 +177,27 @@ pages do not prove eligibility for a particular vacancy; no personal vetting dec
 
 ### Maps request limits and recovery
 
+**Per-route outcomes rechecked 2026-10-09:** Google's [matrix reference](https://developers.google.com/maps/documentation/routes/reference/rest/v2/TopLevel/computeRouteMatrix)
+separates each element's error status from its route-found condition; the
+[matrix guide](https://developers.google.com/maps/documentation/routes/compute_route_matrix)
+allows errors in individual elements of an otherwise successful response. `ROUTE_NOT_FOUND`
+is an explicit outcome; an error, missing element or unusable duration does not establish it.
+The [field-mask guide](https://developers.google.com/maps/documentation/routes/choose_fields)
+says default protobuf values can be omitted, so a missing zero index/code is different from
+an invalid index/code. Inference: preserve valid partial durations and leave unchecked
+alternatives unknown; attribute any AI fallback separately, without storing Maps times as AI.
+Google's [canonical error codes](https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto)
+identify permission/authentication refusals (7/16) and exhausted resources (8). Jobcu stops
+later network attempts after known access refusals or persistent per-element quota scope,
+while preserving valid results from the same response. Raw status messages remain private.
+
+[Policies](https://developers.google.com/maps/documentation/routes/policies),
+[usage limits](https://developers.google.com/maps/documentation/routes/usage-and-billing) and
+[global pricing](https://developers.google.com/maps/billing-and-pricing/pricing) were rechecked
+the same day. Matrix limits/free caps/first-tier prices below remain listed; eligibility and
+SKU depend on the account/features. Existing request dimensions, billing controls, attribution
+and caching rules remain. No live route, key, billing or account change was used for research.
+
 **Rechecked 2026-10-08:** [Routes usage and billing](https://developers.google.com/maps/documentation/routes/usage-and-billing)
 counts matrix elements as origins × destinations; its documented standard rate is 3,000
 elements/minute and transit matrices allow at most 100 elements. An owner's project can have
@@ -251,3 +272,19 @@ or application-form traffic was added. Opaque redirects remain an unverified des
   rather than HTTP requests; two sampled destinations use two elements for one origin.
 
 Source/data credits remain in [README](../README.md#ownership-and-data-credits).
+
+## Search-method research leads — 2026-10-09
+
+The official [Ashby posting API](https://developers.ashbyhq.com/docs/public-job-posting-api)
+returns full descriptions and secondary locations; its documented secondary address exposes
+country/locality directly, while the primary address has `postalAddress`. `publishedAt` means
+last publication, not proof of a new underlying requisition. Jobcu currently expects nested
+secondary country metadata: vague location names could therefore lose evidence. This is a
+code/contract research lead needing a reproduction, terms check and country/identity review,
+not a measured recall claim or new collection permission.
+
+[Lever's official posting API](https://github.com/lever/postings-api) already supplies public
+published-post lists and description data; it is an existing adapter, not a new coverage
+source. Structured employer APIs may improve evidence/reliability, but their value depends on
+employer coverage, original dates and unique jobs. No adapter was added/removed or vacancy
+queried for this comparison; existing restrictions and request budgets remain.

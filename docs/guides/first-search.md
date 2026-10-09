@@ -166,8 +166,13 @@ Every attempted matrix element counts toward that limit, including retries; read
 known response does not count again. Known daily/monthly or zero Google quotas are handled
 immediately. A Google quota and Jobcu's monthly limit are separate controls.
 
-Times already measured remain usable. Jobs that still need travel times use labelled AI
-estimates within your AI limits. If Google's response does not identify when a quota resets,
+Times already measured remain usable, including when another sampled route fails. A failed
+or missing route calculation does not prove a job is too far away. Jobcu uses labelled AI
+estimates for unresolved towns where available, within your AI limits; otherwise the journey
+says **couldn't be checked** and that travel condition does not remove the job. A long sample with an
+unchecked alternative also stays uncertain. An explicit **No sampled journey found** is a
+different outcome. Read each card's source: a fallback estimate is not a Maps measurement.
+If Google's response does not identify when a quota resets,
 Jobcu says so. Check your project's Routes API quotas when needed; raising them can increase
 spending. Historical saved results keep their original messages. Development can proceed
 while Jobcu is open; the assistant preserves your app state and uses isolated tests/previews.
