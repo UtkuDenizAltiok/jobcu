@@ -178,6 +178,20 @@ they are estimates, not limits for full-ad scoring. Optional **Use balance** all
 overage. Native upstream tool support does not establish Go entitlement. Go reports no training
 for these five; GPT/Haiku retention is 30 days, the other three zero. These are service claims.
 
+**Second pass, 2026-10-09:** the public [Go model list](https://opencode.ai/zen/go/v1/models)
+responded without a key and includes the five candidates. Its IDs do not prove tool or effort
+support. The [published Responses helper](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/app/src/routes/zen/util/provider/openai.ts#L14)
+passes a native Responses body onward; cross-format conversion is a separate path. Inference:
+use the model's documented native format to preserve explicit reasoning/schema parameters,
+then verify behavior; source code alone does not prove the live service.
+
+The [coding client's web-search tool](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/opencode/src/tool/websearch.ts#L60)
+invokes a separate MCP search service, with Parallel/Exa paths. A web-search button in OpenCode
+does not establish standalone Go model API research, applicable entitlement or included fees
+for Jobcu. No such endpoint was called. Current client-use guidance still requests coding
+traffic; no primary permission for this non-coding app was found. This is unresolved permission,
+not proof that the models are poor or a claim that every non-coding request is explicitly banned.
+
 The [published handler at `388406238b`](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/app/src/routes/zen/util/handler.ts#L1191)
 adds cost multiplied by a model factor into the same user's five-hour, weekly and monthly
 counters. Inference: model allowances are weighted equivalents, not additive pools; mixed

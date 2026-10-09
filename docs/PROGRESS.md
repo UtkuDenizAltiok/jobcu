@@ -12,11 +12,13 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 - The owner delegates technical service decisions and is willing to pay for useful APIs.
   The [current recommendation](ENGINEERING.md#practical-service-choice--2026-10-09) is keep
-  Gemini 3.8 Flash at medium and resolve Google Routes; do not buy Go solely for Jobcu now.
+  Gemini medium during a cheaper-main-model comparison, with GPT-6 Luna medium first.
+  Compare direct API plus Gemini research before Go-only or Go plus research; resolve Routes.
   This supersedes treating the earlier five-model evaluation shortlist as a selected upgrade
   or asking the owner to choose a model/integration. No matching superiority is claimed.
-  Current provider, keys and settings are preserved; EUR25 remains the authorized monthly total
-  until explicitly changed. The earlier EUR10 Maps / EUR15 AI split is not a verified forecast.
+  Current provider, keys and settings are preserved. The owner explicitly raised the monthly
+  total ceiling to EUR30; EUR25 and the initial larger-budget proposal are superseded.
+  The earlier EUR10 Maps / EUR15 AI split is not a verified forecast or implemented allocation.
 - Go's permitted non-coding use, hosted research entitlement/fees and correct medium/schema/
   protocol behavior need verification. Model equivalents share weighted capacity; advertised
   cached coding-request counts do not establish daily-search capacity. AI Studio prepaid credit
@@ -40,7 +42,7 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   [recommendation](ENGINEERING.md#maps-spending-proposal--2026-10-09), public price/SKU/control
   evidence and fictional cost scenarios. Retain Google for now; diagnose actual quota/access
   and protect uncertain negative travel evidence before enlarging usage. A proposed EUR10
-  Maps allocation inside the existing EUR25 total remains provisional pending account/
+  Maps allocation proposed under the earlier EUR25 total remains provisional pending account/
   combined-workload checks; willingness to pay does not establish sufficient headroom.
   No billing, quota, setting, provider or filtering change was made.
   Exact live refusal/account allowance and route/fit quality remain unverified.
@@ -68,26 +70,31 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
-**Practical AI/Maps setup decision for the owner** (2026-10-09).
-Branch `codex/practical-service-setup`, base `8a5b132`. PR #92 is verified merged; exact merged
-main Mac/Windows/privacy CI `37963987419` passed. Its publication checkpoint is complete.
-The owner delegates the service choice and is willing to pay; the existing EUR25/month total
-and configured limits remain the ceiling. Recommend keeping the working Gemini medium setup
-while resolving Maps; Go is an evaluation candidate, not an established upgrade.
+The **practical AI/Maps setup decision** is complete; final publication remains.
+Branch `codex/practical-service-setup`, base `8a5b132`, PR #93, last pushed head `cedc829`.
+The owner explicitly approves EUR30/month total and declines the proposed larger ceiling.
+Go is not judged inferior: native-format support, permitted non-coding use and fresh research
+remain gates. GPT-6 Luna medium is the first cheaper-main candidate; compare its direct API
+with Go plus necessary research, preserving the working Gemini setup until quality is checked.
+Hybrid research routing and a migration are not implemented or an active coding goal here.
 
 Private authority/checkpoint were rechecked; read-only saved diagnosis and forecast are retained
 privately, and the disposable copy is removed. Current decision, dated service evidence,
 setup guidance and prompts are updated. No search, paid test, account or owner-setting change
 was made. Both app ports have no listener; no instance was started/stopped.
 
-Pre-publication checkpoint: 20 document checks, Ruff, privacy and whitespace passed; complete
-diff reviewed. Runtime/tests/dependencies are unchanged; the prior 1,098-test checks remain valid.
-Exact next action: commit/push the five document files, create/recover the PR with
-`gh pr list --state all --head codex/practical-service-setup`, require exact-head Mac/Windows/
-privacy CI, merge commit, synchronize main and verify its exact-head CI. If already merged
-and verified, this decision/documentation goal is complete and no implementation goal remains.
-Do not repeat private diagnosis or start a new improvement during Start. Separate account
-dependencies: confirmed total spending ceiling and actual Cloud quota/SKU/shared allowance.
+Private forecasting was refreshed with comparable original runs; do not mix different posting
+windows or corrections into a daily-search projection. Detailed observations remain private.
+Public evidence, ranked approaches,
+budget authority, setup guidance and prompts are updated; no paid/provider call or new search.
+Pre-publication checkpoint: 20 document checks, Ruff, privacy and whitespace passed. Runtime/
+tests/dependencies are unchanged; prior 1,098-test checks remain valid.
+Exact next action: review the complete final diff, commit/push the six changed files to PR #93;
+require Mac/Windows/privacy CI on its exact final head, merge commit, synchronize main and
+verify exact merged-main CI. Earlier `cedc829` checks do not cover this update. If verified
+merged, this decision goal is complete and no implementation goal remains; do not repeat the
+private diagnosis or open new development during Start. Actual Maps quota/SKU/shared allowance,
+migration acceptance and separately bounded paid comparison remain independent dependencies.
 
 ### Verify before relying on
 
@@ -119,9 +126,10 @@ dependencies: confirmed total spending ceiling and actual Cloud quota/SKU/shared
   [quota/billing pages](guides/getting-your-keys.md#recommended-setup-now). The exact refused
   matrix quota, billing SKU/shared allowance and any eligible credit remain the dependency;
   do not blindly raise limits or repeat a search as a diagnostic.
-- A concrete total-budget recommendation is presented privately. Any higher ceiling needs
-  explicit owner confirmation because AGENTS sets EUR25/month. No paid test or account/limit
-  change has been performed; a focused live diagnostic would need a separately bounded budget.
+- The owner approved EUR30/month total; no larger ceiling or particular allocation is approved.
+  No paid test or account/limit change has been performed; a focused live diagnostic or model
+  comparison needs a separately bounded paid-test budget. No extra provider key is needed
+  until its integration path and trial scope are ready.
   The assistant chooses technical options; the owner need only decide actual spending and
   perform required account steps. No rating homework or reset is required.
 - In a fresh local chat use [Start](PROMPTS.md#start-a-session), then send
