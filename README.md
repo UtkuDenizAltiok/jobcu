@@ -83,6 +83,11 @@ estimate may omit web fees and discounts; it is not an invoice.
 
 ## Project documents
 
+For assistant development, use **Start** once in a local project chat, then **Review** after
+a completed search or **Deep improvement** without needing a new search. Both assess coverage
+and improve the app. Use **End** before closing the chat; the next chat recovers saved unfinished
+work without choosing a new task. Copy the blocks from [PROMPTS](docs/PROMPTS.md).
+
 | You need | Open |
 |---|---|
 | Copy a session, search-review or improvement prompt | [PROMPTS](docs/PROMPTS.md) |

@@ -58,7 +58,8 @@ Code/tests establish behavior; the latest current decision establishes intent.
 
 | Decision | Reason and date |
 |---|---|
-| In every development session, assess the whole search pipeline and choose improvements proactively, including independent judgement of saved evidence and scoring where authorized. Complete one verified improvement at a time. | The owner expects initiative beyond examples or the current backlog. This standing direction applies during active development; it adds no private access, paid-test budget or background searches (owner, 2026-10-08). |
+| During Review, Deep improvement or another authorized development task, assess the whole pipeline and choose improvements proactively, including independent judgement of saved evidence where authorized. Complete one verified improvement at a time. | The owner expects initiative beyond examples or the backlog (2026-10-08). The 2026-10-09 session decision supersedes any interpretation that Start should choose a new goal: initiative belongs within the requested task, without extra private access, paid-test budget or background searches. |
+| Assess the incremental coverage and evidence from existing and potential job sources/search methods. Add or improve useful permitted methods; replace/remove methods demonstrated to add no useful value or harm results, accounting for unique relevant jobs, better evidence and backup value first. | The owner wants source decisions in both Review and Deep improvement (2026-10-09). Counts, duplicates and temporary failures alone cannot establish value; preserve recall and distinguish measured contribution from missing evidence. Evaluation method: [CONTRIBUTING](../CONTRIBUTING.md#4-measure-misses); terms: [SOURCES](SOURCES.md). |
 | Sample full ads and labelled summaries across score bands; keep final scores, evidence completeness and the original location plan. | Avoid bias from summary omissions, duplicate-first selection or pre-research scores (2026-10-06). |
 | Judge every top card independently before reporting precision; use a date-verified independent list before reporting coverage recall. | Counts and broad score bands do not prove search quality (2026-10-06). Procedure: [private review](../CONTRIBUTING.md#review-a-completed-search). |
 | Focused paid reviews follow the owner's existing monthly budget and configured service limits, with current verified prices. No fixed EUR1 review allowance or per-search money cap is imposed. | The earlier review prompt's EUR1 permission applied only to development review, never ordinary searches. The owner removed that restriction; a session-ending instruction still stops new paid work (2026-10-07). |
@@ -98,6 +99,15 @@ Code/tests establish behavior; the latest current decision establishes intent.
   to look, without losing the setup, usage, contribution or evaluation detail.
 - Keep one complete prompt per task in PROMPTS. The short loader introduced on 2026-10-08
   saved copying but added a choice and indirection; the owner prefers a single pasteable block.
+- **Session scope, updated 2026-10-09:** Start/resume prepares a fresh chat, finishes only an
+  already authorized recorded goal and then waits. Review uses the latest completed search;
+  Deep improvement needs no new search and may use older authorized evidence. Both own
+  substantive investigation and implementation. End safely finishes or parks the current step
+  and saves a concise handover. This supersedes automatic backlog selection in Start and full
+  startup in every work prompt. The procedure lives in [AGENTS](../AGENTS.md#sessions).
+  Reuse valid recorded checks when their inputs are unchanged, retain exact-head CI, and avoid
+  an extra handover commit just to chase its own hash. No running owner app is required for
+  development; preserve its chosen state. These workflow changes add no private/paid authority.
 - PROGRESS holds current state, one active goal, pending checks and next actions. Completed
   details belong in Git/PRs; dated source permissions belong in SOURCES. Standing rules stay
   in AGENTS. Link to the relevant section rather than repeat the same procedure.

@@ -15,13 +15,23 @@ on clean main and warns if it must use the installed version.
 
 ## Sessions
 
-All reusable prompts live in [PROMPTS.md](docs/PROMPTS.md):
+Use Start once in a local project chat, then send Review, Deep improvement or another task.
+Before closing the chat, use End. All reusable prompts live in [PROMPTS.md](docs/PROMPTS.md):
 
-- [Start a session](docs/PROMPTS.md#start-a-session), including recovery after a cutoff.
-- [Review a completed search](docs/PROMPTS.md#review-a-search), with explicit private-access and spending limits.
-- [Deep improvement](docs/PROMPTS.md#deep-improvement), for researched and tested improvements.
-- [End a session](docs/PROMPTS.md#end-a-session), before closing the chat or reaching a usage limit.
+- [Start a session](docs/PROMPTS.md#start-a-session) prepares the chat and can finish an already
+  authorized interrupted goal. It waits for your task instead of choosing work from the backlog.
+- [Review a completed search](docs/PROMPTS.md#review-a-search) independently evaluates the latest
+  completed search and implements an evidence-backed improvement, within its private scope.
+- [Deep improvement](docs/PROMPTS.md#deep-improvement) researches and implements improvements
+  across the project; it does not require a new search. Older evidence needs existing authority.
+- [End a session](docs/PROMPTS.md#end-a-session) finishes the smallest safe coherent step or
+  parks it with an exact next action and verified handover for a fresh chat.
 
+Review and Deep improvement reuse the prepared session. Both assess source coverage and can
+add, improve, replace or remove search methods using evidence and verified permissions.
+Recovery, check reuse and publication rules live in [AGENTS](AGENTS.md#sessions); no-work
+readiness/ending needs no full test run or ceremonial commit. Development still requires
+meaningful tests and exact-head Mac/Windows/privacy CI before merging.
 The private-results procedure is [below](#review-a-completed-search). Everyday setup and searches
 are in the [user guides](README.md#use-jobcu).
 
@@ -62,7 +72,13 @@ recipient, scope, search window, spending limits and any revocation before using
 development prompt grants no private access or paid testing permission. Follow
 [AGENTS.md](AGENTS.md), preserve owner ratings, and keep detailed evidence outside Git.
 The saved search can be reviewed whether Jobcu is running or stopped. Checking app state in
-the start routine preserves the owner's session; it is not a prerequisite for result analysis.
+Start preserves the owner's session; it is not a prerequisite for result analysis. In a
+prepared chat, inspect only relevant state changes rather than repeat startup. No newly
+completed search is needed for [Deep improvement](docs/PROMPTS.md#deep-improvement).
+Use the stages below for the claims being investigated; they do not grant additional source
+traffic or paid calls. Reuse unchanged saved evidence and completed review work. If original
+ads, labels, a benchmark or live-test authority are missing, record the exact dependency and
+continue useful free investigation and reproducible fixes without claiming live accuracy.
 
 ### 1. Measure
 
@@ -114,6 +130,15 @@ posting/closing dates and requisition identity; search snippets alone are insuff
 Keep its CSV outside Git and run `tools/coverage_test.py` on the private copy. Classify misses
 as source coverage, search words, duplicates, criteria, relevance or scoring limits.
 Report recall for that sample and its size, never for the whole job market.
+
+Compare existing and potential search methods for unique fresh relevant jobs and original
+evidence across countries/professions, alongside reliability, requests and cost. Total ads,
+duplicate shares or a temporary outage alone do not establish a method's value. Trace the
+unique useful jobs, better evidence, backup value and gaps before replacing/removing a source;
+validate additions against the same benchmark where evidence and authority allow. Consult
+[SOURCES](docs/SOURCES.md) and verify current permissions before source work. A missing
+independent benchmark limits coverage claims; it need not block a general fix reproduced
+with fictional tests.
 
 ### 5. Improve and compare
 
