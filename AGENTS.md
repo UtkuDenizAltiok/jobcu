@@ -28,6 +28,8 @@ include fictional non-engineering profiles in matching regressions.
 - Jobcu runs on demand: double-click **Start Jobcu.command**, then close the terminal and choose
   **Terminate** if asked. Do not automatically start or leave it running. Use self-tests or
   isolated previews; stop instances you started and respect the owner's chosen app state.
+- Preserve owner data. Adding or testing reset controls does not authorize using them on it;
+  perform an owner-data reset only when explicitly asked to do that deletion.
 
 ## Hard rules
 
@@ -71,31 +73,53 @@ Code/tests establish behavior; the latest current decision establishes intent.
 
 ## Sessions
 
+Start prepares the chat; Review, Deep improvement or another owner task directs development;
+End finishes or parks it. Use [Start, a task, then End](docs/PROMPTS.md). Product initiative
+belongs inside the task the owner requested. A backlog item is not an instruction to start it.
+
 ### Starting, or resuming after any interruption
 
-1. Check `git status` and all uncommitted diffs; read **Right now** in PROGRESS.md. Preserve work.
-2. On clean main, `git pull --ff-only`, then `uv sync --locked`. Never discard unexplained changes.
-3. Check recent commits, relevant PR/CI state and app/preview state. Recover **In progress** first.
-4. Read relevant architecture/decisions; read SOURCES before source work. Run the local suite once
-   for a substantive session, then targeted checks as needed. Tests use fictional data and no network.
-5. Check abandoned previews/scratch copies; preserve user data and the owner's chosen app state.
-6. Treat a new chat as having no prior conversation context. Recover one active goal from the
-   handover and actual Git/CI state; do not start several replacements. Before authorized
-   private review, consult the private authorization and review checkpoint without publishing
-   their contents. Recheck scope and revocations; resuming or ending grants no extra authority.
+1. In a fresh chat, assume no previous conversation. Check `git status` and all uncommitted
+   diffs; read **Right now** in PROGRESS.md. Preserve unexplained work.
+2. On clean main, `git pull --ff-only`, then `uv sync --locked`. Check recent commits and the
+   relevant PR/CI at their actual heads; pushed, tested and merged are different states.
+3. Recover **In progress** before anything else. If its already authorized goal is genuinely
+   unfinished, resume only its recorded remaining scope and exact next action. Finish what is
+   safe and practical; checkpoint a blocking dependency instead of choosing a replacement.
+   If Git/CI show it is complete, clear the stale entry. Never select new work from Next tasks.
+4. Read only the decisions/code needed for that recovery. Defer wider code investigation,
+   source research, private review and test baselines until the relevant task needs them.
+   Before any authorized private work, recheck authorization/revocations and its private
+   checkpoint. Start/resume grants no new private access, spending or job searches.
+5. Check app/preview state and recorded assistant-owned scratch once, to preserve the owner's
+   state and recover or clean up your own abandoned work. Open or closed Jobcu is no obstacle
+   to development or saved-result review. Do not ask the owner to close it as a routine step.
+6. Report readiness, any recovered work and exact blocking dependency, then wait for the owner's
+   task. Do not open a new goal. After a brief interruption in a prepared chat, refresh only
+   state that could have changed; rerun the full recovery only if context or state was lost.
 
 ### While working
 
-- Record a multi-step goal, steps and verification under **In progress** before starting it.
+- Review and Deep improvement normally follow Start in the same chat. Reuse verified session
+  state; refresh relevant Git/CI or saved evidence if it changed. If sent without preparation,
+  do the minimum missing recovery, then execute the requested task; do not duplicate Start.
+- Record a multi-step goal, authorized scope, steps and verification under **In progress**
+  before starting it. Choose improvements proactively within a development task, considering
+  the whole pipeline and the owner's priorities; Start and End do not select new improvements.
 - Keep one active goal. Finish or explicitly checkpoint its blocking dependency before choosing
   another; do not accumulate unrelated unfinished changes. Checkpoint before lengthy work.
 - Work on a branch in small complete steps. Checkpoint before long checks or interruptions;
   distinguish implemented, tested, pushed and merged, with the exact next action.
 - Update the relevant record with the change. When reversing a decision, retain its reason and
   mark the old entry superseded. User-facing changes update the corresponding guide.
-- Test meaningful behavior and failures without real documents, provider calls or job-site traffic.
-- Review the diff; run Ruff/privacy checks; push/open a PR; wait for Mac, Windows and privacy CI.
-  The assistant may merge its own tested PR with a **merge commit**.
+- Test meaningful behavior and failures without real documents, provider calls or job-site
+  traffic. At the first substantive code/dependency/test work, establish a local full-suite
+  baseline; run affected tests after changes and the full suite on the final code. Reuse a
+  recorded passing check only when its relevant code, tests, dependencies and environment are
+  unchanged. Readiness alone needs no test run; documentation-only work uses document checks.
+- Review the complete diff and run Ruff/privacy and whitespace checks after changes. Push/open
+  a PR; require Mac, Windows and privacy CI on its exact final head, then merge with a **merge
+  commit**, synchronize main and verify its exact-head CI. Never infer a pass from another head.
 - Claims about quality, coverage, cost and speed need measurements. Use CONTRIBUTING.md's
   private review procedure for real results.
 
@@ -107,14 +131,18 @@ safe and practical (including checks, publication and CI); do not abandon a writ
 expand scope to fix unrelated issues. If a dependency, context or usage prevents completion,
 leave a recoverable branch and exact next action instead of forcing a merge.
 
-1. Checkpoint first. Record the active goal, branch/PR and head, unfinished work,
-   passed/failed/unrun checks
-   and exact next action under **In progress**. Clear it when complete; separate facts from hypotheses.
-2. Refresh Right now, live checks, owner inputs and next tasks. Keep it short; history belongs in Git.
-3. Run `uv run ruff check . && uv run pytest` and `uv run python tools/check_no_secrets.py --all`.
-   Commit, push, wait for CI and merge completed work. Leave updated clean main when possible.
-   If access/context/usage prevents completion, preserve safe work on its branch and record what
-   remains. Never discard work or label unverified work done.
+1. Checkpoint first, before long checks: active goal and remaining authorized scope, branch/PR
+   and known head, implemented/tested/pushed/merged status, failed or unrun checks, dependency
+   and one exact next action. Clear **In progress** when complete; separate facts from hypotheses.
+2. Update changed facts in Right now. Put durable decisions, source evidence and guide changes
+   in their existing homes; save detailed private evidence only in the private data folder.
+   Keep the handover short and actionable, not a transcript or duplicate change history.
+3. Complete the checks/publication required above for the current step. Reuse valid recorded
+   checks; do not repeat a full suite merely because the chat is ending or only the handover
+   changed. Commit/push changed files, wait for exact-head CI and merge completed work when
+   practical; leave synchronized clean main when possible. Preserve a recoverable branch and
+   exact next action if blocked or running low. No changes means no ceremonial commit or PR;
+   do not create another commit solely to record its own hash. Never label unverified work done.
 4. Delete disposable private scratch copies and stop instances you started. Preserve user data
    and the owner's chosen service state. Save needed private evidence and review status in the
    private data folder before deleting scratch; keep authorization records private and intact.
