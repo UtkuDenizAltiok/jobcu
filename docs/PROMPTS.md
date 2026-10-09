@@ -69,6 +69,9 @@ Before provider changes, verify permitted app use, actual reasoning/tool support
 windows; coding benchmarks and advertised request counts do not establish matching quality.
 Do not equate integration ease or a vendor's effort labels with model quality. Evaluate
 credible alternatives fairly, verifying native reasoning controls and independent fit outcomes.
+Compare the complete current catalogue, shared token allowances and direct API alternatives;
+preserve fresh cited research when separating main and research providers. Reuse only evidence
+whose rights, request identity and freshness permit it, not stale route or scoring judgements.
 Make technical model/source decisions yourself and give me simple account/setup steps.
 Before recommending spending, use saved usage when authorized, include thinking/tool charges
 and shared allowances, and distinguish a spending ceiling from an invoice or enforceable cap.
@@ -114,6 +117,9 @@ Before provider changes, verify permitted app use, actual reasoning/tool support
 windows; coding benchmarks and advertised request counts do not establish matching quality.
 Do not equate integration ease or a vendor's effort labels with model quality. Evaluate
 credible alternatives fairly, verifying native reasoning controls and independent fit outcomes.
+Compare the complete current catalogue, shared token allowances and direct API alternatives;
+preserve fresh cited research when separating main and research providers. Reuse only evidence
+whose rights, request identity and freshness permit it, not stale route or scoring judgements.
 Make technical model/source decisions yourself and give me simple account/setup steps.
 Before recommending spending, use saved usage when authorized, include thinking/tool charges
 and shared allowances, and distinguish a spending ceiling from an invoice or enforceable cap.

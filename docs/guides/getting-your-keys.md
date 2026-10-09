@@ -49,14 +49,46 @@ it can do, and labels details it could not check. A later search tries research 
 
 ### If you choose Other
 
-**Other (OpenAI-compatible)** is for a service that supplies a compatible connection, including
-some AI services running on your own computer. Use it only when you have that service's setup
-details. Enter its **Provider address** and exact **Model** name, and save its key if one is
-required. Some local services need no key. This connection does not support Jobcu's web research.
+**Other (OpenAI-compatible)** accepts three common API formats, including compatible services
+running on your computer. It is not limited to Gemini or one subscription. Get the address,
+model ID, supported format and thinking controls from the service's current instructions.
 
-It also does not explicitly send Jobcu's reasoning-effort choice: providers implement thinking
-differently. A successful ordinary connection test does not establish equivalent reasoning,
-research, fit quality or subscription capacity. Check those before replacing a working provider.
+1. Choose **Other**, enter **Provider address**, and save its key if required. Use the base
+   address, without the final `/chat/completions`, `/responses` or `/messages`. Use HTTPS for
+   remote services; local services may use their documented local HTTP address.
+2. Open **Custom API format and reasoning**. Select **Chat Completions**, **Responses** or
+   **Messages** as documented. A Messages base can include `/v1`; Jobcu avoids duplicating it.
+3. For Chat Completions, choose the documented **Reasoning control**. **Send the selected
+   effort** sends medium by default. **Enable thinking** sends an enabled-thinking request,
+   with depth controlled by the provider. **Provider default** makes no effort request and
+   reports that effort is unconfirmed; older saved custom configurations keep this behavior.
+   If the service lacks medium, its **Native value for medium** can explicitly be high/max.
+   These mappings are disclosed; they do not prove equal reasoning or quality.
+4. Enter the exact **Model**, **Save**, then **Test connection**. A rejected custom thinking
+   control stops the request; Jobcu does not quietly switch it off. Check the selected format
+   and controls rather than replace the key blindly. Some models lack required structured
+   output even when their service supports this API format.
+
+Custom API formats do not automatically include online research. Use the separate option
+below to preserve it. A connection test does not prove matching accuracy, research access,
+permission for this use or subscription capacity.
+
+### Use a separate provider for online research
+
+Optional: keep a provider with cited web search while using a different main API for document
+reading and scoring. Existing one-provider setups continue to work without this option.
+
+1. Open **Optional: a separate provider for online research** under the main AI settings.
+2. Choose **Online research provider**. Leave **Same as main AI** for the existing behavior.
+   A separate provider must be one of the supported native Anthropic, Google or OpenAI options.
+3. Enter its exact **Online research model** and save its **Research provider API key**.
+   If that provider's key is already saved, the same masked key is used. Enter it only in Jobcu.
+4. Click the main **Save** button. **Test research connection** checks that model's ordinary
+   generation and may cost a small amount; it does not make a web search or prove tool access.
+5. During searches, online research uses that provider; subsequent structured extraction still
+   uses the main AI. Necessary text goes to the relevant chosen providers. Both appear in
+   usage and share Jobcu's limits; their service charges/allowances remain separate. When
+   research is refused, Jobcu labels uncertainty rather than silently switch to another API.
 
 ### Recommended setup now
 
@@ -69,7 +101,7 @@ not a promised bill or an implemented account-wide cap. The
 Leave the working settings as they are for now. Go's models are not shown to be worse.
 The assistant will compare Go with buying the same model's API directly; a fixed subscription
 can cost more at low usage. Keeping Gemini only for necessary web research is a promising
-option, but Jobcu does not yet support that two-provider setup. Do not switch before it does.
+option now supported by Jobcu. The assistant must still compare quality before switching.
 You do not need to choose among models or run a new search for this decision.
 
 Before buying Go only for Jobcu, its provider must clarify personal job-matching use outside a
@@ -106,12 +138,12 @@ explains quota messages and uncertainty. Changing billing alone cannot prove bet
 
 The current operational recommendation is **keep Gemini while evaluating a cheaper main API**.
 MiMo-V2.6-Pro, DeepSeek V4.1 Flash and GLM-5.3 are also serious candidates. The
-[current assessment](../ENGINEERING.md#additional-model-assessment--2026-10-09) explains their
+[complete assessment](../ENGINEERING.md#complete-catalogue-and-universal-api-decision--2026-10-09) explains their
 test priority and limits. Gemini has not been proved better at matching jobs; working today,
 lower prices and coding benchmarks are different evidence from accurate job understanding.
-Research checked on **2026-10-09** found a provisional five-model shortlist with GPT-6 Luna
-first, plus important migration dependencies. Read the
-[decision and workload examples](../ENGINEERING.md#ai-subscription-decision--2026-10-09) and
+Research checked on **2026-10-09** prioritizes GPT-6 Luna, MiMo-V2.6-Pro, DeepSeek V4.1 Flash,
+Haiku 5.5 and GLM-5.3-Flash. This is a comparison order, not proven superiority. Read the
+[decision and workload examples](../ENGINEERING.md#complete-catalogue-and-universal-api-decision--2026-10-09) and
 [dated service evidence](../SOURCES.md#opencode-go-and-ai-credit-eligibility) before buying Go
 solely for Jobcu or replacing your current setup.
 
@@ -121,11 +153,19 @@ advertised request counts are estimates for coding conversations. One daily sear
 24-hour posting window can still involve many long requests. Additional balance use can cost
 extra; a subscription is not unlimited API access.
 
-Models use different published API formats. Jobcu's current **Other** connection cannot be
-assumed to preserve the whole workflow, including medium reasoning and web research. Keep your
-working provider while these are verified. Do not enter a Go key in Jobcu's native **OpenAI**
+Models use different published API formats. Jobcu's **Other** option now accepts these formats,
+with explicit thinking controls and a separate online-research option. Configure from the
+service's documented format; compatibility still needs verification. Keep your working provider
+while quality and permission are checked. Do not enter a Go key in Jobcu's native **OpenAI**
 or **Anthropic** key boxes: those connect to the named providers, not to Go. Never send a key
-through chat. No verified Go setup or automatic provider switch is provided by this guide.
+through chat. No paid Go test or automatic provider switch was performed.
+
+After permitted use and quality are established, the documented Go base is
+`https://opencode.ai/zen/go/v1`, entered under **Other**. GPT-6 Luna uses **Responses**, Haiku
+5.5 **Messages**, and the MiMo/DeepSeek/GLM candidates **Chat Completions**. Model IDs and
+current allowances are in the linked service evidence. MiMo's enabled-thinking control differs
+from a literal medium effort; DeepSeek/GLM native mappings need host verification. This is
+configuration guidance, not permission to send private data or an instruction to buy Go.
 
 For Jobcu alone, also compare a model's direct API with the subscription: it may avoid a fixed
 fee and integration work. Include web-tool charges and your actual workload; a token-only price

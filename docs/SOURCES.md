@@ -162,21 +162,54 @@ traffic, an honest client user agent and stable `x-opencode-session`; the
 any agent, but permission for Jobcu's non-coding matching workload is unresolved. Seek service
 confirmation; do not disguise Jobcu as a coding client. No subscription/account action occurred.
 
-Go's documented single-model equivalents, prices per million tokens and recommended protocols:
+Go's complete documented catalogue, fresh input/output prices per million tokens and protocols:
+the landing page says **31**, while the checked documentation lists **32 distinct models**.
+Version/context/peak price rows are not additional models. Use the current documented IDs;
+extra IDs returned by the public models endpoint do not establish plan entitlement.
 
 | Model | Input / output, USD | Monthly usage value, USD | Protocol |
 |---|---:|---:|---|
-| GPT-6 Luna | 0.10 / 0.50 | 15 | Responses |
-| Claude Haiku 5.5 | 0.10 / 0.50 | 15 | Messages |
-| MiMo-V2.6-Pro | 0.435 / 0.87 | 15 | Chat Completions |
-| Kimi K2.6 | 0.95 / 4.00 | 60 | Chat Completions |
+| GLM-5.3-Flash | 0.15 / 0.50 | 60 | Chat Completions |
+| GLM-5.3 | 1.40 / 4.40 | 15 | Chat Completions |
 | GLM-5.2 | 1.40 / 4.40 | 60 | Chat Completions |
+| Kimi K3 | 3.00 / 15.00 | 15 | Chat Completions |
+| Kimi K2.7 Code | 0.95 / 4.00 | 60 | Chat Completions |
+| Kimi K2.6 | 0.95 / 4.00 | 60 | Chat Completions |
+| LongCat-2.0 | 0.30 / 1.20 | 60 | Chat Completions |
+| LongCat 2.5 Preview Free | Free, temporary | Unlimited, temporary | Chat Completions |
+| Step 5 Preview Free | Free, temporary | Unlimited, temporary | Chat Completions |
+| MiMo-V2.6-Flash | 0.14 / 0.28 | 60 | Chat Completions |
+| MiMo-V2.6-Pro | 0.435 / 0.87 | 15 | Chat Completions |
+| MiMo-V2.5 | 0.14 / 0.28 | 60 | Chat Completions |
+| MiMo-V2.5-Pro | 0.435 / 0.87 | 15 | Chat Completions |
+| MiniMax M3 | 0.30 / 1.20 | 60 | Messages |
+| MiniMax M2.7 | 0.30 / 1.20 | 60 | Messages |
+| Muse Spark 1.3 Contributor | 0.10 / 0.20 | 60 | Responses |
+| Muse Spark 1.2 Contributor | 0.10 / 0.20 | 60 | Responses |
+| Qwen3.8 Max | 2.00 / 6.00 | 15 | Messages |
+| Qwen3.8 Flash | 0.15 / 0.47 | 30 | Messages |
+| Qwen3.7 Plus | 0.40 / 1.60 | 60 | Messages |
+| DeepSeek V4.1 Flash | 0.15 / 0.60 off-peak; double at peak | 60 | Chat Completions |
+| DeepSeek V4 Pro | 0.66 / 1.98 off-peak; double at peak | 15 | Chat Completions |
+| DeepSeek V4 Flash | 0.15 / 0.60 off-peak; double at peak | 30 | Chat Completions |
+| DeepSeek V4 Flash Vision Exp | 0.15 / 0.60 off-peak; double at peak | 15 | Chat Completions |
+| Hy4 preview | 0.834 / 2.501 | 30 | Chat Completions |
+| Hy3 | 0.14 / 0.58 | 60 | Chat Completions |
+| Space Bunny | 0.15 / 0.60 | 30 | Chat Completions |
+| Grok 4.7 | 2.00 / 6.00 | 15 | Responses |
+| Grok 4.6 | 2.00 / 6.00 | 15 | Responses |
+| GPT-6 Luna | 0.10 / 0.50 | 15 | Responses |
+| GPT-5.6 Luna | 0.20 / 1.20 | 15 | Responses |
+| Claude Haiku 5.5 | 0.10 / 0.50 | 15 | Messages |
 
-GPT rates above assume prompts at most 272K; Haiku at most 100K. Five-hour/weekly limits are
+GPT/Haiku rates above assume prompts at most 272K/100K. Larger contexts respectively cost
+0.20/0.75 (GPT-6), 0.40/1.80 (GPT-5.6), and 0.50/2.50 (Haiku). Grok rates double above 200K;
+Qwen Plus rates triple above 256K. Cached read/write discounts are in the primary table; do
+not assume a fresh job-ad workload earns its cached-conversation discounts. Five-hour/weekly limits are
 20%/50% of the monthly equivalent. Advertised request counts assume cached coding conversations;
 they are estimates, not limits for full-ad scoring. Optional **Use balance** allows paid Zen
-overage. Native upstream tool support does not establish Go entitlement. Go reports no training
-for these five; GPT/Haiku retention is 30 days, the other three zero. These are service claims.
+overage. Native upstream tool support does not establish Go entitlement. Retention/training
+differences are recorded below; these are service claims, not independently audited guarantees.
 
 **Second pass, 2026-10-09:** the public [Go model list](https://opencode.ai/zen/go/v1/models)
 responded without a key and includes the five candidates. Its IDs do not prove tool or effort
@@ -229,7 +262,12 @@ prepaid credit to Gemini API usage, not other Cloud services. It is not a Maps b
 Separately issued promotional Cloud credits have their own eligible SKUs/expiry; inspect the
 actual grant before relying on one. No balance type, amount, refund or transfer was verified.
 
-The [conditional ranking and arithmetic](ENGINEERING.md#ai-subscription-decision--2026-10-09)
+Go's privacy table reports training for both **Muse Contributor** models; exclude these from
+automatic private-document adoption. GPT, Grok and Haiku list 30-day retention; the others list
+zero days, with DeepSeek's renewable agreement valid only through **2026-10-31**. Recheck at
+adoption. These are provider declarations, not an independent audit.
+
+The [complete assessment and arithmetic](ENGINEERING.md#complete-catalogue-and-universal-api-decision--2026-10-09)
 preserve these uncertainties. No model calls, paid benchmark or private review were performed.
 
 ### Requirement evidence and independent review
@@ -279,6 +317,20 @@ peak; peak is weekdays 01:00–04:00 and 06:00–10:00 UTC. Limits/regions and s
 capacity still apply. These are allowance units, not subscription surcharges or intelligence
 rankings. The [model assessment](ENGINEERING.md#additional-model-assessment--2026-10-09)
 keeps quality hypotheses separate from these facts. No model API request or paid comparison.
+
+**Further primary checks, 2026-10-09:** [MiMo's thinking guide](https://mimo.mi.com/docs/en-US/quick-start/usage-guide/other/deep-thinking)
+states that V2.6 Pro/Flash enable thinking by default and documents `thinking.type`. This is
+enabled reasoning, not a numeric medium guarantee; proxy behavior still needs verification.
+[GLM-5.3-Flash](https://docs.z.ai/guides/vlm/glm-5.3-flash) documents 1M context, JSON, document
+work and always-enabled thinking, recommending native max. Its claim of stronger intelligence
+than GLM-5.2 is vendor evidence, not measured job-fit superiority. Its separate Go allowance
+makes it a worthwhile new challenger. [Kimi K3's original card](https://huggingface.co/moonshotai/Kimi-K3/raw/main/README.md)
+documents always-enabled thinking, low/high/max (default max) and preserved thinking for
+multi-turn tool use. [MiniMax M3's research report](https://www.minimax.io/blog/minimax-m3)
+focuses on coding, agent and long-context tasks; its gains do not independently validate job
+matching. [Qwen's official catalogue](https://www.alibabacloud.com/help/en/model-studio/models)
+describes native multimodal models; that is not Go research entitlement. None of these checks
+called a model or established comparative matching accuracy.
 
 ### Gemini running costs
 
@@ -342,6 +394,14 @@ No cross-search duration cache or new access is introduced. Attempted elements a
 conservatively before every network attempt, including errors; this ledger is not a Google
 invoice and cannot track usage from other apps. No live call or account/billing change was
 made for this check. Measured fictional limits live in [ENGINEERING](ENGINEERING.md#maps-recovery).
+
+**Storage/reuse rechecked 2026-10-09:** the [Routes-specific contract, section 19.3](https://cloud.google.com/maps-platform/terms/maps-service-terms)
+permits temporary latitude/longitude caching for 30 days, not an unrestricted duration cache.
+The policy's indefinite exception is for place IDs. Do not transfer another API's exceptions
+to Routes durations, or claim that the coordinate exception authorizes stored travel decisions.
+Code inspection confirms Jobcu's independently sourced town coordinates and exact-request
+in-memory reuse; these differ from retaining yesterday's Google journey time. Current terms
+and time-sensitive timetables rule out the proposed indefinite location-only route reuse.
 
 #### Maps spending and alternatives
 

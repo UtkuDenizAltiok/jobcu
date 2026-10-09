@@ -18,6 +18,10 @@ SETTINGS_FILENAME = "settings.json"
 
 ProviderId = Literal["anthropic", "gemini", "openai", "openai_compatible"]
 Effort = Literal["minimal", "low", "medium", "high"]
+CompatibleProtocol = Literal["chat_completions", "responses", "messages"]
+CompatibleReasoning = Literal["effort", "thinking", "provider_default"]
+CompatibleMedium = Literal["medium", "high", "max"]
+ResearchProviderId = Literal["anthropic", "gemini", "openai"]
 
 
 class AISettings(BaseModel):
@@ -26,14 +30,32 @@ class AISettings(BaseModel):
     # Optional second model for the few reasoning-heavy steps (reading the CV and
     # cover letter, understanding the location text). Empty means "use `model`".
     reasoning_model: str = ""
-    # Only for "Other (OpenAI-compatible)" providers.
+    # Only for custom "Other" providers.
     base_url: str = ""
+    compatible_protocol: CompatibleProtocol = "chat_completions"
+    compatible_reasoning: CompatibleReasoning = "effort"
+    # Explicit native mapping for hosts without a literal medium. Never map to low/off.
+    compatible_medium: CompatibleMedium = "medium"
+    # Optional independent provider for cited online research only. Structured extraction,
+    # including extraction after research, continues to use the main configuration.
+    research_provider: ResearchProviderId | None = None
+    research_model: str = ""
     # Reasoning effort per kind of step: medium everywhere, the owner's choice (2026-09-24).
     # `scoring_effort` is for the many small steps (quick check, scoring), `reasoning_effort` for
-    # reading documents and places and for web look-ups. Models that don't support a setting
-    # simply ignore it (see ai/client.py).
+    # reading documents and places and for web look-ups. Custom controls are explicit and
+    # rejected controls stop; legacy native compatibility is handled in ai/client.py.
     scoring_effort: Effort | None = "medium"
     reasoning_effort: Effort | None = "medium"
+
+    @model_validator(mode="before")
+    @classmethod
+    def _preserve_legacy_compatible(cls, data):
+        # Older custom APIs were never sent effort. Preserve that explicit legacy behavior
+        # rather than break a saved service; new configurations ask for effort by default.
+        if isinstance(data, dict) and data.get("provider") == "openai_compatible" and (
+                "compatible_reasoning" not in data and "compatible_protocol" not in data):
+            return {**data, "compatible_reasoning": "provider_default"}
+        return data
 
 
 class LimitSettings(BaseModel):

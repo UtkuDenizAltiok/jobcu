@@ -10,10 +10,18 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
+- Custom APIs now have Chat Completions, Responses and Messages configuration, explicit
+  thinking controls, and an optional separate native online-research provider in
+  [PR #95](https://github.com/UtkuDenizAltiok/jobcu/pull/95). Local checks pass; verify its actual
+  final head and merged-main CI before relying on publication. The [complete current catalogue assessment](ENGINEERING.md#complete-catalogue-and-universal-api-decision--2026-10-09)
+  prioritizes GPT-6 Luna, MiMo-V2.6-Pro, DeepSeek V4.1 Flash, Haiku 5.5 and GLM-5.3-Flash.
+  The documented catalogue has 32 models despite the landing page's 31. This replaces the
+  older shortlist order, not the requirement for independent quality evidence before a switch.
 - The owner delegates technical service decisions and is willing to pay for useful APIs.
-  The [current recommendation](ENGINEERING.md#practical-service-choice--2026-10-09) is keep
+  The [current recommendation](ENGINEERING.md#complete-catalogue-and-universal-api-decision--2026-10-09) is keep
   Gemini medium during a cheaper-main-model comparison, with GPT-6 Luna medium first.
-  Compare direct API plus Gemini research before Go-only or Go plus research; resolve Routes.
+  Compare direct API plus Gemini research before Go-only or Go plus research; Routes quota
+  correction is already verified, while post-change live success remains unmeasured.
   This supersedes treating the earlier five-model evaluation shortlist as a selected upgrade
   or asking the owner to choose a model/integration. No matching superiority is claimed.
   Current provider, keys and settings are preserved. The owner explicitly raised the monthly
@@ -52,7 +60,7 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   No billing, quota, setting, provider or filtering change was made.
   That account dependency was subsequently inspected and a targeted correction verified;
   post-change live route/search success and fit quality remain unmeasured.
-- Local checks passed: **1,098 tests**, Ruff, privacy, whitespace, document links and complete
+- Local checks passed: **1,125 tests**, Ruff, privacy, whitespace, document links and complete
   diff review, plus an isolated startup self-test that stopped and removed its disposable data.
   Fictional cases cover all 30 countries, engineering/teaching/nursing, partial/malformed data,
   Maps/AI attribution, persistence, limits and two full engineering/library search pipelines.
@@ -70,31 +78,31 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   corrected Greenhouse original-date evidence and reader-version cache recovery. Historical
   snapshots keep their original scores/date labels. Reset preserves settings, keys, assistant
   authorization and real usage counters; full reset deletes review evidence/checkpoints.
-- The owner app 8765 and preview 8799 have no listener at the latest check. No instance was
-  started/stopped. Authorized saved service evidence/forecast and its recovery checkpoint stay
+- The owner app 8765 stays closed. The assistant's isolated fictional Settings preview at 8799
+  is stopped, its tab closed and disposable data removed. Authorized saved service evidence/
+  forecast and its recovery checkpoint stay
   private; the disposable diagnostic copy is removed. Owner search data/settings are preserved.
 
 ### In progress
 
-No unfinished app/account implementation remains for the **Maps quota/model follow-up**.
-Only publication remains if this branch is still unmerged or exact merged-main CI is missing.
-Branch `codex/maps-quota-model-review`, base/known head before commit `597701d`. The daily quota
-correction is applied and visibly verified; actual SKU/billing findings and cropped proof stay
-in the private `maps_account_resume` checkpoint/evidence. No paid API call or new search was
-run; keys, owner data, app settings and monthly attempt allowance were preserved.
-The additional model assessment/dated sources/guides/prompts are updated; no model switch,
-reasoning mapping or hybrid provider feature is shipped. No fit-accuracy improvement is claimed.
+No unfinished implementation remains for **universal AI configuration/service decision**.
+Publication recovery only if [PR #95](https://github.com/UtkuDenizAltiok/jobcu/pull/95) is unmerged
+or exact merged-main CI is missing. Branch `codex/universal-ai-service-choice`, base `92df256`;
+implementation head `c962116` is committed/pushed, this final handover is a docs-only follow-up.
+The complete catalogue, custom formats/controls and separate online research are implemented;
+no model switch, paid comparison, purchase, new search or Maps-cap/cache change was performed.
 
-Checkpoint before publication: 20 document checks, Ruff, privacy and whitespace passed;
-review the final complete diff after these handover changes. Runtime/tests/dependencies are
-unchanged; reuse their valid prior checks locally, require exact final-head CI in publication.
-Exact next action if unmerged: commit/push the six document files, create/recover its PR with
-`gh pr list --state all --head codex/maps-quota-model-review`, require Mac/Windows/privacy CI,
-merge commit, synchronize main and verify exact merged-main CI. If already merged and verified,
-this goal is complete: do not repeat the account edit/private inspection or select new work
-in Start. The private checkpoint records exact account/publication status. Post-change live
-confirmation and independently labelled model comparisons remain separate dependencies; paid
-development tests still need a bounded budget, not another full search by default.
+Verified locally: **1,125 tests**, Ruff/privacy/whitespace, JS syntax, complete diff review,
+and fictional Settings Save/reload with no console errors. Preview/tab/scratch are cleaned up;
+owner app/data/settings remain preserved. Reuse unchanged runtime checks for this handover.
+Exact next action if unmerged: commit/push the handover, recover PR #95's actual final head,
+require Mac/Windows/privacy CI on that head, merge commit, synchronize main and verify its
+exact-head CI. If already merged and verified, this goal is complete and no active goal remains;
+clear this conditional entry when updating progress for the next owner task. Do not repeat
+private account edits, start a paid comparison or choose backlog work during Start.
+Adoption dependencies: Go non-coding permission, independent matching labels and a separately
+bounded paid comparison through Jobcu. Main/research format compatibility is now implemented;
+no extra full search or owner ratings are needed to prepare that comparison.
 
 ### Verify before relying on
 

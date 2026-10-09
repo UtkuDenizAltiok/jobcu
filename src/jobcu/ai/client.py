@@ -6,7 +6,7 @@ Every AI request in Jobcu goes through `AIClient.generate`, which:
 - waits and retries on rate limits and short outages, without losing progress
 - sends a few requests at a time for steps with many (`in_parallel`), and only one at a time
   once the provider has said "too many requests"
-- drops reasoning settings a model doesn't support
+- preserves explicit custom reasoning controls; handles legacy native model settings
 - checks the answer against the expected format, and asks once more if it's wrong
 - records the tokens used
 """
@@ -20,6 +20,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import ClassVar, TypeVar
+from uuid import uuid4
 
 from pydantic import BaseModel, ValidationError
 
@@ -38,7 +39,7 @@ from jobcu.ai.base import (
     ProviderAdapter,
     ResearchReply,
 )
-from jobcu.ai.providers import PROVIDERS
+from jobcu.ai.providers import PROVIDERS, configured_adapter
 from jobcu.ai.schema import extract_json, strict_json_schema
 from jobcu.ai.usage import UsageLog, estimate_cost, total_tokens
 from jobcu.keystore import KeyStore
@@ -89,6 +90,7 @@ class AIClient:
         patient: bool = True,
         sleep: Callable[[float], None] = time.sleep,
         adapter: ProviderAdapter | None = None,
+        research_adapter: ProviderAdapter | None = None,
     ) -> None:
         self.settings = settings
         self.keys = keys or KeyStore()
@@ -98,6 +100,9 @@ class AIClient:
         self.patient = patient  # False for quick checks: report limits instead of waiting
         self.sleep = sleep
         self._adapter = adapter
+        self._session_id = str(uuid4())
+        self._research_adapter = research_adapter
+        self._reasoning_note_sent = False
         # Web look-ups used in this search, against the cap in Settings, and those promised to
         # requests still running, so requests sent together never go past the cap.
         self.web_searches_used = 0
@@ -128,14 +133,29 @@ class AIClient:
     def adapter(self) -> ProviderAdapter:
         with self._adapter_lock:
             if self._adapter is None:
-                info = PROVIDERS[self.provider_id]
-                key = self.keys.get(info.key_name) or ""
-                if not key and not info.key_optional:
-                    raise AIAuthError("Please enter your AI key in Settings first.")
-                if info.needs_base_url and not self.settings.ai.base_url.strip():
-                    raise AIAuthError("Please enter the provider's address in Settings first.")
-                self._adapter = info.adapter(key, base_url=self.settings.ai.base_url.strip())
+                self._adapter = self._make_adapter(self.provider_id)
         return self._adapter
+
+    def _make_adapter(self, provider: str) -> ProviderAdapter:
+        info = PROVIDERS[provider]
+        key = self.keys.get(info.key_name) or ""
+        if not key and not info.key_optional:
+            raise AIAuthError("Please enter your AI key in Settings first.")
+        if info.needs_base_url and not self.settings.ai.base_url.strip():
+            raise AIAuthError("Please enter the provider's address in Settings first.")
+        return configured_adapter(provider, key, self.settings.ai, session_id=self._session_id)
+
+    def research_endpoint(self) -> tuple[str, str, ProviderAdapter]:
+        ai = self.settings.ai
+        if ai.research_provider is None:
+            return self.provider_id, self.model_for(True), self.adapter()
+        model = ai.research_model.strip()
+        if not model:
+            raise AIAuthError("Please choose the online research model in Settings first.")
+        with self._adapter_lock:
+            if self._research_adapter is None:
+                self._research_adapter = self._make_adapter(ai.research_provider)
+        return ai.research_provider, model, self._research_adapter
 
     @contextmanager
     def _slot(self) -> Iterator[None]:
@@ -173,8 +193,11 @@ class AIClient:
         self._check_monthly_limit()
 
         effort = self.settings.ai.reasoning_effort if reasoning else self.settings.ai.scoring_effort
-        if (provider, model) in self._effort_unsupported:
+        if not getattr(adapter, "strict_reasoning", False) and (
+                (provider, model) in self._effort_unsupported):
             effort = None
+        if provider == "openai_compatible":
+            self._note_custom_reasoning()
         schema = strict_json_schema(output)
         request_prompt = prompt
         rate_waits = outage_retries = 0
@@ -207,6 +230,8 @@ class AIClient:
                 self._wait(min(5 * 2 ** (outage_retries - 1), 60), exc)
                 continue
             except AIBadRequest:
+                if getattr(adapter, "strict_reasoning", False):
+                    raise
                 if effort is not None:
                     # Many models don't accept reasoning settings: try once without.
                     effort, effort_dropped = None, True
@@ -285,9 +310,7 @@ class AIClient:
         reason = self.web_research_unavailable_reason()
         if reason:
             raise AIWebSearchUnavailable(reason)
-        provider = self.provider_id
-        model = self.model_for(reasoning=True)
-        adapter = self.adapter()
+        provider, model, adapter = self.research_endpoint()
         self._check_monthly_limit()
         with self._gate:
             allowed = min(max_searches, self.web_searches_left())
@@ -316,15 +339,37 @@ class AIClient:
             )
         if self._web_unavailable:
             return self._web_unavailable
-        if not self.adapter().can_search_the_web:
+        if not self.research_endpoint()[2].can_search_the_web:
             return MSG_NO_WEB_SEARCH
         return None
+
+    def _note_custom_reasoning(self) -> None:
+        ai = self.settings.ai
+        if ai.compatible_protocol != "chat_completions":
+            return
+        message = None
+        if ai.compatible_reasoning == "provider_default":
+            message = "This custom API uses its own reasoning default; Jobcu cannot confirm " \
+                      "the selected effort. Check its reasoning controls in Settings."
+        elif ai.compatible_reasoning == "thinking":
+            message = "This custom API is asked to enable thinking. It does not receive a " \
+                      "medium effort level; its thinking depth is provider controlled."
+        elif ai.compatible_medium != "medium":
+            message = f"This custom API receives {ai.compatible_medium} for Jobcu's medium " \
+                      "setting. This is a native mapping, not measured equivalent effort."
+        with self._gate:
+            first = message is not None and not self._reasoning_note_sent
+            if first:
+                self._reasoning_note_sent = True
+        if first:
+            self.notify(message)
 
     def _research(self, adapter: ProviderAdapter, provider: str, model: str, system: str,
                   prompt: str, max_searches: int, max_output_tokens: int,
                   effort: Effort | None) -> ResearchReply:
         effort = effort or self.settings.ai.reasoning_effort
-        if (provider, model) in self._effort_unsupported:
+        if not getattr(adapter, "strict_reasoning", False) and (
+                (provider, model) in self._effort_unsupported):
             effort = None
         waits = outages = 0
         while True:
@@ -348,7 +393,7 @@ class AIClient:
                     self.notify(exc.message)
                 raise
             except AIBadRequest:
-                if effort is None:
+                if effort is None or getattr(adapter, "strict_reasoning", False):
                     raise
                 # Many models don't accept reasoning settings: try once without.
                 effort = None
@@ -481,3 +526,21 @@ def check_setup(settings: Settings, keys: KeyStore | None = None, **client_args)
     if len(models) == 2:
         return CheckResult(True, "Connection works. Both models answer in the format Jobcu needs.")
     return CheckResult(True, "Connection works. The model answers in the format Jobcu needs.")
+
+
+def check_research_setup(settings: Settings, keys: KeyStore | None = None,
+                         **client_args) -> CheckResult:
+    """An explicit generation probe for the separate research key/model, not a web lookup."""
+    ai = settings.ai
+    if ai.research_provider is None or not ai.research_model.strip():
+        return CheckResult(False, "Please choose an online research provider and model first.")
+    probe = settings.model_copy(deep=True)
+    probe.ai.provider = ai.research_provider
+    probe.ai.model = ai.research_model
+    probe.ai.reasoning_model = ""
+    probe.ai.research_provider = None
+    probe.ai.research_model = ""
+    result = check_setup(probe, keys, **client_args)
+    if result.ok:
+        result.message = "Research model connection works. Online search permission was not tested."
+    return result

@@ -115,7 +115,132 @@ Code/tests establish behavior; the latest current decision establishes intent.
   established runtime/test/tool layout; consolidate only where responsibilities actually overlap.
   Retire merged branches after checking PRs/worktrees; preserve unmerged or active work.
 
+## Complete catalogue and universal API decision — 2026-10-09
+
+Current decision after the owner's full-catalogue/API/reuse request. The catalogue facts and
+terms have one home in [SOURCES](SOURCES.md#opencode-go-and-ai-credit-eligibility). The landing
+page's 31 and documentation's 32 disagree; assess all 32 documented models rather than omit
+one or count alternate pricing rows as models. This supersedes the older five-model order
+below; it does not turn an evaluation priority into measured superiority over Gemini.
+
+Ranked improvement shortlist:
+
+| Goal | Expected benefit / evidence | Effort / risk / verification |
+|---|---|---|
+| 1. Universal custom formats plus independent online research | Removes a reproduced integration barrier while preserving current evidence collection; native protocol specifications and code establish the gap | Moderate effort; wrong host/key, reasoning and lost research are material risks; real SDK serialization, mixed-provider caps/usage and failure tests |
+| 2. Reuse route judgements across days | Potential saving, not a measured gain; identical requests already share responses within a search | Storage rights and stale schedules make indefinite location-only duration reuse unjustified; verify contract and route identity before any persistent cache |
+| 3. Replace the working model immediately | Potential price/quality improvement | No independently labelled comparison or Go non-coding permission; shipping an unmeasured switch would not satisfy the quality requirement |
+
+**Implemented goal 1:** Other accepts Chat Completions, Responses and Messages. Each uses the
+owner's custom address/key; native provider keys stay on native adapters. Messages accepts an
+unversioned or `/v1` base without duplicating `/v1`. Custom Responses/Messages preserve native
+medium/schema requests; Chat supports explicit effort, enabled thinking, or a disclosed
+provider default. An explicit high/max mapping for logical medium is available for hosts
+without medium; never silently map to low/off or call it measured equivalent effort. Legacy
+custom configurations preserve their previously unsent effort and disclose the uncertainty.
+Custom reasoning rejections stop; only explicit Chat format refusals negotiate schema/JSON/
+prompt format, retaining the selected thinking control and validating the answer afterwards.
+Fictional before/after SDK-transport comparison at base `92df256` reproduced an unrelated
+custom 400 causing **six attempts before, one after**. Both report `AIBadRequest`; the new
+request retains medium rather than retry without it. This is measured request behavior, not
+a live latency/cost or accuracy claim. Mocked Responses/Messages serialization also confirms
+correct paths, key headers, schemas and usage; the three formats were previously unavailable
+at custom addresses except Chat without explicit effort.
+
+An optional native **online research provider/model** routes only `research` calls. Main
+generation still performs document reading, criteria, screening, scoring and structured
+extraction after research. Both share the logical client's parallel gate, monthly ledger and
+per-search web allowance; usage is attributed to the actual provider/model. Refused research
+stays unknown and stops repeated research for this search without switching providers; main
+generation remains available. Separate connection probes check generation, not web access,
+and do not change saved configuration or make hidden calls when saving/loading settings.
+Custom proxies do not automatically inherit upstream web-tool entitlement. Custom clients
+identify themselves as Jobcu; Go-address requests include an opaque per-client/search session
+header. Technical compatibility does not resolve Go's permitted-use dependency.
+
+Five candidates to evaluate, in order:
+
+| Candidate | Why it earns a comparison place | Adoption gate |
+|---|---|---|
+| 1. GPT-6 Luna | Best first operational candidate: documented medium/schema and inexpensive direct main-token work | Independently labelled requirements, unknowns, quotes and rankings against Gemini; host/tool behavior |
+| 2. MiMo-V2.6-Pro | First quality challenger alongside GPT: flagship reasoning and economical output | Explicit enabled thinking is not a literal medium scale; labelled comparison, proxy behavior and allowance reserve |
+| 3. DeepSeek V4.1 Flash | Strong value challenger with substantial Go capacity and native reasoning | Host-specific high/max mapping, allowed processing region, renewed privacy terms and independent multilingual fit |
+| 4. Claude Haiku 5.5 | Alternative family with documented medium/schema, useful for detecting shared mistakes | Compare complex/borderline fit, retained-data policy, long-prompt pricing and custom Messages behavior |
+| 5. GLM-5.3-Flash | New primary evidence supports document work/JSON/reasoning; promising additional challenge beyond the older GLM shortlist | Vendor's intelligence claim is not Jobcu evidence; disclose native high/max and compare independently |
+
+GPT remains the first replacement **candidate**, preferably direct API for Jobcu-only use
+when its complete bill is below Go's fixed fee. Keep Gemini as the operational baseline and
+available cited-research provider until quality is measured. No API purchase, private model
+switch or fit-quality victory is implied. MiMo/DeepSeek/GLM are not shown to be worse.
+
+Complete individual disposition, based on fit to this investigation, not intrinsic intelligence:
+
+| Model | Decision / reason |
+|---|---|
+| GPT-6 Luna | First comparison; explicit controls and useful direct-price alternative |
+| GPT-5.6 Luna | Reserve comparator; establish an advantage before choosing an older, dearer option |
+| Claude Haiku 5.5 | Top five; independent model family and explicit controls |
+| MiMo-V2.6-Pro | Top five; test flagship interpretation with enabled thinking |
+| MiMo-V2.6-Flash | Next value comparison; cheapness alone cannot replace the Pro quality check |
+| MiMo-V2.5-Pro | Reserve; compare if newer Pro regresses, rather than assume version superiority |
+| MiMo-V2.5 | Reserve value comparator; no established matching advantage |
+| DeepSeek V4.1 Flash | Top five, conditional on region/privacy and host controls |
+| DeepSeek V4 Pro | Focused quality comparator if labelled failures justify its tighter capacity |
+| DeepSeek V4 Flash | Reserve; newer Flash has more allowance, but quality still needs comparison |
+| DeepSeek V4 Flash Vision Exp | Defer experimental vision; current pipeline supplies text, not images |
+| GLM-5.3-Flash | Top five after current document/reasoning evidence; native mapping required |
+| GLM-5.3 | Focused comparator; coding gains do not justify its tighter capacity for daily matching |
+| GLM-5.2 | Reserve; useful capacity if it matches or beats newer variants on independent cases |
+| Kimi K3 | Focused quality challenger; expensive output/tight capacity prevents an unsupported daily-main recommendation |
+| Kimi K2.7 Code | Reserve; test whether code specialization helps this document workload |
+| Kimi K2.6 | Strong next comparator; displaced from the first five by the new GLM Flash evidence, not proved inferior |
+| MiniMax M3 | Next comparator; reported agent/context gains warrant testing, not an automatic switch |
+| MiniMax M2.7 | Reserve; compare if M3 fails specific cases or availability |
+| Qwen3.8 Max | Focused quality challenger; establish incremental accuracy before tighter-capacity daily use |
+| Qwen3.8 Flash | Next value comparator; independently validate multilingual requirements |
+| Qwen3.7 Plus | Reserve; can earn a place through stable independently measured fit |
+| LongCat-2.0 | Reserve; validate evidence fidelity before interpreting cheap capacity as quality |
+| LongCat 2.5 Preview Free | Fictional experiments only when permitted; temporary access is not a production fallback |
+| Step 5 Preview Free | Same temporary-access caution; no silent downgrade when another allowance ends |
+| Muse Spark 1.3 Contributor | Exclude automatic private-document adoption because training permission changes the privacy bargain |
+| Muse Spark 1.2 Contributor | Same privacy gate; low price cannot decide consent |
+| Hy4 preview | Defer primary use until stability and interpretation evidence justify preview risk |
+| Hy3 | Reserve value comparator; matching evidence missing |
+| Space Bunny | Defer until identity, controls and task evidence are sufficiently clear |
+| Grok 4.7 | Focused challenger; high token cost/tight capacity needs measured incremental quality |
+| Grok 4.6 | Reserve; no assumed superiority or need to test both before stronger candidates |
+
+Fictional capacity planning extends the earlier smaller/larger scenarios (500K/100K and
+1M/250K fresh input/output daily for 30 days, thinking included once, no cache/retries):
+
+| Newly prioritized model | Smaller monthly equivalent share | Larger share |
+|---|---:|---:|
+| DeepSeek V4.1 Flash, off-peak / peak | 6.75% / 13.5% | 15% / 30% |
+| GLM-5.3-Flash | 6.25% | 13.75% |
+
+These calculations do not establish equal tokenization, reasoning, accuracy or billed demand.
+Apply shared weighted consumption and five-hour/weekly windows, not 32 independent pools.
+Do not create prompt padding, stale-score reuse, reduced evidence or lower effort to fit limits.
+A bounded paid paired comparison and independent labels remain the exact quality dependency;
+no new full search is needed. Use CONTRIBUTING's method and preserve owner/private records.
+
+**Maps decision:** distinguish a day's headroom from the app's monthly allowance. A fictional
+9,000 elements over 30 days averages **300/day**; 450/day permits 13,500, so it cannot enforce
+that monthly total. A higher daily quota can accommodate a busy search while the separate
+monthly app guard remains; it does not guarantee every day's search is fully Maps-checked.
+One ad is not one element. Sampled destinations and every actual retry consume the guard.
+Jobcu already coalesces identical coordinates within each condition and identical HTTP bodies
+within the same search, before spending another attempt. That identity includes destination
+coordinates, mode and transit departure, not just the workplace. New searches refresh routing;
+changing destinations/mode/departure must not share a stale result. Independently sourced town
+coordinates can be reused; an unrestricted stored Google duration cannot. No route-cap change,
+duration cache, paid route call or measured billing/recall improvement is introduced here.
+
 ## Practical service choice — 2026-10-09
+
+**Implementation/shortlist update:** the complete catalogue decision above supersedes the
+older shortlist order and the future-only hybrid/custom-protocol statements in this section.
+Its operational no-unmeasured-switch rule and spending authority remain current.
 
 The owner delegates technical service/model decisions and explicitly approves **EUR30/month
 total** (superseding EUR25), with cheaper service preferred when quality is preserved. Keep the
@@ -162,20 +287,21 @@ financially useful if the permitted comparable workload and other useful model w
 its subscription without exhausting the weighted/windows limits. A different model's larger
 equivalent cap is useful only if its independently checked job understanding is good enough.
 
-An optional **separate research provider** is a promising quality-preserving architecture,
-not an implemented feature. Retain Gemini's fresh cited research while evaluating a different
+An optional **separate research provider** was proposed here and is now implemented as recorded
+above. Retain Gemini's fresh cited research while evaluating a different
 main model for extraction, criteria, screening and scoring; do not move every `job_places` or
 `location` call merely by step name, as those steps also contain structured extraction.
 Preserve one logical client's search web budget, monthly ledger, per-provider keys, cancellation,
 medium defaults and correct usage attribution. Never silently switch providers or lower effort
-on a refusal. Native direct GPT already has a Responses adapter; custom Go needs an explicit
-compatible Responses path. A coding agent wrapper is not a workaround for permitted-use rules.
+on a refusal. Native direct GPT has a Responses adapter; the custom Responses path is now
+implemented above. A coding agent wrapper is not a workaround for permitted-use rules.
 
 Before a purchase/switch, a bounded Jobcu-only fictional comparison must assess explicit
 requirements, multilingual title/criteria interpretation, evidence quotes, unknowns and ranking,
 including engineering/non-engineering and all-country cases. Repeat borderline cases and
 judge against independent labels; JSON validity and cheaper output alone are insufficient.
-No paid comparison, hybrid implementation or migration is included in this decision step.
+No paid comparison or migration occurred in that decision step; the later hybrid implementation
+is recorded above.
 
 For Maps, inspect saved error/quota evidence first. Older generic 429 warnings do not identify
 which quota failed. The account dependency is the actual Routes project billing state,
@@ -205,7 +331,8 @@ accuracy scale. Absence of a literal medium is a solvable adapter/calibration qu
 automatic model rejection. A future mapping must explicitly preserve enabled reasoning,
 disclose the actual native control and measure quality/cost; do not silently choose low/off,
 pretend native max is medium, or claim equal effort merely because a request succeeded.
-No mapping, model switch or quality claim was implemented in this assessment.
+That assessment introduced no mapping, switch or quality claim. The later custom controls above
+allow explicit enabled/native-effort requests; host calibration and model quality remain unverified.
 
 ## AI subscription decision — 2026-10-09
 
@@ -279,21 +406,17 @@ calls add USD5; 2,000 add USD20 before those tokens. Thus direct use is an integ
 candidate, not a promised cheaper complete search. Inspect authorized saved token/tool usage
 before forecasting the combined AI/Maps total; retain needed research, not an arbitrary cap.
 
-Migration acceptance gates, all still pending:
+Migration acceptance gates, refreshed after the implementation above:
 
 1. For Go, confirm permission for on-demand personal job matching with document interpretation
    and JSON scoring. Identify the client honestly as Jobcu and use opaque stable session IDs;
    do not impersonate a validated coding agent or route private tasks through another client.
-2. Preserve medium, structured answers and necessary web research through a correctly routed
-   adapter. `CompatibleAdapter` currently sends Chat Completions, no explicit effort or custom
-   Go identity/session headers, and advertises no web research. Native OpenAI/Anthropic adapters
-   use their own provider addresses; a Go key must not be entered under those native providers.
-   Go's protocol translation may accept extra formats, but that is not a tested migration.
-3. Verify Go hosted-search entitlement and fees, or deliberately implement/test a separately
-   chosen research provider. Current settings have one provider; the optional reasoning model
-   is another model of that provider, not a second research account. A silent loss of employer,
-   place or requirement research is a quality regression. Existing Gemini credit may be useful
-   for Gemini work, but a split-provider workflow is not implemented or assumed here.
+2. Custom formats, explicit controls and honest identity/session headers are now implemented
+   with fictional SDK regressions. Live host/model behavior still needs verification. Native
+   OpenAI/Anthropic keys go to native addresses; a Go key belongs only under Other.
+3. Separate native online research is now implemented/tested. Go's own hosted-search
+   entitlement/fees remain unverified. A main-model switch must preserve employer/place/
+   requirement research; existing Gemini credit can cover its Gemini work, not Maps.
 4. Before switching, run a separately authorized bounded fictional comparison through Jobcu:
    profile extraction, multilingual criteria, unrelated-title decisions, requirement quotes,
    permits/languages, unknowns and borderline scoring, including non-engineering/all-country
@@ -303,7 +426,7 @@ Migration acceptance gates, all still pending:
 5. Diagnose Maps independently from AI billing. Verify the actual quota, Maps SKU, credit grant
    eligibility and usage; preserve uncertain journeys. The earlier
    [Maps allocation proposal](#maps-spending-proposal--2026-10-09) remains pending. No credit
-   transfer/refund or billing change is implied. Keep the EUR25 total, taxes/currency and room
+   transfer/refund or billing change is implied. Keep the current EUR30 total, taxes/currency and room
    for the existing workload; report insufficient budget without changing matching quality.
 
 The useful free step completed here is the researched decision, numerical planning and corrected

@@ -2,6 +2,9 @@
 
 Jobcu finds fresh job ads, ranks their fit to your CV and cover letter, and explains each score.
 It runs on your Mac or Windows computer and connects to job sources and your chosen AI provider.
+Custom APIs can use Chat Completions, Responses or Messages. An optional separate provider can
+handle cited online research while your main AI reads documents and scores jobs; see
+[AI setup](docs/guides/getting-your-keys.md#if-you-choose-other).
 This is an early test version; live coverage and scoring quality still need measured validation.
 
 Everyday navigation is **Search** and **Settings**. Optional **Settings → Review results** helps
@@ -74,7 +77,7 @@ a misunderstanding and apply it to the jobs already found.
 ## Privacy and cost
 
 Your keys, documents, query and results stay outside the source folder and GitHub. A search
-sends the necessary text to the AI provider you chose and search words to job sources.
+sends the necessary text to the AI providers you chose and search words to job sources.
 Jobcu has no user accounts, telemetry or cloud storage, and never logs in to job sites.
 
 Provider charges depend on your model, account and search. Prices and limits in Jobcu are

@@ -135,6 +135,23 @@ def test_web_look_ups_sent_together_never_go_past_the_cap():
     assert ai.web_searches_left() == 0
 
 
+def test_separate_research_provider_keeps_the_same_parallel_web_allowance():
+    main, research = Counting(), Counting()
+    ai = client(main, cap=10)
+    ai.settings.ai.research_provider = "openai"
+    ai.settings.ai.research_model = "research-example"
+    ai._research_adapter = research
+    def look_up(item):
+        try:
+            return ai.research(step="job_places", system="Find", prompt=str(item),
+                               max_searches=4).usage.web_searches
+        except AILimitReached:
+            return 0
+    searches = in_parallel(ai, look_up, list(range(6)))
+    assert sum(searches) == ai.web_searches_used == 10
+    assert main.calls == 0 and research.calls == 3
+
+
 def test_one_item_or_one_request_at_a_time_runs_in_the_calling_thread():
     ai = client(Counting())
     ai.parallel_requests = 1

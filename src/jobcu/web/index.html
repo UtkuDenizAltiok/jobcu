@@ -274,6 +274,42 @@
                    placeholder="The address from the provider's documentation">
           </div>
 
+          <details class="advanced" id="custom-api-fields" hidden>
+            <summary>Custom API format and reasoning</summary>
+            <p class="muted">Use the format documented by your service. The provider address is
+              the base address, without /chat/completions, /responses or /messages. A compatible
+              format does not guarantee every model supports Jobcu's structured answers.</p>
+            <div class="field">
+              <label for="compatible-protocol">API format</label>
+              <select id="compatible-protocol">
+                <option value="chat_completions">Chat Completions</option>
+                <option value="responses">Responses</option>
+                <option value="messages">Messages</option>
+              </select>
+            </div>
+            <div id="chat-reasoning-fields">
+              <div class="field">
+                <label for="compatible-reasoning">Reasoning control</label>
+                <select id="compatible-reasoning">
+                  <option value="effort">Send the selected effort</option>
+                  <option value="thinking">Enable thinking (provider controls depth)</option>
+                  <option value="provider_default">Provider default (effort unconfirmed)</option>
+                </select>
+              </div>
+              <div class="field" id="compatible-medium-field">
+                <label for="compatible-medium">Native value for medium</label>
+                <select id="compatible-medium">
+                  <option value="medium">medium</option>
+                  <option value="high">high — when medium is unsupported</option>
+                  <option value="max">max — when required by the service</option>
+                </select>
+              </div>
+            </div>
+            <p class="muted">Responses and Messages send medium using their native controls.
+              A rejected reasoning control stops the request; Jobcu will not quietly remove it.
+              Enabled thinking and high/max mappings are not measured equivalents of medium.</p>
+          </details>
+
           <div class="field">
             <span class="label" id="ai-key-label">API key</span>
             <div class="key-row" data-key-row id="ai-key-row"></div>
@@ -299,6 +335,33 @@
               <label for="reasoning-model">Second model</label>
               <input id="reasoning-model" type="text" list="model-list" spellcheck="false"
                      autocomplete="off" placeholder="Same as above">
+            </div>
+          </details>
+
+          <details class="advanced">
+            <summary>Optional: a separate provider for online research</summary>
+            <p class="muted">Keep fresh online checks when your main API has no supported web
+              search. Only online research goes to this provider; document reading and scoring
+              use your main AI. Necessary text goes to each chosen provider, with separate
+              charges and the same Jobcu usage limits. Web access depends on the model/account.</p>
+            <div class="field">
+              <label for="research-provider">Online research provider</label>
+              <select id="research-provider"></select>
+            </div>
+            <div id="research-provider-details" hidden>
+              <div class="field">
+                <label for="research-model">Online research model</label>
+                <input id="research-model" type="text" spellcheck="false" autocomplete="off">
+              </div>
+              <div class="field">
+                <span class="label">Research provider API key</span>
+                <div class="key-row" id="research-key-row"></div>
+              </div>
+              <p class="muted">This uses the same saved key as that provider's main AI option.
+                Each connection test checks generation, not online search permission.</p>
+              <button type="button" class="secondary" id="check-research-ai">
+                Test research connection</button>
+              <p class="status" id="research-ai-status" role="status" hidden></p>
             </div>
           </details>
 
