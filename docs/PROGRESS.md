@@ -10,17 +10,24 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
-- The owner intends to use OpenCode Go instead of Gemini 3.8 Flash. The
-  [researched decision](ENGINEERING.md#ai-subscription-decision--2026-10-09) selects GPT-6 Luna
-  as the first medium-effort evaluation candidate, with four alternatives and token-based
-  daily/weekly/monthly calculations. Direct API use is also worth comparing before buying Go
-  only for Jobcu. This is a conditional suitability decision, not measured fit quality or a
-  completed migration. Current provider, keys, budget and owner settings are preserved.
+- The owner delegates technical service decisions and is willing to pay for useful APIs.
+  The [current recommendation](ENGINEERING.md#practical-service-choice--2026-10-09) is keep
+  Gemini medium during a cheaper-main-model comparison, with GPT-6 Luna medium first.
+  Compare direct API plus Gemini research before Go-only or Go plus research; resolve Routes.
+  This supersedes treating the earlier five-model evaluation shortlist as a selected upgrade
+  or asking the owner to choose a model/integration. No matching superiority is claimed.
+  Current provider, keys and settings are preserved. The owner explicitly raised the monthly
+  total ceiling to EUR30; EUR25 and the initial larger-budget proposal are superseded.
+  The earlier EUR10 Maps / EUR15 AI split is not a verified forecast or implemented allocation.
 - Go's permitted non-coding use, hosted research entitlement/fees and correct medium/schema/
   protocol behavior need verification. Model equivalents share weighted capacity; advertised
   cached coding-request counts do not establish daily-search capacity. AI Studio prepaid credit
   cannot pay for Maps; actual credit type/expiry and Maps quota remain unchecked. Dated facts
-  are in SOURCES. No account, key, model/provider call, paid trial or new search was used.
+  are in SOURCES. No account inspection/change, key use, model/provider call, paid trial or
+  new search was used. Authorized saved diagnostic evidence and spending calculations are
+  retained only in the private review record; exact account quota/SKU/billing remains unknown.
+- [PR #92](https://github.com/UtkuDenizAltiok/jobcu/pull/92) is verified merged at `8a5b132`;
+  exact merged-main Mac/Windows/privacy CI `37963987419` passed. Its publication is complete.
 - The Maps correction is merged in [PR #90](https://github.com/UtkuDenizAltiok/jobcu/pull/90)
   at `3d8cb30`; exact main Mac/Windows/privacy CI `37914682388` passed.
   Per-route service errors, missing/invalid answers and unchecked alternatives stay uncertain
@@ -35,8 +42,9 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   [recommendation](ENGINEERING.md#maps-spending-proposal--2026-10-09), public price/SKU/control
   evidence and fictional cost scenarios. Retain Google for now; diagnose actual quota/access
   and protect uncertain negative travel evidence before enlarging usage. A proposed EUR10
-  Maps allocation inside the existing EUR25 total is pending the owner's decision and account/
-  combined-workload checks. No billing, quota, setting, provider or filtering change was made.
+  Maps allocation proposed under the earlier EUR25 total remains provisional pending account/
+  combined-workload checks; willingness to pay does not establish sufficient headroom.
+  No billing, quota, setting, provider or filtering change was made.
   Exact live refusal/account allowance and route/fit quality remain unverified.
 - Local checks passed: **1,098 tests**, Ruff, privacy, whitespace, document links and complete
   diff review, plus an isolated startup self-test that stopped and removed its disposable data.
@@ -46,8 +54,8 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   application correctness from unmeasured live route/fit quality, coverage, cost and latency.
 - Public Routes/Ashby/Lever documentation, Maps policy/limits/prices and source contribution
   alternatives were researched; dated facts and hypotheses live in SOURCES. No source was
-  added/removed on insufficient evidence. No private review, paid call, new job search or live
-  vacancy fetch occurred. Owner data, settings, limits, keys and authorization are untouched.
+  added/removed on insufficient evidence. No new job search, paid call or live vacancy fetch
+  occurred. Owner search data, settings, limits, keys and authorization are untouched.
 - [PR #89](https://github.com/UtkuDenizAltiok/jobcu/pull/89) is merged at `786ccf2`; exact main
   Mac/Windows/privacy CI `37907028979` passed. Its session workflow remains current: Start
   prepares/recovers and waits; Review/Deep improvement use the prepared chat; End parks safely.
@@ -56,29 +64,37 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   corrected Greenhouse original-date evidence and reader-version cache recovery. Historical
   snapshots keep their original scores/date labels. Reset preserves settings, keys, assistant
   authorization and real usage counters; full reset deletes review evidence/checkpoints.
-- The owner app now listens on 8765; preview 8799 has no listener. Preserve that chosen state.
-  No owner app was started/stopped or private scratch copy created in this investigation.
+- The owner app 8765 and preview 8799 have no listener at the latest check. No instance was
+  started/stopped. Authorized saved service evidence/forecast and its recovery checkpoint stay
+  private; the disposable diagnostic copy is removed. Owner search data/settings are preserved.
 
 ### In progress
 
-The **OpenCode Go suitability/model and Maps-credit decision** is complete; publication remains.
-Branch `codex/ai-subscription-decision`, base/known head `d5a1a1d`. Research/ranking/scenarios,
-service/model facts, key guidance and Review/Deep prompts are saved in their existing homes.
-No provider, runtime, subscription, account, key, limit or owner-setting change is included.
+The **practical AI/Maps setup decision** is complete; final publication remains.
+Branch `codex/practical-service-setup`, base `8a5b132`, PR #93, last pushed head `cedc829`.
+The owner explicitly approves EUR30/month total and declines the proposed larger ceiling.
+Go is not judged inferior: native-format support, permitted non-coding use and fresh research
+remain gates. GPT-6 Luna medium is the first cheaper-main candidate; compare its direct API
+with Go plus necessary research, preserving the working Gemini setup until quality is checked.
+Hybrid research routing and a migration are not implemented or an active coding goal here.
 
-Checkpoint before commit: 20 document checks, Ruff, privacy and whitespace passed; fictional
-quota/cost arithmetic checked and complete diff reviewed. Code/tests/dependencies are unchanged;
-prior 1,098-test verification remains valid. No private review, model/Maps call, paid test or
-new search occurred. Owner app 8765 remains running; no preview/scratch was started. The existing
-public Go browser tab was read without changing account state; owner tabs remain open.
+Private authority/checkpoint were rechecked; read-only saved diagnosis and forecast are retained
+privately, and the disposable copy is removed. Current decision, dated service evidence,
+setup guidance and prompts are updated. No search, paid test, account or owner-setting change
+was made. Both app ports have no listener; no instance was started/stopped.
 
-Exact next action: commit/push these five document files and create/recover its PR
-(`gh pr list --state all --head codex/ai-subscription-decision`). Require exact-head Mac/Windows/
-privacy CI, merge commit, synchronized clean main and exact merged-main CI. If already pushed,
-finish only outstanding publication. If verified merged, this research step is complete and
-**no implementation goal remains**. Go permission/tool support, actual workload/account limits
-and a separately bounded comparison remain dependencies; they grant no account or paid actions
-and do not start a new goal during Start. No extra PR is needed to record its own merge hash.
+Private forecasting was refreshed with comparable original runs; do not mix different posting
+windows or corrections into a daily-search projection. Detailed observations remain private.
+Public evidence, ranked approaches,
+budget authority, setup guidance and prompts are updated; no paid/provider call or new search.
+Pre-publication checkpoint: 20 document checks, Ruff, privacy and whitespace passed. Runtime/
+tests/dependencies are unchanged; prior 1,098-test checks remain valid.
+Exact next action: review the complete final diff, commit/push the six changed files to PR #93;
+require Mac/Windows/privacy CI on its exact final head, merge commit, synchronize main and
+verify exact merged-main CI. Earlier `cedc829` checks do not cover this update. If verified
+merged, this decision goal is complete and no implementation goal remains; do not repeat the
+private diagnosis or open new development during Start. Actual Maps quota/SKU/shared allowance,
+migration acceptance and separately bounded paid comparison remain independent dependencies.
 
 ### Verify before relying on
 
@@ -105,14 +121,17 @@ and do not start a new goal during Start. No extra PR is needed to record its ow
 
 ### Waiting on the owner
 
-- AI decision: GPT-6 Luna is the first candidate, not a completed replacement. Keep the working
-  provider until the Go permission/capability dependency or the direct-API route is resolved
-  and a separately bounded comparison is authorized. No new real search is needed. Enter any
-  chosen service key only in Jobcu after its connection route is ready; do not send it in chat.
-- Maps proposal: choose whether to allocate up to EUR10/month within the existing EUR25 total.
-  This is not an implemented cap or permission to change billing. Diagnose the account issue
-  first; a live diagnostic, if necessary, needs separately bounded authority. No new search,
-  keys in chat, reset or optional rating homework is required.
+- Keep the working Gemini medium setup; no Go purchase, replacement key or model choice is
+  needed. Account-only next step: open the existing Routes project's
+  [quota/billing pages](guides/getting-your-keys.md#recommended-setup-now). The exact refused
+  matrix quota, billing SKU/shared allowance and any eligible credit remain the dependency;
+  do not blindly raise limits or repeat a search as a diagnostic.
+- The owner approved EUR30/month total; no larger ceiling or particular allocation is approved.
+  No paid test or account/limit change has been performed; a focused live diagnostic or model
+  comparison needs a separately bounded paid-test budget. No extra provider key is needed
+  until its integration path and trial scope are ready.
+  The assistant chooses technical options; the owner need only decide actual spending and
+  perform required account steps. No rating homework or reset is required.
 - In a fresh local chat use [Start](PROMPTS.md#start-a-session), then send
   [Review](PROMPTS.md#review-a-search) after a completed search or
   [Deep improvement](PROMPTS.md#deep-improvement) without needing a new search. Use

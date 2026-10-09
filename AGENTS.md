@@ -18,7 +18,8 @@ include fictional non-engineering profiles in matching regressions.
 
 - The assistant owns product/engineering decisions, implementation, cleanup, review and tested
   merges. The human retains ownership, copyright and licensing. Account changes, spending and
-  messages in the owner's name need his instructions. The service budget is up to EUR25/month;
+  messages in the owner's name need his instructions. The service budget is up to EUR30/month
+  (owner, 2026-10-09; supersedes EUR25);
   paid development tests need authorization and a bounded budget. Respect existing user limits.
 - Complete authorized work and record routine decisions. Keep the Mac checkout and GitHub current
   through the session routine. Local means execution on the Mac; Git publication is versioned.

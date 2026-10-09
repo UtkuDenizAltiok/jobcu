@@ -178,6 +178,20 @@ they are estimates, not limits for full-ad scoring. Optional **Use balance** all
 overage. Native upstream tool support does not establish Go entitlement. Go reports no training
 for these five; GPT/Haiku retention is 30 days, the other three zero. These are service claims.
 
+**Second pass, 2026-10-09:** the public [Go model list](https://opencode.ai/zen/go/v1/models)
+responded without a key and includes the five candidates. Its IDs do not prove tool or effort
+support. The [published Responses helper](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/app/src/routes/zen/util/provider/openai.ts#L14)
+passes a native Responses body onward; cross-format conversion is a separate path. Inference:
+use the model's documented native format to preserve explicit reasoning/schema parameters,
+then verify behavior; source code alone does not prove the live service.
+
+The [coding client's web-search tool](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/opencode/src/tool/websearch.ts#L60)
+invokes a separate MCP search service, with Parallel/Exa paths. A web-search button in OpenCode
+does not establish standalone Go model API research, applicable entitlement or included fees
+for Jobcu. No such endpoint was called. Current client-use guidance still requests coding
+traffic; no primary permission for this non-coding app was found. This is unresolved permission,
+not proof that the models are poor or a claim that every non-coding request is explicitly banned.
+
 The [published handler at `388406238b`](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/app/src/routes/zen/util/handler.ts#L1191)
 adds cost multiplied by a model factor into the same user's five-hour, weekly and monthly
 counters. Inference: model allowances are weighted equivalents, not additive pools; mixed
@@ -206,10 +220,10 @@ Primary capability evidence, not proof of Jobcu accuracy or proxy compatibility:
   supports low/high/max rather than medium, and defaults to max. Its stronger coding scores
   do not establish a matching benefit or justify quietly changing Jobcu's effort.
 
-[Gemini 3.8 Flash guidance](https://ai.google.dev/gemini-api/docs/latest-model) verifies the
-owner's named model, medium thinking, built-in tools and introductory USD0.75/3.75 per million
-input/output through 2026-12-31; standard USD1.50/7.50 follows on 2027-01-01. Different model
-tokenizers, reasoning and request patterns still prevent inferring equal workload cost.
+[Gemini 3.8 Flash guidance](https://ai.google.dev/gemini-api/docs/latest-model) documents
+medium thinking and built-in tools. Current prices and charge units live in
+[Gemini running costs](#gemini-running-costs). Different model tokenizers, reasoning and
+request patterns prevent inferring equal workload cost.
 [Gemini billing](https://ai.google.dev/gemini-api/docs/billing#prepay) explicitly limits AI Studio
 prepaid credit to Gemini API usage, not other Cloud services. It is not a Maps balance.
 Separately issued promotional Cloud credits have their own eligible SKUs/expiry; inspect the
@@ -239,6 +253,20 @@ says the departmental authority sets the vetting requirement for the post. Infer
 clearance acronym alone does not establish a particular applicant's ineligibility. Require
 explicit excluding rules and relevant stated facts; otherwise retain uncertainty. These
 pages do not prove eligibility for a particular vacancy; no personal vetting decision is made.
+
+### Gemini running costs
+
+**Rechecked 2026-10-09:** [Gemini pricing](https://ai.google.dev/gemini-api/docs/pricing)
+lists Gemini 3.8 Flash standard input/output at USD0.75/3.75 per million through 2026-12-31,
+then USD1.50/7.50 from 2027-01-01. Output includes thinking. Google Search grounding has
+5,000 free monthly requests shared across Gemini 3 and newer models, then USD14/1,000;
+the page's footnote says each performed search query is charged. One model request can
+produce multiple queries. Grounding with Google Maps is a separate Gemini tool; it is not
+Jobcu's directly called Routes matrix or its allowance.
+
+Inference: count available grounding queries, other account work and thinking before forecasting;
+do not add reasoning tokens twice or present a token-only estimate as an invoice. These are
+public rates, not verified owner billing, tax, currency or remaining allowance.
 
 ### Maps request limits and recovery
 

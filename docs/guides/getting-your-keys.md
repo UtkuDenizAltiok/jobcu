@@ -58,8 +58,53 @@ It also does not explicitly send Jobcu's reasoning-effort choice: providers impl
 differently. A successful ordinary connection test does not establish equivalent reasoning,
 research, fit quality or subscription capacity. Check those before replacing a working provider.
 
+### Recommended setup now
+
+**Recommendation checked 2026-10-09:** keep your working **Google → Gemini 3.8 Flash** setup
+at **Medium** while the assistant evaluates **GPT-6 Luna at medium** for lower running cost.
+Keep Google Maps for measured journeys. Your agreed total ceiling is **EUR30/month**; it is
+not a promised bill or an implemented account-wide cap. The
+[decision and comparison](../ENGINEERING.md#practical-service-choice--2026-10-09) explain why.
+
+Leave the working settings as they are for now. Go's models are not shown to be worse.
+The assistant will compare Go with buying the same model's API directly; a fixed subscription
+can cost more at low usage. Keeping Gemini only for necessary web research is a promising
+option, but Jobcu does not yet support that two-provider setup. Do not switch before it does.
+You do not need to choose among models or run a new search for this decision.
+
+Before buying Go only for Jobcu, its provider must clarify personal job-matching use outside a
+coding agent. If seeking that clarification yourself, use this non-private question:
+
+> Does Go permit a local personal job-search app to use its API for document interpretation
+> and JSON job matching, with an honest app user agent and stable session header?
+
+No message has been sent for you. A subscription or successful connection alone cannot prove
+matching accuracy or available web research. Keep Go **Use balance** off if you later choose
+it; otherwise reaching its included limit can trigger extra charges.
+
+For recurring Maps refusals:
+
+1. Open [Google Cloud's Routes quotas page](https://console.cloud.google.com/apis/api/routes.googleapis.com/quotas).
+   Select the existing project whose Maps key you saved in Jobcu.
+2. Find **Compute Route Matrix** quotas and current usage. Check the element-per-minute quota
+   and any daily restrictions. Check that this project's billing is enabled and **Routes API**
+   is enabled. Compute Routes is a different API operation; changing its quota may not help.
+3. Resolve the specific refused quota or access setting before raising Jobcu's monthly Maps
+   limit. Keep the existing key and saved settings unless the diagnosis requires a change.
+   Google's documented standard rate is 3,000 matrix elements per minute, but a project can
+   have different limits; this is not an instruction to request an arbitrary increase.
+4. Check **Billing → Reports** for the Routes SKU and **Billing → Credits** for any eligible
+   Cloud credit. AI Studio's Gemini balance cannot pay this bill. Keep spending within the
+   agreed total; a budget alert alone cannot enforce it.
+
+The assistant handles interpretation and application work. The owner handles required account
+and payment steps, and enters secrets only in Jobcu. Keep account details out of shared
+screenshots and GitHub. The [Maps troubleshooting guide](troubleshooting.md#google-maps-keeps-asking-jobcu-to-slow-down)
+explains quota messages and uncertainty. Changing billing alone cannot prove better scores.
+
 ### Considering OpenCode Go
 
+The current operational recommendation is **keep Gemini while evaluating a cheaper main API**.
 Research checked on **2026-10-09** found a provisional five-model shortlist with GPT-6 Luna
 first, plus important migration dependencies. Read the
 [decision and workload examples](../ENGINEERING.md#ai-subscription-decision--2026-10-09) and

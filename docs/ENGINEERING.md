@@ -115,7 +115,80 @@ Code/tests establish behavior; the latest current decision establishes intent.
   established runtime/test/tool layout; consolidate only where responsibilities actually overlap.
   Retire merged branches after checking PRs/worktrees; preserve unmerged or active work.
 
+## Practical service choice — 2026-10-09
+
+The owner delegates technical service/model decisions and explicitly approves **EUR30/month
+total** (superseding EUR25), with cheaper service preferred when quality is preserved. Keep the
+working Gemini 3.8 Flash medium setup during evaluation; the chosen first replacement candidate
+is **GPT-6 Luna at medium**. Compare its direct API first for Jobcu-only use, and Go after
+non-coding use is clarified. This supersedes treating either the earlier Go shortlist or the
+initial Gemini-first spending proposal as a proven best setup. No preferred app default or
+provider/account/limit change is introduced; no candidate's matching superiority is established.
+
+Go's models are **not shown to be worse**, and its low price can be good value. Its model caps
+must be compared using tokens, including reasoning, rather than advertising's cached coding
+request counts. Price/capacity, fit quality, permission and integration are separate questions.
+Do not reject it because Jobcu currently lacks an adapter: that technical gap is fixable.
+Do not buy it solely for Jobcu before the contractual and necessary-research gaps are resolved.
+The five-model shortlist below remains the evaluation order; it is not an intelligence ranking.
+
+Choose setup using total work, not subscription advertising: count output including thinking
+once; distinguish original searches from corrections and non-search usage; include grounding,
+shared allowances, route elements/retries, currency and tax. Gemini's current grounding
+allowance is separate from Routes API usage; see [SOURCES](SOURCES.md#gemini-running-costs).
+Private saved observations and forecasts belong only in the private review record, never in
+these documents. Sparse history cannot establish a fixed daily bill or future workload.
+
+The earlier EUR10 Maps / EUR15 AI allocation and larger proposed total are superseded as the
+budget plan; the current ceiling is in AGENTS. No allocation or euro cap has been implemented.
+Do not change configured limits or reduce medium effort, necessary evidence or coverage to fit
+it. Diagnose Maps first and forecast combined costs against EUR30, including tax/currency and
+other account use. Report insufficient headroom without silently raising the ceiling.
+
+Ranked integration approaches:
+
+| Approach | Benefit / effort / risk | Acceptance gates |
+|---|---|---|
+| 1. Direct GPT-6 Luna main + existing Gemini research | Low main-token price, explicit medium/schema support, no Go client-policy dependency; medium engineering effort | Add optional research-provider routing through `ai/client.py`, truthful usage/limits and failure handling; independently labelled comparison against Gemini |
+| 2. Go GPT-6 Luna main + existing Gemini research | Predictable USD10 subscription with multi-model options; higher integration effort; permission dependency | Confirm non-coding app use, correct Responses/medium/schema and honest session/client identity; same quality comparison and shared allowance checks |
+| 3. Go-only, including research | One subscription would simplify billing if complete; entitlement/cost and evidence-preservation unknown | Explicit hosted research/API rights and citations; preserve employer/place/requirement checks rather than replace live evidence with recollection |
+| 4. Keep all work on Gemini | Already functioning medium/research pipeline, little integration effort; variable cost | Actual daily workload and account bill must fit the ceiling; operation does not prove best matching quality |
+
+For the same chosen model, Go's fixed subscription is not automatically cheaper than its
+direct API. Compare direct **main-token** expense with USD10 before adding research/Maps,
+which both approaches still need. In the earlier fictional scenarios, direct GPT main-token
+expense is USD3.00/6.75 per month. These are not real usage or a complete bill. Go becomes
+financially useful if the permitted comparable workload and other useful model work justify
+its subscription without exhausting the weighted/windows limits. A different model's larger
+equivalent cap is useful only if its independently checked job understanding is good enough.
+
+An optional **separate research provider** is a promising quality-preserving architecture,
+not an implemented feature. Retain Gemini's fresh cited research while evaluating a different
+main model for extraction, criteria, screening and scoring; do not move every `job_places` or
+`location` call merely by step name, as those steps also contain structured extraction.
+Preserve one logical client's search web budget, monthly ledger, per-provider keys, cancellation,
+medium defaults and correct usage attribution. Never silently switch providers or lower effort
+on a refusal. Native direct GPT already has a Responses adapter; custom Go needs an explicit
+compatible Responses path. A coding agent wrapper is not a workaround for permitted-use rules.
+
+Before a purchase/switch, a bounded Jobcu-only fictional comparison must assess explicit
+requirements, multilingual title/criteria interpretation, evidence quotes, unknowns and ranking,
+including engineering/non-engineering and all-country cases. Repeat borderline cases and
+judge against independent labels; JSON validity and cheaper output alone are insufficient.
+No paid comparison, hybrid implementation or migration is included in this decision step.
+
+For Maps, inspect saved error/quota evidence first. Older generic 429 warnings do not identify
+which quota failed. The account dependency is the actual Routes project billing state,
+**Compute Route Matrix** quota/usage and billed SKU/shared allowance. The owner can open the
+relevant Cloud page using the [setup guide](guides/getting-your-keys.md#recommended-setup-now).
+Do not reset data, repeat a whole search, raise a local counter or buy credit as a diagnostic.
+Any live diagnostic still needs a bounded paid-test authorization through Jobcu. Keep the
+estimate/sample negative-evidence safeguard as a separate development goal, not a completed fix.
+
 ## AI subscription decision — 2026-10-09
+
+**Superseded as the current setup recommendation by the practical service choice above.**
+The model shortlist and migration gates remain evaluation evidence, not a selected replacement.
 
 The owner intends to replace Gemini 3.8 Flash with OpenCode Go for daily searches and considers
 using Google credit for Maps. [Current service/model facts](SOURCES.md#opencode-go-and-ai-credit-eligibility)

@@ -67,6 +67,10 @@ accuracy or recall.
 Separate service limits from missing evidence before recommending more paid usage.
 Before provider changes, verify permitted app use, actual reasoning/tool support and token-based
 windows; coding benchmarks and advertised request counts do not establish matching quality.
+Make technical model/source decisions yourself and give me simple account/setup steps.
+Before recommending spending, use saved usage when authorized, include thinking/tool charges
+and shared allowances, and distinguish a spending ceiling from an invoice or enforceable cap.
+Ask me only for a necessary new spending ceiling or account instruction, not to choose models.
 Use your own judgement and relevant public primary research; optional user ratings are not
 homework or automatic model training.
 
@@ -106,6 +110,10 @@ overlapping workflows/files while preserving detailed setup, usage and contribut
 Separate service limits from missing evidence before recommending more paid usage.
 Before provider changes, verify permitted app use, actual reasoning/tool support and token-based
 windows; coding benchmarks and advertised request counts do not establish matching quality.
+Make technical model/source decisions yourself and give me simple account/setup steps.
+Before recommending spending, use saved usage when authorized, include thinking/tool charges
+and shared allowances, and distinguish a spending ceiling from an invoice or enforceable cap.
+Ask me only for a necessary new spending ceiling or account instruction, not to choose models.
 
 Assess coverage independently of result counts. Compare existing and potential sources/search
 methods for unique fresh relevant jobs, original evidence, country/profession gaps, reliability
