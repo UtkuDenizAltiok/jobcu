@@ -28,7 +28,7 @@ Use the provider's descriptions, current prices and your account's access to dec
 5. Click **Load model list**. Wait for the message below the Model box, then click inside
    **Model** and choose a model available to your account. If your provider gives you a model
    name instead, type that exact name. Loading the list does not choose a model automatically.
-6. Leave **Advanced: a second model for reading documents** closed for a basic setup.
+6. Leave **Advanced AI settings (optional)** closed for a basic setup.
    Click the **Save** button below the model settings. This saves your provider and model
    choice separately from the key you saved in step 4.
 7. Click **Test connection** and wait for its message. This sends a small request to the AI
@@ -49,15 +49,15 @@ it can do, and labels details it could not check. A later search tries research 
 
 ### If you choose Other
 
-**Other (OpenAI-compatible)** accepts three common API formats, including compatible services
+**Other API** accepts three common API formats, including compatible services
 running on your computer. It is not limited to Gemini or one subscription. Get the address,
 model ID, supported format and thinking controls from the service's current instructions.
 
 1. Choose **Other**, enter **Provider address**, and save its key if required. Use the base
    address, without the final `/chat/completions`, `/responses` or `/messages`. Use HTTPS for
    remote services; local services may use their documented local HTTP address.
-2. Open **Custom API format and reasoning**. Select **Chat Completions**, **Responses** or
-   **Messages** as documented. A Messages base can include `/v1`; Jobcu avoids duplicating it.
+2. Open **API format and advanced settings** (it opens automatically for Other). Select
+   **Chat Completions**, **Responses** or **Messages** as documented. A Messages base can include `/v1`; Jobcu avoids duplicating it.
 3. For Chat Completions, choose the documented **Reasoning control**. **Send the selected
    effort** sends medium by default. **Enable thinking** sends an enabled-thinking request,
    with depth controlled by the provider. **Provider default** makes no effort request and
@@ -78,7 +78,7 @@ permission for this use or subscription capacity.
 Optional: keep a provider with cited web search while using a different main API for document
 reading and scoring. Existing one-provider setups continue to work without this option.
 
-1. Open **Optional: a separate provider for online research** under the main AI settings.
+1. Open **Advanced AI settings (optional)** and find **Online research**.
 2. Choose **Online research provider**. Leave **Same as main AI** for the existing behavior.
    A separate provider must be one of the supported native Anthropic, Google or OpenAI options.
 3. Enter its exact **Online research model** and save its **Research provider API key**.
@@ -92,27 +92,28 @@ reading and scoring. Existing one-provider setups continue to work without this 
 
 ### Recommended setup now
 
-**Recommendation checked 2026-10-09:** keep your working **Google → Gemini 3.8 Flash** setup
-at **Medium** while the assistant evaluates **GPT-6 Luna at medium** for lower running cost.
-Keep Google Maps for measured journeys. Your agreed total ceiling is **EUR30/month**; it is
-not a promised bill or an implemented account-wide cap. The
-[decision and comparison](../ENGINEERING.md#practical-service-choice--2026-10-09) explain why.
+**Recommendation checked 2026-10-09:** use **Google → Gemini 3.8 Flash**, at **Medium**, for
+all AI tasks, plus your existing Google Maps connection for measured journeys. Gemini can read
+documents, score jobs and research current information with the same key/model. Leave
+**Interpretation model** empty and **Online research provider → Same as main AI**. No second
+AI is required. The visible setup summary tells you if an existing override is still selected;
+closing advanced settings does not remove it. Your current saved setup is preserved.
 
-Leave the working settings as they are for now. Go's models are not shown to be worse.
-The assistant will compare Go with buying the same model's API directly; a fixed subscription
-can cost more at low usage. Keeping Gemini only for necessary web research is a promising
-option now supported by Jobcu. The assistant must still compare quality before switching.
-You do not need to choose among models or run a new search for this decision.
-
-Before buying Go only for Jobcu, its provider must clarify personal job-matching use outside a
-coding agent. If seeking that clarification yourself, use this non-private question:
+Do not buy OpenCode Go just for Jobcu now. Its published client guidance requests coding
+traffic, and no official statement allowing this job-matching workload was found. This is a
+service-use issue, not evidence that its models are worse. A written provider answer to the
+following generic question could change that decision:
 
 > Does Go permit a local personal job-search app to use its API for document interpretation
 > and JSON job matching, with an honest app user agent and stable session header?
 
-No message has been sent for you. A subscription or successful connection alone cannot prove
-matching accuracy or available web research. Keep Go **Use balance** off if you later choose
-it; otherwise reaching its included limit can trigger extra charges.
+No message has been sent on your behalf. The assistant makes technical choices; you do not
+need to select another model, obtain another key or run an extra search to decide the basic
+setup. The [current decision](../ENGINEERING.md#simple-ai-setup-and-buying-decision--2026-10-09)
+and [service evidence](../SOURCES.md#opencode-go-and-ai-credit-eligibility) explain the basis.
+Your agreed total ceiling is **EUR30/month**, not a promised invoice or automatic spending cap.
+AI Studio prepaid credit pays for Gemini only; Maps uses separate Cloud billing. A paid Maps
+subscription or further top-up is not required merely because a quota previously refused calls.
 
 For recurring Maps refusals:
 
@@ -136,28 +137,29 @@ explains quota messages and uncertainty. Changing billing alone cannot prove bet
 
 ### Considering OpenCode Go
 
-The current operational recommendation is **keep Gemini while evaluating a cheaper main API**.
-MiMo-V2.6-Pro, DeepSeek V4.1 Flash and GLM-5.3 are also serious candidates. The
-[complete assessment](../ENGINEERING.md#complete-catalogue-and-universal-api-decision--2026-10-09) explains their
-test priority and limits. Gemini has not been proved better at matching jobs; working today,
-lower prices and coding benchmarks are different evidence from accurate job understanding.
-Research checked on **2026-10-09** prioritizes GPT-6 Luna, MiMo-V2.6-Pro, DeepSeek V4.1 Flash,
-Haiku 5.5 and GLM-5.3-Flash. This is a comparison order, not proven superiority. Read the
-[decision and workload examples](../ENGINEERING.md#complete-catalogue-and-universal-api-decision--2026-10-09) and
-[dated service evidence](../SOURCES.md#opencode-go-and-ai-credit-eligibility) before buying Go
-solely for Jobcu or replacing your current setup.
+Go offers model choice, not a separate full allowance for every model. Think of it as one
+shared battery: models use that battery at different rates. For example, usage worth USD1.50
+on a model with a USD15 monthly equivalent takes 10%; USD6 on a model with a USD60 equivalent
+takes another 10%. Together that is 20% of the monthly allowance. These values measure token
+work included in the subscription, not additional cash payments. Five-hour and weekly limits
+can stop work before the monthly allowance is exhausted. Switching models does not reset them.
+The [dated evidence](../SOURCES.md#opencode-go-and-ai-credit-eligibility) records the code,
+reset rules, prices and limits; advertised request counts assume coding conversations and do
+not predict full-ad job scoring. Keep **Use balance** off to avoid optional extra charges.
 
-Go advertises a dollar-priced subscription for coding clients. Confirm it permits personal
-job matching and document processing through Jobcu. Its model allowances share capacity, and
-advertised request counts are estimates for coding conversations. One daily search with a
-24-hour posting window can still involve many long requests. Additional balance use can cost
-extra; a subscription is not unlimited API access.
+A subscription can be good value for substantial permitted use of several models. For one
+chosen model, a direct API can cost less than a fixed subscription. Access to many models does
+not automatically improve scores: Jobcu uses the selected model, and each alternative must be
+compared on actual job understanding before adoption. The
+[complete assessment](../ENGINEERING.md#complete-catalogue-and-universal-api-decision--2026-10-09)
+keeps GPT-6 Luna, MiMo-V2.6-Pro, DeepSeek V4.1 Flash, Haiku 5.5 and GLM-5.3-Flash as comparison
+candidates. There is no measured winner or automatic model rotation.
 
 Models use different published API formats. Jobcu's **Other** option now accepts these formats,
 with explicit thinking controls and a separate online-research option. Configure from the
-service's documented format; compatibility still needs verification. Keep your working provider
-while quality and permission are checked. Do not enter a Go key in Jobcu's native **OpenAI**
-or **Anthropic** key boxes: those connect to the named providers, not to Go. Never send a key
+service's documented format; compatibility still needs verification. Keep the one-model working
+setup described above. Do not enter a Go key in Jobcu's native **OpenAI** or **Anthropic**
+key boxes: those connect to the named providers, not to Go. Never send a key
 through chat. No paid Go test or automatic provider switch was performed.
 
 After permitted use and quality are established, the documented Go base is

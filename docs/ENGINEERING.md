@@ -115,9 +115,57 @@ Code/tests establish behavior; the latest current decision establishes intent.
   established runtime/test/tool layout; consolidate only where responsibilities actually overlap.
   Retire merged branches after checking PRs/worktrees; preserve unmerged or active work.
 
+## Simple AI setup and buying decision — 2026-10-09
+
+Current operational decision: **one Gemini 3.8 Flash model at medium plus Google Maps**.
+Gemini supports structured output, medium thinking and native cited research; one AI key/model
+can perform all Jobcu AI tasks. This is the simplest working setup, not a claim that Gemini
+beats MiMo, DeepSeek, GLM or GPT on matching. The earlier replacement shortlist remains an
+evaluation order, not a purchase instruction or an active paid comparison. Do not buy Go
+solely for Jobcu now: its published client guidance targets coding traffic and no official
+positive permission for this workload was found. The complete allowance, policy and credit
+facts live in [SOURCES](SOURCES.md#opencode-go-and-ai-credit-eligibility). Model count supplies
+choice, not an accuracy improvement or independent allowances.
+
+The owner's EUR30/month total remains a ceiling, not a guaranteed bill. Preserve current
+settings, credit, keys and limits; no top-up, subscription, provider switch, paid test or further
+quota change is part of this decision. Maps uses separate Cloud billing and has per-SKU free
+usage; buying more AI credit cannot fix a Routes quota. The existing targeted quota correction
+is complete, and its live outcome can be reviewed after the next ordinary on-demand search.
+
+Ranked improvement shortlist for the owner's simplicity/subscription follow-up:
+
+| Goal | Benefit / evidence | Effort, risk and verification |
+|---|---|---|
+| 1. Make the one-model setup clear | Reproduced confusion from three prominent advanced sections; no extra model is required | Small change; hidden saved overrides must stay visible in the summary and persist; fictional browser save/reload and API regressions |
+| 2. Settle shared capacity and intended use | Public billing code confirms weighted shared counters; public client guidance resolves the immediate buying recommendation | Free research; deployed limits and permission cannot be invented; primary code/documents, dated arithmetic and exact dependency |
+| 3. Switch models immediately | Potential savings; no independently labelled Jobcu comparison | Quality/permission risk; requires separately bounded paid comparison, not a purchase based on model count |
+
+**Implemented:** native setups show one optional **Advanced AI settings** section instead of
+three separate advanced prompts. **Other API** names all three custom formats honestly and
+opens **API format and advanced settings** because custom protocol selection is part of setup.
+A live visible summary identifies interpretation/research overrides even while collapsed;
+changing fields updates it and Save retains those choices. The interpretation override already
+serves documents, location understanding, estimates and same-provider research; the label now
+reflects that scope instead of suggesting only document reading needs careful AI. Both effort
+defaults stay medium; no routing, matching or provider-call behavior changes. Separate research
+remains useful for custom APIs without supported web tools, and is unnecessary for the normal
+one-model Gemini setup. Never remove supported alternatives just to shorten the screen.
+
+Before: three advanced entry points and no visible summary of closed overrides. After: one
+entry point, native setup closed by default, custom format open, and actual selected routing
+explained outside it. Fictional browser checks passed: collapsed legacy/separate-provider choices survived Save and
+reload; clearing overrides restored one model; custom Messages plus separate research survived
+reload with format controls expanded; medium defaults persisted; console warnings/errors were
+absent. Preview request logs contained local reads and Settings writes, no provider probes or
+search. The 1,125-test full suite and affected API/format/document checks passed.
+No live ranking, capacity, cost or latency improvement is claimed from this interface change.
+
 ## Complete catalogue and universal API decision — 2026-10-09
 
-Current decision after the owner's full-catalogue/API/reuse request. The catalogue facts and
+Technical implementation and comparison record after the owner's full-catalogue/API/reuse
+request. The simple setup decision above now governs operational buying guidance; the candidate
+order below remains an evaluation priority. The catalogue facts and
 terms have one home in [SOURCES](SOURCES.md#opencode-go-and-ai-credit-eligibility). The landing
 page's 31 and documentation's 32 disagree; assess all 32 documented models rather than omit
 one or count alternate pricing rows as models. This supersedes the older five-model order
@@ -240,7 +288,9 @@ duration cache, paid route call or measured billing/recall improvement is introd
 
 **Implementation/shortlist update:** the complete catalogue decision above supersedes the
 older shortlist order and the future-only hybrid/custom-protocol statements in this section.
-Its operational no-unmeasured-switch rule and spending authority remain current.
+Its no-unmeasured-switch rule and spending authority remain current. The simple setup decision
+above supersedes any suggestion that a paid comparison is already active or a subscription is
+the current purchase recommendation.
 
 The owner delegates technical service/model decisions and explicitly approves **EUR30/month
 total** (superseding EUR25), with cheaper service preferred when quality is preserved. Keep the

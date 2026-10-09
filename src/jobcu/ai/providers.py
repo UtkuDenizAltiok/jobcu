@@ -44,7 +44,7 @@ PROVIDERS: dict[str, ProviderInfo] = {
             key_page="https://platform.openai.com/api-keys",
         ),
         ProviderInfo(
-            "openai_compatible", "Other (OpenAI-compatible)", CompatibleAdapter,
+            "openai_compatible", "Other API", CompatibleAdapter,
             key_page="", needs_base_url=True, key_optional=True,
         ),
     )

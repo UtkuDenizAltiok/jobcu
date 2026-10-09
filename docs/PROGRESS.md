@@ -10,30 +10,30 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
-- Custom APIs now have Chat Completions, Responses and Messages configuration, explicit
-  thinking controls, and an optional separate native online-research provider in
-  [PR #95](https://github.com/UtkuDenizAltiok/jobcu/pull/95). Local checks pass; verify its actual
-  final head and merged-main CI before relying on publication. The [complete current catalogue assessment](ENGINEERING.md#complete-catalogue-and-universal-api-decision--2026-10-09)
-  prioritizes GPT-6 Luna, MiMo-V2.6-Pro, DeepSeek V4.1 Flash, Haiku 5.5 and GLM-5.3-Flash.
-  The documented catalogue has 32 models despite the landing page's 31. This replaces the
-  older shortlist order, not the requirement for independent quality evidence before a switch.
-- The owner delegates technical service decisions and is willing to pay for useful APIs.
-  The [current recommendation](ENGINEERING.md#complete-catalogue-and-universal-api-decision--2026-10-09) is keep
-  Gemini medium during a cheaper-main-model comparison, with GPT-6 Luna medium first.
-  Compare direct API plus Gemini research before Go-only or Go plus research; Routes quota
-  correction is already verified, while post-change live success remains unmeasured.
-  This supersedes treating the earlier five-model evaluation shortlist as a selected upgrade
-  or asking the owner to choose a model/integration. No matching superiority is claimed.
-  Current provider, keys and settings are preserved. The owner explicitly raised the monthly
-  total ceiling to EUR30; EUR25 and the initial larger-budget proposal are superseded.
-  The earlier EUR10 Maps / EUR15 AI split is not a verified forecast or implemented allocation.
-- Go's permitted non-coding use, hosted research entitlement/fees and correct medium/schema/
-  protocol behavior need verification. Model equivalents share weighted capacity; advertised
-  cached coding-request counts do not establish daily-search capacity. AI Studio prepaid credit
-  cannot pay for Maps; actual credit type/expiry remains unchecked. Dated facts are in SOURCES.
-  Relevant Maps quota/billing was inspected privately; a targeted daily-quota correction was
-  visibly verified. Exact account values/proof stay outside Git. No key, paid/provider test or
-  new search was used; the app's monthly allowance, owner settings and EUR30 total stay intact.
+- AI Settings now has one optional advanced section, a visible summary of active model/
+  research overrides and an honest **Other API** label. Custom formats open their required
+  setup controls. Existing choices, keys, routing and medium defaults are preserved.
+  Verification/publication status and exact recovery action are under **In progress**.
+- The current [simple setup decision](ENGINEERING.md#simple-ai-setup-and-buying-decision--2026-10-09)
+  is one Gemini 3.8 Flash model at medium plus Google Maps. Do not buy Go solely for Jobcu now:
+  published client guidance targets coding traffic; no positive official permission for this
+  workload was found. Gemini can handle all AI tasks with one key/model. This is an operational
+  recommendation, not proof it matches better than other models. The earlier top-five list
+  remains a comparison priority, not an adoption instruction or authorized paid experiment.
+- The owner delegates technical decisions and explicitly raised the total ceiling to EUR30/
+  month, superseding EUR25 and the larger proposal. Preserve working settings/keys and limits.
+  No new purchase, top-up, provider switch, paid test, new search or further account edit was
+  made. The earlier EUR10 Maps / EUR15 AI split is not an implemented allocation or invoice.
+- Go's public billing code confirms weighted shared subscriber counters across models, not
+  independent pools. Dated reset rules/arithmetic, complete 32-model assessment, terms and
+  exact permission/quality dependencies live in [SOURCES](SOURCES.md#opencode-go-and-ai-credit-eligibility).
+  Model count and cached coding-request estimates do not prove daily Jobcu capacity or accuracy.
+  Gemini prepaid credit cannot pay for Maps. The targeted Maps daily-quota correction is already
+  verified privately; live post-change route/fit quality is not yet measured.
+- [PR #95](https://github.com/UtkuDenizAltiok/jobcu/pull/95) is verified merged at `d4ac53c`;
+  exact merged-main Mac/Windows/privacy CI `37979826008` passed. Custom Chat Completions,
+  Responses/Messages, explicit thinking controls and separate research are available. See
+  the [complete assessment](ENGINEERING.md#complete-catalogue-and-universal-api-decision--2026-10-09).
 - [PR #93](https://github.com/UtkuDenizAltiok/jobcu/pull/93) is verified merged at `597701d`;
   exact merged-main Mac/Windows/privacy CI `37969222262` passed. Integration ease and vendor
   effort labels are not quality verdicts. The [additional model assessment](ENGINEERING.md#additional-model-assessment--2026-10-09)
@@ -78,31 +78,34 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   corrected Greenhouse original-date evidence and reader-version cache recovery. Historical
   snapshots keep their original scores/date labels. Reset preserves settings, keys, assistant
   authorization and real usage counters; full reset deletes review evidence/checkpoints.
-- The owner app 8765 stays closed. The assistant's isolated fictional Settings preview at 8799
-  is stopped, its tab closed and disposable data removed. Authorized saved service evidence/
+- The owner app 8765 is now running; preserve its state. The assistant's isolated fictional
+  Settings preview at 8799 is stopped, its tab closed and disposable data removed. Authorized saved service evidence/
   forecast and its recovery checkpoint stay
   private; the disposable diagnostic copy is removed. Owner search data/settings are preserved.
 
 ### In progress
 
-No unfinished implementation remains for **universal AI configuration/service decision**.
-Publication recovery only if [PR #95](https://github.com/UtkuDenizAltiok/jobcu/pull/95) is unmerged
-or exact merged-main CI is missing. Branch `codex/universal-ai-service-choice`, base `92df256`;
-implementation head `c962116` is committed/pushed, this final handover is a docs-only follow-up.
-The complete catalogue, custom formats/controls and separate online research are implemented;
-no model switch, paid comparison, purchase, new search or Maps-cap/cache change was performed.
+**Simple AI setup and verified subscription decision:** implementation and free research are
+complete; publication remains in [PR #96](https://github.com/UtkuDenizAltiok/jobcu/pull/96).
+Branch `codex/simple-ai-setup`, base `d4ac53c`, implementation head `f57b73c` committed/pushed;
+this checkpoint is a documentation-only follow-up. No paid call,
+new search, purchase, provider switch or owner settings/data change was performed.
 
-Verified locally: **1,125 tests**, Ruff/privacy/whitespace, JS syntax, complete diff review,
-and fictional Settings Save/reload with no console errors. Preview/tab/scratch are cleaned up;
-owner app/data/settings remain preserved. Reuse unchanged runtime checks for this handover.
-Exact next action if unmerged: commit/push the handover, recover PR #95's actual final head,
-require Mac/Windows/privacy CI on that head, merge commit, synchronize main and verify its
-exact-head CI. If already merged and verified, this goal is complete and no active goal remains;
-clear this conditional entry when updating progress for the next owner task. Do not repeat
-private account edits, start a paid comparison or choose backlog work during Start.
-Adoption dependencies: Go non-coding permission, independent matching labels and a separately
-bounded paid comparison through Jobcu. Main/research format compatibility is now implemented;
-no extra full search or owner ratings are needed to prepare that comparison.
+Verified: **1,125 tests** (unchanged baseline at the base reused, final suite rerun), affected
+API/format/document checks, JS syntax, Ruff/privacy/whitespace. Fictional browser Save/reload
+preserved closed overrides, returned to one model and retained custom Messages/research;
+no console warnings/errors or provider calls. Isolated preview/tab/data are cleaned up.
+Owner app 8765 remains running. Complete diff review passed; publication checks remain.
+
+Exact next action if unmerged: commit/push this checkpoint if needed, recover PR #96's actual
+final head, require Mac/Windows/privacy CI there, merge with a merge commit, synchronize main
+and verify exact merged-main CI. If Git shows this branch merged and that CI green, this goal
+is complete and no active goal remains; clear this conditional entry on the next owner task.
+Do not repeat account edits, launch an extra search or infer paid-comparison authority.
+
+Go adoption is deferred: written provider permission for this non-coding use and independently
+labelled bounded paid model comparison are the exact dependencies. The buying decision is
+one working Gemini model plus existing Maps, not an instruction for the owner to choose models.
 
 ### Verify before relying on
 
@@ -130,7 +133,7 @@ no extra full search or owner ratings are needed to prepare that comparison.
 
 ### Waiting on the owner
 
-- Keep the working Gemini medium setup; no Go purchase, replacement key or model choice is
+- Keep one working Gemini model at medium; no Go purchase, replacement key or model choice is
   needed. The relevant Maps account investigation and targeted daily-quota correction are
   complete; no further payment/quota homework is needed for that correction. The next normal
   on-demand search can provide post-change evidence. Its monthly attempt allowance still

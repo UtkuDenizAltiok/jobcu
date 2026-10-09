@@ -16,7 +16,7 @@ def client():
 def test_settings_list_providers_alphabetically_with_no_default(client):
     data = client.get("/api/settings").json()
     names = [p["name"] for p in data["providers"]]
-    assert names == sorted(names[:-1]) + ["Other (OpenAI-compatible)"]
+    assert names == sorted(names[:-1]) + ["Other API"]
     assert data["ai"]["provider"] is None
     assert all(not p["key"]["saved"] for p in data["providers"])
 

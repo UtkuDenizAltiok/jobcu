@@ -1,5 +1,5 @@
 """OpenAI through the official `openai` library (Responses API), plus shared helpers
-for "Other (OpenAI-compatible)" providers."""
+for "Other API" providers."""
 
 import openai
 
