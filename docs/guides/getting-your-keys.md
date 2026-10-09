@@ -145,6 +145,18 @@ times and labels unavailable journeys or fallback estimates; it does not turn a 
 into proof that a job is unreachable. The [usage guide](first-search.md#4-start-the-search-and-answer-any-questions)
 explains these outcomes.
 
+Maps charges depend on the number of journeys checked, the request features and your billing
+account's available allowance. Collected job-ad counts are not a bill. Read the dated
+[Maps price and cost-control evidence](../SOURCES.md#maps-spending-and-alternatives) before
+enabling paid use or increasing a limit. Jobcu's route limit counts attempts, including retries;
+it is not a euro spending cap. Google combines account usage across projects, and its billing
+month can differ from Jobcu's local counter. Do not rely on an alerts-only budget to stop charges.
+
+Recurring failures need the specific quota/access cause, not an automatic purchase of a higher
+tier. Follow [Maps quota help](troubleshooting.md#google-maps-keeps-asking-jobcu-to-slow-down).
+Paying for extra requests can help an exhausted allowance; it cannot guarantee a timetable,
+the fastest district connection, accurate AI scores or complete job coverage.
+
 These service references were checked on 2026-10-07. Prices and account access still depend
 on the services' current terms. Maps retry/quota handling was rechecked on 2026-10-09;
 the dated evidence is in [SOURCES](../SOURCES.md#maps-request-limits-and-recovery).

@@ -224,6 +224,50 @@ conservatively before every network attempt, including errors; this ledger is no
 invoice and cannot track usage from other apps. No live call or account/billing change was
 made for this check. Measured fictional limits live in [ENGINEERING](ENGINEERING.md#maps-recovery).
 
+#### Maps spending and alternatives
+
+**Checked 2026-10-09:** the [SKU definitions](https://developers.google.com/maps/billing-and-pricing/sku-details)
+list traffic-aware routing and location modifiers as Matrix Pro triggers, and two-wheel/toll
+features as Enterprise triggers. Ordinary TRANSIT plus departure time is not listed as either.
+Inference from the current `travel.GoogleMaps._matrix` request: Jobcu uses Matrix Essentials;
+this is a code/contract assessment, not verification of the owner's actual billing line item.
+The global Matrix prices above apply to that SKU, not a subscription or a price per collected ad.
+
+The [pricing overview](https://developers.google.com/maps/billing-and-pricing/overview) aggregates
+usage across projects linked to the billing account; free usage resets at midnight Pacific US
+time on the first day of the month. A separate project does not establish a separate allowance.
+[Cost controls](https://developers.google.com/maps/billing-and-pricing/manage-costs) distinguish
+quota metrics from billing, which can lag up to 48 hours. Alerts-only budgets do not cap spending;
+quotas can cap usage, but Google warns about quota/billing discrepancies. Inference: include
+other account usage, the reset boundary, currency/tax and a margin before enlarging Jobcu's
+attempt allowance. A local element counter cannot enforce an account-wide euro ceiling.
+
+[Transit documentation](https://developers.google.com/maps/documentation/routes/transit-route)
+supports arrival/departure times, station/line details and alternative routes in Compute Routes.
+Transit can include walking, waiting, buses and trains; forecasts depend on changing schedules.
+Inference: a higher billing tier is not evidence of better transit coverage; current sampling
+and timetable gaps need route-specific checks. Compute Routes and Matrix have separate billing
+events/allowances; adding detailed verification must account for both.
+
+Alternative leads, not adopted sources or owner account instructions:
+
+- [HERE Public Transit v8](https://docs.here.com/transit/reference/public-transit-api-v8-getroutes)
+  documents dated journeys, alternatives, transit-mode and walking controls. The official
+  pricing and limited-plan pages returned HTTP 403 in this research; current production price,
+  terms and relevant country/timetable coverage remain unverified. No blocked page was bypassed.
+- [TravelTime pricing](https://traveltime.com/pricing) offers development/evaluation access and
+  a quoted fixed annual production plan based on throughput/service level. Its page restricts
+  free access to development/evaluation, and says low-volume pay-as-you-go can be cheaper.
+  A production quote and applicable use rights are dependencies; no account or contact was made.
+- [OpenTripPlanner](https://www.opentripplanner.org/) describes routing built from GTFS and
+  OpenStreetMap data. Inference: local routing would need licensed current feeds and ongoing
+  coverage/maintenance across supported countries. It is not an established drop-in transit
+  replacement, a zero-maintenance saving or permission to host Jobcu.
+
+No private search evidence, live route call, paid test or account change was used for these
+comparisons. The bounded spending recommendation and illustrative arithmetic live in
+[ENGINEERING](ENGINEERING.md#maps-spending-proposal--2026-10-09).
+
 **Classification/error guidance checked 2026-10-08:**
 [Google's structured-output guide](https://ai.google.dev/gemini-api/docs/structured-output)
 distinguishes valid JSON from correct values and recommends application validation/error

@@ -393,6 +393,78 @@ ratings still limit live quality claims. Step timings include the activities of 
 filtering includes initial journey work, and online checking can include later journey work.
 Answer waiting is recorded separately; compare original runs, not correction totals.
 
+#### Maps spending proposal — 2026-10-09
+
+The owner asked whether reasonable paid Maps use would solve recurring errors without losing
+good jobs or harming scores. This request authorizes a proposal; it does not choose a paid
+allowance, change Google billing/quotas or authorize a paid diagnostic. The existing total
+service budget remains EUR25/month. [Dated facts](SOURCES.md#maps-spending-and-alternatives) are
+separate from the following engineering recommendation and unmeasured hypotheses.
+
+Recommendation: retain Google Routes on pay-as-you-go for now, diagnose the exact refusal and
+protect uncertain travel evidence before increasing usage. Propose a **maximum EUR10/month
+Maps allocation within the EUR25 total**, pending an explicit owner decision and verified room
+for the existing AI workload. Do not lower AI effort, drop jobs or remove evidence to fit that
+allocation. If the combined workload cannot fit, report that dependency rather than silently
+change quality or the total budget. A Maps euro target is not yet an implemented spending cap.
+
+| Priority / action | Expected benefit and evidence | Effort / risk | Verification / dependency |
+|---|---|---|---|
+| 1. Identify the refused quota or access setup | High if it explains repeat failures; current generic warnings cover 429 and 5xx, not just a need to pay | Low / low for authorized saved inspection | Recheck private authority/checkpoint; prefer saved HTTP/quota scope and usage, then actual project quota, billing SKU and shared allowance. No new search needed |
+| 2. Prevent uncertain negative travel evidence from rejecting a job | High recall protection: code still turns explicit long/null AI estimates and complete long/no-route city samples into a failed condition | Medium / medium; more uncertain results must not become false passes | Fictional engineering/non-engineering/all-country cases; independent workplace/route evidence before live accuracy claims. Recommended next free code improvement, not implemented by this proposal |
+| 3. Add bounded paid headroom when needed | Helpful for an exhausted allowance, not missing schedules, wrong sample points or transient outages | Low account effort / spending risk | Approved allocation; actual SKU/free allowance, currency/tax, reset/ledger alignment and peak-use quotas. Preserve unknown results at limits |
+| 4. Add or replace the route provider | Potential backup/coverage gain, currently unmeasured | High integration/maintenance / unknown price and coverage | HERE current price/terms/coverage, TravelTime production quote/rights or maintained licensed local feeds; compare the same independently verified journeys first |
+
+The current matrix sends one workplace origin and up to two reference cities, each with an
+edge and centre sample (centre-only requests have one sample per city). Identical coordinates
+are coalesced within the measurement work; jobs in a qualifying city or outside the conservative
+distance reach may need no Maps call. Multiple conditions, corrected/new locations, retries and
+the key test can add elements. Therefore raw ad totals cannot be multiplied into the bill.
+
+Fictional planning scenarios assume one travel condition, 30 daily searches, four elements per
+distinct workplace that actually needs routing, no retries, the full corresponding free cap
+available, and global first-tier pricing. These are calculations, not observed owner usage:
+
+| Routed workplaces per search | Monthly elements | Matrix Essentials, USD | Matrix Pro, USD |
+|---|---:|---:|---:|
+| 50 | 6,000 | 0 | 10 |
+| 75 | 9,000 | 0 | 40 |
+| 100 | 12,000 | 10 | 70 |
+| 150 | 18,000 | 40 | 130 |
+
+The present request format appears to use Essentials, including TRANSIT plus departure time;
+verify the actual billing SKU before promising a price. An illustrative small first paid
+allowance of **11,000 monthly elements** would be USD5 before tax with the full Essentials free
+cap, but USD55 if that cap were already consumed elsewhere. This is a candidate, not a changed
+owner setting or an enforceable EUR10 cap. Currency/tax are not converted or assumed here.
+
+Current `maps_monthly_routes` defaults to 9,000 attempted elements, not 9,000 jobs; existing saved
+settings may differ. Attempts, including retries/errors, are metered conservatively before
+sending; cached responses add none. `RequestBudget` currently groups the default UTC day/month,
+while Google's free-usage month resets in Pacific time. Before a cap is presented as billing
+protection, align the accounting window without rewriting historical counters, verify shared
+account use and reserve a margin. Cloud budget alerts alone are not a hard stop. Choose Cloud
+quotas from verified peaks and the monetary ceiling; an arbitrary tight daily quota can cause
+the same false outage despite unused monthly allowance. Do not raise quotas blindly.
+
+The required quality safeguard extends the already merged per-element correction: lack of a
+confirmed journey must remain unknown. An AI estimate cannot prove that no acceptable route
+exists, and two nearest cities/edge-centre samples cannot prove no district or farther city has
+a faster connection. Prefer an actual workplace coordinate/address from the ad; a headquarters
+elsewhere is not a substitute. Any future policy must distinguish an explicit requested
+destination from a broad "any part of a qualifying city" condition, keep useful positive
+measurements, and label confidence separately from job fit. Unknown travel must not be a
+confirmed preference conflict or eligibility blocker. Today those estimate/sample negative
+paths still exist; this proposal makes no claim that all false exclusions or scoring errors
+have been solved. Historical search snapshots retain their original evidence.
+
+No new routing provider, price-dependent feature, source, AI default or filtering behavior was
+implemented here. No private result review, Google Cloud access, live route/provider call or
+new search was used. Exact current account refusal, remaining allowance, relevant live route
+accuracy and the combined AI/Maps spending forecast remain dependencies. If a live diagnostic
+becomes necessary, request a separate bounded Jobcu-only test (for example, at most 8 elements
+and EUR0.10) after scope/price/account checks; a full search or repeated key tests are unnecessary.
+
 #### Partial route outcomes — 2026-10-09
 
 The Deep improvement investigation ranked these alternatives before implementing one:
