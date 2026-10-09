@@ -115,6 +115,107 @@ Code/tests establish behavior; the latest current decision establishes intent.
   established runtime/test/tool layout; consolidate only where responsibilities actually overlap.
   Retire merged branches after checking PRs/worktrees; preserve unmerged or active work.
 
+## AI subscription decision — 2026-10-09
+
+The owner intends to replace Gemini 3.8 Flash with OpenCode Go for daily searches and considers
+using Google credit for Maps. [Current service/model facts](SOURCES.md#opencode-go-and-ai-credit-eligibility)
+establish two dependencies: Go's coding-client policy does not clearly permit Jobcu's non-coding
+workload, and AI Studio prepaid credit cannot pay for Maps. Preserve the owner's running app,
+keys and settings; no subscription, account or provider change was made in this investigation.
+
+Recommendation: **GPT-6 Luna is the first main-model candidate to evaluate at medium effort**.
+This is a suitability hypothesis, not a measured claim that it beats Gemini or the other models
+on job fit. Consider its direct API before buying Go solely for Jobcu: the listed token rates
+match, the native Responses adapter already exists, and general app use does not need Go's
+coding-client clarification. Direct use needs its own owner-chosen key/account, actual limits
+and a complete token/tool cost forecast. Keep the functioning provider until a bounded paired
+comparison supports a switch. The owner can still choose Go after the dependencies are resolved.
+No preferred model/provider is added to Jobcu defaults.
+
+Ranked evaluation shortlist for the requested Go plan, based on documented capability and
+integration/headroom, not a ranking of intrinsic intelligence:
+
+| Rank / candidate | Why evaluate it | What remains unknown |
+|---|---|---|
+| 1. GPT-6 Luna | Explicit medium reasoning, strict output, long context and native Responses fit; strong calculated allowance margin | Jobcu extraction/fit accuracy versus Gemini; Go hosted-tool access, permitted use and proxy behavior |
+| 2. Claude Haiku 5.5 | Explicit medium default and schema support; same favorable short-prompt allowance calculation | Complex matching quality and Go Messages/tool behavior; prompts over 100K change its rate |
+| 3. MiMo-V2.6-Pro | Flagship thinking/structured-output capabilities and long context justify a quality comparison | Go effort mapping, schema behavior and quality; the larger fictional workload below exceeds its equivalent cap |
+| 4. Kimi K2.6 | Own reasoning/knowledge evaluation and thinking support; larger equivalent allowance | No medium mapping established through Go; JSON reliability, matching and little reserve in the larger scenario |
+| 5. GLM-5.2 | Thinking/JSON/long context, with a larger allowance than GLM-5.3 | Go effort mapping and general matching benefit; larger scenario exceeds its cap |
+
+GLM-5.3's stronger coding results do not prove better matching than its shared-base predecessor;
+its max default and absent medium option need explicit handling. Kimi K3/Qwen3.8 Max/Grok's
+expensive token rates and smaller equivalents need workload proof before daily-main use.
+DeepSeek is a further candidate after actual permitted processing regions and its dated ZDR
+agreement are checked; published Go code has region gating. Muse Contributor's training bargain
+needs an explicit privacy decision; do not choose it automatically for private documents.
+Temporary unlimited previews are not a stable capacity/quality guarantee or automatic fallback.
+None of these exclusions establishes that a model is inaccurate.
+
+One search with a **24-hour posting window** is not one AI call or a fixed token load. Its fresh
+ads, title screening, profile/criteria interpretation, matching, scoring, repairs, reasoning,
+employer discovery and web research all consume work. The marketing estimates use long cached
+coding conversations with short outputs; do not apply their advertised request counts to Jobcu.
+
+Fictional single-model planning examples below use 30 searches, no cache discount, no retries,
+and output totals including thinking. The smaller daily workload is 500K uncached input/100K
+output; the larger is 1M/250K. Each individual GPT prompt is at most 272K and Haiku at most 100K.
+These are arithmetic, not measured owner demand or an accuracy/performance benchmark:
+
+| Candidate | Smaller 30-day usage value, USD / equivalent share | Larger value, USD / share |
+|---|---:|---:|
+| GPT-6 Luna | 3.00 / 20% | 6.75 / 45% |
+| Claude Haiku 5.5 | 3.00 / 20% | 6.75 / 45% |
+| MiMo-V2.6-Pro | 9.135 / 60.9% | 19.575 / 130.5% |
+| Kimi K2.6 | 26.25 / 43.75% | 58.50 / 97.5% |
+| GLM-5.2 | 34.20 / 57% | 75.00 / 125% |
+
+The subscription fee is separate from these token-value equivalents; Go does not bill these
+values on top merely for included usage. Mixed models share weighted capacity: half of one
+model's equivalent plus half of another consumes the whole allowance, not two separate pools.
+Check five-hour and weekly windows as well as the subscription month and other coding use.
+Actual tokenization, cache writes, repairs, reasoning, thresholds, concurrency and changing
+prices/caps can alter the forecast. Do not enable Zen **Use balance** or automatic top-ups to
+hide a limit. Keep unknown cases and fresh scoring; do not lower effort or drop ads for savings.
+
+Direct GPT's corresponding token-only examples are USD3.00/6.75 per 30 days rather than a fixed
+Go fee. However, direct web search adds USD10/1,000 calls plus retrieved-content tokens: 500
+calls add USD5; 2,000 add USD20 before those tokens. Thus direct use is an integration/cost
+candidate, not a promised cheaper complete search. Inspect authorized saved token/tool usage
+before forecasting the combined AI/Maps total; retain needed research, not an arbitrary cap.
+
+Migration acceptance gates, all still pending:
+
+1. For Go, confirm permission for on-demand personal job matching with document interpretation
+   and JSON scoring. Identify the client honestly as Jobcu and use opaque stable session IDs;
+   do not impersonate a validated coding agent or route private tasks through another client.
+2. Preserve medium, structured answers and necessary web research through a correctly routed
+   adapter. `CompatibleAdapter` currently sends Chat Completions, no explicit effort or custom
+   Go identity/session headers, and advertises no web research. Native OpenAI/Anthropic adapters
+   use their own provider addresses; a Go key must not be entered under those native providers.
+   Go's protocol translation may accept extra formats, but that is not a tested migration.
+3. Verify Go hosted-search entitlement and fees, or deliberately implement/test a separately
+   chosen research provider. Current settings have one provider; the optional reasoning model
+   is another model of that provider, not a second research account. A silent loss of employer,
+   place or requirement research is a quality regression. Existing Gemini credit may be useful
+   for Gemini work, but a split-provider workflow is not implemented or assumed here.
+4. Before switching, run a separately authorized bounded fictional comparison through Jobcu:
+   profile extraction, multilingual criteria, unrelated-title decisions, requirement quotes,
+   permits/languages, unknowns and borderline scoring, including non-engineering/all-country
+   cases. Compare against independent labels, current Gemini and repeated borderline outputs;
+   record errors, schema repairs, reasoning/tool tokens and time. No fresh real search is needed.
+   Real accuracy/coverage claims still require CONTRIBUTING's private procedure and originals.
+5. Diagnose Maps independently from AI billing. Verify the actual quota, Maps SKU, credit grant
+   eligibility and usage; preserve uncertain journeys. The earlier
+   [Maps allocation proposal](#maps-spending-proposal--2026-10-09) remains pending. No credit
+   transfer/refund or billing change is implied. Keep the EUR25 total, taxes/currency and room
+   for the existing workload; report insufficient budget without changing matching quality.
+
+The useful free step completed here is the researched decision, numerical planning and corrected
+setup guidance. No model API call, private review, key/account inspection, new search or live
+quality measurement was performed. Go permission/tool support, actual account allowance and a
+bounded comparison are exact dependencies; no migration implementation is currently active.
+
 ## Search pipeline
 
 `search.py` runs a background thread; the page polls progress once a second.

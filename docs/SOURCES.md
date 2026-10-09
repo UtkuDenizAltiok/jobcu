@@ -153,6 +153,71 @@ and robots/terms permissions are unchanged. No new vacancy collection permission
 
 ## AI and Maps
 
+### OpenCode Go and AI credit eligibility
+
+**Checked 2026-10-09:** [Go](https://opencode.ai/en/go) advertises USD10/month, not a verified EUR10
+checkout total. Its [service documentation](https://opencode.ai/docs/go/) describes coding-agent
+traffic, an honest client user agent and stable `x-opencode-session`; the
+[terms](https://opencode.ai/legal/terms-of-service) restrict unintended uses. Marketing says
+any agent, but permission for Jobcu's non-coding matching workload is unresolved. Seek service
+confirmation; do not disguise Jobcu as a coding client. No subscription/account action occurred.
+
+Go's documented single-model equivalents, prices per million tokens and recommended protocols:
+
+| Model | Input / output, USD | Monthly usage value, USD | Protocol |
+|---|---:|---:|---|
+| GPT-6 Luna | 0.10 / 0.50 | 15 | Responses |
+| Claude Haiku 5.5 | 0.10 / 0.50 | 15 | Messages |
+| MiMo-V2.6-Pro | 0.435 / 0.87 | 15 | Chat Completions |
+| Kimi K2.6 | 0.95 / 4.00 | 60 | Chat Completions |
+| GLM-5.2 | 1.40 / 4.40 | 60 | Chat Completions |
+
+GPT rates above assume prompts at most 272K; Haiku at most 100K. Five-hour/weekly limits are
+20%/50% of the monthly equivalent. Advertised request counts assume cached coding conversations;
+they are estimates, not limits for full-ad scoring. Optional **Use balance** allows paid Zen
+overage. Native upstream tool support does not establish Go entitlement. Go reports no training
+for these five; GPT/Haiku retention is 30 days, the other three zero. These are service claims.
+
+The [published handler at `388406238b`](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/app/src/routes/zen/util/handler.ts#L1191)
+adds cost multiplied by a model factor into the same user's five-hour, weekly and monthly
+counters. Inference: model allowances are weighted equivalents, not additive pools; mixed
+models consume shared capacity. Published code is not proof of the owner's deployed account
+state. It also gates DeepSeek Go models on permitted processing regions; check actual region
+availability/consent before choosing them. No private account, usage endpoint or key was read.
+
+Primary capability evidence, not proof of Jobcu accuracy or proxy compatibility:
+
+- [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna) documents medium-default
+  reasoning, a 1,050,000-token context, structured output and Responses web search. Those are
+  upstream features; Go-hosted search access/pricing remains unverified. Its direct API lists
+  the same USD0.10/0.50 uncached input/output rates for requests at most 272K; no Go subscription
+  is required for direct API use. [OpenAI tool pricing](https://developers.openai.com/api/docs/pricing)
+  separately charges web-search calls/content; token-only comparisons omit that work.
+- [Claude effort](https://platform.claude.com/docs/en/build-with-claude/effort) documents Haiku
+  5.5's medium default; [structured output](https://platform.claude.com/docs/en/build-with-claude/structured-outputs)
+  lists Haiku 5.5 support and refusal/truncation exceptions.
+- [MiMo-V2.6-Pro](https://mimo.mi.com/models/en-US/mimo-v2.6-pro) lists thinking, structured output
+  and a 1M context. Its Go effort mapping and matching quality are unverified.
+- [Kimi K2.6's own model card](https://huggingface.co/moonshotai/Kimi-K2.6/raw/main/README.md)
+  reports reasoning/knowledge evaluations and thinking/instant modes. Differing effort/harness
+  settings prevent treating its benchmark comparisons as Jobcu ranking evidence.
+- [GLM-5.2](https://docs.z.ai/guides/llm/glm-5.2) documents thinking, JSON and a 1M context.
+  [GLM-5.3](https://docs.z.ai/guides/llm/glm-5.3) shares its base with coding-focused post-training,
+  supports low/high/max rather than medium, and defaults to max. Its stronger coding scores
+  do not establish a matching benefit or justify quietly changing Jobcu's effort.
+
+[Gemini 3.8 Flash guidance](https://ai.google.dev/gemini-api/docs/latest-model) verifies the
+owner's named model, medium thinking, built-in tools and introductory USD0.75/3.75 per million
+input/output through 2026-12-31; standard USD1.50/7.50 follows on 2027-01-01. Different model
+tokenizers, reasoning and request patterns still prevent inferring equal workload cost.
+[Gemini billing](https://ai.google.dev/gemini-api/docs/billing#prepay) explicitly limits AI Studio
+prepaid credit to Gemini API usage, not other Cloud services. It is not a Maps balance.
+Separately issued promotional Cloud credits have their own eligible SKUs/expiry; inspect the
+actual grant before relying on one. No balance type, amount, refund or transfer was verified.
+
+The [conditional ranking and arithmetic](ENGINEERING.md#ai-subscription-decision--2026-10-09)
+preserve these uncertainties. No model calls, paid benchmark or private review were performed.
+
 ### Requirement evidence and independent review
 
 **Checked 2026-10-09:** [Google's structured-output documentation](https://ai.google.dev/gemini-api/docs/structured-output)

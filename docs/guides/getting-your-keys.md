@@ -54,6 +54,35 @@ some AI services running on your own computer. Use it only when you have that se
 details. Enter its **Provider address** and exact **Model** name, and save its key if one is
 required. Some local services need no key. This connection does not support Jobcu's web research.
 
+It also does not explicitly send Jobcu's reasoning-effort choice: providers implement thinking
+differently. A successful ordinary connection test does not establish equivalent reasoning,
+research, fit quality or subscription capacity. Check those before replacing a working provider.
+
+### Considering OpenCode Go
+
+Research checked on **2026-10-09** found a provisional five-model shortlist with GPT-6 Luna
+first, plus important migration dependencies. Read the
+[decision and workload examples](../ENGINEERING.md#ai-subscription-decision--2026-10-09) and
+[dated service evidence](../SOURCES.md#opencode-go-and-ai-credit-eligibility) before buying Go
+solely for Jobcu or replacing your current setup.
+
+Go advertises a dollar-priced subscription for coding clients. Confirm it permits personal
+job matching and document processing through Jobcu. Its model allowances share capacity, and
+advertised request counts are estimates for coding conversations. One daily search with a
+24-hour posting window can still involve many long requests. Additional balance use can cost
+extra; a subscription is not unlimited API access.
+
+Models use different published API formats. Jobcu's current **Other** connection cannot be
+assumed to preserve the whole workflow, including medium reasoning and web research. Keep your
+working provider while these are verified. Do not enter a Go key in Jobcu's native **OpenAI**
+or **Anthropic** key boxes: those connect to the named providers, not to Go. Never send a key
+through chat. No verified Go setup or automatic provider switch is provided by this guide.
+
+For Jobcu alone, also compare a model's direct API with the subscription: it may avoid a fixed
+fee and integration work. Include web-tool charges and your actual workload; a token-only price
+is not the full search bill. The dated decision above compares that option without changing
+your chosen provider or claiming that a different model has better matching accuracy.
+
 ## Control usage and cost
 
 AI services may charge when you test a connection, read documents, search or apply corrected
@@ -156,6 +185,11 @@ Recurring failures need the specific quota/access cause, not an automatic purcha
 tier. Follow [Maps quota help](troubleshooting.md#google-maps-keeps-asking-jobcu-to-slow-down).
 Paying for extra requests can help an exhausted allowance; it cannot guarantee a timetable,
 the fastest district connection, accurate AI scores or complete job coverage.
+
+**AI Studio prepaid credit is for the Gemini API, not Google Maps.** Separately issued Cloud
+promotional credit can have different eligibility and an expiry date; check the actual credit
+grant. Do not assume that stopping Gemini moves its balance to Maps. The
+[credit evidence](../SOURCES.md#opencode-go-and-ai-credit-eligibility) was checked on 2026-10-09.
 
 These service references were checked on 2026-10-07. Prices and account access still depend
 on the services' current terms. Maps retry/quota handling was rechecked on 2026-10-09;
