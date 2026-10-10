@@ -86,7 +86,7 @@ def test_rate_limit_waits_then_continues(settings):
     client, sleeps = make_client(settings, adapter, notify=notes.append)
     assert generate(client).ok
     assert 12 <= sleeps[0] < 14
-    assert notes == ["The AI provider asked Jobcu to slow down; requests continue one at a time."]
+    assert notes == ["The AI provider asked Jobcu to slow down temporarily."]
 
 
 def test_impatient_client_reports_rate_limit_instead_of_waiting(settings):

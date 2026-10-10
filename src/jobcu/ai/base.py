@@ -129,7 +129,7 @@ MSG_MODEL_NOT_FOUND = (
     "The AI provider doesn't know this model name, or your key can't use it. "
     "Please pick a model from the list."
 )
-MSG_RATE_LIMITED = "The AI provider asked Jobcu to slow down; requests continue one at a time."
+MSG_RATE_LIMITED = "The AI provider asked Jobcu to slow down temporarily."
 MSG_QUOTA = (
     "Your AI allowance is used up for now (a daily limit, or no credit left). "
     "Check your account on the provider's website, or try again later."
