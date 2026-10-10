@@ -526,7 +526,7 @@ No call, account change or comparative fit test was made.
 | GPT-6 Luna | 0.10 / 0.50 through 272K context | Native medium and Responses web research; [current model/pricing check](#processing-tiers-and-complete-cost-comparisons--2026-10-10). Search USD0.01/call plus retrieved input. |
 | GLM-5.3-Flash | 0.15 / 0.50 | [Price/tool table](https://docs.z.ai/guides/overview/pricing): search USD0.01/use. [Native API reference](https://docs.z.ai/api-reference/llm/chat-completion) gives low/high/max, always-on thinking, max default. |
 | DeepSeek V4.1 Flash (`deepseek-flash`) | 0.15 / 0.60 off-peak; 0.30 / 1.20 peak | [Current pricing](https://api-docs.deepseek.com/quick_start/pricing/), [thinking guide](https://api-docs.deepseek.com/guides/thinking_mode/): enabled/high default; requested medium maps to high. JSON/tool calling/Responses support does not establish hosted search. |
-| MiMo-V2.6-Pro | 0.435 / 0.87 | [Original specification](https://mimo.mi.com/models/en-US/mimo-v2.6-pro) advertises structured output, thinking and search; exact hosted request/fee/citation behavior still needs verification. [Thinking checks](#additional-reasoning-model-candidates) are separate from measured equivalence. |
+| MiMo-V2.6-Pro | 0.435 / 0.87 | [Original specification](https://mimo.mi.com/models/en-US/mimo-v2.6-pro) documents structured output and thinking. The [later native-contract check](#public-api-market-and-quality-evidence--2026-10-10) establishes published search/fee/citation fields; live behavior and Jobcu integration remain untested. |
 | MiniMax-M3 | 0.30 / 1.20 through 512K input | [Current standard pricing](https://platform.minimax.io/docs/pricing/overview) lists beta hosted search at USD0.01/request. [Server Tools](https://platform.minimax.io/docs/guides/server-tools) documents Messages/Responses search and result URLs/citations; this is not Chat Completions function calling. |
 
 For GLM, [search documentation](https://docs.z.ai/guides/tools/web-search) describes retrieval
@@ -547,7 +547,96 @@ provider, fixed subscription fees and Maps. For a USD0.01 tool, 10/30/50 uses pe
 30 searches add USD3/9/15 before content tokens. Those are fictional sensitivities, not a
 prediction or transfer of Gemini query counts to another provider. Compare half/equal/double
 token demand, identical evidence and independent labels. Private demand arithmetic stays private.
-Selection order and acceptance gates: [ENGINEERING](ENGINEERING.md#employer-discovery-recovery-and-service-choices--2026-10-10).
+The earlier price-led candidate ordering is superseded; selection and acceptance gates:
+[ENGINEERING](ENGINEERING.md#quality-first-api-and-electronics-coverage-decision--2026-10-10).
+
+### Public API market and quality evidence — 2026-10-10
+
+Scope: current general-purpose text/reasoning families from eleven developers, plus hosting/
+research alternatives. This expands beyond Go's 32-model catalogue and the earlier inexpensive
+direct-API subset. It is not an exhaustive census of every legacy, specialist, regional or
+private-preview model. Model developers, API hosts and subscriptions are different choices;
+hosted tools, reasoning controls, prices and terms cannot be transferred between them.
+No model request, paid test, private-data processing or account change was made.
+
+| Developer / current families considered | Primary evidence relevant to Jobcu |
+|---|---|
+| Google: 3.8 Flash; catalogue's Pro/Flash/Lite variants | [Current catalogue](https://ai.google.dev/gemini-api/docs/models) distinguishes text models from image/audio and previews. [Prices](https://ai.google.dev/gemini-api/docs/pricing) include thinking; Google Search grounding content is not charged as input, unlike URL Context/File Search content. |
+| Anthropic: Fable 5.1, Opus/Sonnet/Haiku 5.5 | [Catalogue](https://platform.claude.com/docs/en/models/overview), [price table](https://platform.claude.com/docs/en/about-claude/pricing): input/output USD10/50, 4/20, 2/10, and Haiku 0.10/0.50 up to 100K prompt tokens (0.50/2.50 above). Search adds USD0.01/use and retrieved input. [Haiku overview](https://platform.claude.com/docs/en/models/haiku-5-5/overview) documents adaptive effort and a newer tokenizer; not equivalent demand or matching quality. |
+| OpenAI: Astra, Sol 6.1, Luna; current text catalogue | [Catalogue](https://developers.openai.com/api/docs/models), [Standard prices](https://developers.openai.com/api/docs/pricing): short-context input/output USD10/50, 2/10, 0.10/0.50; long-context/cache/tool charges differ. [Sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol) documents native medium and Responses tools. Stronger models are included; Luna's lower price is not a quality verdict. |
+| Xiaomi: MiMo-V2.6-Pro / Flash | [Model](https://mimo.mi.com/models/en-US/mimo-v2.6-pro), [overseas price table](https://mimo.mi.com/docs/pricing): Pro USD0.435/0.87; Flash USD0.14/0.28. [Thinking](https://mimo.mi.com/docs/en-US/quick-start/usage-guide/text-generation/deep-thinking) uses enabled/disabled, enabled by default; no literal medium control documented. |
+| Alibaba: Qwen3.8-Max / Max-0902, 3.7-Plus, 3.8-Flash | [Catalogue](https://www.alibabacloud.com/help/en/model-studio/models), [Max capabilities](https://www.alibabacloud.com/help/en/model-studio/qwen3-8-max), [prices](https://www.alibabacloud.com/help/en/model-studio/model-pricing). Global Max/0902 USD1.65/4.951 per million, including thinking output. Base Max lacks search in several regions where 0902 lists support; do not interchange snapshots/regions. Exact search controls/fees need checking for the selected deployment. |
+| Moonshot: Kimi K3 / K2.6; coding variants separately | [K3 guide](https://platform.kimi.ai/docs/guide/kimi-k3-quickstart): 1M context, strict JSON, always-on low/high/max reasoning. [Public platform](https://platform.kimi.ai/) lists USD3/15; [billing](https://platform.kimi.ai/docs/pricing/chat) is separate from subscriptions. The guide explicitly advises against production web-search use while it is updated; Formula needs a client tool loop. |
+| DeepSeek: V4.1 Flash / V4 Pro-0813 | [Current pricing](https://api-docs.deepseek.com/quick_start/pricing/), [release](https://api-docs.deepseek.com/news/news260813/): Pro USD0.66/1.98 off-peak, 1.32/3.96 peak; low/high/max reasoning and structured/tool support. Current Flash identity/rates are recorded above; no hosted-search entitlement inferred. |
+| Z AI: GLM-5.3 / 5.3-Flash | [Model](https://docs.z.ai/guides/llm/glm-5.3), [Flash](https://docs.z.ai/guides/vlm/glm-5.3-flash), [prices/tools](https://docs.z.ai/guides/overview/pricing). Native thinking/search evidence and reference inconsistencies are recorded above; neither small-model pricing nor coding gains establish job-fit quality. |
+| MiniMax: M3 / M3.1-Flash-Preview | [Invocation](https://platform.minimax.io/docs/guides/text-generation), [pricing](https://platform.minimax.io/docs/pricing/overview), [server tools](https://platform.minimax.io/docs/guides/server-tools). Version-specific pricing/effort and beta research remain distinct, as above. |
+| Mistral: Medium 3.5 / Large 3 / Small 4 | [Medium capabilities](https://docs.mistral.ai/models/mistral-medium-3-5-26-04), [prices](https://docs.mistral.ai/inference/pricing): USD1.50/7.50, 0.50/1.50, 0.15/0.60. [Hosted web search](https://docs.mistral.ai/studio/agents/agent-tools/websearch) belongs to Agents/Conversations, not ordinary compatible Chat. Model naming does not specify reasoning effort. |
+| SpaceXAI/xAI: Grok 4.7 / earlier 4.6 | [Current 4.7 guide](https://docs.x.ai/developers/grok-4-7) (updated 2026-10-05) documents USD2/6, native medium and Responses research. [Tool pricing](https://docs.x.ai/developers/pricing): web search USD0.005/use plus tokens. Older catalogue/price text still highlights 4.6; use the exact version's contract/account rates. Fast 4.7 is not public-API access. |
+
+Additional route: [Cohere Command A Reasoning](https://docs.cohere.com/docs/command-a-reasoning)
+has multilingual, structured/citation/tool capabilities, but its production Model Vault route
+is not an established small pay-as-you-go Jobcu plan. [Nova 2 Lite's guide](https://docs.aws.amazon.com/nova/latest/nova2-userguide/)
+and [reasoning documentation](https://docs.aws.amazon.com/nova/latest/nova2-userguide/reasoning-capabilities.html)
+describe multilingual/document reasoning with charged redacted thinking; native Bedrock
+integration and a complete deployment quote are separate dependencies. Neither is rejected
+as incapable; neither is ready as the simplest one-provider replacement here.
+
+**MiMo contract resolved from primary documentation:** [native web search](https://mimo.mi.com/docs/en-US/quick-start/usage-guide/text-generation/tool-calling/web-search)
+requires activating the plugin. Chat requests use `tools: [{type: "web_search", ...}]`,
+`force_search`, `max_keyword` and `limit`; other protocols are not supported for this tool.
+The response documents `message.annotations` URL citations and
+`usage.web_search_usage.tool_usage/page_usage`. Overseas search is USD5/1,000 uses plus
+retrieved input tokens. A search round can make several billable keyword uses. The general
+FAQ spells a force parameter differently; the dedicated contract is the integration reference,
+with actual behavior still to verify. Thinking remains enabled; do not copy the disabled
+thinking from the search example. This resolves the earlier missing published mechanism/price,
+not live search quality, account eligibility or current Jobcu hosted-tool support. The service
+agreement link did not expose readable text in this check; account/data terms must be inspected
+before transferring private records. Direct API documentation does not confer Go entitlement.
+
+[OpenRouter's server tool](https://openrouter.ai/tool/web-search/) documents native search or
+an external engine with standard model token charges. Its current product page lists Exa at
+USD0.007/use while the [beta guide](https://openrouter.ai/docs/guides/features/server-tools/web-search)
+still lists USD0.005 plus extra-result charges: verify the selected engine's actual tariff.
+[Credit fees](https://openrouter.ai/business) add 5.5% Standard purchase fees; model count does
+not prove quality or net savings. Gateways and hosts such as Together/Fireworks require their
+own routing, data-use, exact-model and tool checks; do not assume the native developer's terms.
+
+**Independent general evidence, not a Jobcu verdict:** Artificial Analysis' [original comparison](https://artificialanalysis.ai/models/comparisons/mimo-v2-6-pro-vs-gemini-3-8-flash)
+reports MiMo Pro 46 versus Gemini 3.8 Flash **High** 41 on its Intelligence Index, with
+long-context reasoning 86%/81%, but factual-reliability AA-Omniscience 8/30 and GDP.pdf 19%/21%.
+These counterexamples prevent treating a higher composite as universally better. Its
+[methodology](https://artificialanalysis.ai/methodology/intelligence-benchmarking) describes a
+primarily English suite, separate multilingual evaluation and model-judged components. High
+Gemini is not Jobcu's medium configuration. None measures fresh-job recall, electronics fit,
+unsupported requirements or route evidence. Selection remains a hypothesis until paired
+Jobcu evidence meets [the quality gates](../CONTRIBUTING.md#compare-a-provider-without-lowering-quality).
+
+### Electronics employer and specialist coverage — 2026-10-10
+
+These primary references identify employer leads, **not collection licences, current jobs or
+proof of missed vacancies**. Do not bulk-harvest member lists or use job-site accounts. Check
+each employer's current terms/robots, actual career system and original-ad evidence before
+adding it. Industry membership may include agencies, suppliers with no local hiring and
+outdated acquired companies; independently verify identity and country.
+
+| Country / route | Evidence and contribution hypothesis |
+|---|---|
+| Germany: sector employers | [ZVEI's sector board](https://www.zvei.org/verband/ueber-uns/vorstand) identifies power supplies, capacitors, semiconductors, PCB and automation employers, including inpotron and BLOCK. Hypothesis: specialist manufacturers can broaden coverage beyond familiar large brands; no vacancy benchmark established. |
+| Ireland: microelectronics ecosystem | [MIDAS industry members](https://www.midasireland.ie/about-us/midas-company-members/) identifies design/research/manufacturing firms such as Emdalo, Icergi, Farran and Firecomms. A stronger sector-discovery reference than relying only on a general national board; no current relevant-job count inferred. |
+| UK: electronics supply chain | [TechWorks member search](https://techworks.org.uk/members-searchable/) covers semiconductors, electronic systems and power electronics as well as other sectors/agencies. Candidate employer reference; no automatic collection right inferred. |
+| Netherlands and Italy | [High Tech NL](https://www.hightechnl.nl/onzeleden/) separates semiconductor, energy and other clusters; [ANIE](https://anie.it/) represents electrotechnical/electronic industry. Candidate references, pending individual career-site checks and contribution evidence. Switzerland/Belgium need equally specific verified references, not guessed parity. |
+| Original career-system gaps | [Bosch's FAQ](https://www.bosch.com/careers/faq/) confirms SmartRecruiters; its restrictions remain held. [ABB's application guide](https://careers.abb/global/en/how-to-apply) identifies Workday, but the exact permitted readable board is unverified. [Keysight's current career landing](https://jobs.keysight.com/external) is public; reachability does not establish an API/reader entitlement. Historical Avature/Siemens RSS observations remain dated leads, not a newly checked reader contract. |
+| Specialist boards | [Engineers Ireland terms](https://www.engineersireland.ie/Terms-of-use) do not establish an automated vacancy licence. [Jobvector's legal page](https://www.jobvector.de/impressum.html) links separate terms; no permitted Jobcu feed established. IET's [platform terms](https://www.theiet.org/media/9621/iet-platform-general-terms.pdf) contain extraction restrictions; the applicable job-board terms/permission remain a dependency. Suitable public manual benchmarks need original dates and employer IDs. |
+| Broader portals | [StepStone XML documentation](https://api.stepstone.com/knowledge-base/xml-guide-stepstone-de/) describes publishing ads, not a general vacancy-reading licence. [jobs.ch terms](https://www.jobs.ch/en/terms/) expressly restrict scraping and automation outside official tools. LinkedIn/Indeed and EURES dependencies above remain; no internal endpoint, cookies or blocked-host bypass is introduced. |
+
+The shipped directory's existing electronics employers and unread systems were inspected
+locally; its countries are historical observations, not verified today's coverage. A missing
+directory entry does not prove a whole-search miss: an aggregator or discovered-employer
+record may cover it. No list was fetched through Jobcu, source added/removed or private result
+aggregate published. PULS/Agoria web research encountered robots restrictions; blocked pages
+were not retried through another route. Rechecked permissions and a date-verified independent
+sample are required before claiming additional recall. [Priority decision](ENGINEERING.md#quality-first-api-and-electronics-coverage-decision--2026-10-10).
 
 ### Gemini running costs
 

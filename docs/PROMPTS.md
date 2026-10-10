@@ -74,7 +74,10 @@ Before provider changes, verify permitted app use, actual reasoning/tool support
 windows; coding benchmarks and advertised request counts do not establish matching quality.
 Do not equate integration ease or a vendor's effort labels with model quality. Evaluate
 credible alternatives fairly, verifying native reasoning controls and independent fit outcomes.
-Compare the complete current catalogue, shared token allowances and direct API alternatives;
+Compare the subscription's complete catalogue and the wider public API market, including
+stronger models, shared token allowances and direct API alternatives. Make a practical best
+judgement with counterevidence; do not make me buy/test a list. Any observed quality or coverage
+regression blocks a switch, and missing evidence cannot establish equal quality;
 preserve fresh cited research when separating main and research providers. Reuse only evidence
 whose rights, request identity and freshness permit it, not stale route or scoring judgements.
 Make technical model/source decisions yourself and give me simple account/setup steps.
@@ -137,7 +140,10 @@ Before provider changes, verify permitted app use, actual reasoning/tool support
 windows; coding benchmarks and advertised request counts do not establish matching quality.
 Do not equate integration ease or a vendor's effort labels with model quality. Evaluate
 credible alternatives fairly, verifying native reasoning controls and independent fit outcomes.
-Compare the complete current catalogue, shared token allowances and direct API alternatives;
+Compare the subscription's complete catalogue and the wider public API market, including
+stronger models, shared token allowances and direct API alternatives. Make a practical best
+judgement with counterevidence; do not make me buy/test a list. Any observed quality or coverage
+regression blocks a switch, and missing evidence cannot establish equal quality;
 preserve fresh cited research when separating main and research providers. Reuse only evidence
 whose rights, request identity and freshness permit it, not stale route or scoring judgements.
 Make technical model/source decisions yourself and give me simple account/setup steps.

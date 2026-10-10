@@ -155,17 +155,62 @@ successful country. Tests also cover simultaneous completed work beside account 
 empty/uncited/malformed answers, another country's names and preserved legacy state.
 No live recall, new-job count, speed or accuracy improvement is measured.
 
-The direct-provider **evaluation order** is GPT-6 Luna, GLM-5.3-Flash, MiMo-V2.6-Pro,
-DeepSeek V4.1 Flash, MiniMax-M3. This ranks experiment value from price, documented controls
-and evidence/tool dependencies, not matching intelligence or ease of integration. MiniMax's
-native beta research is a credible one-provider lead; GLM has a documented search service;
-DeepSeek tool calling is not proof of hosted retrieval. Check exact model versions/controls.
-Keep the working Gemini setup until blinded fictional comparisons establish requirement,
-uncertainty, multilingual, scoring and citation quality, followed by an authorized saved-evidence
-review. Prefer one provider when complete; a separate research provider remains an option.
-The existing complete Go catalogue/weighted-window assessment remains relevant, but neither
-model count nor direct list prices settle total cost. Source facts and fictional fee sensitivities:
-[SOURCES](SOURCES.md#direct-provider-challengers--2026-10-10). No purchase/switch recommended yet.
+**Superseded candidate ordering:** the earlier Luna → GLM Flash → MiMo Pro → DeepSeek Flash →
+MiniMax order ranked inexpensive experiments, not intelligence. It overemphasized price and
+covered too little of the public market. The owner reaffirmed that no quality/coverage loss is
+acceptable; the [broader decision below](#quality-first-api-and-electronics-coverage-decision--2026-10-10)
+replaces that order and earlier Go-first trial recommendations. Dated capability/cost facts
+remain evidence, not comparative matching outcomes.
+
+## Quality-first API and electronics coverage decision — 2026-10-10
+
+The owner asks for a practical best judgement across public APIs, without buying/testing every
+model. [Current service evidence](SOURCES.md#public-api-market-and-quality-evidence--2026-10-10)
+separates general benchmarks, native controls, hosted retrieval and Jobcu integration.
+
+**Decision:** keep the working Gemini 3.8 Flash at medium for normal searches now. This is a
+deployment-confidence decision, not a claim that Gemini is universally more intelligent.
+Choose **direct MiMo-V2.6-Pro as the first replacement hypothesis**: credible general reasoning/
+long-context results, documented structured answers and cited hosted search, and materially
+lower published output prices. Its weaker factual-reliability/document results in the same
+benchmark are real counterevidence. Do not switch from a composite score or price alone.
+Jobcu's custom Chat adapter can request thinking but cannot yet use MiMo's hosted research;
+its exact search/citation/usage contract needs implementation and offline failure tests before
+one bounded comparison. No provider setting, account, key, allowance or AI effort was changed.
+
+The five replacement candidates worth focused consideration are MiMo Pro, Claude Sonnet 5.5,
+Qwen3.8-Max-0902, Grok 4.7 and GPT-6.1 Sol. After MiMo, this is a set of alternatives, not a
+measured quality ranking or a request to purchase five accounts. Sonnet provides a
+professional-reasoning reference; Qwen broadens multilingual/document comparison; Grok offers native
+research/medium; Sol provides another professional-reasoning reference. Their bills and fit
+outcomes may disqualify adoption, but higher prices do not establish lower quality. Haiku,
+Luna, GLM, DeepSeek, Kimi, MiniMax, Mistral and Nova remain in the wider survey. Kimi's current
+official warning against production web search makes it a weaker simple one-provider choice.
+Go remains an alternative host, subject to its own intended-use/tools/shared-window evidence.
+
+Use CONTRIBUTING's [provider comparison procedure](../CONTRIBUTING.md#compare-a-provider-without-lowering-quality).
+Any observed requirement, exclusion, uncertainty, citation or coverage regression blocks
+adoption; an average score gain cannot pay for a missed suitable job. A finite sample cannot
+prove universal equality. Missing comparative evidence means preserve the working baseline,
+not assert equivalence or ask the owner to choose models. The EUR30 ceiling is not paid-test
+authority or a forecast; a necessary bounded trial is proposed only after the integration and
+review packet are concrete. Prefer one complete provider and avoid unnecessary subscriptions.
+
+| Ranked opportunity | Expected benefit / evidence | Effort, risk and verification |
+|---|---|---|
+| 1. Original employer coverage in electronics | Sector references identify specialist employers beyond familiar large brands; some major companies use currently unread systems. Better originals can improve both discovery and judgements. | Medium; check each host/terms, actual readable board and country, unique date-verified jobs/evidence and backup overlap. No speculative directory entries. |
+| 2. One strong API challenger | MiMo's native research contract and independent general results justify a focused hypothesis, not guaranteed savings/equality. | Medium; offline contract/recovery work, separately authorized paired evaluation and complete bill; preserve fresh research. |
+| 3. Specialist engineering boards / Avature | Potentially useful sector/country coverage; existing Siemens RSS research is a lead. | Medium/high; current permissions, layout, original dates/places, ordering/paging and unique contribution. Existing aggregator backup does not prove completeness. |
+| 4. Remote-only feeds | Explicit feed permission can add backup value, but benefit to priority on-site sectors is unmeasured. | Lower priority under latest owner decision; freshness, eligibility and original evidence still required. Do not remove existing remote coverage. |
+
+The selected coherent step is to correct decisions, comparison gates and reusable guidance.
+It does not add a reader or claim new live coverage. [Sector evidence and access dependencies](SOURCES.md#electronics-employer-and-specialist-coverage--2026-10-10)
+replace the earlier remote-feed-first expansion idea. The directory already includes PULS,
+Infineon, Murata, Rohde & Schwarz, Analog Devices, NXP, onsemi and Texas Instruments; public
+reference names are leads for missing employers, not proof of active relevant jobs. Unlisted
+Siemens/Bosch/ABB/Keysight illustrate reader/access gaps, not proven whole-search misses.
+Check permitted employer originals before introducing broad-board duplication. Retain useful
+existing methods until unique jobs, original evidence and backup contribution are assessed.
 
 ## Structured employer workplace evidence — 2026-10-10
 
