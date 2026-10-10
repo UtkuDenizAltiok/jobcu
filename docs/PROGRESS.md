@@ -14,7 +14,10 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   retries incomplete countries on the next normal search, keeps successful countries/employers
   and explains missing discovery. Migration 14 preserves history while rechecking ambiguous
   legacy timestamps once. Existing medium effort, source permissions and limits remain.
-  Local fictional checks pass; exact-head publication is pending in In progress.
+  Published in [PR #103](https://github.com/UtkuDenizAltiok/jobcu/pull/103), merge `ff61bcb`.
+  Exact PR-head Mac/Windows/privacy CI `38032271821` and merged-main CI `38032481853` passed.
+  Local 1,312-test suite, Ruff/privacy/whitespace, 20 document checks and isolated startup pass.
+  The preview stopped and disposable data was removed; owner app/data/settings were preserved.
 - [Additional source and direct-provider research](SOURCES.md#employer-feeds-and-remote-candidates--2026-10-10)
   identifies Jobicy as a permitted remote-feed candidate with freshness/evidence checks still
   needed. Direct Luna, GLM Flash, MiMo Pro, DeepSeek Flash and MiniMax are comparison candidates,
@@ -24,7 +27,9 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   recovers towns/countries from primary and secondary addresses and preserves original ads.
   Legacy caches cannot restore discarded metadata. Fictional collection/check-selection cases
   cover all countries, nursing/teaching/hardware and unknowns without more source requests.
-  No provider, source, effort, allowance, account or owner-data change was made.
+  [PR #102](https://github.com/UtkuDenizAltiok/jobcu/pull/102) is verified merged at `d7017e5`;
+  exact-main Mac/Windows/privacy CI `38030324705` passed. No provider, source, effort,
+  allowance, account or owner-data change was made.
 - [Current source and complete-cost research](SOURCES.md#broad-boards-and-web-discovery--2026-10-10)
   rechecked broad boards, Google discovery, Go's entire table and direct/discounted processing.
   No permitted new broad-board reader was established. Go remains a candidate; shared limits
@@ -134,38 +139,24 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
-**Active: recover incomplete employer discovery.** Owner-directed Deep improvement,
-2026-10-10, branch `codex/employer-discovery-recovery`, base `d7017e5`.
-PR #102 is verified merged; exact-main Mac/Windows/privacy CI `38030324705` passed.
-The prepared session and unchanged 1,224-test baseline are reused.
+**None.** The employer-discovery improvement is merged and verified; publication facts are
+in State above. No remaining feature scope, paid test, new search or private review is active.
 
-Confirmed problem: generic AI discovery failures return an empty list and every requested
-country receives a successful two-week refresh timestamp. Recover country-level outcomes,
-retry failed/incomplete discovery on the next normal search, retain successful employers and
-country refreshes, and explain partial work. Preserve the existing discovery/request budgets,
-source permission checks, medium effort, all countries/professions and owner app/data.
-
-Steps/checks: reproduce failures with fictional nursing/teaching/hardware cases; implement
-partial recovery and explicit successful-empty evidence; verify later searches retry only
-failed countries and account/budget errors stop pending work; review relevant public source
-and direct-provider facts in SOURCES; update ENGINEERING/use guidance/prompts where needed;
-affected/full tests, Ruff/privacy/whitespace/docs/diff, exact-head PR and merged-main CI.
-No provider calls, new search, paid test, purchase or account change are authorized here.
-
-Status: implementation and research complete. **1,312 tests passed**, plus Ruff/privacy/
-whitespace and document links. Complete code/docs/new-test diff reviewed; the old reset fixture
-was updated for migration 14. Isolated 8799 startup passed, stopped and disposable data removed.
-The existing dependency warning remains. No live recall, quality-equivalence or savings claim.
-Owner app on 8765 remains untouched; private review/authorization/checkpoint remain outside Git.
-
-Publication is the only remaining scope: commit/push/open this branch's PR, require Mac,
-Windows and privacy CI on its exact final head, merge with a merge commit, synchronize main
-and verify merged-main CI. Then clear In progress and publish a short factual handover; do not
-repeat the unchanged full suite for documentation-only handover edits. Exact next action:
-commit the reviewed change and push/open its PR.
+If interrupted while publishing the documentation-only `codex/discovery-handover` branch,
+finish only that handover: verify its PR's actual-head Mac/Windows/privacy CI, use a merge
+commit, synchronize main and verify exact merged-head CI. Reuse the unchanged 1,312-test
+code baseline; documentation checks suffice locally. On synchronized main with passing CI,
+Start prepares the chat and waits for the owner. Do not select a candidate below automatically.
 
 ### Verify before relying on
 
+- Discovery: completion/retry behavior is verified offline, not live recall. The next normal
+  launch loads the change and may recheck ambiguous legacy timestamps once within existing
+  limits. No additional job search or owner-data reset is required for development.
+- Direct API challengers: [dated prices, native controls and hosted research](SOURCES.md#direct-provider-challengers--2026-10-10)
+  do not establish fit equivalence or total bills. Exact model/version/tool response support,
+  independent outcomes and half/equal/double demand comparisons are adoption gates. A bounded
+  paid-test budget and an account key entered only in Jobcu remain required before paid work.
 - Provider change: current Go permission/tool/protocol/medium support, real token/tool workload,
   shared limits and bounded labelled comparison remain unverified. Existing Gemini credit is
   not a Maps allowance. Do not promise accuracy, savings or full daily capacity from the tables.
@@ -234,10 +225,12 @@ Candidates for an owner-requested development task, not automatic work during St
    skipped when another copy provides full text. Keep unknowns rather than cut counts.
 4. Recover originals/independent labels, review unknown top cards and title rejections, then
    trace an independent date-verified coverage sample. Do not tune to one ad or score distribution.
-5. Reproduce Ashby secondary-country metadata handling, then compare new/existing methods and
-   structured public APIs for unique useful jobs, evidence, country/profession gaps and
-   reliability. Improve/add/replace/remove based on
-   verified terms and contribution. Private/internal APIs need documented authority.
+5. Compare new/existing methods and structured public APIs for unique useful jobs, original
+   evidence, country/profession gaps and reliability. Ashby metadata recovery is complete.
+   [Jobicy](SOURCES.md#employer-feeds-and-remote-candidates--2026-10-10) is a remote-feed
+   candidate; verify host rules, eligibility/original dates and contribution before adding it.
+   Improve/add/replace/remove based on terms and evidence; private/internal endpoints need
+   documented authority. Held portals need permission before automated collection.
 6. Review repeated/slow work on saved evidence; paired live tests need bounded authorization.
    A fresh Windows beginner walkthrough remains later free work.
 
