@@ -49,7 +49,7 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Share job-source rate-limit/service cooldowns per host within a search; honor integer and HTTP-date Retry-After values without shortening them. Keep waiting readers cancellable and recognized blocked hosts stopped for that client. | Fictional requests reproduced a 600-second delay shortened to 120 seconds and four attempts at a CAPTCHA response. Independent hosts and collected ads are preserved; no live availability/recall gain is established. Protocol evidence is in SOURCES (2026-10-08). |
 | The Maps key test uses named stations, says public transport, shows the weekday-morning departure assumption and explains that it checks access. Count it against the local route limit. | General TRANSIT includes walking and other modes; a successful sample must not be presented as a train-only timetable or overall accuracy check (2026-10-07). |
 | A successful connection test checks ordinary generation, not web-research access. Definite research refusals explain once and skip that research for one search. | Account/model capability can differ from basic generation; preserve collection/scoring and show uncertainty (2026-10-06). |
-| Retry research on a later search; never mark a refused employer lookup as a successful refresh. | A temporary restriction must not suppress future employer discovery (2026-10-06). |
+| Retry incomplete employer discovery by country on a later search. Preserve completed countries and independently checked employers; account/allowance errors stop pending discovery. | Supersedes marking generic failures and blank answers as successful two-week refreshes. Legacy timestamps lack completion evidence and are rechecked once during normal use (2026-10-10; extends 2026-10-06). |
 | Keep guides provider-neutral and link to current provider instructions/prices. Remove fixed model recommendations and unmeasured cost/runtime promises. | Capabilities and charges change; the restored Mac has no measured search baseline yet (2026-10-07). This supersedes the guide's 2026-10-03 provider recommendation. |
 | Write everyday guides for first-time users: explain terms, give one clear action per step, name the actual controls and say how to confirm success. Put optional setup after the basic route; keep owner/Codex review instructions in their project documents. | Friends using Jobcu may have little technical experience. Plain language needs enough explanation to complete a task, rather than the shortest possible text (owner, 2026-10-07). |
 | Keep concrete examples of richer place requests in README and the usage guide, including election vote shares, Turkish supermarkets, Sunday opening, student populations and combined commute conditions. Define thresholds and label research limits. | The examples help users understand the range of requests they can make; simplifying the guides should preserve them without claiming unmeasured accuracy (owner, 2026-10-07). |
@@ -114,6 +114,58 @@ Code/tests establish behavior; the latest current decision establishes intent.
 - Preserve detailed human guides, licensing and historical records in the archive. Keep the
   established runtime/test/tool layout; consolidate only where responsibilities actually overlap.
   Retire merged branches after checking PRs/worktrees; preserve unmerged or active work.
+
+## Employer discovery recovery and service choices — 2026-10-10
+
+Dated external facts live in
+[SOURCES](SOURCES.md#employer-feeds-and-remote-candidates--2026-10-10).
+
+| Ranked goal | Benefit and evidence | Effort / risk / verification |
+|---|---|---|
+| 1. Recover incomplete employer discovery | Confirmed code turns AI failures into empty successes and suppresses country discovery for two weeks. Fix a known path to missed employers before adding feeds. | Small / low; fictional per-country recovery, fatal errors, parallel results, migration, all countries and nursing/teaching/hardware. Selected. |
+| 2. Assess Jobicy remote feed | Explicit app/AI integration permission; a distinct remote-work route with a three-hour delay. | Medium / moderate; current host rules, original dates/full ads, eligibility and unique useful jobs versus existing methods. Hardware/on-site benefit unknown. No adapter yet. |
+| 3. Compare direct AI challengers | Several direct APIs have lower token prices and some documented hosted search. Potential savings without a fixed subscription. | Medium / moderate; bounded paid authority/key through Jobcu, exact native reasoning and tool accounting, blind fit outcomes and fresh cited evidence. No quality-equivalent winner measured. |
+| 4. Broader portal discovery and bulk full ads | Portals may add unique jobs; existing employer feeds offer original evidence. | Permission/partner access for held portals; unique relevant coverage and payload/request comparison before expansion/removal. Reachability or a temporary zero is insufficient. |
+
+`employers.find` now keeps country outcomes independently. Provider failures, refusals,
+truncation, invalid or blank answers remain due. A completed answer needs supplied source
+evidence and either employer lines for the requested country or explicit `NONE`; useful named
+employers are still verified/kept when research completeness is unknown. This does not prove
+exhaustive employer discovery. The prompt requests the explicit empty form instead of silence.
+Unknown tool accounting is not converted into a measured cost or a quality claim.
+
+`in_parallel` cancels pending work on fatal account/model/feature/allowance errors. The finder
+also stops queued requests before they call AI, waits for running work and persists all available
+country outcomes in the caller thread, even beside a fatal error. Successful countries retain
+the fourteen-day reuse interval; existing employers remain available to normal source readers.
+Search details expose incomplete countries and explain retry on the next normal search.
+
+Migration **14** adds completion provenance to discovery timestamps. Old timestamps were
+written after both genuine results and failures, so they cannot reliably prove completion.
+They remain stored but trigger one recheck on normal use. Employers, jobs, ratings, marks,
+settings and original snapshots are preserved. No migration was applied to owner data during
+development. Existing ten-lookups-per-due-country allowance, monthly controls, source rules
+and medium AI defaults remain; repairing missing discovery can require necessary additional
+work, so this is not advertised as a cost or speed reduction.
+
+Fictional before/after comparison with two countries: both versions make two initial requests
+and retain one checked employer. Previously the following search makes zero discovery calls
+after the other country fails; now it makes one call for that country and does not repeat the
+successful country. Tests also cover simultaneous completed work beside account failure,
+empty/uncited/malformed answers, another country's names and preserved legacy state.
+No live recall, new-job count, speed or accuracy improvement is measured.
+
+The direct-provider **evaluation order** is GPT-6 Luna, GLM-5.3-Flash, MiMo-V2.6-Pro,
+DeepSeek V4.1 Flash, MiniMax-M3. This ranks experiment value from price, documented controls
+and evidence/tool dependencies, not matching intelligence or ease of integration. MiniMax's
+native beta research is a credible one-provider lead; GLM has a documented search service;
+DeepSeek tool calling is not proof of hosted retrieval. Check exact model versions/controls.
+Keep the working Gemini setup until blinded fictional comparisons establish requirement,
+uncertainty, multilingual, scoring and citation quality, followed by an authorized saved-evidence
+review. Prefer one provider when complete; a separate research provider remains an option.
+The existing complete Go catalogue/weighted-window assessment remains relevant, but neither
+model count nor direct list prices settle total cost. Source facts and fictional fee sensitivities:
+[SOURCES](SOURCES.md#direct-provider-challengers--2026-10-10). No purchase/switch recommended yet.
 
 ## Structured employer workplace evidence — 2026-10-10
 

@@ -127,6 +127,15 @@ Keep the browser page and the text window open. The time needed depends on the p
 sources, AI model and your account's limits. Wait until the heading says **Search finished**.
 That heading means the results have been saved on this computer.
 
+**Finding employers for your kind of work** searches for employers and checks which career
+lists Jobcu can read. Completed country lookups are normally reused for two weeks; their job
+lists are read on each search. Failed or incomplete countries are tried again on your next
+normal search, with a note explaining what remains. A failed lookup is not proof that no
+employers hire for your work. After updating from an older version, Jobcu rechecks the old
+discovery timestamps once because they could also represent failures. Existing employers and
+results stay saved. This work uses your AI allowance within existing controls; it does not
+start a separate job search or require you to reset anything.
+
 **Checking the best jobs online** seeks extra evidence for promising jobs: their workplace
 town when missing, and requirements omitted from short summaries. Your AI searches for the
 same vacancy, then organizes the findings so Jobcu can recheck fit and location conditions.

@@ -200,6 +200,11 @@ MIGRATIONS: list[str] = [
     INSERT INTO job_fingerprints (key, job_id)
         SELECT key, job_id FROM job_keys WHERE key LIKE 'job:%';
     """,
+    # 14: Old discovery timestamps also included failed/blank answers, so they cannot
+    # prove a completed refresh. Keep history and employers; recheck once on normal use.
+    """
+    ALTER TABLE employer_searches ADD COLUMN complete INTEGER NOT NULL DEFAULT 0;
+    """,
 ]
 
 

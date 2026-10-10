@@ -49,6 +49,12 @@ uv run python tools/check_no_secrets.py --all
 
 Tests use disposable fictional data and need no API keys. Use the
 [architecture and tool map](docs/ENGINEERING.md#project-layout) for targeted work.
+For employer discovery, `tests/test_employer_recovery.py` verifies incomplete countries retry
+while completed countries are reused, account/allowance errors preserve parallel completed
+work, explicit empty answers need evidence, and migration retains history/ratings/employers.
+`tests/test_employers.py` checks actual mock career-list verification; `tests/test_reset.py`
+also populates completion provenance so reset controls clear the new state. No live discovery
+or provider traffic is needed to exercise these paths.
 For full-ad evidence changes, use `tests/test_full_ad_recovery.py`, `tests/test_search.py` and
 `tests/test_careers.py`: verify recovered requirements reach matching, objective facts are
 checked before scoring, cache reuse makes fresh judgements and failed reads retain labelled
