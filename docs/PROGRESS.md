@@ -6,10 +6,20 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ## Right now
 
-*Updated 2026-10-09. Engineering checks use fictional data.*
+*Updated 2026-10-10. Engineering checks use fictional data.*
 
 ### State
 
+- The [Go decision and readiness update](ENGINEERING.md#go-feasibility-and-interruption-continuity--2026-10-09)
+  preserves one Gemini model at medium plus Maps for the owner's next on-demand 24-hour search.
+  Dedicated Discord forum and independent Reddit questions were delivered with explicit owner
+  instructions; the old Zen question became a redirect. Two active questions, no cross-reference
+  in Reddit. Replies and proof stay in the private checkpoint; no provider clarification was
+  received at this checkpoint. Go remains a candidate, not an established quality improvement.
+  Compare its full subscription/tool cost with direct APIs before adoption.
+- Read-only saved-setup checks and isolated fictional startup passed without provider calls,
+  purchases, searches or owner-state changes. Disposable scratch was removed and the preview
+  stopped. Local readiness does not prove live service availability, balance or result quality.
 - AI Settings now has one optional advanced section, a visible summary of active model/
   research overrides and an honest **Other API** label. Custom formats open their required
   setup controls. Existing choices, keys, routing and medium defaults are preserved.
@@ -91,11 +101,20 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
-**None.** The Go reassessment and interruption checks are complete and verified published.
-Relevant private authorization/checkpoint were rechecked; workload forecasts and continuity
-evidence stay outside Git. Disposable scratch is removed. No provider/route call, new search,
-purchase, message or owner setting change was made. No runtime feature was changed.
-Start prepares the next chat and waits; adoption dependencies below do not open a new goal.
+**Go decision and next-search readiness — 2026-10-10.** Owner authorizes sending the prepared
+generic compatibility question through the available support/community accounts, with two
+active questions maximum and an independent Reddit post. Keep private records/account details out
+of messages and Git. Preserve current Gemini medium settings for the owner's next 24-hour
+search; no assistant-started search, purchase or paid development test is authorized here.
+
+Branch `codex/go-decision-search-readiness`, base `4f5cdb7`. Both independent questions are
+verified delivered; the earlier Zen message is a redirect. Public evidence, operational decision,
+guides and prompts are updated. Local readiness and isolated startup passed; no runtime change.
+Exact next action: run document/Ruff/privacy/whitespace checks and review the complete diff;
+publish with exact-head Mac/Windows/privacy checks and a merge commit, then synchronize main.
+The unchanged runtime retains its recorded 1,125-test baseline. No live matching comparison or
+paid test is claimed. Provider clarification is an external adoption dependency, not a blocker
+for the owner's next search with current Gemini settings; do not invent a reply or start polling.
 
 ### Verify before relying on
 
@@ -124,9 +143,10 @@ Start prepares the next chat and waits; adoption dependencies below do not open 
 ### Waiting on the owner
 
 - Go adoption is deferred, not rejected. The [generic support question](guides/getting-your-keys.md)
-  is ready; sending it in the owner's name requires explicit instructions. Intended-use fit,
-  hosted tools/fees, a key entered only in Jobcu and an explicitly bounded fictional matching
-  comparison are the next adoption steps. Hosted custom research is currently disabled by an
+  was sent with explicit instructions in two independent places; no further post is needed.
+  Await provider clarification of intended-use fit and hosted tools/fees. Subsequent adoption
+  needs a key entered only in Jobcu and an explicitly bounded fictional matching comparison.
+  Hosted custom research is currently disabled by an
   integration guard; positive reports justify verification. Do not infer new paid-test authority
   or start another search for this investigation.
 - Keep one working Gemini model at medium; no Go purchase, replacement key or model choice is

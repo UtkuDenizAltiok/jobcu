@@ -117,6 +117,29 @@ Code/tests establish behavior; the latest current decision establishes intent.
 
 ## Go feasibility and interruption continuity — 2026-10-09
 
+**Operational update, 2026-10-10:** preserve the existing one-model Gemini medium setup and
+Maps for the owner's next on-demand 24-hour search. Do not buy or switch to Go solely for
+Jobcu yet. This is a readiness decision, not a finding that Gemini matches jobs better.
+The owner authorized generic questions; a dedicated Discord forum question and an independent
+Reddit question are delivered. The earlier Zen question was replaced with a forum redirect;
+there are two active questions, with no Discord reference in the Reddit post. Delivery proof
+and reply status stay in the private checkpoint. No provider clarification was received at
+the decision checkpoint; a community reply alone cannot establish service permission.
+
+The next evaluation remains GPT-6 Luna at medium, comparing its direct API with Go's complete
+service cost; MiMo Pro is the first challenger. Include hosted search charges and retrieved
+content tokens, not only generation prices. A low token bill can favor direct usage; included
+hosted tools could favor a subscription. Neither outcome is established by advertised model
+counts or one workload forecast. The [dated technical lead and prices](SOURCES.md#opencode-go-and-ai-credit-eligibility)
+support investigating hosted research rather than ruling it out. Adoption still needs service
+confirmation, compatible cited research and a separately authorized bounded matching comparison.
+
+Readiness was checked on a disposable private copy without network calls: saved configuration,
+required inputs and database integrity, followed by an isolated fictional startup health check.
+Owner state was preserved; scratch data was removed and the preview stopped. This checks local
+readiness, not credit balance, provider availability, live Maps outcomes or matching accuracy.
+The owner starts the search; review its saved evidence afterward under CONTRIBUTING.
+
 Current decision: **keep Go as a viable evaluation candidate**, with GPT-6 Luna first and
 MiMo Pro as the first interpretation challenger. Preserve the working one-model Gemini setup
 while resolving Go's intended-use fit, hosted research/fees and independent matching quality.
@@ -150,10 +173,11 @@ No pending development write needed recovery, no owner data/settings/key changed
 provider call or search was made. A temporary network outage does not by itself prove either
 corruption or uninterrupted provider work; report only the verified saved state.
 
-Exact adoption dependency: the prepared generic support question asks whether Go permits
-personal non-coding document/JSON matching and whether the chosen Responses model includes
+Exact adoption dependency at the 2026-10-09 checkpoint: the prepared generic support question
+asks whether Go permits personal non-coding document/JSON matching and whether the chosen Responses model includes
 hosted cited web search, with its applicable charges/allowance. Sending it in the owner's name
-needs explicit instructions under AGENTS; no support message was sent. A subsequent bounded
+needed explicit instructions under AGENTS; no support message had been sent then. The
+2026-10-10 update above supersedes that delivery state. A subsequent bounded
 fictional paired comparison through Jobcu must preserve medium effort and necessary evidence.
 No new subscription, provider switch, research toggle or paid experiment is introduced here.
 

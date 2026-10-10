@@ -92,7 +92,7 @@ reading and scoring. Existing one-provider setups continue to work without this 
 
 ### Recommended setup now
 
-**Recommendation checked 2026-10-09:** use **Google → Gemini 3.8 Flash**, at **Medium**, for
+**Recommendation checked 2026-10-10:** use **Google → Gemini 3.8 Flash**, at **Medium**, for
 all AI tasks, plus your existing Google Maps connection for measured journeys. Gemini can read
 documents, score jobs and research current information with the same key/model. Leave
 **Interpretation model** empty and **Online research provider → Same as main AI**. No second
@@ -105,16 +105,19 @@ for one daily search; it does not by itself rule Go out. Keep Gemini working whi
 checks the chosen Go model's matching quality, current hosted tools and intended-use fit.
 The published coding-agent guidance describes expected service use, not an inability to read
 job ads. Jobcu's current custom-API research guard is a fixable integration limit.
-The following generic provider question would settle the remaining service ambiguity:
+The following generic provider question identifies the remaining service ambiguity:
 
 > Does Go permit a local personal non-coding app to interpret documents and return JSON job
 > matches on demand, with an honest app user agent and stable session header? Does GPT-6 Luna
 > through Go Responses include hosted web search with citations, and how do its queries count
 > toward the allowance or any separate charges?
 
-No message has been sent on your behalf. The assistant makes technical choices; you do not
+With your instructions, the assistant sent separate Discord forum and Reddit questions;
+the Reddit post has no Discord reference. No provider clarification was received at the
+decision checkpoint. The assistant makes technical choices; you do not
 need to select another model, obtain another key or run an extra search to decide the basic
-setup. The [current decision](../ENGINEERING.md#go-feasibility-and-interruption-continuity--2026-10-09)
+setup. Keep this setup for your next **24 hours** search; do not buy Go solely for Jobcu yet.
+The [current decision](../ENGINEERING.md#go-feasibility-and-interruption-continuity--2026-10-09)
 and [service evidence](../SOURCES.md#opencode-go-and-ai-credit-eligibility) explain the basis.
 Your agreed total ceiling is **EUR30/month**, not a promised invoice or automatic spending cap.
 AI Studio prepaid credit pays for Gemini only; Maps uses separate Cloud billing. A paid Maps
@@ -153,8 +156,10 @@ reset rules, prices and limits; advertised request counts assume coding conversa
 not predict full-ad job scoring. Keep **Use balance** off to avoid optional extra charges.
 
 A subscription can be good value for substantial permitted use of several models. For one
-chosen model, a direct API can cost less than a fixed subscription. Access to many models does
-not automatically improve scores: Jobcu uses the selected model, and each alternative must be
+chosen model, a direct API can cost less than a fixed subscription. Compare the complete bill,
+including hosted web-search calls and retrieved content; low generation prices alone do not
+settle it. Access to many models does not automatically improve scores: Jobcu uses the selected
+model, and each alternative must be
 compared on actual job understanding before adoption. The
 [complete assessment](../ENGINEERING.md#complete-catalogue-and-universal-api-decision--2026-10-09)
 keeps GPT-6 Luna, MiMo-V2.6-Pro, DeepSeek V4.1 Flash, Haiku 5.5 and GLM-5.3-Flash as comparison

@@ -155,6 +155,32 @@ and robots/terms permissions are unchanged. No new vacancy collection permission
 
 ### OpenCode Go and AI credit eligibility
 
+**Rechecked 2026-10-10:** the [Go documentation](https://opencode.ai/docs/go/) still lists
+32 distinct models, USD10/month for Go, weighted shared windows and coding-agent client
+guidance. The [terms](https://opencode.ai/legal/terms-of-service) list `help@anoma.ly` for
+service/terms questions. The repository's [official support routing](https://github.com/anomalyco/opencode/blob/dev/.github/ISSUE_TEMPLATE/config.yml)
+directs support and how-to questions to Discord; a subscription compatibility question is
+not a reproducible software bug. No current provider clarification of this workload was found.
+
+An additional primary integration lead is the maintainer's
+[pi-web-search README](https://github.com/ttttmr/pi-web-search): it documents native hosted
+search through Go/Zen Responses, with Go model examples and client/session requirements.
+It distinguishes Chat Completions from Responses and marks Messages support unverified.
+This is evidence from another integration, not an official entitlement, fee guarantee or
+Jobcu quality measurement. No third-party extension was installed or run, and no disguised
+client identity was used.
+
+For a complete direct-versus-subscription comparison, [GPT-6 Luna's specification](https://developers.openai.com/api/docs/models/gpt-6-luna)
+lists USD0.10/0.50 per million fresh input/output tokens through 272K context, medium as the
+default and Responses tool support. [Native OpenAI tool pricing](https://developers.openai.com/api/docs/pricing)
+lists USD10 per 1,000 web-search calls plus retrieved-content tokens. These native charges
+do not establish Go's hosted-search charges. [Gemini pricing](https://ai.google.dev/gemini-api/docs/pricing)
+still lists Gemini 3.8 Flash at USD0.75/3.75 through 2026-12-31, then USD1.50/7.50;
+thinking is included in output. Google Search grounding has 5,000 free queries/month shared
+across Gemini 3 models, then USD14/1,000; one request can issue multiple queries. Rates are
+not a euro invoice or matching-quality comparison. Verify taxes, currency conversion, tool
+fees, long-context tiers and actual service allowance before purchasing or projecting savings.
+
 **Checked 2026-10-09:** [Go](https://opencode.ai/en/go) advertises USD10/month, not a verified EUR10
 checkout total. Its [service documentation](https://opencode.ai/docs/go/) describes coding-agent
 traffic, an honest client user agent and stable `x-opencode-session`; the
