@@ -101,20 +101,21 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
-**Go decision and next-search readiness — 2026-10-10.** Owner authorizes sending the prepared
-generic compatibility question through the available support/community accounts, with two
-active questions maximum and an independent Reddit post. Keep private records/account details out
-of messages and Git. Preserve current Gemini medium settings for the owner's next 24-hour
-search; no assistant-started search, purchase or paid development test is authorized here.
+**No remaining implementation.** The Go decision, two independent questions and next-search
+readiness are complete. Guides/prompts and dated evidence are updated; owner data/settings
+were preserved. Local document checks (20), Ruff/privacy/whitespace and complete diff review
+passed; the unchanged runtime retains its recorded 1,125-test baseline. No paid comparison,
+provider call, purchase or assistant-started search was made.
 
-Branch `codex/go-decision-search-readiness`, base `4f5cdb7`. Both independent questions are
-verified delivered; the earlier Zen message is a redirect. Public evidence, operational decision,
-guides and prompts are updated. Local readiness and isolated startup passed; no runtime change.
-Exact next action: run document/Ruff/privacy/whitespace checks and review the complete diff;
-publish with exact-head Mac/Windows/privacy checks and a merge commit, then synchronize main.
-The unchanged runtime retains its recorded 1,125-test baseline. No live matching comparison or
-paid test is claimed. Provider clarification is an external adoption dependency, not a blocker
-for the owner's next search with current Gemini settings; do not invent a reply or start polling.
+Publication checkpoint: [PR #100](https://github.com/UtkuDenizAltiok/jobcu/pull/100), branch
+`codex/go-decision-search-readiness`, base `4f5cdb7`. On any interruption, the exact next action
+is to check that PR's actual final head and required Mac/Windows/privacy checks, complete its
+merge-commit publication if outstanding, then synchronize main and verify its exact-head CI.
+Once those pass, this goal is complete; Start waits for the owner rather than select new work.
+Provider clarification remains an external adoption dependency; check the private support
+checkpoint on an owner-requested provider task. It does not block the owner's next 24-hour
+search with current Gemini settings. No additional post, automatic polling or paid model trial
+is authorized.
 
 ### Verify before relying on
 
