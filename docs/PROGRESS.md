@@ -21,6 +21,11 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   [PR #105](https://github.com/UtkuDenizAltiok/jobcu/pull/105) is merged at `d7bee16`;
   exact PR-head Mac/Windows/privacy CI `38034813256` and merged-main CI `38035224672`
   passed. Local document/Ruff/privacy/whitespace checks and full diff review passed.
+  The completion handover in [PR #106](https://github.com/UtkuDenizAltiok/jobcu/pull/106)
+  is merged at `23b8da6`; exact PR-head CI `38035535171` and merged-main CI `38035793937`
+  passed on Mac, Windows and privacy. No remaining implementation or publication from that
+  task is pending. End observed owner app 8765 and preview 8799 both stopped; preserve this
+  on-demand state. Private evidence/authorization remain intact; disposable task files are gone.
 - [Employer discovery recovery](ENGINEERING.md#employer-discovery-recovery-and-service-choices--2026-10-10)
   retries incomplete countries on the next normal search, keeps successful countries/employers
   and explains missing discovery. Migration 14 preserves history while rechecking ambiguous
@@ -155,12 +160,12 @@ its exact-head publication checks are recorded in State. No app feature, private
 paid test or source/model integration is active. Missing comparative quality evidence and
 collection permission are future adoption dependencies, not unfinished implementation here.
 
-If interrupted while publishing `codex/quality-decision-handover`, based on `d7bee16`, finish
-only that handover: inspect its actual PR/head, require Mac/Windows/privacy CI, merge with a
-merge commit, synchronize main and verify exact merged-head CI. The handover only clears the
-completed goal and records verified publication; reuse the unchanged 1,312-test code baseline
-and local document checks. On synchronized clean main with passing CI, Start prepares and
-waits. Do not choose a new source/API goal or spend/test/search automatically.
+If interrupted while publishing the documentation-only `codex/session-end-handover`, based
+on `23b8da6`, finish only its publication: inspect the actual PR/head, require Mac/Windows/
+privacy CI, merge with a merge commit, synchronize main and verify exact merged-head CI.
+Reuse the unchanged 1,312-test code baseline and document checks; no feature, research, paid
+call or search belongs to End. Exact next action on synchronized clean main with passing CI:
+use Start to prepare the fresh chat, then wait for the owner's task.
 
 ### Verify before relying on
 
