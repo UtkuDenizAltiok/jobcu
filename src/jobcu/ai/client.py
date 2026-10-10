@@ -414,6 +414,9 @@ class AIClient:
     def _wait(self, seconds: float, reason: AIError) -> None:
         seconds = min(max(seconds, 1.0), MAX_WAIT_SECONDS) + random.uniform(0, 1)
         log.info("AI request waiting %.0fs: %s", seconds, reason.detail or reason.message)
+        if isinstance(reason, AIUnavailable):
+            self.notify("The connection to the AI provider was interrupted. Jobcu is waiting "
+                        "before retrying; completed work is kept.")
         self.sleep(seconds)
 
     def _record(self, step: str, provider: str, model: str, usage) -> None:

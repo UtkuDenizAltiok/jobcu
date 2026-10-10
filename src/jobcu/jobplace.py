@@ -55,6 +55,9 @@ TEXT_CHARS = 300
 # be looked up again later; any other problem (the service down, the key, the quota) stops the
 # batches not started yet.
 ONE_ANSWER_PROBLEMS = (AIInvalidOutput, AIOutputTruncated, AIRefused)
+INCOMPLETE_CHECKS = (
+    "Some online job checks could not finish. Missing locations and requirements stay unchecked."
+)
 
 # The model searches more reliably when it may write freely, so it looks the ads up first and a
 # second, cheap step turns its notes into the app's format (found with a real model, 2026-09-23:
@@ -187,9 +190,11 @@ def find_online(client: AIClient, groups: list[JobGroup], indexes: list[int],
             return _USED_UP
         except ONE_ANSWER_PROBLEMS as exc:
             log.info("Looking jobs up online: one answer was unusable: %s", exc)
+            client.notify(INCOMPLETE_CHECKS)
             return None
         except AIError as exc:
             log.info("Looking jobs up online failed: %s", exc)
+            client.notify(INCOMPLETE_CHECKS)
             stopped.set()
             return None
 

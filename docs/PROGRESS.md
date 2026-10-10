@@ -10,6 +10,16 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
+- [Complete AI answers and online-check recovery](ENGINEERING.md#complete-ai-answers-and-online-check-recovery--2026-10-10)
+  is implemented locally: Gemini receives answers incrementally, requires successful completion
+  and retains late grounding/usage metadata. Broken or clipped answers cannot become judgements.
+  Parallel cleanup preserves other requests. Notes now distinguish throttling, connection retries
+  and unfinished online checks. Medium effort, request content and existing limits are preserved.
+- The completed-search review followed the private procedure with shuffled judgements before
+  score reveal, including every top card. Detailed evidence and supported assistant labels stay
+  private; owner/legacy ratings were preserved. Missing originals, original dates, researched
+  conditions and an independent coverage benchmark prevent broad accuracy/recall claims.
+  Source contribution was inspected; no method was removed on counts or temporary failures.
 - The [Go decision and readiness update](ENGINEERING.md#go-feasibility-and-interruption-continuity--2026-10-09)
   preserves one Gemini model at medium plus Maps for the owner's next on-demand 24-hour search.
   Dedicated Discord forum and independent Reddit questions were delivered with explicit owner
@@ -75,7 +85,7 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   No billing, quota, setting, provider or filtering change was made.
   That account dependency was subsequently inspected and a targeted correction verified;
   post-change live route/search success and fit quality remain unmeasured.
-- Local checks passed: **1,125 tests**, Ruff, privacy, whitespace, document links and complete
+- Earlier route checks passed: **1,125 tests**, Ruff, privacy, whitespace, document links and complete
   diff review, plus an isolated startup self-test that stopped and removed its disposable data.
   Fictional cases cover all 30 countries, engineering/teaching/nursing, partial/malformed data,
   Maps/AI attribution, persistence, limits and two full engineering/library search pipelines.
@@ -101,21 +111,35 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
-**No remaining implementation.** The Go decision, two independent questions and next-search
-readiness are complete. Guides/prompts and dated evidence are updated; owner data/settings
-were preserved. Local document checks (20), Ruff/privacy/whitespace and complete diff review
-passed; the unchanged runtime retains its recorded 1,125-test baseline. No paid comparison,
-provider call, purchase or assistant-started search was made.
+**Saved-search review and online-check improvement — 2026-10-10.** Branch
+`codex/review-online-checks`, base `9d27d7a`. The prior preparation goal is complete: PR #100
+is merge-commit published and exact-main Mac/Windows/privacy run `38007557587` passed.
+Go clarification remains a checkpointed external adoption dependency, not this review's goal.
 
-Publication checkpoint: [PR #100](https://github.com/UtkuDenizAltiok/jobcu/pull/100), branch
-`codex/go-decision-search-readiness`, base `4f5cdb7`. On any interruption, the exact next action
-is to check that PR's actual final head and required Mac/Windows/privacy checks, complete its
-merge-commit publication if outstanding, then synchronize main and verify its exact-head CI.
-Once those pass, this goal is complete; Start waits for the owner rather than select new work.
-Provider clarification remains an external adoption dependency; check the private support
-checkpoint on an owner-requested provider task. It does not block the owner's next 24-hour
-search with current Gemini settings. No additional post, automatic polling or paid model trial
-is authorized.
+Authorized scope: read the latest saved search and private inputs on an isolated copy, preserve
+owner/legacy ratings, judge shuffled evidence before scores including every top card, diagnose
+original stage times and failures, rank a small shortlist and implement one general improvement.
+No new search, paid test, provider call, account change or public real-result aggregate is
+authorized. Existing medium defaults, coverage, evidence and owner app state remain intact.
+
+Measurement and a shuffled independent review including every top card are saved privately;
+judgements were recorded before scores. No newer unfinished attempt was found. Missing originals,
+required location facts and an independent date-verified coverage benchmark limit quality claims.
+Source contribution was inspected; counts/temporary failures do not justify removing a source.
+Baseline: 1,125 tests passed, with the existing dependency deprecation warning.
+
+Selected coherent step: receive Gemini answers through the documented streaming transport,
+preserving schema, medium effort, text, grounding sources/queries and usage; reject incomplete
+or truncated streams and retain normal bounded recovery. Explain connection retry waits and
+the final online stage plainly. No provider/model/limit or matching-policy change.
+Implementation and fictional before/after comparison are complete. Affected checks passed;
+final code suite: **1,145 tests**, with the existing dependency warning. Ruff, privacy, whitespace
+and document links passed. Guides, evidence and prompts are updated; no live speed/quality claim.
+Isolated startup and complete diff review passed. The preview stopped; disposable private
+scratch was removed after saving needed evidence and the checkpoint. Owner app state remained
+closed. Exact next action: commit/push/open a PR, require exact-final-head Mac/Windows/privacy
+CI, merge with a merge commit, synchronize main and verify its CI. No more implementation is
+needed; missing live evidence remains a dependency for a later owner-requested task.
 
 ### Verify before relying on
 

@@ -86,7 +86,7 @@ def test_rate_limit_waits_then_continues(settings):
     client, sleeps = make_client(settings, adapter, notify=notes.append)
     assert generate(client).ok
     assert 12 <= sleeps[0] < 14
-    assert notes == ["AI limit reached, continuing more slowly."]
+    assert notes == ["The AI provider asked Jobcu to slow down; requests continue one at a time."]
 
 
 def test_impatient_client_reports_rate_limit_instead_of_waiting(settings):
@@ -101,6 +101,17 @@ def test_short_outages_are_retried_but_not_forever(settings):
     with pytest.raises(AIUnavailable):
         generate(client)
     assert len(sleeps) == 4
+
+
+def test_interrupted_request_reports_recovery_without_private_error_details(settings):
+    notes = []
+    adapter = ScriptedAdapter(AIUnavailable("down", "private diagnostic"), GOOD)
+    client, sleeps = make_client(settings, adapter, notify=notes.append)
+    assert generate(client).ok
+    assert len(sleeps) == 1
+    assert notes == ["The connection to the AI provider was interrupted. Jobcu is waiting "
+                     "before retrying; completed work is kept."]
+    assert "private diagnostic" not in str(notes)
 
 
 def test_unsupported_reasoning_setting_is_dropped_and_remembered(settings):

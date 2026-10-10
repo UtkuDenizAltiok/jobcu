@@ -1,6 +1,8 @@
 """Google (Gemini) through the official `google-genai` library."""
 
 import re
+import threading
+from collections import Counter
 
 import httpx
 from google import genai
@@ -42,6 +44,15 @@ class GeminiAdapter(ProviderAdapter):
     can_search_the_web = True
     _genai_client: genai.Client | None = None
 
+    def __init__(self, api_key: str, base_url: str = "", timeout: float = 180.0) -> None:
+        super().__init__(api_key, base_url, timeout)
+        self._stream_responses = threading.local()
+
+    def _capture_response(self, response: httpx.Response) -> None:
+        responses = getattr(self._stream_responses, "current", None)
+        if responses is not None:
+            responses.append(response)
+
     def _client(self) -> genai.Client:
         # Kept for the adapter's lifetime: the library closes its connection when the
         # client object is discarded, which would break results that are still loading.
@@ -49,7 +60,10 @@ class GeminiAdapter(ProviderAdapter):
             if self._genai_client is None:
                 self._genai_client = genai.Client(
                     api_key=self.api_key,
-                    http_options=types.HttpOptions(timeout=int(self.timeout * 1000)),
+                    http_options=types.HttpOptions(
+                        timeout=int(self.timeout * 1000),
+                        client_args={"event_hooks": {"response": [self._capture_response]}},
+                    ),
                 )
         return self._genai_client
 
@@ -73,34 +87,8 @@ class GeminiAdapter(ProviderAdapter):
             # Jobcu gives the model no tools here, so the library's tool loop stays off.
             automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
         )
-        try:
-            response = self._client().models.generate_content(
-                model=model, contents=prompt, config=config
-            )
-        except Exception as exc:
-            raise _translate(exc) from exc
-
-        feedback = response.prompt_feedback
-        if feedback is not None and feedback.block_reason:
-            raise AIRefused(MSG_REFUSED, str(feedback.block_reason))
-        candidate = response.candidates[0] if response.candidates else None
-        finish = _name(candidate.finish_reason) if candidate is not None else ""
-        if finish == "MAX_TOKENS":
-            raise AIOutputTruncated(MSG_TRUNCATED)
-        if finish in _REFUSAL_REASONS:
-            raise AIRefused(MSG_REFUSED, finish)
-        meta = response.usage_metadata
-        thoughts = (meta.thoughts_token_count or 0) if meta else 0
-        return RawReply(
-            text=response.text or "",
-            usage=Usage(
-                input_tokens=(meta.prompt_token_count or 0) if meta else 0,
-                # Thinking tokens are charged as output.
-                output_tokens=((meta.candidates_token_count or 0) + thoughts) if meta else 0,
-                cached_input_tokens=(meta.cached_content_token_count or 0) if meta else 0,
-                reasoning_tokens=thoughts,
-            ),
-        )
+        reply = self._stream(model, prompt, config)
+        return RawReply(reply.text, reply.usage)
 
     def research(
         self, *, model: str, system: str, prompt: str, max_searches: int, max_output_tokens: int,
@@ -113,35 +101,78 @@ class GeminiAdapter(ProviderAdapter):
             tools=[types.Tool(google_search=types.GoogleSearch())],
             automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
         )
+        return self._stream(model, prompt, config, web_search=True)
+
+    def _stream(self, model: str, prompt: str, config: types.GenerateContentConfig,
+                *, web_search: bool = False) -> ResearchReply:
+        """Receive long answers in chunks; publish only a complete, successful answer.
+
+        Metadata can arrive separately from text, and repeated cumulative counts are not
+        additional tokens/queries. Keep every source and ignore thought text, as the SDK's
+        ordinary response.text does. A broken stream never supplies a partial judgement.
+        """
+        text, sources = [], []
+        queries: Counter[str] = Counter()
+        counts: Counter[str] = Counter()
+        finished = False
+        stream = None
+        self._stream_responses.current = []
         try:
-            response = self._client().models.generate_content(
-                model=model, contents=prompt, config=config
-            )
+            stream = self._client().models.generate_content_stream(
+                model=model, contents=prompt, config=config)
+            for response in stream:
+                feedback = response.prompt_feedback
+                if feedback is not None and feedback.block_reason:
+                    raise AIRefused(MSG_REFUSED, str(feedback.block_reason))
+                meta = response.usage_metadata
+                if meta is not None:
+                    counts |= Counter({name: getattr(meta, name) or 0 for name in (
+                        "prompt_token_count", "candidates_token_count",
+                        "cached_content_token_count", "thoughts_token_count")})
+                candidate = response.candidates[0] if response.candidates else None
+                if candidate is None:
+                    continue  # final usage can arrive without another text candidate
+                finish = _name(candidate.finish_reason)
+                if finish == "MAX_TOKENS":
+                    raise AIOutputTruncated(MSG_TRUNCATED)
+                if finish in _REFUSAL_REASONS or finish not in (
+                        "", "FINISH_REASON_UNSPECIFIED", "STOP"):
+                    raise AIRefused(MSG_REFUSED, finish)
+                finished |= finish == "STOP"
+                if candidate.content is not None:
+                    text.extend(part.text for part in candidate.content.parts or []
+                                if part.text and not part.thought)
+                grounding = candidate.grounding_metadata
+                if grounding is not None:
+                    queries |= Counter(grounding.web_search_queries or [])
+                    for chunk in grounding.grounding_chunks or []:
+                        web = chunk.web
+                        if web is not None and web.uri:
+                            sources.append(Source(web.uri, web.title or ""))
+            if not finished:
+                raise AIUnavailable(MSG_UNAVAILABLE, "AI answer stream ended before completion.")
         except Exception as exc:
-            raise _translate(exc, web_search=True) from exc
-        feedback = response.prompt_feedback
-        if feedback is not None and feedback.block_reason:
-            raise AIRefused(MSG_REFUSED, str(feedback.block_reason))
-        candidate = response.candidates[0] if response.candidates else None
-        sources, searches = [], 0
-        grounding = getattr(candidate, "grounding_metadata", None) if candidate else None
-        if grounding is not None:
-            searches = len(getattr(grounding, "web_search_queries", None) or [])
-            for chunk in getattr(grounding, "grounding_chunks", None) or []:
-                web = getattr(chunk, "web", None)
-                if web is not None and getattr(web, "uri", None):
-                    sources.append(Source(web.uri, getattr(web, "title", "") or ""))
-        meta = response.usage_metadata
-        thoughts = (meta.thoughts_token_count or 0) if meta else 0
+            raise _translate(exc, web_search=web_search) from exc
+        finally:
+            try:
+                if stream is not None:
+                    stream.close()
+            finally:
+                # The SDK's synchronous iterator does not close an interrupted HTTP body.
+                # Close only this thread's responses; keep the shared client/pool alive.
+                for response in self._stream_responses.current:
+                    response.close()
+                del self._stream_responses.current
+        thoughts = counts["thoughts_token_count"]
         return ResearchReply(
-            text=response.text or "",
+            text="".join(text),
             sources=unique_sources(sources),
             usage=Usage(
-                input_tokens=(meta.prompt_token_count or 0) if meta else 0,
-                output_tokens=((meta.candidates_token_count or 0) + thoughts) if meta else 0,
-                cached_input_tokens=(meta.cached_content_token_count or 0) if meta else 0,
+                input_tokens=counts["prompt_token_count"],
+                output_tokens=counts["candidates_token_count"] + thoughts,
+                cached_input_tokens=counts["cached_content_token_count"],
                 reasoning_tokens=thoughts,
-                web_searches=searches,
+                web_searches=sum(queries.values()),
             ),
         )
 
