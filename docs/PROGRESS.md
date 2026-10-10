@@ -120,7 +120,7 @@ No newer unfinished attempt was found. No provider/source call, paid test,
 new search, account, model or app-limit change was made. Disposable private scratch was removed;
 needed evidence/checkpoint stay private. The owner app's observed closed state was preserved.
 
-Local verification: **1,145 tests**, Ruff/privacy/whitespace, document links, complete diff review
+Local verification: **1,146 tests**, Ruff/privacy/whitespace, document links, complete diff review
 and isolated startup passed; its preview/data were removed. The existing dependency warning
 remains. Fictional before/after transport results are in ENGINEERING, not live speed/quality proof.
 

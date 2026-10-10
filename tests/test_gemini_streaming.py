@@ -170,10 +170,14 @@ class Fit(BaseModel):
     requirement: str
 
 
-def test_disconnection_retries_a_fresh_complete_answer(service):
+@pytest.mark.parametrize("interruption", [
+    httpx.RemoteProtocolError("fictional connection interruption"),
+    {"error": {"code": 503, "message": "fictional service unavailable", "status": "UNAVAILABLE"}},
+])
+def test_interrupted_or_unavailable_request_retries_a_fresh_complete_answer(service, interruption):
     adapter, requests, streams = service(
         [chunk('{"requirement":"met"}', usage={"promptTokenCount": 900}),
-         httpx.RemoteProtocolError("fictional connection interruption")],
+         interruption],
         [chunk('{"requirement":"unknown"}', finish="STOP",
                usage={"promptTokenCount": 100, "candidatesTokenCount": 20})],
     )

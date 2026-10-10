@@ -149,8 +149,8 @@ five attempts plus backoff (375 logical seconds); the new adapter completed in o
 (120 logical seconds), preserving the identical request body and an unknown registration fact.
 These are simulated transport measurements, not live speed, billing, matching or recall claims.
 Real-SDK tests cover nursing, teaching and electronics, UTF-8, medium/schema payloads, late and
-repeated metadata, refusals, truncated/valid-looking incomplete answers, fresh recovery and
-parallel cleanup. Provider interruptions can still occur before or during streaming; its live
+repeated metadata, refusals, server errors, truncated/valid-looking incomplete answers, fresh
+recovery and parallel cleanup. Provider interruptions can still occur before or during streaming; its live
 benefit needs evidence from a later ordinary search or a separately bounded authorized test.
 The usage ledger contains reported completed answers; interrupted paid work can be missing.
 Transport tests and ledger estimates cannot establish the provider's complete invoice.

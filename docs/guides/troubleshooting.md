@@ -94,8 +94,9 @@ click **Stop** to cancel. Starting a new search can use AI again.
 
 **The AI provider asked Jobcu to slow down** means temporary provider throttling, not necessarily
 empty credit or Jobcu's monthly spending limit. Jobcu waits and sends remaining requests one
-at a time. An interrupted-connection note means Jobcu is retrying a request while preserving
-completed work; repeated interruptions can still stop online checks. Buying more credit does
+at a time. A provider retry note means Jobcu could not get a complete answer, because of a
+connection problem or temporary service failure. It retries while preserving completed work;
+repeated failures can still stop online checks. Buying more credit does
 not by itself repair a connection failure. Missing details remain unchecked if recovery fails.
 The [search guide](first-search.md#4-start-the-search-and-answer-any-questions) explains what
 the final online stage checks. The selected posting window is ad age, not a search-duration limit.

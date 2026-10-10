@@ -109,7 +109,7 @@ def test_interrupted_request_reports_recovery_without_private_error_details(sett
     client, sleeps = make_client(settings, adapter, notify=notes.append)
     assert generate(client).ok
     assert len(sleeps) == 1
-    assert notes == ["The connection to the AI provider was interrupted. Jobcu is waiting "
+    assert notes == ["The AI provider couldn't complete a request. Jobcu is waiting "
                      "before retrying; completed work is kept."]
     assert "private diagnostic" not in str(notes)
 
