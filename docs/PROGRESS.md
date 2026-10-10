@@ -10,6 +10,16 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
+- [Employer discovery recovery](ENGINEERING.md#employer-discovery-recovery-and-service-choices--2026-10-10)
+  retries incomplete countries on the next normal search, keeps successful countries/employers
+  and explains missing discovery. Migration 14 preserves history while rechecking ambiguous
+  legacy timestamps once. Existing medium effort, source permissions and limits remain.
+  Local fictional checks pass; exact-head publication is pending in In progress.
+- [Additional source and direct-provider research](SOURCES.md#employer-feeds-and-remote-candidates--2026-10-10)
+  identifies Jobicy as a permitted remote-feed candidate with freshness/evidence checks still
+  needed. Direct Luna, GLM Flash, MiMo Pro, DeepSeek Flash and MiniMax are comparison candidates,
+  not measured quality-equivalent replacements. Keep the working configuration; no purchase,
+  provider switch, paid test or search was made. Detailed saved-demand scenarios stay private.
 - The [structured Ashby workplace correction](ENGINEERING.md#structured-employer-workplace-evidence--2026-10-10)
   recovers towns/countries from primary and secondary addresses and preserves original ads.
   Legacy caches cannot restore discarded metadata. Fictional collection/check-selection cases
@@ -124,30 +134,35 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
-**Implementation complete; publication checkpoint below.** Prepared-session Deep improvement,
-2026-10-10, branch `codex/ashby-workplace-evidence`, base `111e2b0`. No further feature scope.
-Previous PR #101 is verified merged; exact-main Mac/Windows/privacy CI `38018822701` passed.
+**Active: recover incomplete employer discovery.** Owner-directed Deep improvement,
+2026-10-10, branch `codex/employer-discovery-recovery`, base `d7017e5`.
+PR #102 is verified merged; exact-main Mac/Windows/privacy CI `38030324705` passed.
+The prepared session and unchanged 1,224-test baseline are reused.
 
-Ashby now recovers primary/direct-secondary/legacy locality-country evidence without inventing
-a town from a region. Cache reader version 2 protects corrected fields and supports corrected
-warm reuse. Fictional regressions cover all countries, nursing/teaching/hardware, collection,
-check selection, malformed data and cache recovery. ENGINEERING/SOURCES hold the shortlist,
-public research and fictional comparisons. Private demand/timings/judgements remain outside Git.
-Owner ratings/data/settings/keys/limits are unchanged. No new search, provider/vacancy call,
-paid test, account or provider change. Owner app observed running on 8765; preserve it. Disposable
-private scratch was removed; no assistant service remains on 8799.
+Confirmed problem: generic AI discovery failures return an empty list and every requested
+country receives a successful two-week refresh timestamp. Recover country-level outcomes,
+retry failed/incomplete discovery on the next normal search, retain successful employers and
+country refreshes, and explain partial work. Preserve the existing discovery/request budgets,
+source permission checks, medium effort, all countries/professions and owner app/data.
 
-Verified locally: **1,224 tests**, affected 139, Ruff/privacy/whitespace, document links and
-complete diff review. The existing dependency warning remains. Fictional correctness/request
-selection does not establish live speed, cost savings, fit or recall.
+Steps/checks: reproduce failures with fictional nursing/teaching/hardware cases; implement
+partial recovery and explicit successful-empty evidence; verify later searches retry only
+failed countries and account/budget errors stop pending work; review relevant public source
+and direct-provider facts in SOURCES; update ENGINEERING/use guidance/prompts where needed;
+affected/full tests, Ruff/privacy/whitespace/docs/diff, exact-head PR and merged-main CI.
+No provider calls, new search, paid test, purchase or account change are authorized here.
 
-Publication recovery: check this branch's PR at its actual final head and require passing
-Mac/Windows/privacy CI; finish merge-commit publication if outstanding, synchronize main and
-verify its exact-head CI. Once those pass this goal is complete; Start waits for the owner.
-No repeat full suite solely for publication/handover edits with unchanged relevant code/tests.
-Missing originals, independent coverage evidence and bounded alternative-model tests remain
-later-task dependencies. Go's intended app use and hosted-tool accounting need clarification;
-these do not authorize replacement sources, a new search or paid calls.
+Status: implementation and research complete. **1,312 tests passed**, plus Ruff/privacy/
+whitespace and document links. Complete code/docs/new-test diff reviewed; the old reset fixture
+was updated for migration 14. Isolated 8799 startup passed, stopped and disposable data removed.
+The existing dependency warning remains. No live recall, quality-equivalence or savings claim.
+Owner app on 8765 remains untouched; private review/authorization/checkpoint remain outside Git.
+
+Publication is the only remaining scope: commit/push/open this branch's PR, require Mac,
+Windows and privacy CI on its exact final head, merge with a merge commit, synchronize main
+and verify merged-main CI. Then clear In progress and publish a short factual handover; do not
+repeat the unchanged full suite for documentation-only handover edits. Exact next action:
+commit the reviewed change and push/open its PR.
 
 ### Verify before relying on
 

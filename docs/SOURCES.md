@@ -87,6 +87,29 @@ already supports cited research. Adding discovery still needs reliable exact vac
 permitted originals and original dates; search snippets do not establish freshness or recall.
 No search-engine scraping, board adapter, partner account or vacancy traffic was introduced.
 
+### Employer feeds and remote candidates — 2026-10-10
+
+**Primary checks:** [Greenhouse's Job Board API](https://developers.greenhouse.io/job-board.html)
+documents public unauthenticated GETs and optional full content; this differs from its private
+recruiting-management APIs. [Lever's own posting documentation](https://github.com/lever/postings-api)
+describes published employer listings. [Personio's recruiting overview](https://support.personio.de/hc/en-us/articles/360000314338-Overview-of-the-Personio-Recruiting-API)
+distinguishes its employer XML feed from account integrations. These existing methods depend
+on discovering actual employers, permitted hosts and original evidence; an endpoint catalogue
+or directory size does not establish unique fresh relevant coverage.
+
+[Jobicy's API/RSS documentation](https://jobicy.com/jobs-rss-feed), updated 2026-10-01,
+explicitly permits ordinary apps and AI integrations with attribution and canonical Jobicy URLs.
+The public paginated feed covers seven days with a three-hour publication delay; direct ATS
+links require separate paid access. RSS polling must not exceed hourly. Candidate for remote
+work, pending robots/terms checks at implementation and comparison of country eligibility,
+original dates/descriptions and unique contribution. No paid feed, adapter or vacancy call here.
+
+[Remotive's original API terms](https://github.com/remotive-com/remote-jobs-api) require attribution
+and links, and delay public jobs by 24 hours. **Inference:** weak as the primary route for a
+daily 24-hour fresh-job search; possible remote backup value is not disproved. Neither feed
+establishes broad on-site hardware, nursing or teaching coverage. Broad-board restrictions
+above remain: a reachable/internal endpoint is not app permission or a guarantee against bans.
+
 ### Ashby workplace fields — 2026-10-10
 
 **Rechecked:** the [public posting contract](https://developers.ashbyhq.com/docs/public-job-posting-api)
@@ -490,6 +513,41 @@ focuses on coding, agent and long-context tasks; its gains do not independently 
 matching. [Qwen's official catalogue](https://www.alibabacloud.com/help/en/model-studio/models)
 describes native multimodal models; that is not Go research entitlement. None of these checks
 called a model or established comparative matching accuracy.
+
+### Direct-provider challengers — 2026-10-10
+
+These are **direct pay-as-you-go APIs**, separate from coding subscriptions and Go proxy
+entitlements. Prices below are USD per million uncached input/output tokens; context tiers,
+reasoning output, retrieved text, tool fees, taxes and actual token demand still matter.
+No call, account change or comparative fit test was made.
+
+| Candidate | Input / output | Native reasoning and hosted research evidence |
+|---|---|---|
+| GPT-6 Luna | 0.10 / 0.50 through 272K context | Native medium and Responses web research; [current model/pricing check](#processing-tiers-and-complete-cost-comparisons--2026-10-10). Search USD0.01/call plus retrieved input. |
+| GLM-5.3-Flash | 0.15 / 0.50 | [Price/tool table](https://docs.z.ai/guides/overview/pricing): search USD0.01/use. [Native API reference](https://docs.z.ai/api-reference/llm/chat-completion) gives low/high/max, always-on thinking, max default. |
+| DeepSeek V4.1 Flash (`deepseek-flash`) | 0.15 / 0.60 off-peak; 0.30 / 1.20 peak | [Current pricing](https://api-docs.deepseek.com/quick_start/pricing/), [thinking guide](https://api-docs.deepseek.com/guides/thinking_mode/): enabled/high default; requested medium maps to high. JSON/tool calling/Responses support does not establish hosted search. |
+| MiMo-V2.6-Pro | 0.435 / 0.87 | [Original specification](https://mimo.mi.com/models/en-US/mimo-v2.6-pro) advertises structured output, thinking and search; exact hosted request/fee/citation behavior still needs verification. [Thinking checks](#additional-reasoning-model-candidates) are separate from measured equivalence. |
+| MiniMax-M3 | 0.30 / 1.20 through 512K input | [Current standard pricing](https://platform.minimax.io/docs/pricing/overview) lists beta hosted search at USD0.01/request. [Server Tools](https://platform.minimax.io/docs/guides/server-tools) documents Messages/Responses search and result URLs/citations; this is not Chat Completions function calling. |
+
+For GLM, [search documentation](https://docs.z.ai/guides/tools/web-search) describes retrieval
+and web search in Chat, with returned source records. The API reference has inconsistent tool
+wording; exact GLM-5.3-Flash response/account support needs a bounded check before integration.
+The [model guide](https://docs.z.ai/guides/vlm/glm-5.3-flash) recommends max; that recommendation
+and coding/office claims are not Jobcu matching evidence. A deliberate high mapping for
+Jobcu's medium setting is a native configuration, not a claim of equivalent thinking depth.
+
+MiniMax's [invocation guide](https://platform.minimax.io/docs/guides/text-generation) now
+highlights **M3.1-Flash-Preview**, with native medium among its efforts; the price table and
+hosted-tool example above name **M3**. Do not transfer that control, price or availability
+between model versions without verification. No Jobcu adapter change was made.
+
+**Comparison rule:** a token-price scenario is `input × rate + output × rate`; a complete bill
+also includes each actual hosted tool and retrieved-content charge, any retained research
+provider, fixed subscription fees and Maps. For a USD0.01 tool, 10/30/50 uses per search over
+30 searches add USD3/9/15 before content tokens. Those are fictional sensitivities, not a
+prediction or transfer of Gemini query counts to another provider. Compare half/equal/double
+token demand, identical evidence and independent labels. Private demand arithmetic stays private.
+Selection order and acceptance gates: [ENGINEERING](ENGINEERING.md#employer-discovery-recovery-and-service-choices--2026-10-10).
 
 ### Gemini running costs
 

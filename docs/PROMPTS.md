@@ -93,6 +93,9 @@ homework or automatic model training.
 Check useful structured fields already returned before adding research requests. Compare
 discounted same-model processing with other models, including latency/recovery and full bills;
 equal-token arithmetic is a scenario, not proof of equal quality or actual demand.
+Check discovery refresh provenance: failed/blank country lookups must remain retryable,
+completed countries/employers must survive partial failures, and a small result count is not
+proof of absent employers. A reachable/internal portal API is not permission to collect it.
 
 Assess coverage and the contribution of existing and potential sources/search methods: unique
 fresh relevant jobs, original evidence, country/profession gaps, reliability and request cost.
@@ -159,6 +162,9 @@ it already exists.
 Check useful structured fields already returned before adding research requests. Compare
 discounted same-model processing with other models, including latency/recovery and full bills;
 equal-token arithmetic is a scenario, not proof of equal quality or actual demand.
+Check discovery refresh provenance: failed/blank country lookups must remain retryable,
+completed countries/employers must survive partial failures, and a small result count is not
+proof of absent employers. A reachable/internal portal API is not permission to collect it.
 
 Actively use public primary documentation and original research to resolve important questions
 and discover opportunities. Read SOURCES before source work; verify current terms, capabilities

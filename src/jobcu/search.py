@@ -441,7 +441,8 @@ def _find_employers(run, settings, client, http, profile, plan) -> None:
         run.update("employers", "failed", exc.message)
         return
     run.set_result("employers", {"named": found.named, "new": found.new, "known": found.known,
-                                 "read": found.read, "not_read": found.not_read})
+                                 "read": found.read, "not_read": found.not_read,
+                                 "failed_countries": found.failed_countries})
     if found.looked:
         detail = (f"Your AI named {found.named} employers: {len(found.new)} more job lists Jobcu "
                   "can read" + (f" ({_listed(found.new)})" if found.new else "")
@@ -451,6 +452,12 @@ def _find_employers(run, settings, client, http, profile, plan) -> None:
                   f"{found.since:%B} are read")
     else:
         detail = ""
+    if found.failed_countries:
+        detail += "; some employer lookups are incomplete"
+        run.note("Finding employers was incomplete in "
+                 + ", ".join(COUNTRIES[code].name for code in found.failed_countries)
+                 + ". Jobcu will try those countries again on your next search; "
+                 "existing employer job lists are still read.")
     run.update("employers", "done", detail)
 
 
