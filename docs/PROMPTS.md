@@ -60,6 +60,8 @@ queries. Preserve my data and app state; use an authorized isolated copy for inv
 
 Start with the read-only saved review; flag a newer unfinished attempt. Judge full evidence
 against the actual documents and criteria before seeing scores, including every top-10 job.
+Use CONTRIBUTING's balanced 30–50-ad review, not only the top 10; reuse unchanged saved
+judgements and distinguish a reviewed sample from a whole-results or coverage claim.
 Investigate freshness, misses, duplicates, exclusions, requirements, travel evidence, ranking
 and explanations across the whole pipeline. Distinguish original search timing from corrections
 and cumulative usage. Keep missing evidence unknown; counts and scores alone do not prove
@@ -88,6 +90,9 @@ thinking/tool charges and shared allowances, and distinguish a ceiling from an i
 Ask me only for a necessary new spending ceiling or account instruction, not to choose models.
 Use your own judgement and relevant public primary research; optional user ratings are not
 homework or automatic model training.
+Check useful structured fields already returned before adding research requests. Compare
+discounted same-model processing with other models, including latency/recovery and full bills;
+equal-token arithmetic is a scenario, not proof of equal quality or actual demand.
 
 Assess coverage and the contribution of existing and potential sources/search methods: unique
 fresh relevant jobs, original evidence, country/profession gaps, reliability and request cost.
@@ -151,6 +156,9 @@ shown to add no useful value or harm results. Account for unique jobs, better ev
 backup value before removal; missing evidence or temporary failures do not prove no value.
 Decide and implement the best justified approach rather than keep a source simply because
 it already exists.
+Check useful structured fields already returned before adding research requests. Compare
+discounted same-model processing with other models, including latency/recovery and full bills;
+equal-token arithmetic is a scenario, not proof of equal quality or actual demand.
 
 Actively use public primary documentation and original research to resolve important questions
 and discover opportunities. Read SOURCES before source work; verify current terms, capabilities

@@ -66,6 +66,43 @@ These are retained decisions from dated checks; no new access was tested during 
   Engineers Ireland is a manual benchmark candidate pending collection checks; VDAB requires a
   partnership; Job-Room's employer-management API is not a public vacancy-search feed.
 
+### Broad boards and web discovery — 2026-10-10
+
+**Rechecked:** [LinkedIn's agreement](https://www.linkedin.com/legal/user-agreement) restricts
+scraping/copying and unauthorized automation. [Indeed's terms](https://www.indeed.com/legal)
+require written permission for automated access, with a conditional robots.txt exception;
+its [Job Sync API terms](https://docs.indeed.com/legal-terms/job-sync) concern partner integrations,
+not a general personal-app search entitlement. Neither establishes Jobcu collection permission.
+
+StepStone's [current applicant-terms portal](https://www.stepstone.de/e-recruiting/rechtliches/nutzungsbedingungen-bewerber/)
+embeds its terms, and the [official integration catalogue](https://api.stepstone.com/)
+documents job feeds, applications and recruitment integrations. No permitted personal-app
+vacancy-reading route was established. This preserves the held decision; it does not claim
+that no StepStone API exists. Permission/partner scope remains the dependency for direct reading.
+
+[Google Custom Search JSON API](https://developers.google.com/custom-search/v1/overview) is
+closed to new customers; existing customers must transition by 2027-01-01. It is not a new
+self-service discovery route for Jobcu. [Gemini Search grounding](https://ai.google.dev/gemini-api/docs/google-search/)
+already supports cited research. Adding discovery still needs reliable exact vacancy URLs,
+permitted originals and original dates; search snippets do not establish freshness or recall.
+No search-engine scraping, board adapter, partner account or vacancy traffic was introduced.
+
+### Ashby workplace fields — 2026-10-10
+
+**Rechecked:** the [public posting contract](https://developers.ashbyhq.com/docs/public-job-posting-api)
+documents primary `address.postalAddress`, direct secondary `address`, and their locality,
+region and country fields. Missing upstream data remains missing; `publishedAt` is last
+publication. [Customer terms](https://www.ashbyhq.com/resources/terms) govern contracted service
+use, not a new blanket crawling licence. A metadata-only robots.txt request to api.ashbyhq.com
+returned 401; this neither grants crawling permission nor changes the documented public API
+contract. Blocked pages stay blocked.
+
+The parser correction consumes fields in the existing documented list response, preserving
+free text and legacy nested secondary addresses. No endpoint, employer directory, scope,
+request budget, robots policy, page access or permission is expanded. It does not infer an
+unknown town, employer head office or first posting date. Fictional evidence and limits:
+[ENGINEERING](ENGINEERING.md#structured-employer-workplace-evidence--2026-10-10).
+
 ## Identity and freshness evidence
 
 **Checked 2026-10-07:** [Google's job-posting reference](https://developers.google.com/search/docs/appearance/structured-data/job-posting)
@@ -456,7 +493,7 @@ called a model or established comparative matching accuracy.
 
 ### Gemini running costs
 
-**Rechecked 2026-10-09:** [Gemini pricing](https://ai.google.dev/gemini-api/docs/pricing)
+**Rechecked 2026-10-10:** [Gemini pricing](https://ai.google.dev/gemini-api/docs/pricing)
 lists Gemini 3.8 Flash standard input/output at USD0.75/3.75 per million through 2026-12-31,
 then USD1.50/7.50 from 2027-01-01. Output includes thinking. Google Search grounding has
 5,000 free monthly requests shared across Gemini 3 and newer models, then USD14/1,000;
@@ -467,6 +504,32 @@ Jobcu's directly called Routes matrix or its allowance.
 Inference: count available grounding queries, other account work and thinking before forecasting;
 do not add reasoning tokens twice or present a token-only estimate as an invoice. These are
 public rates, not verified owner billing, tax, currency or remaining allowance.
+
+### Processing tiers and complete cost comparisons — 2026-10-10
+
+[Gemini Flex](https://ai.google.dev/gemini-api/docs/flex-inference) offers a 50% token-price
+discount for supported models, including 3.8 Flash. It is preview, best-effort capacity with
+variable latency (a 1–15-minute target), shares general limits and can be evicted. It has no
+automatic Standard fallback; the guide shows Interactions API requests and recommends long
+timeouts. This is an integration/recovery lead, not a setting already supported by Jobcu's
+Generate Content adapter. Batch can take up to 24 hours. Neither is adopted for normal searches.
+
+The [Go price table](https://opencode.ai/docs/go/) was fetched in full: 32 distinct models,
+42 price rows including context/peak variants; prices/windows remain as recorded above.
+Compare normalized shared-window fractions at half, equal and twice the observed token volume;
+do not assume equal tokenization, thinking, cached usage or tool entitlement between models.
+
+[GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna) supports native medium
+reasoning, structured output and Responses web search. Direct Standard prices remain
+USD0.10/0.50 per million short-context input/output tokens. [Tool pricing](https://developers.openai.com/api/docs/pricing)
+adds USD10/1,000 search calls and retrieved-content tokens at model rates. A Gemini query count
+is not an OpenAI tool-call count; Go hosted-tool fees/allowances are a separate unresolved fact.
+
+[Chen et al., revised 2026-05-28](https://arxiv.org/abs/2603.23971) measure large differences
+in reasoning tokens and interaction turns across models. Their tasks do not establish Jobcu
+matching quality; the research supports measuring complete costs rather than ranking list prices.
+Private demand/estimates stay private. Public fictional comparisons and decisions:
+[ENGINEERING](ENGINEERING.md#structured-employer-workplace-evidence--2026-10-10).
 
 ### Long AI answers and streaming
 

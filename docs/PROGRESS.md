@@ -10,6 +10,17 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
+- The [structured Ashby workplace correction](ENGINEERING.md#structured-employer-workplace-evidence--2026-10-10)
+  recovers towns/countries from primary and secondary addresses and preserves original ads.
+  Legacy caches cannot restore discarded metadata. Fictional collection/check-selection cases
+  cover all countries, nursing/teaching/hardware and unknowns without more source requests.
+  No provider, source, effort, allowance, account or owner-data change was made.
+- [Current source and complete-cost research](SOURCES.md#broad-boards-and-web-discovery--2026-10-10)
+  rechecked broad boards, Google discovery, Go's entire table and direct/discounted processing.
+  No permitted new broad-board reader was established. Go remains a candidate; shared limits
+  alone do not reject it. Live quality/coverage and model-dependent bills remain unmeasured.
+  Private saved-demand/timing evidence stays private; no paid call or new search occurred.
+
 - [Complete AI answers and online-check recovery](ENGINEERING.md#complete-ai-answers-and-online-check-recovery--2026-10-10)
   is in [PR #101](https://github.com/UtkuDenizAltiok/jobcu/pull/101): Gemini receives answers
   incrementally, requires successful completion
@@ -104,33 +115,39 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   corrected Greenhouse original-date evidence and reader-version cache recovery. Historical
   snapshots keep their original scores/date labels. Reset preserves settings, keys, assistant
   authorization and real usage counters; full reset deletes review evidence/checkpoints.
-- Last observed owner app state at the final check: closed (8765); it was running earlier in
-  the task. Neither state was changed by the assistant. The isolated fictional preview at
+- Last observed owner app state in this Deep improvement: running (8765). The owner opened it;
+  the assistant preserved it. The read-only saved run/usage is unchanged, with no newer unfinished
+  attempt. The isolated fictional preview at
   8799 is stopped, its tab closed and disposable data removed. Authorized saved evidence and
   checkpoints stay private; owner data/settings are preserved. Recheck actual app state once
   on resume and preserve the owner's choice.
 
 ### In progress
 
-**No remaining implementation.** The completed-search review and online-check improvement are
-implemented and locally verified. Private judgements preceded score reveal, including every top
-card; uncertain cases remain unknown. Judgements stay in the private packet; the bounded in-app
-sample had no matching entries for supported new labels, so existing ratings remain unchanged.
-No newer unfinished attempt was found. No provider/source call, paid test,
-new search, account, model or app-limit change was made. Disposable private scratch was removed;
-needed evidence/checkpoint stay private. The owner app's observed closed state was preserved.
+**Implementation complete; publication checkpoint below.** Prepared-session Deep improvement,
+2026-10-10, branch `codex/ashby-workplace-evidence`, base `111e2b0`. No further feature scope.
+Previous PR #101 is verified merged; exact-main Mac/Windows/privacy CI `38018822701` passed.
 
-Local verification: **1,146 tests**, Ruff/privacy/whitespace, document links, complete diff review
-and isolated startup passed; its preview/data were removed. The existing dependency warning
-remains. Fictional before/after transport results are in ENGINEERING, not live speed/quality proof.
+Ashby now recovers primary/direct-secondary/legacy locality-country evidence without inventing
+a town from a region. Cache reader version 2 protects corrected fields and supports corrected
+warm reuse. Fictional regressions cover all countries, nursing/teaching/hardware, collection,
+check selection, malformed data and cache recovery. ENGINEERING/SOURCES hold the shortlist,
+public research and fictional comparisons. Private demand/timings/judgements remain outside Git.
+Owner ratings/data/settings/keys/limits are unchanged. No new search, provider/vacancy call,
+paid test, account or provider change. Owner app observed running on 8765; preserve it. Disposable
+private scratch was removed; no assistant service remains on 8799.
 
-Publication checkpoint: [PR #101](https://github.com/UtkuDenizAltiok/jobcu/pull/101), branch
-`codex/review-online-checks`, base `9d27d7a`. On interruption, the exact next action is to check
-the PR's actual final head and required Mac/Windows/privacy CI, finish merge-commit publication
-if outstanding, synchronize main and verify its exact-head CI. Once those pass, this goal is
-complete; Start waits for the owner. Missing originals, researched conditions, independent
-coverage evidence and live transport outcomes are checkpointed dependencies for a later task;
-do not restart a search or provider comparison to fill them without its required authority.
+Verified locally: **1,224 tests**, affected 139, Ruff/privacy/whitespace, document links and
+complete diff review. The existing dependency warning remains. Fictional correctness/request
+selection does not establish live speed, cost savings, fit or recall.
+
+Publication recovery: check this branch's PR at its actual final head and require passing
+Mac/Windows/privacy CI; finish merge-commit publication if outstanding, synchronize main and
+verify its exact-head CI. Once those pass this goal is complete; Start waits for the owner.
+No repeat full suite solely for publication/handover edits with unchanged relevant code/tests.
+Missing originals, independent coverage evidence and bounded alternative-model tests remain
+later-task dependencies. Go's intended app use and hosted-tool accounting need clarification;
+these do not authorize replacement sources, a new search or paid calls.
 
 ### Verify before relying on
 

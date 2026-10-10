@@ -224,6 +224,20 @@ Jobcu's estimate can leave out web fees and discounts. It cannot guarantee the p
 final bill. Use any spending controls your provider offers as well, checking whether they
 actually stop spending or only send an alert.
 
+Reducing cost should preserve full evidence and fresh matching. Jobcu already reuses unchanged
+document understanding, bounded-age full ads and identical Maps requests within a search;
+scores remain new. Thinking can be billed as output even when it is not shown. Failed requests
+can incur charges without a usable answer, so the local estimate is not a complete invoice.
+More credit does not by itself repair connection failures or per-minute throttling.
+
+Some providers offer discounted processing of the same model with longer waits or reduced
+availability. That is different from a cheaper model, whose matching quality needs independent
+comparison. Do not select a plan just from its model count or request estimate. The dated
+[processing/cost evidence](../SOURCES.md#processing-tiers-and-complete-cost-comparisons--2026-10-10)
+and [fictional comparison](../ENGINEERING.md#structured-employer-workplace-evidence--2026-10-10)
+explain the tradeoffs; they are not a bill or proof of equal quality. Keep a working setup
+while a replacement's complete cost, permitted use and quality are checked.
+
 You can now return to **Search** and follow [How to use Jobcu](first-search.md#2-add-your-cv-and-cover-letter).
 The extra keys below are optional and can be added later.
 

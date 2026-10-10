@@ -115,6 +115,66 @@ Code/tests establish behavior; the latest current decision establishes intent.
   established runtime/test/tool layout; consolidate only where responsibilities actually overlap.
   Retire merged branches after checking PRs/worktrees; preserve unmerged or active work.
 
+## Structured employer workplace evidence — 2026-10-10
+
+Prepared-session Deep improvement reused completed private reviews and read-only saved usage;
+no new search or provider call. Source/service evidence is in
+[SOURCES](SOURCES.md#broad-boards-and-web-discovery--2026-10-10); personal findings remain private.
+
+| Priority | Benefit and evidence | Effort / risk / verification dependency |
+|---|---|---|
+| 1. Recover structured employer workplaces | Confirmed Ashby schema mismatch: locality was discarded and secondary country expected the wrong nesting. Known source facts can prevent false country/place exclusions and unnecessary research. | Small / low; offline parser → collection → workplace/check-selection cases across countries and professions. Selected and implemented. |
+| 2. Expand permitted original-ad discovery | High potential coverage/accuracy value across broad boards and professions; snippets and current counts cannot measure it. | Medium to large / medium; reliable vacancy IDs, original dates, permissions and an independent benchmark. No new method on unverified value. |
+| 3. Compare lower-cost model APIs | Potential large savings at native medium; current integration or price is not a quality verdict. | Medium / high; independently labelled cases, bounded paid-test authority, full tool bills and Go's intended-use clarification. No provider switch. |
+| 4. Discounted processing of the same model | Flex/Batch have verified token discounts without selecting a different model. | Large integration/recovery work / medium; longer variable waits, missing capacity, durable recovery and tool accounting. Retain normal interactive processing. |
+
+The Ashby parser now retains the free-text name plus stated locality and country from
+primary postal and documented direct secondary addresses. Legacy nested secondary addresses
+still work; malformed optional data cannot erase usable text. It keeps location alternatives,
+original IDs, full descriptions and publication metadata. Ashby cache reader version 2 prevents
+old parsed workplace metadata from replacing corrected source fields; corrected warm caches
+remain usable. Structured regions are not appended as town evidence: a county/province can
+share a city name or override the actual locality in free-text lookup. Original location names
+stay intact; missing towns remain unknown. No employer, endpoint, request budget or
+matching/scoring policy was added or removed. The general unresolved-place matching helper remains a separate lead;
+this correction only recovers available Ashby evidence.
+
+Fictional before/after: the original parser failed 69 of 72 new cases. After correction, these
+and an additional mocked source-search regression pass. Primary and secondary workplaces reach
+country/city selection in all 30 supported countries. Nursing, teaching and hardware cases
+keep mandatory requirement text and avoid location-only research when a known town is stated.
+The mocked global employer lists a USA primary/Irish secondary vacancy: previously no Irish
+job survived; now it does, with full evidence, the same one list request, and no pending
+location/summary research. Unlisted ads remain excluded. Cache-recovery regressions preserve
+corrected location fields and reuse new full evidence. Region-only data stays unknown even
+when the region shares a city name; a region cannot override a stated locality. These measure
+fictional correctness/request selection, not live recall or money saved.
+Previously saved snapshots/scores are preserved; future scoring remains fresh at medium.
+
+Cost decision: avoid redundant evidence work and transport failures first. Do not shorten ads,
+lower effort, reuse scores, discard uncertainty or narrow sources to meet a price target.
+Explicit input caching alone cannot reduce output/thinking charges. Equal-token provider
+comparisons are sensitivity scenarios; models may use different reasoning/token amounts.
+No app price table, provider, service allowance, quota, account or billing setting changed.
+
+An independently fictional daily workload of 100,000 input and 50,000 total output tokens,
+with no cache discounts, illustrates the [dated prices](SOURCES.md#processing-tiers-and-complete-cost-comparisons--2026-10-10):
+
+| Route | 30-day arithmetic, USD | Evidence limits |
+|---|---:|---|
+| Gemini 3.8 Flash Standard | 7.88 tokens | Search fees depend on queries and remaining shared allowance; Maps/tax/FX excluded. |
+| Gemini same-model Flex | 3.94 tokens | Best-effort latency/capacity; not current Jobcu support or measured reliability. |
+| Direct GPT-6 Luna Standard | 1.05 tokens + 6.00 search calls + 0.48 retrieved content = 7.53 | Assumes 20 calls/day, 8,000 retrieved input tokens/call; not converted from Gemini queries or a quality/capacity result. |
+| Go | 10.00 fixed subscription, plus any uncovered tools/overage | Hosted charges/intended use remain unverified. Same-volume Luna consumes 7% of monthly weighted allowance; MiMo Pro 17.4%, before any separately metered tools. |
+
+The numbers deliberately describe no owner search. More tool calls, longer reasoning or shared
+usage can reverse the comparison. Private saved-demand scenarios cover the complete Go price
+table and half/equal/double demand in five-hour, weekly and monthly windows; shared limits alone
+do not reject it. The next justified cost decision is a bounded labelled Gemini/Luna/MiMo
+comparison after required call/account authority, not buying or switching on this table.
+Go service permission/tool-fee clarification stays checkpointed. Coverage needs an independent
+date-verified benchmark; temporary failures/zero contributions do not justify removing a source.
+
 ## Complete AI answers and online-check recovery — 2026-10-10
 
 Decision: keep medium effort, request content, models, source coverage and configured limits.

@@ -137,6 +137,11 @@ the facts. Provider thinking, search tools, connection retries and throttling ca
 stage slow. Its job counter measures progress, not proven accuracy or an estimate of time left.
 If an online check fails, the existing job evidence is kept and missing details stay uncertain.
 
+Jobcu uses workplace facts already provided by a source before looking them up online. Ashby
+employer ads include structured primary and secondary towns/countries as well as free-text
+locations. A known town can avoid an extra location check; a region or missing town still needs
+evidence. Recovering a workplace does not prove a route, another place condition or job fit.
+
 The first source count says **ads collected before matching and duplicate removal**. It can
 be much larger than the final results: employer lists include other professions, and several
 sites may list the same vacancy. Jobcu checks additional titles because fixed search words
