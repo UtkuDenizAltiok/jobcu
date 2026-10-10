@@ -11,7 +11,8 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 ### State
 
 - [Complete AI answers and online-check recovery](ENGINEERING.md#complete-ai-answers-and-online-check-recovery--2026-10-10)
-  is implemented locally: Gemini receives answers incrementally, requires successful completion
+  is in [PR #101](https://github.com/UtkuDenizAltiok/jobcu/pull/101): Gemini receives answers
+  incrementally, requires successful completion
   and retains late grounding/usage metadata. Broken or clipped answers cannot become judgements.
   Parallel cleanup preserves other requests. Notes now distinguish throttling, connection retries
   and unfinished online checks. Medium effort, request content and existing limits are preserved.
@@ -111,35 +112,25 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
-**Saved-search review and online-check improvement — 2026-10-10.** Branch
-`codex/review-online-checks`, base `9d27d7a`. The prior preparation goal is complete: PR #100
-is merge-commit published and exact-main Mac/Windows/privacy run `38007557587` passed.
-Go clarification remains a checkpointed external adoption dependency, not this review's goal.
+**No remaining implementation.** The completed-search review and online-check improvement are
+implemented and locally verified. Private judgements preceded score reveal, including every top
+card; uncertain cases remain unknown. Judgements stay in the private packet; the bounded in-app
+sample had no matching entries for supported new labels, so existing ratings remain unchanged.
+No newer unfinished attempt was found. No provider/source call, paid test,
+new search, account, model or app-limit change was made. Disposable private scratch was removed;
+needed evidence/checkpoint stay private. The owner app's observed closed state was preserved.
 
-Authorized scope: read the latest saved search and private inputs on an isolated copy, preserve
-owner/legacy ratings, judge shuffled evidence before scores including every top card, diagnose
-original stage times and failures, rank a small shortlist and implement one general improvement.
-No new search, paid test, provider call, account change or public real-result aggregate is
-authorized. Existing medium defaults, coverage, evidence and owner app state remain intact.
+Local verification: **1,145 tests**, Ruff/privacy/whitespace, document links, complete diff review
+and isolated startup passed; its preview/data were removed. The existing dependency warning
+remains. Fictional before/after transport results are in ENGINEERING, not live speed/quality proof.
 
-Measurement and a shuffled independent review including every top card are saved privately;
-judgements were recorded before scores. No newer unfinished attempt was found. Missing originals,
-required location facts and an independent date-verified coverage benchmark limit quality claims.
-Source contribution was inspected; counts/temporary failures do not justify removing a source.
-Baseline: 1,125 tests passed, with the existing dependency deprecation warning.
-
-Selected coherent step: receive Gemini answers through the documented streaming transport,
-preserving schema, medium effort, text, grounding sources/queries and usage; reject incomplete
-or truncated streams and retain normal bounded recovery. Explain connection retry waits and
-the final online stage plainly. No provider/model/limit or matching-policy change.
-Implementation and fictional before/after comparison are complete. Affected checks passed;
-final code suite: **1,145 tests**, with the existing dependency warning. Ruff, privacy, whitespace
-and document links passed. Guides, evidence and prompts are updated; no live speed/quality claim.
-Isolated startup and complete diff review passed. The preview stopped; disposable private
-scratch was removed after saving needed evidence and the checkpoint. Owner app state remained
-closed. Exact next action: commit/push/open a PR, require exact-final-head Mac/Windows/privacy
-CI, merge with a merge commit, synchronize main and verify its CI. No more implementation is
-needed; missing live evidence remains a dependency for a later owner-requested task.
+Publication checkpoint: [PR #101](https://github.com/UtkuDenizAltiok/jobcu/pull/101), branch
+`codex/review-online-checks`, base `9d27d7a`. On interruption, the exact next action is to check
+the PR's actual final head and required Mac/Windows/privacy CI, finish merge-commit publication
+if outstanding, synchronize main and verify its exact-head CI. Once those pass, this goal is
+complete; Start waits for the owner. Missing originals, researched conditions, independent
+coverage evidence and live transport outcomes are checkpointed dependencies for a later task;
+do not restart a search or provider comparison to fill them without its required authority.
 
 ### Verify before relying on
 
