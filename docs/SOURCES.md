@@ -468,6 +468,29 @@ Inference: count available grounding queries, other account work and thinking be
 do not add reasoning tokens twice or present a token-only estimate as an invoice. These are
 public rates, not verified owner billing, tax, currency or remaining allowance.
 
+### Long AI answers and streaming
+
+**Checked 2026-10-10:** Google's [Generate Content API reference](https://ai.google.dev/api/generate-content)
+documents `streamGenerateContent` with the same generation request fields, including tools and
+generation configuration. The [official Python SDK](https://github.com/googleapis/python-genai#generate-content-synchronous-streaming)
+exposes `models.generate_content_stream`; its examples consume successive response chunks.
+The response contract includes terminal finish reasons, prompt feedback, grounding metadata
+and request-level token usage. Schema-valid partial JSON does not establish completed generation.
+
+The locked SDK 2.24.0 was inspected locally: its synchronous streaming path does not guarantee
+closing an interrupted HTTP response. [HTTPX's public response hooks](https://www.python-httpx.org/advanced/event-hooks/)
+run before the body is consumed and provide that response object. Inference for Jobcu: close
+each request's tracked responses in `finally`, without closing the shared SDK client or another
+thread's body. Tests use the actual locked SDK and an offline HTTPX transport; no provider call.
+
+An [original developer report](https://discuss.ai.google.dev/t/60s-timeout-from-python-sdk/83274)
+describes long non-streaming requests disconnecting around 60 seconds and reports streaming as
+a workaround. It is a lead, not proof of a universal server deadline, the cause of a particular
+connection failure or guaranteed improvement with current models. Streaming can also fail.
+Preserve medium thinking and necessary evidence; verify completed answers, metadata and live
+behavior rather than claim savings from a different transport alone. Existing service terms,
+pricing, allowance and endpoint identities still apply; this adds no job source or access right.
+
 ### Maps request limits and recovery
 
 **Per-route outcomes rechecked 2026-10-09:** Google's [matrix reference](https://developers.google.com/maps/documentation/routes/reference/rest/v2/TopLevel/computeRouteMatrix)

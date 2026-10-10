@@ -28,6 +28,10 @@ class Researcher:
         self.structured = list(structured)
         self.prompts = []
         self.structure_prompts = []
+        self.notifications = []
+
+    def notify(self, message):
+        self.notifications.append(message)
 
     def research(self, **request):
         self.prompts.append(request["prompt"])
@@ -64,6 +68,17 @@ def test_only_jobs_nothing_places_are_looked_up():
     assert [jobplace.needs_looking_up(g) for g in groups] == [True, False, False]
     groups[0].place_from_web = []
     assert not jobplace.needs_looking_up(groups[0])  # looked up already, never again
+
+
+def test_unavailable_online_checks_explain_missing_evidence_without_clearing_jobs():
+    groups = jobs(*[("Deutschland", "DE")] * 6)
+    researcher = Researcher([AIUnavailable("fictional outage", "private diagnostic")])
+    looked_up = jobplace.find_online(researcher, groups, list(range(6)))
+    assert len(researcher.prompts) == 1  # persistent service failure stops queued requests
+    assert researcher.notifications == [jobplace.INCOMPLETE_CHECKS]
+    assert looked_up.asked == set() and looked_up.requirements == {}
+    assert all(group.place_from_web is None for group in groups)
+    assert len(groups) == 6 and "private diagnostic" not in str(researcher.notifications)
 
 
 def test_original_employer_url_goes_with_the_best_description():

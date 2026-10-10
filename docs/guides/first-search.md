@@ -127,6 +127,16 @@ Keep the browser page and the text window open. The time needed depends on the p
 sources, AI model and your account's limits. Wait until the heading says **Search finished**.
 That heading means the results have been saved on this computer.
 
+**Checking the best jobs online** seeks extra evidence for promising jobs: their workplace
+town when missing, and requirements omitted from short summaries. Your AI searches for the
+same vacancy, then organizes the findings so Jobcu can recheck fit and location conditions.
+It does not independently audit every score or guarantee the job is suitable. Complete ads
+already read are preferred; missing evidence remains unchecked. Related jobs are checked in
+small batches, and each batch can need a web-research answer and another AI answer to extract
+the facts. Provider thinking, search tools, connection retries and throttling can make this
+stage slow. Its job counter measures progress, not proven accuracy or an estimate of time left.
+If an online check fails, the existing job evidence is kept and missing details stay uncertain.
+
 The first source count says **ads collected before matching and duplicate removal**. It can
 be much larger than the final results: employer lists include other professions, and several
 sites may list the same vacancy. Jobcu checks additional titles because fixed search words

@@ -115,6 +115,46 @@ Code/tests establish behavior; the latest current decision establishes intent.
   established runtime/test/tool layout; consolidate only where responsibilities actually overlap.
   Retire merged branches after checking PRs/worktrees; preserve unmerged or active work.
 
+## Complete AI answers and online-check recovery — 2026-10-10
+
+Decision: keep medium effort, request content, models, source coverage and configured limits.
+Improve transport/recovery before buying capacity or removing evidence checks. Generic code
+inspection and primary documentation support the following shortlist; private review findings
+and real-result measurements remain outside Git.
+
+| Priority | Expected benefit and evidence | Effort, risk and verification |
+|---|---|---|
+| 1. Receive long answers incrementally and require completion | Existing Gemini calls buffered the whole answer; documented streaming offers another transport for the same request. Incomplete research must not become a judgement. | Moderate; fragments, terminal errors, late grounding/usage and parallel cleanup need real-SDK offline regressions. Live reliability/latency remain unmeasured. |
+| 2. Recover missing original and condition evidence | High potential accuracy benefit; a summary or unchecked place fact cannot establish eligibility. | Originals and independent labels/benchmark are dependencies; preserve unknowns and do not invent precision or recall. |
+| 3. Reconsider concurrency after rate limits | A single 429 currently serializes the rest of the run; later recovery could reduce elapsed time. | Actual quota scope and safe request rate are unverified. Preserve existing backoff and conservative concurrency in this step. |
+| 4. Change source coverage | Potential unique fresh jobs or richer evidence. | Needs independent contribution/date checks and current permissions; raw totals and temporary failures do not justify removal. |
+
+Implemented: Gemini's documented `generate_content_stream` transports both schema-constrained
+generation and web research. The adapter assembles all answer text, excludes thought text,
+retains grounding sources/query multiplicity and merges cumulative usage counts without adding
+them repeatedly. Usage arriving after the text remains included. Only a successful terminal
+answer is usable; silent EOF, disconnection, refusal and token truncation cannot supply a partial
+judgement. JSON retains its existing format validation and bounded retry behavior. Research
+truncation now remains an incomplete check instead of passing clipped notes to extraction.
+
+The shared SDK client remains alive. Public HTTPX response hooks track request-local responses
+per thread so an interrupted/refused stream closes its own body without interrupting another
+answer or abandoning the connection pool. No SDK private API is called. Connection-retry notes
+explain that completed work is kept; the rate-limit note distinguishes provider throttling from
+an exhausted monthly allowance. Failed online batches explicitly leave missing details unchecked.
+
+Before/after comparison used a fictional offline gateway that disconnects an idle response at
+60 seconds and permits six streamed chunks over 120 seconds. The previous adapter exhausted
+five attempts plus backoff (375 logical seconds); the new adapter completed in one attempt
+(120 logical seconds), preserving the identical request body and an unknown registration fact.
+These are simulated transport measurements, not live speed, billing, matching or recall claims.
+Real-SDK tests cover nursing, teaching and electronics, UTF-8, medium/schema payloads, late and
+repeated metadata, refusals, server errors, truncated/valid-looking incomplete answers, fresh
+recovery and parallel cleanup. Provider interruptions can still occur before or during streaming; its live
+benefit needs evidence from a later ordinary search or a separately bounded authorized test.
+The usage ledger contains reported completed answers; interrupted paid work can be missing.
+Transport tests and ledger estimates cannot establish the provider's complete invoice.
+
 ## Go feasibility and interruption continuity — 2026-10-09
 
 **Operational update, 2026-10-10:** preserve the existing one-model Gemini medium setup and

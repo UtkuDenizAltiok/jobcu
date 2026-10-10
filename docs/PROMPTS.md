@@ -64,6 +64,9 @@ Investigate freshness, misses, duplicates, exclusions, requirements, travel evid
 and explanations across the whole pipeline. Distinguish original search timing from corrections
 and cumulative usage. Keep missing evidence unknown; counts and scores alone do not prove
 accuracy or recall.
+Use recorded run boundaries rather than screenshot times to measure duration. Separate useful
+evidence work, provider failures/retry waits and time waiting for my answers before changing
+limits or removing checks. Preserve complete answers and diagnose the failure path.
 Separate service limits from missing evidence before recommending more paid usage.
 Before provider changes, verify permitted app use, actual reasoning/tool support and token-based
 windows; coding benchmarks and advertised request counts do not establish matching quality.
@@ -119,6 +122,8 @@ Investigate coverage/freshness, multilingual discovery, permitted sources and or
 criteria understanding, travel evidence, exclusions/duplicates, scoring/explanations, repeated
 API work, recovery and a simple interface. These are starting points, not a limit. Simplify
 overlapping workflows/files while preserving detailed setup, usage and contribution guidance.
+Diagnose slow steps from saved timings and failures; distinguish useful work, retries and time
+waiting for my answers. Improve recovery without removing necessary evidence checks.
 Separate service limits from missing evidence before recommending more paid usage.
 Before provider changes, verify permitted app use, actual reasoning/tool support and token-based
 windows; coding benchmarks and advertised request counts do not establish matching quality.
