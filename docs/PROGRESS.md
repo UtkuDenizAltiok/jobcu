@@ -18,6 +18,9 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   expansion. Source references, permissions and precise integration dependencies are in
   [SOURCES](SOURCES.md#public-api-market-and-quality-evidence--2026-10-10). No provider switch,
   new source, paid call, search, account edit or private-results review was made in this step.
+  [PR #105](https://github.com/UtkuDenizAltiok/jobcu/pull/105) is merged at `d7bee16`;
+  exact PR-head Mac/Windows/privacy CI `38034813256` and merged-main CI `38035224672`
+  passed. Local document/Ruff/privacy/whitespace checks and full diff review passed.
 - [Employer discovery recovery](ENGINEERING.md#employer-discovery-recovery-and-service-choices--2026-10-10)
   retries incomplete countries on the next normal search, keeps successful countries/employers
   and explains missing discovery. Migration 14 preserves history while rechecking ambiguous
@@ -147,27 +150,17 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
-**Quality-first provider and electronics coverage decisions** (owner, 2026-10-10).
-Branch `codex/quality-first-service-decisions`, starting at verified main `9296f01`.
-Broaden the public API comparison beyond Go and price-led candidates; make a practical
-recommendation without claiming unmeasured equivalence. Prioritize electronics/hardware/
-power-electronics sources and original employer ads; remote-only boards have low priority.
-No private review, paid calls, purchases, provider changes or new search is authorized here.
+**None.** The quality-first research/decision step is merged and verified in PR #105;
+its exact-head publication checks are recorded in State. No app feature, private review,
+paid test or source/model integration is active. Missing comparative quality evidence and
+collection permission are future adoption dependencies, not unfinished implementation here.
 
-1. Recheck current primary catalogues, reasoning/research support, complete prices and
-   permissions; compare country/sector source opportunities and access dependencies.
-2. Supersede the earlier price-led evaluation order, record a quality-first shortlist and
-   concrete decision/verification gates in their existing homes; update prompts/guidance.
-3. Review the complete diff; run document, Ruff/privacy and whitespace checks, publish a PR,
-   require exact-head Mac/Windows/privacy CI, merge with a merge commit and synchronize main.
-
-Implementation: documentation/decision changes complete; app code and source registry unchanged.
-Local checks: 20 document checks, Ruff/privacy and whitespace passed; complete diff reviewed.
-Reuse the unchanged 1,312-test code baseline; document checks suffice locally. Push/merge/CI
-are pending. Exact next action: publish the documentation PR and verify its exact head's
-Mac/Windows/privacy CI. Missing live comparative evidence blocks a
-quality-equivalence claim, not this research/guide correction. After publication, clear this
-entry and save verified handover state; do not automatically start a source/model integration.
+If interrupted while publishing `codex/quality-decision-handover`, based on `d7bee16`, finish
+only that handover: inspect its actual PR/head, require Mac/Windows/privacy CI, merge with a
+merge commit, synchronize main and verify exact merged-head CI. The handover only clears the
+completed goal and records verified publication; reuse the unchanged 1,312-test code baseline
+and local document checks. On synchronized clean main with passing CI, Start prepares and
+waits. Do not choose a new source/API goal or spend/test/search automatically.
 
 ### Verify before relying on
 
