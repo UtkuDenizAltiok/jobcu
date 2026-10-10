@@ -26,6 +26,8 @@ class AshbySource(CareerSystemSource):
     id = "ashby"
     name = "Company career sites (Ashby)"
     system = "ashby"
+    # Old full-ad caches can restore workplace metadata parsed without structured localities.
+    detail_cache_version = 2
 
     def list_jobs(self, employer: Employer, ctx: SourceContext, *, countries=None, start=None,
                   terms=None) -> Iterator[FoundJob]:
@@ -36,18 +38,13 @@ class AshbySource(CareerSystemSource):
 
 
 def to_found_job(item: dict, employer: Employer) -> FoundJob:
-    places = [item.get("location")]
-    countries = [((item.get("address") or {}).get("postalAddress") or {}).get("addressCountry")]
-    for extra in item.get("secondaryLocations") or []:
-        places.append(extra.get("location"))
-        countries.append(((extra.get("address") or {}).get("postalAddress") or {})
-                         .get("addressCountry"))
-    # The location name alone can be vague ("Office"), so the country is added to it.
-    location = "; ".join(
-        ", ".join(dict.fromkeys(part for part in (place, country) if part))
-        for place, country in zip(places, countries, strict=True)
-        if place or country
-    ) or None
+    # Primary addresses are postalAddress objects; documented secondary addresses are direct.
+    # Keep the free-text name and stated locality/country, including legacy nested data.
+    secondary = item.get("secondaryLocations")
+    locations = [item, *(secondary if isinstance(secondary, list) else [])]
+    location = "; ".join(dict.fromkeys(
+        text for entry in locations if isinstance(entry, dict) and (text := _location(entry))
+    )) or None
     published = item.get("publishedAt")
     workplace = (item.get("workplaceType") or "").lower().replace("-", "")
     return FoundJob(
@@ -65,3 +62,15 @@ def to_found_job(item: dict, employer: Employer) -> FoundJob:
         work_mode=_WORKPLACES.get(workplace)
         or ("remote" if item.get("isRemote") else work_mode_from_text(location)),
     )
+
+
+def _location(entry: dict) -> str:
+    address = entry.get("address")
+    address = address if isinstance(address, dict) else {}
+    postal = address.get("postalAddress")
+    if isinstance(postal, dict):
+        address = {**address, **postal}
+    # A region can share a town's name (County Cork); it cannot supply a workplace town.
+    parts = [entry.get("location"), address.get("addressLocality"), address.get("addressCountry")]
+    return ", ".join(dict.fromkeys(tidy(part) for part in parts
+                                    if isinstance(part, str) and tidy(part)))
