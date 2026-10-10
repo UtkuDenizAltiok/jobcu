@@ -10,6 +10,14 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
+- [Quality-first API and electronics coverage decision](ENGINEERING.md#quality-first-api-and-electronics-coverage-decision--2026-10-10)
+  replaces earlier price-led/Go-centred trial ordering. The broader public survey includes
+  stronger models and native research contracts; direct MiMo Pro is the first replacement
+  hypothesis, with counterevidence and explicit no-regression gates. Keep working Gemini
+  medium pending a focused comparison. Electronics employer originals outrank remote-only
+  expansion. Source references, permissions and precise integration dependencies are in
+  [SOURCES](SOURCES.md#public-api-market-and-quality-evidence--2026-10-10). No provider switch,
+  new source, paid call, search, account edit or private-results review was made in this step.
 - [Employer discovery recovery](ENGINEERING.md#employer-discovery-recovery-and-service-choices--2026-10-10)
   retries incomplete countries on the next normal search, keeps successful countries/employers
   and explains missing discovery. Migration 14 preserves history while rechecking ambiguous
@@ -19,9 +27,9 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   Local 1,312-test suite, Ruff/privacy/whitespace, 20 document checks and isolated startup pass.
   The preview stopped and disposable data was removed; owner app/data/settings were preserved.
 - [Additional source and direct-provider research](SOURCES.md#employer-feeds-and-remote-candidates--2026-10-10)
-  identifies Jobicy as a permitted remote-feed candidate with freshness/evidence checks still
-  needed. Direct Luna, GLM Flash, MiMo Pro, DeepSeek Flash and MiniMax are comparison candidates,
-  not measured quality-equivalent replacements. Keep the working configuration; no purchase,
+  identified Jobicy as a remote-feed candidate with freshness/evidence checks still
+  needed; remote-only expansion is now low priority. Its inexpensive direct-API subset is
+  superseded by the broader quality-first survey above. Keep the working configuration; no purchase,
   provider switch, paid test or search was made. Detailed saved-demand scenarios stay private.
 - The [structured Ashby workplace correction](ENGINEERING.md#structured-employer-workplace-evidence--2026-10-10)
   recovers towns/countries from primary and secondary addresses and preserves original ads.
@@ -62,9 +70,9 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   setup controls. Existing choices, keys, routing and medium defaults are preserved.
   [PR #96](https://github.com/UtkuDenizAltiok/jobcu/pull/96) is verified merged at `61e6d9c`;
   exact merged-main Mac/Windows/privacy CI `37984746346` passed.
-- The [current Go reassessment](ENGINEERING.md#go-feasibility-and-interruption-continuity--2026-10-09)
-  keeps Go as a viable candidate, with GPT-6 Luna first and MiMo Pro as an interpretation
-  challenger. Preserve working Gemini medium meanwhile. Several candidates support documents,
+- The [earlier Go reassessment](ENGINEERING.md#go-feasibility-and-interruption-continuity--2026-10-09)
+  keeps Go as a viable host candidate; its trial ordering is superseded by the broader decision
+  above. Preserve working Gemini medium meanwhile. Several candidates support documents,
   structured output and research features; shared limits alone do not reject one daily search.
   This supersedes interpreting the earlier do-not-buy-now wording as permanent exclusion or
   claiming all 32 models are unable to do Jobcu's work. No candidate's matching superiority is
@@ -139,21 +147,34 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
-**None.** The employer-discovery improvement is merged and verified; publication facts are
-in State above. No remaining feature scope, paid test, new search or private review is active.
+**Quality-first provider and electronics coverage decisions** (owner, 2026-10-10).
+Branch `codex/quality-first-service-decisions`, starting at verified main `9296f01`.
+Broaden the public API comparison beyond Go and price-led candidates; make a practical
+recommendation without claiming unmeasured equivalence. Prioritize electronics/hardware/
+power-electronics sources and original employer ads; remote-only boards have low priority.
+No private review, paid calls, purchases, provider changes or new search is authorized here.
 
-If interrupted while publishing the documentation-only `codex/discovery-handover` branch,
-finish only that handover: verify its PR's actual-head Mac/Windows/privacy CI, use a merge
-commit, synchronize main and verify exact merged-head CI. Reuse the unchanged 1,312-test
-code baseline; documentation checks suffice locally. On synchronized main with passing CI,
-Start prepares the chat and waits for the owner. Do not select a candidate below automatically.
+1. Recheck current primary catalogues, reasoning/research support, complete prices and
+   permissions; compare country/sector source opportunities and access dependencies.
+2. Supersede the earlier price-led evaluation order, record a quality-first shortlist and
+   concrete decision/verification gates in their existing homes; update prompts/guidance.
+3. Review the complete diff; run document, Ruff/privacy and whitespace checks, publish a PR,
+   require exact-head Mac/Windows/privacy CI, merge with a merge commit and synchronize main.
+
+Implementation: documentation/decision changes complete; app code and source registry unchanged.
+Local checks: 20 document checks, Ruff/privacy and whitespace passed; complete diff reviewed.
+Reuse the unchanged 1,312-test code baseline; document checks suffice locally. Push/merge/CI
+are pending. Exact next action: publish the documentation PR and verify its exact head's
+Mac/Windows/privacy CI. Missing live comparative evidence blocks a
+quality-equivalence claim, not this research/guide correction. After publication, clear this
+entry and save verified handover state; do not automatically start a source/model integration.
 
 ### Verify before relying on
 
 - Discovery: completion/retry behavior is verified offline, not live recall. The next normal
   launch loads the change and may recheck ambiguous legacy timestamps once within existing
   limits. No additional job search or owner-data reset is required for development.
-- Direct API challengers: [dated prices, native controls and hosted research](SOURCES.md#direct-provider-challengers--2026-10-10)
+- Direct API challengers: [broader catalogue, native controls and hosted research](SOURCES.md#public-api-market-and-quality-evidence--2026-10-10)
   do not establish fit equivalence or total bills. Exact model/version/tool response support,
   independent outcomes and half/equal/double demand comparisons are adoption gates. A bounded
   paid-test budget and an account key entered only in Jobcu remain required before paid work.
@@ -227,6 +248,9 @@ Candidates for an owner-requested development task, not automatic work during St
    trace an independent date-verified coverage sample. Do not tune to one ad or score distribution.
 5. Compare new/existing methods and structured public APIs for unique useful jobs, original
    evidence, country/profession gaps and reliability. Ashby metadata recovery is complete.
+   Prioritize [electronics employer references and unread systems](SOURCES.md#electronics-employer-and-specialist-coverage--2026-10-10)
+   in country order; remote-only expansion has low priority. Reference names do not prove
+   active jobs, collection permission or misses through other sources.
    [Jobicy](SOURCES.md#employer-feeds-and-remote-candidates--2026-10-10) is a remote-feed
    candidate; verify host rules, eligibility/original dates and contribution before adding it.
    Improve/add/replace/remove based on terms and evidence; private/internal endpoints need

@@ -13,6 +13,8 @@ Validate electronics, hardware and power electronics first. Country work order: 
 Ireland, UK, Switzerland, Netherlands, Belgium, Italy** (owner, 2026-10-06). All 30 countries in
 `src/jobcu/countries.py` and other professions remain supported. Changes must be general;
 include fictional non-engineering profiles in matching regressions.
+Remote-only source expansion has low priority (owner, 2026-10-10); prioritize electronic
+hardware, power electronics and electronic engineering, without excluding suitable remote jobs.
 
 ## Authority and communication
 

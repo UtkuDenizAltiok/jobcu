@@ -17,6 +17,12 @@ GitHub or a screenshot. After saving, Jobcu hides it and shows only its ending c
 you choose from that provider. Jobcu lets you choose both; it does not pick one for you.
 Use the provider's descriptions, current prices and your account's access to decide.
 
+When an assistant is helping, it should make the technical recommendation and prepare a
+focused comparison; you do not need to buy and test many APIs. The [dated recommendation](../ENGINEERING.md#quality-first-api-and-electronics-coverage-decision--2026-10-10)
+currently keeps the working setup and identifies one challenger to investigate. Published
+prices and general benchmarks do not establish equal Jobcu results. Keep your settings while
+that comparison is incomplete; do not purchase another subscription just for its model count.
+
 1. Open Jobcu and click **Settings** at the top of the page.
 2. Under **AI provider**, select your chosen service. The key and model boxes appear below it.
 3. If you do not have a key, click **Create one on the provider's website**. This opens its

@@ -163,3 +163,44 @@ at medium effort. Token estimates may omit provider fees and discounts; correcti
 cumulative usage. Delete disposable scratch data, record general lessons with fictional
 examples only (public real-result summaries require separate approval), test, push, wait
 for CI and merge with a merge commit.
+
+### Compare a provider without lowering quality
+
+Research the wider public API market, including stronger models outside a subscription's
+catalogue. The assistant chooses one justified challenger and prepares its integration and
+comparison; the owner need not buy/test a list of models. Published benchmarks can inform a
+best guess, but keep it separate from measured Jobcu quality. Include counterevidence and the
+exact benchmark effort/language/version. A cheap model or native medium label is not proof
+of equal intelligence, and a more expensive model is not proof of better matching.
+
+Before calls, verify the actual app-use/data terms, native reasoning controls, structured
+outputs, hosted research/citations and all token/tool/allowance charges for the exact model,
+host and region. Test the adapter contract, truncation/refusal/retry recovery, citation retention
+and usage accounting offline with fictional responses. Preserve medium defaults; a documented
+native mapping needs disclosure and outcome verification. Public examples that disable thinking
+are not the configuration for Jobcu. Paid comparisons need separate bounded authorization.
+
+Freeze a balanced fictional packet with independently judged expected requirements and unknowns:
+electronic hardware, power electronics and adjacent misleading titles, plus nursing/teaching;
+multilingual ads, seniority/language/permit blockers, multiple workplaces, original/summary
+evidence, uncertain dates/routes, duplicates and exclusions. Include priority countries and
+run existing all-country regressions. Keep ad evidence and criteria identical for both models,
+shuffle outputs and record judgements before revealing model identity or scores. Compare each
+dimension and ranking separately; do not optimize an average score or judge only top cards.
+Repeat ambiguous cases within the authorized budget rather than invent agreement.
+
+Compare hosted research separately with the same fictional questions and permitted originals:
+does the evidence establish the right employer/vacancy, date, town or requirement, and do cited
+pages support the claim? Tool calling or a URL alone is insufficient. Then use the authorized
+saved-review/coverage procedure above for real-world claims, preserving independent labels,
+owner data and fresh judgements. Source coverage and model interpretation are separate factors.
+
+**Acceptance:** any observed loss of suitable jobs, incorrect exclusion, invented requirement,
+unsupported certainty or weaker required research blocks a switch, even if other scores improve.
+Unresolved evidence does not count as a pass. Passing a finite sample cannot guarantee universal
+equivalence; state its scope and remaining uncertainty. Keep the working provider while blocked.
+Compare complete observed demand and half/equal/double scenarios over daily/weekly/monthly
+windows, including thinking, retrieved text, multiple tool uses, failed work, fixed fees, any
+retained research provider, taxes/currency and Maps. Token-only estimates are not bills.
+Never respond to a budget conflict by reducing reasoning, evidence or recall. Save the specific
+decision and exact remaining dependency in the existing information homes.
