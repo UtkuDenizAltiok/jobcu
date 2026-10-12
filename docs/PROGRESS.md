@@ -180,24 +180,50 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
-**Whole-pipeline search quality, misses and unknown evidence — 2026-10-12.**
-Branch: `codex/search-quality-coverage`, based on verified main `1a1910a`.
-Owner task: assess saved scoring/coverage, trace supplied missing jobs and independently find
-similar public examples, diagnose widespread unchecked fields, then improve the strongest
-confirmed general failures. Reuse the private blinded review and unchanged 1,333-test baseline.
-Check private authorization/revocations and use an isolated copy; preserve owner data/ratings
-and app state. Free public research is authorized; no new paid test, provider call, account
-change or owner-data reset is authorized. Source work requires current permission evidence.
+**Whole-pipeline quality, coverage and complete-cost improvement — 2026-10-12.**
+Branch `codex/search-quality-coverage`, based on verified main `1a1910a`; initial scope
+checkpoint `2b9e2e9`. Latest owner messages extend this goal, including the wider API market
+and Maps reuse within/across searches. No earlier authorized code work was abandoned.
 
-Steps: (1) trace examples through discovery, dates, collection, deduplication, exclusions,
-scoring and evidence/UI; (2) assemble an original/requisition/date-verified public benchmark
-and review saved requirement/location unknowns; (3) choose justified general improvements,
-implement fictional engineering/non-engineering regressions and compare meaningful behavior;
-(4) update records/guides, run final checks, publish with exact-head Mac/Windows/privacy CI,
-merge commits and synchronize main. Keep real-job/profile evidence and aggregates private.
-Status: prior goal completed; clean synchronized main confirmed. Exact next action: recheck
-authorization, create private recovery copy, inspect both supplied examples and trace saved
-evidence/missing fields before selecting changes. Missing dates/rights/fit remain unknown.
+Authorized: saved private review on an isolated copy, unchanged blinded judgements, free public
+original/source/provider research and general fictional implementation. Check standing
+`assistant-authorization.json` and revocations before private work. Preserve owner data,
+ratings, settings and app state. No new paid test, provider/Maps call, search, account edit,
+owner reset or spending-limit change is authorized.
+
+Implemented: Greenhouse list originals with required publication/deadline fallback and retryable
+failed metadata; current full text survives valid cached metadata. Markdown headings preserve
+per-job requirement grounding; informational notes and genuine uncertainty display separately,
+including old cards, without claiming online notes are a full original. Exact validated Maps
+cells are reused within one search; errors remain retryable and known cells survive partial
+failures. Two independently verified public employer feeds were added. Terms do not authorize
+cross-search Google duration storage. [Decisions/checks](ENGINEERING.md#original-evidence-and-repeated-requests--2026-10-12).
+
+Local final code: 1,354 tests pass with one existing dependency warning; 20 document checks,
+Ruff/privacy, JS syntax, current/legacy card rendering and whitespace pass. Complete diff review
+is done. Reused baseline: 1,333 tests before substantive changes. Implementation remains local
+pending publication. Exact next action: commit/push this coherent change, open/attach its PR,
+require Mac/Windows/privacy CI at its final head, merge with a merge commit, synchronize main
+and verify exact-head main CI. Then record publication and preserve the dependency below.
+
+Private `assistant-review-checkpoint.json` points to `active_quality_review`: detailed saved
+judgements, older original-date controls, missing eligible benchmark/original/criteria evidence,
+full-bill sensitivity and a frozen balanced fictional comparison packet are outside Git.
+Latest read-only saved attempt is finished, with no newer unfinished attempt. Older examples
+are not eligible recall denominators; no whole-results precision/recall or live savings is claimed.
+[Current wider market/rights/fees](SOURCES.md#api-market-and-reuse-update--2026-10-12) keeps direct
+MiMo Pro as the single challenger, with factual/document/latency counterevidence. Its coding
+Token Plan explicitly excludes this app. Preserve working medium settings and fresh cited research.
+
+Remaining dependency after publication: owner authorization for a **EUR5 total** fictional paired
+comparison within the existing EUR30 month, and a direct API key entered only in Jobcu. The packet
+uses 30 balanced cases, six ambiguous repeats and separately gated hosted research. Recheck exact
+API/use/rights/fees and remaining total headroom before any call; unknown charges/outcomes or any
+quality/coverage regression stop the comparison and block a switch. Protected source evidence
+must not move before its rights are resolved. No model-shopping, owner ratings or new search is
+required. Exact next paid action, only after that dependency is satisfied: verify the frozen
+packet and run the first paired five-ad fictional batch on an isolated copy through `AIClient`,
+recording complete answers and all token/tool/failed usage before continuing within the ceiling.
 
 ### Verify before relying on
 

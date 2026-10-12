@@ -333,7 +333,8 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
     }
 
 
-ONLINE_NOTE = "Languages, experience and other requirements read from the full ad online"
+LEGACY_ONLINE_NOTE = "Languages, experience and other requirements read from the full ad online"
+ONLINE_NOTE = "Online evidence used to check requirements"
 
 
 def with_ad_read_online(result: dict, profile: Profile, languages: list[LanguageAsked],

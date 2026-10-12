@@ -67,6 +67,43 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Record step time and answer-wait time; label correction timings separately from cumulative usage. | Corrections and full searches cannot be compared as equivalent performance runs (2026-10-06). |
 | Warn when scoring reads only an excerpt of a lengthy ad. | Unseen requirements must not be assumed satisfied (2026-10-06). |
 
+## Original evidence and repeated requests — 2026-10-12
+
+The saved-review procedure remains independent judgement before score reveal, including every
+top card and a balanced sample. Missing originals, unverified conditions and an incomplete
+independent benchmark limit live claims; details and real-result aggregates stay private.
+New owner messages extend the active task; finish or checkpoint its dependency before moving on.
+
+| Candidate, in benefit order | Evidence, effort and risk | Decision / verification |
+|---|---|---|
+| Original Greenhouse text at collection | High evidence benefit; small change, larger list payload. The public API already offers full content. Missing dates must still reach the detail reader. | Implement `content=true`; preserve originals through matching, with date fallback and current list text ahead of cached text. Fictional hardware/nursing/teaching cases verify request reduction on a cold board and unchanged original-date rules. |
+| Research grounding and explanations | A bold job heading could erase per-job evidence; completed-research information was drawn with an uncertainty marker. Small change; accepting another job's evidence is the main risk. | Accept ordinary Markdown headings, reject duplicate/missing IDs, preserve quote grounding. Informational notes have no question mark; missing requirements retain it, including legacy cards. No score rubric or certainty is relaxed. |
+| Identical Maps elements within a search | Overlapping matrices repeat successful elements; whole-response caching can trap failed cells. Moderate change; identity mistakes can reuse the wrong journey. | Cache only validated elements for the same origin, destination, mode and departure. Retry unknown cells; preserve known cells alongside service/budget failures. Fictional overlapping queries use three elements instead of five. New dates/modes/origins/search instances require new evidence. No cross-search Google duration reuse. |
+| Verified employer references | Official public career feeds offer original electronics/hardware evidence and backup coverage. Small change; dates and relevance remain separate. | Add independently verified ARX Robotics and STARK Greenhouse references. Preserve discovered employers and country retry provenance. Directory membership is not proof of whole-market recall or an in-window miss. |
+| Cheaper main model | Large possible bill reduction, but no paired fit/research outcomes yet; a cheap output rate cannot establish equal quality. | Keep current medium configuration. Direct MiMo Pro remains the selected challenger; native enabled thinking is explicitly different from a literal medium control. Retain fresh cited research until its replacement passes separately. See the dated [market update](SOURCES.md#api-market-and-reuse-update--2026-10-12). |
+
+Bulk full-content collection was previously a research lead (2026-10-09), now superseded for
+Greenhouse by its current documented public API and offline evidence-preservation regressions.
+The larger response is a bandwidth tradeoff, not a measured live latency or AI-bill saving.
+On a fictional cold board with ten relevant ads supplying full text, publication and deadlines,
+list plus ten detail requests becomes one list request. Missing temporal metadata still gets
+the necessary detail check;
+valid bounded-age metadata attempts are reused without replacing current original text.
+Other adapters keep their existing contracts. No source is removed on low counts or outages.
+
+Cross-search route-duration storage remains held by the current Google contract. Transit uses
+the next Tuesday at 08:00 local time; car journeys use traffic-unaware routing. Matching only a
+city name would also lose origin/district, mode and departure identity. AI estimates retain their
+existing labelled 30-day memory; Google values do not enter it. A different routing service
+requires verified retention rights, transit coverage, freshness, quality and complete cost.
+
+The existing custom Chat adapter already supports enabled thinking, strict-schema negotiation,
+completed-answer checks, failed usage and separate research routing. Fictional adapter checks
+establish this contract, not live MiMo quality or hosted-search integration. The prepared paired
+packet and demand sensitivity stay private; the next paid action needs a separately bounded
+comparison budget and an account key entered only in Jobcu. Any observed recall, scoring,
+grounding or research regression blocks adoption; an unknown outcome cannot pass.
+
 ### Local reset and optional review — 2026-10-09
 
 - Keep everyday navigation to Search and Settings. **Settings → Review results** replaces the

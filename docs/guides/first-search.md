@@ -276,6 +276,9 @@ incorrectly; unchanged readers and corrected warm caches still reuse their full 
 
 Read warnings on a job before making a decision:
 
+- **?** means that condition or requirement remains uncertain. A note that requirements were
+  read online is information; it does not mean every requirement was met. Jobcu now displays
+  that note without a question mark, including on older saved cards.
 - **Scored from a short summary** or an excerpt warning means Jobcu did not read the whole
   advertisement. Important requirements may be missing; open the original job to check.
 - **AI estimate**, **not checked**, or **couldn't be checked** means that detail is uncertain.
@@ -285,6 +288,14 @@ Read warnings on a job before making a decision:
 - Jobs under **Posting date unknown** may be older than your chosen posting window.
   **First seen by Jobcu** is when Jobcu first found a job, not necessarily when it was posted.
   Check the original posting date and application deadline where available.
+
+Greenhouse employer feeds now include original full text when supplied. Missing original dates
+still need their separate check. Existing saved searches keep their evidence and scores.
+Within one search, identical successful Google Maps journeys are reused even when another job
+needs a different set of destinations. Unfinished journeys remain retryable. Google journey
+times are not reused for a later search under its current storage terms; labelled AI estimates
+have a separate 30-day memory. No broader posting window or extra search is needed to install
+these changes.
 
 **Left out by your conditions** shows jobs excluded by a location condition. These jobs were
 not scored. If a condition was misunderstood, use **Edit** as described above.

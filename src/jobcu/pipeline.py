@@ -18,6 +18,7 @@ from jobcu.freshness import earliest_possible, freshness, window_start
 from jobcu.jobstore import JobState
 from jobcu.location import LocationPlan
 from jobcu.placenames import countries_in
+from jobcu.scoring import LEGACY_ONLINE_NOTE, ONLINE_NOTE
 from jobcu.sources import all_sources
 from jobcu.sources.base import (
     FoundJob,
@@ -145,6 +146,11 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
     reports = {r.source: r for r in collected.reports}
     pending: dict[int, list[int]] = {}
     remembered = 0
+
+    def date_reader(copy, group):
+        return ((group.posted_at is None or copy.closes_at is None)
+                and getattr(collected.sources.get(copy.source), "details_supply_dates", False))
+
     for index in dict.fromkeys(indexes):
         if run.stop_requested:
             return
@@ -153,12 +159,14 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
         group.copies = [dataclasses.replace(c, description_is_complete=False)
                         if c.description_is_complete and not _complete_ad(c) else c
                         for c in group.copies]
-        if _complete_ad(group.best_description_copy):
+        if (_complete_ad(group.best_description_copy)
+                and not any(date_reader(copy, group) for copy in group.copies)):
             continue
         order = sorted(range(len(group.copies)), key=lambda i: SOURCE_KIND_RANK.get(
             group.source_kinds.get(group.copies[i].source,
                                    getattr(collected.sources.get(group.copies[i].source),
                                            "kind", "aggregator")), 3))
+        metadata_attempted = False
         for copy_index in order:
             try:
                 copy = group.copies[copy_index]
@@ -170,10 +178,20 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
                 log.exception("Reading remembered full-ad evidence failed")
                 continue
             if known is not None and _complete_ad(known):
+                metadata_attempted = date_reader(copy, group)
+                if _complete_ad(copy):
+                    # Fresh list text outranks cached text from the same requisition.
+                    known = dataclasses.replace(
+                        copy, posted_at=copy.posted_at or known.posted_at,
+                        date_precision=(copy.date_precision if copy.posted_at
+                                        else known.date_precision),
+                        closes_at=copy.closes_at or known.closes_at,
+                    )
                 group.copies[copy_index] = known
                 remembered += 1
                 break
-        if _complete_ad(group.best_description_copy):
+        if (_complete_ad(group.best_description_copy) and (metadata_attempted
+                or not any(date_reader(copy, group) for copy in group.copies))):
             continue
         options, seen = [], set()
         for copy_index in order:
@@ -181,6 +199,8 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
             identity = (copy.source, copy.source_job_id,
                         None if copy.source_job_id else copy.url)
             source, report = collected.sources.get(copy.source), reports.get(copy.source)
+            if _complete_ad(group.best_description_copy) and not date_reader(copy, group):
+                continue
             if (identity in seen or source is None or report is None
                     or type(source).load_details is JobSource.load_details
                     or report.status in {"skipped", "unavailable"}
@@ -212,8 +232,8 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
                 try:
                     # Adapters may mutate their argument. Failed or mismatched responses
                     # must not mutate the retained copy or change its remembered identity.
-                    full = source.load_details(dataclasses.replace(
-                        copy, job_types=list(copy.job_types)), ctx)
+                    requested = dataclasses.replace(copy, job_types=list(copy.job_types))
+                    full = source.load_details(requested, ctx)
                     if ((full.source, full.source_job_id) != (copy.source, copy.source_job_id)
                             or (not copy.source_job_id and full.url != copy.url)):
                         raise SourceError("The full-ad response did not match the requested copy.")
@@ -224,7 +244,10 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
                                                    description_is_complete=False)
                     groups[index].copies[copy_index] = full
                     try:
-                        jobstore.remember_ad(full, reader_version=source.detail_cache_version)
+                        if not (date_reader(copy, groups[index]) and full is requested):
+                            # A reader returning its unchanged argument after failure does not
+                            # establish a successful metadata check, even with complete list text.
+                            jobstore.remember_ad(full, reader_version=source.detail_cache_version)
                     except Exception:
                         log.exception("Keeping full-ad evidence for later searches failed")
                 except RequestStopped:
@@ -389,6 +412,10 @@ def build_card(
         # Blockers that hold the score below what its parts add up to (scoring.py).
         "limits": (scored or {}).get("limits", []),
         "score_notes": (scored or {}).get("notes", []),
+        "score_checks": [{"text": ONLINE_NOTE if note == LEGACY_ONLINE_NOTE else note,
+                          "status": "info" if note in {ONLINE_NOTE, LEGACY_ONLINE_NOTE}
+                          else "unclear"}
+                         for note in (scored or {}).get("notes", [])],
         "reasons": scored["reasons"] if scored else [],
         "required_languages": scored["required_languages"] if scored else [],
         "main_link": main_link,
