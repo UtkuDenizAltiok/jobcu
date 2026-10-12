@@ -14,10 +14,12 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   explanations are published in [PR #113](https://github.com/UtkuDenizAltiok/jobcu/pull/113),
   final head `b23e953`, merge `3075b9a`. Exact PR CI `38304883132` and exact main CI
   `38305333288` passed Mac/Windows/privacy. Its 1,420-test local final check remains the
-  baseline. The owner's more forgiving experience/language maximums are implemented on
+  baseline. The owner's more forgiving experience/language maximums are in
+  [PR #114](https://github.com/UtkuDenizAltiok/jobcu/pull/114), source commit `64282ef` on
   `codex/owner-score-limits`; 174 affected and 1,431 full-suite tests pass (one existing
   dependency warning), with Ruff/privacy, 20 document checks and whitespace/full-diff review.
-  Publication is pending below. No paid call, new search or owner-state change is made.
+  Use the exact PR/main publication gate below; Git/CI determine completion.
+  No paid call, new search or owner-state change is made.
 - [Original evidence and repeated requests](ENGINEERING.md#original-evidence-and-repeated-requests--2026-10-12)
   is published in [PR #111](https://github.com/UtkuDenizAltiok/jobcu/pull/111), head
   `e869a58`, merged at `71dd6fc`. Exact PR-head CI `38295942407` and merged-main CI
@@ -204,7 +206,9 @@ market and Maps reuse. Prior free implementation/publication is complete in PRs 
 #111, #112 and #113, verified at their exact PR/main heads; receipts are in Right now.
 Do not repeat their unchanged checks or reopen their completed publication checkpoints.
 
-**Owner scoring-policy adjustment — 2026-10-13:** branch `codex/owner-score-limits`, based on
+**Owner scoring-policy adjustment — 2026-10-13:**
+[PR #114](https://github.com/UtkuDenizAltiok/jobcu/pull/114), branch `codex/owner-score-limits`,
+source commit `64282ef` tested and pushed, based on
 verified main `3075b9a`. Clear experience-level mismatch now has a maximum of 80; a very large
 mismatch has 65. Required-language gaps of exactly two CEFR levels have a maximum of 80;
 three or more have 75. Point deductions, small/optional-language behavior, other limits and
@@ -214,9 +218,10 @@ Starlette/AnyIO warning), plus Ruff/privacy, 20 document checks and whitespace/f
 The search regression also verifies a calculated 76 stays below the new maximum of 80.
 The unchanged 1,420-test prior check was reused as the baseline; JS, dependencies and startup
 paths are unchanged. No live quality, coverage, cost or VPN measurement is inferred.
-Exact next action: commit/push, open the PR, require Mac/Windows/privacy on its exact final
-head, merge with a merge commit, sync main and verify its exact-head CI. Once Git/CI confirms
-publication, this free step is complete; keep only the dependency below.
+Publication gate: if PR #114 remains open, require Mac/Windows/privacy on its exact final
+head, merge with a merge commit, sync main and verify its exact-head CI. If Git/CI confirms
+it is merged and verified, the free step is complete; no implementation or publication action
+remains. Keep only the dependency below; do not rerun unchanged checks.
 The VPN question is explanation only: no network/source change, VPN test, provider call or
 new search is authorized. The unapproved paid comparison remains checkpointed below.
 
