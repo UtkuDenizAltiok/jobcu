@@ -23,6 +23,7 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Measure travel to the nearest edge of a reference place unless the user asks for its centre. | The person could live anywhere in the place (2026-09-24). |
 | For Maps journeys into a reference city, compare the calculated edge point and city centre, keeping the faster available journey. Explicit centre requests still measure the centre alone; explain that sampling can miss faster districts. | A geometric edge can have a worse connection than the centre. Fictional regressions reproduce a reachable job rejected by an edge-only journey. This clarifies the anywhere-in-the-place intent above without claiming an exact fastest commute (2026-10-07). |
 | Preserve confidence in facts about reference places separately from journey confidence. Keep usable partial rules, but explain missing facts and label estimates on each card. | A fictional city-library condition reproduced a measured journey upgrading unverified library access to verified. Distance, limit edits and Maps cannot prove that fact; scores and filtering remain unchanged (2026-10-08). |
+| Explain incomplete reference-place facts in initial and edited search details. A condition's usable distance rule does not establish all its facts. Retire only resolved condition warnings on an explicit edit. | The outer near status can be estimate while reference research failed; counting it as checked omitted the shared failure explanation. Fictional full-search/library cases preserve usable jobs and unrelated source notes (2026-10-12). |
 | Charge attempted Maps elements before each network attempt, preserve cached/earlier measurements and stop known persistent quotas. Keep transient recovery bounded and uncertainty visible. | A single budget charge before HTTP retries can exceed the owner's route allowance; quota scope and retry waits must not be guessed (2026-10-08). |
 | Prefer original employer ads and full descriptions. Keep summary evidence and missing conditions labelled. | Missing text must not appear to be complete evidence (2026-09-17; clarified 2026-10-06). |
 | Reuse bounded-age full text across matched copies before live reads; then prefer employer originals and try other permitted matched copies if needed. Recheck revealed objective facts before scoring. | A first-copy failure does not prove full evidence is unavailable; scores remain fresh per search (2026-10-08). |
@@ -34,6 +35,7 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Prefer exact source IDs in job memory. Distinct IDs on the same employer source stay separate, including through other copies. Require similar text when both matching ads are complete. Keep ambiguous name matches as separate jobs; preserve all historical keys, marks and snapshots. | Fictional electronics, nursing and hospitality openings reproduced a fresh vacancy inheriting an old date or Not interested mark. Titles and templates do not establish a unique vacancy. Previously merged history cannot be automatically split without evidence (2026-10-07). |
 | Groups kept separate by duplicate checks cannot rejoin solely through remembered names in the same batch. Exact copy evidence still wins; known countries can disambiguate. | The former one-card heuristic for two vague agency summaries could silently share Save/Not interested state without vacancy evidence. Supersedes that title-only assumption while retaining one card for proven copies (2026-10-08). |
 | Explain scores with rubric parts and deterministic blocker limits; retain low-score jobs. | Users can see why a job ranks where it does; a score is not hiring probability (2026-09-23 to 2026-09-30). |
+| Bound clearly mismatched experience/responsibility levels as well as role mismatch. Seniority 0–5 limits the total to 50; 6–11 to 65. Keep the existing bands, exact-years rules and small-gap behavior. | Strong skill overlap must not compensate for a level the rubric already calls clearly unsuitable; applies to all professions, including overqualification. This extends the earlier total-limit policy (2026-10-12). |
 | Ordinary mandatory-requirement points follow grounded met/unmet/unknown comparisons. Preserve known blockers when incomplete research omits them; explicit resolutions recompute points. | Supersedes accepting contradictory raw hard-requirement points in new scoring. Fictional comparisons reproduce an unmet eligibility condition retaining 14 points, and unsupported comparisons imposing definite limits. Existing band/limit values and separate policies remain (2026-10-09). |
 | Default to no per-search scoring or AI web-check cap. Preserve explicitly saved caps; if selected, ask before exceeding them and let **Always** remove them. Monthly controls and source/provider request rules still apply. | A normal on-demand search should complete its work without arbitrary pauses. Optional user controls remain available; supersedes the 200-score/50-web-check defaults (owner, 2026-10-07). |
 | Count attempted online checks cumulatively; deferred jobs remain pending when a limit is reached. Supply the original URL to research the same vacancy. | Fictional regressions reproduce the counter moving backwards on continuation. Titles alone can identify different requisitions (2026-10-07). |
@@ -100,10 +102,15 @@ When another matched board supplies a recent date, it must not suppress a missin
 employer date check. A fictional complete-ad/future-deadline case recovers an older original
 and excludes the stale requisition rather than accepting the secondary board's recent date.
 
-Cross-search route-duration storage remains held by the current Google contract. Transit uses
-the next Tuesday at 08:00 local time; car journeys use traffic-unaware routing. Matching only a
-city name would also lose origin/district, mode and departure identity. AI estimates retain their
-existing labelled 30-day memory; Google values do not enter it. A different routing service
+Cross-search route-duration storage remains held by the current Google contract. The earlier
+Tuesday 08:00 timing is superseded by Wednesday 10:30 local, chosen by the owner on 2026-10-12;
+car journeys use traffic-unaware routing. Each search keeps one departure reference across
+midnight. This single representative time is not a measured daily average or a fee discount.
+Matching only a city name would also lose origin/district, mode and departure identity.
+AI estimates retain their
+existing labelled 30-day memory, keyed to the current timing so old morning estimates are not
+reused. Saved condition readings likewise retain timing identity; historical snapshots stay
+unchanged. Google values do not enter AI memory. A different routing service
 requires verified retention rights, transit coverage, freshness, quality and complete cost.
 
 The existing custom Chat adapter already supports enabled thinking, strict-schema negotiation,

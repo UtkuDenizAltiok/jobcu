@@ -42,6 +42,7 @@ from jobcu.location import (
     LocationPlan,
     apply_edits,
     check_edits,
+    condition_warnings,
     interpret_location,
     needs_checking,
 )
@@ -138,6 +139,15 @@ class SearchRun:
         with self._lock:
             if message not in self.notes:
                 self.notes.append(message)
+
+    def replace_notes(self, earlier: list[str], current: list[str]) -> None:
+        """Retire resolved condition warnings while preserving unrelated search history."""
+        with self._lock:
+            retired = set(earlier) - set(current)
+            self.notes = [note for note in self.notes if note not in retired]
+            for note in current:
+                if note not in self.notes:
+                    self.notes.append(note)
 
     def ask(self, question: dict) -> bool:
         """Show a yes/no question on the screen and wait for the answer. A question with an
@@ -346,13 +356,15 @@ def run_search(run: SearchRun) -> None:
     run.set_result("location", plan.model_dump())
     names = [COUNTRIES[code].name for code in plan.countries]
     detail = f"{len(names)} countries" if plan.broad else ", ".join(names)
-    checked = sum(1 for c in plan.conditions if c.status in ("applied", "estimate"))
-    if checked:
-        detail += f" · {checked} condition{'s' if checked > 1 else ''} checked"
+    count = sum(1 for c in plan.conditions if not c.switched_off)
+    if count:
+        detail += f" · {count} condition{'s' if count > 1 else ''}"
+    warnings = condition_warnings(plan)
+    if warnings:
+        detail += " · some details are unchecked"
     run.update("location", "done", detail)
-    for condition in plan.conditions:
-        if condition.status == "not_checked" and condition.kind != "about_job":
-            run.note(f"\"{condition.text}\": {condition.note}")
+    for warning in warnings:
+        run.note(warning)
     checkpoint()
 
     run.update("search_words", "running")
@@ -858,13 +870,16 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
     )
     run.update("conditions", "running")
     plan = LocationPlan.model_validate(run.result["location"])
+    earlier_warnings = condition_warnings(plan)
     rechecked = sum(1 for edit in edits if needs_checking(edit, plan.conditions))
     plan = apply_edits(client, plan, edits)
-    run.update("conditions", "done", f"{rechecked} checked again" if rechecked
-               else "Nothing to look up")
-    for condition in plan.conditions:
-        if condition.status == "not_checked" and condition.kind != "about_job":
-            run.note(f"\"{condition.text}\": {condition.note}")
+    detail = f"{rechecked} condition{'s' if rechecked != 1 else ''} read again" if rechecked \
+        else "Nothing to look up"
+    warnings = condition_warnings(plan)
+    if warnings:
+        detail += " · some details are unchecked"
+    run.update("conditions", "done", detail)
+    run.replace_notes(earlier_warnings, warnings)
     _checkpoint(run)
 
     http = PoliteClient(should_stop=lambda: run.stop_requested,
