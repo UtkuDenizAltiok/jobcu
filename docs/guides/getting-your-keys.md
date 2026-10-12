@@ -290,7 +290,7 @@ If you want Maps, follow these steps on Google's website and in Jobcu:
    **Google Maps API key**, click **Save** beside it, then click **Test Google Maps**.
 
 A successful message begins **Google Maps works** and describes a sample public-transport
-journey from Freising station to Munich Hauptbahnhof, departing next Tuesday at 08:00 local
+journey from Freising station to Munich Hauptbahnhof, departing next Wednesday at 10:30 local
 time. It checks that Jobcu can access the service; it does not prove travel-time accuracy.
 The result is a whole journey that can include walking and waiting, rather than time spent
 only on a train. Each network attempt for this test counts one route element against Jobcu's

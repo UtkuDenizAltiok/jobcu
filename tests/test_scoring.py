@@ -185,8 +185,9 @@ def test_the_lowest_limit_wins_and_every_reason_is_kept():
 
 
 def test_a_low_total_is_not_raised_by_a_limit():
-    raw = score_json("J1", role=28, seniority=2, hard_requirements=12, years_required=5)
-    assert finish(JobScore.model_validate(raw), SPEAKER)["score"] == 28 + 2 + 15 + 12 + 8
+    raw = score_json("J1", role=18, seniority=2, hard_requirements=12,
+                     location_and_preferences=1, years_required=5)
+    assert finish(JobScore.model_validate(raw), SPEAKER)["score"] == 18 + 2 + 15 + 12 + 1
 
 
 @pytest.mark.parametrize(("role", "hard", "total", "why"), [

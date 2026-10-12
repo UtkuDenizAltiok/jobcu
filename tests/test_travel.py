@@ -150,7 +150,7 @@ def test_fuerstenfeldbruck_fits_through_munich():
     (path, body, headers), = fake.requests
     assert path.endswith("computeRouteMatrix") and body["travelMode"] == "TRANSIT"
     assert headers["x-goog-api-key"] == "fake-maps-key"
-    assert body["departureTime"] == "2026-09-22T06:00:00Z"  # Tuesday, 8 in the morning
+    assert body["departureTime"] == "2026-09-23T08:30:00Z"  # Wednesday, 10:30 local
     assert condition.status == "applied"  # measured, not estimated
     card = build_card(job, job_id=1, is_new=True, state=None, scored=None,
                       plan=LocationPlan(text="", understood_as="", countries=["DE"], places=[],
@@ -309,13 +309,13 @@ def test_job_sites_coordinates_come_first():
 
 
 @pytest.mark.parametrize(("country", "expected"), [
-    ("DE", "2026-09-22T06:00:00Z"), ("GB", "2026-09-22T07:00:00Z"),
-    ("FI", "2026-09-22T05:00:00Z"),
+    ("DE", "2026-09-23T08:30:00Z"), ("GB", "2026-09-23T09:30:00Z"),
+    ("FI", "2026-09-23T07:30:00Z"),
 ])
 def test_departure_is_a_weekday_morning_local_time(country, expected):
     assert travel.departure(country, NOW) == expected
-    monday_night = NOW + timedelta(days=1, hours=12)  # Tuesday 22:00 local → next Tuesday
-    assert travel.departure("DE", monday_night) == "2026-09-29T06:00:00Z"
+    wednesday_early = NOW + timedelta(days=1, hours=12)  # Wednesday local → following week
+    assert travel.departure("DE", wednesday_early) == "2026-09-30T08:30:00Z"
 
 
 def test_a_distance_limit_is_measured_in_a_straight_line():
@@ -359,7 +359,7 @@ def test_key_test_uses_stations_and_describes_public_transport():
     assert "Hauptbahnhof" in body["destinations"][0]["waypoint"]["address"]
     assert body["travelMode"] == "TRANSIT" and "departureTime" in body
     assert "27 min by public transport" in message
-    assert "08:00" in message and "checks access" in message
+    assert "Wednesday at 10:30" in message and "checks access" in message
     assert "by train" not in message
 
 
@@ -848,7 +848,7 @@ def test_the_ai_estimates_the_trip_to_the_nearest_edge_too():
     assert "nearest edge" in client.requests[0]["system"]
     assert "Munich (edge 14 km)" in client.requests[0]["prompt"]
     # Estimates remembered to a town's centre before this change are not reused.
-    assert travel._destination("DE", "Munich") == "DE:Munich:edge"
+    assert travel._destination("DE", "Munich") == "DE:Munich:edge:wednesday-1030"
 
 
 def test_a_citys_own_districts_are_not_reference_places_of_their_own():
@@ -900,4 +900,4 @@ def test_a_trip_to_the_city_centre_ends_at_the_centre_when_the_person_says_so():
                       status="applied", kind="near", max_km=10,
                       anchor=Anchor(named=[TownRef(name="Munich", country="DE")], to_centre=True))
     assert condition_fit(by_km, group("Dachau")) == "no"  # 17 km from the centre
-    assert travel._destination("DE", "Munich", centre=True) == "DE:Munich:centre"
+    assert travel._destination("DE", "Munich", centre=True) == "DE:Munich:centre:wednesday-1030"

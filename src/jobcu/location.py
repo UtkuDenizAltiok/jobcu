@@ -281,6 +281,23 @@ class LocationPlan(BaseModel):
     edited: bool = False  # the person changed the conditions after the search
 
 
+def condition_warnings(plan: LocationPlan) -> list[str]:
+    """Explain missing place facts even when a usable size/distance rule remains."""
+    warnings = []
+    for condition in plan.conditions:
+        if condition.switched_off or condition.kind == "about_job":
+            continue
+        if condition.status == "not_checked":
+            note = condition.note or "Jobcu could not check this condition."
+        elif condition.reference_status != "applied" or (
+                condition.kind != "near" and condition.status == "estimate"):
+            note = condition.note or "Some required facts about the places could not be confirmed."
+        else:
+            continue
+        warnings.append(f'"{condition.text}": {note}')
+    return warnings
+
+
 class ConditionEdit(BaseModel):
     """One condition as the person left it in the Edit window."""
 

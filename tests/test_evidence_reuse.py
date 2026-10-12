@@ -240,11 +240,12 @@ def test_maps_overlapping_queries_spend_only_new_elements_and_exact_dates():
     assert [len(body["destinations"]) for body in bodies] == [2, 1]
     now += timedelta(days=7)
     maps._matrix(origin, [a], "transit", "DE")
-    assert bodies[-1]["departureTime"] != bodies[0]["departureTime"]
+    assert routes.used_this_search == 3 and len(bodies) == 2  # same search keeps its week
     # A new search cannot reuse old Google durations, even with the same HTTP client.
     travel.GoogleMaps("fictional", http, now=lambda: now, routes=routes)._matrix(
         origin, [a], "transit", "DE")
-    assert routes.used_this_search == 5 and len(bodies) == 4
+    assert bodies[-1]["departureTime"] != bodies[0]["departureTime"]
+    assert routes.used_this_search == 4 and len(bodies) == 3
 
 
 @pytest.mark.parametrize("failure", ["quota", "budget", "malformed"])

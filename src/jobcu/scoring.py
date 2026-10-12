@@ -60,6 +60,12 @@ LIMITS_ROLE = [
     (17, 45, "Only loosely related to your work"),
     (27, 60, "A related job, its daily tasks partly different from yours"),
 ]
+# The rubric already distinguishes small level gaps from clearly unsuitable responsibility
+# or experience levels. Skill overlap must not compensate for the latter in the total.
+LIMITS_SENIORITY = [
+    (5, 50, "A very different experience or responsibility level"),
+    (11, 65, "The experience or responsibility level differs clearly"),
+]
 # The rubric's "a requirement the person clearly doesn't meet" (0-10 of 15 points), such as a
 # placement only for students or a licence the person lacks.
 LIMIT_REQUIREMENT_POINTS = requirements.BLOCKED_POINTS
@@ -436,6 +442,11 @@ def fit_limits(parts: dict[str, int]) -> list[dict]:
     role = parts.get("role_and_skills", PARTS["role_and_skills"])
     for most_points, at, why in LIMITS_ROLE:
         if role <= most_points:
+            limits.append({"at": at, "why": why})
+            break
+    seniority = parts.get("seniority", PARTS["seniority"])
+    for most_points, at, why in LIMITS_SENIORITY:
+        if seniority <= most_points:
             limits.append({"at": at, "why": why})
             break
     if parts.get("hard_requirements", PARTS["hard_requirements"]) <= LIMIT_REQUIREMENT_POINTS:

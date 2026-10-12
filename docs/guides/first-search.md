@@ -192,6 +192,12 @@ Every attempted matrix element counts toward that limit, including retries; read
 known response does not count again. Known daily/monthly or zero Google quotas are handled
 immediately. A Google quota and Jobcu's monthly limit are separate controls.
 
+Public transport checks use the next Wednesday at **10:30 a.m. in the job's country**.
+This gives a consistent weekday comparison outside the usual morning rush. Driving times
+ignore live traffic. This is a representative journey, not an average measured across the day.
+The same time is used for fallback AI estimates. Earlier morning estimates are checked again
+when needed; new matching estimates can be reused for 30 days.
+
 Times already measured remain usable, including when another sampled route fails. A failed
 or missing route calculation does not prove a job is too far away. Jobcu uses labelled AI
 estimates for unresolved towns where available, within your AI limits; otherwise the journey
@@ -227,6 +233,10 @@ A score runs from **0 to 100**. A higher score means Jobcu judged the job a bett
 the information it could read. It is not the chance that an employer will hire you. Read the
 reasons as well as the number, including any **Limited to …** explanation of a requirement
 that held the score down.
+
+Strong skills do not make up for a clearly unsuitable experience or responsibility level.
+When that level is clearly different, the total is limited to 65; when it is very far off,
+the limit is 50. A small gap gets the usual points reduction. The card explains the limit.
 
 For mandatory requirements such as current student enrolment, a professional licence or work
 permission, Jobcu compares the stated requirement with the facts in your profile. A supported
@@ -285,6 +295,9 @@ Read warnings on a job before making a decision:
   Check the original ad or relevant travel information yourself.
 - **Partly checked** means some evidence is still uncertain. A measured journey does not prove
   another requirement about the destination city; read the note beside the condition.
+  **Search details** also explains missing destination facts. It can check the journey while
+  failing to confirm another fact about that town. Resolved condition warnings disappear when
+  you recheck the condition; unrelated source warnings remain.
 - Jobs under **Posting date unknown** may be older than your chosen posting window.
   **First seen by Jobcu** is when Jobcu first found a job, not necessarily when it was posted.
   Check the original posting date and application deadline where available.

@@ -10,6 +10,11 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
+- The continuing review now corrects clear experience-level mismatch in totals, uses the
+  owner's Wednesday 10:30 representative transit timing and explains incomplete reference
+  facts in search details. Local final code passes 1,420 tests (one existing dependency warning),
+  Ruff/privacy, document and whitespace/full-diff checks. Publication is pending in the active
+  checkpoint below; no paid call, new search or owner-state change is made.
 - [Original evidence and repeated requests](ENGINEERING.md#original-evidence-and-repeated-requests--2026-10-12)
   is published in [PR #111](https://github.com/UtkuDenizAltiok/jobcu/pull/111), head
   `e869a58`, merged at `71dd6fc`. Exact PR-head CI `38295942407` and merged-main CI
@@ -201,12 +206,34 @@ even with complete text and a future deadline. Final local code passes 1,355 tes
 existing dependency warning, Ruff/privacy, 20 document checks and whitespace/full-diff review.
 Unchanged JS syntax/current-legacy rendering and isolated-startup checks remain valid.
 
-Publication checkpoint: PR #112 must pass Mac/Windows/privacy CI at its actual final head,
-then merge with a merge commit; main must be synchronized and its exact-head CI pass. Read
-Git/PR/CI to verify those facts once. If they are already confirmed, this code/publication step
-is complete and must not be repeated; only the dependency below remains. Otherwise the exact
-next action is to finish that publication gate, preserving this branch. No provider/search/
-account action or repeat local full suite is needed merely to refresh this handover.
+PR #112 publication is complete: final head `2521381`, merge `397d932`, exact PR CI
+`38299591582` and exact merged-main CI `38299970712` passed Mac/Windows/privacy.
+These checks must not be repeated merely to recover this handover.
+
+**Owner-requested continuation, same goal:** branch `codex/scoring-evidence-followup`, based
+on verified main `397d932`. Reuse the unchanged blinded judgements; trace remaining poor-fit
+and unknown cases to the current ranking/evidence paths on a new disposable private copy.
+Rank the justified free fixes, implement the strongest confirmed issue with general fictional
+regressions, compare before/after behavior, update its record/guide and publish under AGENTS.
+The unchanged 1,355-test final check is the baseline; no provider/Maps call, new search,
+source expansion, reset or account change is authorized.
+The selected scoring correction now applies total limits to the existing clearly mismatched
+seniority bands; fictional before/after ranking, small-gap, matching-senior and stronger-blocker
+checks pass. Private same-evidence replay is saved; no new model judgement or result edit occurs.
+The paid comparison remains separately checkpointed below; it does not stop useful free work.
+The owner then chose Wednesday 10:30 local as the representative weekday for transit checks,
+with driving remaining traffic-unaware. Finish the scoring correction first, then implement
+and verify that timing in the same goal; do not infer fewer billed requests or permission for
+cross-search Google duration storage from the day/time choice. No live Maps test is authorized.
+Timing and shared missing-reference explanations are implemented. Resolved condition warnings
+retire on an explicit recheck without losing unrelated source notes. The final suite passes
+1,420 tests, with the existing dependency warning; Ruff/privacy, document and whitespace/full
+diff checks pass. JS and startup paths are unchanged. No measured live quality, whole-market
+coverage or invoice saving is inferred. Private replay distinguishes deterministic changes from
+new model outcomes. Exact next action: commit/push this coherent step, open its PR, require
+Mac/Windows/privacy on the exact final head, merge with a merge commit, sync main and verify
+its exact-head CI. Once Git/CI confirms publication, do not repeat it; retain only the paid
+comparison/key/use-rights/headroom and missing independent evidence dependencies below.
 
 Private `assistant-review-checkpoint.json` points to `active_quality_review`: reused balanced
 blinded judgements including every top card, detailed original-date controls, complete-cost
