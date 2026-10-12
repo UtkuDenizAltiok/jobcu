@@ -780,8 +780,8 @@ def test_summaries_near_the_top_are_read_online_and_the_rules_applied(ready, mon
     assert len(ai.looked_up) == 2  # the two related jobs, both scored from a summary
     assert result["steps"][-1]["detail"] == "Found online: the requirements of 2 of 2 jobs"
     card = result["result"]["jobs"]["cards"][0]
-    assert card["summary_only"] and card["score"] == 65
-    assert card["limits"] == [{"at": 65, "why": "German B2 required, you have A2"}]
+    assert card["summary_only"] and card["score"] == 76  # below the new maximum
+    assert card["limits"] == [{"at": 80, "why": "German B2 required, you have A2"}]
     assert card["score_notes"] == [
         "Online evidence used to check requirements",
         "Only incomplete ad evidence was available; other requirements may be missing"]

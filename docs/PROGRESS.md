@@ -6,23 +6,28 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ## Right now
 
-*Updated 2026-10-12. Engineering checks use fictional data.*
+*Updated 2026-10-13. Engineering checks use fictional data.*
 
 ### State
 
-- The continuing review now corrects clear experience-level mismatch in totals, uses the
-  owner's Wednesday 10:30 representative transit timing and explains incomplete reference
-  facts in search details. Local final code passes 1,420 tests (one existing dependency warning),
-  Ruff/privacy, document and whitespace/full-diff checks. Publication is pending in the active
-  checkpoint below; no paid call, new search or owner-state change is made.
+- The continuing review's scoring, Wednesday 10:30 transit timing and incomplete-reference
+  explanations are published in [PR #113](https://github.com/UtkuDenizAltiok/jobcu/pull/113),
+  final head `b23e953`, merge `3075b9a`. Exact PR CI `38304883132` and exact main CI
+  `38305333288` passed Mac/Windows/privacy. Its 1,420-test local final check remains the
+  baseline. The owner's more forgiving experience/language maximums are implemented on
+  `codex/owner-score-limits`; 174 affected and 1,431 full-suite tests pass (one existing
+  dependency warning), with Ruff/privacy, 20 document checks and whitespace/full-diff review.
+  Publication is pending below. No paid call, new search or owner-state change is made.
 - [Original evidence and repeated requests](ENGINEERING.md#original-evidence-and-repeated-requests--2026-10-12)
   is published in [PR #111](https://github.com/UtkuDenizAltiok/jobcu/pull/111), head
   `e869a58`, merged at `71dd6fc`. Exact PR-head CI `38295942407` and merged-main CI
   `38296731440` passed on Mac, Windows and privacy. Original-text collection, Markdown
   grounding, honest information/uncertainty markers, per-search Maps element reuse and reset
   cost clarity are implemented. Public employer references were independently verified.
-  A final mixed-copy freshness regression and dependency handover are in the active checkpoint
-  below. No live accuracy, recall or savings is inferred; private evidence stays outside Git.
+  [PR #112](https://github.com/UtkuDenizAltiok/jobcu/pull/112) completes the mixed-copy freshness
+  regression, merged at `397d932`; exact PR CI `38299591582` and exact main CI `38299970712`
+  passed Mac/Windows/privacy. No live accuracy, recall or savings is inferred; private evidence
+  stays outside Git.
 - [AI billing refusals, Stop and usage recovery](ENGINEERING.md#ai-billing-refusals-stop-and-incomplete-usage--2026-10-12)
   is published in [PR #109](https://github.com/UtkuDenizAltiok/jobcu/pull/109), merged
   at `a698ea6`. Exact PR-head CI `38287331688` and merged-main CI `38287834077` passed
@@ -194,47 +199,26 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 ### In progress
 
 **Whole-pipeline quality, coverage and complete-cost improvement — 2026-10-12.**
-The owner expanded this one continuing task with source examples, widespread uncertainty,
-complete bills, the wider API market and Maps reuse. Existing billing/Stop work is complete;
-[PR #111](https://github.com/UtkuDenizAltiok/jobcu/pull/111) implementation/publication is complete
-at verified main `71dd6fc`. No prior authorized work was abandoned.
+The continuing goal includes source examples, uncertainty, complete bills, the wider API
+market and Maps reuse. Prior free implementation/publication is complete in PRs #109,
+#111, #112 and #113, verified at their exact PR/main heads; receipts are in Right now.
+Do not repeat their unchanged checks or reopen their completed publication checkpoints.
 
-Final coherent step: [PR #112](https://github.com/UtkuDenizAltiok/jobcu/pull/112), branch
-`codex/quality-final-evidence`, based on `71dd6fc`; source correction commit `bc1a6cb`.
-A secondary board's recent date cannot suppress the original employer copy's date reader,
-even with complete text and a future deadline. Final local code passes 1,355 tests with one
-existing dependency warning, Ruff/privacy, 20 document checks and whitespace/full-diff review.
-Unchanged JS syntax/current-legacy rendering and isolated-startup checks remain valid.
-
-PR #112 publication is complete: final head `2521381`, merge `397d932`, exact PR CI
-`38299591582` and exact merged-main CI `38299970712` passed Mac/Windows/privacy.
-These checks must not be repeated merely to recover this handover.
-
-**Owner-requested continuation, same goal:** [PR #113](https://github.com/UtkuDenizAltiok/jobcu/pull/113),
-branch `codex/scoring-evidence-followup`, based on verified main `397d932`; source commit
-`14c903a` is tested and pushed. Reuse the unchanged blinded judgements; trace remaining poor-fit
-and unknown cases to the current ranking/evidence paths on a new disposable private copy.
-Rank the justified free fixes, implement the strongest confirmed issue with general fictional
-regressions, compare before/after behavior, update its record/guide and publish under AGENTS.
-The unchanged 1,355-test final check is the baseline; no provider/Maps call, new search,
-source expansion, reset or account change is authorized.
-The selected scoring correction now applies total limits to the existing clearly mismatched
-seniority bands; fictional before/after ranking, small-gap, matching-senior and stronger-blocker
-checks pass. Private same-evidence replay is saved; no new model judgement or result edit occurs.
-The paid comparison remains separately checkpointed below; it does not stop useful free work.
-The owner then chose Wednesday 10:30 local as the representative weekday for transit checks,
-with driving remaining traffic-unaware. Finish the scoring correction first, then implement
-and verify that timing in the same goal; do not infer fewer billed requests or permission for
-cross-search Google duration storage from the day/time choice. No live Maps test is authorized.
-Timing and shared missing-reference explanations are implemented. Resolved condition warnings
-retire on an explicit recheck without losing unrelated source notes. The final suite passes
-1,420 tests, with the existing dependency warning; Ruff/privacy, document and whitespace/full
-diff checks pass. JS and startup paths are unchanged. No measured live quality, whole-market
-coverage or invoice saving is inferred. Private replay distinguishes deterministic changes from
-new model outcomes. Exact next action: require Mac/Windows/privacy on PR #113's exact final
-head, merge with a merge commit, sync main and verify
-its exact-head CI. Once Git/CI confirms publication, do not repeat it; retain only the paid
-comparison/key/use-rights/headroom and missing independent evidence dependencies below.
+**Owner scoring-policy adjustment — 2026-10-13:** branch `codex/owner-score-limits`, based on
+verified main `3075b9a`. Clear experience-level mismatch now has a maximum of 80; a very large
+mismatch has 65. Required-language gaps of exactly two CEFR levels have a maximum of 80;
+three or more have 75. Point deductions, small/optional-language behavior, other limits and
+historical scores are preserved. Code, user guide and fictional boundary/combined-limit
+regressions are complete. All 174 affected and 1,431 full-suite tests pass (one existing
+Starlette/AnyIO warning), plus Ruff/privacy, 20 document checks and whitespace/full-diff review.
+The search regression also verifies a calculated 76 stays below the new maximum of 80.
+The unchanged 1,420-test prior check was reused as the baseline; JS, dependencies and startup
+paths are unchanged. No live quality, coverage, cost or VPN measurement is inferred.
+Exact next action: commit/push, open the PR, require Mac/Windows/privacy on its exact final
+head, merge with a merge commit, sync main and verify its exact-head CI. Once Git/CI confirms
+publication, this free step is complete; keep only the dependency below.
+The VPN question is explanation only: no network/source change, VPN test, provider call or
+new search is authorized. The unapproved paid comparison remains checkpointed below.
 
 Private `assistant-review-checkpoint.json` points to `active_quality_review`: reused balanced
 blinded judgements including every top card, detailed original-date controls, complete-cost

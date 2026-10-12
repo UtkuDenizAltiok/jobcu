@@ -44,7 +44,7 @@ def test_clearly_wrong_level_cannot_outrank_suitable_adjacent_entry_role(field):
 
 
 @pytest.mark.parametrize("field", ["Electronics", "Nursing", "Teaching"])
-@pytest.mark.parametrize(("level", "maximum"), [(0, 50), (5, 50), (6, 65), (11, 65)])
+@pytest.mark.parametrize(("level", "maximum"), [(0, 65), (5, 65), (6, 80), (11, 80)])
 def test_clear_level_mismatch_limits_high_skill_total(field, level, maximum):
     result = score(profile(field), level=level)
     assert sum(result["parts"].values()) > maximum
@@ -73,10 +73,10 @@ def test_stronger_eligibility_limit_survives_the_new_level_limit():
                    citizenship_or_clearance="required_definitely_out_of_reach",
                    citizenship_or_clearance_words="Citizens of Fictionland only")
     assert result["score"] == 30
-    assert {limit["at"] for limit in result["limits"]} == {30, 50}
+    assert {limit["at"] for limit in result["limits"]} == {30, 65}
 
 
 def test_stronger_role_limit_survives_the_new_level_limit():
     result = score(profile("Teaching"), level=4, role=5)
     assert result["score"] == 30
-    assert {limit["at"] for limit in result["limits"]} == {30, 50}
+    assert {limit["at"] for limit in result["limits"]} == {30, 65}

@@ -235,8 +235,14 @@ reasons as well as the number, including any **Limited to …** explanation of a
 that held the score down.
 
 Strong skills do not make up for a clearly unsuitable experience or responsibility level.
-When that level is clearly different, the total is limited to 65; when it is very far off,
-the limit is 50. A small gap gets the usual points reduction. The card explains the limit.
+When that level is clearly different, the total is limited to 80; when it is very far off,
+the limit is 65. A small gap gets the usual points reduction. The card explains the limit.
+
+For a required language, being two levels short limits the total to 80 (for example, you have
+A2 and the job asks for B2). Being three or more levels short limits it to 75 (A2 versus C1
+or C2). The language points still reflect the gap. Desirable languages use the smaller points
+deduction. When several score limits apply, the lowest maximum wins; a maximum never raises
+the total above its points.
 
 For mandatory requirements such as current student enrolment, a professional licence or work
 permission, Jobcu compares the stated requirement with the facts in your profile. A supported

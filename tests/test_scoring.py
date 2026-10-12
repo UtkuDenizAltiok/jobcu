@@ -95,15 +95,46 @@ def scored(profile=SPEAKER, **evidence):
     return finish(JobScore.model_validate(raw), profile)
 
 
-def test_a_language_two_levels_above_gives_no_language_points_and_limits_the_total_to_65():
+def test_a_language_two_levels_above_gives_no_language_points_and_limits_the_total_to_80():
     # Fictional ad asks for German B2+; the person has A2.
     result = scored(ad_language="German",
                     languages_asked=[asked("German", "B2"), asked("English", "B2")])
     assert result["parts"]["languages"] == 0
-    assert result["score"] == 65  # the parts add up to 81
-    assert result["limits"] == [{"at": 65, "why": "German B2 required, you have A2"}]
+    assert result["score"] == 80  # the parts add up to 81
+    assert result["limits"] == [{"at": 80, "why": "German B2 required, you have A2"}]
     assert result["required_languages"] == ["German B2", "English B2"]
     assert result["notes"] == []  # the ad said what it needs
+
+
+@pytest.mark.parametrize("field", ["Electronics", "Nursing", "Teaching"])
+@pytest.mark.parametrize(("required", "maximum"), [("B2", 80), ("C1", 75), ("C2", 75)])
+def test_required_language_gap_limits_are_general_and_distinguish_two_from_three_levels(
+        field, required, maximum):
+    person = SPEAKER.model_copy(update={"field": field, "target_roles": [field]})
+    result = scored(profile=person, languages_asked=[asked("German", required)])
+    assert result["parts"]["languages"] == 0  # point deductions stay the same
+    assert result["score"] == maximum
+    assert result["limits"][0]["why"] == f"German {required} required, you have A2"
+
+
+def test_multiple_required_languages_keep_the_stricter_gap_limit():
+    person = SPEAKER.model_copy(update={"languages": [
+        *SPEAKER.languages,
+        LanguageSkill(language="French", level_as_written="Basic", cefr="A2",
+                      cefr_is_estimate=False),
+    ]})
+    result = scored(profile=person, languages_asked=[asked("German", "B2"), asked("French", "C1")])
+    assert result["score"] == 75
+    assert [limit["at"] for limit in result["limits"]] == [75, 80]
+
+
+def test_degree_limit_remains_stronger_than_experience_and_language_limits():
+    raw = score_json("J1", role=40, seniority=5, hard_requirements=15,
+                     location_and_preferences=10, doctorate="required_person_lacks_it",
+                     languages_asked=[asked("German", "B2")])
+    result = finish(JobScore.model_validate(raw), SPEAKER)
+    assert result["score"] == 50
+    assert [limit["at"] for limit in result["limits"]] == [50, 65, 80]
 
 
 def test_one_level_short_or_only_a_plus_costs_some_language_points_but_sets_no_limit():
@@ -130,7 +161,7 @@ def test_an_ad_written_in_german_that_names_no_level_is_low_but_not_zero():
 
 def test_a_language_the_cv_does_not_name_is_not_spoken():
     result = scored(languages_asked=[asked("French", "B2")])
-    assert result["limits"] == [{"at": 65, "why": "French B2 required, not in your CV"}]
+    assert result["limits"] == [{"at": 75, "why": "French B2 required, not in your CV"}]
     # Documents that name no language at all can't be compared with the ad.
     assert scored(profile=PROFILE, ad_language="German")["parts"]["languages"] == 15
 
@@ -150,7 +181,7 @@ def test_languages_named_in_the_cvs_own_language_are_recognised():
         LanguageSkill(language="niemiecki", level_as_written="A2", cefr="A2",
                       cefr_is_estimate=False)]})
     short = scored(profile=polish_cv, languages_asked=[asked("German", "B2")])
-    assert short["limits"] == [{"at": 65, "why": "German B2 required, you have A2"}]
+    assert short["limits"] == [{"at": 80, "why": "German B2 required, you have A2"}]
 
 
 def test_the_owners_limits_for_citizenship_doctorate_and_experience():
@@ -181,7 +212,7 @@ def test_the_lowest_limit_wins_and_every_reason_is_kept():
     result = scored(years_required=8, citizenship_or_clearance="required_definitely_out_of_reach",
                     languages_asked=[asked("German", "C1")])
     assert result["score"] == 30
-    assert [limit["at"] for limit in result["limits"]] == [30, 60, 65]
+    assert [limit["at"] for limit in result["limits"]] == [30, 60, 75]
 
 
 def test_a_low_total_is_not_raised_by_a_limit():
@@ -343,7 +374,7 @@ def test_the_full_ad_found_online_replaces_what_the_summary_suggested():
     online = with_ad_read_online(summary, SPEAKER,
                                  [LanguageAsked(language="German", level="B2", must_have=True)],
                                  years_required=3)
-    assert online["score"] == 65 and online["parts"]["languages"] == 0
+    assert online["score"] == 80 and online["parts"]["languages"] == 0
     assert online["notes"] == [
         "Online evidence used to check requirements"]
     assert online["evidence"]["years_required"] == 3
