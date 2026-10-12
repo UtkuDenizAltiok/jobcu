@@ -49,7 +49,8 @@ IMPLIED_POINTS = {1: 10, 2: 5}
 IMPLIED_POINTS_FURTHER = 3
 
 # The owner's limits on the total for clear blockers.
-LIMIT_LANGUAGE = 65  # a must-have language two or more levels above the person's
+LIMIT_LANGUAGE = 80  # a must-have language exactly two levels above the person's
+LIMIT_LANGUAGE_FURTHER = 75  # three or more levels above
 LIMIT_CITIZENSHIP = 30  # a citizenship or clearance the person definitely can't get
 LIMIT_DOCTORATE = 50  # a required doctorate the person doesn't have
 LIMITS_YEARS = [(8, 60), (5, 75), (3, 80)]  # this many years short of what the ad asks: at most
@@ -63,8 +64,8 @@ LIMITS_ROLE = [
 # The rubric already distinguishes small level gaps from clearly unsuitable responsibility
 # or experience levels. Skill overlap must not compensate for the latter in the total.
 LIMITS_SENIORITY = [
-    (5, 50, "A very different experience or responsibility level"),
-    (11, 65, "The experience or responsibility level differs clearly"),
+    (5, 65, "A very different experience or responsibility level"),
+    (11, 80, "The experience or responsibility level differs clearly"),
 ]
 # The rubric's "a requirement the person clearly doesn't meet" (0-10 of 15 points), such as a
 # placement only for students or a licence the person lacks.
@@ -398,7 +399,7 @@ def judge_languages(score: JobScore, profile: Profile) -> LanguageJudgement:
         else:
             judgement.points = 0
             judgement.limits.append({
-                "at": LIMIT_LANGUAGE,
+                "at": LIMIT_LANGUAGE if short == 2 else LIMIT_LANGUAGE_FURTHER,
                 "why": f"{asked.language.strip()} {asked.level} required, "
                        + _your_level(profile, key),
             })
