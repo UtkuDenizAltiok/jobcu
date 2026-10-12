@@ -85,6 +85,9 @@ New owner messages extend the active task; finish or checkpoint its dependency b
 Bulk full-content collection was previously a research lead (2026-10-09), now superseded for
 Greenhouse by its current documented public API and offline evidence-preservation regressions.
 The larger response is a bandwidth tradeoff, not a measured live latency or AI-bill saving.
+List text also participates in existing word matching, so some titles may enter normal
+matching through their description rather than the extra-title screen. This can improve evidence
+and recall, but does not prove fewer AI requests or a lower bill; measure the complete pipeline.
 On a fictional cold board with ten relevant ads supplying full text, publication and deadlines,
 list plus ten detail requests becomes one list request. Missing temporal metadata still gets
 the necessary detail check;
@@ -93,6 +96,9 @@ Other adapters keep their existing contracts. No source is removed on low counts
 The existing search reset deletes reusable profile/employer/ad evidence and AI journey memory;
 its confirmation now explains that the next search may repeat paid AI work. Reset behavior and
 preserved data are unchanged; no owner reset is performed as part of development.
+When another matched board supplies a recent date, it must not suppress a missing original
+employer date check. A fictional complete-ad/future-deadline case recovers an older original
+and excludes the stale requisition rather than accepting the secondary board's recent date.
 
 Cross-search route-duration storage remains held by the current Google contract. Transit uses
 the next Tuesday at 08:00 local time; car journeys use traffic-unaware routing. Matching only a

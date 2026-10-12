@@ -147,8 +147,8 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
     pending: dict[int, list[int]] = {}
     remembered = 0
 
-    def date_reader(copy, group):
-        return ((group.posted_at is None or copy.closes_at is None)
+    def date_reader(copy):
+        return ((copy.posted_at is None or copy.closes_at is None)
                 and getattr(collected.sources.get(copy.source), "details_supply_dates", False))
 
     for index in dict.fromkeys(indexes):
@@ -160,7 +160,7 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
                         if c.description_is_complete and not _complete_ad(c) else c
                         for c in group.copies]
         if (_complete_ad(group.best_description_copy)
-                and not any(date_reader(copy, group) for copy in group.copies)):
+                and not any(date_reader(copy) for copy in group.copies)):
             continue
         order = sorted(range(len(group.copies)), key=lambda i: SOURCE_KIND_RANK.get(
             group.source_kinds.get(group.copies[i].source,
@@ -178,7 +178,7 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
                 log.exception("Reading remembered full-ad evidence failed")
                 continue
             if known is not None and _complete_ad(known):
-                metadata_attempted = date_reader(copy, group)
+                metadata_attempted = date_reader(copy)
                 if _complete_ad(copy):
                     # Fresh list text outranks cached text from the same requisition.
                     known = dataclasses.replace(
@@ -191,7 +191,7 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
                 remembered += 1
                 break
         if (_complete_ad(group.best_description_copy) and (metadata_attempted
-                or not any(date_reader(copy, group) for copy in group.copies))):
+                or not any(date_reader(copy) for copy in group.copies))):
             continue
         options, seen = [], set()
         for copy_index in order:
@@ -199,7 +199,7 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
             identity = (copy.source, copy.source_job_id,
                         None if copy.source_job_id else copy.url)
             source, report = collected.sources.get(copy.source), reports.get(copy.source)
-            if _complete_ad(group.best_description_copy) and not date_reader(copy, group):
+            if _complete_ad(group.best_description_copy) and not date_reader(copy):
                 continue
             if (identity in seen or source is None or report is None
                     or type(source).load_details is JobSource.load_details
@@ -244,7 +244,7 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
                                                    description_is_complete=False)
                     groups[index].copies[copy_index] = full
                     try:
-                        if not (date_reader(copy, groups[index]) and full is requested):
+                        if not (date_reader(copy) and full is requested):
                             # A reader returning its unchanged argument after failure does not
                             # establish a successful metadata check, even with complete list text.
                             jobstore.remember_ad(full, reader_version=source.detail_cache_version)

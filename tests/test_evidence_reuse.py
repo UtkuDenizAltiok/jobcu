@@ -135,6 +135,45 @@ def test_failed_greenhouse_metadata_with_complete_text_stays_retryable():
     assert groups[0].posted_at == NOW and len(calls) == 2
 
 
+def test_another_boards_recent_date_cannot_skip_the_original_date_reader():
+    from types import SimpleNamespace
+
+    from jobcu.dedupe import JobGroup
+    from jobcu.filters import apply_rules
+    from jobcu.pipeline import load_full_ads
+    from jobcu.settings import JOB_TYPES
+    from jobcu.sources.base import FoundJob
+    from jobcu.sources.greenhouse import to_found_job
+
+    calls = []
+    older = NOW - timedelta(days=20)
+    deadline = (NOW + timedelta(days=7)).isoformat()
+
+    def handler(request):
+        calls.append(request)
+        return httpx.Response(200, json={"content": "<p>Full original fictional ad.</p>",
+                                        "first_published": older.isoformat(),
+                                        "application_deadline": deadline})
+
+    original = to_found_job({"id": 1, "title": "Nurse", "content": "<p>Full original ad.</p>",
+                             "application_deadline": deadline},
+                            Employer("Fictional clinic", "greenhouse", "fake", ("DE",)))
+    recent = FoundJob(source="fictional_board", source_job_id="2", title="Nurse",
+                      url="https://example.test/2", posted_at=NOW, date_precision="exact")
+    source = GreenhouseSource()
+    run = SimpleNamespace(stop_requested=False, note=lambda _: None, update=lambda *args: None)
+    collected = SimpleNamespace(sources={source.id: source}, reports=[
+        SourceReport(source.id, source.name)])
+    http = PoliteClient(min_intervals={}, transport=httpx.MockTransport(handler))
+    groups = [JobGroup([original, recent])]
+    load_full_ads(groups, [0], collected, http, KeyStore(), run)
+    assert len(calls) == 1 and groups[0].posted_at == older
+    filtered = apply_rules(groups, remembered_states=[None], started_at=NOW,
+                           posted_within_hours=24, job_types=list(JOB_TYPES),
+                           exclude_remote=False, countries=["DE"])
+    assert filtered.left_out == {"too_old": 1}
+
+
 @pytest.mark.parametrize("heading", ["**JOB J0**", "### **JOB J0**", "**J0**"])
 def test_markdown_job_heading_preserves_own_supported_requirement(heading):
     notes = f"{heading}\nA completed qualification is required.\n**JOB J1**\nOther evidence."
