@@ -299,10 +299,12 @@ def test_limit_edits_reuse_partial_passes_but_do_not_reuse_an_old_reference_city
         condition.max_minutes = 15
         meter.measure([condition], [job], [0])
         assert condition_fit(condition, job) == 'unknown'
-        assert len(requests) == 1  # the identical HTTP answer is reused within this search
+        assert len(requests) == 2  # retry the failed edge, keeping the measured centre
+        assert len(requests[1]['destinations']) == 1
+        assert requests[1]['destinations'][0] == requests[0]['destinations'][0]
         condition.anchor.named = [TownRef(name='Landshut', country='DE')]
         meter.measure([condition], [job], [0])
-        assert len(requests) == 2
+        assert len(requests) == 3
         assert 'Munich' not in condition.travel[travel.job_key(job)]['minutes']
     finally:
         http.close()

@@ -344,7 +344,7 @@ def test_the_full_ad_found_online_replaces_what_the_summary_suggested():
                                  years_required=3)
     assert online["score"] == 65 and online["parts"]["languages"] == 0
     assert online["notes"] == [
-        "Languages, experience and other requirements read from the full ad online"]
+        "Online evidence used to check requirements"]
     assert online["evidence"]["years_required"] == 3
     # Or it says English is the working language: the summary's guess goes away.
     english = with_ad_read_online(

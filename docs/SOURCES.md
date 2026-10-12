@@ -158,8 +158,8 @@ rules remain. Only fields in the already-used list/detail response change interp
 
 Inference: modification does not establish first publication; missing/invalid original dates
 stay unknown. A post date also cannot prove the underlying requisition is new: the contract
-distinguishes post `id` from `internal_job_id`. Bulk `content=true` is a research lead requiring
-latency/coverage measurements, not an adopted collection change. The same API overview says
+distinguishes post `id` from `internal_job_id`. Bulk `content=true` was a research lead here;
+the dated implementation below supersedes that status. The same API overview says
 Harvest endpoints require authentication; no private API access is introduced.
 
 ## Full-ad evidence and existing detail APIs
@@ -184,6 +184,21 @@ existing permitted adapter; prefer the original employer when live reading is ne
 Existing endpoints, terms/robots checks, source limits and access decisions are retained;
 no source or collection permission is added by this coordinator change. Full text still needs
 identity, completeness and bounded-age checks. Live recall/fit benefits need independent review.
+
+### Greenhouse original lists and references — 2026-10-12
+
+The [public Job Board contract](https://docs.greenhouse.io/job-board.html) was rechecked:
+`content=true` includes full descriptions, departments and offices in the existing GET list;
+individual GET details can still supply first publication and application deadlines.
+The API host's robots.txt again returned 200 with only `/embed/` disallowed. Existing request
+limits, blocked-host rules and public GET access remain; no Harvest access or application
+submission is introduced. Larger list payloads trade bandwidth for earlier original evidence.
+
+Official career references independently verify [ARX Robotics](https://www.arx-robotics.com/careers)
+and [STARK's public career board](https://job-boards.eu.greenhouse.io/skdse) as Greenhouse feeds.
+The directory records their individual check dates. Its other historic observations were not
+re-certified. Source dates, underlying requisition identity, fit and current-window eligibility
+are separate checks; a vendor's New label is not original publication evidence.
 
 ## Job-source cooldown protocol
 
@@ -719,6 +734,88 @@ text is a lead, not proof that every current price, plan entitlement or hosted t
 No blocked access was bypassed. The broader eleven-developer comparison and stronger-model
 counterevidence remain the comparison baseline; fresh rights/identity/fees and independent fit
 outcomes are required for adoption. [Selected implementation](ENGINEERING.md#ai-billing-refusals-stop-and-incomplete-usage--2026-10-12).
+
+### API market and reuse update — 2026-10-12
+
+The [eleven-developer survey](#public-api-market-and-quality-evidence--2026-10-10) and
+[complete 32-model Go table](#ai-and-maps) remain the baseline, including stronger models.
+Fresh native checks confirm [DeepSeek's exact model/prices](https://api-docs.deepseek.com/quick_start/pricing/)
+(browser read after the web reader timed out), [Z AI prices](https://docs.z.ai/guides/overview/pricing),
+[MiniMax Standard/Priority/tool bills](https://platform.minimax.io/docs/pricing/overview),
+[OpenAI Luna medium and prices](https://developers.openai.com/api/docs/models/gpt-6-luna),
+[Kimi K3 controls](https://platform.kimi.ai/docs/guide/kimi-k3-quickstart),
+[Mistral pricing](https://docs.mistral.ai/inference/pricing) and
+[Alibaba regional/context prices](https://www.alibabacloud.com/help/en/model-studio/model-pricing).
+DeepSeek Flash still has off-peak/peak token prices, not a native hosted-search entitlement.
+GLM-5.3/Flash accept low/high/max; the [reference](https://docs.z.ai/api-reference/llm/chat-completion)
+documents medium mapping for 5.2, not a verified literal-medium mapping for 5.3. MiniMax Priority
+is 1.5 times Standard; Kimi K3 has always-on reasoning and advises against production web search
+while its tool is updated. These distinctions do not rank matching quality.
+
+Additional primary routes considered: [LongCat's API](https://longcat.chat/platform/docs/APIDocs.html)
+and [current tariff](https://longcat.chat/platform/docs/zh/pricing/long-cat-2.0) offer Chat/Messages,
+with temporary LongCat-2.0 USD0.30/1.20 uncached input/output instead of USD0.75/2.95;
+[StepFun's public platform](https://platform.stepfun.ai/step-plan) lists Step 5 Preview and
+3.7/3.5 Flash, but its rendered pricing/permission/tool contract is incomplete here;
+[Tencent's Hy3 release](https://www.tencent.com/tencent-hunyuan-officially-releases-hy3-advancing-agent-capabilities-and-deeper-product-integration/)
+announces TokenHub availability; [ByteDance's Seed2 report](https://arxiv.org/abs/2607.00248)
+provides developer evaluations. Native regions, complete bills and Jobcu outcomes for these
+routes remain unverified. They are not rejected as incapable; free previews, coding gains
+or gateway availability cannot establish a sustainable equal-quality app replacement.
+
+**Subscription versus direct API:** MiMo's [complete individual plan](https://mimo.mi.com/docs/en-US/tokenplan/Token%20Plan/subscription)
+was read natively: Lite/Standard/Pro/Max cost USD6/16/50/100 monthly, with shared 4.1/11/38/82
+billion Credits. The six lasting models comprise Pro, Flash, ASR and three TTS variants;
+two old aliases expire October 21. Pro uses 300 Credits per uncached input token and 600 per
+output token, cached input 2.5; Flash uses 100/200, cached 2. Off-peak uses 0.8 times Credits.
+The package explicitly forbids non-coding automated scripts/custom application backends.
+Therefore this plan is not a permitted Jobcu recommendation; this is an intended-use restriction,
+not rejection from shared limits. Its distinct standard API remains a candidate.
+Go's complete dated table/windows above remain useful, but current permission/hosted-tool
+entitlement is unresolved; no new blocked-host attempt or purchase was made.
+
+Fictional 100K input plus 100K output per search (including thinking) costs USD0.45 on Gemini
+Standard, 0.225 on same-model Flex, 0.1305 on MiMo Pro, 0.065 on GLM Flash, 0.075–0.15 on
+DeepSeek Flash, 0.15 on MiniMax M3 or 0.06 on Luna at the stated short-context tariffs.
+Thirty identical searches multiply those token-only scenarios by 30; half/double demand
+halves/doubles them. They exclude taxes/FX, failed usage, retrieved tokens, tools and Maps.
+For 30 billable tool uses per search, MiMo adds USD4.50/month, GLM/MiniMax/OpenAI USD9/month
+plus any charged retrieved input; equal use counts are not equal research quality/demand.
+Gemini's query-based shared allowance is a different unit and may already be used elsewhere.
+MiMo Pro's fictional workload uses 2.7 billion monthly Credits, half/double 1.35/5.4 billion;
+its direct token bill is USD3.915 versus Lite USD6 or Standard USD16 before complete add-ons.
+Quota arithmetic does not override the package's use restriction. Private measured-demand
+daily/weekly/monthly sensitivity, retained-research scenarios and exact missing bills stay private.
+
+**Best judgement with counterevidence:** keep MiMo Pro as the single challenger, while retaining
+the working medium configuration until paired outcomes pass. Artificial Analysis' [current comparison](https://artificialanalysis.ai/models/comparisons/mimo-v2-6-pro-vs-gemini-3-8-flash)
+still reports composite 46/41 and long-context 86%/81%, but factual reliability 8/30,
+GDP.pdf 19%/21%, and longer end-to-end response time. Its v4.3.2 general suite compares Gemini
+High, not Jobcu medium; no benchmark establishes job-fit or fresh-coverage equivalence.
+[GLM Flash versus MiniMax](https://artificialanalysis.ai/models/comparisons/glm-5-3-flash-vs-minimax-m3)
+also shows different strengths across long-context and document/factual tasks. Cheapest output,
+integration ease and effort labels do not settle the choice.
+[DeepSeek Flash](https://artificialanalysis.ai/models/releases/deepseek-v4-1-flash) reaches 39
+at Max on that general index; its non-thinking result is not the required configuration.
+[Haiku medium](https://artificialanalysis.ai/models/claude-haiku-5-5-medium) scores 34, while
+[the publisher's release analysis](https://artificialanalysis.ai/articles/claude-haiku-5-5)
+reports 43 at Max with heavy output use and an over-refusal issue. [Kimi K3 analysis](https://artificialanalysis.ai/articles/kimi-k3-achieves-3-in-the-artificial-analysis-intelligence-index-comparable-to-opus-4-8-and-gpt-5-5)
+reports factual-reliability gains alongside higher direct rates. These are useful counterevidence
+to price/composite rankings, not independently measured Jobcu exclusions or matching quality.
+MiMo's [FAQ](https://mimo.mi.com/docs/en-US/quick-start/faq/api-integration) recommends disabling
+thinking for some unstable tool outputs; Jobcu must instead preserve enabled thinking and
+verify research separately. Its [agreement](https://mimo.mi.com/docs/quick-start/terms/user-agreement)
+and source-content rights still need reconciliation before private transfer. Do not buy a coding
+plan or switch private processing from this public evidence alone.
+
+**Maps reuse:** the [general no-caching clause](https://cloud.google.com/maps-platform/terms)
+permits only express exceptions. [Global Routes section 19.3](https://cloud.google.com/maps-platform/terms/maps-service-terms)
+and [EEA Routes section 20.2](https://cloud.google.com/terms/maps-platform/eea/maps-service-terms)
+allow latitude/longitude for up to 30 days; they do not authorize a cross-search journey-time
+database. [Routes policies](https://developers.google.com/maps/documentation/routes/policies)
+likewise distinguish place IDs and restricted content. Existing user history is preserved;
+new validated-element reuse stays within one search, with exact request identity and retryable
+unknowns. A different service needs both retention permission and verified transit coverage.
 
 ### Long AI answers and streaming
 

@@ -2113,6 +2113,26 @@
    }
   },
   {
+   "name": "ARX Robotics",
+   "system": "greenhouse",
+   "board": "arxroboticsgmbh",
+   "countries": [
+    "DE",
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Berlin",
+     "Munich"
+    ],
+    "GB": [
+     "London"
+    ]
+   },
+   "checked": "2026-10-12"
+  },
+  {
    "name": "Asana",
    "system": "greenhouse",
    "board": "asana",
@@ -4018,6 +4038,34 @@
      "Warsaw"
     ]
    }
+  },
+  {
+   "name": "STARK",
+   "system": "greenhouse",
+   "board": "skdse",
+   "countries": [
+    "DE",
+    "GB",
+    "GR",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Berlin",
+     "Munich"
+    ],
+    "GB": [
+     "Plymouth"
+    ],
+    "GR": [
+     "Thessaloníki"
+    ],
+    "SE": [
+     "Stockholm"
+    ]
+   },
+   "checked": "2026-10-12"
   },
   {
    "name": "Stripe",

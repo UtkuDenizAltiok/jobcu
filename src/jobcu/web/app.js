@@ -1095,8 +1095,18 @@ function renderCard(card) {
     checks.append(el("span", { class: statusClass, text: label }));
     if (check.note) checks.append(el("span", { class: "check-estimate", text: check.note }));
   }
-  for (const note of card.score_notes || []) {
-    checks.append(el("span", { class: "check-estimate", text: note }));
+  // Old saved cards have plain notes. A completed research note is information,
+  // while requirement/language uncertainty keeps its question mark.
+  const onlineNote = "Online evidence used to check requirements";
+  const legacyOnlineNote = "Languages, experience and other requirements read from the full ad online";
+  const scoreChecks = card.score_checks || (card.score_notes || []).map((text) => ({
+    text: text === legacyOnlineNote ? onlineNote : text,
+    status: [onlineNote, legacyOnlineNote].includes(text) ? "info" : "unclear",
+  }));
+  for (const check of scoreChecks) {
+    checks.append(el("span", {
+      class: check.status === "info" ? "check-info" : "check-unclear", text: check.text,
+    }));
   }
   if (card.summary_only && card.score !== null) {
     checks.append(el("span", { class: "check-estimate", text: "Scored from a short summary of the ad" }));
@@ -2098,7 +2108,9 @@ function setUpSettingsActions() {
 const RESET_SCOPES = {
   search: {
     title: "Clear search data?",
-    description: "Delete search text, history, results, saved/applied/hidden jobs, excluded links and search caches.",
+    description: "Delete search text, history, results, saved/applied/hidden jobs, " +
+      "excluded links and search caches. This also forgets previously read information. " +
+      "Your next search may repeat paid AI work.",
     preserved: "Your documents, optional review sample, saved settings, keys and usage counters stay.",
   },
   review: {

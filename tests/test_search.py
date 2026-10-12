@@ -783,7 +783,7 @@ def test_summaries_near_the_top_are_read_online_and_the_rules_applied(ready, mon
     assert card["summary_only"] and card["score"] == 65
     assert card["limits"] == [{"at": 65, "why": "German B2 required, you have A2"}]
     assert card["score_notes"] == [
-        "Languages, experience and other requirements read from the full ad online",
+        "Online evidence used to check requirements",
         "Only incomplete ad evidence was available; other requirements may be missing"]
     # Eligibility comparisons need stated qualifications, study status and skills too.
     assert ai.person_sent and all("work_authorisation" in line and "skills" in line

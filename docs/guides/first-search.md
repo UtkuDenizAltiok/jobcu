@@ -276,6 +276,9 @@ incorrectly; unchanged readers and corrected warm caches still reuse their full 
 
 Read warnings on a job before making a decision:
 
+- **?** means that condition or requirement remains uncertain. A note that requirements were
+  read online is information; it does not mean every requirement was met. Jobcu now displays
+  that note without a question mark, including on older saved cards.
 - **Scored from a short summary** or an excerpt warning means Jobcu did not read the whole
   advertisement. Important requirements may be missing; open the original job to check.
 - **AI estimate**, **not checked**, or **couldn't be checked** means that detail is uncertain.
@@ -285,6 +288,14 @@ Read warnings on a job before making a decision:
 - Jobs under **Posting date unknown** may be older than your chosen posting window.
   **First seen by Jobcu** is when Jobcu first found a job, not necessarily when it was posted.
   Check the original posting date and application deadline where available.
+
+Greenhouse employer feeds now include original full text when supplied. Missing original dates
+still need their separate check. Existing saved searches keep their evidence and scores.
+Within one search, identical successful Google Maps journeys are reused even when another job
+needs a different set of destinations. Unfinished journeys remain retryable. Google journey
+times are not reused for a later search under its current storage terms; labelled AI estimates
+have a separate 30-day memory. No broader posting window or extra search is needed to install
+these changes.
 
 **Left out by your conditions** shows jobs excluded by a location condition. These jobs were
 not scored. If a condition was misunderstood, use **Edit** as described above.
@@ -331,6 +342,9 @@ Deleted data cannot be restored through Jobcu. A full reset means uploading your
 before the next search. Your original documents and separate backups outside Jobcu's data folder
 are not deleted. This does not promise secure erasure from SSDs or operating-system snapshots.
 Usage counters stay because deleting search data does not undo provider charges or site requests.
+Clearing search data also forgets document understanding, previously found employers, full-ad
+readings and AI journey estimates. The next search may repeat paid AI work. To run another
+normal search, use **Start search** without clearing data unless you want that deletion.
 After clearing search history, previously seen or hidden jobs can appear again and their New
 badges start fresh. Your posting-window and filter choices still apply to the next search.
 Other open Jobcu tabs reload after success. If a reset cannot finish, some data may be cleared;

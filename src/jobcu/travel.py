@@ -28,6 +28,7 @@ the same way of travelling. Google's travel times are never kept beyond the sear
 asked for: the Routes API terms (section 19.3) allow keeping only coordinates, not durations.
 """
 
+import json
 import logging
 import math
 import re
@@ -328,6 +329,9 @@ class GoogleMaps:
             "google_maps_routes", "Google Maps",
             Limits(per_month=load_settings().limits.maps_monthly_routes), now=now)
         self._unavailable: str | None = None
+        # Only this search's validated elements. Missing/error cells stay retryable;
+        # no Google durations enter the cross-search estimate memory.
+        self._elements: dict[tuple[str, str, str, str | None], int | None] = {}
 
     def _post(self, url: str, body: dict, fields: str):
         headers = {"X-Goog-Api-Key": self._key, "X-Goog-FieldMask": fields}
@@ -341,6 +345,7 @@ class GoogleMaps:
         try:
             response = self._http.post(
                 url, json=body, headers=headers,
+                cache=False,  # validated elements are reused; HTTP 200 may contain failed cells
                 check_attempt=check,
                 before_attempt=lambda: self._routes.spend(count),
                 retry_response=lambda reply: not (
@@ -410,10 +415,23 @@ class GoogleMaps:
         # is invalid for that mode. Higher traffic tiers depend on Google's current billing terms.
         if mode == "transit":
             body["departureTime"] = departure(country, self._now())
-        elements = self._post(
-            ROUTES, body, "originIndex,destinationIndex,duration,condition,status")
-        if not isinstance(elements, list):
-            raise MapsError("Google Maps answered in an unexpected way.")
+        origin_key = json.dumps(origin, sort_keys=True)
+        keys = [(origin_key, json.dumps(destination, sort_keys=True), mode,
+                 body.get("departureTime")) for destination in destinations]
+        pending = list(dict.fromkeys(key for key in keys if key not in self._elements))
+        known = {i: self._elements[key] for i, key in enumerate(keys) if key in self._elements}
+        if not pending:
+            return known
+        body["destinations"] = [body["destinations"][keys.index(key)] for key in pending]
+        try:
+            elements = self._post(
+                ROUTES, body, "originIndex,destinationIndex,duration,condition,status")
+            if not isinstance(elements, list):
+                raise MapsError("Google Maps answered in an unexpected way.")
+        except (MapsError, BudgetExhausted):
+            if known:
+                return known  # keep independently validated cells beside a later failure
+            raise
         found: dict[int, int | None] = {}
         seen: set[int] = set()
         for element in elements:
@@ -421,7 +439,7 @@ class GoogleMaps:
                 continue
             index = element.get("destinationIndex", 0)
             origin_index = element.get("originIndex", 0)
-            if type(index) is not int or not 0 <= index < len(destinations) or (
+            if type(index) is not int or not 0 <= index < len(pending) or (
                     type(origin_index) is not int or origin_index != 0):
                 continue
             if index in seen:
@@ -456,7 +474,10 @@ class GoogleMaps:
                 continue
             if math.isfinite(seconds) and seconds >= 0:
                 found[index] = math.ceil(seconds / 60)
-        return found
+        for index, value in found.items():
+            self._elements[pending[index]] = value
+        return {index: self._elements[key] for index, key in enumerate(keys)
+                if key in self._elements}
 
 
 def _quota_message(scope: str) -> str:

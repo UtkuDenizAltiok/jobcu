@@ -273,7 +273,9 @@ def _look_up(client: AIClient, lines: list[str], jobs: int,
 
 def _job_notes(text: str, job_id: str, jobs: int) -> str:
     """Quotes from another job in a research batch cannot support this job's blocker."""
-    headings = list(re.finditer(r"(?im)^\s*(?:#{1,6}\s*)?(?:JOB\s+)?(J\d+)\b", text))
+    headings = list(re.finditer(
+        r"(?im)^\s*(?:#{1,6}\s*)?(?:\*{1,2}|_{1,2})?(?:JOB\s+)?(J\d+)\b"
+        r"(?:\*{1,2}|_{1,2})?", text))
     if not headings:
         return text if jobs == 1 else ""
     matches = [i for i, heading in enumerate(headings) if heading[1] == job_id]

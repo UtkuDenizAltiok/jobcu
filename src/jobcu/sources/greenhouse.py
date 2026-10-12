@@ -1,9 +1,9 @@
 """Greenhouse career sites through the public Job Board API (no key for GET).
 Current contract/access evidence: docs/SOURCES.md, Greenhouse temporal evidence.
 
-`GET /v1/boards/{board}/jobs` lists every job with its title, location text and first
-publication time when supplied. An update is not publication. The existing detail endpoint
-can add first publication, application deadline and full text for jobs still in the running.
+`GET /v1/boards/{board}/jobs?content=true` lists jobs with original full text, location and
+first publication when supplied. An update is not publication. The existing detail endpoint
+remains a fallback for missing text and temporal metadata.
 """
 
 import dataclasses
@@ -25,10 +25,11 @@ class GreenhouseSource(CareerSystemSource):
     name = "Company career sites (Greenhouse)"
     system = "greenhouse"
     detail_cache_version = 2  # older caches can contain an update as their posting date
+    details_supply_dates = True
 
     def list_jobs(self, employer: Employer, ctx: SourceContext, *, countries=None, start=None,
                   terms=None) -> Iterator[FoundJob]:
-        data = self.get_json(f"{API}/{employer.board}/jobs", ctx)
+        data = self.get_json(f"{API}/{employer.board}/jobs", ctx, params={"content": "true"})
         for item in data.get("jobs") or []:
             yield to_found_job(item, employer)
 
@@ -57,6 +58,7 @@ class GreenhouseSource(CareerSystemSource):
 def to_found_job(item: dict, employer: Employer) -> FoundJob:
     posted, precision = _publication(item)
     location = (item.get("location") or {}).get("name")
+    description = html_to_text(html.unescape(item.get("content") or ""))
     return FoundJob(
         source="greenhouse",
         source_job_id=f"{employer.board}/{item.get('id')}",
@@ -68,6 +70,8 @@ def to_found_job(item: dict, employer: Employer) -> FoundJob:
         date_precision=precision,
         closes_at=_deadline(item),
         work_mode=work_mode_from_text(location),
+        description=description,
+        description_is_complete=bool(description),
     )
 
 
