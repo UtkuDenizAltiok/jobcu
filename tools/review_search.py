@@ -112,7 +112,7 @@ def review(snapshot: dict, ads: list[dict]) -> dict:
         totals = usage.setdefault(name, Counter())
         totals.update({k: int(number(used.get(k))) for k in
                        ("input_tokens", "output_tokens", "cached_input_tokens",
-                        "reasoning_tokens", "web_searches")})
+                        "reasoning_tokens", "web_searches", "unreported_requests")})
     conditions = result.get("location", {}).get("conditions", [])
     sample = [a for a in ads if a.get("kind") == "scored"]
     rated = [a for a in sample if a.get("rating") in {"good", "okay", "poor"}]

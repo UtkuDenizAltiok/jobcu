@@ -79,6 +79,13 @@ silently remove reasoning. A connection probe is generation, not matching-qualit
 Work on a branch, review the diff, open a PR and wait for Mac, Windows and privacy CI.
 Merge with a merge commit; preserve shared history. Other contributors' PRs require review.
 
+For AI recovery/accounting, `tests/test_ai_cost_recovery.py` and
+`tests/test_gemini_streaming.py` reproduce billing refusals, Stop during retries/queued work,
+terminally completed answers followed by disconnects, and partial/missing usage. The real SDK
+uses offline transports and fictional electronics/nursing/teaching evidence. Migration/API
+tests preserve old receipts and owner ratings while exposing missing usage. These checks do
+not prove actual provider charges, live latency or matching quality.
+
 ## Review a completed search
 
 Use the [review prompt](docs/PROMPTS.md#review-a-search) after Jobcu finishes, or follow an existing

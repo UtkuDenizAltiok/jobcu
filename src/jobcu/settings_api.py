@@ -252,7 +252,8 @@ def _money(usages: list[ModelUsage], prices: list[ModelPrice]) -> dict:
     cost, complete = estimate_cost(usages, prices)
     currencies = {price.currency for price in prices} or {"USD"}
     return {"tokens": total_tokens(usages), "cost": round(cost, 2), "cost_is_complete": complete,
-            "currency": currencies.pop() if len(currencies) == 1 else ""}
+            "currency": currencies.pop() if len(currencies) == 1 else "",
+            "unreported_requests": sum(item.usage.unreported_requests for item in usages)}
 
 
 @router.get("/usage")

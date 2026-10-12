@@ -20,6 +20,8 @@ class Usage:
     cached_input_tokens: int = 0
     reasoning_tokens: int = 0
     web_searches: int = 0
+    # Requests whose complete usage was not received; available counts are lower bounds.
+    unreported_requests: int = 0
 
     def __add__(self, other: "Usage") -> "Usage":
         return Usage(
@@ -28,6 +30,7 @@ class Usage:
             self.cached_input_tokens + other.cached_input_tokens,
             self.reasoning_tokens + other.reasoning_tokens,
             self.web_searches + other.web_searches,
+            self.unreported_requests + other.unreported_requests,
         )
 
 
@@ -66,6 +69,7 @@ class AIError(Exception):
         super().__init__(message)
         self.message = message
         self.detail = detail
+        self.usage: Usage | None = None
 
 
 class AIAuthError(AIError):

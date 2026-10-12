@@ -236,6 +236,14 @@ scores remain new. Thinking can be billed as output even when it is not shown. F
 can incur charges without a usable answer, so the local estimate is not a complete invoice.
 More credit does not by itself repair connection failures or per-minute throttling.
 
+Jobcu retains usage received before a request fails. If complete usage is missing, **AI use
+in this search** shows the affected requests and the money estimate is marked incomplete.
+Zero known tokens then means the charge is unknown, not that the failed request was free.
+Older unreported charges cannot be reconstructed from the local ledger. Clearing search data
+keeps the monthly usage counters but removes run history/caches; it cannot reset a provider bill.
+The [current failure/billing evidence](../SOURCES.md#billing-refusals-and-processing-evidence--2026-10-12)
+explains these limits and discounted processing alternatives.
+
 Some providers offer discounted processing of the same model with longer waits or reduced
 availability. That is different from a cheaper model, whose matching quality needs independent
 comparison. Do not select a plan just from its model count or request estimate. The dated

@@ -182,7 +182,9 @@ To cancel a running search, click **Stop**. To try again, wait for it to stop, t
 If a job site asks Jobcu to pause, the progress notes explain the wait. It can last several
 minutes. Jobcu respects that site's delay while other sites continue; it keeps ads already
 found. **Stop** cancels readers waiting for a retry. A request already being sent can finish
-before stopping completes. A site that refuses automated access is skipped without retries.
+before stopping completes. AI retry waits and queued AI requests are cancelled too; work
+already sent may finish and incur a charge. A site that refuses automated access is skipped
+without retries. Do not clear search data to fix a provider billing or connection problem.
 
 For **Google Maps**, the current step shows the retry wait and one progress note explains it.
 Jobcu retries temporary failures within **Settings → Usage and limits → Maps routes per month**.

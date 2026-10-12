@@ -162,12 +162,55 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
-**None.** The quality-first research/decision step is merged and verified in PR #105;
-the final session handover is also merged and verified in PR #107. Exact-head publication
-checks are recorded in State. No app feature, private review, paid test or source/model
-integration is active. Missing comparative quality evidence and collection permission are
-future adoption dependencies, not unfinished implementation here. This chat is prepared;
-wait for the owner's task.
+**Authorized saved-search review and cost/recovery improvement — 2026-10-12.**
+Branch: `codex/review-cost-recovery`, based on verified main `c197371`.
+Scope: privately review the latest completed search and current documents/criteria on an
+isolated copy; preserve owner/legacy ratings and the owner's app state. Diagnose recorded
+usage, run boundaries, provider failures/retries, Stop and evidence gaps. No new search,
+paid test, account change or larger service allowance is authorized by this task.
+
+Steps: (1) verify standing authorization/revocations and the private checkpoint; take the
+read-only report and a blinded balanced 30–50-ad review including every top card;
+(2) trace usage, failures, discovery, filtering and source/evidence limitations; rank a
+small shortlist and select the strongest reproducible improvement; (3) implement with
+general fictional engineering/non-engineering regressions, compare before/after behavior,
+update records/guides, run local checks and publish with exact-head Mac/Windows/privacy CI
+and merge commits. Private records and all real-result aggregates remain outside Git.
+
+Status: authorization/revocations checked; saved read-only report and shuffled balanced review
+completed privately before score reveal. Owner app 8765 remains running; preview 8799 is
+stopped. Offline baseline: 1,312 tests passed (one existing dependency warning). No paid call,
+new search or job-site request. Public records contain no private-result aggregates.
+
+Ranked shortlist: (1) billing/refusal classification, cancellable retry waits and honest failed-
+request accounting — confirmed general failure paths, high benefit, moderate implementation
+and offline verification; (2) same-model discounted processing — potential savings but longer
+waits/capacity and recovery integration need separate validation; (3) permitted original-ad
+coverage — high potential, but current unique contribution/rights/benchmark evidence limits
+changes; (4) a direct-API challenger — prices/control evidence is not independently verified
+matching equivalence. Keep the existing provider/medium effort while comparison is blocked.
+
+Selected coherent improvement: prevent further AI dispatch after Stop or a definite depleted-
+credit refusal, preserve terminally completed streamed answers across a later transport failure,
+retain available failed-request usage and flag unknown charges. Preserve necessary evidence
+checks, complete answers, existing settings/limits and owner data. Fictional before/after
+comparisons verify request counts, recovery, usage persistence and Stop behavior.
+Exact billing attribution, missing originals and an
+independent date-verified benchmark remain private evidence dependencies; do not claim live
+cost savings or whole-market quality/coverage from offline behavior.
+
+Implementation checkpoint: billing refusal classification; per-dispatch Stop/monthly guards;
+cancellable waits/slots; complete terminal-answer retention across late HTTP disconnects;
+known failed usage and unknown-charge markers; migration 15; progress/cost UI and guides are
+implemented. Final local suite: 1,333 passed, one existing dependency warning. Ruff, privacy,
+document checks, JS syntax, whitespace and complete diff review passed. Isolated fictional
+startup on 8799 passed and stopped; its data was removed. Publication is pending.
+Owner app remains preserved; disposable review scratch is recorded in the private
+`assistant-review-checkpoint.json` and must be removed after saving evidence.
+Exact next action: commit/push/open a PR and require exact-head Mac/Windows/privacy CI before
+a merge commit, synchronize main and verify its exact-head CI, then clear this completed
+checkpoint and remove the recorded disposable scratch. Saved billing/original/benchmark
+dependencies and detailed review evidence remain private; no further paid work is authorized.
 
 ### Verify before relying on
 
