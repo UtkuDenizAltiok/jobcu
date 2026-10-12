@@ -2108,7 +2108,9 @@ function setUpSettingsActions() {
 const RESET_SCOPES = {
   search: {
     title: "Clear search data?",
-    description: "Delete search text, history, results, saved/applied/hidden jobs, excluded links and search caches.",
+    description: "Delete search text, history, results, saved/applied/hidden jobs, " +
+      "excluded links and search caches. This also forgets previously read information. " +
+      "Your next search may repeat paid AI work.",
     preserved: "Your documents, optional review sample, saved settings, keys and usage counters stay.",
   },
   review: {

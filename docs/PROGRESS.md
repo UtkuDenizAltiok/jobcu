@@ -196,7 +196,8 @@ failed metadata; current full text survives valid cached metadata. Markdown head
 per-job requirement grounding; informational notes and genuine uncertainty display separately,
 including old cards, without claiming online notes are a full original. Exact validated Maps
 cells are reused within one search; errors remain retryable and known cells survive partial
-failures. Two independently verified public employer feeds were added. Terms do not authorize
+failures. Search-reset confirmation explains repeated paid work after deleting reusable evidence.
+Two independently verified public employer feeds were added. Terms do not authorize
 cross-search Google duration storage. [Decisions/checks](ENGINEERING.md#original-evidence-and-repeated-requests--2026-10-12).
 
 Local final code: 1,354 tests pass with one existing dependency warning; 20 document checks,

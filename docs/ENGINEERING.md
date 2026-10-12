@@ -90,6 +90,9 @@ list plus ten detail requests becomes one list request. Missing temporal metadat
 the necessary detail check;
 valid bounded-age metadata attempts are reused without replacing current original text.
 Other adapters keep their existing contracts. No source is removed on low counts or outages.
+The existing search reset deletes reusable profile/employer/ad evidence and AI journey memory;
+its confirmation now explains that the next search may repeat paid AI work. Reset behavior and
+preserved data are unchanged; no owner reset is performed as part of development.
 
 Cross-search route-duration storage remains held by the current Google contract. Transit uses
 the next Tuesday at 08:00 local time; car journeys use traffic-unaware routing. Matching only a
