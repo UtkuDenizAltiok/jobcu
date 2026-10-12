@@ -10,6 +10,14 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
+- [Original evidence and repeated requests](ENGINEERING.md#original-evidence-and-repeated-requests--2026-10-12)
+  is published in [PR #111](https://github.com/UtkuDenizAltiok/jobcu/pull/111), head
+  `e869a58`, merged at `71dd6fc`. Exact PR-head CI `38295942407` and merged-main CI
+  `38296731440` passed on Mac, Windows and privacy. Original-text collection, Markdown
+  grounding, honest information/uncertainty markers, per-search Maps element reuse and reset
+  cost clarity are implemented. Public employer references were independently verified.
+  A final mixed-copy freshness regression and dependency handover are in the active checkpoint
+  below. No live accuracy, recall or savings is inferred; private evidence stays outside Git.
 - [AI billing refusals, Stop and usage recovery](ENGINEERING.md#ai-billing-refusals-stop-and-incomplete-usage--2026-10-12)
   is published in [PR #109](https://github.com/UtkuDenizAltiok/jobcu/pull/109), merged
   at `a698ea6`. Exact PR-head CI `38287331688` and merged-main CI `38287834077` passed
@@ -181,50 +189,50 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 ### In progress
 
 **Whole-pipeline quality, coverage and complete-cost improvement — 2026-10-12.**
-Branch `codex/search-quality-coverage`, based on verified main `1a1910a`; initial scope
-checkpoint `2b9e2e9`. Latest owner messages extend this goal, including the wider API market
-and Maps reuse within/across searches. No earlier authorized code work was abandoned.
+The owner expanded this one continuing task with source examples, widespread uncertainty,
+complete bills, the wider API market and Maps reuse. Existing billing/Stop work is complete;
+[PR #111](https://github.com/UtkuDenizAltiok/jobcu/pull/111) implementation/publication is complete
+at verified main `71dd6fc`. No prior authorized work was abandoned.
 
-Authorized: saved private review on an isolated copy, unchanged blinded judgements, free public
-original/source/provider research and general fictional implementation. Check standing
-`assistant-authorization.json` and revocations before private work. Preserve owner data,
-ratings, settings and app state. No new paid test, provider/Maps call, search, account edit,
-owner reset or spending-limit change is authorized.
+Final coherent step: [PR #112](https://github.com/UtkuDenizAltiok/jobcu/pull/112), branch
+`codex/quality-final-evidence`, based on `71dd6fc`; source correction commit `bc1a6cb`.
+A secondary board's recent date cannot suppress the original employer copy's date reader,
+even with complete text and a future deadline. Final local code passes 1,355 tests with one
+existing dependency warning, Ruff/privacy, 20 document checks and whitespace/full-diff review.
+Unchanged JS syntax/current-legacy rendering and isolated-startup checks remain valid.
 
-Implemented: Greenhouse list originals with required publication/deadline fallback and retryable
-failed metadata; current full text survives valid cached metadata. Markdown headings preserve
-per-job requirement grounding; informational notes and genuine uncertainty display separately,
-including old cards, without claiming online notes are a full original. Exact validated Maps
-cells are reused within one search; errors remain retryable and known cells survive partial
-failures. Search-reset confirmation explains repeated paid work after deleting reusable evidence.
-Two independently verified public employer feeds were added. Terms do not authorize
-cross-search Google duration storage. [Decisions/checks](ENGINEERING.md#original-evidence-and-repeated-requests--2026-10-12).
+Publication checkpoint: PR #112 must pass Mac/Windows/privacy CI at its actual final head,
+then merge with a merge commit; main must be synchronized and its exact-head CI pass. Read
+Git/PR/CI to verify those facts once. If they are already confirmed, this code/publication step
+is complete and must not be repeated; only the dependency below remains. Otherwise the exact
+next action is to finish that publication gate, preserving this branch. No provider/search/
+account action or repeat local full suite is needed merely to refresh this handover.
 
-Local final code: 1,354 tests pass with one existing dependency warning; 20 document checks,
-Ruff/privacy, JS syntax, current/legacy card rendering and whitespace pass. Complete diff review
-is done. Reused baseline: 1,333 tests before substantive changes. Implementation remains local
-pending publication. Exact next action: commit/push this coherent change, open/attach its PR,
-require Mac/Windows/privacy CI at its final head, merge with a merge commit, synchronize main
-and verify exact-head main CI. Then record publication and preserve the dependency below.
+Private `assistant-review-checkpoint.json` points to `active_quality_review`: reused balanced
+blinded judgements including every top card, detailed original-date controls, complete-cost
+sensitivity and a frozen fictional comparison packet are retained outside Git. The disposable
+investigation copy is removed. Latest saved attempt is finished with no newer unfinished
+attempt; owner app 8765 remains running and was preserved, preview 8799 is stopped. Open or
+closed Jobcu is no obstacle to saved-result review. No owner data/rating/reset/settings/key edit,
+paid provider/Maps call or new Jobcu search was made. Missing originals/criteria and an eligible
+independent benchmark limit live quality/coverage claims; older controls are not recall data.
 
-Private `assistant-review-checkpoint.json` points to `active_quality_review`: detailed saved
-judgements, older original-date controls, missing eligible benchmark/original/criteria evidence,
-full-bill sensitivity and a frozen balanced fictional comparison packet are outside Git.
-Latest read-only saved attempt is finished, with no newer unfinished attempt. Older examples
-are not eligible recall denominators; no whole-results precision/recall or live savings is claimed.
-[Current wider market/rights/fees](SOURCES.md#api-market-and-reuse-update--2026-10-12) keeps direct
-MiMo Pro as the single challenger, with factual/document/latency counterevidence. Its coding
-Token Plan explicitly excludes this app. Preserve working medium settings and fresh cited research.
+**Dependency after publication:** a direct API key entered only in Jobcu and owner authorization
+for a **EUR5 total** fictional paired comparison within the existing EUR30 monthly ceiling.
+[Market/rights/fees](SOURCES.md#api-market-and-reuse-update--2026-10-12) selects direct MiMo Pro
+as the one challenger, with factual/document/latency counterevidence. Keep working medium settings
+and fresh cited research. Its coding Token Plan explicitly excludes this app; do not buy it.
+The assistant owns execution/judgement; no model-shopping, owner ratings or new search is needed.
 
-Remaining dependency after publication: owner authorization for a **EUR5 total** fictional paired
-comparison within the existing EUR30 month, and a direct API key entered only in Jobcu. The packet
-uses 30 balanced cases, six ambiguous repeats and separately gated hosted research. Recheck exact
-API/use/rights/fees and remaining total headroom before any call; unknown charges/outcomes or any
-quality/coverage regression stop the comparison and block a switch. Protected source evidence
-must not move before its rights are resolved. No model-shopping, owner ratings or new search is
-required. Exact next paid action, only after that dependency is satisfied: verify the frozen
-packet and run the first paired five-ad fictional batch on an isolated copy through `AIClient`,
-recording complete answers and all token/tool/failed usage before continuing within the ceiling.
+Remaining authorized scope is conditional preparation only: recheck standing authorization,
+revocations and the private checkpoint, exact model/API/use/rights/fees and remaining total
+headroom before any call. The packet has 30 balanced fictional cases, six ambiguous repeats
+and separately gated hosted research. Unknown charges/outcomes or any quality/coverage regression
+stop the comparison and block adoption. Protected source evidence must not move before its
+rights are resolved. Exact next paid action, only when those dependencies are satisfied: verify
+the frozen packet and run the first paired five-ad fictional batch through `AIClient` on an
+isolated copy, saving complete answers and token/tool/failed usage before continuing inside the
+ceiling. No calls are authorized yet. Otherwise retain this dependency and wait for owner input.
 
 ### Verify before relying on
 
