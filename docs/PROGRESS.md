@@ -210,8 +210,9 @@ PR #112 publication is complete: final head `2521381`, merge `397d932`, exact PR
 `38299591582` and exact merged-main CI `38299970712` passed Mac/Windows/privacy.
 These checks must not be repeated merely to recover this handover.
 
-**Owner-requested continuation, same goal:** branch `codex/scoring-evidence-followup`, based
-on verified main `397d932`. Reuse the unchanged blinded judgements; trace remaining poor-fit
+**Owner-requested continuation, same goal:** [PR #113](https://github.com/UtkuDenizAltiok/jobcu/pull/113),
+branch `codex/scoring-evidence-followup`, based on verified main `397d932`; source commit
+`14c903a` is tested and pushed. Reuse the unchanged blinded judgements; trace remaining poor-fit
 and unknown cases to the current ranking/evidence paths on a new disposable private copy.
 Rank the justified free fixes, implement the strongest confirmed issue with general fictional
 regressions, compare before/after behavior, update its record/guide and publish under AGENTS.
@@ -230,8 +231,8 @@ retire on an explicit recheck without losing unrelated source notes. The final s
 1,420 tests, with the existing dependency warning; Ruff/privacy, document and whitespace/full
 diff checks pass. JS and startup paths are unchanged. No measured live quality, whole-market
 coverage or invoice saving is inferred. Private replay distinguishes deterministic changes from
-new model outcomes. Exact next action: commit/push this coherent step, open its PR, require
-Mac/Windows/privacy on the exact final head, merge with a merge commit, sync main and verify
+new model outcomes. Exact next action: require Mac/Windows/privacy on PR #113's exact final
+head, merge with a merge commit, sync main and verify
 its exact-head CI. Once Git/CI confirms publication, do not repeat it; retain only the paid
 comparison/key/use-rights/headroom and missing independent evidence dependencies below.
 
