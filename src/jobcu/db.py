@@ -205,6 +205,11 @@ MIGRATIONS: list[str] = [
     """
     ALTER TABLE employer_searches ADD COLUMN complete INTEGER NOT NULL DEFAULT 0;
     """,
+    # 15: Preserve available usage from failed streams and mark missing billing evidence.
+    # Historical missing requests cannot be reconstructed; do not invent their charges.
+    """
+    ALTER TABLE ai_usage ADD COLUMN unreported_requests INTEGER NOT NULL DEFAULT 0;
+    """,
 ]
 
 

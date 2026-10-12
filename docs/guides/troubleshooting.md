@@ -98,6 +98,16 @@ at a time. A provider retry note means Jobcu could not get a complete answer, be
 connection problem or temporary service failure. It retries while preserving completed work;
 repeated failures can still stop online checks. Buying more credit does
 not by itself repair a connection failure. Missing details remain unchecked if recovery fails.
+The permanent retry note records what happened; it does not mean requests are still running
+after **Search finished**. During a retry, the current step shows the wait. **Stop** cancels
+retry waits and queued AI work; a request already sent can finish first.
+
+**Credit depleted or payment required** is a billing refusal, so Jobcu does not keep retrying
+it. Check the provider's billing page. Google explains that delayed cut-off can produce a
+negative prepay balance which is deducted from the next top-up; its spend report can lag.
+See [Google's billing guidance](https://ai.google.dev/gemini-api/docs/billing).
+Clearing search data does not repair credit, quotas or connections. It removes history and
+reusable caches, so the next search can need more work. Keep your data while fixing billing.
 The [search guide](first-search.md#4-start-the-search-and-answer-any-questions) explains what
 the final online stage checks. The selected posting window is ad age, not a search-duration limit.
 

@@ -62,6 +62,7 @@ class GeminiAdapter(ProviderAdapter):
                     api_key=self.api_key,
                     http_options=types.HttpOptions(
                         timeout=int(self.timeout * 1000),
+                        retry_options=types.HttpRetryOptions(attempts=1),
                         client_args={"event_hooks": {"response": [self._capture_response]}},
                     ),
                 )
@@ -115,6 +116,7 @@ class GeminiAdapter(ProviderAdapter):
         queries: Counter[str] = Counter()
         counts: Counter[str] = Counter()
         finished = False
+        usage_seen = interrupted = False
         stream = None
         self._stream_responses.current = []
         try:
@@ -126,12 +128,20 @@ class GeminiAdapter(ProviderAdapter):
                     raise AIRefused(MSG_REFUSED, str(feedback.block_reason))
                 meta = response.usage_metadata
                 if meta is not None:
+                    usage_seen = True
                     counts |= Counter({name: getattr(meta, name) or 0 for name in (
                         "prompt_token_count", "candidates_token_count",
                         "cached_content_token_count", "thoughts_token_count")})
                 candidate = response.candidates[0] if response.candidates else None
                 if candidate is None:
                     continue  # final usage can arrive without another text candidate
+                grounding = candidate.grounding_metadata
+                if grounding is not None:
+                    queries |= Counter(grounding.web_search_queries or [])
+                    for chunk in grounding.grounding_chunks or []:
+                        web = chunk.web
+                        if web is not None and web.uri:
+                            sources.append(Source(web.uri, web.title or ""))
                 finish = _name(candidate.finish_reason)
                 if finish == "MAX_TOKENS":
                     raise AIOutputTruncated(MSG_TRUNCATED)
@@ -142,17 +152,20 @@ class GeminiAdapter(ProviderAdapter):
                 if candidate.content is not None:
                     text.extend(part.text for part in candidate.content.parts or []
                                 if part.text and not part.thought)
-                grounding = candidate.grounding_metadata
-                if grounding is not None:
-                    queries |= Counter(grounding.web_search_queries or [])
-                    for chunk in grounding.grounding_chunks or []:
-                        web = chunk.web
-                        if web is not None and web.uri:
-                            sources.append(Source(web.uri, web.title or ""))
             if not finished:
                 raise AIUnavailable(MSG_UNAVAILABLE, "AI answer stream ended before completion.")
         except Exception as exc:
-            raise _translate(exc, web_search=web_search) from exc
+            # STOP is the provider's successful terminal outcome, not merely valid JSON.
+            # A later body disconnect cannot undo it. Keep metadata already received;
+            # unknown trailing usage remains explicit rather than repeating paid work.
+            if finished and isinstance(exc, httpx.TransportError):
+                interrupted = True
+            else:
+                translated = _translate(exc, web_search=web_search)
+                if isinstance(translated, AIError) and (usage_seen or queries or isinstance(
+                        translated, (AIUnavailable, AIOutputTruncated))):
+                    translated.usage = _usage(counts, queries, unreported=True)
+                raise translated from exc
         finally:
             try:
                 if stream is not None:
@@ -163,17 +176,10 @@ class GeminiAdapter(ProviderAdapter):
                 for response in self._stream_responses.current:
                     response.close()
                 del self._stream_responses.current
-        thoughts = counts["thoughts_token_count"]
         return ResearchReply(
             text="".join(text),
             sources=unique_sources(sources),
-            usage=Usage(
-                input_tokens=counts["prompt_token_count"],
-                output_tokens=counts["candidates_token_count"] + thoughts,
-                cached_input_tokens=counts["cached_content_token_count"],
-                reasoning_tokens=thoughts,
-                web_searches=sum(queries.values()),
-            ),
+            usage=_usage(counts, queries, unreported=interrupted or not usage_seen),
         )
 
     def list_models(self) -> list[str]:
@@ -192,6 +198,18 @@ def _name(value) -> str:
     return getattr(value, "name", None) or str(value or "")
 
 
+def _usage(counts: Counter, queries: Counter, *, unreported: bool) -> Usage:
+    thoughts = counts["thoughts_token_count"]
+    return Usage(
+        input_tokens=counts["prompt_token_count"],
+        output_tokens=counts["candidates_token_count"] + thoughts,
+        cached_input_tokens=counts["cached_content_token_count"],
+        reasoning_tokens=thoughts,
+        web_searches=sum(queries.values()),
+        unreported_requests=int(unreported),
+    )
+
+
 def _translate(exc: Exception, *, web_search: bool = False) -> Exception:
     detail = str(exc)
     if isinstance(exc, errors.APIError):
@@ -199,6 +217,13 @@ def _translate(exc: Exception, *, web_search: bool = False) -> Exception:
         text = f"{status} {exc.message or ''} {exc.details or ''}"
         if "API_KEY_INVALID" in text or "API key not valid" in text or exc.code == 401:
             return AIAuthError(MSG_KEY_REJECTED, detail)
+        if exc.code == 402 or ("credit" in text.lower() and any(
+                word in text.lower() for word in ("depleted", "exhausted", "insufficient"))):
+            return AIQuotaExhausted(
+                "The AI provider says your credit is depleted or payment is required. "
+                "Jobcu won't retry this billing refusal. Check the provider's billing page.",
+                detail,
+            )
         if web_search and _web_search_refused(exc.code, text):
             return AIWebSearchUnavailable(
                 "Google web look-ups aren't available for this model or API project. "

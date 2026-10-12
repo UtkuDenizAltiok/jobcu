@@ -26,10 +26,12 @@ class UsageLog:
         with db.connect(self.folder) as conn:
             conn.execute(
                 """INSERT INTO ai_usage (search_id, step, provider, model, input_tokens,
-                   output_tokens, cached_input_tokens, reasoning_tokens, web_searches)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                   output_tokens, cached_input_tokens, reasoning_tokens, web_searches,
+                   unreported_requests)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                 (search_id, step, provider, model, usage.input_tokens, usage.output_tokens,
-                 usage.cached_input_tokens, usage.reasoning_tokens, usage.web_searches),
+                 usage.cached_input_tokens, usage.reasoning_tokens, usage.web_searches,
+                 usage.unreported_requests),
             )
 
     def this_month(self, now: datetime | None = None) -> list[ModelUsage]:
@@ -42,7 +44,7 @@ class UsageLog:
         with db.connect(self.folder) as conn:
             rows = conn.execute(
                 """SELECT step, SUM(input_tokens), SUM(output_tokens), SUM(cached_input_tokens),
-                   SUM(reasoning_tokens), SUM(web_searches)
+                   SUM(reasoning_tokens), SUM(web_searches), SUM(unreported_requests)
                    FROM ai_usage WHERE search_id = ? GROUP BY step""",
                 (search_id,),
             ).fetchall()
@@ -58,7 +60,8 @@ class UsageLog:
         with db.connect(self.folder) as conn:
             rows = conn.execute(
                 f"""SELECT provider, model, SUM(input_tokens), SUM(output_tokens),
-                    SUM(cached_input_tokens), SUM(reasoning_tokens), SUM(web_searches)
+                    SUM(cached_input_tokens), SUM(reasoning_tokens), SUM(web_searches),
+                    SUM(unreported_requests)
                     FROM ai_usage WHERE {where} GROUP BY provider, model""",
                 params,
             ).fetchall()
@@ -79,6 +82,7 @@ def estimate_cost(usages: list[ModelUsage], prices: list[ModelPrice]) -> tuple[f
     cost = 0.0
     complete = True
     for item in usages:
+        complete = complete and item.usage.unreported_requests == 0
         price = table.get((item.provider, item.model))
         if price is None:
             complete = complete and (item.usage.input_tokens + item.usage.output_tokens == 0)

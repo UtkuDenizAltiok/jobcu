@@ -138,6 +138,21 @@ def test_usage_shows_the_month_the_last_search_and_the_sources(client):
     assert data["last_search"]["cost"] == 6.0 and data["this_month"]["currency"] == "EUR"
 
 
+def test_missing_request_usage_stays_visible_with_zero_known_tokens_and_saved_prices(client):
+    from jobcu.ai.base import Usage
+    from jobcu.ai.usage import UsageLog
+
+    UsageLog().record(step="employers", provider="gemini", model="fictional-model",
+                      usage=Usage(unreported_requests=2))
+    prices = [{"provider": "gemini", "model": "fictional-model", "input_per_million": 1,
+               "output_per_million": 2, "currency": "EUR"}]
+    data = client.put("/api/settings/prices", json={"prices": prices}, headers=HEADERS).json()
+    month = data["this_month"]
+    assert month["tokens"] == 0 and month["cost"] == 0
+    assert not month["cost_is_complete"] and month["unreported_requests"] == 2
+    assert month["by_model"][0]["unreported_requests"] == 2
+
+
 def test_limits_and_source_switches_are_saved(client):
     data = client.put("/api/settings/limits", headers=HEADERS, json={
         "scoring_cap": 40, "monthly_token_limit": 2_000_000, "monthly_cost_limit": 25.0,

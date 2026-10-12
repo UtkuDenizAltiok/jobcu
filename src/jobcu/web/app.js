@@ -1404,7 +1404,8 @@ function renderDetails(search) {
   };
   const rows = Object.entries(usage).map(([step, used]) =>
     el("li", {
-      text: `${stepNames[step] || step}: ${used.input_tokens.toLocaleString()} tokens in, ${used.output_tokens.toLocaleString()} tokens out`,
+      text: `${stepNames[step] || step}: ${used.input_tokens.toLocaleString()} tokens in, ${used.output_tokens.toLocaleString()} tokens out` +
+        (used.unreported_requests ? `; ${used.unreported_requests} request(s) have incomplete usage` : ""),
     }),
   );
   if (rows.length) {
@@ -1413,7 +1414,7 @@ function renderDetails(search) {
         "AI use in this search",
         el("p", {
           class: "muted",
-          text: "Tokens are the pieces of text the AI reads and writes. Providers charge by tokens.",
+          text: "Tokens are the pieces of text the AI reads and writes. Output includes thinking. Web tools and failed requests can add charges; the provider's bill is the reference.",
         }),
         el("ul", {}, ...rows),
       ),
@@ -1829,6 +1830,10 @@ const PROVIDER_NAMES = {
 };
 
 function money(part) {
+  if (part.unreported_requests) {
+    const known = part.cost ? `at least ${part.cost.toFixed(2)} ${part.currency || ""}`.trim() : "cost unknown";
+    return `${known} (${part.unreported_requests} request(s) missing complete usage)`;
+  }
   if (!part.cost && !part.cost_is_complete) return "cost unknown (no prices saved)";
   const amount = `${part.cost.toFixed(2)} ${part.currency || ""}`.trim();
   return part.cost_is_complete ? `about ${amount}` : `at least ${amount}`;

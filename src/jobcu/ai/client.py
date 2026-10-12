@@ -33,11 +33,13 @@ from jobcu.ai.base import (
     AIInvalidOutput,
     AILimitReached,
     AIOutputTruncated,
+    AIQuotaExhausted,
     AIRateLimited,
     AIUnavailable,
     AIWebSearchUnavailable,
     ProviderAdapter,
     ResearchReply,
+    Usage,
 )
 from jobcu.ai.providers import PROVIDERS, configured_adapter
 from jobcu.ai.schema import extract_json, strict_json_schema
@@ -91,6 +93,8 @@ class AIClient:
         sleep: Callable[[float], None] = time.sleep,
         adapter: ProviderAdapter | None = None,
         research_adapter: ProviderAdapter | None = None,
+        checkpoint: Callable[[], None] | None = None,
+        on_wait: Callable[[float], None] | None = None,
     ) -> None:
         self.settings = settings
         self.keys = keys or KeyStore()
@@ -99,6 +103,9 @@ class AIClient:
         self.notify = notify or (lambda message: None)
         self.patient = patient  # False for quick checks: report limits instead of waiting
         self.sleep = sleep
+        self.checkpoint = checkpoint or (lambda: None)
+        self._cancellable = checkpoint is not None
+        self.on_wait = on_wait or (lambda seconds: None)
         self._adapter = adapter
         self._session_id = str(uuid4())
         self._research_adapter = research_adapter
@@ -115,6 +122,7 @@ class AIClient:
         # Remember a definite capability refusal for this search only. A later search
         # gets a fresh client, so changing a model or enabling billing takes effect.
         self._web_unavailable: str | None = None
+        self._quota_errors: dict[tuple[str, str], AIQuotaExhausted] = {}
 
     @property
     def provider_id(self) -> str:
@@ -162,7 +170,9 @@ class AIClient:
         """Waits until fewer than `parallel_requests` requests are waiting for an answer."""
         with self._gate:
             while self._requests_running >= self.parallel_requests:
-                self._gate.wait()
+                self.checkpoint()
+                self._gate.wait(timeout=0.25)
+            self.checkpoint()
             self._requests_running += 1
         try:
             yield
@@ -170,6 +180,33 @@ class AIClient:
             with self._gate:
                 self._requests_running -= 1
                 self._gate.notify_all()
+
+    @contextmanager
+    def _request(self, step: str, provider: str, model: str,
+                 *, research: bool = False) -> Iterator[None]:
+        """Every dispatch, including repairs/retries, obeys Stop and recorded limits."""
+        self.checkpoint()
+        with self._slot():
+            with self._gate:
+                quota = self._quota_errors.get((provider, model))
+            if quota is not None:
+                raise quota
+            self._check_monthly_limit()
+            try:
+                yield
+            except AIError as exc:
+                usage = exc.usage
+                if usage is None and isinstance(exc, (AIUnavailable, AIOutputTruncated)):
+                    usage = Usage(unreported_requests=1)
+                if usage is not None:
+                    self._record(step, provider, model, usage)
+                    if research:
+                        with self._gate:
+                            self.web_searches_used += usage.web_searches
+                if isinstance(exc, AIQuotaExhausted):
+                    with self._gate:
+                        self._quota_errors[(provider, model)] = exc
+                raise
 
     def _one_at_a_time(self) -> None:
         """The provider said "too many requests": the rest of this search asks one at a time,
@@ -205,7 +242,7 @@ class AIClient:
 
         while True:
             try:
-                with self._slot():
+                with self._request(step, provider, model):
                     reply = adapter.complete_json(
                         model=model,
                         system=system,
@@ -225,7 +262,7 @@ class AIClient:
                 continue
             except AIUnavailable as exc:
                 outage_retries += 1
-                if outage_retries > MAX_OUTAGE_RETRIES:
+                if not self.patient or outage_retries > MAX_OUTAGE_RETRIES:
                     raise
                 self._wait(min(5 * 2 ** (outage_retries - 1), 60), exc)
                 continue
@@ -247,6 +284,7 @@ class AIClient:
             if effort_dropped:
                 self._effort_unsupported.add((provider, model))
             self._record(step, provider, model, reply.usage)
+            self.checkpoint()
             try:
                 return output.model_validate(extract_json(reply.text))
             except (ValueError, ValidationError) as exc:
@@ -321,7 +359,7 @@ class AIClient:
                 )
             self._web_searches_reserved += allowed
         try:
-            reply = self._research(adapter, provider, model, system, prompt, allowed,
+            reply = self._research(adapter, provider, model, step, system, prompt, allowed,
                                    max_output_tokens, effort)
             with self._gate:
                 self.web_searches_used += max(1, reply.usage.web_searches)
@@ -329,6 +367,7 @@ class AIClient:
             with self._gate:
                 self._web_searches_reserved -= allowed
         self._record(step, provider, model, reply.usage)
+        self.checkpoint()
         return reply
 
     def web_research_unavailable_reason(self) -> str | None:
@@ -364,7 +403,7 @@ class AIClient:
         if first:
             self.notify(message)
 
-    def _research(self, adapter: ProviderAdapter, provider: str, model: str, system: str,
+    def _research(self, adapter: ProviderAdapter, provider: str, model: str, step: str, system: str,
                   prompt: str, max_searches: int, max_output_tokens: int,
                   effort: Effort | None) -> ResearchReply:
         effort = effort or self.settings.ai.reasoning_effort
@@ -374,14 +413,19 @@ class AIClient:
         waits = outages = 0
         while True:
             try:
-                with self._slot():
+                with self._request(step, provider, model, research=True):
                     if self._web_unavailable:
                         raise AIWebSearchUnavailable(self._web_unavailable)
+                    with self._gate:
+                        allowed = min(max_searches, self.web_searches_left() + max_searches)
+                    if allowed <= 0:
+                        raise AILimitReached("Jobcu has used this search's allowance of web "
+                                             "look-ups, including failed attempts.")
                     return adapter.research(
                         model=model,
                         system=system,
                         prompt=prompt,
-                        max_searches=max_searches,
+                        max_searches=allowed,
                         max_output_tokens=with_thinking_room(max_output_tokens, effort),
                         effort=effort,
                     )
@@ -407,7 +451,7 @@ class AIClient:
                 self._wait(exc.retry_after or min(10 * 2 ** (waits - 1), 120), exc)
             except AIUnavailable as exc:
                 outages += 1
-                if outages > MAX_OUTAGE_RETRIES:
+                if not self.patient or outages > MAX_OUTAGE_RETRIES:
                     raise
                 self._wait(min(5 * 2 ** (outages - 1), 60), exc)
 
@@ -415,15 +459,31 @@ class AIClient:
         seconds = min(max(seconds, 1.0), MAX_WAIT_SECONDS) + random.uniform(0, 1)
         log.info("AI request waiting %.0fs: %s", seconds, reason.detail or reason.message)
         if isinstance(reason, AIUnavailable):
-            self.notify("The AI provider couldn't complete a request. Jobcu is waiting "
-                        "before retrying; completed work is kept.")
-        self.sleep(seconds)
+            self.notify("Some AI requests needed retries after a connection or service "
+                        "problem; completed work was kept.")
+        self.checkpoint()
+        self.on_wait(seconds)
+        try:
+            if not self._cancellable:
+                self.sleep(seconds)
+            else:
+                remaining = seconds
+                while remaining > 0:
+                    pause = min(remaining, 1.0)
+                    self.sleep(pause)
+                    remaining -= pause
+                    self.checkpoint()
+        finally:
+            self.on_wait(0)
 
     def _record(self, step: str, provider: str, model: str, usage) -> None:
         if self.usage_log is not None:
             self.usage_log.record(
                 step=step, provider=provider, model=model, usage=usage, search_id=self.search_id
             )
+            if usage.unreported_requests:
+                self.notify("Some AI requests did not report complete usage. Jobcu's estimate "
+                            "may omit charges; check the provider's billing page.")
 
     def _check_monthly_limit(self) -> None:
         if self.usage_log is None:

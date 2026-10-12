@@ -292,7 +292,8 @@ class SearchManager:
         if run is None or run.id != search_id or run.status != "running":
             return False
         run.stop_requested = True
-        run.note("Stopping after the current step…")
+        run.note("Stopping… retry waits and queued AI work are cancelled. "
+                 "A request already sent may finish first.")
         run.answer(False)
         return True
 
@@ -319,7 +320,9 @@ def run_search(run: SearchRun) -> None:
     """The search steps, in order."""
     settings = load_settings()
     client = AIClient(
-        settings, KeyStore(), usage_log=UsageLog(), search_id=run.id, notify=run.note
+        settings, KeyStore(), usage_log=UsageLog(), search_id=run.id, notify=run.note,
+        checkpoint=lambda: _checkpoint(run),
+        on_wait=lambda seconds: _ai_wait_note(run, seconds),
     )
 
     def checkpoint() -> None:
@@ -849,7 +852,9 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
     decide again about the jobs that search found."""
     settings = load_settings()
     client = AIClient(
-        settings, KeyStore(), usage_log=UsageLog(), search_id=run.id, notify=run.note
+        settings, KeyStore(), usage_log=UsageLog(), search_id=run.id, notify=run.note,
+        checkpoint=lambda: _checkpoint(run),
+        on_wait=lambda seconds: _ai_wait_note(run, seconds),
     )
     run.update("conditions", "running")
     plan = LocationPlan.model_validate(run.result["location"])
@@ -872,6 +877,17 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
         http.close()
         usage = UsageLog().for_search(run.id)
         run.set_result("usage", {step: asdict(used) for step, used in usage.items()})
+
+
+def _ai_wait_note(run: SearchRun, seconds: float) -> None:
+    if run.stop_requested:
+        return
+    with run._lock:
+        active = next((step.id for step in run.steps if step.status == "running"), None)
+    if active:
+        detail = (f"AI provider: waiting about {seconds:.0f} seconds before retrying. "
+                  "Stop cancels waiting.") if seconds else "Retrying an AI request"
+        run.update(active, "running", detail)
 
 
 def _source_wait_note(run: SearchRun, host: str, seconds: float) -> None:

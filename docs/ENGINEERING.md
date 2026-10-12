@@ -162,6 +162,67 @@ acceptable; the [broader decision below](#quality-first-api-and-electronics-cove
 replaces that order and earlier Go-first trial recommendations. Dated capability/cost facts
 remain evidence, not comparative matching outcomes.
 
+## AI billing refusals, Stop and incomplete usage — 2026-10-12
+
+An authorized saved-data review selected failure recovery as the strongest reproducible
+cost improvement. Detailed judgements, billing evidence, source contributions and run
+measurements remain private; no paid test, new search or vacancy request was made.
+
+The shortlist compared request recovery/accounting, same-model discounted processing,
+permitted originals and a replacement API. Preserve the configured provider and medium:
+prices and generic benchmarks cannot establish matching equivalence. The existing
+[market assessment](SOURCES.md#public-api-market-and-quality-evidence--2026-10-10) remains a
+dated comparison, including stronger models; no subscription is adopted from model count.
+[Updated service evidence](SOURCES.md#billing-refusals-and-processing-evidence--2026-10-12)
+keeps MiMo as a capability candidate but identifies a concrete third-party-use/rights
+dependency. This supersedes treating its previously unread terms as the only access gap.
+Go's shared windows alone are not a rejection, but use permission, current hosted-tool
+fees and an independent fit comparison remain adoption gates. Private half/equal/double
+daily, weekly and monthly scenarios include fixed fees, thinking, tools and missing charges.
+
+Every AI dispatch, including repair/truncation retries, now checks Stop and recorded monthly
+limits. Retry sleeps check Stop at most one second apart; queued request-slot waits check
+within 250 ms. Definite depleted-credit refusals are remembered for the provider/model in
+that search, so a step that catches an account error cannot dispatch it again. Existing
+transient retries, parallelism and necessary evidence checks are preserved. A request
+already sent can finish first and incur a charge; Stop is not a provider-side refund.
+Quick connection probes do not repeat outage requests. The current step shows retry waits,
+while the permanent note describes retries in the past tense after completion.
+
+Gemini HTTP 402 or explicit depleted-credit responses are terminal billing refusals,
+not temporary throttling. SDK attempts are explicitly one; Jobcu controls the retries.
+The locked SDK previously made one attempt when retry options were absent, so this is
+not a claim that hidden SDK retries caused an observed bill.
+
+Only a received successful `STOP` finish permits reuse after a later HTTP transport failure.
+Schema validation still follows; truncation, refusal and pre-completion disconnects cannot
+become judgements. Normal streams still collect late citations and cumulative usage. Known
+usage/search queries from a failed frame are retained before retrying; the failed answer and
+its citations cannot support a judgement. Generation that ends without complete usage is
+marked `unreported_requests`, including zero-known-token failures, rather than a free receipt.
+Migration 15 preserves old records and adds this marker; old missing charges are unrecoverable.
+The local cost estimate becomes incomplete and the UI/report exposes missing request usage.
+Fees, discounts, taxes, currency, parallel in-flight work and provider reporting delays still
+prevent the local monthly limit from being a guaranteed bill cap.
+
+Controlled fictional regressions first reproduced the old behavior:
+
+| Failure | Before | After |
+|---|---|---|
+| Depleted-credit HTTP 402 | Temporary throttling/retry path | Terminal billing refusal; later dispatch blocked |
+| Stop during an AI retry | Whole wait and another request could run | Wait cancelled within a one-second check; one request sent |
+| Successful terminal answer followed by a disconnect | Second request replaces the completed answer | One request; completed evidence retained, usage uncertainty marked |
+| Failed/truncated generation with known usage | Available receipt discarded | Known tokens/thinking/queries counted once before limits/retry |
+| Failure with no usage receipt | Could look like zero spending | Missing usage shown even with zero known tokens |
+
+The transport comparison covers fictional electronics, nursing and teaching and preserves
+medium. Search-manager Stop, concurrent slots, shared research allowance, migration, monthly
+guards and existing all-country matching regressions verify the app contract. These are
+offline behavior/request comparisons, not measured live savings, provider latency or fit/
+coverage improvements. Missing originals, researched conditions and a date-verified independent
+benchmark remain evidence gaps; do not tune scores or remove sources on counts or temporary
+failures. Clearing search data removes reusable caches/history and does not repair billing.
+
 ## Quality-first API and electronics coverage decision — 2026-10-10
 
 The owner asks for a practical best judgement across public APIs, without buying/testing every

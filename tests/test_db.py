@@ -107,3 +107,29 @@ def test_identity_migration_preserves_legacy_jobs_and_reports(temporary_data_dir
         assert tuple(conn.execute("SELECT saved, applied FROM job_states").fetchone()) == (1, 1)
         assert conn.execute("SELECT url FROM application_link_reports").fetchone()[0] == (
             "https://jobs.example.test/old")
+
+
+def test_incomplete_usage_migration_keeps_usage_searches_and_owner_ratings(temporary_data_dir):
+    import sqlite3
+
+    temporary_data_dir.mkdir(parents=True)
+    conn = sqlite3.connect(temporary_data_dir / db.DB_FILENAME)
+    for migration in db.MIGRATIONS[:14]:
+        conn.executescript(migration)
+    conn.execute("PRAGMA user_version = 14")
+    conn.execute("INSERT INTO searches (id, status, form_json) VALUES (1, 'finished', '{}')")
+    conn.execute("INSERT INTO ai_usage (search_id, step, provider, model, input_tokens, "
+                 "output_tokens, cached_input_tokens, reasoning_tokens, web_searches) "
+                 "VALUES (1, 'scoring', 'example', 'fictional', 100, 20, 0, 10, 0)")
+    conn.execute("INSERT INTO quality_ads (kind, source, source_job_id, title, url, text, rating, "
+                 "rated_by) VALUES ('scored', 'fake', '1', 'Fictional Teacher', '', 'Full ad', "
+                 "'okay', 'owner')")
+    conn.commit()
+    conn.close()
+    with db.connect() as conn:
+        assert tuple(conn.execute("SELECT search_id, input_tokens, output_tokens, "
+                                  "reasoning_tokens, unreported_requests FROM ai_usage").fetchone()
+                     ) == (1, 100, 20, 10, 0)
+        assert conn.execute("SELECT status FROM searches").fetchone()[0] == "finished"
+        assert tuple(conn.execute("SELECT rating, rated_by FROM quality_ads").fetchone()) == (
+            "okay", "owner")

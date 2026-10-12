@@ -678,6 +678,48 @@ matching quality; the research supports measuring complete costs rather than ran
 Private demand/estimates stay private. Public fictional comparisons and decisions:
 [ENGINEERING](ENGINEERING.md#structured-employer-workplace-evidence--2026-10-10).
 
+### Billing refusals and processing evidence — 2026-10-12
+
+**Rechecked:** Google's [billing documentation](https://ai.google.dev/gemini-api/docs/billing)
+identifies exhausted prepay credit as HTTP 402 until replenishment. Delayed cut-off can create
+a negative balance, deducted from the next purchase. Billing reports can lag; a balance
+change alone cannot identify the charge for one run. This supports a terminal billing error,
+not repeated minute-scale throttling waits or a diagnosis from a screenshot timestamp.
+
+[Current pricing](https://ai.google.dev/gemini-api/docs/pricing) still lists 3.8 Flash standard
+input/output USD0.75/3.75 per million through 2026-12-31, with thinking included in output.
+Search queries have the documented shared free allowance and additional per-query fees.
+Complete comparison includes failed work, retrieved content where charged, cache/storage,
+tax/currency and separate Maps; local token estimates are not invoices.
+The [Flex contract](https://ai.google.dev/gemini-api/docs/flex-inference) retains a 50% token
+discount with variable 1–15-minute target latency, sheddable capacity, shared rate limits
+and client-managed retries; there is no automatic Standard fallback. It uses Interactions
+and is not implemented by Jobcu's Generate Content adapter. Batch can take up to 24 hours.
+Equal-token half-price arithmetic does not measure actual latency/recovery or full savings.
+
+MiMo's [rendered overseas prices](https://mimo.mi.com/docs/en-US/price/pay-as-you-go), updated
+2026-10-08 and read on 2026-10-12, confirm V2.6 Pro USD0.435/0.87, cached read USD0.0036,
+and overseas search USD5/1,000 uses separately. Retrieved input and multiple keyword uses
+still matter. V2.6 Pro Ultraspeed is USD4.35/8.70, so an advertised faster variant is not
+the same cheap API. The notice says native V2.5 aliases auto-route on October 14 and expire
+October 21; this is not verified Go-hosted alias behavior. Existing thinking/search contracts
+and quality counterevidence above remain; no private data was sent or plan purchased.
+
+The [service agreement](https://mimo.mi.com/docs/quick-start/terms/user-agreement), dated
+2026-07-07, is now readable. It describes an API platform and processor/controller roles,
+with overseas storage in Europe/Singapore. Clauses 3.2.8–3.2.9 restrict unauthorized third-party
+tools/systems; 5.2 requires rights to third-party copyrighted material. This resolves the
+previous unreadable-page gap, not Jobcu-specific authorization. **Inference/adoption gate:**
+reconcile those clauses with the documented API integration and source-content rights before
+transferring records. Do not silently assume permission or claim a universal non-coding ban.
+
+Go's current documentation could not be independently retrieved in this recheck; the complete
+catalogue/token-window table above remains explicitly dated 2026-10-10. Search-indexed official
+text is a lead, not proof that every current price, plan entitlement or hosted tool is unchanged.
+No blocked access was bypassed. The broader eleven-developer comparison and stronger-model
+counterevidence remain the comparison baseline; fresh rights/identity/fees and independent fit
+outcomes are required for adoption. [Selected implementation](ENGINEERING.md#ai-billing-refusals-stop-and-incomplete-usage--2026-10-12).
+
 ### Long AI answers and streaming
 
 **Checked 2026-10-10:** Google's [Generate Content API reference](https://ai.google.dev/api/generate-content)

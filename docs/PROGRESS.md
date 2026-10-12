@@ -193,11 +193,24 @@ matching equivalence. Keep the existing provider/medium effort while comparison 
 Selected coherent improvement: prevent further AI dispatch after Stop or a definite depleted-
 credit refusal, preserve terminally completed streamed answers across a later transport failure,
 retain available failed-request usage and flag unknown charges. Preserve necessary evidence
-checks, complete answers, existing settings/limits and owner data. Next action: add fictional
-regressions showing the current failure, then implement and compare request counts, recovery,
-usage persistence and Stop behavior. Exact billing attribution, missing originals and an
+checks, complete answers, existing settings/limits and owner data. Fictional before/after
+comparisons verify request counts, recovery, usage persistence and Stop behavior.
+Exact billing attribution, missing originals and an
 independent date-verified benchmark remain private evidence dependencies; do not claim live
 cost savings or whole-market quality/coverage from offline behavior.
+
+Implementation checkpoint: billing refusal classification; per-dispatch Stop/monthly guards;
+cancellable waits/slots; complete terminal-answer retention across late HTTP disconnects;
+known failed usage and unknown-charge markers; migration 15; progress/cost UI and guides are
+implemented. Final local suite: 1,333 passed, one existing dependency warning. Ruff, privacy,
+document checks, JS syntax, whitespace and complete diff review passed. Isolated fictional
+startup on 8799 passed and stopped; its data was removed. Publication is pending.
+Owner app remains preserved; disposable review scratch is recorded in the private
+`assistant-review-checkpoint.json` and must be removed after saving evidence.
+Exact next action: commit/push/open a PR and require exact-head Mac/Windows/privacy CI before
+a merge commit, synchronize main and verify its exact-head CI, then clear this completed
+checkpoint and remove the recorded disposable scratch. Saved billing/original/benchmark
+dependencies and detailed review evidence remain private; no further paid work is authorized.
 
 ### Verify before relying on
 

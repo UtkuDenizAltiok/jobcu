@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from jobcu.ai.base import AIOutputTruncated, AIRefused, AIUnavailable, Usage
 from jobcu.ai.client import AIClient
 from jobcu.ai.gemini_adapter import GeminiAdapter
+from jobcu.ai.usage import UsageLog
 from jobcu.settings import Settings
 
 
@@ -235,3 +236,67 @@ def test_closing_failed_stream_does_not_interrupt_another_request():
                 bad_result.result(timeout=5)
             assert good_result.result(timeout=5).text == '{"requirement":"unknown"}'
     assert bad.closed and good.closed
+
+
+@pytest.mark.parametrize("profession", ["teacher", "nurse", "power electronics engineer"])
+def test_disconnect_after_terminal_success_keeps_answer_without_another_paid_request(
+        service, profession):
+    adapter, requests, streams = service(
+        [chunk('{"requirement":"unknown"}', finish="STOP",
+               usage={"promptTokenCount": 100, "candidatesTokenCount": 20}),
+         httpx.RemoteProtocolError("fictional late disconnect")],
+        [chunk('{"requirement":"met"}', finish="STOP")],
+    )
+    settings = Settings()
+    settings.ai.provider, settings.ai.model = "gemini", "fictional-model"
+    log = UsageLog()
+    client = AIClient(settings, adapter=adapter, usage_log=log, sleep=lambda seconds: None)
+    answer = client.generate(Fit, step="scoring", system=f"Fictional {profession}",
+                             prompt="Qualifications not stated")
+    assert answer.requirement == "unknown"
+    assert len(requests) == 1 and streams[0].closed
+    assert log.this_month()[0].usage == Usage(100, 20, unreported_requests=1)
+
+
+def test_failed_stream_usage_and_queries_count_before_a_fresh_research_retry(service):
+    grounding = {"webSearchQueries": ["fictional registration"], "groundingChunks": [
+        {"web": {"uri": "https://example.org/ad", "title": "Fictional original"}}]}
+    adapter, requests, _ = service(
+        [chunk("Unfinished finding", grounding=grounding,
+               usage={"promptTokenCount": 100, "candidatesTokenCount": 10,
+                      "thoughtsTokenCount": 20}),
+         httpx.RemoteProtocolError("fictional disconnect")],
+        [chunk("Current evidence unknown", grounding=grounding, finish="STOP",
+               usage={"promptTokenCount": 50, "candidatesTokenCount": 5})],
+    )
+    settings = Settings()
+    settings.ai.provider, settings.ai.model = "gemini", "fictional-model"
+    settings.limits.web_search_cap = 3
+    log = UsageLog()
+    client = AIClient(settings, adapter=adapter, usage_log=log, sleep=lambda seconds: None)
+    reply = client.research(step="job_places", system="Fictional nurse",
+                            prompt="Current registration evidence", max_searches=3)
+    assert reply.text == "Current evidence unknown"
+    assert len(requests) == 2
+    assert client.web_searches_used == 2 and client.web_searches_left() == 1
+    assert log.this_month()[0].usage == Usage(150, 35, reasoning_tokens=20,
+                                            web_searches=2, unreported_requests=1)
+
+
+def test_usage_missing_from_a_successful_stream_is_not_a_zero_cost_receipt(service):
+    adapter, _, _ = service([chunk('{"requirement":"unknown"}', finish="STOP")])
+    assert generate(adapter).usage.unreported_requests == 1
+
+
+def test_failed_terminal_frame_retains_received_usage_and_queries_without_its_answer(service):
+    adapter, _, streams = service([
+        chunk("Incomplete evidence", finish="MAX_TOKENS",
+              grounding={"webSearchQueries": ["fictional teaching registration"]},
+              usage={"promptTokenCount": 200, "candidatesTokenCount": 20,
+                     "thoughtsTokenCount": 50}),
+    ])
+    with pytest.raises(AIOutputTruncated) as caught:
+        research(adapter)
+    assert caught.value.usage == Usage(200, 70, reasoning_tokens=50,
+                                       web_searches=1, unreported_requests=1)
+    assert streams[0].closed
