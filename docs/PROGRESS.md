@@ -194,15 +194,19 @@ complete bills, the wider API market and Maps reuse. Existing billing/Stop work 
 [PR #111](https://github.com/UtkuDenizAltiok/jobcu/pull/111) implementation/publication is complete
 at verified main `71dd6fc`. No prior authorized work was abandoned.
 
-Final coherent step: `codex/quality-final-evidence`, based on `71dd6fc`, preserves the missing
-original-date check even when another matched board has a recent date. The fictional regression
-recovers an older employer original despite full text and a future deadline. Main code changes
-from PR #111 passed 1,354 tests; the final code now passes 1,355 tests with one existing
-dependency warning, Ruff/privacy, 20 document checks and whitespace/full-diff review. JS syntax
-and isolated startup remain valid for unchanged relevant code. Exact next action: commit/push/
-open/attach its PR, require exact-head Mac/Windows/privacy CI, merge with a merge
-commit, synchronize main and verify its exact-head CI. No provider/search/account action is
-needed for this code step.
+Final coherent step: [PR #112](https://github.com/UtkuDenizAltiok/jobcu/pull/112), branch
+`codex/quality-final-evidence`, based on `71dd6fc`; source correction commit `bc1a6cb`.
+A secondary board's recent date cannot suppress the original employer copy's date reader,
+even with complete text and a future deadline. Final local code passes 1,355 tests with one
+existing dependency warning, Ruff/privacy, 20 document checks and whitespace/full-diff review.
+Unchanged JS syntax/current-legacy rendering and isolated-startup checks remain valid.
+
+Publication checkpoint: PR #112 must pass Mac/Windows/privacy CI at its actual final head,
+then merge with a merge commit; main must be synchronized and its exact-head CI pass. Read
+Git/PR/CI to verify those facts once. If they are already confirmed, this code/publication step
+is complete and must not be repeated; only the dependency below remains. Otherwise the exact
+next action is to finish that publication gate, preserving this branch. No provider/search/
+account action or repeat local full suite is needed merely to refresh this handover.
 
 Private `assistant-review-checkpoint.json` points to `active_quality_review`: reused balanced
 blinded judgements including every top card, detailed original-date controls, complete-cost
