@@ -10,6 +10,24 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
+- [AI billing refusals, Stop and usage recovery](ENGINEERING.md#ai-billing-refusals-stop-and-incomplete-usage--2026-10-12)
+  is published in [PR #109](https://github.com/UtkuDenizAltiok/jobcu/pull/109), merged
+  at `a698ea6`. Exact PR-head CI `38287331688` and merged-main CI `38287834077` passed
+  on Mac, Windows and privacy. The local final suite passed 1,333 tests (one existing
+  dependency warning); Ruff/privacy, JS syntax, 20 document checks, whitespace and full
+  diff review passed. Fictional before/after tests verify terminal credit refusals,
+  cancellable retry/queued waits, completed-answer retention and incomplete usage markers.
+  Migration 15 preserves old receipts and ratings. Existing provider, medium effort,
+  evidence checks and owner limits are preserved; no live savings or matching gain is claimed.
+- The authorized saved review used a shuffled balanced packet including every top card;
+  available evidence was judged before score reveal. Detailed billing, source contributions,
+  judgements and exact missing-evidence dependencies are saved privately in the directory
+  referenced by `assistant-review-checkpoint.json`. Owner/legacy ratings were preserved;
+  unknowns were retained. No paid test, new search, job-site request, source/provider switch,
+  account change or reset was made. Disposable review and fictional startup data are removed.
+  Owner app 8765 remains running and was preserved; assistant preview 8799 is stopped.
+  The next normal launch loads the repair. Exact historical billing attribution, missing
+  originals/conditions and an independent date-verified benchmark remain evidence limits.
 - Start recovery verified the final session handover in
   [PR #107](https://github.com/UtkuDenizAltiok/jobcu/pull/107), merged at `c75cbd9`.
   Exact PR-head CI `38043089148` and merged-main CI `38043353599` passed on Mac,
@@ -162,55 +180,9 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
-**Authorized saved-search review and cost/recovery improvement — 2026-10-12.**
-Branch: `codex/review-cost-recovery`, based on verified main `c197371`.
-Scope: privately review the latest completed search and current documents/criteria on an
-isolated copy; preserve owner/legacy ratings and the owner's app state. Diagnose recorded
-usage, run boundaries, provider failures/retries, Stop and evidence gaps. No new search,
-paid test, account change or larger service allowance is authorized by this task.
-
-Steps: (1) verify standing authorization/revocations and the private checkpoint; take the
-read-only report and a blinded balanced 30–50-ad review including every top card;
-(2) trace usage, failures, discovery, filtering and source/evidence limitations; rank a
-small shortlist and select the strongest reproducible improvement; (3) implement with
-general fictional engineering/non-engineering regressions, compare before/after behavior,
-update records/guides, run local checks and publish with exact-head Mac/Windows/privacy CI
-and merge commits. Private records and all real-result aggregates remain outside Git.
-
-Status: authorization/revocations checked; saved read-only report and shuffled balanced review
-completed privately before score reveal. Owner app 8765 remains running; preview 8799 is
-stopped. Offline baseline: 1,312 tests passed (one existing dependency warning). No paid call,
-new search or job-site request. Public records contain no private-result aggregates.
-
-Ranked shortlist: (1) billing/refusal classification, cancellable retry waits and honest failed-
-request accounting — confirmed general failure paths, high benefit, moderate implementation
-and offline verification; (2) same-model discounted processing — potential savings but longer
-waits/capacity and recovery integration need separate validation; (3) permitted original-ad
-coverage — high potential, but current unique contribution/rights/benchmark evidence limits
-changes; (4) a direct-API challenger — prices/control evidence is not independently verified
-matching equivalence. Keep the existing provider/medium effort while comparison is blocked.
-
-Selected coherent improvement: prevent further AI dispatch after Stop or a definite depleted-
-credit refusal, preserve terminally completed streamed answers across a later transport failure,
-retain available failed-request usage and flag unknown charges. Preserve necessary evidence
-checks, complete answers, existing settings/limits and owner data. Fictional before/after
-comparisons verify request counts, recovery, usage persistence and Stop behavior.
-Exact billing attribution, missing originals and an
-independent date-verified benchmark remain private evidence dependencies; do not claim live
-cost savings or whole-market quality/coverage from offline behavior.
-
-Implementation checkpoint: billing refusal classification; per-dispatch Stop/monthly guards;
-cancellable waits/slots; complete terminal-answer retention across late HTTP disconnects;
-known failed usage and unknown-charge markers; migration 15; progress/cost UI and guides are
-implemented. Final local suite: 1,333 passed, one existing dependency warning. Ruff, privacy,
-document checks, JS syntax, whitespace and complete diff review passed. Isolated fictional
-startup on 8799 passed and stopped; its data was removed. Publication is pending.
-Owner app remains preserved; disposable review scratch is recorded in the private
-`assistant-review-checkpoint.json` and must be removed after saving evidence.
-Exact next action: commit/push/open a PR and require exact-head Mac/Windows/privacy CI before
-a merge commit, synchronize main and verify its exact-head CI, then clear this completed
-checkpoint and remove the recorded disposable scratch. Saved billing/original/benchmark
-dependencies and detailed review evidence remain private; no further paid work is authorized.
+None. The authorized saved-search review and cost/recovery step is completed and published;
+its checks and private evidence dependencies are recorded above. Do not start paid work,
+a new search or a replacement improvement from those dependencies without the owner's task.
 
 ### Verify before relying on
 
