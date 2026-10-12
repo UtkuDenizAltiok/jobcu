@@ -6,10 +6,17 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ## Right now
 
-*Updated 2026-10-10. Engineering checks use fictional data.*
+*Updated 2026-10-12. Engineering checks use fictional data.*
 
 ### State
 
+- Start recovery verified the final session handover in
+  [PR #107](https://github.com/UtkuDenizAltiok/jobcu/pull/107), merged at `c75cbd9`.
+  Exact PR-head CI `38043089148` and merged-main CI `38043353599` passed on Mac,
+  Windows and privacy. Clean main was synchronized and `uv sync --locked` passed.
+  Owner app 8765 and preview 8799 were both stopped; that state was preserved.
+  The completed publication checkpoint below was cleared. No private review, paid call,
+  job search or new development goal was started.
 - [Quality-first API and electronics coverage decision](ENGINEERING.md#quality-first-api-and-electronics-coverage-decision--2026-10-10)
   replaces earlier price-led/Go-centred trial ordering. The broader public survey includes
   stronger models and native research contracts; direct MiMo Pro is the first replacement
@@ -156,16 +163,11 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 ### In progress
 
 **None.** The quality-first research/decision step is merged and verified in PR #105;
-its exact-head publication checks are recorded in State. No app feature, private review,
-paid test or source/model integration is active. Missing comparative quality evidence and
-collection permission are future adoption dependencies, not unfinished implementation here.
-
-If interrupted while publishing the documentation-only `codex/session-end-handover`, based
-on `23b8da6`, finish only its publication: inspect the actual PR/head, require Mac/Windows/
-privacy CI, merge with a merge commit, synchronize main and verify exact merged-head CI.
-Reuse the unchanged 1,312-test code baseline and document checks; no feature, research, paid
-call or search belongs to End. Exact next action on synchronized clean main with passing CI:
-use Start to prepare the fresh chat, then wait for the owner's task.
+the final session handover is also merged and verified in PR #107. Exact-head publication
+checks are recorded in State. No app feature, private review, paid test or source/model
+integration is active. Missing comparative quality evidence and collection permission are
+future adoption dependencies, not unfinished implementation here. This chat is prepared;
+wait for the owner's task.
 
 ### Verify before relying on
 
