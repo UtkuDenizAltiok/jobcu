@@ -180,9 +180,24 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
-None. The authorized saved-search review and cost/recovery step is completed and published;
-its checks and private evidence dependencies are recorded above. Do not start paid work,
-a new search or a replacement improvement from those dependencies without the owner's task.
+**Whole-pipeline search quality, misses and unknown evidence — 2026-10-12.**
+Branch: `codex/search-quality-coverage`, based on verified main `1a1910a`.
+Owner task: assess saved scoring/coverage, trace supplied missing jobs and independently find
+similar public examples, diagnose widespread unchecked fields, then improve the strongest
+confirmed general failures. Reuse the private blinded review and unchanged 1,333-test baseline.
+Check private authorization/revocations and use an isolated copy; preserve owner data/ratings
+and app state. Free public research is authorized; no new paid test, provider call, account
+change or owner-data reset is authorized. Source work requires current permission evidence.
+
+Steps: (1) trace examples through discovery, dates, collection, deduplication, exclusions,
+scoring and evidence/UI; (2) assemble an original/requisition/date-verified public benchmark
+and review saved requirement/location unknowns; (3) choose justified general improvements,
+implement fictional engineering/non-engineering regressions and compare meaningful behavior;
+(4) update records/guides, run final checks, publish with exact-head Mac/Windows/privacy CI,
+merge commits and synchronize main. Keep real-job/profile evidence and aggregates private.
+Status: prior goal completed; clean synchronized main confirmed. Exact next action: recheck
+authorization, create private recovery copy, inspect both supplied examples and trace saved
+evidence/missing fields before selecting changes. Missing dates/rights/fit remain unknown.
 
 ### Verify before relying on
 
