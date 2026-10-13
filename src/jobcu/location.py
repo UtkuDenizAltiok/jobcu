@@ -3,7 +3,8 @@
 People write a sentence, not a filter: *"Dublin or Cork"*, *"Germany or Ireland, at most 50
 minutes by public transport from a city centre with at least 0.3% of the country's people"*,
 *"cities where far-right parties polled below the national average"*, *"somewhere with shops
-open on Sunday"*. Every search reads that text from scratch (docs/ENGINEERING.md).
+open on Sunday"*. Successful readings can be reused for unchanged request inputs; place facts
+that need web research are still checked in each search (docs/ENGINEERING.md).
 
 Jobcu splits it into conditions and picks a way to check each one:
 
@@ -19,8 +20,8 @@ Jobcu splits it into conditions and picks a way to check each one:
 - **conditions about the job itself**, and anything that couldn't be checked, are shown to the
   person as "not checked" and never quietly dropped.
 
-Nothing here is remembered between searches: two searches by the same person may mean completely
-different things.
+Only the interpretation of the text is reusable. New text gets a new reading; researched
+facts and journey measurements are not stored by this preparation cache.
 """
 
 import logging
@@ -31,8 +32,10 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 from jobcu import places as place_list
+from jobcu import preparation
 from jobcu.ai.base import AIError, AIInvalidOutput, AIOutputTruncated
 from jobcu.ai.client import AIClient
+from jobcu.ai.schema import strict_json_schema
 from jobcu.countries import COUNTRIES, LANGUAGE_NAMES
 from jobcu.placenames import countries_in
 from jobcu.text import normalise
@@ -470,16 +473,13 @@ or estimate journeys during this reading: the app checks them afterwards.
 \n""" + SORT_SYSTEM
 
 
-def interpret_location(client: AIClient, text: str) -> LocationPlan:
-    text = text.strip()
-    if not text:
-        return _everywhere(text, [], [])
+def _read_location(client: AIClient, text: str) -> tuple[LocationInterpretation, bool]:
     prompt = f"Where the person wants to work (between the markers):\n<<<\n{text}\n>>>"
     try:
-        understanding = client.generate(
+        return client.generate(
             LocationInterpretation, step="location", system=INTERPRET_SYSTEM, prompt=prompt,
             reasoning=True, max_output_tokens=4000,
-        )
+        ), True
     except (AIInvalidOutput, AIOutputTruncated):
         # Preserve the simpler route for models that cannot produce the combined format.
         # Authentication, quota and spending-limit failures must still stop AI work.
@@ -488,28 +488,65 @@ def interpret_location(client: AIClient, text: str) -> LocationPlan:
             LocationUnderstanding, step="location", system=SYSTEM_PROMPT, prompt=prompt,
             reasoning=True, max_output_tokens=4000,
         )
-        plan = plan_from(text, plain)
-        plan.conditions = check_conditions(
-            client, plain.conditions_about_places + plain.conditions_about_the_job,
-            plan.countries,
+        countries = plan_from(text, plain).countries
+        conditions, complete = _sort_conditions(
+            client, plain.conditions_about_places + plain.conditions_about_the_job, countries,
         )
-    else:
-        # Keep the plan builder shared with edits and the existing country/place rules.
-        plain = LocationUnderstanding.model_validate({
-            **understanding.model_dump(),
-            "conditions_about_places": [c.text for c in understanding.conditions_about_places],
-            "conditions_about_the_job": [c.text for c in understanding.conditions_about_the_job],
-        })
-        plan = plan_from(text, plain)
-        plan.conditions = _check_sorted_conditions(
-            client, understanding.conditions_about_places + understanding.conditions_about_the_job,
-            plan.countries,
-        )
+        return LocationInterpretation.model_validate({
+            **plain.model_dump(),
+            "conditions_about_places": [c for c in conditions if c.kind != "about_the_job"],
+            "conditions_about_the_job": [c for c in conditions if c.kind == "about_the_job"],
+        }), complete
+
+
+def _plan_from_reading(client: AIClient, text: str,
+                       reading: LocationInterpretation) -> LocationPlan:
+    plain = LocationUnderstanding.model_validate({
+        **reading.model_dump(),
+        "conditions_about_places": [c.text for c in reading.conditions_about_places],
+        "conditions_about_the_job": [c.text for c in reading.conditions_about_the_job],
+    })
+    plan = plan_from(text, plain)
+    plan.conditions = _check_sorted_conditions(
+        client, reading.conditions_about_places + reading.conditions_about_the_job, plan.countries,
+    )
     _narrow_countries(plan)
     plan.not_checked_yet = [
         condition.text for condition in plan.conditions if condition.status == "not_checked"
     ]
     return plan
+
+
+def interpret_location(client: AIClient, text: str) -> LocationPlan:
+    """A fresh reading, with current local figures and fresh condition research."""
+    text = text.strip()
+    if not text:
+        return _everywhere(text, [], [])
+    reading, _ = _read_location(client, text)
+    return _plan_from_reading(client, text, reading)
+
+
+def interpret_location_reusing(client: AIClient, text: str) -> tuple[LocationPlan, bool]:
+    """Reuse the same text reading, never a previous researched plan or travel judgement."""
+    text = text.strip()
+    client.checkpoint()
+    if not text:
+        return _everywhere(text, [], []), False
+    request_key = preparation.key(client, reasoning=True, inputs=[
+        "location-reading-1", text, INTERPRET_SYSTEM, SYSTEM_PROMPT, SORT_SYSTEM,
+        strict_json_schema(LocationInterpretation), strict_json_schema(LocationUnderstanding),
+        4000, preparation.key(client, reasoning=False, inputs=[
+            "fallback-condition-sorting-1", strict_json_schema(SortedConditions), 2000,
+        ]),
+    ])
+    reading = preparation.read("location", request_key, LocationInterpretation)
+    reused = reading is not None
+    if reading is None:
+        reading, complete = _read_location(client, text)
+        if complete:
+            preparation.write("location", request_key, reading)
+    client.checkpoint()
+    return _plan_from_reading(client, text, reading), reused
 
 
 def _narrow_countries(plan: LocationPlan) -> None:
@@ -535,10 +572,17 @@ def _narrow_countries(plan: LocationPlan) -> None:
 def check_conditions(
     client: AIClient, conditions: list[str], countries: list[str]
 ) -> list[Condition]:
-    """Works out what each condition means and checks it: Jobcu's own figures where it can,
-    the web where it must, and "not checked" when neither works."""
+    """Check new or edited conditions without borrowing another search's research."""
+    sorted_conditions, _ = _sort_conditions(client, conditions, countries)
+    return _check_sorted_conditions(client, sorted_conditions, countries)
+
+
+def _sort_conditions(
+    client: AIClient, conditions: list[str], countries: list[str]
+) -> tuple[list[SortedCondition], bool]:
+    """Read how to check conditions; a failed reading remains retryable."""
     if not conditions:
-        return []
+        return [], True
     names = ", ".join(COUNTRIES[code].name for code in countries) or "the supported countries"
     try:
         sorted_conditions = client.generate(
@@ -552,11 +596,11 @@ def check_conditions(
         ).conditions
     except AIError as exc:
         log.info("Sorting the conditions failed: %s", exc)
-        sorted_conditions = [
+        return [
             SortedCondition(text=text, understood_as=text, kind="needs_the_web")
             for text in conditions
-        ]
-    return _check_sorted_conditions(client, sorted_conditions, countries)
+        ], False
+    return sorted_conditions, True
 
 
 def _check_sorted_conditions(

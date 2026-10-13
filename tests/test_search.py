@@ -106,6 +106,52 @@ def wait_until_done(manager, answer=None, timeout=15):
     return manager.current.snapshot()
 
 
+def test_two_identical_searches_reuse_setup_but_collect_and_score_afresh(ready, monkeypatch):
+    calls, collections = [], []
+
+    class TrackedAI(FakeAI):
+        def complete_json(self, **request):
+            name = request["schema_name"]
+            calls.append(name)
+            if name == "SearchWordsAnswer":
+                return RawReply(json.dumps({"terms": [
+                    {"text": text, "language": code, "kind": kind}
+                    for code in ("en", "de")
+                    for kind, text in (("job_title", "Hardware Engineer"),
+                                       ("field_or_skill", "PCB design"))]}), Usage(10, 5))
+            reply = super().complete_json(**request)
+            if name == "ScoringAnswer" and calls.count(name) == 2:
+                answer = json.loads(reply.text)
+                for score in answer["scores"]:
+                    score["role_and_skills"] = 20
+                return RawReply(json.dumps(answer), reply.usage)
+            return reply
+
+    class TrackedSource(FakeSource):
+        def search(self, query, ctx):
+            collections.append(query)
+            yield from super().search(query, ctx)
+
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: TrackedAI())
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [TrackedSource()])
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    first = wait_until_done(manager)
+    manager.start(SearchForm(location_text="Germany"))
+    second = wait_until_done(manager)
+    assert first["status"] == second["status"] == "finished"
+    assert calls.count("Profile") == calls.count("LocationInterpretation") == 1
+    assert calls.count("SearchWordsAnswer") == 1
+    assert calls.count("ScoringAnswer") == 2 and len(collections) == 2
+    assert second["result"]["jobs"]["cards"][0]["score"] < \
+        first["result"]["jobs"]["cards"][0]["score"]
+    for step in second["steps"]:
+        if step["id"] == "location":
+            assert "Using saved location understanding" in step["detail"]
+        if step["id"] == "search_words":
+            assert "Using saved search words" in step["detail"]
+
+
 @pytest.mark.parametrize("case", ["old", "closed", "unknown"])
 def test_greenhouse_detail_dates_decide_before_scoring_and_unknown_stays_visible(
     ready, monkeypatch, case,

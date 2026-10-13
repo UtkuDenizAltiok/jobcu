@@ -10,7 +10,7 @@ from google import genai
 from google.genai import types
 from pydantic import BaseModel
 
-from jobcu.ai.base import AIOutputTruncated, AIRefused, AIUnavailable, Usage
+from jobcu.ai.base import AIConnectionError, AIOutputTruncated, AIRefused, AIUnavailable, Usage
 from jobcu.ai.client import AIClient
 from jobcu.ai.gemini_adapter import GeminiAdapter
 from jobcu.ai.usage import UsageLog
@@ -152,6 +152,15 @@ def test_failed_terminal_status_never_returns_partial_evidence(service, call, fi
 def test_silent_eof_is_not_a_complete_answer_even_when_text_looks_valid(service, call, chunks):
     adapter, _, streams = service(chunks)
     with pytest.raises(AIUnavailable):
+        call(adapter)
+    assert streams[0].closed
+
+
+@pytest.mark.parametrize("call", [generate, research])
+def test_disconnection_is_distinct_from_provider_credit_or_service_response(service, call):
+    adapter, _, streams = service([
+        httpx.RemoteProtocolError("Server disconnected without sending a response.")])
+    with pytest.raises(AIConnectionError, match="connection.*interrupted"):
         call(adapter)
     assert streams[0].closed
 

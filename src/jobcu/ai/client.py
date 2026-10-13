@@ -29,6 +29,7 @@ from jobcu.ai.base import (
     MSG_RATE_LIMITED,
     AIAuthError,
     AIBadRequest,
+    AIConnectionError,
     AIError,
     AIInvalidOutput,
     AILimitReached,
@@ -459,8 +460,10 @@ class AIClient:
         seconds = min(max(seconds, 1.0), MAX_WAIT_SECONDS) + random.uniform(0, 1)
         log.info("AI request waiting %.0fs: %s", seconds, reason.detail or reason.message)
         if isinstance(reason, AIUnavailable):
-            self.notify("Some AI requests needed retries after a connection or service "
-                        "problem; completed work was kept.")
+            problem = "connection problem" if isinstance(reason, AIConnectionError) \
+                else "connection or service problem"
+            self.notify(f"Some AI requests needed retries after a {problem}; "
+                        "completed work was kept.")
         self.checkpoint()
         self.on_wait(seconds)
         try:

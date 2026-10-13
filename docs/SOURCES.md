@@ -228,6 +228,13 @@ and robots/terms permissions are unchanged. No new vacancy collection permission
 
 ## AI and Maps
 
+**Checked 2026-10-14:** Google's [Gemini troubleshooting guide](https://ai.google.dev/gemini-api/docs/troubleshooting)
+distinguishes transient network/service failures from client/billing refusals. It recommends
+bounded retries with increasing waits for transient failures and no retry for HTTP 402.
+This is generic recovery guidance, not evidence of a current outage or a particular account's
+balance. Jobcu owns its bounded retry loop and disables extra SDK retries; a disconnected
+connection without a provider response cannot establish credit exhaustion or actual charges.
+
 ### OpenCode Go and AI credit eligibility
 
 **Rechecked 2026-10-10:** the [Go documentation](https://opencode.ai/docs/go/) still lists

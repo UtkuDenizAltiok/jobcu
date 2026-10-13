@@ -16,7 +16,8 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Reject career titles only when explicitly classified as clearly unrelated. Keep unreviewed titles for normal matching; preserve independent batch decisions and stop on critical account/quota/monthly-limit errors. Retain raw source counts and private rejection evidence. | Fictional searches reproduced unseen late titles disappearing, a bad batch erasing healthy decisions, and matching continuing after a limit error. Supersedes dropping all titles beyond the 3,000-pair early-screen bound or after a failed screen. The request bound remains; later matching of unknowns may use more AI, subject to existing limits (2026-10-08). |
 | Read documents into a structured profile; reuse it only while documents, prompt and model are unchanged. Never reuse job scores. | Save repeated document work while keeping each search's judgement fresh (2026-09-17). |
 | Show sought roles in profile progress; label the most recent role as history. Offer **Reset document understanding** to forget cached profiles and read again on the next search. | Completed study or placement work must not look like a requested role. Reset costs no AI calls itself, keeps documents/results, and preserves default reuse (2026-10-07). |
-| Interpret each new query afresh. Conditions can name places, population, travel limits or researched facts; label estimates and unchecked conditions. | People's wording and intentions differ; no personal query is hard-coded (2026-09-17 to 2026-09-24). |
+| Interpret changed queries afresh. The original every-search interpretation is **superseded** by exact-input setup reuse below. Conditions can name places, population, travel limits or researched facts; label estimates and unchecked conditions. | People's wording and intentions differ; no personal query is hard-coded (2026-09-17 to 2026-09-24). |
+| Reuse successful location readings and search-word groups for up to 30 days when request inputs, prompts, schemas, provider/model/host and reasoning controls match. Rebuild conditions from current local data and fresh web research; never cache plans, scores or journeys here. | Repeated setup adds unnecessary requests and failure exposure. Migration 16 stores only validated setup answers privately; failed/partial groups remain retryable, and clear-search reset deletes them. Legacy snapshots lack request identity and cannot seed this cache (2026-10-14). |
 | Interpret countries, places and condition types together in one medium-effort request; apply the existing population, travel and research checks afterwards. | Avoid asking the AI to read and classify the same request twice. Fictional country/commute/nursing checks verify preserved conditions; live speed and interpretation still need measurement (2026-10-07). |
 | **Edit** reapplies corrected conditions to the same job pool and reuses earlier evidence. | Correct interpretation without collecting every ad again (2026-09-17; implemented 2026-09-21). |
 | Report completion only after final results and status are saved together. If saving fails, keep available results visible and explain that closing Jobcu may lose them. | A finished heading must mean the latest results can be restored; a controlled fictional test reproduced completion preceding persistence after the Windows CI restore failure (2026-10-07). |
@@ -69,6 +70,36 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Assistant ratings may fill empty labels or revise prior assistant labels; owner and legacy labels are protected atomically. | A concurrent owner edit must not be overwritten by a review. Fictional controlled-order tests cover the read/write gap (2026-10-07). |
 | Record step time and answer-wait time; label correction timings separately from cumulative usage. | Corrections and full searches cannot be compared as equivalent performance runs (2026-10-06). |
 | Warn when scoring reads only an excerpt of a lengthy ad. | Unseen requirements must not be assumed satisfied (2026-10-06). |
+
+## Search preparation reuse and connection clarity — 2026-10-14
+
+`preparation.py` and migration 16 keep successful setup answers outside Git. Location reuse
+stores only the structured interpretation of the text, including a successful legacy-format
+fallback; each search rebuilds local rules and rechecks web-dependent facts and citations.
+Search-word groups are keyed to the exact profile excerpt, requested languages and request
+contract. Missing languages or either requested word kind cannot become a reusable group.
+Completed groups survive another group's failure. Both kinds expire after 30 days without
+extending their age on a hit, are schema-validated on read and are bounded to 20 entries each.
+Provider/model/host, native reasoning controls, thinking/output policy, prompts, schemas and
+reader versions participate in the identity; account limits remain enforced before new calls.
+Legacy result snapshots do not prove that identity and are not imported as setup judgements.
+
+The progress labels identify saved location understanding and saved search words. Fictional
+unchanged electronics/nursing/teaching setups produce equal answers with four fresh setup
+requests versus two when reused over two searches; subsequent unchanged setup needs none.
+This is an offline request comparison, not a measured total bill, live coverage or quality
+claim. A complete fictional search also recollects sources and accepts a new score on the
+second run, proving that job collection and judgement were not cached. All countries remain
+supported. Failure, fallback, partial-language, expiry, corruption, route-control and migration/
+reset regressions protect recovery and historical data.
+
+Transport failures now have a separate provider-neutral connection error and retry note;
+HTTP service responses retain their service classification, and credit refusals remain
+terminal. Complete successful answers, partial usage and unknown charges retain the existing
+recovery/accounting rules. No timeout, retry count, effort, spending limit or provider choice
+is changed. [Current primary recovery guidance](SOURCES.md#ai-and-maps) does not establish
+which end of a particular connection failed. Detailed diagnosis stays private; no paid probe,
+owner settings change, restart, Stop, reset or new search is performed by development.
 
 ## Original evidence and repeated requests — 2026-10-12
 
@@ -876,7 +907,8 @@ snapshot remains intact if the transaction rolls back. Controlled-save tests cov
 overlapping starts/corrections, immediate restore and storage failures without timing guesses.
 
 1. Read documents into a profile, interpret the query into a location plan, and generate
-   multilingual search words. Refresh discovered employers when due (two-week interval).
+   multilingual search words, reusing successful unchanged setup within its bounds. Refresh
+   discovered employers when due (two-week interval).
    `LocationInterpretation` reads geography and classified conditions in one medium-effort
    request. Initial interpretation and edited conditions share the same checking function;
    population rules stay local and researched facts still use the provider. Journey estimates
@@ -924,7 +956,8 @@ target roles, with a clearly labelled fallback field. The guarded `DELETE /api/p
 forgets interpretations without deleting uploads/results or making AI calls; it refuses while
 a search is running. The next read rebuilds the cache and normal reuse resumes.
 
-`location.py` interprets each query afresh into explicit conditions. `places.py` supplies
+`location.py` reuses exact-input readings for at most 30 days, then builds explicit conditions
+with current data and fresh research. `places.py` supplies
 coordinates, population, local names and regions as measurement data, not interpretation rules.
 Population constraints are computed; other facts may need provider web research. Estimates
 and unchecked conditions remain visible with sources and can be corrected through **Edit**.
@@ -1048,6 +1081,7 @@ The root keeps launchers, README, CONTRIBUTING, AGENTS, LICENSE and Python/tool 
 | Startup/server | `launcher.py`, `__main__.py`, `app.py`; local server/browser and request safety. `build.py` fingerprints code to replace an older running version. |
 | Local persistence | `paths.py` locates private data; `keystore.py` stores masked keys; `settings.py`/`settings_api.py` handle settings; `db.py` owns SQLite migrations; `logs.py` masks keys in private logs; `reset.py` owns deliberate deletion and competing-write protection. |
 | Documents/profile | `documents.py`, `documents_api.py`, `profile.py`; uploads, text and cached structured profiles. |
+| Search preparation | `preparation.py`; bounded private reuse of exact-input location readings and search-word groups, excluding research, scores and journeys. |
 | Search coordination | `search.py`, `search_api.py`, `pipeline.py`, `pool.py`; progress, collection, decisions, cards and condition reapplication. |
 | Places/criteria | `countries.py`, `location.py`, `places.py`, `placenames.py`, `travel.py`; supported geography, query interpretation and measurements. |
 | Discovery | `keywords.py`, `employers.py`; multilingual words and periodically discovered employers. |

@@ -98,6 +98,10 @@ at a time. A provider retry note means Jobcu could not get a complete answer, be
 connection problem or temporary service failure. It retries while preserving completed work;
 repeated failures can still stop online checks. Buying more credit does
 not by itself repair a connection failure. Missing details remain unchecked if recovery fails.
+**Connection interrupted** means Jobcu did not receive a complete answer over its connection
+to the AI service. The cause may be the network or the service; this message does not report
+an empty balance. The incomplete-usage warning means some failed requests supplied no complete
+usage receipt, so Jobcu cannot confirm their charges. It does not prove that they were charged.
 The permanent retry note records what happened; it does not mean requests are still running
 after **Search finished**. During a retry, the current step shows the wait. **Stop** cancels
 retry waits and queued AI work; a request already sent can finish first.
