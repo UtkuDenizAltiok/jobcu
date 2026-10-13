@@ -127,6 +127,15 @@ Keep the browser page and the text window open. The time needed depends on the p
 sources, AI model and your account's limits. Wait until the heading says **Search finished**.
 That heading means the results have been saved on this computer.
 
+Jobcu shows all steps even when some use saved answers. **Using saved document understanding**
+means it did not ask the AI to read the unchanged documents again. Successful location readings
+and search words are also saved privately for up to 30 days. Their steps say **Using saved
+location understanding** or **Using saved search words** when reused. Changes to the relevant
+inputs, prompts, model or reasoning settings need a new answer. The first successful setup
+after this update creates those saved answers; older result snapshots cannot seed them safely.
+Live place facts, jobs and scores are still checked afresh. Failed or incomplete setup answers
+are tried again. Clearing search data removes the reusable answers and makes setup repeat.
+
 **Finding employers for your kind of work** searches for employers and checks which career
 lists Jobcu can read. Completed country lookups are normally reused for two weeks; their job
 lists are read on each search. Failed or incomplete countries are tried again on your next

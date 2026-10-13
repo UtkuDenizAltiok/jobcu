@@ -210,6 +210,16 @@ MIGRATIONS: list[str] = [
     """
     ALTER TABLE ai_usage ADD COLUMN unreported_requests INTEGER NOT NULL DEFAULT 0;
     """,
+    # 16: Exact-input setup answers only. No scores, web research or route durations.
+    """
+    CREATE TABLE preparation_cache (
+        kind TEXT NOT NULL,
+        key TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+        answer_json TEXT NOT NULL,
+        PRIMARY KEY (kind, key)
+    );
+    """,
 ]
 
 

@@ -44,6 +44,8 @@ def populated(temporary_data_dir):
         conn.execute("INSERT INTO application_link_reports (url,job_id,source) "
                      "VALUES ('https://example.test/apply',5,'example')")
         conn.execute("INSERT INTO profile_cache (key,profile_json) VALUES ('example','{}')")
+        conn.execute("INSERT INTO preparation_cache (kind,key,answer_json) "
+                     "VALUES ('location','example','{}')")
         conn.execute("INSERT INTO ad_texts (source,source_job_id,details_json) "
                      "VALUES ('example','ad','{}')")
         conn.execute("INSERT INTO travel_memory VALUES ('a','b','train','ai',12,'2026-10-09')")

@@ -2,7 +2,8 @@
 
 A search is a list of steps. Each step updates what the screen shows, so the user
 can see what Jobcu is doing. Only one search runs at a time. Every search starts
-fresh from the current CV, cover letter and location text.
+from the current documents and search choices, reusing valid setup answers while collecting
+and judging jobs afresh.
 """
 
 import dataclasses
@@ -36,14 +37,14 @@ from jobcu.countries import COUNTRIES, LANGUAGE_NAMES, languages_for
 from jobcu.documents import DocumentError
 from jobcu.filters import REASONS, apply_rules, fails_a_condition
 from jobcu.keystore import KeyStore
-from jobcu.keywords import generate_search_words
+from jobcu.keywords import generate_search_words_reusing
 from jobcu.location import (
     ConditionEdit,
     LocationPlan,
     apply_edits,
     check_edits,
     condition_warnings,
-    interpret_location,
+    interpret_location_reusing,
     needs_checking,
 )
 from jobcu.profile import Profile, progress_detail, read_profile_reusing
@@ -352,13 +353,15 @@ def run_search(run: SearchRun) -> None:
     checkpoint()
 
     run.update("location", "running", "Reading what you wrote")
-    plan = interpret_location(client, run.form.location_text)
+    plan, reused = interpret_location_reusing(client, run.form.location_text)
     run.set_result("location", plan.model_dump())
     names = [COUNTRIES[code].name for code in plan.countries]
     detail = f"{len(names)} countries" if plan.broad else ", ".join(names)
     count = sum(1 for c in plan.conditions if not c.switched_off)
     if count:
         detail += f" · {count} condition{'s' if count > 1 else ''}"
+    if reused:
+        detail += " · Using saved location understanding"
     warnings = condition_warnings(plan)
     if warnings:
         detail += " · some details are unchecked"
@@ -369,11 +372,14 @@ def run_search(run: SearchRun) -> None:
 
     run.update("search_words", "running")
     languages = languages_for(plan.countries, plan.places)
-    terms = generate_search_words(client, profile, languages)
+    terms, reused = generate_search_words_reusing(client, profile, languages)
     run.set_result("search_words", [term.model_dump() for term in terms])
     run.set_result("languages", [{"code": c, "name": LANGUAGE_NAMES[c]} for c in languages])
     run.set_result("country_names", names)
-    run.update("search_words", "done", f"{len(terms)} search words in {len(languages)} languages")
+    detail = f"{len(terms)} search words in {len(languages)} languages"
+    if reused:
+        detail += " · Using saved search words"
+    run.update("search_words", "done", detail)
     checkpoint()
 
     keys = KeyStore()

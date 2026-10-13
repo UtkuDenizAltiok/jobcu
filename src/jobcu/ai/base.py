@@ -96,6 +96,10 @@ class AIUnavailable(AIError):
     retryable = True
 
 
+class AIConnectionError(AIUnavailable):
+    """The connection failed, without a provider billing or service-status response."""
+
+
 class AIBadRequest(AIError):
     pass
 
@@ -141,6 +145,10 @@ MSG_QUOTA = (
 MSG_UNAVAILABLE = (
     "Jobcu couldn't reach the AI provider. Check your internet connection. If it keeps "
     "happening, the provider may be having problems."
+)
+MSG_CONNECTION = (
+    "Jobcu's connection to the AI provider was interrupted before it received a complete "
+    "answer. Check your connection or try again later."
 )
 MSG_BAD_REQUEST = "The AI provider couldn't handle Jobcu's request."
 MSG_NO_WEB_SEARCH = (

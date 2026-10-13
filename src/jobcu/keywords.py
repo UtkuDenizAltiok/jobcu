@@ -2,14 +2,17 @@
 
 Job sources can't read a CV, so Jobcu turns the profile into short job titles and
 field words, in English and in the job-ad languages of the countries searched.
-They're made fresh for every search; users can see them in "Search details".
+Successful word lists can be reused for the same profile, languages and generation request.
+Users can see them in "Search details"; job collection and scoring stay fresh.
 """
 
 from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from jobcu import preparation
 from jobcu.ai.client import AIClient
+from jobcu.ai.schema import strict_json_schema
 from jobcu.countries import LANGUAGE_NAMES
 from jobcu.profile import Profile
 
@@ -71,6 +74,17 @@ specialism to every title.
 def generate_search_words(
     client: AIClient, profile: Profile, languages: list[str]
 ) -> list[SearchTerm]:
+    return _search_words(client, profile, languages, reuse=False)[0]
+
+
+def generate_search_words_reusing(
+    client: AIClient, profile: Profile, languages: list[str]
+) -> tuple[list[SearchTerm], bool]:
+    return _search_words(client, profile, languages, reuse=True)
+
+
+def _search_words(client: AIClient, profile: Profile, languages: list[str], *, reuse: bool
+                  ) -> tuple[list[SearchTerm], bool]:
     profile_summary = profile.model_dump(
         include={
             "summary",
@@ -85,18 +99,41 @@ def generate_search_words(
         }
     )
     terms: list[SearchTerm] = []
+    all_reused = bool(languages)
     for start in range(0, len(languages), LANGUAGES_PER_REQUEST):
         group = languages[start : start + LANGUAGES_PER_REQUEST]
         wanted = ", ".join(f"{LANGUAGE_NAMES[code]} ({code})" for code in group)
-        answer = client.generate(
-            SearchWordsAnswer,
-            step="search_words",
-            system=SYSTEM_PROMPT,
-            prompt=f"Languages: {wanted}\n\nProfile:\n{profile_summary}",
-            max_output_tokens=6000,
-        )
+        prompt = f"Languages: {wanted}\n\nProfile:\n{profile_summary}"
+        answer = None
+        if reuse:
+            client.checkpoint()
+            request_key = preparation.key(client, reasoning=False, inputs=[
+                "search-words-1", SYSTEM_PROMPT, prompt, strict_json_schema(SearchWordsAnswer),
+                6000,
+                MAX_TITLES_PER_LANGUAGE, MAX_FIELD_WORDS_PER_LANGUAGE, LANGUAGES_PER_REQUEST,
+            ])
+            answer = preparation.read("search_words", request_key, SearchWordsAnswer)
+            if answer is not None and not _covers_languages(answer.terms, group):
+                answer = None
+        if answer is None:
+            all_reused = False
+            answer = client.generate(
+                SearchWordsAnswer, step="search_words", system=SYSTEM_PROMPT, prompt=prompt,
+                max_output_tokens=6000,
+            )
+            if reuse:
+                usable = tidy_terms(answer.terms, group)
+                if _covers_languages(usable, group):
+                    preparation.write("search_words", request_key, SearchWordsAnswer(terms=usable))
         terms.extend(term for term in answer.terms if term.language in group)
-    return tidy_terms(terms, languages)
+    return tidy_terms(terms, languages), all_reused
+
+
+def _covers_languages(terms: list[SearchTerm], languages: list[str]) -> bool:
+    # Missing languages or either requested kind remain retryable; counts are not fit proof.
+    return all({"job_title", "field_or_skill"} <= {
+        term.kind for term in terms if term.language == code and term.text.strip()
+    } for code in languages)
 
 
 def tidy_terms(terms: list[SearchTerm], languages: list[str]) -> list[SearchTerm]:
