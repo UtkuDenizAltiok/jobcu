@@ -11,11 +11,13 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 ### State
 
 - [Search preparation reuse and connection clarity](ENGINEERING.md#search-preparation-reuse-and-connection-clarity--2026-10-14)
-  is implemented on `codex/search-preparation-reuse`: successful unchanged location readings
+  is in [PR #115](https://github.com/UtkuDenizAltiok/jobcu/pull/115), source commit `f504f69`
+  on `codex/search-preparation-reuse`: successful unchanged location readings
   and word groups can be reused for 30 days; fresh research, jobs, scores and travel rules
   remain. Migration 16 preserves history and adds only private setup storage. Final local
   1,490-test, Ruff/privacy, 20-document and whitespace/full-diff checks pass; publication is
-  pending below. This verifies offline behavior, not a live bill or connection repair.
+  governed by the exact PR/main gate below. This verifies offline behavior, not a live bill
+  or connection repair.
 - The continuing review's scoring, Wednesday 10:30 transit timing and incomplete-reference
   explanations are published in [PR #113](https://github.com/UtkuDenizAltiok/jobcu/pull/113),
   final head `b23e953`, merge `3075b9a`. Exact PR CI `38304883132` and exact main CI
@@ -208,48 +210,26 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 ### In progress
 
 **Whole-pipeline quality, coverage and complete-cost improvement — 2026-10-12.**
-The continuing goal includes source examples, uncertainty, complete bills, the wider API
-market and Maps reuse. Prior free implementation/publication is complete in PRs #109,
-#111, #112 and #113, verified at their exact PR/main heads; receipts are in Right now.
-Do not repeat their unchanged checks or reopen their completed publication checkpoints.
+Prior free work, including PR #114's owner scoring adjustment, is fully published and verified;
+receipts are in Right now. The bounded provider comparison remains blocked below. Do not
+reopen completed work or rerun unchanged checks.
 
-**Owner scoring-policy adjustment — 2026-10-13:**
-[PR #114](https://github.com/UtkuDenizAltiok/jobcu/pull/114), branch `codex/owner-score-limits`,
-source commit `64282ef` tested and pushed, based on
-verified main `3075b9a`. Clear experience-level mismatch now has a maximum of 80; a very large
-mismatch has 65. Required-language gaps of exactly two CEFR levels have a maximum of 80;
-three or more have 75. Point deductions, small/optional-language behavior, other limits and
-historical scores are preserved. Code, user guide and fictional boundary/combined-limit
-regressions are complete. All 174 affected and 1,431 full-suite tests pass (one existing
-Starlette/AnyIO warning), plus Ruff/privacy, 20 document checks and whitespace/full-diff review.
-The search regression also verifies a calculated 76 stays below the new maximum of 80.
-The unchanged 1,420-test prior check was reused as the baseline; JS, dependencies and startup
-paths are unchanged. No live quality, coverage, cost or VPN measurement is inferred.
-PR #114 publication is complete at final head `2c5a9d2`, merge `b1b0f6f`; exact PR CI
-`38308967181` and exact main CI `38309537820` passed Mac/Windows/privacy. No implementation
-or publication remains from that step; do not rerun unchanged checks.
-The VPN question is explanation only: no network/source change, VPN test, provider call or
-new search is authorized. The unapproved paid comparison remains checkpointed below.
-
-**Unchanged search setup and retry diagnosis — 2026-10-14:** same continuing goal, branch
-`codex/search-preparation-reuse`, based on verified main `b1b0f6f`. Privately inspect an
-authorized isolated snapshot of the owner's current attempt and technical error, preserving
-the running search, documents, settings and ratings. Trace repeated location/search-word
-preparation, then implement the justified reuse and error-clarity correction with fictional
-engineering/non-engineering regressions. Reuse the unchanged 1,431-test baseline. Steps:
-diagnose saved evidence, define exact request identity/freshness and invalidation, implement
-and compare offline, update guide/decisions, run affected and final checks, publish and verify
-exact PR/main CI. No paid test, provider switch, new search, Stop, reset or account edit is
-authorized. The earlier paid comparison stays blocked separately. Migration 16, exact-input
-setup reuse, visible saved-answer labels and separate connection errors are implemented.
-Final affected tests pass 244 cases; the full suite passes 1,490 tests (one existing
-Starlette/AnyIO warning). Ruff/privacy, 20 document checks and whitespace/full-diff review
-pass; dependencies, JS and existing launch behavior are unchanged. Exact next action:
-commit/push, open the PR, require exact-head Mac/Windows/privacy, merge with a merge commit,
-sync main and verify exact merged-head CI. Diagnosis and the private checkpoint are saved
-outside Git. An isolated current-attempt snapshot is still needed for recovery; remove it
-once its useful technical evidence and publication receipt are retained. No billing balance
-or live savings is inferred. The running owner search and settings are preserved.
+**Unchanged setup and retry clarity — 2026-10-14:**
+[PR #115](https://github.com/UtkuDenizAltiok/jobcu/pull/115), branch
+`codex/search-preparation-reuse`, based on main `b1b0f6f`; source commit `f504f69` tested and
+pushed. Migration 16, exact-input location/word reuse and separate connection messages are
+implemented, with current guides/decisions. The unchanged 1,431-test prior suite was the
+baseline; 244 affected and 1,490 final full-suite tests pass (one existing Starlette/AnyIO
+warning). Ruff/privacy, 20 document checks and whitespace/full-diff review pass. Dependencies,
+JS and launch behavior are unchanged. Reuse excludes plans, live research, scores and journeys;
+legacy snapshots lack request identity. No live quality, savings or connection repair is
+inferred. If PR #115 remains open, exact next action: require Mac/Windows/privacy on its exact
+final head, merge with a merge commit, sync main and verify exact merged-head CI. If Git/CI
+confirms merged/verified, this free step is complete; only the dependency below remains.
+Detailed diagnosis and recovery are in private `active_setup_reuse`. Necessary evidence and
+validation logs are retained; the disposable snapshot is removed. Preserve the owner's
+running search/settings and chosen app state. No paid probe, new search, provider/network
+change, Stop, reset or account edit is authorized or performed by development.
 
 Private `assistant-review-checkpoint.json` points to `active_quality_review`: reused balanced
 blinded judgements including every top card, detailed original-date controls, complete-cost
@@ -257,8 +237,8 @@ sensitivity and a frozen fictional comparison packet are retained outside Git. T
 investigation copy is removed. The earlier saved review covered its then-latest finished
 attempt. The new owner-started attempt is separately checkpointed in
 `active_setup_reuse`; no new result-quality review is implied. Owner app 8765 is preserved,
-preview 8799 is stopped. Open or
-closed Jobcu is no obstacle to saved-result review. No owner data/rating/reset/settings/key edit,
+preview 8799 is stopped. Open or closed Jobcu is no obstacle to saved-result review.
+No owner data/rating/reset/settings/key edit,
 paid provider/Maps call or new Jobcu search was made. Missing originals/criteria and an eligible
 independent benchmark limit live quality/coverage claims; older controls are not recall data.
 
