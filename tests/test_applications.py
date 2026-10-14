@@ -288,3 +288,42 @@ def test_tracking_alias_exclusion_keeps_an_independent_employer_link_and_exact_u
                                       "also_on": [{"url": EMPLOYER_LINK}]})
     assert cleaned["main_link"]["url"] == EMPLOYER_LINK and cleaned["score"] == card["score"]
     assert group.copies[0].url == changed  # provider advertiser URL is never normalized away
+
+
+@pytest.mark.parametrize("title", ["Power Design Engineer", "Ward Nurse", "Primary Teacher",
+                                   "Pastry Chef"])
+def test_saved_independent_employer_link_becomes_primary_without_resolving_adzuna(title):
+    _, card, original = saved_card(title)
+    card["also_on"] = [{"source": "Employer's site", "url": EMPLOYER_LINK}]
+    before = json.dumps(card)
+    shown = applications.clean_card(card)
+    assert shown["main_link"] == card["also_on"][0]
+    assert shown["also_on"] == [card["main_link"]]
+    assert not shown["application_destination_unverified"]
+    assert shown["score"] == card["score"]
+    assert json.dumps(card) == before and jobstore.latest_results()[1] == original
+    assert applications.clean_card(shown) == shown  # repeated display is stable
+
+
+@pytest.mark.parametrize("alternative", [
+    {"source": "Employer's site", "url": CV_LINK},
+    {"source": "Employer's site", "url": OPAQUE_LINK + "-other"},
+    {"source": "Another board", "url": EMPLOYER_LINK},
+])
+def test_unproven_or_blocked_alternative_does_not_claim_a_direct_employer_route(alternative):
+    card = {"main_link": {"source": "Adzuna", "url": OPAQUE_LINK},
+            "also_on": [alternative]}
+    shown = applications.clean_card(card, set())
+    if alternative["url"] == CV_LINK:
+        assert shown["application_link_unavailable"]
+    else:
+        assert shown["main_link"] == card["main_link"]
+        assert shown["application_destination_unverified"]
+
+
+def test_reported_independent_employer_route_is_never_promoted_over_adzuna():
+    card = {"main_link": {"source": "Adzuna", "url": OPAQUE_LINK},
+            "also_on": [{"source": "Employer's site", "url": EMPLOYER_LINK}]}
+    shown = applications.clean_card(card, {EMPLOYER_LINK})
+    assert shown["application_link_unavailable"]
+    assert not shown["main_link"]["url"]

@@ -313,7 +313,11 @@ already left the vacancy out, run your next search when ready to find it again. 
 undo use no AI allowance. For recognized Adzuna advertisements, the report survives changes
 to tracking codes for the same ad. A different or unrecognized route needs its own report;
 other vacancies and independent employer links stay available. Jobcu already excludes
-known CV-Library destinations; an unknown redirect shows **Application site not verified**.
+known CV-Library destinations; an unknown redirect shows
+**Adzuna opens another job site; destination not verified**. Adzuna supplies that forwarding
+link and requires Jobcu to keep it. When an employer link was independently collected for the
+same job, Jobcu opens that employer link directly and keeps Adzuna under **Also on**. This works
+on saved cards too; it does not change your saved history or contact the destination in advance.
 
 Before scoring, Jobcu looks for recent full text already stored on your computer. If it still
 needs the full ad, it prefers the employer's original and can try another matched copy through

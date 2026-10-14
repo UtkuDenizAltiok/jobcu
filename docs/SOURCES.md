@@ -970,6 +970,19 @@ final application host. Existing blocked-site rules still prohibit probing Adzun
 Known CV-Library destinations are excluded by owner instruction; no CV-Library collection
 or application-form traffic was added. Opaque redirects remain an unverified destination.
 
+**Adzuna direct-destination request rechecked 2026-10-14:** the current
+[Job and Ad API schema](https://developer.adzuna.com/swagger/spec/test2.json) explicitly requires
+using its supplied `redirect_url` to send the user to the advertiser for API compliance.
+Neither response supplies a final-destination field. The
+[API terms](https://developer.adzuna.com/docs/terms_of_service) require queries through Adzuna
+and restrict third-party content-provider contact. Existing blocked-page rules also remain.
+Do not resolve and replace this advertiser route without explicit Adzuna permission and a
+permitted destination interface. Public documentation checks used no API key, ad request,
+private redirect or destination traffic. Independently collected originals of the same job
+can still be offered with their own provenance; an already saved employer link can be primary
+while the exact Adzuna advertiser route remains an alternative. Unknown redirects are not
+proof of a permitted direct link or an accessible application website.
+
 **Application restrictions rechecked 2026-10-14:** the indexed official
 [CV-Library FAQ](https://www.cv-library.co.uk/help/popular-questions) describes registration
 requiring a UK address and access restricted to users located in the UK; temporary UK addresses

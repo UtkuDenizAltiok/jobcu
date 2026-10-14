@@ -176,6 +176,15 @@ def clean_card(card: dict, reported: set[str] | None = None) -> dict:
     if _reported(main.get("url"), reported) or blocked(main.get("url")) or (
             known_blocked and opaque(main.get("url"))):
         main = other.pop(0) if other else {"source": "", "url": ""}
+    elif opaque(main.get("url")):
+        # Only an independently saved employer link can replace this opaque route.
+        # Never resolve, unwrap or discard the advertiser URL required by Adzuna.
+        employer = next((i for i, link in enumerate(other)
+                         if link.get("source") == "Employer's site"
+                         and not opaque(link["url"])), None)
+        if employer is not None:
+            main, original = other.pop(employer), main
+            other.insert(0, original)
     return {**card, "main_link": main, "also_on": other,
             "application_link_unavailable": not main["url"] and (
                 known_blocked or card.get("application_link_unavailable", False)),

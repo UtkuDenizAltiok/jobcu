@@ -1513,3 +1513,17 @@ between the assistant's read and write. The owner can still revise any label thr
   catches platform/timing bugs. Check independent imports to expose cycles.
 - Implement a behavior decision in the same change as its record. The guard can flag public
   IDs; allow one only when clearly non-secret, with an explanatory `jobcu-guard: allow` comment.
+
+
+### Independently saved application links — 2026-10-14
+
+When a restored card has an opaque Adzuna primary link and an allowed, independently saved
+**Employer's site** alternative, `applications.clean_card` promotes the employer link on the
+response copy and retains the exact Adzuna route under alternatives. Current collection already
+prefers `employer_url`; restored and marked cards now agree. Scores, marks and historical
+snapshots remain intact, and repeated display is stable. Other-board links cannot establish
+an employer original; blocked/reported destinations remain excluded. UI copy explains the
+forwarding route plainly. No redirect is resolved, unwrapped or fetched. Adzuna route
+replacement remains blocked by its current compliance requirement and absent final-host field;
+see [dated contract evidence](SOURCES.md). Fictional regressions
+cover electronics, nursing, teaching, hospitality, blocked/opaque alternatives and history.

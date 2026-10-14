@@ -10,6 +10,19 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
+- [Independently saved application links](ENGINEERING.md#independently-saved-application-links--2026-10-14)
+  are implemented in [PR #118](https://github.com/UtkuDenizAltiok/jobcu/pull/118), source
+  `9b017d0` on `codex/direct-application-links`, based on `1468a30`. Restored and marked cards
+  use an allowed, independently collected employer link directly when already saved for the
+  same job, retaining the exact Adzuna route under alternatives. Opaque-only cards explain
+  forwarding and missing destination evidence. History, scores, marks and source rules remain.
+  The 133 affected and final 1,578-test checks pass, with one existing dependency warning;
+  Ruff/privacy, 20 documents, JS syntax and complete diff/whitespace checks pass. Exact final
+  PR/main-head Mac/Windows/privacy CI is the publication gate; receipts and status are in the
+  private `direct_link_continuation` checkpoint. No private redirect or destination was fetched.
+  Automatic replacement of the Adzuna advertiser route needs explicit Adzuna permission and a
+  permitted interface; [dated evidence](SOURCES.md) separates this dependency from independent
+  originals that Jobcu already collected. No account change, paid call or new search was made.
 - [Task focus and scoring confidence](ENGINEERING.md#task-focus-and-scoring-confidence--2026-10-14)
   is implemented in [PR #117](https://github.com/UtkuDenizAltiok/jobcu/pull/117), source
   `3fe11f4` on `codex/task-focus-scoring`. Neighbouring/gapped main work has an 80 maximum;
@@ -20,9 +33,8 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   alternatives and history. Original reference-city semantics and owner scoring limits remain.
   The 263 affected and final 1,570-test checks pass, with one existing dependency warning;
   Ruff/privacy, 20 documents, JS syntax/ordering and complete diff/whitespace checks pass.
-  Publication requires Mac/Windows/privacy CI on the exact final PR and merged-main heads;
-  recover status from PR #117 and the private `active_completed_review` publication receipt.
-  Until merged, the only remaining free action is that publication gate and main synchronization.
+  Publication is complete: final head `bd7f1a7`, merge `1468a30`, exact PR CI `38531858561`
+  and main CI `38532483632` passed Mac/Windows/privacy; main was synchronized cleanly.
   Detailed balanced saved judgements, timing/billing limits and reported application identities
   remain private. Offline verification does not establish live model accuracy or market recall.
 - Exact setup edits are published in [PR #116](https://github.com/UtkuDenizAltiok/jobcu/pull/116),
@@ -236,8 +248,17 @@ Prior free work, including PR #114's owner scoring adjustment, is fully publishe
 receipts are in Right now. The bounded provider comparison remains blocked below. Do not
 reopen completed work or rerun unchanged checks.
 
-The free implementation scope is recorded in Right now; PR #117's publication gate is the
-only remaining free step until merged. Recover that exact gate rather than selecting new work.
+**Direct-destination dependency — owner continuation, 2026-10-14:**
+The justified free improvement is implemented in PR #118 (Right now). Its only remaining
+free step until merged is exact-head publication verification and main synchronization;
+recover PR state and the private `direct_link_continuation` receipt. Do not open another goal.
+Automatically resolving and replacing Adzuna's supplied advertiser route remains blocked:
+its schema requires that route and does not supply the final host; blocked pages cannot be
+probed. Exact next action only if that scope is reopened with Adzuna's explicit permission:
+verify its permitted destination interface, retention/attribution/request rules, then implement
+bounded redirect handling with fictional failure/privacy regressions. Preserve the required
+route meanwhile. No private redirect, new search, paid call or owner-state change is authorized.
+
 Private `assistant-review-checkpoint.json` points to `active_completed_review`: the latest
 finished attempt has a balanced blinded review including every top card, original run-boundary
 measurements, detailed cost components and supported assistant labels. Owner/legacy ratings,
@@ -245,8 +266,8 @@ settings, marks and historical results were preserved. Owner-identified unusable
 application routes were reported with the owner's authorization; no opaque destination was fetched.
 Missing original evidence, unresolved reference facts, incomplete billed usage and an eligible
 independent benchmark prevent broader quality, recall or invoice claims. No newer unfinished
-attempt was found at review. Save publication receipts and remove disposable scratch after
-verification; preserve owner app 8765 and private authorization/evidence.
+attempt was found at review. Publication receipts are saved privately and disposable scratch is
+removed; preserve owner app 8765 and private authorization/evidence.
 
 **Dependency after publication:** a direct API key entered only in Jobcu and owner authorization
 for a **EUR5 total** fictional paired comparison within the existing EUR30 monthly ceiling.
