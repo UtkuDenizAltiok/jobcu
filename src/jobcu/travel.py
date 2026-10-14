@@ -248,6 +248,8 @@ def answer(condition: Condition, group: JobGroup) -> str:
     """"yes", "no" or "unknown" for a "near" condition and one job."""
     if condition.kind != "near" or not condition.filters:
         return "unknown"
+    if condition.reference_status != "applied":
+        return "unknown"
     if condition.max_km:
         point = job_point(group)
         if point is None:
@@ -289,6 +291,8 @@ def home_town(point: Point, towns: list[place_list.Town],
 def detail(condition: Condition, group: JobGroup) -> tuple[str, str] | None:
     """What was found for this job, for its card: ("Munich, 17 min by public transport",
     "Google Maps")."""
+    if condition.reference_status != "applied":
+        return None
     entry = condition.travel.get(job_key(group)) if condition.kind == "near" else None
     if not entry:
         return None
@@ -589,6 +593,12 @@ class TravelMeter:
                 self._measure(condition, groups, indexes)
 
     def _measure(self, condition: Condition, groups: list[JobGroup], indexes: list[int]) -> None:
+        if condition.reference_status != "applied":
+            # A short trip to a population-only candidate cannot establish a
+            # researched eligibility fact. Keep candidates unknown and retryable;
+            # spend no route requests until eligible reference places are known.
+            self._settle_status(condition)
+            return
         mode = condition.travel_mode or "transit"
         centre = condition.anchor is not None and condition.anchor.to_centre
         reach_km = condition.max_minutes / 60 * FASTEST_KMH[mode]

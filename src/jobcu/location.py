@@ -730,10 +730,12 @@ def _near_condition(
         elif found.kind == "countries_to_avoid":
             anchor.countries_avoided, anchor.looked_up = found.countries, True
         elif anchor.min_people or anchor.min_share_of_country or anchor.named:
-            # The limit to places of a size, or named places, still works without the fact.
+            # Preserve the known size/names, but do not treat them as eligible
+            # destinations until the missing reference fact has been checked.
             found = found.model_copy(update={"note": (
-                f"Only the size or the names were used: \"{anchor.look_up}\" couldn't be "
-                f"checked. {found.note}").strip()})
+                f"The size or named places are known, but \"{anchor.look_up}\" couldn't be "
+                f"checked. Travel checks wait until eligible places are known. {found.note}")
+                .strip()})
             anchor.look_up = ""
         else:
             return Condition(text=text, understood_as=sorted_condition.understood_as or text,
@@ -1005,6 +1007,7 @@ def _corrected_near(condition: Condition, edit: ConditionEdit, countries: list[s
     unless the way of travelling changes."""
     anchor = condition.anchor.model_copy(deep=True) if condition.anchor else Anchor()
     changed = False
+    reference_changed = False
     if edit.max_minutes and condition.max_minutes and edit.max_minutes != condition.max_minutes:
         condition.max_minutes, changed = edit.max_minutes, True
     if edit.max_km and condition.max_km and edit.max_km != condition.max_km:
@@ -1026,7 +1029,7 @@ def _corrected_near(condition: Condition, edit: ConditionEdit, countries: list[s
                 {r.code for r in anchor.researched_regions}):
             anchor.named, anchor.researched, anchor.looked_up = towns, [], False
             anchor.researched_regions, anchor.exceptions = regions, exceptions
-            changed = True
+            changed = reference_changed = True
     if edit.avoided is not None and (anchor.avoided or anchor.avoided_regions):
         avoided, regions, exceptions, _ = _place_entries(
             edit.avoided, anchor.avoided, anchor.avoided_regions, anchor.exceptions, countries)
@@ -1034,7 +1037,12 @@ def _corrected_near(condition: Condition, edit: ConditionEdit, countries: list[s
                 _town_keys(anchor.avoided), _town_keys(anchor.exceptions),
                 {r.code for r in anchor.avoided_regions}):
             anchor.avoided, anchor.avoided_regions = avoided, regions
-            anchor.exceptions, changed = exceptions, True
+            anchor.exceptions = exceptions
+            changed = reference_changed = True
+    if reference_changed:
+        # An explicit replacement of eligible/excluded places is the owner's rule.
+        # Changing only minutes or size does not confirm another missing city fact.
+        anchor.research_status = "applied"
     condition.anchor = anchor
     condition.changed_by_you = condition.changed_by_you or changed
     return condition

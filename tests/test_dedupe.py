@@ -21,6 +21,45 @@ def test_names_are_normalised():
     assert normal_title("Hardwareentwickler (m/w/d)") == normal_title("Hardwareentwickler (w/m/d)")
 
 
+@pytest.mark.parametrize("dash", ["‐", "‑", "‒", "–", "—", "﹘", "－"])
+@pytest.mark.parametrize("title", [
+    "Power Supply Engineer", "Patient Care Nurse", "Early Years Teacher"])
+def test_unicode_dashes_keep_word_boundaries_and_one_evidence_unit(dash, title):
+    variant = title.replace(" ", dash, 1)
+    original = job("board", "original", title=title, company="Fictional Works Ltd",
+                   description=TEXT, description_is_complete=True,
+                   posted_at=datetime(2026, 10, 1, tzinfo=UTC), date_precision="day")
+    summary = job("adzuna", "summary", title=variant, company=f"Fictional{dash}Works Ltd",
+                  description="A brief description.",
+                  posted_at=datetime(2026, 10, 2, tzinfo=UTC), date_precision="exact")
+    groups = group_duplicates([summary, original], KINDS)
+    assert len(groups) == 1
+    assert groups[0].main is original
+    assert len(groups[0].copies) == 2 and groups[0].best_description_copy.description == TEXT
+    assert groups[0].posted_at == original.posted_at
+
+
+@pytest.mark.parametrize("different", ["country", "city", "level", "requisition", "evidence"])
+def test_unicode_normalisation_does_not_relax_distinct_vacancy_guards(different):
+    a = job("board", "one", title="Patient Care Nurse", company="Example Clinic")
+    b = job("adzuna", "two", title="Patient‑Care Nurse", company="Example Clinic")
+    kinds = dict(KINDS)
+    if different == "country":
+        b.country = "IE"
+    elif different == "city":
+        b.location_text = "Berlin"
+    elif different == "level":
+        b.title = "Senior Patient‑Care Nurse"
+    elif different == "requisition":
+        a.source = b.source = "employer"
+        kinds["employer"] = "employer"
+    else:
+        a.description = "Hospital oncology and chemotherapy care. " * 30
+        b.description = "Home visits for community public health. " * 30
+        a.description_is_complete = b.description_is_complete = True
+    assert len(group_duplicates([a, b], kinds)) == 2
+
+
 def test_titles_at_different_levels_or_with_different_words_differ():
     assert title_similarity("lead electronics engineer", "electronics engineer") == 0
     assert title_similarity("entwicklungsingenieur elektronik",

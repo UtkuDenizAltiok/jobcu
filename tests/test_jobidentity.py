@@ -29,6 +29,33 @@ def new_search():
             "INSERT INTO searches (status, form_json) VALUES ('running', '{}')").lastrowid
 
 
+@pytest.mark.parametrize("title", [
+    "Power‑Supply Engineer", "Patient‑Care Nurse", "Early‑Years Teacher"])
+def test_legacy_unicode_fingerprint_preserves_marks_without_rewriting_old_keys(title):
+    from jobcu.dedupe import normal_title
+
+    old = group("old", title, source="board", kind="job_board", company="Example‑Works Ltd")
+    legacy_title = normal_title(title.replace("‑", ""))
+    legacy_key = f"job:exampleworks|{legacy_title}|berlin"
+    with db.connect() as conn:
+        job_id = conn.execute("INSERT INTO jobs (title) VALUES (?)", (title,)).lastrowid
+        conn.execute("INSERT INTO job_keys (key, job_id) VALUES (?, ?)", (legacy_key, job_id))
+        conn.execute("INSERT INTO job_fingerprints (key, job_id, country) VALUES (?, ?, 'DE')",
+                     (legacy_key, job_id))
+    jobstore.set_state(job_id, saved=True, applied=True, dismissed=True)
+    assert jobstore.find_job_ids([old]) == [job_id]
+    ids, _ = jobstore.remember([old], new_search())
+    assert ids == [job_id]
+    # Once the known copy is remembered, other punctuation variants share its marks.
+    spaced = group("new-copy", title.replace("‑", " "), source="another", kind="job_board",
+                   company="Example Works Ltd")
+    assert jobstore.find_job_ids([spaced]) == [job_id]
+    assert jobstore.states([job_id])[job_id] == jobstore.JobState(True, True, True)
+    with db.connect() as conn:
+        assert conn.execute("SELECT job_id FROM job_keys WHERE key = ?", (legacy_key,)
+                            ).fetchone()[0] == job_id
+
+
 @pytest.mark.parametrize("title", ["Power Electronics Engineer", "Registered Nurse", "Chef"])
 def test_new_employer_requisition_inherits_neither_old_marks_nor_old_freshness(title):
     old, fresh = group("example/old", title), group("example/new", title)

@@ -96,27 +96,32 @@ _CITY_ALIASES = {
 }
 
 
-def fold(text: str | None) -> str:
+def fold(text: str | None, *, legacy_dashes: bool = False) -> str:
     """Lower case, without accents or punctuation."""
     if not text:
         return ""
+    # Non-ASCII dashes must separate words before ASCII folding discards them.
+    # Otherwise "patient‑care" becomes "patientcare" and misses "patient care".
+    if not legacy_dashes:
+        text = "".join(" " if unicodedata.category(c) == "Pd" else c for c in text)
     text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode()
     text = re.sub(r"[^a-z0-9/ ]+", " ", text.lower())
     return " ".join(text.split())
 
 
-def normal_company(name: str | None) -> str:
+def normal_company(name: str | None, *, legacy_dashes: bool = False) -> str:
     # A bracket names a career site or a country ("Rolls-Royce (professional)", "Acme (UK)").
     name = re.sub(r"\([^)]*\)", " ", name or "")
-    return " ".join(_LEGAL_FORMS.sub(" ", fold(name).replace("&", " ")).split())
+    return " ".join(_LEGAL_FORMS.sub(
+        " ", fold(name, legacy_dashes=legacy_dashes).replace("&", " ")).split())
 
 
-def normal_title(title: str | None) -> str:
-    return fold(_GENDER_MARKERS.sub(" ", title or ""))
+def normal_title(title: str | None, *, legacy_dashes: bool = False) -> str:
+    return fold(_GENDER_MARKERS.sub(" ", title or ""), legacy_dashes=legacy_dashes)
 
 
-def normal_city(location: str | None) -> str:
-    first = fold((location or "").split(",")[0])
+def normal_city(location: str | None, *, legacy_dashes: bool = False) -> str:
+    first = fold((location or "").split(",")[0], legacy_dashes=legacy_dashes)
     return _CITY_ALIASES.get(first, first)
 
 

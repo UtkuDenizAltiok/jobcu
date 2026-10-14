@@ -169,15 +169,19 @@ class GeminiAdapter(ProviderAdapter):
                     translated.usage = _usage(counts, queries, unreported=True)
                 raise translated from exc
         finally:
-            try:
-                if stream is not None:
-                    stream.close()
-            finally:
-                # The SDK's synchronous iterator does not close an interrupted HTTP body.
-                # Close only this thread's responses; keep the shared client/pool alive.
-                for response in self._stream_responses.current:
-                    response.close()
-                del self._stream_responses.current
+            # The SDK's synchronous iterator does not close an interrupted HTTP body.
+            # Close only this thread's responses; keep the shared client/pool alive.
+            responses = self._stream_responses.current
+            del self._stream_responses.current
+            for resource in [stream, *responses]:
+                if resource is None:
+                    continue
+                try:
+                    resource.close()
+                except httpx.TransportError:
+                    # Cleanup cannot undo STOP or replace a meaningful refusal/
+                    # truncation error and its usage with another connection retry.
+                    interrupted = True
         return ResearchReply(
             text="".join(text),
             sources=unique_sources(sources),

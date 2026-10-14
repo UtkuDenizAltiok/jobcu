@@ -106,6 +106,38 @@ def wait_until_done(manager, answer=None, timeout=15):
     return manager.current.snapshot()
 
 
+@pytest.mark.parametrize("title", [
+    "Power Supply Engineer", "Patient Care Nurse", "Early Years Teacher"])
+def test_unicode_duplicate_copies_are_assessed_once_before_cards_are_saved(ready, monkeypatch,
+                                                                        title):
+    scored_ids = []
+
+    class TrackedAI(FakeAI):
+        def complete_json(self, **request):
+            if request["schema_name"] == "ScoringAnswer":
+                scored_ids.extend(re.findall(r"^JOB (J\d+)", request["prompt"], re.MULTILINE))
+            return super().complete_json(**request)
+
+    class Copies(FakeSource):
+        def search(self, query, ctx):
+            for i, name in enumerate([title, title.replace(" ", "‑", 1)]):
+                yield FoundJob(source="fake" if i == 0 else "another", source_job_id=str(i),
+                               url=f"https://jobs.test/{i}", title=name, company="Example Works",
+                               location_text="Berlin", country="DE", posted_at=datetime.now(UTC),
+                               date_precision="exact", description="Short")
+
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: TrackedAI())
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [Copies()])
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    result = wait_until_done(manager)
+    assert result["status"] == "finished"
+    cards = result["result"]["jobs"]["cards"]
+    assert len(cards) == len(scored_ids) == 1
+    assert {cards[0]["main_link"]["url"], *(link["url"] for link in cards[0]["also_on"])} == {
+        "https://jobs.test/0", "https://jobs.test/1"}
+
+
 def test_two_identical_searches_reuse_setup_but_collect_and_score_afresh(ready, monkeypatch):
     calls, collections = [], []
 

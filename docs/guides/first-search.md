@@ -250,8 +250,8 @@ a match score and reasons. The default order is **Best match**; choose **Newest*
 
 A score runs from **0 to 100**. A higher score means Jobcu judged the job a better fit from
 the information it could read. It is not the chance that an employer will hire you. Read the
-reasons as well as the number, including any **Limited to …** explanation of a requirement
-that held the score down.
+reasons as well as the number, including any **Maximum …** explanation. A maximum is a
+ceiling: if the parts total less, the lower total is used. Each reason shows its own maximum.
 
 Strong skills do not make up for a clearly unsuitable experience or responsibility level.
 When that level is clearly different, the total is limited to 80; when it is very far off,
@@ -330,17 +330,20 @@ incorrectly; unchanged readers and corrected warm caches still reuse their full 
 
 Read warnings on a job before making a decision:
 
-- **?** means that condition or requirement remains uncertain. A note that requirements were
-  read online is information; it does not mean every requirement was met. Jobcu now displays
-  that note without a question mark, including on older saved cards.
+- **Needs checks** opens the missing or estimated evidence for that job in one place,
+  including on older saved cards. Its visible label means checks remain unfinished; expanding
+  it shows every distinct explanation. Verified facts and clear failures remain visible.
+  A note that requirements were read online is information; it does not mean they were met.
 - **Scored from a short summary** or an excerpt warning means Jobcu did not read the whole
   advertisement. Important requirements may be missing; open the original job to check.
 - **AI estimate**, **not checked**, or **couldn't be checked** means that detail is uncertain.
   Check the original ad or relevant travel information yourself.
 - **Partly checked** means some evidence is still uncertain. A measured journey does not prove
   another requirement about the destination city; read the note beside the condition.
-  **Search details** also explains missing destination facts. It can check the journey while
-  failing to confirm another fact about that town. Resolved condition warnings disappear when
+  **Search details** also explains missing destination facts. Jobcu now waits for verified
+  eligible cities before requesting travel times. A previously measured journey cannot prove
+  an unchecked city fact. The job remains available with **Needs checks** while that evidence
+  is missing, and the condition remains retryable. Resolved condition warnings disappear when
   you recheck the condition; unrelated source warnings remain.
 - Jobs under **Posting date unknown** may be older than your chosen posting window.
   **First seen by Jobcu** is when Jobcu first found a job, not necessarily when it was posted.
@@ -353,6 +356,10 @@ needs a different set of destinations. Unfinished journeys remain retryable. Goo
 times are not reused for a later search under its current storage terms; labelled AI estimates
 have a separate 30-day memory. No broader posting window or extra search is needed to install
 these changes.
+
+Different dash styles in otherwise matching titles or employer names are treated as word
+separators, so copies can share one card and assessment. Different workplaces, employer vacancy
+IDs and conflicting original ads still keep jobs separate. Existing marks and history remain.
 
 **Left out by your conditions** shows jobs excluded by a location condition. These jobs were
 not scored. If a condition was misunderstood, use **Edit** as described above.

@@ -16,10 +16,15 @@ def copy_key(source: str, vacancy: str) -> str:
 def fingerprints(group: JobGroup) -> list[tuple[str, str]]:
     entries = []
     for copy in group.copies:
-        company, title = normal_company(copy.company), normal_title(copy.title)
-        if company and title:
-            key = f"job:{company}|{title}|{normal_city(copy.location_text)}"
-            entries.append((key, (copy.country or "").upper()))
+        # Older keys dropped non-ASCII dashes, joining adjacent words. Keep their
+        # spelling as an alias so existing marks survive without rewriting history.
+        for legacy in (False, True):
+            company = normal_company(copy.company, legacy_dashes=legacy)
+            title = normal_title(copy.title, legacy_dashes=legacy)
+            if company and title:
+                city = normal_city(copy.location_text, legacy_dashes=legacy)
+                key = f"job:{company}|{title}|{city}"
+                entries.append((key, (copy.country or "").upper()))
     return list(dict.fromkeys(entries))
 
 

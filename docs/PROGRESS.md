@@ -6,10 +6,27 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ## Right now
 
-*Updated 2026-10-14. Engineering checks use fictional data.*
+*Updated 2026-10-15. Engineering checks use fictional data.*
 
 ### State
 
+- [Duplicate boundaries and reference eligibility](ENGINEERING.md#duplicate-boundaries-and-reference-eligibility--2026-10-15)
+  are implemented in [PR #119](https://github.com/UtkuDenizAltiok/jobcu/pull/119), source
+  `8be0442` on `codex/evidence-recovery`, based on `90a72e3`. Dash variants share one
+  evidence/scoring group, with legacy identity and distinct-vacancy guards retained.
+  Travel decisions/requests wait for applied reference-city facts; unknown jobs remain
+  available. Cards collect missing evidence under **Needs checks** and explain each score
+  maximum. Native Gemini response-close transport errors preserve terminal answers,
+  citations, meaningful failures and usage. Scoring policy, medium effort and source rights
+  remain. Final 1,620 tests, 294 matching/travel/search and 103 provider checks pass, with
+  one existing dependency warning; Ruff/privacy, 11 current non-archive documents,
+  JS syntax/fictional DOM and complete diff/whitespace checks pass. Exact final PR/main-head
+  Mac/Windows/privacy CI is the publication gate; receipts are saved in the private
+  `active_latest_completed_review` checkpoint. Detailed independent judgements, timing,
+  billing limits and before/after diagnostics stay private. Owner history, marks, settings,
+  authorization and owner/legacy labels were preserved. No paid call, new search, provider/
+  source/account/network change or owner-app restart was made. Provider availability,
+  missing original/reference evidence, whole-market recall and net savings remain unverified.
 - [Independently saved application links](ENGINEERING.md#independently-saved-application-links--2026-10-14)
   are implemented in [PR #118](https://github.com/UtkuDenizAltiok/jobcu/pull/118), source
   `9b017d0` on `codex/direct-application-links`, based on `1468a30`. Restored and marked cards
@@ -17,9 +34,9 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   same job, retaining the exact Adzuna route under alternatives. Opaque-only cards explain
   forwarding and missing destination evidence. History, scores, marks and source rules remain.
   The 133 affected and final 1,578-test checks pass, with one existing dependency warning;
-  Ruff/privacy, 20 documents, JS syntax and complete diff/whitespace checks pass. Exact final
-  PR/main-head Mac/Windows/privacy CI is the publication gate; receipts and status are in the
-  private `direct_link_continuation` checkpoint. No private redirect or destination was fetched.
+  Ruff/privacy, 20 documents, JS syntax and complete diff/whitespace checks pass. Publication
+  is complete: final head `336fbc6`, merge `90a72e3`, exact PR CI `38533873149` and main CI
+  `38534533490` passed Mac/Windows/privacy. No private redirect or destination was fetched.
   Automatic replacement of the Adzuna advertiser route needs explicit Adzuna permission and a
   permitted interface; [dated evidence](SOURCES.md) separates this dependency from independent
   originals that Jobcu already collected. No account change, paid call or new search was made.
@@ -243,15 +260,26 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
+**Latest saved review and evidence recovery — owner task, 2026-10-15:**
+Free review/implementation/checks are complete (Right now); publication is the remaining gate.
+PR #119, branch `codex/evidence-recovery`, source `8be0442`, base `90a72e3`. The private
+`active_latest_completed_review` record holds final head, PR/main CI and cleanup status.
+Exact next action: verify CI on the PR's actual final head, merge with a merge commit,
+synchronize main and verify its exact-head Mac/Windows/privacy CI. If those receipts already
+confirm completion, clear this stale gate instead of repeating unchanged tests or review.
+Preserve owner app 8765; preview 8799 is stopped. No paid call or new search is authorized.
+Before interruption cleanup, save private evidence and remove only its recorded disposable
+scratch copy. Pre-answer disconnects, missing originals/reference facts, complete invoices
+and an independent benchmark remain evidence dependencies, with exact actions saved privately.
+
 **Whole-pipeline quality, coverage and complete-cost improvement — 2026-10-12.**
 Prior free work, including PR #114's owner scoring adjustment, is fully published and verified;
 receipts are in Right now. The bounded provider comparison remains blocked below. Do not
 reopen completed work or rerun unchanged checks.
 
 **Direct-destination dependency — owner continuation, 2026-10-14:**
-The justified free improvement is implemented in PR #118 (Right now). Its only remaining
-free step until merged is exact-head publication verification and main synchronization;
-recover PR state and the private `direct_link_continuation` receipt. Do not open another goal.
+The justified free improvement in PR #118 is fully published and verified (Right now).
+Its stale publication checkpoint is cleared; the permission dependency remains parked.
 Automatically resolving and replacing Adzuna's supplied advertiser route remains blocked:
 its schema requires that route and does not supply the final host; blocked pages cannot be
 probed. Exact next action only if that scope is reopened with Adzuna's explicit permission:
