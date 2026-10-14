@@ -259,8 +259,13 @@ class PoliteClient:
         if known is None:
             try:
                 known = bool(self._resolve(host))
-            except OSError:
+            except socket.gaierror as exc:
+                if exc.errno not in {socket.EAI_NONAME,
+                                     getattr(socket, "EAI_NODATA", socket.EAI_NONAME)}:
+                    return True  # unknown/transient: keep normal retries, do not cache absence
                 known = False
+            except OSError:
+                return True  # a resolver outage is not proof that the employer host is absent
             with self._lock:
                 self._hosts_exist[host] = known
         return known

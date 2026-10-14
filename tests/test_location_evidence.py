@@ -13,8 +13,9 @@ from jobcu.location import (
     SortedAnchor,
     SortedCondition,
     TownRef,
+    _as_condition,
+    _near_condition,
     apply_edits,
-    check_conditions,
 )
 from jobcu.pipeline import build_card
 
@@ -33,8 +34,10 @@ def reference_condition(confidence):
         note="Library access could not be researched." if confidence == "missing" else
              "Library access was checked." if confidence == "checked" else
              "Library access was estimated.")
-    return check_conditions(ScriptedClient(answer, sorted_kinds={text: sorted_kind}),
-                            [text], ["DE"])[0]
+    # Preserve legacy/open-ended confidence coverage. Finite-city answers and recovery
+    # have their own contract/pipeline tests in test_reference_places.py.
+    return _near_condition(sorted_kind, ["DE"], lambda text, anchor: _as_condition(
+        text, answer, [], ["DE"]))
 
 
 def card_check(condition, job):

@@ -507,9 +507,21 @@ function nearSummary(condition) {
 
 function howChecked(condition) {
   if (condition.kind === "near" && condition.max_minutes) {
-    return condition.status === "estimate"
-      ? "travel times are AI estimates — please check"
-      : "travel times from Google Maps";
+    if (condition.anchor?.research_status === "not_checked") return "reference cities are not checked";
+    if (condition.anchor?.research_status === "estimate") return "reference cities are AI estimates";
+    if (!condition.anchor?.research_status &&
+        (condition.anchor?.looked_up || condition.anchor?.look_up || condition.note)) {
+      return "reference city facts need checking";
+    }
+    if ((condition.anchor?.reference_checks || []).some((city) => city.meets === null)) {
+      return "some reference cities are not checked";
+    }
+    const journeys = Object.values(condition.travel || {});
+    const ways = journeys.flatMap((j) => [j.by, ...Object.values(j.by_town || {})]);
+    if (!ways.length) return "journeys are not checked";
+    if (ways.includes("AI estimate")) return "travel times include AI estimates";
+    if (journeys.some((j) => (j.unchecked || []).length)) return "some journeys are not checked";
+    return ways.includes("Google Maps") ? "travel times from Google Maps" : "worked out by Jobcu";
   }
   if (condition.changed_by_you) return "changed by you";
   if (condition.status === "estimate") return "AI estimate — please check";
@@ -585,7 +597,18 @@ function conditionEditor(condition, index) {
     ));
   }
   if (condition.kind === "near") block.append(...nearEditor(condition, id));
-  if (condition.status === "not_checked") {
+  if (condition.anchor?.reference_checks?.length) {
+    block.append(el("details", {},
+      el("summary", { text: "Reference city checks" }),
+      el("ul", {}, ...condition.anchor.reference_checks.map((city) => el("li", {
+        text: `${city.name}: ${city.meets === true ? "meets the condition" :
+          city.meets === false ? "does not meet the condition" : "not checked"}` +
+          (city.evidence ? ` — ${city.evidence}` : ""),
+      }))),
+    ));
+  }
+  if (condition.status === "not_checked" ||
+      (condition.anchor?.reference_checks || []).some((city) => city.meets === null)) {
     block.append(el("label", { class: "check" },
       el("input", { type: "checkbox", name: "check_again" }),
       el("span", { text: "Try to check it again" })));

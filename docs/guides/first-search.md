@@ -345,6 +345,13 @@ Read warnings on a job before making a decision:
   an unchecked city fact. The job remains available with **Needs checks** while that evidence
   is missing, and the condition remains retryable. Resolved condition warnings disappear when
   you recheck the condition; unrelated source warnings remain.
+  When your condition names cities or a minimum population, Jobcu first calculates which
+  cities qualify for that part, then checks the remaining fact for those cities. It keeps
+  supported answers when others are missing. A confirmed suitable city can qualify a job;
+  an unchecked alternative cannot be treated as either suitable or unsuitable. **Edit →
+  Reference city checks** shows the individual findings. **Try to check it again** can recheck
+  partial findings. A new search researches these facts afresh; unchanged box readings can
+  still be reused. Complete research notes are kept locally if organizing the answer fails.
 - Jobs under **Posting date unknown** may be older than your chosen posting window.
   **First seen by Jobcu** is when Jobcu first found a job, not necessarily when it was posted.
   Check the original posting date and application deadline where available.

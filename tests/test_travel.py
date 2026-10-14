@@ -714,12 +714,14 @@ def test_the_size_still_counts_when_the_fact_about_the_places_can_t_be_checked()
         max_minutes=50, travel_mode="drive",
         anchor=SortedAnchor(description="big cities", min_share_of_country=0.003,
                             needs_the_web=True, look_up="far-right parties are weak"))}
-    nothing = CheckedCondition(understood_as="x", kind="could_not_check", confidence="estimate",
-                               note="The notes named no towns.")
+    from jobcu.reference_places import ReferenceAnswers
+
+    nothing = ReferenceAnswers(cities=[])
     (condition,) = check_conditions(ScriptedClient(nothing, sorted_kinds=sorted_kinds), [text],
                                     ["DE"])
     assert condition.kind == "near" and condition.anchor.min_share_of_country == 0.003
-    assert not condition.anchor.looked_up and "couldn't be checked" in condition.note
+    assert condition.anchor.looked_up and condition.reference_status == "not_checked"
+    assert "Missing cities remain unknown" in condition.note
 
 
 def test_a_fact_without_a_size_counts_towns_big_enough_to_be_called_cities():
