@@ -229,7 +229,9 @@ class Anchor(BaseModel):
     # Separate from journey confidence: a measured route cannot verify a city fact.
     research_status: Literal["applied", "estimate", "not_checked"] | None = None
     reference_checks: list[ReferenceCheck] | None = None  # None: legacy/open-ended research
-    reference_notes: str = ""  # complete research retained if structuring fails; never a fact cache
+    # In-flight recovery only. Retaining an undisplayed grounded answer needs a verified
+    # provider-specific display/retention policy, not an unrestricted hidden archive.
+    reference_notes: str = Field(default="", exclude=True)
     # Trips end at the centre only when the person said so; otherwise at the nearest edge of the
     # place, where the person could live (travel.py).
     to_centre: bool = False
@@ -254,7 +256,7 @@ class Condition(BaseModel):
     note: str = ""
     sources: list[Source] = []
     reference_checks: list[ReferenceCheck] | None = None
-    reference_notes: str = ""
+    reference_notes: str = Field(default="", exclude=True)
     # For "near": a limit, and what it is measured to. The answer for each job is kept in
     # `travel` (see travel.py), so corrected limits can be applied without asking again.
     max_minutes: int | None = None
