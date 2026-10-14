@@ -241,7 +241,7 @@ only remaining free step until merged. Recover that exact gate rather than selec
 Private `assistant-review-checkpoint.json` points to `active_completed_review`: the latest
 finished attempt has a balanced blinded review including every top card, original run-boundary
 measurements, detailed cost components and supported assistant labels. Owner/legacy ratings,
-settings, marks and historical results were preserved. The three owner-identified unusable
+settings, marks and historical results were preserved. Owner-identified unusable
 application routes were reported with the owner's authorization; no opaque destination was fetched.
 Missing original evidence, unresolved reference facts, incomplete billed usage and an eligible
 independent benchmark prevent broader quality, recall or invoice claims. No newer unfinished
@@ -262,8 +262,7 @@ and separately gated hosted research. Unknown charges/outcomes or any quality/co
 stop the comparison and block adoption. Protected source evidence must not move before its
 rights are resolved. Exact next paid action, only when those dependencies are satisfied: verify
 the frozen packet against the current task-focus policy and run the first paired five-ad
-fictional batch through `AIClient` on an
-isolated copy, saving complete answers and token/tool/failed usage before continuing inside the
+fictional batch through `AIClient` on an isolated copy, saving complete answers and token/tool/failed usage before continuing inside the
 ceiling. No calls are authorized yet. Otherwise retain this dependency and wait for owner input.
 
 ### Verify before relying on
