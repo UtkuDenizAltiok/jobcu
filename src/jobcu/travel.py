@@ -241,7 +241,39 @@ def anchor_towns(anchor: Anchor | None, country: str) -> list[place_list.Town]:
     # Places that fail a looked-up fact ("far-right strongholds") never count.
     avoided = {place_list.find(ref.name, country) for ref in anchor.avoided
                if ref.country == country} | in_regions(anchor.avoided_regions)
-    return sorted((chosen or set()) - avoided, key=lambda town: -town.people)
+    chosen = (chosen or set()) - avoided
+    if anchor.reference_checks is not None:
+        accepted = {(c.country, normalise(c.name), c.latitude, c.longitude)
+                    for c in anchor.reference_checks
+                    if c.meets is True}
+        chosen = {town for town in chosen if (
+            country, normalise(town.name), town.latitude, town.longitude) in accepted}
+    return sorted(chosen, key=lambda town: -town.people)
+
+
+def unchecked_reference_towns(anchor: Anchor | None, country: str) -> list[place_list.Town]:
+    if anchor is None or anchor.reference_checks is None:
+        return []
+    checked = {(c.country, normalise(c.name), c.latitude, c.longitude)
+               for c in anchor.reference_checks
+               if c.meets is not None}
+    # Widening the local size/name rule after research introduces unknown candidates too.
+    base = anchor.model_copy(update={"reference_checks": None})
+    return [town for town in anchor_towns(base, country)
+            if (country, normalise(town.name), town.latitude, town.longitude) not in checked]
+
+
+def _unchecked_reference_in_reach(condition: Condition, group: JobGroup) -> bool:
+    if condition.anchor is None or condition.anchor.reference_checks is None:
+        return False
+    point = job_point(group)
+    if point is None:
+        return True
+    centre = condition.anchor is not None and condition.anchor.to_centre
+    limit = condition.max_km if condition.max_km is not None else (
+        (condition.max_minutes or 0) / 60 * FASTEST_KMH[condition.travel_mode or "transit"])
+    return any(edge_distance(point, town, centre) <= limit
+               for town in unchecked_reference_towns(condition.anchor, point.country))
 
 
 def answer(condition: Condition, group: JobGroup) -> str:
@@ -260,16 +292,26 @@ def answer(condition: Condition, group: JobGroup) -> str:
             return "yes"
         near = [town for town in towns
                 if edge_distance(point, town, centre) <= condition.max_km]
-        return "yes" if near else "no"
+        return "yes" if near else (
+            "unknown" if _unchecked_reference_in_reach(condition, group) else "no")
     entry = condition.travel.get(job_key(group))
     if not entry:
         return "unknown"
-    minutes = [m for m in (entry.get("minutes") or {}).values() if m is not None]
+    minutes = [m for m in _eligible_minutes(condition, group, entry).values() if m is not None]
     if minutes and min(minutes) <= (condition.max_minutes or 0):
         return "yes"
-    if entry.get("unchecked"):
+    if entry.get("unchecked") or _unchecked_reference_in_reach(condition, group):
         return "unknown"
     return "no"
+
+
+def _eligible_minutes(condition: Condition, group: JobGroup, entry: dict) -> dict:
+    minutes = entry.get("minutes") or {}
+    if condition.anchor is None or condition.anchor.reference_checks is None:
+        return minutes
+    accepted = {normalise(town.name) for town in anchor_towns(
+        condition.anchor, job_country(group))}
+    return {name: value for name, value in minutes.items() if normalise(name) in accepted}
 
 
 def home_town(point: Point, towns: list[place_list.Town],
@@ -296,7 +338,8 @@ def detail(condition: Condition, group: JobGroup) -> tuple[str, str] | None:
     entry = condition.travel.get(job_key(group)) if condition.kind == "near" else None
     if not entry:
         return None
-    minutes = {town: m for town, m in (entry.get("minutes") or {}).items() if m is not None}
+    minutes = {town: m for town, m in _eligible_minutes(condition, group, entry).items()
+               if m is not None}
     words = MODE_WORDS.get(condition.travel_mode or "transit", "")
     if minutes:
         town, best = min(minutes.items(), key=lambda item: item[1])
@@ -304,6 +347,8 @@ def detail(condition: Condition, group: JobGroup) -> tuple[str, str] | None:
         by = (entry.get("by_town") or {}).get(town) or entry.get("by") or "estimate"
         if entry.get("unchecked"):
             text += "; another sampled journey couldn't be checked"
+    elif _unchecked_reference_in_reach(condition, group):
+        text, by = "Other candidate cities still need their place facts checked", "Not checked"
     elif entry.get("unchecked"):
         text, by = f"Journey couldn't be checked {words}", "Not checked"
     elif entry.get("nearest"):

@@ -262,6 +262,28 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
+**Underlying evidence recovery — owner continuation, 2026-10-15.**
+Active on `codex/reference-evidence-recovery`, based on `09e2c3a`. The owner asks to repair
+the causes of missing evidence, not hide uncertainty, and now permits necessary API use.
+Reuse the completed private review and unchanged 1,620-test baseline. Preserve owner data,
+running app, medium effort, source rights and existing budgets. No new search, provider/account
+change or unbounded paid experiment is planned. Any necessary diagnostic must first have a
+bounded spend and verified remaining headroom; otherwise finish useful offline work.
+Steps: trace native research and reference/job evidence failures; select and reproduce the
+strongest general repair with fictional cases; verify meaningful before/after behavior,
+affected/full tests, documentation, privacy and complete diff; publish with exact-head
+Mac/Windows/privacy CI and a merge commit. Detailed evidence/checkpoint stays private.
+Implemented: locally bounded reference-city research with separate cited outcomes, conservative
+unknown alternatives, complete-note preservation, shared fact requests and coordinate identity;
+temporary DNS failures remain retryable instead of cached as absent hosts. User-facing condition
+evidence and retry labels, engineering record and guide are updated. Final local 1,674 tests pass
+(one existing dependency warning); Ruff/privacy, JS syntax/fictional UI and diff/whitespace pass.
+No paid call, new search, provider/account/network change or owner-app restart. Live service
+availability, missing originals, net savings and market recall remain unmeasured. Exact next
+action: finish complete-diff/document review, commit/push/open PR, require exact-head
+Mac/Windows/privacy CI, then merge with a merge commit and verify synchronized main.
+Parked provider-comparison and Adzuna permission dependencies below remain separate.
+
 **Whole-pipeline quality, coverage and complete-cost improvement — 2026-10-12.**
 Prior free work, including PR #114's owner scoring adjustment, is fully published and verified;
 receipts are in Right now. The bounded provider comparison remains blocked below. Do not

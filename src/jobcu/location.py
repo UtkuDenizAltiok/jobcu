@@ -196,6 +196,16 @@ class Source(BaseModel):
     title: str = ""
 
 
+class ReferenceCheck(TownRef):
+    """One eligible-sized/named city's sourced answer; omission never means it fits."""
+
+    latitude: float | None = None
+    longitude: float | None = None
+    meets: bool | None = None
+    evidence: str = ""
+    sources: list[Source] = []
+
+
 class Anchor(BaseModel):
     """What a "near" condition measures to: towns of a size, named towns, towns the AI looked
     up, or a mix of these (then a town must fit every part)."""
@@ -218,6 +228,8 @@ class Anchor(BaseModel):
     look_up: str = ""  # the fact that was looked up
     # Separate from journey confidence: a measured route cannot verify a city fact.
     research_status: Literal["applied", "estimate", "not_checked"] | None = None
+    reference_checks: list[ReferenceCheck] | None = None  # None: legacy/open-ended research
+    reference_notes: str = ""  # complete research retained if structuring fails; never a fact cache
     # Trips end at the centre only when the person said so; otherwise at the nearest edge of the
     # place, where the person could live (travel.py).
     to_centre: bool = False
@@ -241,6 +253,8 @@ class Condition(BaseModel):
     min_share_of_country: float | None = None
     note: str = ""
     sources: list[Source] = []
+    reference_checks: list[ReferenceCheck] | None = None
+    reference_notes: str = ""
     # For "near": a limit, and what it is measured to. The answer for each job is kept in
     # `travel` (see travel.py), so corrected limits can be applied without asking again.
     max_minutes: int | None = None
@@ -293,6 +307,8 @@ def condition_warnings(plan: LocationPlan) -> list[str]:
         if condition.status == "not_checked":
             note = condition.note or "Jobcu could not check this condition."
         elif condition.reference_status != "applied" or (
+                condition.anchor is not None and condition.anchor.reference_checks is not None
+                and any(c.meets is None for c in condition.anchor.reference_checks)) or (
                 condition.kind != "near" and condition.status == "estimate"):
             note = condition.note or "Some required facts about the places could not be confirmed."
         else:
@@ -617,12 +633,40 @@ def _check_sorted_conditions(
     researched = 0
     # The same fact is looked up once per search, even when two conditions ask about it (the
     # job's own town and the places the person travels from).
-    looked_up: dict[str, Condition] = {}
+    looked_up: dict[tuple, Condition] = {}
 
-    def research(fact: str) -> Condition:
-        key = normalise(fact)
+    def research(fact: str, anchor: SortedAnchor | None = None) -> Condition:
+        # A standalone town condition needs the whole country; a reference condition with
+        # a known size/name needs only the finite candidate cities. Do not mix their scope.
+        from jobcu import reference_places
+
+        candidates = (reference_places.candidates(anchor, countries)
+                      if anchor is not None and normalise(fact) not in {
+                          normalise(text) for text in facts} else None)
+        if candidates is not None:
+            # Two travel conditions about the same fact share the union of candidates.
+            # Different size/name limits must not cause duplicate paid fact lookups.
+            combined = set(candidates)
+            for other in sorted_conditions:
+                wanted = other.anchor
+                if other.kind != "near" or wanted is None or not wanted.needs_the_web or (
+                        normalise(wanted.look_up or wanted.description or other.text)
+                        != normalise(fact)):
+                    continue
+                more = reference_places.candidates(wanted, countries)
+                if more is None or len(combined | set(more)) > MAX_TOWNS_PER_CONDITION:
+                    candidates = None
+                    break
+                combined.update(more)
+            else:
+                candidates = sorted(combined, key=lambda t: (countries.index(t.country),
+                                                            -t.people, t.name))
+        key = (normalise(fact), None if candidates is None else tuple(
+            (town.country, town.name, town.latitude, town.longitude) for town in candidates))
         if key not in looked_up:
-            looked_up[key] = _research_condition(client, fact, names, countries)
+            looked_up[key] = (_research_condition(client, fact, names, countries)
+                             if candidates is None else reference_places.check(
+                                 client, fact, candidates))
         found = looked_up[key]
         return found.model_copy(update={"text": fact})
 
@@ -653,7 +697,7 @@ def _check_sorted_conditions(
                     anchor.look_up or anchor.description or text, facts)})
                 sorted_condition = sorted_condition.model_copy(update={"anchor": anchor})
             fact = normalise(anchor.look_up)
-            looks_up = anchor.needs_the_web and fact not in looked_up
+            looks_up = anchor.needs_the_web and not any(k[0] == fact for k in looked_up)
             if looks_up and researched >= MAX_CONDITIONS:
                 checked.append(Condition(
                     text=text, understood_as=sorted_condition.understood_as or text,
@@ -663,7 +707,7 @@ def _check_sorted_conditions(
             researched += looks_up
             checked.append(_near_condition(sorted_condition, countries, research))
             continue
-        known = normalise(text) in looked_up
+        known = any(k[0] == normalise(text) for k in looked_up)
         if researched >= MAX_CONDITIONS and not known:
             checked.append(Condition(
                 text=text, understood_as=sorted_condition.understood_as or text,
@@ -693,7 +737,7 @@ DEFAULT_CITY_PEOPLE = 20_000
 
 def _near_condition(
     sorted_condition: SortedCondition, countries: list[str],
-    research: Callable[[str], Condition],
+    research: Callable[[str, SortedAnchor], Condition],
 ) -> Condition:
     """A limit and the places it is measured to. Places of a size and named places need nothing
     more; any fact about the places ("a university town", "far-right parties below average") is
@@ -712,10 +756,14 @@ def _near_condition(
     notes: list[str] = []
     if wanted.needs_the_web:
         anchor.look_up = (wanted.look_up or wanted.description or text).strip()
-        found = research(anchor.look_up)
+        found = research(anchor.look_up, wanted)
         anchor.research_status = found.status
         sources = found.sources
-        if found.kind == "town_size":
+        if found.reference_checks is not None:
+            anchor.reference_checks = found.reference_checks
+            anchor.reference_notes = found.reference_notes
+            anchor.looked_up = True
+        elif found.kind == "town_size":
             anchor.min_people = found.min_people or anchor.min_people
             anchor.min_share_of_country = (found.min_share_of_country
                                            or anchor.min_share_of_country)
@@ -1043,6 +1091,8 @@ def _corrected_near(condition: Condition, edit: ConditionEdit, countries: list[s
         # An explicit replacement of eligible/excluded places is the owner's rule.
         # Changing only minutes or size does not confirm another missing city fact.
         anchor.research_status = "applied"
+        anchor.reference_checks = None
+        anchor.reference_notes = ""
     condition.anchor = anchor
     condition.changed_by_you = condition.changed_by_you or changed
     return condition

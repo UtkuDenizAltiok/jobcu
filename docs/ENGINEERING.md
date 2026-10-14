@@ -72,6 +72,48 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Record step time and answer-wait time; label correction timings separately from cumulative usage. | Corrections and full searches cannot be compared as equivalent performance runs (2026-10-06). |
 | Warn when scoring reads only an excerpt of a lengthy ad. | Unseen requirements must not be assumed satisfied (2026-10-06). |
 
+## Finite reference evidence and source recovery — 2026-10-15
+
+For a travel condition with a known population or named-place rule, `reference_places.py`
+selects candidate cities locally before researching the remaining fact. This supersedes asking
+for a complete minority/complement list across whole countries for that bounded case. The
+existing open-ended method remains for standalone country/town conditions, unknown named places
+and scopes larger than 400 cities; no candidate list is silently truncated. Multiple travel
+conditions about one fact share the union of their candidates and one research request.
+
+Fresh notes use a separate city ID for each candidate. Structured outcomes must have one unique
+row/paragraph, a literal excerpt in that city's paragraph and a citation from the returned
+sources. No searches, no citations, missing/duplicate IDs, foreign-city excerpts and estimated
+answers remain unknown. A positive answer requires the whole stated condition, while one
+supported contradiction can establish a negative. The AI still reads the source evidence;
+local population/name selection and travel decisions do not require another AI judgement.
+Citation membership and an excerpt establish provenance, not independently measured source
+accuracy; live comparability, interpretation and coverage still require verification.
+
+Each city keeps its own outcome and cited excerpt. Supported answers survive missing rows;
+no omitted city is implicitly acceptable. Only confirmed suitable cities can trigger journeys.
+A supported journey can prove a pass despite an unknown alternative; a negative decision stays
+unknown if an unchecked candidate could still be in reach. Local size edits preserve old facts
+without inventing evidence for newly eligible cities. Old journey entries cannot qualify through
+an ineligible reference city. Complete research notes/citations stay in the private saved result
+even if organizing them fails; they are not a cross-search fact/route cache. The optional condition
+editor exposes city outcomes and permits rechecking partial results. Its labels distinguish
+missing city facts, unfinished journeys, AI estimates, Maps and local calculations.
+
+The source HTTP client's DNS check now caches absence only for definite name/no-address errors.
+Temporary DNS and generic resolver failures keep normal bounded retries and do not poison the
+per-search hostname cache. This does not bypass blocking, change an endpoint, increase request
+limits or remove Retry-After/Stop checks. Fictional failures reproduced a lost source response
+before the fix and successful recovery afterwards; genuinely nonexistent hosts still stop early.
+
+Fictional before/after checks cover smaller workplaces near acceptable reference cities,
+confirmed negatives, unknown alternatives, all 30 countries, engineering/nursing/teaching,
+missing citations, duplicates, edits, preserved complete notes and shared request scope.
+The bounded-city case uses the same research/formatting requests, medium controls and allowance;
+an empty local candidate set needs no research. No paid call, new search, provider/account/network
+change or owner-state reset was needed. Actual research latency, net savings and live matching/
+market recall are unmeasured; this repair does not guarantee external service availability.
+
 ## Duplicate boundaries and reference eligibility — 2026-10-15
 
 Unicode dash punctuation separates words before ASCII accent folding. Previously a nonbreaking
@@ -1190,7 +1232,7 @@ The root keeps launchers, README, CONTRIBUTING, AGENTS, LICENSE and Python/tool 
 | Documents/profile | `documents.py`, `documents_api.py`, `profile.py`; uploads, text and cached structured profiles. |
 | Search preparation | `preparation.py`; bounded private reuse of exact-input location readings and search-word groups, excluding research, scores and journeys. |
 | Search coordination | `search.py`, `search_api.py`, `pipeline.py`, `pool.py`; progress, collection, decisions, cards and condition reapplication. |
-| Places/criteria | `countries.py`, `location.py`, `places.py`, `placenames.py`, `travel.py`; supported geography, query interpretation and measurements. |
+| Places/criteria | `countries.py`, `location.py`, `reference_places.py`, `places.py`, `placenames.py`, `travel.py`; supported geography, query interpretation, finite reference-city evidence and measurements. |
 | Discovery | `keywords.py`, `employers.py`; multilingual words and periodically discovered employers. |
 | Evidence/matching | `text.py`, `jobposting.py`, `dedupe.py`, `filters.py`, `freshness.py`, `relevance.py`, `jobplace.py`, `requirements.py`, `scoring.py`; text extraction, filtering, research, grounded requirements and fit. |
 | Results/evaluation | `applications.py`, `jobidentity.py`, `jobstore.py`, `quality.py`, `quality_api.py`; application routes, remembered jobs, saved results and independent score checks. |

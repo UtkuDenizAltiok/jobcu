@@ -1,3 +1,4 @@
+import socket
 from datetime import UTC, datetime, timedelta
 
 import httpx
@@ -296,7 +297,7 @@ def test_a_host_that_doesn_t_exist_isn_t_tried_again(exists, attempts):
 
     def resolve(host):
         if not exists:
-            raise OSError("unknown host")
+            raise socket.gaierror(socket.EAI_NONAME, "unknown host")
         return [("address",)]
 
     http = PoliteClient(min_intervals={}, sleep=lambda s: None, resolve=resolve,
@@ -304,6 +305,32 @@ def test_a_host_that_doesn_t_exist_isn_t_tried_again(exists, attempts):
     with pytest.raises(httpx.ConnectError):
         http.get("https://jobs.nowhere.test/")
     assert len(calls) == attempts  # a real network hiccup is still tried again
+
+
+@pytest.mark.parametrize("error", [socket.gaierror(socket.EAI_AGAIN, "temporary lookup failure"),
+                                  OSError("temporary resolver failure")])
+def test_temporary_dns_failure_keeps_permitted_source_retryable(error):
+    calls, lookups = [], []
+
+    def handler(request):
+        calls.append(1)
+        if len(calls) <= 2:
+            raise httpx.ConnectError("connection interrupted")
+        return httpx.Response(200, json={"jobs": ["fictional vacancy"]})
+
+    def resolve(host):
+        lookups.append(host)
+        if len(lookups) == 1:
+            raise error
+        return [("address",)]
+
+    http = PoliteClient(min_intervals={}, sleep=lambda s: None, resolve=resolve,
+                        transport=httpx.MockTransport(handler))
+    try:
+        assert http.get("https://example.test/jobs").json() == {"jobs": ["fictional vacancy"]}
+    finally:
+        http.close()
+    assert len(calls) == 3 and len(lookups) == 2
 
 
 @pytest.mark.parametrize("page", [
