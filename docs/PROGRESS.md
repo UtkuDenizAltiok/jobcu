@@ -10,6 +10,23 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
+- [Duplicate boundaries and reference eligibility](ENGINEERING.md#duplicate-boundaries-and-reference-eligibility--2026-10-15)
+  are implemented in [PR #119](https://github.com/UtkuDenizAltiok/jobcu/pull/119), source
+  `8be0442` on `codex/evidence-recovery`, based on `90a72e3`. Dash variants share one
+  evidence/scoring group, with legacy identity and distinct-vacancy guards retained.
+  Travel decisions/requests wait for applied reference-city facts; unknown jobs remain
+  available. Cards collect missing evidence under **Needs checks** and explain each score
+  maximum. Native Gemini response-close transport errors preserve terminal answers,
+  citations, meaningful failures and usage. Scoring policy, medium effort and source rights
+  remain. Final 1,620 tests, 294 matching/travel/search and 103 provider checks pass, with
+  one existing dependency warning; Ruff/privacy, 11 current non-archive documents,
+  JS syntax/fictional DOM and complete diff/whitespace checks pass. Exact final PR/main-head
+  Mac/Windows/privacy CI is the publication gate; receipts are saved in the private
+  `active_latest_completed_review` checkpoint. Detailed independent judgements, timing,
+  billing limits and before/after diagnostics stay private. Owner history, marks, settings,
+  authorization and owner/legacy labels were preserved. No paid call, new search, provider/
+  source/account/network change or owner-app restart was made. Provider availability,
+  missing original/reference evidence, whole-market recall and net savings remain unverified.
 - [Independently saved application links](ENGINEERING.md#independently-saved-application-links--2026-10-14)
   are implemented in [PR #118](https://github.com/UtkuDenizAltiok/jobcu/pull/118), source
   `9b017d0` on `codex/direct-application-links`, based on `1468a30`. Restored and marked cards
@@ -244,35 +261,16 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 ### In progress
 
 **Latest saved review and evidence recovery — owner task, 2026-10-15:**
-On `codex/evidence-recovery`, base `90a72e3`; previous free work is complete, unchanged
-1,578-test baseline may be reused if code/tests/dependencies/environment remain identical.
-Authorized scope: privately review the latest finished run against actual documents/criteria,
-reuse unchanged sealed judgements and inspect initial delay, provider/source failures,
-freshness/coverage/duplicates/exclusions, requirements/travel and uncertainty throughout the
-pipeline. Use read-only reporting and a private isolated snapshot; preserve owner state and
-ratings. No new search, paid test/call, account/network/settings change or blocked-site bypass.
-Steps: save a balanced blinded review including all top cards, distinguish run boundaries and
-usage uncertainty, rank a small evidence-backed shortlist, implement the strongest reproducible
-free improvement with fictional multi-profession/failure regressions, update its guides/records,
-run affected/final tests and Ruff/privacy/JS/docs/diff checks, publish with exact PR/main-head
-Mac/Windows/privacy CI and merge commits. Detailed evidence/checkpoints stay private.
-Read-only reporting, isolated snapshot and balanced sealed evidence judgements are complete;
-no newer unfinished attempt was found. Details, shortlist, original timing/failure separation
-and evidence limits are private. Chosen coherent step: preserve Unicode dash word boundaries
-before duplicate matching, retain legacy remembered identities, gate route decisions/requests
-on checked reference-place facts, and make missing checks and nonbinding score ceilings clear.
-Keep unknown jobs available; do not invent verification, weaken matching guards, change source
-permissions or remove evidence checks. Connection failures have no demonstrated balance cause.
-Implementation is complete, including native Gemini cleanup resilience: a transport error
-while closing a response cannot discard a completed answer/citations or replace a meaningful
-failure and its usage. Three real-SDK fictional reproductions fail before and pass after;
-this is not established as the cause of saved pre-answer disconnects. Final 1,620 tests pass
-(one existing dependency warning); 294 matching/travel/search and 103 provider checks pass.
-Ruff/privacy, 11 current non-archive documents, JS syntax/fictional card DOM and complete
-diff/whitespace checks pass. Detailed supported labels/unknowns and before/after diagnostics
-are saved privately; owner history/marks/settings/authorization and owner/legacy labels remain.
-Exact next action: commit/push the completed step, create/attach its PR, verify Mac/Windows/privacy
-CI on its exact final head, merge with a merge commit, synchronize main and verify exact-main CI.
+Free review/implementation/checks are complete (Right now); publication is the remaining gate.
+PR #119, branch `codex/evidence-recovery`, source `8be0442`, base `90a72e3`. The private
+`active_latest_completed_review` record holds final head, PR/main CI and cleanup status.
+Exact next action: verify CI on the PR's actual final head, merge with a merge commit,
+synchronize main and verify its exact-head Mac/Windows/privacy CI. If those receipts already
+confirm completion, clear this stale gate instead of repeating unchanged tests or review.
+Preserve owner app 8765; preview 8799 is stopped. No paid call or new search is authorized.
+Before interruption cleanup, save private evidence and remove only its recorded disposable
+scratch copy. Pre-answer disconnects, missing originals/reference facts, complete invoices
+and an independent benchmark remain evidence dependencies, with exact actions saved privately.
 
 **Whole-pipeline quality, coverage and complete-cost improvement — 2026-10-12.**
 Prior free work, including PR #114's owner scoring adjustment, is fully published and verified;
