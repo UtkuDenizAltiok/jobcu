@@ -3,6 +3,7 @@ scoring and the result cards. search.py runs these steps and reports progress.""
 
 import dataclasses
 import logging
+import math
 import threading
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
@@ -18,7 +19,7 @@ from jobcu.freshness import earliest_possible, freshness, window_start
 from jobcu.jobstore import JobState
 from jobcu.location import LocationPlan
 from jobcu.placenames import countries_in
-from jobcu.scoring import LEGACY_ONLINE_NOTE, ONLINE_NOTE
+from jobcu.scoring import LEGACY_ONLINE_NOTE, ONLINE_NOTE, PARTS
 from jobcu.sources import all_sources
 from jobcu.sources.base import (
     FoundJob,
@@ -457,15 +458,24 @@ def _checked_by(condition, measured_by: str | None = None) -> str:
 
 
 def sort_cards(cards: list[dict]) -> list[dict]:
-    """Highest score first; newer first when scores are equal."""
+    """Highest score, then strongest weakest fit area, then newer evidence."""
     return sorted(
         cards,
         key=lambda c: (
             c["score"] is None,
             -(c["score"] or 0),
+            -_weakest_fit(c),
             -(_timestamp(c["posted_at"])),
         ),
     )
+
+
+def _weakest_fit(card: dict) -> float:
+    parts = card.get("parts") or {}
+    if not all(type(parts.get(name)) in {int, float} and math.isfinite(parts[name])
+               for name in PARTS):
+        return 0  # incomplete legacy breakdown: keep the existing date tie-break
+    return min(parts[name] / maximum for name, maximum in PARTS.items())
 
 
 def _timestamp(iso: str | None) -> float:

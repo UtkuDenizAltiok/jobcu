@@ -36,6 +36,7 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Prefer exact source IDs in job memory. Distinct IDs on the same employer source stay separate, including through other copies. Require similar text when both matching ads are complete. Keep ambiguous name matches as separate jobs; preserve all historical keys, marks and snapshots. | Fictional electronics, nursing and hospitality openings reproduced a fresh vacancy inheriting an old date or Not interested mark. Titles and templates do not establish a unique vacancy. Previously merged history cannot be automatically split without evidence (2026-10-07). |
 | Groups kept separate by duplicate checks cannot rejoin solely through remembered names in the same batch. Exact copy evidence still wins; known countries can disambiguate. | The former one-card heuristic for two vague agency summaries could silently share Save/Not interested state without vacancy evidence. Supersedes that title-only assumption while retaining one card for proven copies (2026-10-08). |
 | Explain scores with rubric parts and deterministic blocker limits; retain low-score jobs. | Users can see why a job ranks where it does; a score is not hiring probability (2026-09-23 to 2026-09-30). |
+| The 28–35 role/skills band has a total maximum of 80; 18–27 → 60, 8–17 → 45, 0–7 → 30 stay unchanged. Only the 36–40 core-work band is uncapped by field fit. | Supersedes allowing neighbouring specialisations/gaps to reach an excellent total through level, language and country points. Judge actual daily deliverables and required domain, not employer/industry/graduate labels or shared tools (owner-directed scoring improvement, 2026-10-14). |
 | Bound clearly mismatched experience/responsibility levels as well as role mismatch. The initial 0–5 → 50 and 6–11 → 65 caps are **superseded by the owner adjustment below**. | Strong skill overlap must not compensate for a level the rubric already calls clearly unsuitable; applies to all professions, including overqualification. This extends the earlier total-limit policy (2026-10-12). |
 | Owner maximums: seniority 0–5 → 65, 6–11 → 80; required-language gap of exactly two CEFR levels → 80, three or more → 75. Keep point deductions, small/optional/implied-language treatment, exact-years rules and other limits. | The owner explicitly chose more forgiving totals with a separate threshold for larger language gaps. Lowest applicable limit still wins; saved scores are not rewritten. This supersedes the earlier experience caps and uniform language maximum of 65 (owner follow-up, 2026-10-13). |
 | Ordinary mandatory-requirement points follow grounded met/unmet/unknown comparisons. Preserve known blockers when incomplete research omits them; explicit resolutions recompute points. | Supersedes accepting contradictory raw hard-requirement points in new scoring. Fictional comparisons reproduce an unmet eligibility condition retaining 14 points, and unsupported comparisons imposing definite limits. Existing band/limit values and separate policies remain (2026-10-09). |
@@ -70,6 +71,55 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Assistant ratings may fill empty labels or revise prior assistant labels; owner and legacy labels are protected atomically. | A concurrent owner edit must not be overwritten by a review. Fictional controlled-order tests cover the read/write gap (2026-10-07). |
 | Record step time and answer-wait time; label correction timings separately from cumulative usage. | Corrections and full searches cannot be compared as equivalent performance runs (2026-10-06). |
 | Warn when scoring reads only an excerpt of a lengthy ad. | Unseen requirements must not be assumed satisfied (2026-10-06). |
+
+## Task focus and scoring confidence — 2026-10-14
+
+The scorer first compares the occupation, main deliverables and specialist knowledge. Related
+tools or a shared sector cannot establish a direct target-role match. Existing role bands now
+bound every non-core total: 28–35 points → maximum 80, then 27/17/7 → 60/45/30. Lower
+experience/language/eligibility limits still win. A fictional neighbouring role with 31 role
+points and 20/15/10/15 other points changes from 91 to 80; a direct 40-point role stays at 100.
+Jobs remain available; this changes ranking, not collection or filtering. Model band selection
+still needs accurate interpretation; the pure rules comparison is not a live quality claim.
+
+Mandatory evidence includes specific technology/domain/practical skill prerequisites even when
+phrased as experience, while duration/overall seniority use their own fields. A degree alone
+cannot replace the required-skills checklist; absent expertise stays unknown. Document reading
+preserves stated basic/introductory proficiency instead of flattening it to an unqualified skill.
+These prompt changes reuse the existing schemas, batches, calls and medium default; actual token
+or outcome changes remain unmeasured. Original-ad completeness is not proof of checklist accuracy.
+
+Filtering retains uncertain locations. Scoring now surfaces unchecked reference-city facts and
+bounds location/preferences points to 8 where the job's evidence is uncertain or estimated.
+Keep the proposed points separately, refresh confidence before research/ranking and on final
+or corrected cards, and restore them when the condition resolves or is disabled. Evidence
+research uses the priority before this uncertainty deduction, with all other fit limits intact:
+missing facts cannot push their own useful check below the existing research threshold. A real trip
+cannot prove a missing destination fact; an attempted lookup cannot create an online-evidence
+note. Excerpt warnings survive confidence updates. Historical snapshots are not rewritten.
+Reference-city population remains distinct from workplace population: a small workplace town
+may qualify through a large enough city within the stated journey limit.
+
+Application reports now recognize the same numeric Adzuna advertisement across its known
+details/land route forms and changed `utm_*`, `se` or `v` tracking fields. The original advertiser
+URL is preserved. Unknown query fields, other identifiers/hosts/ports and unrecognized paths
+do not establish equivalence. No redirect is fetched. Reports remain reversible; independent
+matched employer/board alternatives and Saved/Applied/history survive. This extends the exact
+URL report policy above without guessing destinations for other jobs. Current public policy
+evidence and limits are in [SOURCES](SOURCES.md#ai-and-maps).
+
+Fictional electronics, nursing, teaching and hospitality regressions cover core/adjacent ranking,
+lower limits, partial reference facts, per-job route evidence, later resolution, legacy recovery,
+warning retention and reversible application identity. Frozen saved decisions may be replayed
+privately as deterministic-rule diagnostics; they are not new independent model judgements,
+precision measurements or market recall. Complete invoices, unavailable originals and an
+eligible independent coverage benchmark remain separate dependencies.
+
+Equal totals favor the stronger weakest rubric area (points divided by that area's maximum),
+then newer posting evidence. This prevents a capped but clearly wrong seniority level from
+winning a tie with a suitable adjacent role purely because it is newer. Backend and browser
+use the same scoring maxima. Equal breakdowns and incomplete legacy breakdowns retain the
+posting-date tie-break; **Newest** remains date-first. This supersedes date-only Best match ties.
 
 ## Search preparation reuse and connection clarity — 2026-10-14
 

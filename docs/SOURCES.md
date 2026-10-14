@@ -970,6 +970,17 @@ final application host. Existing blocked-site rules still prohibit probing Adzun
 Known CV-Library destinations are excluded by owner instruction; no CV-Library collection
 or application-form traffic was added. Opaque redirects remain an unverified destination.
 
+**Application restrictions rechecked 2026-10-14:** the indexed official
+[CV-Library FAQ](https://www.cv-library.co.uk/help/popular-questions) describes registration
+requiring a UK address and access restricted to users located in the UK; temporary UK addresses
+are accepted with a UK working visa. This describes address/location access, not a blanket
+British-citizenship rule. Direct public retrieval returned 403; no account, application form or
+bypass was used, so live eligibility was not tested. The existing owner-directed destination
+exclusion remains. A reported numeric Adzuna ad may match its known details/land URL variants
+with tracking-only query changes, while stored advertiser URLs stay intact. Other IDs/hosts or
+unknown request fields cannot establish the same route. This changes local report matching,
+not collection permission; no opaque advertiser redirect is fetched.
+
 **Rechecked 2026-10-07 for the guides:**
 
 - [Gemini API standard pricing](https://ai.google.dev/gemini-api/docs/pricing):

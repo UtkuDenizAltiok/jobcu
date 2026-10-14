@@ -94,6 +94,10 @@ You can put several conditions together. For example:
 Say whether a condition applies to the job's town, the place you would live, or both, if
 that distinction matters to you. The example above asks for the election condition in both.
 
+For **within a journey time of a city**, a population minimum describes the city you could
+live in. The workplace may be in a smaller town within that journey time. If you require the
+workplace town itself to meet a population minimum, say that explicitly.
+
 Election results, shop counts, opening hours and student numbers need web research through
 your chosen AI. Information may be incomplete, and a provider or model may not support
 research. Jobcu shows sources when supplied, labels estimates, and marks a condition
@@ -259,12 +263,25 @@ or C2). The language points still reflect the gap. Desirable languages use the s
 deduction. When several score limits apply, the lowest maximum wins; a maximum never raises
 the total above its points.
 
-For mandatory requirements such as current student enrolment, a professional licence or work
+The main work matters before general skills or graduate level. Jobs with gaps in their main
+work or a neighbouring specialisation have a maximum score of **80**; related work with
+substantially different duties has a maximum of **60**. Shared tools or a shared industry do
+not make different daily work a direct match. Lower applicable limits still win.
+When totals tie, **Best match** compares the weakest scoring part, then posting date.
+**Newest** continues to sort by date.
+
+For mandatory requirements such as technical/domain knowledge, practical skills, current
+student enrolment, a professional licence or work
 permission, Jobcu compares the stated requirement with the facts in your profile. A supported
 mismatch limits the score and names the requirement. Missing information is shown as
 **could not be confirmed**; it does not prove that you are ineligible. A summary or excerpt
 may omit other requirements even when its visible duties match well. Open the original ad
 before applying. Eligibility for a visa is not the same as already holding it.
+
+If a requested location fact or journey remains uncertain, location/preferences points are
+limited to **8 of 10**. The job stays available with an explanation. Resolving or disabling that
+condition restores its original preference points; a successful trip does not confirm other
+facts about the city.
 
 New searches use the current scoring rules. Saved results keep the scores from their search;
 updating Jobcu does not silently re-score them or use AI on its own.
@@ -293,7 +310,9 @@ An alternate site may still have its own application restrictions; check it your
 
 Undo brings a link back where the original saved result still contains it. If a later search
 already left the vacancy out, run your next search when ready to find it again. Reporting and
-undo use no AI allowance. A changed redirect URL needs a new report. Jobcu already excludes
+undo use no AI allowance. For recognized Adzuna advertisements, the report survives changes
+to tracking codes for the same ad. A different or unrecognized route needs its own report;
+other vacancies and independent employer links stay available. Jobcu already excludes
 known CV-Library destinations; an unknown redirect shows **Application site not verified**.
 
 Before scoring, Jobcu looks for recent full text already stored on your computer. If it still

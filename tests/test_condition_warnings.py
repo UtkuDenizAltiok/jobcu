@@ -34,6 +34,10 @@ def test_completed_search_explains_failed_reference_fact_without_losing_jobs(
     detail = next(step["detail"] for step in result["steps"] if step["id"] == "location")
     assert "details are unchecked" in detail
     assert "condition checked" not in detail
+    for card in result["result"]["jobs"]["cards"]:
+        assert card["parts"]["location_and_preferences"] <= 8
+        assert any("location conditions could not be confirmed" in note
+                   for note in card["score_notes"])
 
 
 def test_measured_journey_cannot_hide_missing_destination_facts():

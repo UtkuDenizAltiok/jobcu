@@ -985,7 +985,14 @@ function sortCards(cards) {
   const time = (c) => (c.posted_at ? Date.parse(c.posted_at) : 0);
   const copy = [...cards];
   if (view.sort === "newest") return copy.sort((a, b) => time(b) - time(a));
-  return copy.sort((a, b) => (b.score ?? -1) - (a.score ?? -1) || time(b) - time(a));
+  return copy.sort((a, b) => (b.score ?? -1) - (a.score ?? -1)
+    || weakestFit(b) - weakestFit(a) || time(b) - time(a));
+}
+
+function weakestFit(card) {
+  const parts = card.parts || {};
+  if (!SCORE_PARTS.every(([name]) => Number.isFinite(parts[name]))) return 0;
+  return Math.min(...SCORE_PARTS.map(([name, , maximum]) => parts[name] / maximum));
 }
 
 function fillList(container, cards, emptyText) {

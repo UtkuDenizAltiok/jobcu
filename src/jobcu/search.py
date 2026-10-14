@@ -675,12 +675,17 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     # the person's AI finds their ads online. The conditions about places then decide about
     # them too, and the rules for languages and experience are applied to the full ad.
     run.update("places", "running")
+    for index in candidates:
+        if job_pool.jobs[index].scored is not None:
+            job_pool.jobs[index].scored = scoring.with_location_confidence(
+                job_pool.jobs[index].scored, profile, plan, groups[index],
+            )
     need_town = [i for i in candidates if jobplace.needs_looking_up(groups[i])
-                 and (job_pool.jobs[i].scored or {}).get("score", 0) >= jobplace.MIN_SCORE]
+                 and scoring.evidence_priority(job_pool.jobs[i].scored) >= jobplace.MIN_SCORE]
     need_requirements = [i for i in candidates
                          if jobplace.needs_requirements(groups[i], job_pool.jobs[i].scored)]
     worth_it = sorted(set(need_town) | set(need_requirements),
-                      key=lambda i: -job_pool.jobs[i].scored["score"])
+                      key=lambda i: -scoring.evidence_priority(job_pool.jobs[i].scored))
     # Counted over both rounds, when the person says yes to more web look-ups in between.
     looked_before = 0
 
@@ -776,6 +781,9 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     reported_links = applications.reported_urls()
     for index in candidates:
         result = job_pool.jobs[index].scored
+        if result is not None:
+            result = scoring.with_location_confidence(result, profile, plan, groups[index])
+            job_pool.jobs[index].scored = result
         types = pipeline.job_types_of(groups[index], result)
         if route := applications.exclusion_key(groups[index], reported_links):
             left_out[route] += 1

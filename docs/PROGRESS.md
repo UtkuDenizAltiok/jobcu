@@ -10,6 +10,27 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
+- [Task focus and scoring confidence](ENGINEERING.md#task-focus-and-scoring-confidence--2026-10-14)
+  is implemented in [PR #117](https://github.com/UtkuDenizAltiok/jobcu/pull/117), source
+  `3fe11f4` on `codex/task-focus-scoring`. Neighbouring/gapped main work has an 80 maximum;
+  tied totals favor the stronger weakest fit area, then freshness. Technical prerequisites
+  and proficiency remain distinct from general seniority. Uncertain location conditions limit
+  preference points without suppressing useful evidence checks; resolved conditions restore
+  points. Recognized tracking-only variants retain unusable-link reports, preserving independent
+  alternatives and history. Original reference-city semantics and owner scoring limits remain.
+  The 263 affected and final 1,570-test checks pass, with one existing dependency warning;
+  Ruff/privacy, 20 documents, JS syntax/ordering and complete diff/whitespace checks pass.
+  Publication requires Mac/Windows/privacy CI on the exact final PR and merged-main heads;
+  recover status from PR #117 and the private `active_completed_review` publication receipt.
+  Until merged, the only remaining free action is that publication gate and main synchronization.
+  Detailed balanced saved judgements, timing/billing limits and reported application identities
+  remain private. Offline verification does not establish live model accuracy or market recall.
+- Exact setup edits are published in [PR #116](https://github.com/UtkuDenizAltiok/jobcu/pull/116),
+  head `398a40f`, merge `41e3cb8`. Exact PR CI `38527412545` and main CI `38527892757`
+  passed Mac/Windows/privacy; the 1,519-test final local suite remains the unchanged baseline.
+  Raw box text and original document/box word identity prevent accidental reuse after edits;
+  actual profile host/reasoning controls participate too. Jobs and scores remain fresh.
+  Detailed saved review, uncertainty, billing and application-route dependencies remain private.
 - [Search preparation reuse and connection clarity](ENGINEERING.md#search-preparation-reuse-and-connection-clarity--2026-10-14)
   is in [PR #115](https://github.com/UtkuDenizAltiok/jobcu/pull/115), source commit `f504f69`
   on `codex/search-preparation-reuse`: successful unchanged location readings
@@ -215,38 +236,17 @@ Prior free work, including PR #114's owner scoring adjustment, is fully publishe
 receipts are in Right now. The bounded provider comparison remains blocked below. Do not
 reopen completed work or rerun unchanged checks.
 
-**Latest saved review and exact setup edits — 2026-10-14:**
-PR #115 is complete: final head `6dbf72d`, merge `8f730ba`, exact PR CI `38472126047`
-and main CI `38472857093` passed Mac/Windows/privacy. Its unchanged 1,490-test final suite
-is the baseline; do not repeat it before changes. The earlier paid dependency remains parked.
-Active continuation on `codex/exact-setup-and-review`, based on `8f730ba`: review the latest
-completed saved search without calls, preserving owner data/app state. Recheck authority,
-use an isolated private snapshot and a shuffled balanced score-hidden packet including every
-top card; reuse only identical judgements. Diagnose saved warnings, timing, evidence gaps and
-usage. Rank a small shortlist and implement the strongest justified free improvement, including
-the owner's exact text requirement: any edit to either setup box invalidates its affected
-understanding and words. Keep research/jobs/scores fresh and preserve medium effort/limits.
-Detailed evidence/checkpoint: private `active_completed_review`. The saved review and free
-diagnosis are complete; original-page/independent-benchmark and billing/network attribution
-remain evidence dependencies. Exact raw text and original-input word identity are implemented;
-147 affected and 1,519 final full-suite tests pass (one existing dependency warning), with
-Ruff/privacy, 20 document checks and whitespace/full-diff review. New fictional regressions
-fail on verified prior source and pass after the repair; unchanged collection/score behavior
-remains tested. JS, dependencies and launch behavior are unchanged. No paid probe, new search,
-source collection, provider/network/account change or owner reset is authorized. Next action:
-commit/push, open/attach a PR and require exact-head Mac/Windows/privacy CI, merge commit,
-sync and verify main. Completed free work can then be cleared; retain only the dependency below.
-
-Private `assistant-review-checkpoint.json` points to `active_quality_review`: reused balanced
-blinded judgements including every top card, detailed original-date controls, complete-cost
-sensitivity and a frozen fictional comparison packet are retained outside Git. The disposable
-investigation copy is removed. The earlier saved review covered its then-latest finished
-attempt. The new owner-started attempt is separately checkpointed in
-`active_setup_reuse`; no new result-quality review is implied. Owner app 8765 is preserved,
-preview 8799 is stopped. Open or closed Jobcu is no obstacle to saved-result review.
-No owner data/rating/reset/settings/key edit,
-paid provider/Maps call or new Jobcu search was made. Missing originals/criteria and an eligible
-independent benchmark limit live quality/coverage claims; older controls are not recall data.
+The free implementation scope is recorded in Right now; PR #117's publication gate is the
+only remaining free step until merged. Recover that exact gate rather than selecting new work.
+Private `assistant-review-checkpoint.json` points to `active_completed_review`: the latest
+finished attempt has a balanced blinded review including every top card, original run-boundary
+measurements, detailed cost components and supported assistant labels. Owner/legacy ratings,
+settings, marks and historical results were preserved. Owner-identified unusable
+application routes were reported with the owner's authorization; no opaque destination was fetched.
+Missing original evidence, unresolved reference facts, incomplete billed usage and an eligible
+independent benchmark prevent broader quality, recall or invoice claims. No newer unfinished
+attempt was found at review. Save publication receipts and remove disposable scratch after
+verification; preserve owner app 8765 and private authorization/evidence.
 
 **Dependency after publication:** a direct API key entered only in Jobcu and owner authorization
 for a **EUR5 total** fictional paired comparison within the existing EUR30 monthly ceiling.
@@ -261,8 +261,8 @@ headroom before any call. The packet has 30 balanced fictional cases, six ambigu
 and separately gated hosted research. Unknown charges/outcomes or any quality/coverage regression
 stop the comparison and block adoption. Protected source evidence must not move before its
 rights are resolved. Exact next paid action, only when those dependencies are satisfied: verify
-the frozen packet and run the first paired five-ad fictional batch through `AIClient` on an
-isolated copy, saving complete answers and token/tool/failed usage before continuing inside the
+the frozen packet against the current task-focus policy and run the first paired five-ad
+fictional batch through `AIClient` on an isolated copy, saving complete answers and token/tool/failed usage before continuing inside the
 ceiling. No calls are authorized yet. Otherwise retain this dependency and wait for owner input.
 
 ### Verify before relying on

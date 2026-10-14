@@ -364,7 +364,7 @@ def test_full_search_finds_filters_scores_and_remembers(ready):
     assert sorted(titles) == ["Electronics Engineer", "Hardware Engineer"]
     assert jobs["counts"]["unrelated"] == 1 and jobs["counts"]["unrelated_titles"] == ["Nurse"]
     card = jobs["cards"][0]
-    assert card["score"] == 92 and card["is_new"] and not card["summary_only"]
+    assert card["score"] == 80 and card["is_new"] and not card["summary_only"]
     assert card["location_checks"][0]["status"] == "verified"
     assert jobs["sources"][0]["unique"] == 2 and jobs["new_count"] == 2
 
@@ -873,7 +873,10 @@ def test_summaries_near_the_top_are_read_online_and_the_rules_applied(ready, mon
     assert result["steps"][-1]["detail"] == "Found online: the requirements of 2 of 2 jobs"
     card = result["result"]["jobs"]["cards"][0]
     assert card["summary_only"] and card["score"] == 76  # below the new maximum
-    assert card["limits"] == [{"at": 80, "why": "German B2 required, you have A2"}]
+    assert card["limits"] == [
+        {"at": 80, "why": "German B2 required, you have A2"},
+        {"at": 80, "why": "Some gaps in the main work or a neighbouring specialisation"},
+    ]
     assert card["score_notes"] == [
         "Online evidence used to check requirements",
         "Only incomplete ad evidence was available; other requirements may be missing"]
@@ -1011,4 +1014,4 @@ def test_grounded_eligibility_limit_reaches_visible_card_without_hiding_job(read
     assert card["parts"]["hard_requirements"] == 10
     assert card["limits"] == [{
         "at": 55, "why": "Current laboratory safety certificate: not met by the stated profile",
-    }]
+    }, {"at": 80, "why": "Some gaps in the main work or a neighbouring specialisation"}]
