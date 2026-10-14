@@ -10,6 +10,21 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
+- [Task focus and scoring confidence](ENGINEERING.md#task-focus-and-scoring-confidence--2026-10-14)
+  is implemented in [PR #117](https://github.com/UtkuDenizAltiok/jobcu/pull/117), source
+  `3fe11f4` on `codex/task-focus-scoring`. Neighbouring/gapped main work has an 80 maximum;
+  tied totals favor the stronger weakest fit area, then freshness. Technical prerequisites
+  and proficiency remain distinct from general seniority. Uncertain location conditions limit
+  preference points without suppressing useful evidence checks; resolved conditions restore
+  points. Recognized tracking-only variants retain unusable-link reports, preserving independent
+  alternatives and history. Original reference-city semantics and owner scoring limits remain.
+  The 263 affected and final 1,570-test checks pass, with one existing dependency warning;
+  Ruff/privacy, 20 documents, JS syntax/ordering and complete diff/whitespace checks pass.
+  Publication requires Mac/Windows/privacy CI on the exact final PR and merged-main heads;
+  recover status from PR #117 and the private `active_completed_review` publication receipt.
+  Until merged, the only remaining free action is that publication gate and main synchronization.
+  Detailed balanced saved judgements, timing/billing limits and reported application identities
+  remain private. Offline verification does not establish live model accuracy or market recall.
 - Exact setup edits are published in [PR #116](https://github.com/UtkuDenizAltiok/jobcu/pull/116),
   head `398a40f`, merge `41e3cb8`. Exact PR CI `38527412545` and main CI `38527892757`
   passed Mac/Windows/privacy; the 1,519-test final local suite remains the unchanged baseline.
@@ -221,37 +236,17 @@ Prior free work, including PR #114's owner scoring adjustment, is fully publishe
 receipts are in Right now. The bounded provider comparison remains blocked below. Do not
 reopen completed work or rerun unchanged checks.
 
-**Task focus and scoring confidence — owner continuation, 2026-10-14:**
-The exact-setup free step is complete and verified in PR #116; the bounded comparison stays
-parked below. Continue on `codex/task-focus-scoring`, based on `41e3cb8`, using the unchanged
-1,519-test baseline and the completed private saved review. Authorized scope: primary task/
-specialisation fit, incomplete mandatory/technical evidence and location confidence; diagnose
-reported application restrictions without fetching opaque private redirects or changing the
-original reference-city rule. Detailed cases and unknown dependencies remain in private
-`active_completed_review`; no real-result aggregates belong here.
-Implemented: the neighbouring/gapped main-work band has a maximum of 80; lower fit limits
-and owner experience/language policy remain. Uncertain location facts bound preference points
-without skipping useful evidence work; resolution restores the proposed points. Equal totals
-compare the weakest normalized fit area before dates, preserving suitable-role ranking.
-Mandatory technical/proficiency guidance and stable application-report identity are updated;
-independent alternatives/history/marks survive. Reported route identities are saved privately.
-263 affected and 1,570 final full-suite tests pass (one existing dependency warning), with Ruff,
-privacy, 20 document checks, JS syntax/fictional browser behavior and complete diff/whitespace
-checks. Verified prior code fails the new regressions; frozen saved-rule replay is private and
-does not establish new model precision/recall. Next action: commit/push, open/attach the PR,
-require exact final-head Mac/Windows/privacy CI, merge commit, sync and verify main.
-No paid test, new search, owner restart/reset/settings/provider/account/network change is authorized.
-
-Private `assistant-review-checkpoint.json` points to `active_quality_review`: reused balanced
-blinded judgements including every top card, detailed original-date controls, complete-cost
-sensitivity and a frozen fictional comparison packet are retained outside Git. The disposable
-investigation copy is removed. The earlier saved review covered its then-latest finished
-attempt. The new owner-started attempt is separately checkpointed in
-`active_setup_reuse`; no new result-quality review is implied. Owner app 8765 is preserved,
-preview 8799 is stopped. Open or closed Jobcu is no obstacle to saved-result review.
-No owner data/rating/reset/settings/key edit,
-paid provider/Maps call or new Jobcu search was made. Missing originals/criteria and an eligible
-independent benchmark limit live quality/coverage claims; older controls are not recall data.
+The free implementation scope is recorded in Right now; PR #117's publication gate is the
+only remaining free step until merged. Recover that exact gate rather than selecting new work.
+Private `assistant-review-checkpoint.json` points to `active_completed_review`: the latest
+finished attempt has a balanced blinded review including every top card, original run-boundary
+measurements, detailed cost components and supported assistant labels. Owner/legacy ratings,
+settings, marks and historical results were preserved. The three owner-identified unusable
+application routes were reported with the owner's authorization; no opaque destination was fetched.
+Missing original evidence, unresolved reference facts, incomplete billed usage and an eligible
+independent benchmark prevent broader quality, recall or invoice claims. No newer unfinished
+attempt was found at review. Save publication receipts and remove disposable scratch after
+verification; preserve owner app 8765 and private authorization/evidence.
 
 **Dependency after publication:** a direct API key entered only in Jobcu and owner authorization
 for a **EUR5 total** fictional paired comparison within the existing EUR30 monthly ceiling.
@@ -266,7 +261,8 @@ headroom before any call. The packet has 30 balanced fictional cases, six ambigu
 and separately gated hosted research. Unknown charges/outcomes or any quality/coverage regression
 stop the comparison and block adoption. Protected source evidence must not move before its
 rights are resolved. Exact next paid action, only when those dependencies are satisfied: verify
-the frozen packet and run the first paired five-ad fictional batch through `AIClient` on an
+the frozen packet against the current task-focus policy and run the first paired five-ad
+fictional batch through `AIClient` on an
 isolated copy, saving complete answers and token/tool/failed usage before continuing inside the
 ceiling. No calls are authorized yet. Otherwise retain this dependency and wait for owner input.
 
