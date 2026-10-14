@@ -1147,7 +1147,8 @@ function renderCard(card) {
     .map((copy) => ({ ...copy, url: safeUrl(copy.url) }))
     .filter((copy) => copy.url);
   if (card.application_destination_unverified) {
-    actions.append(el("span", { class: "muted", text: "Application site not verified" }));
+    actions.append(el("span", { class: "muted", text:
+      "Adzuna opens another job site; destination not verified" }));
   }
   if (also.length) {
     const span = el("span", { class: "also-on", text: "Also on: " });

@@ -20,9 +20,8 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   alternatives and history. Original reference-city semantics and owner scoring limits remain.
   The 263 affected and final 1,570-test checks pass, with one existing dependency warning;
   Ruff/privacy, 20 documents, JS syntax/ordering and complete diff/whitespace checks pass.
-  Publication requires Mac/Windows/privacy CI on the exact final PR and merged-main heads;
-  recover status from PR #117 and the private `active_completed_review` publication receipt.
-  Until merged, the only remaining free action is that publication gate and main synchronization.
+  Publication is complete: final head `bd7f1a7`, merge `1468a30`, exact PR CI `38531858561`
+  and main CI `38532483632` passed Mac/Windows/privacy; main was synchronized cleanly.
   Detailed balanced saved judgements, timing/billing limits and reported application identities
   remain private. Offline verification does not establish live model accuracy or market recall.
 - Exact setup edits are published in [PR #116](https://github.com/UtkuDenizAltiok/jobcu/pull/116),
@@ -236,8 +235,22 @@ Prior free work, including PR #114's owner scoring adjustment, is fully publishe
 receipts are in Right now. The bounded provider comparison remains blocked below. Do not
 reopen completed work or rerun unchanged checks.
 
-The free implementation scope is recorded in Right now; PR #117's publication gate is the
-only remaining free step until merged. Recover that exact gate rather than selecting new work.
+**Direct application links — owner continuation, 2026-10-14:**
+Previous free work through PR #117 is complete and verified. On `codex/direct-application-links`,
+base `1468a30`, reuse its unchanged 1,570-test baseline. Authorized scope: make existing,
+independently collected original application links available directly and explain opaque
+Adzuna routes. Adzuna's current schema explicitly requires its supplied advertiser URL;
+its API does not supply a final-host field, and blocked web pages cannot be probed. Resolving
+and replacing that route is blocked pending explicit Adzuna permission plus a permitted way
+of obtaining the destination. No private redirect, new search or paid call is authorized.
+Implemented the justified free improvement: response copies of saved cards promote an allowed,
+independently saved employer link and retain the exact Adzuna alternative. Opaque-only routes
+have plain forwarding/destination wording. Current collection already prefers employer links.
+133 affected checks and the final 1,578-test suite pass (one existing dependency warning);
+Ruff/privacy, 20 document checks, JS syntax, whitespace and complete diff review pass. Previous
+source fails the four cross-profession restored-card regressions. Next action: commit/push,
+open/attach PR, require exact final-head Mac/Windows/privacy CI, merge commit, synchronize main
+and verify exact-main CI. Preserve owner app state, data and missing-destination uncertainty.
 Private `assistant-review-checkpoint.json` points to `active_completed_review`: the latest
 finished attempt has a balanced blinded review including every top card, original run-boundary
 measurements, detailed cost components and supported assistant labels. Owner/legacy ratings,
@@ -245,8 +258,8 @@ settings, marks and historical results were preserved. Owner-identified unusable
 application routes were reported with the owner's authorization; no opaque destination was fetched.
 Missing original evidence, unresolved reference facts, incomplete billed usage and an eligible
 independent benchmark prevent broader quality, recall or invoice claims. No newer unfinished
-attempt was found at review. Save publication receipts and remove disposable scratch after
-verification; preserve owner app 8765 and private authorization/evidence.
+attempt was found at review. Publication receipts are saved privately and disposable scratch is
+removed; preserve owner app 8765 and private authorization/evidence.
 
 **Dependency after publication:** a direct API key entered only in Jobcu and owner authorization
 for a **EUR5 total** fictional paired comparison within the existing EUR30 monthly ceiling.
