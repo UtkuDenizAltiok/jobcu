@@ -131,10 +131,16 @@ Jobcu shows all steps even when some use saved answers. **Using saved document u
 means it did not ask the AI to read the unchanged documents again. Successful location readings
 and search words are also saved privately for up to 30 days. Their steps say **Using saved
 location understanding** or **Using saved search words** when reused. Changes to the relevant
-inputs, prompts, model or reasoning settings need a new answer. The first successful setup
+inputs, prompts, model or reasoning settings need a new answer. Even one letter, space or
+line-break edit in **Anything your documents don't say** rereads the profile; an edit in
+**Where do you want to work?** rereads the location. Either edit prepares new search words,
+even if the AI happens to understand the edited text the same way. Changing only the location
+does not need to reread your unchanged documents. The first successful setup
 after this update creates those saved answers; older result snapshots cannot seed them safely.
 Live place facts, jobs and scores are still checked afresh. Failed or incomplete setup answers
 are tried again. Clearing search data removes the reusable answers and makes setup repeat.
+This avoids repeating setup work; it does not skip sources, hide uncertain requirements or
+reduce the checks used to score jobs. Existing results keep their original evidence and warnings.
 
 **Finding employers for your kind of work** searches for employers and checks which career
 lists Jobcu can read. Completed country lookups are normally reused for two weeks; their job

@@ -9,14 +9,13 @@ in every search. The cache stays in the private data folder; changing a document
 profile. Necessary profile text is sent to the chosen provider for matching.
 """
 
-import hashlib
-import json
 from typing import Literal
 
 from pydantic import BaseModel, Field
 
-from jobcu import db
+from jobcu import db, preparation
 from jobcu.ai.client import AIClient
+from jobcu.ai.schema import strict_json_schema
 
 KEPT_PROFILES = 5
 
@@ -159,16 +158,10 @@ def read_profile(
 
 
 def _cache_key(client: AIClient, cv_text: str, cover_letter_text: str, about_you: str) -> str:
-    parts = [
-        cv_text,
-        cover_letter_text,
-        about_you.strip(),
-        SYSTEM_PROMPT,
-        client.provider_id,
-        client.model_for(reasoning=True),
-        json.dumps(Profile.model_json_schema(), sort_keys=True),
-    ]
-    return hashlib.sha256("\u0000".join(parts).encode("utf-8")).hexdigest()
+    return preparation.key(client, reasoning=True, inputs=[
+        "profile-reading-2", cv_text, cover_letter_text, about_you,
+        SYSTEM_PROMPT, strict_json_schema(Profile), 8000,
+    ])
 
 
 def reset_profile_cache() -> None:

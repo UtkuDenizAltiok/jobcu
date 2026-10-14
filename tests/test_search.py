@@ -152,6 +152,52 @@ def test_two_identical_searches_reuse_setup_but_collect_and_score_afresh(ready, 
             assert "Using saved search words" in step["detail"]
 
 
+@pytest.mark.parametrize("changed_box", ["about_you", "location_text"])
+@pytest.mark.parametrize("edit", ["a", " ", "\n"])
+def test_setup_box_edits_reanalyse_even_when_ai_returns_the_same_understanding(
+        ready, monkeypatch, changed_box, edit):
+    calls, queries = [], []
+
+    class SameUnderstandingAI(FakeAI):
+        def complete_json(self, **request):
+            calls.append(request["schema_name"])
+            if request["schema_name"] == "SearchWordsAnswer":
+                return RawReply(json.dumps({"terms": [
+                    {"text": text, "language": code, "kind": kind}
+                    for code in ("en", "de")
+                    for kind, text in (("job_title", "Hardware Engineer"),
+                                       ("field_or_skill", "PCB design"))]}), Usage(10, 5))
+            return super().complete_json(**request)
+
+    class TrackedSource(FakeSource):
+        def search(self, query, ctx):
+            queries.append(query)
+            yield from super().search(query, ctx)
+
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: SameUnderstandingAI())
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [TrackedSource()])
+    manager = search.SearchManager()
+    form = SearchForm(location_text="Germany", about_you="A fictional note")
+    manager.start(form)
+    first = wait_until_done(manager)
+    changed = form.model_copy(update={changed_box: getattr(form, changed_box) + edit})
+    manager.start(changed)
+    second = wait_until_done(manager)
+    assert first["status"] == second["status"] == "finished"
+    assert calls.count("Profile") == (2 if changed_box == "about_you" else 1)
+    assert calls.count("LocationInterpretation") == (2 if changed_box == "location_text" else 1)
+    assert calls.count("SearchWordsAnswer") == 2
+    assert calls.count("ScoringAnswer") == 2 and len(queries) == 2
+    assert first["result"]["search_words"] == second["result"]["search_words"]
+    assert [c["score"] for c in first["result"]["jobs"]["cards"]] == \
+        [c["score"] for c in second["result"]["jobs"]["cards"]]
+    manager.start(changed)
+    third = wait_until_done(manager)
+    assert third["status"] == "finished"
+    assert calls.count("SearchWordsAnswer") == 2  # identical edited text now reuses safely
+    assert calls.count("ScoringAnswer") == 3 and len(queries) == 3
+
+
 @pytest.mark.parametrize("case", ["old", "closed", "unknown"])
 def test_greenhouse_detail_dates_decide_before_scoring_and_unknown_stays_visible(
     ready, monkeypatch, case,

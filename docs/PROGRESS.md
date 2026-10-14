@@ -15,8 +15,9 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   on `codex/search-preparation-reuse`: successful unchanged location readings
   and word groups can be reused for 30 days; fresh research, jobs, scores and travel rules
   remain. Migration 16 preserves history and adds only private setup storage. Final local
-  1,490-test, Ruff/privacy, 20-document and whitespace/full-diff checks pass; publication is
-  governed by the exact PR/main gate below. This verifies offline behavior, not a live bill
+  1,490-test, Ruff/privacy, 20-document and whitespace/full-diff checks pass. Publication is
+  complete: final head `6dbf72d`, merge `8f730ba`, exact PR CI `38472126047` and main CI
+  `38472857093` passed Mac/Windows/privacy. This verifies offline behavior, not a live bill
   or connection repair.
 - The continuing review's scoring, Wednesday 10:30 transit timing and incomplete-reference
   explanations are published in [PR #113](https://github.com/UtkuDenizAltiok/jobcu/pull/113),
@@ -214,22 +215,27 @@ Prior free work, including PR #114's owner scoring adjustment, is fully publishe
 receipts are in Right now. The bounded provider comparison remains blocked below. Do not
 reopen completed work or rerun unchanged checks.
 
-**Unchanged setup and retry clarity — 2026-10-14:**
-[PR #115](https://github.com/UtkuDenizAltiok/jobcu/pull/115), branch
-`codex/search-preparation-reuse`, based on main `b1b0f6f`; source commit `f504f69` tested and
-pushed. Migration 16, exact-input location/word reuse and separate connection messages are
-implemented, with current guides/decisions. The unchanged 1,431-test prior suite was the
-baseline; 244 affected and 1,490 final full-suite tests pass (one existing Starlette/AnyIO
-warning). Ruff/privacy, 20 document checks and whitespace/full-diff review pass. Dependencies,
-JS and launch behavior are unchanged. Reuse excludes plans, live research, scores and journeys;
-legacy snapshots lack request identity. No live quality, savings or connection repair is
-inferred. If PR #115 remains open, exact next action: require Mac/Windows/privacy on its exact
-final head, merge with a merge commit, sync main and verify exact merged-head CI. If Git/CI
-confirms merged/verified, this free step is complete; only the dependency below remains.
-Detailed diagnosis and recovery are in private `active_setup_reuse`. Necessary evidence and
-validation logs are retained; the disposable snapshot is removed. Preserve the owner's
-running search/settings and chosen app state. No paid probe, new search, provider/network
-change, Stop, reset or account edit is authorized or performed by development.
+**Latest saved review and exact setup edits — 2026-10-14:**
+PR #115 is complete: final head `6dbf72d`, merge `8f730ba`, exact PR CI `38472126047`
+and main CI `38472857093` passed Mac/Windows/privacy. Its unchanged 1,490-test final suite
+is the baseline; do not repeat it before changes. The earlier paid dependency remains parked.
+Active continuation on `codex/exact-setup-and-review`, based on `8f730ba`: review the latest
+completed saved search without calls, preserving owner data/app state. Recheck authority,
+use an isolated private snapshot and a shuffled balanced score-hidden packet including every
+top card; reuse only identical judgements. Diagnose saved warnings, timing, evidence gaps and
+usage. Rank a small shortlist and implement the strongest justified free improvement, including
+the owner's exact text requirement: any edit to either setup box invalidates its affected
+understanding and words. Keep research/jobs/scores fresh and preserve medium effort/limits.
+Detailed evidence/checkpoint: private `active_completed_review`. The saved review and free
+diagnosis are complete; original-page/independent-benchmark and billing/network attribution
+remain evidence dependencies. Exact raw text and original-input word identity are implemented;
+147 affected and 1,519 final full-suite tests pass (one existing dependency warning), with
+Ruff/privacy, 20 document checks and whitespace/full-diff review. New fictional regressions
+fail on verified prior source and pass after the repair; unchanged collection/score behavior
+remains tested. JS, dependencies and launch behavior are unchanged. No paid probe, new search,
+source collection, provider/network/account change or owner reset is authorized. Next action:
+commit/push, open/attach a PR and require exact-head Mac/Windows/privacy CI, merge commit,
+sync and verify main. Completed free work can then be cleared; retain only the dependency below.
 
 Private `assistant-review-checkpoint.json` points to `active_quality_review`: reused balanced
 blinded judgements including every top card, detailed original-date controls, complete-cost

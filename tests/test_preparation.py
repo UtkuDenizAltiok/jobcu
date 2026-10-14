@@ -107,6 +107,37 @@ def test_changed_text_profile_languages_model_and_effort_require_new_answers():
     assert len(ai.calls) == 7
 
 
+@pytest.mark.parametrize("changed", ["germany", "Germany ", "\nGermany"])
+def test_location_identity_includes_one_letter_and_whitespace_edits(changed):
+    ai = SetupAI()
+    c = client(ai)
+    first, _ = interpret_location_reusing(c, "Germany")
+    second, reused = interpret_location_reusing(c, changed)
+    assert first.countries == second.countries == ["DE"]
+    assert not reused and len(ai.calls) == 2
+    assert interpret_location_reusing(c, changed)[1]
+
+
+@pytest.mark.parametrize("profession", ["Electronics", "Nursing", "Teaching"])
+@pytest.mark.parametrize("changed_input", range(4))
+def test_word_reuse_requires_exact_documents_and_boxes_even_if_understanding_agrees(
+        profession, changed_input):
+    ai = SetupAI()
+    c = client(ai)
+    person = Profile.model_validate({**PROFILE, "field": profession})
+    inputs = ["Fictional CV", "Fictional letter", "A personal note", "Germany"]
+    identity = preparation.input_identity(*inputs)
+    first, _ = generate_search_words_reusing(c, person, ["en"], setup_identity=identity)
+    assert generate_search_words_reusing(c, person, ["en"], setup_identity=identity)[1]
+    inputs[changed_input] += " "
+    changed_identity = preparation.input_identity(*inputs)
+    second, reused = generate_search_words_reusing(
+        c, person, ["en"], setup_identity=changed_identity)
+    assert first == second and not reused and len(ai.calls) == 2
+    assert generate_search_words_reusing(c, person, ["en"],
+                                        setup_identity=changed_identity)[1]
+
+
 @pytest.mark.parametrize("field,value", [
     ("provider", "openai"), ("model", "other-model"), ("reasoning_model", "reading-model"),
     ("reasoning_effort", "high"),

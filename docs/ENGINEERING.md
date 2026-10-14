@@ -84,6 +84,18 @@ Provider/model/host, native reasoning controls, thinking/output policy, prompts,
 reader versions participate in the identity; account limits remain enforced before new calls.
 Legacy result snapshots do not prove that identity and are not imported as setup judgements.
 
+**Exact-edit clarification (owner, 2026-10-14):** the earlier whitespace-normalized box
+identity is superseded. Profile/location cache identity retains raw text before prompt trimming,
+so a letter, space or line break triggers the affected reading. Word identity also includes
+an exact digest of both documents and both boxes, alongside its derived profile/language
+request: equal interpretations of edited inputs cannot accidentally reuse words. Location
+edits do not invalidate the independent document reading. The profile key now includes the
+actual provider/host/native reasoning contract too. Old keys lack this proof and re-prime once;
+history and owner settings are preserved. Fictional electronics/nursing/teaching regressions
+cover unchanged answers, edited inputs with identical model output, fresh collection/scoring
+and safe reuse after the new version of the text has succeeded. This verifies cache behavior,
+not provider interpretation accuracy or measured live savings.
+
 The progress labels identify saved location understanding and saved search words. Fictional
 unchanged electronics/nursing/teaching setups produce equal answers with four fresh setup
 requests versus two when reused over two searches; subsequent unchanged setup needs none.

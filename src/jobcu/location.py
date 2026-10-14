@@ -528,12 +528,13 @@ def interpret_location(client: AIClient, text: str) -> LocationPlan:
 
 def interpret_location_reusing(client: AIClient, text: str) -> tuple[LocationPlan, bool]:
     """Reuse the same text reading, never a previous researched plan or travel judgement."""
+    original_text = text
     text = text.strip()
     client.checkpoint()
     if not text:
         return _everywhere(text, [], []), False
     request_key = preparation.key(client, reasoning=True, inputs=[
-        "location-reading-1", text, INTERPRET_SYSTEM, SYSTEM_PROMPT, SORT_SYSTEM,
+        "location-reading-2", original_text, INTERPRET_SYSTEM, SYSTEM_PROMPT, SORT_SYSTEM,
         strict_json_schema(LocationInterpretation), strict_json_schema(LocationUnderstanding),
         4000, preparation.key(client, reasoning=False, inputs=[
             "fallback-condition-sorting-1", strict_json_schema(SortedConditions), 2000,
