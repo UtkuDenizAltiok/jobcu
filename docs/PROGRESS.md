@@ -10,6 +10,19 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
+- [Independently saved application links](ENGINEERING.md#independently-saved-application-links--2026-10-14)
+  are implemented in [PR #118](https://github.com/UtkuDenizAltiok/jobcu/pull/118), source
+  `9b017d0` on `codex/direct-application-links`, based on `1468a30`. Restored and marked cards
+  use an allowed, independently collected employer link directly when already saved for the
+  same job, retaining the exact Adzuna route under alternatives. Opaque-only cards explain
+  forwarding and missing destination evidence. History, scores, marks and source rules remain.
+  The 133 affected and final 1,578-test checks pass, with one existing dependency warning;
+  Ruff/privacy, 20 documents, JS syntax and complete diff/whitespace checks pass. Exact final
+  PR/main-head Mac/Windows/privacy CI is the publication gate; receipts and status are in the
+  private `direct_link_continuation` checkpoint. No private redirect or destination was fetched.
+  Automatic replacement of the Adzuna advertiser route needs explicit Adzuna permission and a
+  permitted interface; [dated evidence](SOURCES.md) separates this dependency from independent
+  originals that Jobcu already collected. No account change, paid call or new search was made.
 - [Task focus and scoring confidence](ENGINEERING.md#task-focus-and-scoring-confidence--2026-10-14)
   is implemented in [PR #117](https://github.com/UtkuDenizAltiok/jobcu/pull/117), source
   `3fe11f4` on `codex/task-focus-scoring`. Neighbouring/gapped main work has an 80 maximum;
@@ -235,22 +248,17 @@ Prior free work, including PR #114's owner scoring adjustment, is fully publishe
 receipts are in Right now. The bounded provider comparison remains blocked below. Do not
 reopen completed work or rerun unchanged checks.
 
-**Direct application links — owner continuation, 2026-10-14:**
-Previous free work through PR #117 is complete and verified. On `codex/direct-application-links`,
-base `1468a30`, reuse its unchanged 1,570-test baseline. Authorized scope: make existing,
-independently collected original application links available directly and explain opaque
-Adzuna routes. Adzuna's current schema explicitly requires its supplied advertiser URL;
-its API does not supply a final-host field, and blocked web pages cannot be probed. Resolving
-and replacing that route is blocked pending explicit Adzuna permission plus a permitted way
-of obtaining the destination. No private redirect, new search or paid call is authorized.
-Implemented the justified free improvement: response copies of saved cards promote an allowed,
-independently saved employer link and retain the exact Adzuna alternative. Opaque-only routes
-have plain forwarding/destination wording. Current collection already prefers employer links.
-133 affected checks and the final 1,578-test suite pass (one existing dependency warning);
-Ruff/privacy, 20 document checks, JS syntax, whitespace and complete diff review pass. Previous
-source fails the four cross-profession restored-card regressions. Next action: commit/push,
-open/attach PR, require exact final-head Mac/Windows/privacy CI, merge commit, synchronize main
-and verify exact-main CI. Preserve owner app state, data and missing-destination uncertainty.
+**Direct-destination dependency — owner continuation, 2026-10-14:**
+The justified free improvement is implemented in PR #118 (Right now). Its only remaining
+free step until merged is exact-head publication verification and main synchronization;
+recover PR state and the private `direct_link_continuation` receipt. Do not open another goal.
+Automatically resolving and replacing Adzuna's supplied advertiser route remains blocked:
+its schema requires that route and does not supply the final host; blocked pages cannot be
+probed. Exact next action only if that scope is reopened with Adzuna's explicit permission:
+verify its permitted destination interface, retention/attribution/request rules, then implement
+bounded redirect handling with fictional failure/privacy regressions. Preserve the required
+route meanwhile. No private redirect, new search, paid call or owner-state change is authorized.
+
 Private `assistant-review-checkpoint.json` points to `active_completed_review`: the latest
 finished attempt has a balanced blinded review including every top card, original run-boundary
 measurements, detailed cost components and supported assistant labels. Owner/legacy ratings,
