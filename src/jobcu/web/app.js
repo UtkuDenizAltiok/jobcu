@@ -1077,6 +1077,11 @@ function renderCard(card) {
     : null;
 
   const checks = el("p", { class: "job-checks" });
+  const missing = new Set();
+  const addCheck = (text, statusClass) => {
+    if (["check-unclear", "check-estimate"].includes(statusClass)) missing.add(text);
+    else checks.append(el("span", { class: statusClass, text }));
+  };
   for (const check of card.location_checks) {
     const statusClass = {
       verified: "check-verified",
@@ -1099,11 +1104,11 @@ function renderCard(card) {
           : check.status === "unclear"
             ? `${what} — couldn't be fully checked for this job`
             : `${what} (${uncertainty} — please check)`;
-    checks.append(el("span", { class: statusClass, text: label }));
-    if (check.note) checks.append(el("span", { class: "check-estimate", text: check.note }));
+    addCheck(label, statusClass);
+    if (check.note) addCheck(check.note, "check-estimate");
   }
   // Old saved cards have plain notes. A completed research note is information,
-  // while requirement/language uncertainty keeps its question mark.
+  // while requirement/language uncertainty stays in Needs checks.
   const onlineNote = "Online evidence used to check requirements";
   const legacyOnlineNote = "Languages, experience and other requirements read from the full ad online";
   const scoreChecks = card.score_checks || (card.score_notes || []).map((text) => ({
@@ -1111,21 +1116,22 @@ function renderCard(card) {
     status: [onlineNote, legacyOnlineNote].includes(text) ? "info" : "unclear",
   }));
   for (const check of scoreChecks) {
-    checks.append(el("span", {
-      class: check.status === "info" ? "check-info" : "check-unclear", text: check.text,
-    }));
+    addCheck(check.text, check.status === "info" ? "check-info" : "check-unclear");
   }
   if (card.summary_only && card.score !== null) {
-    checks.append(el("span", { class: "check-estimate", text: "Scored from a short summary of the ad" }));
+    missing.add("Scored from a short summary of the ad");
   }
+  const needsChecks = missing.size ? el("details", { class: "job-needs-checks" },
+    el("summary", { text: "Needs checks" }),
+    el("ul", {}, ...[...missing].map((text) => el("li", { text })))) : null;
 
   // A clear blocker holds the score below what the parts add up to (scoring.py).
   const limits = card.limits || [];
   const limit = limits.length && card.parts
     ? el("p", { class: "job-limit", text:
-        `Limited to ${limits[0].at} (the parts add up to ` +
-        `${Object.values(card.parts).reduce((a, b) => a + b, 0)}): ` +
-        limits.map((l) => l.why).join(" · ") })
+        `Maximum ${Math.min(...limits.map((l) => l.at))}; parts total ` +
+        `${Object.values(card.parts).reduce((a, b) => a + b, 0)}: ` +
+        limits.map((l) => `${l.why} (maximum ${l.at})`).join(" · ") })
     : null;
 
   const link = safeUrl(card.main_link.url);
@@ -1190,6 +1196,7 @@ function renderCard(card) {
       parts,
       limit,
       checks.childNodes.length ? checks : null,
+      needsChecks,
       actions,
     ),
   );
@@ -1199,7 +1206,9 @@ function scoreTooltip(card) {
   if (!card.parts) return "Not scored";
   const lines = SCORE_PARTS.filter(([key]) => card.parts[key] !== undefined)
     .map(([key, label, most]) => `${label}: ${card.parts[key]} of ${most}`);
-  if ((card.limits || []).length) lines.push(`Limited to ${card.limits[0].at}`);
+  if ((card.limits || []).length) {
+    lines.push(`Maximum ${Math.min(...card.limits.map((l) => l.at))}`);
+  }
   return lines.join("\n");
 }
 

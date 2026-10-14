@@ -72,6 +72,51 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Record step time and answer-wait time; label correction timings separately from cumulative usage. | Corrections and full searches cannot be compared as equivalent performance runs (2026-10-06). |
 | Warn when scoring reads only an excerpt of a lengthy ad. | Unseen requirements must not be assumed satisfied (2026-10-06). |
 
+## Duplicate boundaries and reference eligibility — 2026-10-15
+
+Unicode dash punctuation separates words before ASCII accent folding. Previously a nonbreaking
+dash could join tokens, so otherwise matching copies became separate scoring units. Fictional
+power-supply, patient-care and early-years titles now form one group and one assessment while
+keeping original text, links and earliest posting evidence. Different countries/workplaces,
+seniority, employer requisitions, conflicting full ads and staffing-agency guards remain.
+Remembered identity also tries the exact older normalization spelling; existing source keys,
+marks and history are not rewritten. Ambiguous names still cannot establish identity.
+
+Reference-city facts must be applied before either distance/travel can decide a condition or
+the travel meter requests Maps/AI durations. Missing, estimated and legacy-unproven facts keep
+the job unknown and available, without presenting a population-only destination as eligible.
+Previously recorded routes remain intact but cannot prove another city fact. Verified facts
+resume normal measurement; sufficient partial journey evidence and existing per-search reuse
+remain. An explicit owner replacement of eligible/excluded places is their rule; editing only
+minutes or population does not confirm a missing fact. This supersedes measuring population-only
+fallback destinations after reference research fails. Avoided route requests are verified in
+fictional tests; net live savings and provider/network recovery are not measured. More unknown
+candidates can remain for scoring, so avoided routes alone do not prove a lower total bill.
+
+Cards group distinct uncertain/estimated explanations under a visible, keyboard-accessible
+**Needs checks** disclosure instead of repeated question marks. Verified facts, failures and
+completed-evidence information remain visible. Details and historical snapshots are preserved.
+**Maximum** describes a score ceiling even when the parts total is lower; every reason retains
+its own ceiling. Scoring policy and medium effort are unchanged.
+
+Native Gemini response cleanup now preserves a successful terminal answer and its citations
+when closing the HTTP body raises a transport error. It also preserves a refusal/truncation
+error and received usage instead of replacing them with a raw cleanup exception. Cleanup still
+attempts each thread-owned resource and clears thread-local tracking; uncertain trailing usage
+stays explicit. Three real-SDK fictional streaming regressions failed before the fix and pass
+after it, including one completed assessment without another request. This reproduces a related
+failure path, not the cause of pre-answer disconnects in a saved run. Native medium, retry limits,
+token/tool accounting and incomplete-answer rejection remain.
+
+The authorized saved review/checkpoint, original run-boundary measurements, failure/request
+limits, billing scenarios and independent judgements remain private. Missing originals and an
+eligible independent benchmark prevent whole-results accuracy or recall claims. A connection
+break is not evidence of exhausted credit. Current public prices remain in [SOURCES](SOURCES.md#gemini-running-costs);
+incomplete failed-request usage, tool allowances, other account work and direct Routes billing
+must be separated from the token-only estimate. No source/provider switch, paid test, new
+search or owner-state change was made. Automatic Adzuna destination replacement retains its
+explicit-permission/interface dependency; independently collected originals remain usable.
+
 ## Task focus and scoring confidence — 2026-10-14
 
 The scorer first compares the occupation, main deliverables and specialist knowledge. Related

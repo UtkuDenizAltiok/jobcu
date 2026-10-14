@@ -297,6 +297,59 @@ def test_usage_missing_from_a_successful_stream_is_not_a_zero_cost_receipt(servi
     assert generate(adapter).usage.unreported_requests == 1
 
 
+@pytest.mark.parametrize("finished", [True, False])
+def test_response_cleanup_failure_preserves_terminal_outcome_and_usage(service, finished):
+    adapter, requests, streams = service([
+        chunk('{"requirement":"unknown"}', finish="STOP" if finished else "MAX_TOKENS",
+              usage={"promptTokenCount": 100, "candidatesTokenCount": 20}),
+        httpx.RemoteProtocolError("fictional body disconnect"),
+    ])
+
+    def failed_close():
+        streams[0].closed = True
+        raise httpx.ReadError("fictional cleanup disconnect")
+
+    streams[0].close = failed_close
+    if finished:
+        settings = Settings()
+        settings.ai.provider, settings.ai.model = "gemini", "fictional-model"
+        log = UsageLog()
+        client = AIClient(settings, adapter=adapter, usage_log=log, sleep=lambda seconds: None)
+        answer = client.generate(Fit, step="scoring", system="Fictional teacher",
+                                 prompt="Registration unknown")
+        assert answer.requirement == "unknown" and len(requests) == 1
+        assert log.this_month()[0].usage == Usage(100, 20, unreported_requests=1)
+    else:
+        with pytest.raises(AIOutputTruncated) as caught:
+            generate(adapter)
+        assert caught.value.usage == Usage(100, 20, unreported_requests=1)
+    assert streams[0].closed and not hasattr(adapter._stream_responses, "current")
+
+
+def test_research_cleanup_failure_keeps_complete_text_citations_and_query_usage(service):
+    adapter, requests, streams = service([
+        chunk("Registration unknown; complete fictional finding.", finish="STOP",
+              grounding={"webSearchQueries": ["fictional nurse registration"],
+                         "groundingChunks": [{"web": {"uri": "https://example.org/original",
+                                                      "title": "Fictional original"}}]},
+              usage={"promptTokenCount": 80, "candidatesTokenCount": 10,
+                     "thoughtsTokenCount": 20}),
+        httpx.RemoteProtocolError("fictional body disconnect"),
+    ])
+
+    def failed_close():
+        streams[0].closed = True
+        raise httpx.ReadError("fictional cleanup disconnect")
+
+    streams[0].close = failed_close
+    reply = research(adapter)
+    assert reply.text == "Registration unknown; complete fictional finding."
+    assert reply.sources[0].url == "https://example.org/original"
+    assert reply.usage == Usage(80, 30, reasoning_tokens=20, web_searches=1,
+                                unreported_requests=1)
+    assert len(requests) == 1 and streams[0].closed
+
+
 def test_failed_terminal_frame_retains_received_usage_and_queries_without_its_answer(service):
     adapter, _, streams = service([
         chunk("Incomplete evidence", finish="MAX_TOKENS",

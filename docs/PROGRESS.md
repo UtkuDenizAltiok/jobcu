@@ -6,7 +6,7 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ## Right now
 
-*Updated 2026-10-14. Engineering checks use fictional data.*
+*Updated 2026-10-15. Engineering checks use fictional data.*
 
 ### State
 
@@ -17,9 +17,9 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   same job, retaining the exact Adzuna route under alternatives. Opaque-only cards explain
   forwarding and missing destination evidence. History, scores, marks and source rules remain.
   The 133 affected and final 1,578-test checks pass, with one existing dependency warning;
-  Ruff/privacy, 20 documents, JS syntax and complete diff/whitespace checks pass. Exact final
-  PR/main-head Mac/Windows/privacy CI is the publication gate; receipts and status are in the
-  private `direct_link_continuation` checkpoint. No private redirect or destination was fetched.
+  Ruff/privacy, 20 documents, JS syntax and complete diff/whitespace checks pass. Publication
+  is complete: final head `336fbc6`, merge `90a72e3`, exact PR CI `38533873149` and main CI
+  `38534533490` passed Mac/Windows/privacy. No private redirect or destination was fetched.
   Automatic replacement of the Adzuna advertiser route needs explicit Adzuna permission and a
   permitted interface; [dated evidence](SOURCES.md) separates this dependency from independent
   originals that Jobcu already collected. No account change, paid call or new search was made.
@@ -243,15 +243,45 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
+**Latest saved review and evidence recovery — owner task, 2026-10-15:**
+On `codex/evidence-recovery`, base `90a72e3`; previous free work is complete, unchanged
+1,578-test baseline may be reused if code/tests/dependencies/environment remain identical.
+Authorized scope: privately review the latest finished run against actual documents/criteria,
+reuse unchanged sealed judgements and inspect initial delay, provider/source failures,
+freshness/coverage/duplicates/exclusions, requirements/travel and uncertainty throughout the
+pipeline. Use read-only reporting and a private isolated snapshot; preserve owner state and
+ratings. No new search, paid test/call, account/network/settings change or blocked-site bypass.
+Steps: save a balanced blinded review including all top cards, distinguish run boundaries and
+usage uncertainty, rank a small evidence-backed shortlist, implement the strongest reproducible
+free improvement with fictional multi-profession/failure regressions, update its guides/records,
+run affected/final tests and Ruff/privacy/JS/docs/diff checks, publish with exact PR/main-head
+Mac/Windows/privacy CI and merge commits. Detailed evidence/checkpoints stay private.
+Read-only reporting, isolated snapshot and balanced sealed evidence judgements are complete;
+no newer unfinished attempt was found. Details, shortlist, original timing/failure separation
+and evidence limits are private. Chosen coherent step: preserve Unicode dash word boundaries
+before duplicate matching, retain legacy remembered identities, gate route decisions/requests
+on checked reference-place facts, and make missing checks and nonbinding score ceilings clear.
+Keep unknown jobs available; do not invent verification, weaken matching guards, change source
+permissions or remove evidence checks. Connection failures have no demonstrated balance cause.
+Implementation is complete, including native Gemini cleanup resilience: a transport error
+while closing a response cannot discard a completed answer/citations or replace a meaningful
+failure and its usage. Three real-SDK fictional reproductions fail before and pass after;
+this is not established as the cause of saved pre-answer disconnects. Final 1,620 tests pass
+(one existing dependency warning); 294 matching/travel/search and 103 provider checks pass.
+Ruff/privacy, 11 current non-archive documents, JS syntax/fictional card DOM and complete
+diff/whitespace checks pass. Detailed supported labels/unknowns and before/after diagnostics
+are saved privately; owner history/marks/settings/authorization and owner/legacy labels remain.
+Exact next action: commit/push the completed step, create/attach its PR, verify Mac/Windows/privacy
+CI on its exact final head, merge with a merge commit, synchronize main and verify exact-main CI.
+
 **Whole-pipeline quality, coverage and complete-cost improvement — 2026-10-12.**
 Prior free work, including PR #114's owner scoring adjustment, is fully published and verified;
 receipts are in Right now. The bounded provider comparison remains blocked below. Do not
 reopen completed work or rerun unchanged checks.
 
 **Direct-destination dependency — owner continuation, 2026-10-14:**
-The justified free improvement is implemented in PR #118 (Right now). Its only remaining
-free step until merged is exact-head publication verification and main synchronization;
-recover PR state and the private `direct_link_continuation` receipt. Do not open another goal.
+The justified free improvement in PR #118 is fully published and verified (Right now).
+Its stale publication checkpoint is cleared; the permission dependency remains parked.
 Automatically resolving and replacing Adzuna's supplied advertiser route remains blocked:
 its schema requires that route and does not supply the final host; blocked pages cannot be
 probed. Exact next action only if that scope is reopened with Adzuna's explicit permission:

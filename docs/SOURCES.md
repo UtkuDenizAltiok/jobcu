@@ -662,7 +662,7 @@ sample are required before claiming additional recall. [Priority decision](ENGIN
 
 ### Gemini running costs
 
-**Rechecked 2026-10-10:** [Gemini pricing](https://ai.google.dev/gemini-api/docs/pricing)
+**Rechecked 2026-10-15:** [Gemini pricing](https://ai.google.dev/gemini-api/docs/pricing)
 lists Gemini 3.8 Flash standard input/output at USD0.75/3.75 per million through 2026-12-31,
 then USD1.50/7.50 from 2027-01-01. Output includes thinking. Google Search grounding has
 5,000 free monthly requests shared across Gemini 3 and newer models, then USD14/1,000;
