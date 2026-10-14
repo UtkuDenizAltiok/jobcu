@@ -238,3 +238,53 @@ def test_stale_undo_cannot_remove_a_different_new_report():
     with pytest.raises(KeyError):
         applications.undo_report(old_id)
     assert applications.reported_urls() == {EMPLOYER_LINK}
+
+
+@pytest.mark.parametrize("path", ["details", "land/ad", "jobs/details", "jobs/land/ad"])
+@pytest.mark.parametrize("title", ["Hardware Engineer", "Registered Nurse"])
+def test_unusable_advertisement_report_survives_tracking_changes_but_undo_restores(path, title):
+    first = "https://www.adzuna.co.uk/jobs/land/ad/123?se=old&v=old&utm_source=first"
+    changed = f"https://adzuna.co.uk/{path}/123?se=new&v=new&utm_source=second"
+    group, card, original = saved_card(title, first)
+    applications.report_link(card["job_id"], first)
+    group.copies[0].url = changed
+    current = {**card, "main_link": {"source": "Board", "url": changed}}
+    assert applications.unavailable(group)
+    assert applications.clean_card(current)["application_link_unavailable"]
+    assert applications.clean_card(current)["application_link_reported"]
+    (report,) = applications.reports()
+    applications.undo_report(report["id"])
+    assert not applications.unavailable(group)
+    assert applications.clean_card(current)["main_link"]["url"] == changed
+    assert jobstore.latest_results()[1] == original
+
+
+@pytest.mark.parametrize("other", [
+    "https://www.adzuna.co.uk/jobs/details/124?utm_source=new",
+    "https://www.adzuna.de/details/123?utm_source=new",
+    "https://www.adzuna.co.uk/jobs/details/123?destination=different",
+    "https://www.adzuna.co.uk:8443/jobs/details/123",
+    "https://www.adzuna.co.uk/jobs/details/fictional-123",
+    "https://board.example.test/jobs/details/123",
+])
+def test_unverified_advertisement_alias_never_becomes_a_reported_destination(other):
+    first = "https://www.adzuna.co.uk/jobs/details/123?utm_source=old"
+    cleaned = applications.clean_card({"main_link": {"url": other}}, {first})
+    assert not cleaned["application_link_unavailable"]
+    assert not cleaned["application_link_reported"]
+    assert cleaned["main_link"]["url"] == other
+
+
+def test_tracking_alias_exclusion_keeps_an_independent_employer_link_and_exact_urls():
+    first = "https://www.adzuna.co.uk/jobs/details/123?utm_source=first"
+    changed = "https://www.adzuna.co.uk/jobs/land/ad/123?utm_source=second&se=new"
+    group, card, _ = saved_card(url=first)
+    applications.report_link(card["job_id"], first)
+    group.copies[0].url = changed
+    group.copies.append(FoundJob("employer", "fictional-1", EMPLOYER_LINK, group.main.title))
+    assert not applications.unavailable(group)
+    assert applications.links(group, {})[0]["url"] == EMPLOYER_LINK
+    cleaned = applications.clean_card({**card, "main_link": {"url": changed},
+                                      "also_on": [{"url": EMPLOYER_LINK}]})
+    assert cleaned["main_link"]["url"] == EMPLOYER_LINK and cleaned["score"] == card["score"]
+    assert group.copies[0].url == changed  # provider advertiser URL is never normalized away

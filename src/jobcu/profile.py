@@ -124,6 +124,8 @@ years_student_or_part_time_experience counts internships, working-student jobs, 
 and thesis work done inside a company. Don't count time spent studying. Use 0 when there is \
 none, and explain how you counted in experience_note.
 7. seniority: judge it from the experience and the roles held.
+Preserve stated skill proficiency in skills/technical_areas (for example "basic digital logic" \
+or "introductory wound care"); never turn basic familiarity into unqualified expertise.
 8. target_roles: include the roles the person says they want, plus common English job titles \
 for the same kind of work. Keep them realistic for the person's background. A completed degree, \
 thesis, internship or student job is history, not a wish to do another one. Use completion dates \

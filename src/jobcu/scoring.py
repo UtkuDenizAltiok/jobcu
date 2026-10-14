@@ -60,6 +60,7 @@ LIMITS_ROLE = [
     (7, 30, "Another field than yours"),
     (17, 45, "Only loosely related to your work"),
     (27, 60, "A related job, its daily tasks partly different from yours"),
+    (35, 80, "Some gaps in the main work or a neighbouring specialisation"),
 ]
 # The rubric already distinguishes small level gaps from clearly unsuitable responsibility
 # or experience levels. Skill overlap must not compensate for the latter in the total.
@@ -169,6 +170,15 @@ ad is written in it.
 - doctorate: {DOCTORATE_RULES}
 - citizenship_or_clearance: {CITIZENSHIP_RULES}
 - {requirements.RULES}
+Judge the main work before counting shared skills: a common industry, employer, degree, \
+graduate level or tool does not establish the same occupation or specialisation. Compare the \
+actual daily deliverables and central domain with the person's stated target work. Customer \
+application support for a specialist technology is different from designing that technology; \
+general hardware debugging does not prove that specialist knowledge. The same distinction \
+applies to clinical practice versus clinical software support, classroom teaching versus \
+education-product support, and hands-on cooking versus equipment sales. Preserve suitable \
+adjacent jobs, but score the real task/knowledge gaps. Basic familiarity is not proven advanced \
+expertise. Missing knowledge remains unclear, not a proven blocker.
 
 THEN SCORE THESE PARTS (maximum points in brackets)
 
@@ -185,6 +195,9 @@ design engineer)
   8-17 loosely related (e.g. a care assistant for a registered nurse, a school administrator \
 for a teacher, installation or IT support for a design engineer)
   0-7 a different field
+Only 36-40 qualifies for an uncapped overall match. The 28-35 band has a total maximum of 80; \
+the related/loose/different bands retain their lower maximums. Matching seniority, language or \
+country must not compensate for different main work.
 
 seniority [20]: the level and years the job asks for, compared with the person. Full-time work \
 counts fully. Internships, working-student jobs and thesis work in a company count, but less \
@@ -316,6 +329,11 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
             "requirement_points_proposed", result["parts"]["hard_requirements"]))
     parts = {**result["parts"], "languages": language.points,
              "hard_requirements": required.points}
+    uncertain_location = result["evidence"].get("location_conditions_uncertain", False)
+    if "location_preferences_proposed" in result["evidence"]:
+        parts["location_and_preferences"] = min(
+            result["evidence"]["location_preferences_proposed"], 8 if uncertain_location else 10,
+        )
     rubric_limits = fit_limits(parts)
     if required.limits or (
         "requirements_complete" in result["evidence"]
@@ -332,12 +350,62 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
         "parts": parts,
         # Why the total is lower than the parts add up to, lowest limit first.
         "limits": limits,
-        "notes": ([note] if note else []) + language.notes + required.notes,
+        "notes": ([note] if note else []) + language.notes + required.notes + (
+            ["Some requested location conditions could not be confirmed"]
+            if uncertain_location else []),
         "required_languages": [
             f"{asked.language} {asked.level}" + ("" if asked.must_have else " (a plus)")
             for asked in score.languages_asked if asked.level != "not_needed"
         ],
     }
+
+
+def with_location_confidence(result: dict, profile: Profile, plan: LocationPlan,
+                             group: JobGroup) -> dict:
+    """Keep uncertain jobs; a usable journey does not prove missing reference-city facts.
+
+    Retain the proposed preference points so a later resolved/disabled condition restores
+    them. This uses existing evidence only, both before research and on final/corrected cards.
+    """
+    from jobcu import travel
+    from jobcu.filters import condition_fit
+
+    if "evidence" not in result or "location_and_preferences" not in result.get("parts", {}):
+        return result  # older incomplete scoring records cannot be safely recalculated
+    uncertain = (bool(plan.not_checked_yet) and not plan.conditions) or any(
+        not condition.switched_off and condition.kind != "about_job" and (
+            condition.status == "not_checked"
+            or condition_fit(condition, group) == "unknown"
+            or (condition.kind == "near" and condition.reference_status != "applied")
+            or (condition.kind == "near" and (found := travel.detail(condition, group))
+                is not None and found[1] == travel.ESTIMATE)
+            or (condition.kind != "near" and condition.status == "estimate")
+        ) for condition in plan.conditions
+    )
+    evidence = {
+        **result["evidence"], "location_conditions_uncertain": uncertain,
+        "location_preferences_proposed": result["evidence"].get(
+            "location_preferences_proposed", result["parts"]["location_and_preferences"]),
+    }
+    online = ONLINE_NOTE if ONLINE_NOTE in result.get("notes", []) else None
+    updated = judge({**result, "evidence": evidence}, profile, note=online)
+    updated["notes"] = list(dict.fromkeys(
+        message for message in [*result.get("notes", []), *updated["notes"]]
+        if uncertain or message != "Some requested location conditions could not be confirmed"
+    ))
+    return updated
+
+
+def evidence_priority(result: dict | None) -> int:
+    """Missing location evidence must not make its own useful research fall below the gate."""
+    if not result:
+        return 0
+    parts = result.get("parts", {})
+    proposed = result.get("evidence", {}).get("location_preferences_proposed")
+    if proposed is None or "location_and_preferences" not in parts:
+        return result.get("score", 0)
+    total = sum(parts.values()) + max(0, proposed - parts["location_and_preferences"])
+    return min([total, *(limit["at"] for limit in result.get("limits", []))])
 
 
 LEGACY_ONLINE_NOTE = "Languages, experience and other requirements read from the full ad online"
@@ -485,9 +553,8 @@ def _language_key(name: str) -> str:
 
 def _background(profile: Profile, plan: LocationPlan) -> str:
     person = profile.model_dump(exclude={"ignored_as_application_specific"})
-    # Conditions about the place are already applied when jobs are filtered. What's left are the
-    # person's own words about the job itself ("no agencies", "needs visa sponsorship") and
-    # anything Jobcu couldn't check, which the scoring should still take into account.
+    # Filtering keeps uncertain jobs. Surface missing reference facts separately, even when
+    # a usable population/travel sub-rule made the outer condition an estimate.
     other = [
         condition.understood_as or condition.text
         for condition in plan.conditions
@@ -500,6 +567,13 @@ def _background(profile: Profile, plan: LocationPlan) -> str:
         **({} if plan.edited else {"understood_as": plan.understood_as}),
         "places": [p.model_dump() for p in plan.places],
         "other_conditions": other,
+        "unchecked_location_conditions": [
+            condition.understood_as or condition.text for condition in plan.conditions
+            if not condition.switched_off and condition.kind != "about_job" and (
+                condition.status == "not_checked"
+                or (condition.kind == "near" and condition.reference_status != "applied")
+            )
+        ],
     }
     return f"THE PERSON'S PROFILE:\n{person}\n\nWHERE THE PERSON WANTS TO WORK:\n{location}"
 

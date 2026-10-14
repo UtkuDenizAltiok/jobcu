@@ -24,7 +24,9 @@ class RequirementCheck(BaseModel):
 
 
 RULES = """\
-requirement_checks: list every mandatory non-language/non-experience requirement, including \
+requirement_checks: list every mandatory requirement except language level, overall seniority \
+and number of years, which have separate fields. Include specific technical/domain knowledge \
+and practical skill prerequisites, also when written as "experience with" a technology, plus \
 current student enrolment, qualifications, professional registration/licences and work permission. \
 Doctorates and citizenship/security clearance use their separate evidence fields: don't repeat \
 them here. Each check has a short English requirement name and an exact short ad_words quote \
@@ -35,6 +37,8 @@ A completed qualification is not current student enrolment. Visa eligibility is 
 visa or an already-held right to work. A desirable qualification is not mandatory; either/or \
 qualifications need only one qualifying alternative. Empty list only when no ordinary mandatory \
 requirements are stated. If the ad is incomplete, unseen requirements remain unknown.\
+ Do not reduce a required-skills section to its degree alone. A matching tool name or basic \
+familiarity does not establish the required depth; use unclear unless the profile supports it.\
 """
 
 

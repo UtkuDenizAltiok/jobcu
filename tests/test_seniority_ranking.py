@@ -2,6 +2,7 @@
 
 import pytest
 
+from jobcu import pipeline
 from jobcu.profile import Profile
 from jobcu.scoring import JobScore, finish
 
@@ -39,7 +40,12 @@ def test_clearly_wrong_level_cannot_outrank_suitable_adjacent_entry_role(field):
     senior = score(person, level=11)
     suitable = score(person, level=18, role=28)
     assert senior["parts"]["role_and_skills"] > suitable["parts"]["role_and_skills"]
-    assert senior["score"] < suitable["score"]
+    assert senior["score"] <= suitable["score"]
+    cards = [
+        {**senior, "title": "Senior", "posted_at": "2026-01-02T10:00:00+00:00"},
+        {**suitable, "title": "Suitable", "posted_at": "2026-01-01T10:00:00+00:00"},
+    ]
+    assert pipeline.sort_cards(cards)[0]["title"] == "Suitable"
     assert senior["limits"] and "level" in senior["limits"][0]["why"]
 
 

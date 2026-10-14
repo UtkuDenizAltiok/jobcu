@@ -1,6 +1,7 @@
 """Application links: exclude known unusable destinations without fetching private URLs."""
 
 import json
+import re
 from collections import Counter
 from urllib.parse import parse_qsl, urlsplit
 
@@ -88,14 +89,43 @@ def blocked(url: str | None, depth: int = 0) -> bool:
     )
 
 
+def _advertisement_identity(url: str | None) -> tuple[str, str] | None:
+    """Recognized opaque ad identity only; never follow a redirect or rewrite its URL."""
+    if not opaque(url):
+        return None
+    try:
+        parts = urlsplit(url)
+        if (parts.scheme not in {"http", "https"} or parts.username is not None
+                or parts.port not in {None, 443 if parts.scheme == "https" else 80}):
+            return None
+        match = re.fullmatch(r"/(?:jobs/)?(?:details|land/ad)/(\d+)/?", parts.path)
+        # Unknown query fields may change the destination/request identity.
+        if not match or any(key.casefold() not in {"se", "v"} and not
+                            key.casefold().startswith("utm_")
+                            for key, _ in parse_qsl(parts.query, keep_blank_values=True)):
+            return None
+        return ((parts.hostname or "").lower().rstrip(".").removeprefix("www."),
+                match.group(1))
+    except ValueError:
+        return None
+
+
+def _reported(url: str | None, reports: set[str]) -> bool:
+    if url in reports:
+        return True
+    identity = _advertisement_identity(url)
+    return identity is not None and any(
+        _advertisement_identity(earlier) == identity for earlier in reports)
+
+
 def links(group: JobGroup, source_names: dict[str, str],
           reported: set[str] | None = None) -> tuple[dict, list[dict]]:
     reported = reported_urls() if reported is None else reported
-    known_blocked = any(blocked(url) or url in reported
+    known_blocked = any(blocked(url) or _reported(url, reported)
                         for c in group.copies for url in (c.url, c.employer_url))
 
     def allowed(url):
-        return url and url not in reported and not blocked(url) and not (
+        return url and not _reported(url, reported) and not blocked(url) and not (
             known_blocked and opaque(url))
 
     copies = sorted(group.copies, key=lambda c: (
@@ -120,7 +150,8 @@ def links(group: JobGroup, source_names: dict[str, str],
 def exclusion_key(group: JobGroup, reported: set[str] | None = None) -> str | None:
     reported = reported_urls() if reported is None else reported
     known = any(blocked(c.url) or blocked(c.employer_url) for c in group.copies)
-    marked = any(c.url in reported or c.employer_url in reported for c in group.copies)
+    marked = any(_reported(c.url, reported) or _reported(c.employer_url, reported)
+                 for c in group.copies)
     if (known or marked) and not links(group, {}, reported)[0]["url"]:
         return "application_route" if known else "reported_application_route"
     return None
@@ -137,12 +168,12 @@ def clean_card(card: dict, reported: set[str] | None = None) -> dict:
     reported = reported_urls() if reported is None else reported
     main = card.get("main_link") or {"source": "", "url": ""}
     all_links = [main, *card.get("also_on", [])]
-    marked = any(link.get("url") in reported for link in all_links)
+    marked = any(_reported(link.get("url"), reported) for link in all_links)
     known_blocked = marked or any(blocked(link.get("url")) for link in all_links)
     other = [link for link in card.get("also_on", []) if link.get("url")
-             and link["url"] not in reported and not blocked(link["url"])
+             and not _reported(link["url"], reported) and not blocked(link["url"])
              and not (known_blocked and opaque(link["url"]))]
-    if main.get("url") in reported or blocked(main.get("url")) or (
+    if _reported(main.get("url"), reported) or blocked(main.get("url")) or (
             known_blocked and opaque(main.get("url"))):
         main = other.pop(0) if other else {"source": "", "url": ""}
     return {**card, "main_link": main, "also_on": other,

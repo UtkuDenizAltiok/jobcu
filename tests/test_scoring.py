@@ -223,7 +223,7 @@ def test_a_low_total_is_not_raised_by_a_limit():
 
 @pytest.mark.parametrize(("role", "hard", "total", "why"), [
     (36, 15, 36 + 15 + 15 + 15 + 8, None),  # the person's own kind of work: no limit
-    (28, 15, 28 + 15 + 15 + 15 + 8, None),  # a neighbouring specialisation: no limit
+    (28, 15, 80, "Some gaps in the main work or a neighbouring specialisation"),
     (24, 15, 60, "A related job, its daily tasks partly different from yours"),
     (12, 15, 45, "Only loosely related to your work"),
     (5, 15, 30, "Another field than yours"),
@@ -234,7 +234,10 @@ def test_a_job_that_fits_only_partly_is_limited_by_the_rubric_s_own_bands(role, 
     raw = score_json("J1", role=role, hard_requirements=hard)
     result = finish(JobScore.model_validate(raw), SPEAKER)
     assert result["score"] == total
-    assert [limit["why"] for limit in result["limits"]] == ([why] if why else [])
+    expected = [why] if why else []
+    if role == 34 and hard == 8:
+        expected.append("Some gaps in the main work or a neighbouring specialisation")
+    assert [limit["why"] for limit in result["limits"]] == expected
 
 
 def test_every_job_in_a_batch_gets_a_score_even_if_the_ai_skips_one():
@@ -408,7 +411,7 @@ def test_full_ad_without_minimum_years_removes_a_stale_summary_requirement(field
     from jobcu.scoring import with_ad_read_online
 
     person = PROFILE.model_copy(update={"field": field, "target_roles": [role]})
-    summary = finish(JobScore.model_validate(score_json("J0", years_required=8)), person)
+    summary = finish(JobScore.model_validate(score_json("J0", role=39, years_required=8)), person)
     assert summary["score"] == 60
     online = with_ad_read_online(summary, person, [], years_required=None)
     assert online["evidence"]["years_required"] is None
@@ -421,7 +424,7 @@ def test_clearing_old_years_keeps_other_confirmed_blockers():
     from jobcu.scoring import with_ad_read_online
 
     summary = finish(JobScore.model_validate(score_json(
-        "J0", years_required=8, doctorate="required_person_lacks_it")), PROFILE)
+        "J0", role=39, years_required=8, doctorate="required_person_lacks_it")), PROFILE)
     online = with_ad_read_online(summary, PROFILE, [], years_required=None)
     assert online["score"] == 50
     assert online["limits"] == [{"at": 50, "why": "A doctorate (PhD) is required"}]

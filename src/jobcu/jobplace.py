@@ -38,6 +38,7 @@ from jobcu.scoring import (
     CitizenshipOrClearance,
     Doctorate,
     LanguageAsked,
+    evidence_priority,
 )
 from jobcu.travel import job_country, job_point
 
@@ -160,7 +161,7 @@ def needs_requirements(group: JobGroup, scored: dict | None) -> bool:
     yet."""
     return (scored is not None and "evidence" in scored and not scored.get("read_online")
             and not group.best_description_copy.description_is_complete
-            and scored["score"] >= MIN_SCORE)
+            and evidence_priority(scored) >= MIN_SCORE)
 
 
 _USED_UP = "used up"  # a batch not asked about because the web look-ups ran out

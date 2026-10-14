@@ -10,6 +10,12 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
+- Exact setup edits are published in [PR #116](https://github.com/UtkuDenizAltiok/jobcu/pull/116),
+  head `398a40f`, merge `41e3cb8`. Exact PR CI `38527412545` and main CI `38527892757`
+  passed Mac/Windows/privacy; the 1,519-test final local suite remains the unchanged baseline.
+  Raw box text and original document/box word identity prevent accidental reuse after edits;
+  actual profile host/reasoning controls participate too. Jobs and scores remain fresh.
+  Detailed saved review, uncertainty, billing and application-route dependencies remain private.
 - [Search preparation reuse and connection clarity](ENGINEERING.md#search-preparation-reuse-and-connection-clarity--2026-10-14)
   is in [PR #115](https://github.com/UtkuDenizAltiok/jobcu/pull/115), source commit `f504f69`
   on `codex/search-preparation-reuse`: successful unchanged location readings
@@ -215,27 +221,26 @@ Prior free work, including PR #114's owner scoring adjustment, is fully publishe
 receipts are in Right now. The bounded provider comparison remains blocked below. Do not
 reopen completed work or rerun unchanged checks.
 
-**Latest saved review and exact setup edits — 2026-10-14:**
-PR #115 is complete: final head `6dbf72d`, merge `8f730ba`, exact PR CI `38472126047`
-and main CI `38472857093` passed Mac/Windows/privacy. Its unchanged 1,490-test final suite
-is the baseline; do not repeat it before changes. The earlier paid dependency remains parked.
-Active continuation on `codex/exact-setup-and-review`, based on `8f730ba`: review the latest
-completed saved search without calls, preserving owner data/app state. Recheck authority,
-use an isolated private snapshot and a shuffled balanced score-hidden packet including every
-top card; reuse only identical judgements. Diagnose saved warnings, timing, evidence gaps and
-usage. Rank a small shortlist and implement the strongest justified free improvement, including
-the owner's exact text requirement: any edit to either setup box invalidates its affected
-understanding and words. Keep research/jobs/scores fresh and preserve medium effort/limits.
-Detailed evidence/checkpoint: private `active_completed_review`. The saved review and free
-diagnosis are complete; original-page/independent-benchmark and billing/network attribution
-remain evidence dependencies. Exact raw text and original-input word identity are implemented;
-147 affected and 1,519 final full-suite tests pass (one existing dependency warning), with
-Ruff/privacy, 20 document checks and whitespace/full-diff review. New fictional regressions
-fail on verified prior source and pass after the repair; unchanged collection/score behavior
-remains tested. JS, dependencies and launch behavior are unchanged. No paid probe, new search,
-source collection, provider/network/account change or owner reset is authorized. Next action:
-commit/push, open/attach a PR and require exact-head Mac/Windows/privacy CI, merge commit,
-sync and verify main. Completed free work can then be cleared; retain only the dependency below.
+**Task focus and scoring confidence — owner continuation, 2026-10-14:**
+The exact-setup free step is complete and verified in PR #116; the bounded comparison stays
+parked below. Continue on `codex/task-focus-scoring`, based on `41e3cb8`, using the unchanged
+1,519-test baseline and the completed private saved review. Authorized scope: primary task/
+specialisation fit, incomplete mandatory/technical evidence and location confidence; diagnose
+reported application restrictions without fetching opaque private redirects or changing the
+original reference-city rule. Detailed cases and unknown dependencies remain in private
+`active_completed_review`; no real-result aggregates belong here.
+Implemented: the neighbouring/gapped main-work band has a maximum of 80; lower fit limits
+and owner experience/language policy remain. Uncertain location facts bound preference points
+without skipping useful evidence work; resolution restores the proposed points. Equal totals
+compare the weakest normalized fit area before dates, preserving suitable-role ranking.
+Mandatory technical/proficiency guidance and stable application-report identity are updated;
+independent alternatives/history/marks survive. Reported route identities are saved privately.
+263 affected and 1,570 final full-suite tests pass (one existing dependency warning), with Ruff,
+privacy, 20 document checks, JS syntax/fictional browser behavior and complete diff/whitespace
+checks. Verified prior code fails the new regressions; frozen saved-rule replay is private and
+does not establish new model precision/recall. Next action: commit/push, open/attach the PR,
+require exact final-head Mac/Windows/privacy CI, merge commit, sync and verify main.
+No paid test, new search, owner restart/reset/settings/provider/account/network change is authorized.
 
 Private `assistant-review-checkpoint.json` points to `active_quality_review`: reused balanced
 blinded judgements including every top card, detailed original-date controls, complete-cost
