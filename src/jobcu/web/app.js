@@ -508,11 +508,17 @@ function nearSummary(condition) {
 function howChecked(condition) {
   if (condition.kind === "near" && condition.max_minutes) {
     if (condition.anchor?.research_status === "not_checked") return "reference cities are not checked";
+    if (condition.anchor?.research_status === "estimate") return "reference cities are AI estimates";
+    if (!condition.anchor?.research_status &&
+        (condition.anchor?.looked_up || condition.anchor?.look_up || condition.note)) {
+      return "reference city facts need checking";
+    }
     if ((condition.anchor?.reference_checks || []).some((city) => city.meets === null)) {
       return "some reference cities are not checked";
     }
     const journeys = Object.values(condition.travel || {});
     const ways = journeys.flatMap((j) => [j.by, ...Object.values(j.by_town || {})]);
+    if (!ways.length) return "journeys are not checked";
     if (ways.includes("AI estimate")) return "travel times include AI estimates";
     if (journeys.some((j) => (j.unchecked || []).length)) return "some journeys are not checked";
     return ways.includes("Google Maps") ? "travel times from Google Maps" : "worked out by Jobcu";

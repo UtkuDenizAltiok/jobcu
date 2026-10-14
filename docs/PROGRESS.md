@@ -279,9 +279,11 @@ temporary DNS failures remain retryable instead of cached as absent hosts. User-
 evidence and retry labels, engineering record and guide are updated. Final local 1,674 tests pass
 (one existing dependency warning); Ruff/privacy, JS syntax/fictional UI and diff/whitespace pass.
 No paid call, new search, provider/account/network change or owner-app restart. Live service
-availability, missing originals, net savings and market recall remain unmeasured. Exact next
-action: finish complete-diff/document review, commit/push/open PR, require exact-head
-Mac/Windows/privacy CI, then merge with a merge commit and verify synchronized main.
+availability, missing originals, net savings and market recall remain unmeasured. Implementation
+and final legacy-confidence clarification are in [PR #121](https://github.com/UtkuDenizAltiok/jobcu/pull/121),
+with source step `c45f1be`; complete-diff/document review is done. Publication remains pending.
+Exact next action: push the final clarification/checkpoint, require Mac/Windows/privacy CI at
+the PR's actual final head, then merge with a merge commit and verify synchronized main.
 Parked provider-comparison and Adzuna permission dependencies below remain separate.
 
 **Whole-pipeline quality, coverage and complete-cost improvement — 2026-10-12.**
