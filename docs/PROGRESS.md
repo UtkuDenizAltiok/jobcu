@@ -20,10 +20,12 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   citations, meaningful failures and usage. Scoring policy, medium effort and source rights
   remain. Final 1,620 tests, 294 matching/travel/search and 103 provider checks pass, with
   one existing dependency warning; Ruff/privacy, 11 current non-archive documents,
-  JS syntax/fictional DOM and complete diff/whitespace checks pass. Exact final PR/main-head
-  Mac/Windows/privacy CI is the publication gate; receipts are saved in the private
-  `active_latest_completed_review` checkpoint. Detailed independent judgements, timing,
-  billing limits and before/after diagnostics stay private. Owner history, marks, settings,
+  JS syntax/fictional DOM and complete diff/whitespace checks pass. Publication is complete:
+  final head `3cb91a5`, merge `57c6287`, exact PR CI `38642206842` and main CI `38642983146`
+  passed Mac/Windows/privacy. The completed checkpoint is cleared below. Detailed independent
+  judgements, timing, billing limits, before/after diagnostics and final handover receipts stay
+  in the private `active_latest_completed_review` record; disposable scratch is removed and
+  the authorized read-only evidence snapshot retained. Owner history, marks, settings,
   authorization and owner/legacy labels were preserved. No paid call, new search, provider/
   source/account/network change or owner-app restart was made. Provider availability,
   missing original/reference evidence, whole-market recall and net savings remain unverified.
@@ -259,18 +261,6 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   on resume and preserve the owner's choice.
 
 ### In progress
-
-**Latest saved review and evidence recovery — owner task, 2026-10-15:**
-Free review/implementation/checks are complete (Right now); publication is the remaining gate.
-PR #119, branch `codex/evidence-recovery`, source `8be0442`, base `90a72e3`. The private
-`active_latest_completed_review` record holds final head, PR/main CI and cleanup status.
-Exact next action: verify CI on the PR's actual final head, merge with a merge commit,
-synchronize main and verify its exact-head Mac/Windows/privacy CI. If those receipts already
-confirm completion, clear this stale gate instead of repeating unchanged tests or review.
-Preserve owner app 8765; preview 8799 is stopped. No paid call or new search is authorized.
-Before interruption cleanup, save private evidence and remove only its recorded disposable
-scratch copy. Pre-answer disconnects, missing originals/reference facts, complete invoices
-and an independent benchmark remain evidence dependencies, with exact actions saved privately.
 
 **Whole-pipeline quality, coverage and complete-cost improvement — 2026-10-12.**
 Prior free work, including PR #114's owner scoring adjustment, is fully published and verified;
