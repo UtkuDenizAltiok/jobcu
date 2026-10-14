@@ -10,6 +10,23 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
+- [Finite reference evidence and source recovery](ENGINEERING.md#finite-reference-evidence-and-source-recovery--2026-10-15)
+  is implemented in [PR #121](https://github.com/UtkuDenizAltiok/jobcu/pull/121), final head
+  `5f482ae`, merge `2656b6b`. Exact PR CI `38647881091` and merged-main CI `38648729649`
+  passed Mac/Windows/privacy. Local final 1,674 tests pass with one existing dependency warning;
+  Ruff/privacy, 20 document checks, JS syntax/fictional UI and complete diff/whitespace pass.
+  Candidate reference cities are selected locally before fresh fact research; supported cities
+  survive missing rows, omitted cities cannot become implicit passes, unknown reachable
+  alternatives prevent false exclusions, and same-named cities keep coordinate identity.
+  Complete city notes survive later structuring failure. Shared conditions reuse one fact
+  request; transient DNS failures keep normal bounded source retries. The guide and condition
+  evidence/retry/confidence display are updated. The completed implementation checkpoint is
+  cleared; private `active_reference_evidence_recovery` retains the shortlist, evidence limits
+  and exact receipts. No paid call, new search, provider/account/network change or owner-data
+  reset/restart was needed. Owner app 8765 was last observed closed and preview 8799 stopped;
+  that state was preserved. The next normal launch loads the repair. Live provider availability,
+  missing original facts, net savings and market recall remain unmeasured. Existing provider
+  comparison and Adzuna permission dependencies below remain parked; no model switch is claimed.
 - [Duplicate boundaries and reference eligibility](ENGINEERING.md#duplicate-boundaries-and-reference-eligibility--2026-10-15)
   are implemented in [PR #119](https://github.com/UtkuDenizAltiok/jobcu/pull/119), source
   `8be0442` on `codex/evidence-recovery`, based on `90a72e3`. Dash variants share one
@@ -261,30 +278,6 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   on resume and preserve the owner's choice.
 
 ### In progress
-
-**Underlying evidence recovery — owner continuation, 2026-10-15.**
-Active on `codex/reference-evidence-recovery`, based on `09e2c3a`. The owner asks to repair
-the causes of missing evidence, not hide uncertainty, and now permits necessary API use.
-Reuse the completed private review and unchanged 1,620-test baseline. Preserve owner data,
-running app, medium effort, source rights and existing budgets. No new search, provider/account
-change or unbounded paid experiment is planned. Any necessary diagnostic must first have a
-bounded spend and verified remaining headroom; otherwise finish useful offline work.
-Steps: trace native research and reference/job evidence failures; select and reproduce the
-strongest general repair with fictional cases; verify meaningful before/after behavior,
-affected/full tests, documentation, privacy and complete diff; publish with exact-head
-Mac/Windows/privacy CI and a merge commit. Detailed evidence/checkpoint stays private.
-Implemented: locally bounded reference-city research with separate cited outcomes, conservative
-unknown alternatives, complete-note preservation, shared fact requests and coordinate identity;
-temporary DNS failures remain retryable instead of cached as absent hosts. User-facing condition
-evidence and retry labels, engineering record and guide are updated. Final local 1,674 tests pass
-(one existing dependency warning); Ruff/privacy, JS syntax/fictional UI and diff/whitespace pass.
-No paid call, new search, provider/account/network change or owner-app restart. Live service
-availability, missing originals, net savings and market recall remain unmeasured. Implementation
-and final legacy-confidence clarification are in [PR #121](https://github.com/UtkuDenizAltiok/jobcu/pull/121),
-with source step `c45f1be`; complete-diff/document review is done. Publication remains pending.
-Exact next action: push the final clarification/checkpoint, require Mac/Windows/privacy CI at
-the PR's actual final head, then merge with a merge commit and verify synchronized main.
-Parked provider-comparison and Adzuna permission dependencies below remain separate.
 
 **Whole-pipeline quality, coverage and complete-cost improvement — 2026-10-12.**
 Prior free work, including PR #114's owner scoring adjustment, is fully published and verified;
