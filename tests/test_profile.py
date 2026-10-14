@@ -210,7 +210,34 @@ def test_the_persons_note_is_read_with_the_documents_and_changes_the_profile(set
     assert "<<<NOTE\nIrish citizen\nNOTE>>>" in adapter.calls[1]["prompt"]
     assert "the note explicitly state" in adapter.calls[1]["system"]
     _, reused = read_profile_reusing(client, "CV TEXT", "LETTER TEXT", "Irish citizen")
-    assert reused and len(adapter.calls) == 2
+    assert not reused and len(adapter.calls) == 3
+    assert read_profile_reusing(client, "CV TEXT", "LETTER TEXT", "Irish citizen")[1]
+
+
+@pytest.mark.parametrize("changed", ["Irish Citizen", "Irish citizen ", "\nIrish citizen"])
+def test_even_one_letter_or_whitespace_edit_requires_new_profile(settings, changed):
+    adapter = RecordingAdapter()
+    ai = AIClient(settings, adapter=adapter)
+    read_profile_reusing(ai, "CV TEXT", "LETTER TEXT", "Irish citizen")
+    _, reused = read_profile_reusing(ai, "CV TEXT", "LETTER TEXT", changed)
+    assert not reused and len(adapter.calls) == 2
+    assert read_profile_reusing(ai, "CV TEXT", "LETTER TEXT", changed)[1]
+
+
+@pytest.mark.parametrize("field,value", [
+    ("reasoning_effort", "high"), ("base_url", "https://second.example.test/v1"),
+    ("compatible_protocol", "responses"), ("compatible_reasoning", "thinking"),
+    ("compatible_medium", "high"),
+])
+def test_profile_reuse_respects_actual_host_and_reasoning_controls(settings, field, value):
+    settings.ai.provider = "openai_compatible"
+    settings.ai.base_url = "https://first.example.test/v1"
+    adapter = RecordingAdapter()
+    ai = AIClient(settings, adapter=adapter)
+    read_profile_reusing(ai, "CV TEXT", "LETTER TEXT")
+    setattr(settings.ai, field, value)
+    _, reused = read_profile_reusing(ai, "CV TEXT", "LETTER TEXT")
+    assert not reused and len(adapter.calls) == 2
 
 
 def test_the_note_is_kept_with_the_search_form(client, monkeypatch):

@@ -78,12 +78,13 @@ def generate_search_words(
 
 
 def generate_search_words_reusing(
-    client: AIClient, profile: Profile, languages: list[str]
+    client: AIClient, profile: Profile, languages: list[str], *, setup_identity: str = ""
 ) -> tuple[list[SearchTerm], bool]:
-    return _search_words(client, profile, languages, reuse=True)
+    return _search_words(client, profile, languages, reuse=True, setup_identity=setup_identity)
 
 
-def _search_words(client: AIClient, profile: Profile, languages: list[str], *, reuse: bool
+def _search_words(client: AIClient, profile: Profile, languages: list[str], *, reuse: bool,
+                  setup_identity: str = ""
                   ) -> tuple[list[SearchTerm], bool]:
     profile_summary = profile.model_dump(
         include={
@@ -108,7 +109,8 @@ def _search_words(client: AIClient, profile: Profile, languages: list[str], *, r
         if reuse:
             client.checkpoint()
             request_key = preparation.key(client, reasoning=False, inputs=[
-                "search-words-1", SYSTEM_PROMPT, prompt, strict_json_schema(SearchWordsAnswer),
+                "search-words-2", setup_identity, SYSTEM_PROMPT, prompt,
+                strict_json_schema(SearchWordsAnswer),
                 6000,
                 MAX_TITLES_PER_LANGUAGE, MAX_FIELD_WORDS_PER_LANGUAGE, LANGUAGES_PER_REQUEST,
             ])

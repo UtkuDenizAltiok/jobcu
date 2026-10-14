@@ -13,6 +13,12 @@ MAX_AGE_DAYS = 30
 KEPT_PER_KIND = 20
 
 
+def input_identity(*texts: str) -> str:
+    """Keep exact source-input identity even when derived understanding happens to agree."""
+    encoded = json.dumps(texts, ensure_ascii=False)
+    return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+
+
 def key(client: AIClient, *, reasoning: bool, inputs: list) -> str:
     """Identify the actual generation route/controls and all reusable request inputs."""
     ai = client.settings.ai

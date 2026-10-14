@@ -25,6 +25,7 @@ from jobcu import (
     jobplace,
     jobstore,
     pipeline,
+    preparation,
     quality,
     scoring,
     travel,
@@ -372,7 +373,11 @@ def run_search(run: SearchRun) -> None:
 
     run.update("search_words", "running")
     languages = languages_for(plan.countries, plan.places)
-    terms, reused = generate_search_words_reusing(client, profile, languages)
+    terms, reused = generate_search_words_reusing(
+        client, profile, languages, setup_identity=preparation.input_identity(
+            cv_text, cover_letter_text, run.form.about_you, run.form.location_text,
+        ),
+    )
     run.set_result("search_words", [term.model_dump() for term in terms])
     run.set_result("languages", [{"code": c, "name": LANGUAGE_NAMES[c]} for c in languages])
     run.set_result("country_names", names)
