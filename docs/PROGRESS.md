@@ -18,7 +18,9 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   Candidate reference cities are selected locally before fresh fact research; supported cities
   survive missing rows, omitted cities cannot become implicit passes, unknown reachable
   alternatives prevent false exclusions, and same-named cities keep coordinate identity.
-  Complete city notes survive later structuring failure. Shared conditions reuse one fact
+  Complete city notes remain available in flight after structuring failure; raw notes are
+  excluded from serialization under the checked retention restrictions in ENGINEERING.
+  Shared conditions reuse one fact
   request; transient DNS failures keep normal bounded source retries. The guide and condition
   evidence/retry/confidence display are updated. The completed implementation checkpoint is
   cleared; private `active_reference_evidence_recovery` retains the shortlist, evidence limits

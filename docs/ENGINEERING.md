@@ -95,8 +95,10 @@ no omitted city is implicitly acceptable. Only confirmed suitable cities can tri
 A supported journey can prove a pass despite an unknown alternative; a negative decision stays
 unknown if an unchecked candidate could still be in reach. Local size edits preserve old facts
 without inventing evidence for newly eligible cities. Old journey entries cannot qualify through
-an ineligible reference city. Complete research notes/citations stay in the private saved result
-even if organizing them fails; they are not a cross-search fact/route cache. The optional condition
+an ineligible reference city. Complete notes remain available in flight if organizing them
+fails, but are excluded from saved/API serialization. The initial proposal to retain raw notes
+in saved results is superseded by the checked provider retention restrictions below. Individual
+outcomes and cited excerpts remain in the end-user result. The optional condition
 editor exposes city outcomes and permits rechecking partial results. Its labels distinguish
 missing city facts, unfinished journeys, AI estimates, Maps and local calculations.
 
@@ -108,11 +110,19 @@ before the fix and successful recovery afterwards; genuinely nonexistent hosts s
 
 Fictional before/after checks cover smaller workplaces near acceptable reference cities,
 confirmed negatives, unknown alternatives, all 30 countries, engineering/nursing/teaching,
-missing citations, duplicates, edits, preserved complete notes and shared request scope.
+missing citations, duplicates, edits, in-flight notes without hidden retention and shared scope.
 The bounded-city case uses the same research/formatting requests, medium controls and allowance;
 an empty local candidate set needs no research. No paid call, new search, provider/account/network
 change or owner-state reset was needed. Actual research latency, net savings and live matching/
 market recall are unmeasured; this repair does not guarantee external service availability.
+
+**Retention correction, 2026-10-15:** [checked service restrictions](SOURCES.md#long-ai-answers-and-streaming)
+supersede unrestricted raw-note retention. Excluding these new fields from serialization avoids
+introducing a hidden archive; no real research call or stored owner result used the new fields.
+Existing owner history is preserved. Durable raw-answer recovery needs a verified display,
+retention/expiry and reuse policy before enabling it. This correction does not certify every
+existing hosted-tool use; verify its exact end-user refinement/display contract before paid
+hosted-research experiments or transferring/reusing grounded output elsewhere.
 
 ## Duplicate boundaries and reference eligibility — 2026-10-15
 

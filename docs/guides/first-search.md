@@ -351,7 +351,8 @@ Read warnings on a job before making a decision:
   an unchecked alternative cannot be treated as either suitable or unsuitable. **Edit →
   Reference city checks** shows the individual findings. **Try to check it again** can recheck
   partial findings. A new search researches these facts afresh; unchanged box readings can
-  still be reused. Complete research notes are kept locally if organizing the answer fails.
+  still be reused. Individual findings and their cited excerpts stay with your saved result;
+  full background research answers are not kept as a hidden cache.
 - Jobs under **Posting date unknown** may be older than your chosen posting window.
   **First seen by Jobcu** is when Jobcu first found a job, not necessarily when it was posted.
   Check the original posting date and application deadline where available.

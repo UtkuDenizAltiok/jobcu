@@ -826,6 +826,15 @@ unknowns. A different service needs both retention permission and verified trans
 
 ### Long AI answers and streaming
 
+**Retention rechecked 2026-10-15:** [Gemini additional terms](https://ai.google.dev/gemini-api/terms)
+restrict storage of grounded results to specified purposes, including displayed-result evaluation
+and end-user history (up to two years), or temporary refinement with deletion/display conditions.
+Associated suggestions/links and use restrictions still apply. This is not permission for an
+unrestricted hidden archive or a reusable fact database. Jobcu's new raw reference notes are
+in-flight only and excluded from serialization; existing owner history is preserved. Durable
+recovery or paid hosted-research experiments require verifying the exact refinement/display,
+retention/expiry and reuse contract first.
+
 **Checked 2026-10-10:** Google's [Generate Content API reference](https://ai.google.dev/api/generate-content)
 documents `streamGenerateContent` with the same generation request fields, including tools and
 generation configuration. The [official Python SDK](https://github.com/googleapis/python-genai#generate-content-synchronous-streaming)

@@ -183,7 +183,8 @@ def test_widening_size_does_not_invent_facts_and_limit_only_edits_keep_checks(ci
     assert "Smallville" in {t.name for t in travel.unchecked_reference_towns(
         corrected.anchor, "DE")}
     assert corrected.anchor.reference_checks == condition.anchor.reference_checks
-    assert Condition.model_validate_json(corrected.model_dump_json()) == corrected
+    assert Condition.model_validate_json(corrected.model_dump_json()).model_dump() == (
+        corrected.model_dump())
 
 
 def test_standalone_condition_does_not_reuse_partial_reference_scope(cities, monkeypatch):
@@ -221,7 +222,7 @@ def test_same_fact_and_different_size_rules_share_one_complete_candidate_request
     assert [t.name for t in travel.anchor_towns(checked[0].anchor, "DE")] == ["Atlas"]
 
 
-def test_complete_research_survives_later_structure_failure(cities):
+def test_complete_research_is_available_in_flight_without_hidden_persistent_storage(cities):
     class BrokenStructure(Client):
         def generate(self, *args, **kwargs):
             raise AIConnectionError("Connection interrupted while organizing the notes")
@@ -230,7 +231,11 @@ def test_complete_research_survives_later_structure_failure(cities):
     assert condition.reference_status == "not_checked"
     assert "CITY C0\nThe full condition is met." in condition.anchor.reference_notes
     assert condition.sources[0].url.endswith("official-register")
-    assert Condition.model_validate_json(condition.model_dump_json()) == condition
+    restored = Condition.model_validate_json(condition.model_dump_json())
+    assert "reference_notes" not in condition.model_dump_json()
+    assert restored.anchor.reference_notes == ""
+    assert restored.anchor.reference_checks == condition.anchor.reference_checks
+    assert restored.sources == condition.sources
 
 
 def test_only_verified_reference_destinations_can_trigger_routes(cities):
