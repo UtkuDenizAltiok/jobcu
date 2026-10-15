@@ -103,6 +103,26 @@ retry, not measured live savings, matching quality or provider/network availabil
 pre-header disconnects lack the transport evidence needed to identify their cause. No paid
 call, new search, service limit, provider/account/network change or owner-app restart was used.
 
+### Subsequent bounded connection diagnostic — 2026-10-15
+
+An authorized isolated native-generation pair used one fixed fictional six-ad profile,
+medium effort and one physical dispatch per request, with hosted tools disabled. Both JSON
+answers completed without retries, reported usage and retained all six decisions. Headers
+arrived in 6.84/3.48 seconds and completion took 8.01/7.46 seconds. The second request enabled
+rolling thought summaries; this single sequential pair cannot separate that setting from
+ordinary variation, request order or provider caching. It does not justify changing production
+controls or establish equal matching quality. Unstated secondary qualifications still need
+unknown treatment even when a decisive mandatory mismatch supports the overall classification.
+
+The diagnostic stopped after this pair. Complete answers, phases, known usage and limits stay
+in the private checkpoint; actual test usage was added to the monthly ledger without changing
+saved searches or ratings, and the disposable key/settings/database copy was removed.
+No job search, hosted research, provider switch, app restart or network change was made.
+These short successes do not reproduce the saved longer hosted-research pre-header failure.
+Further short passing requests would not resolve that missing evidence. A research-path
+reproduction first needs its permitted display/retention contract and a bounded test scope;
+credit balance and basic host reachability alone cannot identify a transport failure.
+
 ## Original-ad section recovery — 2026-10-15
 
 The common JobPosting reader now retains separately supplied responsibilities, skills,

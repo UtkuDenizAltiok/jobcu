@@ -10,6 +10,12 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
+- The [bounded connection diagnostic](ENGINEERING.md#subsequent-bounded-connection-diagnostic--2026-10-15)
+  completed two fictional native-generation requests without retries; complete answers,
+  phase timings and reported usage remain private. Test usage is included in the monthly
+  ledger and disposable scratch is removed. No production reasoning/provider/network change
+  follows from one small passing pair. The longer saved research-path interruption remains
+  unproved; do not repeat short passing calls or treat available credit as a connection test.
 - [Reasoning-preserving AI recovery](ENGINEERING.md#reasoning-preserving-request-recovery--2026-10-15)
   is published in [PR #126](https://github.com/UtkuDenizAltiok/jobcu/pull/126), final head
   `f90cdc9`, merge `062be47`. Unrelated native request errors no longer
@@ -315,14 +321,16 @@ receipts are in Right now. The bounded provider comparison remains blocked below
 reopen completed work or rerun unchanged checks.
 
 Saved pre-header provider failures still lack transport/account evidence identifying the cause.
-Exact next diagnostic action, once a bounded test spend and remaining monthly headroom are
-confirmed: reproduce the interrupted request class with fictional inputs through `AIClient`
-on an isolated copy, retaining request phase, complete answers and failed/known usage. If that
-diagnostic uses hosted research, first verify its exact display/suggestions, retention and
-reuse contract; plain generation must not be presented as a research-path reproduction.
-Preserve complete answers and separate useful work, retries and waits; do not lower
-checks or change providers from a timeout hypothesis. The private current handover records
-this dependency; no paid diagnostic or owner search is pending automatically.
+The subsequently authorized bounded native-generation diagnostic is complete (Right now);
+its two passing requests did not reproduce the longer research-path interruption. No additional
+short generation test is pending. Exact next diagnostic action: verify the hosted-research
+display/suggestions, retention and reuse contract, then prepare a fictional reproduction of
+the interrupted request class through `AIClient` on an isolated copy. Any research-path test
+must fit the remaining authorized request/spend limits and monthly headroom, including all
+query charges; do not request the same authorization again. Retain request phases, complete
+answers and failed/known usage. Preserve checks and medium effort; no provider or transport change is justified
+by a timeout hypothesis. The private current handover records this dependency; no owner search
+is pending automatically.
 
 **Direct-destination dependency — owner continuation, 2026-10-14:**
 The justified free improvement in PR #118 is fully published and verified (Right now).
@@ -408,8 +416,9 @@ ceiling. No calls are authorized yet. Otherwise retain this dependency and wait 
   on-demand search can provide post-change evidence. Its monthly attempt allowance still
   applies; this is not a promise of measured journeys on every daily search.
 - The owner approved EUR30/month total; no larger ceiling or particular allocation is approved.
-  No paid test or app-limit change has been performed; a focused live diagnostic or model
-  comparison needs a separately bounded paid-test budget. No extra provider key is needed
+  The separately bounded native-generation diagnostic is complete and its usage recorded;
+  no app-limit change was made. A different live diagnostic or model comparison needs its
+  own bounded scope and budget. No extra provider key is needed
   until its integration path and trial scope are ready.
   The assistant chooses technical options; the owner need only decide actual spending and
   perform required account steps. No rating homework or reset is required.
