@@ -11,12 +11,15 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 ### State
 
 - [Reasoning-preserving AI recovery](ENGINEERING.md#reasoning-preserving-request-recovery--2026-10-15)
-  is implemented on `codex/reasoning-recovery`. Unrelated native request errors no longer
+  is published in [PR #126](https://github.com/UtkuDenizAltiok/jobcu/pull/126), final head
+  `f90cdc9`, merge `062be47`. Unrelated native request errors no longer
   discard the selected effort or change later requests; only explicit whole-control refusals
   permit bounded compatibility recovery. Failed/invalid fallbacks cannot establish a new
   unsupported-control cache entry. Final local 1,732 tests pass with one existing dependency
-  warning; Ruff/privacy and complete diff/whitespace pass. Publication and exact-head
-  Mac/Windows/privacy CI remain pending below. No paid call, new search, provider/account/
+  warning; Ruff/privacy, 20 document checks and complete diff/whitespace pass. Exact PR-head
+  CI `38709317508` and merged-main CI `38709797527` passed Mac/Windows/privacy. The completed
+  implementation checkpoint is cleared; private `active_reasoning_recovery` retains before/
+  after evidence, receipts and remaining limits. No paid call, new search, provider/account/
   network change or owner-app restart was made; saved pre-header disconnects remain an
   evidence dependency, not a verified effect of this repair.
 - [Original-ad section recovery](ENGINEERING.md#original-ad-section-recovery--2026-10-15)
@@ -306,32 +309,18 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### In progress
 
-**Reasoning-preserving AI recovery — owner continuation, 2026-10-15.**
-Branch `codex/reasoning-recovery`, based on verified main `adb2015`. The prior ad-section
-repair and handover are complete; reuse their unchanged 1,693-test baseline and private saved
-judgements. Confirmed code path: a generic bad request can disable the requested native
-reasoning control and cache that change for later calls. This is not proof of the saved
-pre-header connection failure's cause. Scope: reproduce unrelated-400 cache poisoning;
-allow compatibility recovery only for an explicit reasoning-control refusal; retain genuine
-unsupported-model handling, medium defaults, complete answers, usage and independent requests.
-Implementation and final local checks are complete: six before-controls reproduced the bug;
-1,732 final tests pass with one existing dependency warning, plus Ruff/privacy and full diff/
-whitespace. Failed compatibility retries, unsupported values, schema lookalikes, strict custom
-controls and usage preservation are covered. No paid call, new search, provider/account/network
-change, owner-data reset or app restart. Exact next action: publish the reviewed branch and
-require Mac/Windows/privacy CI on the final head, merge with a merge commit, synchronize main
-and verify its exact-head CI. Detailed evidence/checkpoint is private under
-`active_reasoning_recovery`.
-
 **Whole-pipeline quality, coverage and complete-cost improvement — 2026-10-12.**
 Prior free work, including PR #114's owner scoring adjustment, is fully published and verified;
 receipts are in Right now. The bounded provider comparison remains blocked below. Do not
 reopen completed work or rerun unchanged checks.
 
 Saved pre-header provider failures still lack transport/account evidence identifying the cause.
-Before a targeted live diagnostic, verify the exact hosted-research display/suggestions,
-retention and reuse contract, then establish a bounded authorized spend and remaining monthly
-headroom. Preserve complete answers and separate useful work, retries and waits; do not lower
+Exact next diagnostic action, once a bounded test spend and remaining monthly headroom are
+confirmed: reproduce the interrupted request class with fictional inputs through `AIClient`
+on an isolated copy, retaining request phase, complete answers and failed/known usage. If that
+diagnostic uses hosted research, first verify its exact display/suggestions, retention and
+reuse contract; plain generation must not be presented as a research-path reproduction.
+Preserve complete answers and separate useful work, retries and waits; do not lower
 checks or change providers from a timeout hypothesis. The private current handover records
 this dependency; no paid diagnostic or owner search is pending automatically.
 
