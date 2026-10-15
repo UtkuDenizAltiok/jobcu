@@ -10,15 +10,17 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
-- Main before this development task is `79e6283`
-  ([PR #130](https://github.com/UtkuDenizAltiok/jobcu/pull/130)); its exact-main CI
-  `38765764773` passed Mac, Windows and privacy. The active branch's final local suite is
-  **1,768 passing tests**, with one existing dependency deprecation warning. Publication and
-  exact-head CI are tracked below. Do not rerun unchanged local checks merely for recovery.
+- Reliability, requirement-quote and estimated-cost repairs are merged in
+  [PR #131](https://github.com/UtkuDenizAltiok/jobcu/pull/131). Exact final PR head `c12a275`
+  passed CI `38798980833`; merge `72744c9` passed exact-main CI `38799671516`, both on Mac,
+  Windows and privacy. The final local suite is **1,768 passing tests**, with one existing
+  dependency deprecation warning. The owner's main and locked dependencies are synchronized.
+  This closeout changes documentation only; reuse unchanged source checks during recovery.
 - Owner app **8765** remains open in the owner's chosen state. The assistant's fictional
   preview **8799** is stopped and its disposable data removed. The read-only capture has
-  finished. The next normal owner launch loads merged repairs; do not restart it automatically.
-  No reset, new key or model choice is required.
+  finished and disposable private investigation scratch is removed. The next normal owner
+  launch loads merged repairs; do not restart it automatically. No reset, new key or model
+  choice is required.
 - Saved documents, queries, searches, ratings, marks, settings, keys and authorization are
   preserved. Detailed reviews, complete diagnostic answers, usage and exact publication
   receipts stay outside Git. Private `assistant-review-checkpoint.json` is the recovery index;
@@ -45,37 +47,14 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Active: owner-requested live-search review, reliability and cost control (2026-10-15).**
-Follow the exact new owner-started 24-hour attempt, preserve the running app/data/limits and
-privately capture progress, failures, retries, unchecked evidence, timings and usage. After it
-ends, apply CONTRIBUTING's full review procedure and implement confirmed improvements across
-the pipeline in coherent steps. No extra search or paid experiment is granted by this task.
-
-- Branch: `codex/live-search-reliability-cost`, based on `79e6283`, in an attached isolated
-  worktree. Initial implementation `4779362` is pushed; the locally verified follow-up is
-  ready to commit. The owner's checkout/app remained on unchanged main during the run.
-- Implemented: bounded reference-city groups with retained evidence, numbered retry progress,
-  exhausted-group and exact-request retry protection, private stream-stage diagnostics,
-  model-appropriate grounding units, cache/search pricing and structured requirement quotes.
-  Explicit monthly cap refusals are terminal; ambiguous access refusals mention permissions and
-  billing without claiming a cause. The final local suite passes **1,768 tests**, with one
-  existing dependency warning, including the final cap-handling follow-up. Affected
-  checks, Ruff/privacy/whitespace, JS syntax, full diff review and fictional UI preview pass.
-  No live recovery, complete invoice or matching-quality improvement is established by these
-  offline checks. PR #131 is open; the checked follow-up is ready to push and needs fresh CI.
-- Recovery/evidence: private `assistant-review-checkpoint.json` points to the pinned attempt,
-  completed capture, independent review and evidence folder. Read authorization/revocations
-  before following it. The attempt is saved. All top cards and the balanced blinded sample were
-  judged before score reveal; unknowns remain unknown and owner/legacy labels are preserved.
-  The authorized local estimated spending ceiling and missing tariffs were applied after the
-  run, preserving other choices. Exact private receipts and evidence limits stay outside Git.
-- Verification: affected tests and final full suite, Ruff/privacy/whitespace, complete diff
-  review, Mac/Windows/privacy CI at exact PR and merge heads. Preserve coverage and scores;
-  distinguish reported usage/estimates from actual provider billing.
-- Exact next action: commit/push the checked cap-handling follow-up, update PR #131 and wait for exact-head
-  Mac/Windows/privacy CI, merge with a merge commit, synchronize the owner's main without an app
-  restart and verify merge-head CI. Then clear this active checkpoint and remove disposable
-  scratch. No further paid or job-source request is scheduled.
+None. The exact owner-started attempt is saved, its independent review is complete and the
+confirmed repairs are tested and merged. All top cards and the balanced blinded sample were
+judged before score reveal; unknowns remain unknown and owner/legacy labels are preserved.
+The authorized local estimated ceiling and missing tariffs were applied after the run,
+preserving other choices. Detailed evidence, billing correlation, unresolved dependencies and
+exact publication receipts remain in private `assistant-review-checkpoint.json` and its current
+handover. It also records this documentation closeout if publication is interrupted. Do not
+repeat the completed review, infer a complete bill or start another search/paid experiment.
 
 The earlier whole-pipeline review also has these **parked dependencies**; do not resume them
 without evidence and authority relevant to the active task:
@@ -106,11 +85,13 @@ without evidence and authority relevant to the active task:
 
 ### Waiting on the owner
 
-No owner action is needed for publication. Use Jobcu on demand; no new search, reminder or paid
-experiment is scheduled. The reviewed attempt and judgements are saved privately; preparation
-must not repeat them. A fresh local chat can use [Start](PROMPTS.md#start-a-session) to recover
-publication or wait for the next task. Use [Review](PROMPTS.md#review-a-search) for later saved
-evidence and [End](PROMPTS.md#end-a-session) to park a session.
+Ready for the next owner task. Use Jobcu on demand; no new search, reminder or paid experiment
+is scheduled. Confirm provider billing status and an enforced cap within the total service
+budget privately before further paid use; a local estimate is not an invoice or provider cap.
+Restoring provider service does not retroactively complete a saved search's missing checks.
+A fresh local chat can use [Start](PROMPTS.md#start-a-session) to recover publication if needed
+and wait. Use [Review](PROMPTS.md#review-a-search) for later saved evidence and
+[End](PROMPTS.md#end-a-session) to park a session.
 
 ### Verify before relying on
 
