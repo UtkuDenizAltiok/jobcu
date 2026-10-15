@@ -325,10 +325,10 @@ The subsequently authorized bounded native-generation diagnostic is complete (Ri
 its two passing requests did not reproduce the longer research-path interruption. No additional
 short generation test is pending. Exact next diagnostic action: verify the hosted-research
 display/suggestions, retention and reuse contract, then prepare a fictional reproduction of
-the interrupted request class through `AIClient` on an isolated copy. A research-path test
-needs its own bounded scope within remaining monthly headroom; the completed generation
-allowance does not grant hosted research. Retain request phases, complete answers and failed/
-known usage. Preserve checks and medium effort; no provider or transport change is justified
+the interrupted request class through `AIClient` on an isolated copy. Any research-path test
+must fit the remaining authorized request/spend limits and monthly headroom, including all
+query charges; do not request the same authorization again. Retain request phases, complete
+answers and failed/known usage. Preserve checks and medium effort; no provider or transport change is justified
 by a timeout hypothesis. The private current handover records this dependency; no owner search
 is pending automatically.
 
