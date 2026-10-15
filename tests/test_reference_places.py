@@ -203,6 +203,26 @@ def test_bounded_groups_preserve_all_candidates_and_each_groups_own_evidence(
     assert len(client.progress) == 3
 
 
+def test_connection_exhaustion_keeps_checked_groups_and_does_not_multiply_paid_attempts(cities):
+    towns = [replace(cities[0], name=f"Fictional City {i}") for i in range(19)]
+
+    class InterruptedGroup(Client):
+        def research(self, **request):
+            if self.calls:
+                self.calls.append(("research", request))
+                raise AIConnectionError("Connection retry allowance exhausted")
+            return super().research(**request)
+
+    client = InterruptedGroup()
+    result = reference_places.check(client, "A required public library service", towns)
+    assert len(result.reference_checks) == len(towns)
+    assert result.reference_checks[0].meets is True
+    assert result.reference_checks[1].meets is False
+    assert all(c.meets is None for c in result.reference_checks[8:])
+    assert [kind for kind, _ in client.calls].count("research") == 2
+    assert "Remaining reference-city groups were not sent" in result.note
+
+
 def test_unknown_alternative_prevents_false_exclusion_but_not_a_supported_pass(cities):
     condition = interpreted(Client())
     condition.max_minutes, condition.max_km = 50, None

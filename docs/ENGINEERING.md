@@ -348,6 +348,8 @@ owner settings change, restart, Stop, reset or new search is performed by develo
 Reference-city research now uses groups of at most eight, retaining every candidate, independent
 city evidence/citations and all completed groups. The bound applies to request scope, not recall:
 missing answers remain unknown. Progress identifies the group and each retry number. An
+exhausted connection budget stops dispatching the remaining groups for that reference fact,
+preserving earlier answers and explicitly retaining unchecked candidates. An
 in-memory fingerprint prevents restarting the retry budget for an identical exhausted research
 request within one client/search. Independent country/fact requests, normal generation and job
 sources remain available; a new search starts fresh. A broad research outage hold was rejected
@@ -363,9 +365,19 @@ User-entered prices now include optional cached-input and per-thousand web-searc
 Thinking remains part of output, counted once. Missing applicable rates/usage keep estimates
 incomplete; mixed currencies have no combined money total. A configured estimated spending
 limit requires applicable model/search tariffs in one currency before dispatch. Gemini counts
-unique nonempty grounding queries per request; cumulative duplicate metadata is not another
-charge. Estimates precede account allowances/tax/other fees and cannot cap unreported charges
-or already running requests. [Current service evidence](SOURCES.md#priced-grounding-and-spend-controls--2026-10-15).
+unique nonempty grounding queries per request (older Gemini 2.x uses grounded prompts);
+cumulative duplicate metadata is not another charge. Estimates precede allowances/tax/other
+fees and cannot cap unreported charges or already running requests.
+[Current service evidence](SOURCES.md#priced-grounding-and-spend-controls--2026-10-15).
+
+Requirement quote validation now accepts comma-joined complete scalar values from the structured
+profile and ignores leading Unicode list bullets in ad formatting. A supplied skill/degree list
+must not become unsupported solely because Python/JSON punctuation separates its values. The
+fallback accepts only complete stated values, preserving missing facts, changed negation and
+numeric comparison signs as unknown. Scoring and online requirement extraction share the same
+validator. Existing verdicts/scores are not rewritten, and the check still validates quotes,
+not the AI's interpretation or complete fit. Fictional nursing, teaching and electronics cases
+cover positive evidence and false-confirmation failures; no paid rescore was performed.
 
 ## Original evidence and repeated requests — 2026-10-12
 

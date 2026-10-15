@@ -121,6 +121,34 @@ def test_quote_validation_normalizes_case_unicode_and_whitespace():
     assert result["score"] == 55
 
 
+@pytest.mark.parametrize("skills", [["Circuit simulation", "PCB assembly"],
+                                    ["Ward care", "Patient assessment"],
+                                    ["Lesson planning", "Classroom management"]])
+def test_composed_skill_quotes_accept_complete_stated_profile_values(skills):
+    clause = "Required: " + " and ".join(skills)
+    requirement = check("met", ad_words=clause, profile_words=", ".join(skills))
+    grounded = requirements.ground([requirement], clause, {"skills": skills})
+    assert grounded[0]["status"] == "met"
+
+
+@pytest.mark.parametrize("quote", ["Ward care, Active registration",
+                                   "Ward, care", "Ward care, Registration is active."])
+def test_composed_profile_quotes_cannot_invent_facts_or_remove_negation(quote):
+    requirement = check("met", profile_words=quote)
+    profile = {"skills": ["Ward care"], "summary": "Registration is not active."}
+    assert requirements.ground([requirement], AD, profile)[0]["status"] == "unclear"
+
+
+def test_adjacent_bullet_quotes_keep_real_requirements_but_not_changed_comparisons():
+    ad = "Required:\n• Circuit simulation.\n• PCB assembly.\n• Capacity > 20 units."
+    profile = {"skills": ["Circuit simulation", "PCB assembly"]}
+    requirement = check("met", ad_words="Circuit simulation. PCB assembly.",
+                        profile_words="Circuit simulation, PCB assembly")
+    assert requirements.ground([requirement], ad, profile)[0]["status"] == "met"
+    changed = requirement.model_copy(update={"ad_words": "Capacity < 20 units."})
+    assert requirements.ground([changed], ad, profile)[0]["status"] == "unclear"
+
+
 @pytest.mark.parametrize("reverse", [False, True])
 def test_conflicting_comparisons_for_one_clause_are_unknown_in_either_order(reverse):
     checks = [check("met"), check("not_met")]

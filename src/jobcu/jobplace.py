@@ -266,7 +266,7 @@ def _look_up(client: AIClient, lines: list[str], jobs: int,
     )
     for job in answer.jobs:
         grounded = requirements.ground(job.requirement_checks,
-                                       _job_notes(reply.text, job.id, jobs), str(person))
+                                       _job_notes(reply.text, job.id, jobs), person)
         job.requirement_checks = ([requirements.RequirementCheck.model_validate(c)
                                   for c in grounded] if grounded is not None else None)
     return {job.id: job for job in answer.jobs}

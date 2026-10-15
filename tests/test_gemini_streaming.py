@@ -139,6 +139,18 @@ def test_research_retains_late_sources_unique_queries_and_cumulative_usage(servi
     assert streams[0].closed
 
 
+@pytest.mark.parametrize("model,searches", [("gemini-2.5-fictional", 1),
+                                            ("gemini-3-fictional", 2)])
+def test_grounding_billing_unit_matches_model_generation_and_ignores_empty_queries(
+        service, model, searches):
+    adapter, _, _ = service([chunk("Fictional answer", finish="STOP", grounding={
+        "webSearchQueries": ["", " ", "fictional city", "fictional city", "fictional service"],
+    }, usage={"promptTokenCount": 10, "candidatesTokenCount": 5})])
+    reply = adapter.research(model=model, system="Fictional source check", prompt="City service",
+                             max_searches=4, max_output_tokens=6000, effort="medium")
+    assert reply.usage.web_searches == searches
+
+
 @pytest.mark.parametrize("call", [generate, research])
 @pytest.mark.parametrize("finish,error", [
     ("MAX_TOKENS", AIOutputTruncated), ("SAFETY", AIRefused), ("OTHER", AIRefused)])

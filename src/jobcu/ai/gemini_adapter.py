@@ -125,6 +125,7 @@ class GeminiAdapter(ProviderAdapter):
         finished = False
         usage_seen = interrupted = False
         stream = None
+        query_billed = not model.removeprefix("models/").startswith("gemini-2.")
         started = time.monotonic()
         chunks_received = 0
         self._stream_responses.current = []
@@ -181,7 +182,8 @@ class GeminiAdapter(ProviderAdapter):
                 translated = _translate(exc, web_search=web_search)
                 if isinstance(translated, AIError) and (usage_seen or queries or isinstance(
                         translated, (AIUnavailable, AIOutputTruncated))):
-                    translated.usage = _usage(counts, queries, unreported=True)
+                    translated.usage = _usage(counts, queries, unreported=True,
+                                              query_billed=query_billed)
                 raise translated from exc
         finally:
             # The SDK's synchronous iterator does not close an interrupted HTTP body.
@@ -200,7 +202,8 @@ class GeminiAdapter(ProviderAdapter):
         return ResearchReply(
             text="".join(text),
             sources=unique_sources(sources),
-            usage=_usage(counts, queries, unreported=interrupted or not usage_seen),
+            usage=_usage(counts, queries, unreported=interrupted or not usage_seen,
+                         query_billed=query_billed),
         )
 
     def list_models(self) -> list[str]:
@@ -219,8 +222,10 @@ def _name(value) -> str:
     return getattr(value, "name", None) or str(value or "")
 
 
-def _usage(counts: Counter, queries: Counter, *, unreported: bool) -> Usage:
+def _usage(counts: Counter, queries: Counter, *, unreported: bool,
+           query_billed: bool = True) -> Usage:
     thoughts = counts["thoughts_token_count"]
+    searches = len({query.strip() for query in queries if query.strip()})
     return Usage(
         input_tokens=counts["prompt_token_count"],
         output_tokens=counts["candidates_token_count"] + thoughts,
@@ -228,7 +233,7 @@ def _usage(counts: Counter, queries: Counter, *, unreported: bool) -> Usage:
         reasoning_tokens=thoughts,
         # Google bills unique nonempty queries within a request, not repeated cumulative
         # grounding metadata. Keep the same query chargeable again in a separate request.
-        web_searches=len({query.strip() for query in queries if query.strip()}),
+        web_searches=searches if query_billed else int(bool(searches)),
         unreported_requests=int(unreported),
     )
 

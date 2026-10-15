@@ -699,7 +699,8 @@ public rates, not verified owner billing, tax, currency or remaining allowance.
 ### Priced grounding and spend controls — 2026-10-15
 
 **Rechecked 2026-10-15:** [Google's grounding guide](https://ai.google.dev/gemini-api/docs/google-search#pricing)
-counts unique nonempty queries within each request. Repeated streaming metadata must not
+counts unique nonempty queries within each request for Gemini 3 and newer; Gemini 2.5 and
+older bill per grounded prompt. Repeated streaming metadata must not
 inflate that count; a separate request can incur the same query charge again. The
 [pricing table](https://ai.google.dev/gemini-api/docs/pricing) separately lists cached-input
 rates and grounding fees; thinking is already billed with output. Shared free allowances

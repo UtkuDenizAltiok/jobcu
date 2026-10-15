@@ -11,7 +11,7 @@ from collections import defaultdict
 from pydantic import BaseModel
 
 from jobcu import places
-from jobcu.ai.base import AIError
+from jobcu.ai.base import AIConnectionError, AIError
 from jobcu.ai.client import AIClient
 from jobcu.countries import COUNTRIES
 from jobcu.location import (
@@ -122,6 +122,11 @@ def check(client: AIClient, text: str, towns: list[places.Town]) -> Condition:
         except AIError as exc:
             log.info("Reference-city facts couldn't be checked: %s", exc)
             note = exc.message
+            if isinstance(exc, AIConnectionError):
+                # This group's client retries have already been exhausted. Do not multiply
+                # the same outage into a fresh retry budget for every remaining group.
+                note += " Remaining reference-city groups were not sent after these interruptions."
+                break
     known = sum(c.meets is not None for c in checks)
     if known < len(checks):
         note = (f"Checked {known} of {len(checks)} candidate reference cities. "
