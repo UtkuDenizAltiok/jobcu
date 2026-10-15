@@ -9,6 +9,7 @@ from jobcu.ai.base import (
     AILimitReached,
     AIOutputTruncated,
     AIRateLimited,
+    AIReasoningUnsupported,
     AIUnavailable,
     AIWebSearchUnavailable,
     ProviderAdapter,
@@ -115,7 +116,7 @@ def test_interrupted_request_reports_recovery_without_private_error_details(sett
 
 
 def test_unsupported_reasoning_setting_is_dropped_and_remembered(settings):
-    adapter = ScriptedAdapter(AIBadRequest("no effort"), GOOD, GOOD)
+    adapter = ScriptedAdapter(AIReasoningUnsupported("no effort"), GOOD, GOOD)
     client, _ = make_client(settings, adapter)
     generate(client)
     assert adapter.calls[0]["effort"] == "medium"  # the default for every step
@@ -129,6 +130,59 @@ def test_bad_request_without_reasoning_setting_is_reported(settings):
     client, _ = make_client(settings, ScriptedAdapter(AIBadRequest("bad")))
     with pytest.raises(AIBadRequest):
         generate(client)
+
+
+@pytest.mark.parametrize("detail", [
+    "Invalid JSON schema: property 'reasoning' is not supported.",
+    "Input exceeds the model's context window.",
+    "Invalid tool configuration; medium reasoning is enabled.",
+])
+def test_unrelated_bad_request_preserves_reasoning_for_later_generation(settings, detail):
+    adapter = ScriptedAdapter(AIBadRequest("bad request", detail), GOOD, GOOD)
+    client, sleeps = make_client(settings, adapter)
+    with pytest.raises(AIBadRequest):
+        generate(client)
+    assert len(adapter.calls) == 1 and sleeps == []
+    # A failure must not change this client's or a later search's reasoning setting.
+    assert generate(client).ok
+    fresh, _ = make_client(settings, adapter)
+    assert generate(fresh).ok
+    assert [call["effort"] for call in adapter.calls] == ["medium"] * 3
+
+
+@pytest.mark.parametrize("failure", [AIBadRequest("different request problem"),
+                                   AIUnavailable("connection interrupted"),
+                                   AIReasoningUnsupported("still unsupported")])
+def test_failed_compatibility_retry_is_not_remembered_for_generation(settings, failure):
+    adapter = ScriptedAdapter(AIReasoningUnsupported("no effort"), failure, GOOD)
+    client, sleeps = make_client(settings, adapter, patient=False)
+    with pytest.raises(type(failure)):
+        generate(client)
+    fresh, _ = make_client(settings, adapter)
+    assert generate(fresh).ok
+    assert [call["effort"] for call in adapter.calls] == ["medium", None, "medium"]
+    assert sleeps == []
+
+
+def test_invalid_compatibility_answers_keep_usage_but_do_not_change_future_reasoning(settings):
+    adapter = ScriptedAdapter(AIReasoningUnsupported("no effort"), "invalid", "invalid", GOOD)
+    log = UsageLog()
+    client, _ = make_client(settings, adapter, usage_log=log, search_id=7)
+    with pytest.raises(AIInvalidOutput):
+        generate(client)
+    assert log.for_search(7)["test"] == Usage(input_tokens=20, output_tokens=10)
+    fresh, _ = make_client(settings, adapter)
+    assert generate(fresh).ok
+    assert [call["effort"] for call in adapter.calls] == ["medium", None, None, "medium"]
+
+
+def test_explicit_custom_reasoning_refusal_cannot_drop_the_control(settings):
+    adapter = ScriptedAdapter(AIReasoningUnsupported("no effort"))
+    adapter.strict_reasoning = True
+    client, _ = make_client(settings, adapter)
+    with pytest.raises(AIReasoningUnsupported):
+        generate(client)
+    assert [call["effort"] for call in adapter.calls] == ["medium"]
 
 
 def test_wrong_format_is_asked_again_once(settings):
@@ -303,7 +357,7 @@ def test_web_research_asks_again_without_a_thinking_setting_the_model_refuses():
         def research(self, **request):
             if request.get("effort"):
                 self.calls.append(request)
-                raise AIBadRequest("reasoning isn't supported", "400")
+                raise AIReasoningUnsupported("reasoning isn't supported", "400")
             return super().research(**request)
 
     adapter = NoEffort()
@@ -314,6 +368,85 @@ def test_web_research_asks_again_without_a_thinking_setting_the_model_refuses():
     # Remembered: the next look-up doesn't try the setting again.
     client.research(step="job_places", system="Rules", prompt="Find it", effort="low")
     assert [call.get("effort") for call in adapter.calls] == ["medium", None, None]
+
+
+@pytest.mark.parametrize("detail", [
+    "Invalid schema field 'thinking_level': unknown type.",
+    "Input exceeds the model's context window.",
+    "This tool does not support the requested region.",
+])
+def test_unrelated_research_bad_request_cannot_change_later_reasoning(detail):
+    class BadRequestOnce(SearchingAdapter):
+        def research(self, **request):
+            if not self.calls:
+                self.calls.append(request)
+                raise AIBadRequest("bad request", detail)
+            return super().research(**request)
+
+    adapter = BadRequestOnce()
+    settings = research_settings()
+    client = AIClient(settings, adapter=adapter)
+    with pytest.raises(AIBadRequest):
+        client.research(step="location", system="Rules", prompt="Which cities?")
+    assert len(adapter.calls) == 1 and client._web_searches_reserved == 0
+    client.research(step="location", system="Rules", prompt="Which cities?")
+    fresh = AIClient(settings, adapter=adapter)
+    fresh.research(step="location", system="Rules", prompt="Which cities?")
+    assert [call["effort"] for call in adapter.calls] == ["medium"] * 3
+
+
+@pytest.mark.parametrize("failure", [AIBadRequest("different request problem"),
+                                   AIUnavailable("connection interrupted"),
+                                   AIReasoningUnsupported("still unsupported")])
+def test_failed_research_compatibility_retry_does_not_change_later_requests(failure):
+    class FailTwice(SearchingAdapter):
+        def research(self, **request):
+            if len(self.calls) < 2:
+                self.calls.append(request)
+                raise AIReasoningUnsupported("no effort") if len(self.calls) == 1 else failure
+            return super().research(**request)
+
+    adapter = FailTwice()
+    settings = research_settings()
+    client = AIClient(settings, adapter=adapter, patient=False)
+    with pytest.raises(type(failure)):
+        client.research(step="location", system="Rules", prompt="Find fictional libraries")
+    assert client._web_searches_reserved == 0
+    fresh = AIClient(settings, adapter=adapter)
+    fresh.research(step="location", system="Rules", prompt="Find fictional libraries")
+    assert [call["effort"] for call in adapter.calls] == ["medium", None, "medium"]
+
+
+def test_blank_research_fallback_is_not_successful_capability_evidence():
+    class BlankFallback(SearchingAdapter):
+        def research(self, **request):
+            if not self.calls:
+                self.calls.append(request)
+                raise AIReasoningUnsupported("no effort")
+            return super().research(**request)
+
+    adapter = BlankFallback(ResearchReply("", [], Usage(10, 5)))
+    settings = research_settings()
+    client = AIClient(settings, adapter=adapter)
+    assert client.research(step="location", system="Rules", prompt="Find libraries").text == ""
+    fresh = AIClient(settings, adapter=adapter)
+    fresh.research(step="location", system="Rules", prompt="Find libraries")
+    assert [call["effort"] for call in adapter.calls] == ["medium", None, "medium"]
+
+
+def test_strict_research_cannot_drop_an_explicit_reasoning_control():
+    class StrictResearch(SearchingAdapter):
+        strict_reasoning = True
+
+        def research(self, **request):
+            self.calls.append(request)
+            raise AIReasoningUnsupported("no effort")
+
+    adapter = StrictResearch()
+    client = AIClient(research_settings(), adapter=adapter)
+    with pytest.raises(AIReasoningUnsupported):
+        client.research(step="location", system="Rules", prompt="Find libraries")
+    assert [call["effort"] for call in adapter.calls] == ["medium"]
 
 
 def test_web_refusal_is_announced_once_and_text_generation_still_works():

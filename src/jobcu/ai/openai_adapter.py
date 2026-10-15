@@ -22,6 +22,7 @@ from jobcu.ai.base import (
     AIOutputTruncated,
     AIQuotaExhausted,
     AIRateLimited,
+    AIReasoningUnsupported,
     AIRefused,
     AIUnavailable,
     ProviderAdapter,
@@ -30,6 +31,7 @@ from jobcu.ai.base import (
     Source,
     Usage,
     parse_retry_after,
+    reasoning_control_refused,
     unique_sources,
 )
 from jobcu.settings import Effort
@@ -192,6 +194,16 @@ def translate_openai_error(exc: Exception) -> Exception:
             return AIQuotaExhausted(MSG_QUOTA, detail)
         if exc.status_code >= 500:
             return AIUnavailable(MSG_UNAVAILABLE, detail)
+        body = exc.body if isinstance(exc.body, dict) else {}
+        error = body.get("error", body)
+        if exc.status_code == 400 and isinstance(error, dict):
+            controls = ("reasoning", "reasoning.effort", "reasoning_effort")
+            code, param = error.get("code"), error.get("param")
+            if (code == "unsupported_parameter" and param in controls) or (
+                    code in (None, "unsupported_parameter", "invalid_request_error")
+                    and param in (None, *controls)
+                    and reasoning_control_refused(error.get("message"), controls)):
+                return AIReasoningUnsupported(MSG_BAD_REQUEST, detail)
         return AIBadRequest(MSG_BAD_REQUEST, detail)
     if isinstance(exc, (openai.APIConnectionError, openai.APITimeoutError)):
         return AIConnectionError(MSG_CONNECTION, detail)

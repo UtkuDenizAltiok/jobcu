@@ -205,6 +205,12 @@ before stopping completes. AI retry waits and queued AI requests are cancelled t
 already sent may finish and incur a charge. A site that refuses automated access is skipped
 without retries. Do not clear search data to fix a provider billing or connection problem.
 
+An unrelated rejected AI request does not change your chosen reasoning level for later work.
+For built-in providers, Jobcu tries the model's own default once only if the provider explicitly
+says the whole reasoning control is unsupported. It remembers that compatibility choice only
+after a usable answer. A rejected effort level or another request problem does not trigger
+this fallback. Custom API reasoning controls are kept as chosen.
+
 For **Google Maps**, the current step shows the retry wait and one progress note explains it.
 Jobcu retries temporary failures within **Settings → Usage and limits → Maps routes per month**.
 Every attempted matrix element counts toward that limit, including retries; reading an already
