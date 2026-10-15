@@ -14,8 +14,10 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
   unchanged from `d988466` ([PR #128](https://github.com/UtkuDenizAltiok/jobcu/pull/128)); its
   exact-main CI `38715862731` passed Mac, Windows and privacy. The final local source baseline
   is **1,732 passing tests**, with one existing dependency deprecation warning. Current
-  documentation-only cleanup publication is recoverable from Git and the private closing
-  checkpoint; do not run another local full suite for unchanged code merely to prepare a chat.
+  documentation-only session-close cleanup is merged in
+  [PR #129](https://github.com/UtkuDenizAltiok/jobcu/pull/129), with exact-main CI
+  `38718653775` passing Mac, Windows and privacy on `f074f7c`. Do not run another local full
+  suite for unchanged code merely to prepare a chat.
 - Owner app **8765** and assistant preview **8799** were both closed at session close; preserve
   the owner's subsequent choice. No service is left running by the assistant. The next normal
   owner launch loads the repairs. No reset, new key or model choice is required.
@@ -44,10 +46,10 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**No unfinished product implementation or local checks.** Session-close housekeeping consists
-of this concise handover, reconciled private pointers and disposable validation-cache cleanup;
-its branch/PR/CI status and exact publication action are in the private closing checkpoint.
-Do not reopen completed repairs or start backlog work during Start.
+**No active goal or unfinished product implementation, local checks or session-close
+housekeeping.** The previous handover, private pointer reconciliation and disposable
+validation-cache cleanup are complete; publication is verified above. Do not reopen completed
+repairs or start backlog work during Start.
 
 The earlier whole-pipeline review has only these **parked dependencies**:
 
