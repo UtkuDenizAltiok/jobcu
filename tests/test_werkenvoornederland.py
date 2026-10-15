@@ -58,6 +58,19 @@ def query(terms, hours=24, places=()):
                     posted_within_hours=hours, started_at=NOW)
 
 
+def test_longer_visible_ad_keeps_separate_structured_requirements(monkeypatch):
+    body = page('Community Nurse')
+    body = body.replace(
+        '"description":', '"qualifications": "Registration required", '
+        '"eligibilityToWorkRequirement": "Work permission required", "description":')
+    monkeypatch.setattr(wvn.trafilatura, 'extract', lambda *a, **k: 'Provide patient care. ' * 40)
+    found = wvn.from_page('https://example.test/vacatures/nurse-ABC-2026-1001', '', body)
+    assert 'Provide patient care.' in found.description
+    assert 'Registration required' in found.description
+    assert 'Work permission required' in found.description
+    assert found.description_is_complete
+
+
 def test_opens_only_the_recent_jobs_whose_address_matches():
     opened = []
     pages = {

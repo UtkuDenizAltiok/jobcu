@@ -30,6 +30,7 @@ _JOB = re.compile(r"/careers/job/(?P<id>\d+)-?(?P<slug>[^?]*)")
 
 class EightfoldSource(CareerSystemSource):
     id = "eightfold"
+    detail_cache_version = 2  # retain separate original JobPosting requirements
     name = "Company career sites (Eightfold)"
     system = "eightfold"
     parallel = 4  # every employer has its own host
@@ -86,7 +87,7 @@ class EightfoldSource(CareerSystemSource):
             date_precision=("exact" if posting.date_has_time else "day")
             if posting.date_posted else "unknown",
             description=posting.description,
-            description_is_complete=bool(posting.description),
+            description_is_complete=posting.description_is_complete,
             job_types=posting.job_types,
             work_mode="remote" if posting.remote else None,
             closes_at=posting.valid_through,

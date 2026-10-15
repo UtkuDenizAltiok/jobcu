@@ -40,6 +40,7 @@ _DATE = re.compile(r"(\d{1,2})\s+([A-Za-z]{3})")
 
 class JobsAcUkSource(JobSource):
     id = "jobsacuk"
+    detail_cache_version = 2  # retain separate original JobPosting requirements
     name = "jobs.ac.uk"
     kind = "job_board"
     # It carries a few jobs elsewhere in Europe, but almost all are in these two countries, so
@@ -91,7 +92,7 @@ class JobsAcUkSource(JobSource):
         return dataclasses.replace(
             job,
             description=posting.description,
-            description_is_complete=True,
+            description_is_complete=posting.description_is_complete,
             company=job.company or posting.company,
             posted_at=posting.date_posted or job.posted_at,
             date_precision="exact" if posting.date_has_time else job.date_precision,

@@ -1,9 +1,13 @@
 """Job sitemaps with JobPosting pages (sources/sitemaps.py), with a made-up recruiter's site."""
 
+import dataclasses
+import json
 from datetime import UTC, datetime, timedelta
 
 import httpx
 
+from jobcu import jobstore, scoring
+from jobcu.dedupe import JobGroup
 from jobcu.keystore import KeyStore
 from jobcu.keywords import SearchTerm
 from jobcu.sources import careers, sitemaps
@@ -119,3 +123,51 @@ def test_countries_and_address_words():
         "https://recruit.test/jobs/27724/graduate-electronics-engineer")
     assert "Hardwareentwickler" in sitemaps.words_of(
         "https://jobs.test/stellen/Hardwareentwickler%20%28m-w-d%29")
+
+
+def test_old_reader_cache_is_refreshed_then_complete_requirements_reach_scoring():
+    address = 'https://recruit.test/jobs/99/hardware-engineer'
+    company = Employer('Example Devices', 'sitemap', 'https://recruit.test/sitemap.xml', ('GB',))
+    data = {'@type': 'JobPosting', 'title': 'Hardware Engineer', 'description': 'Design boards.',
+            'qualifications': 'German C1 required. Certification preferred, not required.',
+            'eligibilityToWorkRequirement': 'Work permission required; no sponsorship.',
+            'datePosted': NOW.isoformat(),
+            'jobLocation': {'address': {'addressLocality': 'London', 'addressCountry': 'GB'}}}
+    body = '<script type="application/ld+json">' + json.dumps(data) + '</script>'
+    legacy = sitemaps.to_found_job(address, body, company)
+    jobstore.remember_ad(
+        dataclasses.replace(legacy, description='Design boards.'), reader_version=1)
+    requested = []
+
+    def handler(request):
+        requested.append(request.url.path)
+        return httpx.Response(404) if request.url.path == '/robots.txt' \
+            else httpx.Response(200, text=body)
+
+    ctx = SourceContext(
+        PoliteClient(min_intervals={}, transport=httpx.MockTransport(handler)),
+        KeyStore(), SourceReport('sitemap', 'Original'), lambda: False, lambda _: None)
+    try:
+        source = sitemaps.SitemapSource()
+        found = source._from_page(address, company, ctx)
+        prompt = scoring._job_block('J0', JobGroup([found]))
+        assert 'German C1 required.' in prompt and 'no sponsorship.' in prompt
+        assert 'Certification preferred, not required.' in prompt
+        assert 'only the start' not in prompt
+        assert requested == ['/robots.txt', '/jobs/99/hardware-engineer']
+        requested.clear()
+        assert source._from_page(address, company, ctx) == found
+        assert requested == []
+    finally:
+        ctx.http.close()
+
+
+def test_requirements_without_an_original_body_remain_partial_for_scoring():
+    body = '<script type="application/ld+json">' + json.dumps({
+        '@type': 'JobPosting', 'title': 'Teacher', 'skills': 'Classroom assessment',
+    }) + '</script>'
+    found = sitemaps.to_found_job('https://school.example/job/1', body,
+                                Employer('Example School', 'sitemap', '', ('IE',)))
+    assert 'Classroom assessment' in found.description
+    assert not found.description_is_complete
+    assert 'only the start' in scoring._job_block('J0', JobGroup([found]))

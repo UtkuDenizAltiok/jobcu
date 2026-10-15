@@ -23,6 +23,7 @@ import dataclasses
 import html
 import re
 from collections.abc import Iterator
+from copy import deepcopy
 from datetime import UTC, datetime
 from urllib.parse import unquote, urlsplit
 from xml.etree import ElementTree
@@ -33,7 +34,7 @@ from lxml.etree import ParserError
 from jobcu import places as place_list
 from jobcu.countries import COUNTRIES
 from jobcu.freshness import day_at_utc, parse_iso
-from jobcu.jobposting import find_job_posting
+from jobcu.jobposting import AD_SECTIONS, ad_sections, append_sections, find_job_posting
 from jobcu.placenames import OTHER
 from jobcu.sources.base import FoundJob, SourceContext, SourceError
 from jobcu.sources.budget import BudgetExhausted
@@ -52,6 +53,7 @@ class SuccessFactorsSource(CareerSystemSource):
     id = "successfactors"
     name = "Company career sites (SuccessFactors)"
     system = "successfactors"
+    detail_cache_version = 2  # older readers retained only the first description block
     # Every company has its own address, so a few can be read at once.
     parallel = 4
 
@@ -108,15 +110,20 @@ class SuccessFactorsSource(CareerSystemSource):
         # Imported here: the job memory itself imports the sources (through dedupe).
         from jobcu import jobstore
 
-        known = jobstore.remembered_ad(job)
+        known = jobstore.remembered_ad(job, reader_version=self.detail_cache_version)
         if known is not None and known.posted_at:
             return dataclasses.replace(known, date_precision="day")
-        posted = date_posted(self._page(job, ctx) or "")
-        if posted is None:
-            return job  # kept with an unknown date rather than lost
-        dated = dataclasses.replace(job, posted_at=day_at_utc(posted.date()),
-                                    date_precision="day")
-        jobstore.remember_ad(dated)
+        page = self._page(job, ctx) or ""
+        found = read_page(page)
+        posted = date_posted(page)
+        description = append_sections(
+            job.description, [("Original ad", [found.get("description", "")])])
+        dated = dataclasses.replace(
+            job, posted_at=day_at_utc(posted.date()) if posted else job.posted_at,
+            date_precision="day" if posted else job.date_precision, description=description,
+            description_is_complete=(bool(job.description.strip()) and job.description_is_complete)
+            or bool(found.get("has_description")))
+        jobstore.remember_ad(dated, reader_version=self.detail_cache_version)
         return dated
 
     def _from_page(self, job: FoundJob, ctx: SourceContext) -> FoundJob | None:
@@ -136,7 +143,7 @@ class SuccessFactorsSource(CareerSystemSource):
             posted_at=day_at_utc(posted.date()) if posted else None,
             date_precision="day" if posted else "unknown",
             description=found.get("description") or "",
-            description_is_complete=bool(found.get("description")),
+            description_is_complete=bool(found.get("has_description")),
         )
 
 
@@ -162,18 +169,76 @@ def read_page(page: str) -> dict[str, str]:
     except (ParserError, ValueError):
         return {}
 
-    def first(xpath: str) -> str:
-        found = doc.xpath(xpath)
-        return found[0].strip() if found and isinstance(found[0], str) else ""
+    def is_job_scope(node) -> bool:
+        return any(kind.rstrip('/').rsplit('/', 1)[-1] == 'JobPosting'
+                   for kind in node.get('itemtype', '').split())
 
-    blocks = doc.xpath('//*[@itemprop="description"]')
-    description = html_to_text(lxml_html.tostring(blocks[0], encoding="unicode")) if blocks else ""
+    scopes = [node for node in doc.iter() if is_job_scope(node)]
+    scope = scopes[0] if scopes else doc
+
+    def belongs(node) -> bool:
+        # A nested organization/related vacancy is not part of this job's ad text.
+        for ancestor in node.iterancestors():
+            if ancestor is scope:
+                return True
+            if 'itemscope' in ancestor.attrib:
+                return False
+        return node is scope
+
+    fields: dict[str, list[str]] = {}
+    wanted = {"description", "title", *(key for key, _ in AD_SECTIONS)}
+    for node in scope.iter():
+        props = set(node.get('itemprop', '').split()) & wanted
+        if not props or not belongs(node):
+            continue
+        for prop in props:
+            if prop == "description" and 'itemscope' in node.attrib and node is not scope:
+                continue
+            if prop == "description" and any(
+                    prop in a.get('itemprop', '').split() for a in node.iterancestors()):
+                continue  # its outer description already includes this text
+            clean = deepcopy(node)
+            for nested in clean.xpath('.//*[@itemscope]'):
+                if (nested.getparent() is not None and (is_job_scope(nested)
+                        or 'hiringOrganization' in nested.get('itemprop', '').split())):
+                    nested.drop_tree()
+            text = html_to_text(
+                node.get('content') or lxml_html.tostring(clean, encoding='unicode'))
+            if text:
+                fields.setdefault(prop, []).append(text)
+
+    def first(prop: str) -> str:
+        for node in scope.iter():
+            if prop not in node.get('itemprop', '').split():
+                continue
+            if any(is_job_scope(a) and a is not scope for a in node.iterancestors()):
+                continue
+            if content := node.get('content', '').strip():
+                return content
+        return ""
+
+    posting = find_job_posting(page)
+    description = "\n\n".join(dict.fromkeys(fields.get('description', [])))
+    has_description = bool(description) or bool(posting and posting.description_is_complete)
+    if posting and posting.original_description:
+        structured = posting.original_description
+        plain, other = " ".join(description.split()), " ".join(structured.split())
+        if not plain:
+            description = structured
+        elif other != plain:
+            description = append_sections(description, [("Original structured ad", [structured])])
+    description = append_sections(description, ad_sections(fields))
+    if posting:
+        description = posting.with_sections(description) if description else posting.description
+    fallback_place = ", ".join(p for p in (posting.location_text, posting.country) if p) \
+        if posting else ""
     return {
-        "title": " ".join(" ".join(doc.xpath('//*[@itemprop="title"]//text()')).split()),
-        "place": first('//*[@itemprop="streetAddress"]/@content')
-                 or first('//*[@itemprop="addressLocality"]/@content'),
-        "company": first('//*[@itemprop="hiringOrganization"]/@content'),
+        "title": " ".join(fields.get('title', [])) or (posting.title if posting else ""),
+        "place": first('streetAddress') or first('addressLocality') or fallback_place,
+        "company": first('hiringOrganization')
+                   or (posting.company if posting else ""),
         "description": description,
+        "has_description": "yes" if has_description else "",
     }
 
 

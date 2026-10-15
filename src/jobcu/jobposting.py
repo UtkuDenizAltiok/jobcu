@@ -25,6 +25,76 @@ _EMPLOYMENT_TYPES = {
     "INTERN": ["internship_or_working_student"],
 }
 
+# These are statements supplied by the publisher, not inferred requirements. In particular,
+# a skills list can contain preferences and education can have an experience alternative.
+AD_SECTIONS = (
+    ("responsibilities", "Responsibilities"),
+    ("qualifications", "Qualifications"),
+    ("skills", "Skills"),
+    ("educationRequirements", "Education requirements"),
+    ("experienceRequirements", "Experience requirements"),
+    ("eligibilityToWorkRequirement", "Work eligibility"),
+    ("applicantLocationRequirements", "Applicant location requirements"),
+    ("securityClearanceRequirement", "Security clearance"),
+    ("physicalRequirement", "Physical requirements"),
+    ("sensoryRequirement", "Sensory requirements"),
+)
+
+
+def _supplied_text(value, depth: int = 0) -> list[str]:
+    """Read known text/credential forms without importing JSON, URLs or unrelated metadata."""
+    if depth > 4:
+        return []
+    if isinstance(value, str):
+        return [text] if (text := html_to_text(value)) else []
+    if isinstance(value, list):
+        return [text for part in value for text in _supplied_text(part, depth + 1)]
+    if not isinstance(value, dict):
+        return []
+    parts = [text for key in ("@value", "name", "description")
+             for text in _supplied_text(value.get(key), depth + 1)]
+    for key, label in (("credentialCategory", "Credential"), ("educationalLevel", "Level"),
+                       ("about", "Subject"), ("recognizedBy", "Recognized by")):
+        parts.extend(f"{label}: {text}"
+                     for text in _supplied_text(value.get(key), depth + 1))
+    months = value.get("monthsOfExperience")
+    if (not isinstance(months, bool) and isinstance(months, (str, int, float))
+            and re.fullmatch(r"\d+(?:\.\d+)?", str(months))):
+        parts.append(f"{months} months")
+    return list(dict.fromkeys(parts))
+
+
+def ad_sections(item: dict) -> list[tuple[str, list[str]]]:
+    sections = [(label, texts) for key, label in AD_SECTIONS
+                if (texts := _supplied_text(item.get(key)))]
+    alternative = item.get("experienceInPlaceOfEducation")
+    if isinstance(alternative, bool):
+        sections.append(("", ["Experience instead of education: "
+                              + ("Yes" if alternative else "No")]))
+    return sections
+
+
+def append_sections(body: str, sections: list[tuple[str, list[str]]]) -> str:
+    """Keep wording and field context; never fuzzy-match skills or discard a qualification."""
+    for label, texts in sections:
+        additions = []
+        for text in texts:
+            if not text.strip():
+                continue
+            existing = " ".join(body.split()).casefold()
+            needle = " ".join(text.split()).casefold()
+            labelled = (label + ": " if label else "") + needle
+            already_present = needle == existing or re.search(
+                r"(?<!\w)" + re.escape(labelled.casefold()) + r"(?!\w)", existing)
+            if not already_present and needle not in [
+                    " ".join(value.split()).casefold() for value in additions]:
+                additions.append(text)
+        if additions:
+            heading = label + ":\n" if label else ""
+            body = "\n\n".join(part for part in (body, heading + "\n".join(additions))
+                                if part)
+    return body
+
 
 @dataclass
 class JobPosting:
@@ -38,6 +108,12 @@ class JobPosting:
     remote: bool = False
     valid_through: datetime | None = None  # when applications close
     country: str | None = None  # the address's country as written ("GB", "Deutschland")
+    description_is_complete: bool = False
+    original_description: str = field(default="", repr=False)
+    sections: list[tuple[str, list[str]]] = field(default_factory=list, repr=False)
+
+    def with_sections(self, body: str) -> str:
+        return append_sections(body, self.sections)
 
 
 def find_job_posting(html: str) -> JobPosting | None:
@@ -77,9 +153,15 @@ def _read(item: dict) -> JobPosting:
                 types.append(mapped)
     organisation = item.get("hiringOrganization")
     company = organisation.get("name") if isinstance(organisation, dict) else organisation
+    description = html_to_text(item.get("description")) \
+        if isinstance(item.get("description"), str) else ""
+    sections = ad_sections(item)
     return JobPosting(
         title=html_to_text(str(item.get("title") or "")),
-        description=html_to_text(str(item.get("description") or "")),
+        description=append_sections(description, sections),
+        original_description=description,
+        description_is_complete=bool(description),
+        sections=sections,
         date_posted=parse_iso(posted_text) if posted_text else None,
         date_has_time="T" in posted_text,
         company=str(company) if company else None,

@@ -1,6 +1,8 @@
 import json
 from datetime import UTC, datetime
 
+import pytest
+
 from jobcu.jobposting import find_job_posting
 from jobcu.sources.adzuna import AdzunaSource
 
@@ -48,6 +50,67 @@ def test_job_data_with_an_encoded_type_and_raw_line_breaks_is_read():
 def test_pages_without_job_data_give_nothing():
     assert find_job_posting("<html><script type='application/ld+json'>{bad json</script>") is None
     assert find_job_posting(page({"@type": "Organization"})) is None
+
+
+@pytest.mark.parametrize(('title', 'duties', 'skills'), [
+    ('Hardware Engineer', 'Design isolated power converters.', 'Gate-drive measurements'),
+    ('Nurse', 'Provide patient care.', 'Current nursing registration'),
+    ('Teacher', 'Teach mathematics.', 'Classroom assessment'),
+])
+def test_separate_original_requirements_reach_the_ad_text(title, duties, skills):
+    found = find_job_posting(page({
+        '@type': 'JobPosting', 'title': title, 'description': '<p>Join Example.</p>',
+        'responsibilities': duties, 'skills': ['<b>' + skills + '</b>', 'German C1 required'],
+        'qualifications': 'Certification preferred, not required.',
+        'experienceRequirements': {'@type': 'OccupationalExperienceRequirements',
+                                   'monthsOfExperience': 36},
+        'educationRequirements': {'@type': 'EducationalOccupationalCredential',
+                                  'credentialCategory': 'Bachelor degree',
+                                  'about': 'Applied science'},
+        'experienceInPlaceOfEducation': True,
+        'eligibilityToWorkRequirement': 'Existing work permission required; no sponsorship.',
+    }))
+    assert duties in found.description and skills in found.description
+    assert 'German C1 required' in found.description
+    assert 'Certification preferred, not required.' in found.description
+    assert '36 months' in found.description and 'Bachelor degree' in found.description
+    assert 'Applied science' in found.description
+    assert 'Experience instead of education: Yes' in found.description
+    assert 'no sponsorship.' in found.description
+    assert '<b>' not in found.description and '@type' not in found.description
+
+
+def test_structured_fields_do_not_invent_text_or_a_complete_ad():
+    found = find_job_posting(page({
+        '@type': 'JobPosting', 'title': 'Lab Technician',
+        'skills': {'@type': 'DefinedTerm', 'description': 'Sample preparation'},
+        'educationRequirements': {'@type': 'EducationalOccupationalCredential',
+                                  'url': 'https://credentials.example/unknown'},
+        'experienceRequirements': {'@type': 'OccupationalExperienceRequirements',
+                                   'monthsOfExperience': None},
+        'qualifications': [None, False, 123, {'unrelated': 'Do not import this'}],
+    }))
+    assert found.description == 'Skills:\nSample preparation'
+    assert not found.description_is_complete
+
+
+def test_identical_sections_are_not_repeated_but_distinct_skill_names_survive():
+    found = find_job_posting(page({
+        '@type': 'JobPosting',
+        'description': '<p>JavaScript required.</p><p>Skills:<br>German C1 required.</p>',
+        'skills': ['German C1 required.', 'Java', 'Java'],
+    }))
+    assert found.description.count('German C1 required.') == 1
+    assert found.description.endswith('Skills:\nJava')
+
+
+def test_short_identical_values_keep_their_requirement_context_and_negation():
+    found = find_job_posting(page({
+        '@type': 'JobPosting', 'description': 'No German C1 required. Experience: Not required.',
+        'qualifications': 'German C1 required.', 'securityClearanceRequirement': 'Not required.',
+    }))
+    assert 'Qualifications:\nGerman C1 required.' in found.description
+    assert 'Security clearance:\nNot required.' in found.description
 
 
 def test_adzuna_never_reads_its_own_job_pages():

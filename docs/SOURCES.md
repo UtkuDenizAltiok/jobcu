@@ -128,6 +128,28 @@ unknown town, employer head office or first posting date. Fictional evidence and
 
 ## Identity and freshness evidence
 
+### Original-ad sections and access boundaries — 2026-10-15
+
+**Checked:** [Schema.org's JobPosting definition](https://schema.org/JobPosting) supplies
+separate responsibilities, qualifications, skills, education, experience and eligibility
+properties as well as `description`. [Experience](https://schema.org/experienceRequirements)
+can be text or an object with months; [education](https://schema.org/educationRequirements)
+can be a credential and explicitly allow experience instead. These definitions do not say
+every skill is mandatory, or that a missing property means no requirement. Its
+[terms](https://schema.org/docs/terms.html) cover the vocabulary, not permission to collect
+an employer's pages. The correction consumes already requested markup, preserves wording and
+alternatives, and adds no endpoint, page scope or request allowance.
+
+[SAP's website terms](https://www.sap.com/about/legal/terms-of-use.html), revised 2026-02-26,
+restrict automated extraction, persistent copying and passing site content to AI providers
+without specific permission. Search-engine indexing exceptions do not grant Jobcu permission.
+SAP-owned `sap.com` career pages are held before requests, including redirect destinations;
+other employers' SuccessFactors sites remain subject to their own terms and robots rules.
+This supersedes the older robots-only assumption for SAP's own directory entry. It is an
+access restriction, not evidence that SAP jobs lack value or that the whole career system
+should be removed. A permitted independent original/feed or explicit permission is needed
+to reopen that direct collection. Existing private history is preserved.
+
 **Checked 2026-10-07:** [Google's job-posting reference](https://developers.google.com/search/docs/appearance/structured-data/job-posting)
 defines `identifier` as the hiring organization's unique job reference and `datePosted` as
 the employer's original posting date. [Schema.org](https://schema.org/JobPosting) distinguishes

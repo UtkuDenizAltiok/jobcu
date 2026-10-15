@@ -324,6 +324,11 @@ needs the full ad, it prefers the employer's original and can try another matche
 an available source. This uses the same source limits; it may take longer when the first copy
 is incomplete or unavailable. It does not start another search. Scores are worked out afresh
 for each new search. If full text still cannot be read, the job stays with its summary warning.
+Some original pages put duties, skills and requirements in separate sections. Jobcu keeps
+those sections together for scoring, including stated language, experience and work-permission
+requirements. It preserves words such as “preferred” and alternatives such as experience
+instead of a degree. Missing requirements remain unknown. This uses the page already being
+read; it does not add a separate AI request to recover text that page supplied.
 When a reader's evidence rules are corrected, Jobcu refreshes incompatible cached details
 within your existing source limits. It does not reuse metadata known to have been parsed
 incorrectly; unchanged readers and corrected warm caches still reuse their full text.
