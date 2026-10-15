@@ -1,8 +1,8 @@
 # Jobcu progress
 
 Current state and recovery only. Rules: [AGENTS](../AGENTS.md); reusable actions:
-[PROMPTS](PROMPTS.md); decisions/implementation: [ENGINEERING](ENGINEERING.md); dated
-contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and PRs.
+[PROMPTS](PROMPTS.md); implementation/decisions: [ENGINEERING](ENGINEERING.md);
+source permissions and dated facts: [SOURCES](SOURCES.md). Completed change history is in Git/PRs.
 
 ## Right now
 
@@ -10,462 +10,130 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
-- The [bounded connection diagnostic](ENGINEERING.md#subsequent-bounded-connection-diagnostic--2026-10-15)
-  completed two fictional native-generation requests without retries; complete answers,
-  phase timings and reported usage remain private. Test usage is included in the monthly
-  ledger and disposable scratch is removed. No production reasoning/provider/network change
-  follows from one small passing pair. The longer saved research-path interruption remains
-  unproved; do not repeat short passing calls or treat available credit as a connection test.
-- [Reasoning-preserving AI recovery](ENGINEERING.md#reasoning-preserving-request-recovery--2026-10-15)
-  is published in [PR #126](https://github.com/UtkuDenizAltiok/jobcu/pull/126), final head
-  `f90cdc9`, merge `062be47`. Unrelated native request errors no longer
-  discard the selected effort or change later requests; only explicit whole-control refusals
-  permit bounded compatibility recovery. Failed/invalid fallbacks cannot establish a new
-  unsupported-control cache entry. Final local 1,732 tests pass with one existing dependency
-  warning; Ruff/privacy, 20 document checks and complete diff/whitespace pass. Exact PR-head
-  CI `38709317508` and merged-main CI `38709797527` passed Mac/Windows/privacy. The completed
-  implementation checkpoint is cleared; private `active_reasoning_recovery` retains before/
-  after evidence, receipts and remaining limits. No paid call, new search, provider/account/
-  network change or owner-app restart was made; saved pre-header disconnects remain an
-  evidence dependency, not a verified effect of this repair.
-- [Original-ad section recovery](ENGINEERING.md#original-ad-section-recovery--2026-10-15)
-  is published in [PR #124](https://github.com/UtkuDenizAltiok/jobcu/pull/124), source
-  `452ab4c`, merge `5f9ec67`. Separate original
-  requirements and all job-specific description sections reach matching/scoring; corrected
-  caches are versioned and warm reuse remains. Fields without an ad body remain partial.
-  A scoped SAP-owned website hold honors freshly checked terms, including redirects, while
-  other employers continue. Final local 1,693 tests pass with one existing dependency warning;
-  Ruff/privacy, 20 document checks and complete diff/whitespace pass. Exact PR-head CI
-  `38704172797` and merged-main CI `38704706099` passed Mac/Windows/privacy. The completed
-  implementation checkpoint is cleared; private `active_original_ad_section_recovery` keeps
-  before/after evidence, limits and exact receipts. No paid call, new search,
-  provider/account/network change or owner-app
-  restart was made. Saved judgements and private history/settings remain intact; live scoring
-  accuracy, provider availability, coverage and net savings are not established by these tests.
-- [Finite reference evidence and source recovery](ENGINEERING.md#finite-reference-evidence-and-source-recovery--2026-10-15)
-  is implemented in [PR #121](https://github.com/UtkuDenizAltiok/jobcu/pull/121), final head
-  `5f482ae`, merge `2656b6b`. Exact PR CI `38647881091` and merged-main CI `38648729649`
-  passed Mac/Windows/privacy. Local final 1,674 tests pass with one existing dependency warning;
-  Ruff/privacy, 20 document checks, JS syntax/fictional UI and complete diff/whitespace pass.
-  Candidate reference cities are selected locally before fresh fact research; supported cities
-  survive missing rows, omitted cities cannot become implicit passes, unknown reachable
-  alternatives prevent false exclusions, and same-named cities keep coordinate identity.
-  Complete city notes remain available in flight after structuring failure; raw notes are
-  excluded from serialization by the [retention correction in PR #123](https://github.com/UtkuDenizAltiok/jobcu/pull/123)
-  under the checked restrictions in ENGINEERING. The correction's exact publication receipts
-  are in the private checkpoint; its unchanged 1,674-test final suite passes.
-  Shared conditions reuse one fact
-  request; transient DNS failures keep normal bounded source retries. The guide and condition
-  evidence/retry/confidence display are updated. The completed implementation checkpoint is
-  cleared; private `active_reference_evidence_recovery` retains the shortlist, evidence limits
-  and exact receipts. No paid call, new search, provider/account/network change or owner-data
-  reset/restart was needed. Owner app 8765 was last observed closed and preview 8799 stopped;
-  that state was preserved. The next normal launch loads the repair. Live provider availability,
-  missing original facts, net savings and market recall remain unmeasured. Existing provider
-  comparison and Adzuna permission dependencies below remain parked; no model switch is claimed.
-- [Duplicate boundaries and reference eligibility](ENGINEERING.md#duplicate-boundaries-and-reference-eligibility--2026-10-15)
-  are implemented in [PR #119](https://github.com/UtkuDenizAltiok/jobcu/pull/119), source
-  `8be0442` on `codex/evidence-recovery`, based on `90a72e3`. Dash variants share one
-  evidence/scoring group, with legacy identity and distinct-vacancy guards retained.
-  Travel decisions/requests wait for applied reference-city facts; unknown jobs remain
-  available. Cards collect missing evidence under **Needs checks** and explain each score
-  maximum. Native Gemini response-close transport errors preserve terminal answers,
-  citations, meaningful failures and usage. Scoring policy, medium effort and source rights
-  remain. Final 1,620 tests, 294 matching/travel/search and 103 provider checks pass, with
-  one existing dependency warning; Ruff/privacy, 11 current non-archive documents,
-  JS syntax/fictional DOM and complete diff/whitespace checks pass. Publication is complete:
-  final head `3cb91a5`, merge `57c6287`, exact PR CI `38642206842` and main CI `38642983146`
-  passed Mac/Windows/privacy. The completed checkpoint is cleared below. Detailed independent
-  judgements, timing, billing limits, before/after diagnostics and final handover receipts stay
-  in the private `active_latest_completed_review` record; disposable scratch is removed and
-  the authorized read-only evidence snapshot retained. Owner history, marks, settings,
-  authorization and owner/legacy labels were preserved. No paid call, new search, provider/
-  source/account/network change or owner-app restart was made. Provider availability,
-  missing original/reference evidence, whole-market recall and net savings remain unverified.
-- [Independently saved application links](ENGINEERING.md#independently-saved-application-links--2026-10-14)
-  are implemented in [PR #118](https://github.com/UtkuDenizAltiok/jobcu/pull/118), source
-  `9b017d0` on `codex/direct-application-links`, based on `1468a30`. Restored and marked cards
-  use an allowed, independently collected employer link directly when already saved for the
-  same job, retaining the exact Adzuna route under alternatives. Opaque-only cards explain
-  forwarding and missing destination evidence. History, scores, marks and source rules remain.
-  The 133 affected and final 1,578-test checks pass, with one existing dependency warning;
-  Ruff/privacy, 20 documents, JS syntax and complete diff/whitespace checks pass. Publication
-  is complete: final head `336fbc6`, merge `90a72e3`, exact PR CI `38533873149` and main CI
-  `38534533490` passed Mac/Windows/privacy. No private redirect or destination was fetched.
-  Automatic replacement of the Adzuna advertiser route needs explicit Adzuna permission and a
-  permitted interface; [dated evidence](SOURCES.md) separates this dependency from independent
-  originals that Jobcu already collected. No account change, paid call or new search was made.
-- [Task focus and scoring confidence](ENGINEERING.md#task-focus-and-scoring-confidence--2026-10-14)
-  is implemented in [PR #117](https://github.com/UtkuDenizAltiok/jobcu/pull/117), source
-  `3fe11f4` on `codex/task-focus-scoring`. Neighbouring/gapped main work has an 80 maximum;
-  tied totals favor the stronger weakest fit area, then freshness. Technical prerequisites
-  and proficiency remain distinct from general seniority. Uncertain location conditions limit
-  preference points without suppressing useful evidence checks; resolved conditions restore
-  points. Recognized tracking-only variants retain unusable-link reports, preserving independent
-  alternatives and history. Original reference-city semantics and owner scoring limits remain.
-  The 263 affected and final 1,570-test checks pass, with one existing dependency warning;
-  Ruff/privacy, 20 documents, JS syntax/ordering and complete diff/whitespace checks pass.
-  Publication is complete: final head `bd7f1a7`, merge `1468a30`, exact PR CI `38531858561`
-  and main CI `38532483632` passed Mac/Windows/privacy; main was synchronized cleanly.
-  Detailed balanced saved judgements, timing/billing limits and reported application identities
-  remain private. Offline verification does not establish live model accuracy or market recall.
-- Exact setup edits are published in [PR #116](https://github.com/UtkuDenizAltiok/jobcu/pull/116),
-  head `398a40f`, merge `41e3cb8`. Exact PR CI `38527412545` and main CI `38527892757`
-  passed Mac/Windows/privacy; the 1,519-test final local suite remains the unchanged baseline.
-  Raw box text and original document/box word identity prevent accidental reuse after edits;
-  actual profile host/reasoning controls participate too. Jobs and scores remain fresh.
-  Detailed saved review, uncertainty, billing and application-route dependencies remain private.
-- [Search preparation reuse and connection clarity](ENGINEERING.md#search-preparation-reuse-and-connection-clarity--2026-10-14)
-  is in [PR #115](https://github.com/UtkuDenizAltiok/jobcu/pull/115), source commit `f504f69`
-  on `codex/search-preparation-reuse`: successful unchanged location readings
-  and word groups can be reused for 30 days; fresh research, jobs, scores and travel rules
-  remain. Migration 16 preserves history and adds only private setup storage. Final local
-  1,490-test, Ruff/privacy, 20-document and whitespace/full-diff checks pass. Publication is
-  complete: final head `6dbf72d`, merge `8f730ba`, exact PR CI `38472126047` and main CI
-  `38472857093` passed Mac/Windows/privacy. This verifies offline behavior, not a live bill
-  or connection repair.
-- The continuing review's scoring, Wednesday 10:30 transit timing and incomplete-reference
-  explanations are published in [PR #113](https://github.com/UtkuDenizAltiok/jobcu/pull/113),
-  final head `b23e953`, merge `3075b9a`. Exact PR CI `38304883132` and exact main CI
-  `38305333288` passed Mac/Windows/privacy. Its 1,420-test local final check remains the
-  baseline. The owner's more forgiving experience/language maximums are in
-  [PR #114](https://github.com/UtkuDenizAltiok/jobcu/pull/114), source commit `64282ef` on
-  `codex/owner-score-limits`; 174 affected and 1,431 full-suite tests pass (one existing
-  dependency warning), with Ruff/privacy, 20 document checks and whitespace/full-diff review.
-  PR #114 publication is complete: final head `2c5a9d2`, merge `b1b0f6f`, exact PR CI
-  `38308967181` and exact main CI `38309537820` passed Mac/Windows/privacy.
-  No paid call, new search or owner-state change is made.
-- [Original evidence and repeated requests](ENGINEERING.md#original-evidence-and-repeated-requests--2026-10-12)
-  is published in [PR #111](https://github.com/UtkuDenizAltiok/jobcu/pull/111), head
-  `e869a58`, merged at `71dd6fc`. Exact PR-head CI `38295942407` and merged-main CI
-  `38296731440` passed on Mac, Windows and privacy. Original-text collection, Markdown
-  grounding, honest information/uncertainty markers, per-search Maps element reuse and reset
-  cost clarity are implemented. Public employer references were independently verified.
-  [PR #112](https://github.com/UtkuDenizAltiok/jobcu/pull/112) completes the mixed-copy freshness
-  regression, merged at `397d932`; exact PR CI `38299591582` and exact main CI `38299970712`
-  passed Mac/Windows/privacy. No live accuracy, recall or savings is inferred; private evidence
-  stays outside Git.
-- [AI billing refusals, Stop and usage recovery](ENGINEERING.md#ai-billing-refusals-stop-and-incomplete-usage--2026-10-12)
-  is published in [PR #109](https://github.com/UtkuDenizAltiok/jobcu/pull/109), merged
-  at `a698ea6`. Exact PR-head CI `38287331688` and merged-main CI `38287834077` passed
-  on Mac, Windows and privacy. The local final suite passed 1,333 tests (one existing
-  dependency warning); Ruff/privacy, JS syntax, 20 document checks, whitespace and full
-  diff review passed. Fictional before/after tests verify terminal credit refusals,
-  cancellable retry/queued waits, completed-answer retention and incomplete usage markers.
-  Migration 15 preserves old receipts and ratings. Existing provider, medium effort,
-  evidence checks and owner limits are preserved; no live savings or matching gain is claimed.
-- The authorized saved review used a shuffled balanced packet including every top card;
-  available evidence was judged before score reveal. Detailed billing, source contributions,
-  judgements and exact missing-evidence dependencies are saved privately in the directory
-  referenced by `assistant-review-checkpoint.json`. Owner/legacy ratings were preserved;
-  unknowns were retained. No paid test, new search, job-site request, source/provider switch,
-  account change or reset was made. Disposable review and fictional startup data are removed.
-  Owner app 8765 remains running and was preserved; assistant preview 8799 is stopped.
-  The next normal launch loads the repair. Exact historical billing attribution, missing
-  originals/conditions and an independent date-verified benchmark remain evidence limits.
-- Start recovery verified the final session handover in
-  [PR #107](https://github.com/UtkuDenizAltiok/jobcu/pull/107), merged at `c75cbd9`.
-  Exact PR-head CI `38043089148` and merged-main CI `38043353599` passed on Mac,
-  Windows and privacy. Clean main was synchronized and `uv sync --locked` passed.
-  Owner app 8765 and preview 8799 were both stopped; that state was preserved.
-  The completed publication checkpoint below was cleared. No private review, paid call,
-  job search or new development goal was started.
-- [Quality-first API and electronics coverage decision](ENGINEERING.md#quality-first-api-and-electronics-coverage-decision--2026-10-10)
-  replaces earlier price-led/Go-centred trial ordering. The broader public survey includes
-  stronger models and native research contracts; direct MiMo Pro is the first replacement
-  hypothesis, with counterevidence and explicit no-regression gates. Keep working Gemini
-  medium pending a focused comparison. Electronics employer originals outrank remote-only
-  expansion. Source references, permissions and precise integration dependencies are in
-  [SOURCES](SOURCES.md#public-api-market-and-quality-evidence--2026-10-10). No provider switch,
-  new source, paid call, search, account edit or private-results review was made in this step.
-  [PR #105](https://github.com/UtkuDenizAltiok/jobcu/pull/105) is merged at `d7bee16`;
-  exact PR-head Mac/Windows/privacy CI `38034813256` and merged-main CI `38035224672`
-  passed. Local document/Ruff/privacy/whitespace checks and full diff review passed.
-  The completion handover in [PR #106](https://github.com/UtkuDenizAltiok/jobcu/pull/106)
-  is merged at `23b8da6`; exact PR-head CI `38035535171` and merged-main CI `38035793937`
-  passed on Mac, Windows and privacy. No remaining implementation or publication from that
-  task is pending. End observed owner app 8765 and preview 8799 both stopped; preserve this
-  on-demand state. Private evidence/authorization remain intact; disposable task files are gone.
-- [Employer discovery recovery](ENGINEERING.md#employer-discovery-recovery-and-service-choices--2026-10-10)
-  retries incomplete countries on the next normal search, keeps successful countries/employers
-  and explains missing discovery. Migration 14 preserves history while rechecking ambiguous
-  legacy timestamps once. Existing medium effort, source permissions and limits remain.
-  Published in [PR #103](https://github.com/UtkuDenizAltiok/jobcu/pull/103), merge `ff61bcb`.
-  Exact PR-head Mac/Windows/privacy CI `38032271821` and merged-main CI `38032481853` passed.
-  Local 1,312-test suite, Ruff/privacy/whitespace, 20 document checks and isolated startup pass.
-  The preview stopped and disposable data was removed; owner app/data/settings were preserved.
-- [Additional source and direct-provider research](SOURCES.md#employer-feeds-and-remote-candidates--2026-10-10)
-  identified Jobicy as a remote-feed candidate with freshness/evidence checks still
-  needed; remote-only expansion is now low priority. Its inexpensive direct-API subset is
-  superseded by the broader quality-first survey above. Keep the working configuration; no purchase,
-  provider switch, paid test or search was made. Detailed saved-demand scenarios stay private.
-- The [structured Ashby workplace correction](ENGINEERING.md#structured-employer-workplace-evidence--2026-10-10)
-  recovers towns/countries from primary and secondary addresses and preserves original ads.
-  Legacy caches cannot restore discarded metadata. Fictional collection/check-selection cases
-  cover all countries, nursing/teaching/hardware and unknowns without more source requests.
-  [PR #102](https://github.com/UtkuDenizAltiok/jobcu/pull/102) is verified merged at `d7017e5`;
-  exact-main Mac/Windows/privacy CI `38030324705` passed. No provider, source, effort,
-  allowance, account or owner-data change was made.
-- [Current source and complete-cost research](SOURCES.md#broad-boards-and-web-discovery--2026-10-10)
-  rechecked broad boards, Google discovery, Go's entire table and direct/discounted processing.
-  No permitted new broad-board reader was established. Go remains a candidate; shared limits
-  alone do not reject it. Live quality/coverage and model-dependent bills remain unmeasured.
-  Private saved-demand/timing evidence stays private; no paid call or new search occurred.
+- All product repairs from this session are merged. Application code/tests/dependencies are
+  unchanged from `d988466` ([PR #128](https://github.com/UtkuDenizAltiok/jobcu/pull/128)); its
+  exact-main CI `38715862731` passed Mac, Windows and privacy. The final local source baseline
+  is **1,732 passing tests**, with one existing dependency deprecation warning. Current
+  documentation-only cleanup publication is recoverable from Git and the private closing
+  checkpoint; do not run another local full suite for unchanged code merely to prepare a chat.
+- Owner app **8765** and assistant preview **8799** were both closed at session close; preserve
+  the owner's subsequent choice. No service is left running by the assistant. The next normal
+  owner launch loads the repairs. No reset, new key or model choice is required.
+- Saved documents, queries, searches, ratings, marks, settings, keys and authorization are
+  preserved. Detailed reviews, complete diagnostic answers, usage and exact publication
+  receipts stay outside Git. Private `assistant-review-checkpoint.json` is the recovery index;
+  read standing authorization/revocations before following it. Historical evidence remains
+  available, but stale completed work must not become a new active goal.
+- Two authorized fictional native-generation requests completed without retries. Their usage
+  is in the monthly ledger; disposable key/settings/database scratch is removed. This small
+  pair did **not** reproduce the saved longer research-path interruption or justify a provider,
+  reasoning or network change. Existing API authority is recorded privately; do not ask for
+  the same authorization again or repeat unchanged short passing requests.
+- This handover replaces the accumulated completed-work ledger and conflicting historical
+  app-state notes. Durable decisions, source evidence, guides, licence and Git history remain.
 
-- [Complete AI answers and online-check recovery](ENGINEERING.md#complete-ai-answers-and-online-check-recovery--2026-10-10)
-  is in [PR #101](https://github.com/UtkuDenizAltiok/jobcu/pull/101): Gemini receives answers
-  incrementally, requires successful completion
-  and retains late grounding/usage metadata. Broken or clipped answers cannot become judgements.
-  Parallel cleanup preserves other requests. Notes now distinguish throttling, connection retries
-  and unfinished online checks. Medium effort, request content and existing limits are preserved.
-- The completed-search review followed the private procedure with shuffled judgements before
-  score reveal, including every top card. Detailed evidence and supported assistant labels stay
-  private; owner/legacy ratings were preserved. Missing originals, original dates, researched
-  conditions and an independent coverage benchmark prevent broad accuracy/recall claims.
-  Source contribution was inspected; no method was removed on counts or temporary failures.
-- The [Go decision and readiness update](ENGINEERING.md#go-feasibility-and-interruption-continuity--2026-10-09)
-  preserves one Gemini model at medium plus Maps for the owner's next on-demand 24-hour search.
-  Dedicated Discord forum and independent Reddit questions were delivered with explicit owner
-  instructions; the old Zen question became a redirect. Two active questions, no cross-reference
-  in Reddit. Replies and proof stay in the private checkpoint; no provider clarification was
-  received at this checkpoint. Go remains a candidate, not an established quality improvement.
-  Compare its full subscription/tool cost with direct APIs before adoption.
-- Read-only saved-setup checks and isolated fictional startup passed without provider calls,
-  purchases, searches or owner-state changes. Disposable scratch was removed and the preview
-  stopped. Local readiness does not prove live service availability, balance or result quality.
-- AI Settings now has one optional advanced section, a visible summary of active model/
-  research overrides and an honest **Other API** label. Custom formats open their required
-  setup controls. Existing choices, keys, routing and medium defaults are preserved.
-  [PR #96](https://github.com/UtkuDenizAltiok/jobcu/pull/96) is verified merged at `61e6d9c`;
-  exact merged-main Mac/Windows/privacy CI `37984746346` passed.
-- The [earlier Go reassessment](ENGINEERING.md#go-feasibility-and-interruption-continuity--2026-10-09)
-  keeps Go as a viable host candidate; its trial ordering is superseded by the broader decision
-  above. Preserve working Gemini medium meanwhile. Several candidates support documents,
-  structured output and research features; shared limits alone do not reject one daily search.
-  This supersedes interpreting the earlier do-not-buy-now wording as permanent exclusion or
-  claiming all 32 models are unable to do Jobcu's work. No candidate's matching superiority is
-  measured. Intended-use fit, hosted research/fees and labelled quality remain adoption checks.
-  [PR #98](https://github.com/UtkuDenizAltiok/jobcu/pull/98) is verified merged at `fae35e2`;
-  exact merged-main Mac/Windows/privacy CI `37989205909` passed. Git object and read-only
-  saved-search integrity checks found no interruption damage or newer unfinished search.
-- The owner delegates technical decisions and explicitly raised the total ceiling to EUR30/
-  month, superseding EUR25 and the larger proposal. Preserve working settings/keys and limits.
-  No new purchase, top-up, provider switch, paid test, new search or further account edit was
-  made. The earlier EUR10 Maps / EUR15 AI split is not an implemented allocation or invoice.
-- Go's public billing code confirms weighted shared subscriber counters across models, not
-  independent pools. Dated reset rules/arithmetic, complete 32-model assessment, terms and
-  exact permission/quality dependencies live in [SOURCES](SOURCES.md#opencode-go-and-ai-credit-eligibility).
-  Model count and cached coding-request estimates do not prove daily Jobcu capacity or accuracy.
-  Gemini prepaid credit cannot pay for Maps. The targeted Maps daily-quota correction is already
-  verified privately; live post-change route/fit quality is not yet measured.
-- [PR #95](https://github.com/UtkuDenizAltiok/jobcu/pull/95) is verified merged at `d4ac53c`;
-  exact merged-main Mac/Windows/privacy CI `37979826008` passed. Custom Chat Completions,
-  Responses/Messages, explicit thinking controls and separate research are available. See
-  the [complete assessment](ENGINEERING.md#complete-catalogue-and-universal-api-decision--2026-10-09).
-- [PR #93](https://github.com/UtkuDenizAltiok/jobcu/pull/93) is verified merged at `597701d`;
-  exact merged-main Mac/Windows/privacy CI `37969222262` passed. Integration ease and vendor
-  effort labels are not quality verdicts. The [additional model assessment](ENGINEERING.md#additional-model-assessment--2026-10-09)
-  puts MiMo Pro alongside GPT-6 Luna in the first comparison, with DeepSeek V4.1 Flash and
-  GLM-5.3 also serious candidates. No evidence establishes Gemini's matching superiority.
-- [PR #92](https://github.com/UtkuDenizAltiok/jobcu/pull/92) is verified merged at `8a5b132`;
-  exact merged-main Mac/Windows/privacy CI `37963987419` passed. Its publication is complete.
-- The Maps correction is merged in [PR #90](https://github.com/UtkuDenizAltiok/jobcu/pull/90)
-  at `3d8cb30`; exact main Mac/Windows/privacy CI `37914682388` passed.
-  Per-route service errors, missing/invalid answers and unchecked alternatives stay uncertain
-  rather than proving a travel failure. Valid partial Maps times remain; fallback estimates
-  have per-town attribution and only AI values enter AI memory. Explicit no-route results
-  remain distinct. Known access/persistent quota refusals stop later requests; limits stay intact.
-- Existing condition edits reuse sufficient readings; routing version 3 refreshes old Maps
-  entries that could not distinguish errors from no route. Historical result snapshots and
-  scoring criteria are preserved. Every AI step still defaults to medium.
-- [PR #91](https://github.com/UtkuDenizAltiok/jobcu/pull/91) is merged at `d5a1a1d`;
-  exact main Mac/Windows/privacy CI `37923012101` passed. The Maps spending question has a documented
-  [recommendation](ENGINEERING.md#maps-spending-proposal--2026-10-09), public price/SKU/control
-  evidence and fictional cost scenarios. Retain Google for now; diagnose actual quota/access
-  and protect uncertain negative travel evidence before enlarging usage. A proposed EUR10
-  Maps allocation proposed under the earlier EUR25 total remains provisional pending account/
-  combined-workload checks; willingness to pay does not establish sufficient headroom.
-  No billing, quota, setting, provider or filtering change was made.
-  That account dependency was subsequently inspected and a targeted correction verified;
-  post-change live route/search success and fit quality remain unmeasured.
-- Earlier route checks passed: **1,125 tests**, Ruff, privacy, whitespace, document links and complete
-  diff review, plus an isolated startup self-test that stopped and removed its disposable data.
-  Fictional cases cover all 30 countries, engineering/teaching/nursing, partial/malformed data,
-  Maps/AI attribution, persistence, limits and two full engineering/library search pipelines.
-  [Before/after evidence and limits](ENGINEERING.md#partial-route-outcomes--2026-10-09) distinguish
-  application correctness from unmeasured live route/fit quality, coverage, cost and latency.
-- Public Routes/Ashby/Lever documentation, Maps policy/limits/prices and source contribution
-  alternatives were researched; dated facts and hypotheses live in SOURCES. No source was
-  added/removed on insufficient evidence. No new job search, paid call or live vacancy fetch
-  occurred. Owner search data, settings, limits, keys and authorization are untouched.
-- [PR #89](https://github.com/UtkuDenizAltiok/jobcu/pull/89) is merged at `786ccf2`; exact main
-  Mac/Windows/privacy CI `37907028979` passed. Its session workflow remains current: Start
-  prepares/recovers and waits; Review/Deep improvement use the prepared chat; End parks safely.
-- Prior app changes are merged: [PR #86](https://github.com/UtkuDenizAltiok/jobcu/pull/86)
-  added confirmed resets and optional Settings → Review results; [PR #87](https://github.com/UtkuDenizAltiok/jobcu/pull/87)
-  corrected Greenhouse original-date evidence and reader-version cache recovery. Historical
-  snapshots keep their original scores/date labels. Reset preserves settings, keys, assistant
-  authorization and real usage counters; full reset deletes review evidence/checkpoints.
-- Last observed owner app state in this Deep improvement: running (8765). The owner opened it;
-  the assistant preserved it. The read-only saved run/usage is unchanged, with no newer unfinished
-  attempt. The isolated fictional preview at
-  8799 is stopped, its tab closed and disposable data removed. Authorized saved evidence and
-  checkpoints stay private; owner data/settings are preserved. Recheck actual app state once
-  on resume and preserve the owner's choice.
+### Current behavior to preserve
+
+| Area | Current record |
+|---|---|
+| AI errors, reasoning and complete answers | [Narrow reasoning recovery](ENGINEERING.md#reasoning-preserving-request-recovery--2026-10-15) preserves chosen effort on unrelated errors; [billing/Stop recovery](ENGINEERING.md#ai-billing-refusals-stop-and-incomplete-usage--2026-10-12) distinguishes refusals, waits and unknown usage. |
+| Original ads and discovery | [Separate ad sections](ENGINEERING.md#original-ad-section-recovery--2026-10-15) reach matching/scoring; [discovery recovery](ENGINEERING.md#employer-discovery-recovery-and-service-choices--2026-10-10) preserves successful countries/employers and retries incomplete ones. Scoped source holds remain. |
+| Reference cities and travel | [Finite city evidence](ENGINEERING.md#finite-reference-evidence-and-source-recovery--2026-10-15) gates eligible living/reference cities before travel. [Wednesday timing and reuse](ENGINEERING.md#original-evidence-and-repeated-requests--2026-10-12) retain evidence identity and service-specific storage limits. |
+| Scores, duplicates and links | [Task focus/confidence](ENGINEERING.md#task-focus-and-scoring-confidence--2026-10-14) and [duplicate/reference boundaries](ENGINEERING.md#duplicate-boundaries-and-reference-eligibility--2026-10-15) preserve owner score limits, independent vacancy identity and supported originals. Required aggregator routes remain available. |
+| Unchanged setup | [Exact setup reuse](ENGINEERING.md#search-preparation-reuse-and-connection-clarity--2026-10-14) covers documents, raw box text, model/host/controls and prompt identity; editing even one letter invalidates relevant reuse. Fresh facts, jobs and scores remain separate. |
 
 ### In progress
 
-**Whole-pipeline quality, coverage and complete-cost improvement — 2026-10-12.**
-Prior free work, including PR #114's owner scoring adjustment, is fully published and verified;
-receipts are in Right now. The bounded provider comparison remains blocked below. Do not
-reopen completed work or rerun unchanged checks.
+**No unfinished product implementation or local checks.** Session-close housekeeping consists
+of this concise handover, reconciled private pointers and disposable validation-cache cleanup;
+its branch/PR/CI status and exact publication action are in the private closing checkpoint.
+Do not reopen completed repairs or start backlog work during Start.
 
-Saved pre-header provider failures still lack transport/account evidence identifying the cause.
-The subsequently authorized bounded native-generation diagnostic is complete (Right now);
-its two passing requests did not reproduce the longer research-path interruption. No additional
-short generation test is pending. Exact next diagnostic action: verify the hosted-research
-display/suggestions, retention and reuse contract, then prepare a fictional reproduction of
-the interrupted request class through `AIClient` on an isolated copy. Any research-path test
-must fit the remaining authorized request/spend limits and monthly headroom, including all
-query charges; do not request the same authorization again. Retain request phases, complete
-answers and failed/known usage. Preserve checks and medium effort; no provider or transport change is justified
-by a timeout hypothesis. The private current handover records this dependency; no owner search
-is pending automatically.
+The earlier whole-pipeline review has only these **parked dependencies**:
 
-**Direct-destination dependency — owner continuation, 2026-10-14:**
-The justified free improvement in PR #118 is fully published and verified (Right now).
-Its stale publication checkpoint is cleared; the permission dependency remains parked.
-Automatically resolving and replacing Adzuna's supplied advertiser route remains blocked:
-its schema requires that route and does not supply the final host; blocked pages cannot be
-probed. Exact next action only if that scope is reopened with Adzuna's explicit permission:
-verify its permitted destination interface, retention/attribution/request rules, then implement
-bounded redirect handling with fictional failure/privacy regressions. Preserve the required
-route meanwhile. No private redirect, new search, paid call or owner-state change is authorized.
-
-Private `assistant-review-checkpoint.json` points to `active_completed_review`: the latest
-finished attempt has a balanced blinded review including every top card, original run-boundary
-measurements, detailed cost components and supported assistant labels. Owner/legacy ratings,
-settings, marks and historical results were preserved. Owner-identified unusable
-application routes were reported with the owner's authorization; no opaque destination was fetched.
-Missing original evidence, unresolved reference facts, incomplete billed usage and an eligible
-independent benchmark prevent broader quality, recall or invoice claims. No newer unfinished
-attempt was found at review. Publication receipts are saved privately and disposable scratch is
-removed; preserve owner app 8765 and private authorization/evidence.
-
-**Dependency after publication:** a direct API key entered only in Jobcu and owner authorization
-for a **EUR5 total** fictional paired comparison within the existing EUR30 monthly ceiling.
-[Market/rights/fees](SOURCES.md#api-market-and-reuse-update--2026-10-12) selects direct MiMo Pro
-as the one challenger, with factual/document/latency counterevidence. Keep working medium settings
-and fresh cited research. Its coding Token Plan explicitly excludes this app; do not buy it.
-The assistant owns execution/judgement; no model-shopping, owner ratings or new search is needed.
-
-Remaining authorized scope is conditional preparation only: recheck standing authorization,
-revocations and the private checkpoint, exact model/API/use/rights/fees and remaining total
-headroom before any call. The packet has 30 balanced fictional cases, six ambiguous repeats
-and separately gated hosted research. Unknown charges/outcomes or any quality/coverage regression
-stop the comparison and block adoption. Protected source evidence must not move before its
-rights are resolved. Exact next paid action, only when those dependencies are satisfied: verify
-the frozen packet against the current task-focus policy and run the first paired five-ad
-fictional batch through `AIClient` on an isolated copy, saving complete answers and token/tool/failed usage before continuing inside the
-ceiling. No calls are authorized yet. Otherwise retain this dependency and wait for owner input.
-
-### Verify before relying on
-
-- Discovery: completion/retry behavior is verified offline, not live recall. The next normal
-  launch loads the change and may recheck ambiguous legacy timestamps once within existing
-  limits. No additional job search or owner-data reset is required for development.
-- Direct API challengers: [broader catalogue, native controls and hosted research](SOURCES.md#public-api-market-and-quality-evidence--2026-10-10)
-  do not establish fit equivalence or total bills. Exact model/version/tool response support,
-  independent outcomes and half/equal/double demand comparisons are adoption gates. A bounded
-  paid-test budget and an account key entered only in Jobcu remain required before paid work.
-- Provider change: current Go permission/tool/protocol/medium support, real token/tool workload,
-  shared limits and bounded labelled comparison remain unverified. Existing Gemini credit is
-  not a Maps allowance. Do not promise accuracy, savings or full daily capacity from the tables.
-- Before a private review, recheck authorization/revocations and the private review checkpoint.
-  The earlier `score_review_resume` is a dated review, not a current quality judgement. Verify
-  saved evidence still exists, especially after an owner reset. No data reset is authorized here.
-- Freshness: other adapters still need original-date audits. A first post date is not proof of
-  a new underlying requisition; the three-day cache and full-text reader-selection gate can
-  leave temporal metadata unchecked. Unknown/secondary-board dates remain incomplete proof.
-- Ranking/title screening: incomplete originals and independent top-card/early-title labels
-  limit accuracy claims. Scores/counts are not hiring odds or recall measurements.
-- Coverage: an independent date-verified 15–25-job benchmark remains, in AGENTS' country order.
-  Source value includes unique jobs, better evidence and backup coverage, not total ad counts.
-- Maps: per-element uncertainty is covered by fictional regressions; live route accuracy
-  remains unmeasured. AI negative estimates and complete negative city samples can still
-  reject jobs. City-edge/centre sampling is approximate. Price/cap changes need the actual
-  account controls, reset alignment and forecast before changing any further allowance. Daily
-  quota/SKU/billing were verified privately; post-change live success/accuracy remains untested.
-- Live timing/ranking comparisons need bounded authority/current prices. Spare assistant usage
-  grants no private APIs, spending, site logins or new/background searches.
-- A fresh Windows installation/upload/search walkthrough remains untested; launcher CI is narrower.
+1. **Long research-request interruptions.** Saved failures ended before response headers;
+   their provider/network cause is unproved. The short generation diagnostic is complete.
+   Exact next action if this diagnostic is resumed: verify hosted-search display/suggestions,
+   retention/reuse and bounded full token/query charges, then freeze a fictional reproduction
+   of that request class through `AIClient` on isolated scratch. Respect the existing private
+   authority and remaining monthly/request limits; no new call is scheduled by this handover.
+2. **Provider comparison.** A direct challenger key entered only in Jobcu and a bounded
+   paired-comparison budget remain dependencies of the separate proposal, not of ordinary
+   use. [Current decision and counterevidence](ENGINEERING.md#quality-first-api-and-electronics-coverage-decision--2026-10-10)
+   select one comparison hypothesis; the coding Token Plan excludes this app. Exact next
+   action once its account/budget/rights gates are met: refresh the frozen fictional packet
+   against current scoring policy, then run the first paired five-ad batch with complete
+   answers and full usage. Any observed regression blocks adoption; missing evidence is
+   not equivalence. Keep the working configuration meanwhile.
+3. **Opaque Adzuna destinations.** Independently collected matching employer originals are
+   already preferred. Automatic replacement/probing of the supplied advertiser route needs
+   Adzuna's explicit permission and a permitted interface. Exact next action only after that
+   permission: verify destination, retention/attribution and request rules before implementing
+   bounded handling. No login, blocked-host probe or bypass is authorized.
+4. **Go hosted use/tools.** Previously authorized support questions are already sent; retain
+   their private receipts and await clarification. No duplicate message, purchase or provider
+   switch is pending. Intended use, complete fees, native controls and independent fit outcomes
+   must be verified before adoption; shared limits alone do not reject a provider.
 
 ### Waiting on the owner
 
-- Go adoption is deferred, not rejected. The [generic support question](guides/getting-your-keys.md)
-  was sent with explicit instructions in two independent places; no further post is needed.
-  Await provider clarification of intended-use fit and hosted tools/fees. Subsequent adoption
-  needs a key entered only in Jobcu and an explicitly bounded fictional matching comparison.
-  Hosted custom research is currently disabled by an
-  integration guard; positive reports justify verification. Do not infer new paid-test authority
-  or start another search for this investigation.
-- Keep one working Gemini model at medium; no Go purchase, replacement key or model choice is
-  needed for the working setup. Go remains a candidate. The relevant Maps account investigation
-  and targeted daily-quota correction are
-  complete; no further payment/quota homework is needed for that correction. The next normal
-  on-demand search can provide post-change evidence. Its monthly attempt allowance still
-  applies; this is not a promise of measured journeys on every daily search.
-- The owner approved EUR30/month total; no larger ceiling or particular allocation is approved.
-  The separately bounded native-generation diagnostic is complete and its usage recorded;
-  no app-limit change was made. A different live diagnostic or model comparison needs its
-  own bounded scope and budget. No extra provider key is needed
-  until its integration path and trial scope are ready.
-  The assistant chooses technical options; the owner need only decide actual spending and
-  perform required account steps. No rating homework or reset is required.
-- In a fresh local chat use [Start](PROMPTS.md#start-a-session), then send
-  [Review](PROMPTS.md#review-a-search) after a completed search or
-  [Deep improvement](PROMPTS.md#deep-improvement) without needing a new search. Use
-  [End](PROMPTS.md#end-a-session) before closing the chat. Neither work prompt repeats startup.
-- No new keys/settings or rating homework is required; Jobcu may be open or closed during
-  development. New backend changes load on the next owner-initiated launch. When ready to
-  search, use **24 hours** on demand within existing limits; no new search is required here.
-- [Reset scopes](guides/first-search.md#clear-data-and-start-fresh) explain deletion/preservation.
-  Only reset deliberately; a full reset requires uploading documents again. Optional
-  **Settings → Review results** remains available for your own feedback.
+Run the next search on demand with **24 hours** and existing frequency/service limits when
+ready, then bring its completed results to the next chat. No reset or replacement key is
+needed. The assistant has no scheduled search, reminder or further paid work from this End.
 
-### Next tasks
+1. Open a fresh **local chat in this repository's project** and use
+   [Start](PROMPTS.md#start-a-session). It verifies/reconciles this handover and waits;
+   it does not begin a private review, new search, paid call or backlog task.
+2. After the owner's next search finishes, use [Review](PROMPTS.md#review-a-search).
+   Follow [CONTRIBUTING](../CONTRIBUTING.md#review-a-completed-search) on authorized isolated
+   evidence: find the latest completed attempt, flag a newer unfinished attempt and reuse
+   only unchanged saved judgements. Do not repeat the previous completed review as preparation.
+3. Check full ads/documents/criteria independently before scores, including every top card
+   and the balanced 30–50-ad sample. Investigate new warnings, missing evidence, duplicate
+   identity, exclusions, travel, ranking and explanations across the pipeline. Use recorded
+   run boundaries and separate corrections, retries, answer waits and cumulative usage.
+4. Select and finish the strongest supported improvement with fictional regressions and
+   required publication checks. Counts alone prove neither accuracy nor coverage; leave
+   missing evidence unknown and keep detailed real evidence outside Git. No extra search or
+   paid experiment is granted by Start, End or the ordinary Review prompt.
 
-Candidates for an owner-requested development task, not automatic work during Start:
+### Verify before relying on
 
-1. In an owner-requested Maps development task, reproduce estimated/sampled negative travel
-   exclusions and keep incomplete evidence unknown through filtering/scoring. Then inspect
-   authorized saved diagnostics before any proposed quota increase. The next free reproduction
-   belongs in `travel.answer`, its filter callers and scoring background; use fictional jobs.
-2. Reproduce unresolved source-place exclusions, including regions and multiple locations;
-   verify affected permissions and preserve unknowns before changing the helper.
-3. Continue original-date audits in other adapters, including future timestamps and metadata
-   skipped when another copy provides full text. Keep unknowns rather than cut counts.
-4. Recover originals/independent labels, review unknown top cards and title rejections, then
-   trace an independent date-verified coverage sample. Do not tune to one ad or score distribution.
-5. Compare new/existing methods and structured public APIs for unique useful jobs, original
-   evidence, country/profession gaps and reliability. Ashby metadata recovery is complete.
-   Prioritize [electronics employer references and unread systems](SOURCES.md#electronics-employer-and-specialist-coverage--2026-10-10)
-   in country order; remote-only expansion has low priority. Reference names do not prove
-   active jobs, collection permission or misses through other sources.
-   [Jobicy](SOURCES.md#employer-feeds-and-remote-candidates--2026-10-10) is a remote-feed
-   candidate; verify host rules, eligibility/original dates and contribution before adding it.
-   Improve/add/replace/remove based on terms and evidence; private/internal endpoints need
-   documented authority. Held portals need permission before automated collection.
-6. Review repeated/slow work on saved evidence; paired live tests need bounded authorization.
-   A fresh Windows beginner walkthrough remains later free work.
+- Live provider availability, route accuracy, matching quality, net savings and whole-market
+  recall are not established by offline tests or a few successful native-generation requests.
+- Missing original ads/reference facts, incomplete billed usage and an independent dated
+  benchmark limit historical quality/coverage and invoice claims. Optional ratings do not
+  automatically train AI. Retain owner/legacy ratings and the prior blinded review.
+- Routes use sampled city-edge/centre destinations. Unchecked alternatives and service errors
+  must not become proven travel failures. Never persist Google route durations as unrestricted
+  cross-search memory; AI estimates have their separate identity/expiry rules.
+- Posting-date audits, region/multiple-location exclusions and uncertain negative travel
+  decisions still need targeted evidence in an authorized development task. The remaining
+  freshness concern includes metadata skipped when another copy already supplies full text.
 
 ### Known limitations
 
-- Historical snapshots retain old evidence; summaries, unknown posting dates and unchecked
-  conditions remain incomplete proof. Optional ratings do not automatically train AI.
-- Opaque application destinations and final-host checks remain unverified. A changed redirect
-  needs a new report; undo restores retained links, while an omitted vacancy may need the next
-  on-demand search. An alternative link does not prove registration access.
-- Maps edge/centre samples are approximate. Correction timings cover the latest correction;
-  usage accumulates. Token cost estimates can omit fees/discounts and are not invoices.
-- A failed final save can lose visible results on closing; earlier saved searches remain.
+- Stop interrupts retry/queued waits; an already running synchronous provider request can
+  still take time to return. Do not describe this as complete in-flight cancellation.
+- Opaque final destinations and registration/access eligibility remain unknown without
+  permitted original evidence. A failed final save can lose the unsaved visible results;
+  previously saved searches remain. Token estimates may omit fees/discounts and are not invoices.
+- A fresh Windows beginner install/upload/search walkthrough remains untested; launcher CI
+  covers a narrower behavior. No setup or owner-app restart is needed merely to review data.
+
+### Next tasks
+
+Candidates only for a new owner-directed development task; not instructions during Start/End:
+
+1. Reproduce uncertain negative travel decisions and region/multiple-location exclusions,
+   preserving unknowns and source permissions before filtering changes.
+2. Audit original posting dates and skipped metadata; recover permitted missing originals,
+   independent top-card/title-screen judgements and a dated coverage benchmark.
+3. Measure unique relevant jobs, better evidence and backup value of permitted sources in
+   AGENTS' country/profession order before adding/removing methods. Prioritize electronics
+   employer originals; remote-only expansion remains low priority. [Source leads](SOURCES.md#electronics-employer-and-specialist-coverage--2026-10-10)
+   and [Jobicy](SOURCES.md#employer-feeds-and-remote-candidates--2026-10-10) require current rights,
+   freshness and contribution evidence; reachable/internal endpoints grant no collection right.
+4. Investigate repeated/slow work from saved phases and failures; any different paid test
+   needs a bounded scope within existing authority and limits. Complete the Windows walkthrough
+   when a task calls for it.
