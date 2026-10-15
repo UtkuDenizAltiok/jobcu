@@ -878,6 +878,25 @@ Preserve medium thinking and necessary evidence; verify completed answers, metad
 behavior rather than claim savings from a different transport alone. Existing service terms,
 pricing, allowance and endpoint identities still apply; this adds no job source or access right.
 
+### Native reasoning refusals — 2026-10-15
+
+**Checked 2026-10-15.** The official [OpenAI reasoning guide](https://developers.openai.com/api/docs/guides/reasoning)
+distinguishes the requested reasoning effort, model defaults and billed reasoning tokens.
+Omitting the setting is not a general proof of equal effort. Google's
+[Generate Content thinking guide](https://ai.google.dev/gemini-api/docs/generate-content/thinking.md)
+uses `thinking_config.thinking_level`, lists different supported levels and model defaults,
+and distinguishes Gemini 2.5's budget control. This is the Generate Content contract Jobcu
+uses; Interactions controls are not interchangeable.
+
+Anthropic's [effort guide](https://platform.claude.com/docs/en/build-with-claude/effort) and
+[thinking troubleshooting](https://platform.claude.com/docs/en/build-with-claude/thinking-troubleshooting)
+distinguish whole-control support from rejected levels, thinking modes and per-turn effort.
+A rejection of one value or combination does not mean the model lacks all effort controls.
+These documents establish request distinctions, not every provider error's exact wording,
+quality equivalence or live account availability. Jobcu's narrow refusal classifier is checked
+with fictional SDK error payloads; unrecognized refusals preserve the requested setting.
+See [implementation and limits](ENGINEERING.md#reasoning-preserving-request-recovery--2026-10-15).
+
 ### Maps request limits and recovery
 
 **Per-route outcomes rechecked 2026-10-09:** Google's [matrix reference](https://developers.google.com/maps/documentation/routes/reference/rest/v2/TopLevel/computeRouteMatrix)

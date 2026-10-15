@@ -28,7 +28,6 @@ from jobcu.ai.base import (
     MSG_NO_WEB_SEARCH,
     MSG_RATE_LIMITED,
     AIAuthError,
-    AIBadRequest,
     AIConnectionError,
     AIError,
     AIInvalidOutput,
@@ -36,6 +35,7 @@ from jobcu.ai.base import (
     AIOutputTruncated,
     AIQuotaExhausted,
     AIRateLimited,
+    AIReasoningUnsupported,
     AIUnavailable,
     AIWebSearchUnavailable,
     ProviderAdapter,
@@ -79,7 +79,7 @@ def with_thinking_room(max_output_tokens: int, effort: Effort | None) -> int:
 
 
 class AIClient:
-    # Models that rejected a reasoning setting, remembered while Jobcu runs.
+    # Explicitly unsupported native reasoning controls with a successful fallback.
     _effort_unsupported: ClassVar[set[tuple[str, str]]] = set()
 
     def __init__(
@@ -267,11 +267,11 @@ class AIClient:
                     raise
                 self._wait(min(5 * 2 ** (outage_retries - 1), 60), exc)
                 continue
-            except AIBadRequest:
+            except AIReasoningUnsupported:
                 if getattr(adapter, "strict_reasoning", False):
                     raise
                 if effort is not None:
-                    # Many models don't accept reasoning settings: try once without.
+                    # Only a definite control refusal permits this compatibility retry.
                     effort, effort_dropped = None, True
                     continue
                 raise
@@ -282,12 +282,10 @@ class AIClient:
                 max_output_tokens *= 2
                 continue
 
-            if effort_dropped:
-                self._effort_unsupported.add((provider, model))
             self._record(step, provider, model, reply.usage)
             self.checkpoint()
             try:
-                return output.model_validate(extract_json(reply.text))
+                answer = output.model_validate(extract_json(reply.text))
             except (ValueError, ValidationError) as exc:
                 if repair_used:
                     raise AIInvalidOutput(
@@ -300,6 +298,10 @@ class AIClient:
                     f"{prompt}\n\nIMPORTANT: your previous answer did not follow the required "
                     "JSON format. Answer again with only valid JSON in exactly that format."
                 )
+                continue
+            if effort_dropped:
+                self._effort_unsupported.add((provider, model))
+            return answer
 
     def _web_search_cap(self) -> int:
         cap = self.settings.limits.web_search_cap
@@ -412,6 +414,7 @@ class AIClient:
                 (provider, model) in self._effort_unsupported):
             effort = None
         waits = outages = 0
+        effort_dropped = False
         while True:
             try:
                 with self._request(step, provider, model, research=True):
@@ -422,7 +425,7 @@ class AIClient:
                     if allowed <= 0:
                         raise AILimitReached("Jobcu has used this search's allowance of web "
                                              "look-ups, including failed attempts.")
-                    return adapter.research(
+                    reply = adapter.research(
                         model=model,
                         system=system,
                         prompt=prompt,
@@ -437,12 +440,10 @@ class AIClient:
                 if first:
                     self.notify(exc.message)
                 raise
-            except AIBadRequest:
+            except AIReasoningUnsupported:
                 if effort is None or getattr(adapter, "strict_reasoning", False):
                     raise
-                # Many models don't accept reasoning settings: try once without.
-                effort = None
-                self._effort_unsupported.add((provider, model))
+                effort, effort_dropped = None, True
             except AIRateLimited as exc:
                 self._one_at_a_time()
                 waits += 1
@@ -455,6 +456,10 @@ class AIClient:
                 if not self.patient or outages > MAX_OUTAGE_RETRIES:
                     raise
                 self._wait(min(5 * 2 ** (outages - 1), 60), exc)
+            else:
+                if effort_dropped and reply.text.strip():
+                    self._effort_unsupported.add((provider, model))
+                return reply
 
     def _wait(self, seconds: float, reason: AIError) -> None:
         seconds = min(max(seconds, 1.0), MAX_WAIT_SECONDS) + random.uniform(0, 1)

@@ -27,6 +27,7 @@ from jobcu.ai.base import (
     AIOutputTruncated,
     AIQuotaExhausted,
     AIRateLimited,
+    AIReasoningUnsupported,
     AIRefused,
     AIUnavailable,
     AIWebSearchUnavailable,
@@ -35,6 +36,7 @@ from jobcu.ai.base import (
     ResearchReply,
     Source,
     Usage,
+    reasoning_control_refused,
     unique_sources,
 )
 from jobcu.settings import Effort
@@ -250,6 +252,10 @@ def _translate(exc: Exception, *, web_search: bool = False) -> Exception:
             return AIModelNotFound(MSG_MODEL_NOT_FOUND, detail)
         if exc.code and exc.code >= 500:
             return AIUnavailable(MSG_UNAVAILABLE, detail)
+        if exc.code == 400 and reasoning_control_refused(exc.message, (
+                "thinking", "thinking level", "thinking_level", "thinkingLevel",
+                "thinking_config", "thinkingConfig")):
+            return AIReasoningUnsupported(MSG_BAD_REQUEST, detail)
         return AIBadRequest(MSG_BAD_REQUEST, detail)
     if isinstance(exc, httpx.TransportError):
         return AIConnectionError(MSG_CONNECTION, detail)

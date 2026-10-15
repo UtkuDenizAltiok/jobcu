@@ -72,6 +72,37 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Record step time and answer-wait time; label correction timings separately from cumulative usage. | Corrections and full searches cannot be compared as equivalent performance runs (2026-10-06). |
 | Warn when scoring reads only an excerpt of a lengthy ad. | Unseen requirements must not be assumed satisfied (2026-10-06). |
 
+## Reasoning-preserving request recovery — 2026-10-15
+
+Native adapters previously treated every bad request as a possible unsupported reasoning
+control. An unrelated schema, input-size or tool error could trigger a second request without
+the chosen effort and remember that omission for later requests/searches. Research remembered
+it even before the fallback succeeded. Six fictional generation/research controls reproduced
+the unrelated-error behavior before this repair; this is not evidence of a real-run HTTP 400.
+
+Adapters now classify a separate `AIReasoningUnsupported` only from an explicit whole-control
+refusal in the provider's error message, or an OpenAI unsupported-parameter code naming that
+control. Classification does not scan diagnostic envelopes, quoted schema fields or private
+request content. Unsupported effort values, conditional thinking/tool errors and unrecognized
+wording remain bad requests. Custom protocols retain their strict reasoning contract.
+The [current native contracts](SOURCES.md#native-reasoning-refusals--2026-10-15) distinguish
+control support from supported levels and provider defaults; they do not establish error
+wording for every model or host.
+
+| Fictional behavior | Before | After |
+|---|---|---|
+| Unrelated native bad request | Retry without effort; later requests can inherit the omission | One dispatch; preserve medium on later requests and fresh clients |
+| Explicit whole-control refusal | Compatibility retry | One compatibility retry; a second refusal stops |
+| Failed research fallback | Unsupported-control cache written before success | No new cache entry |
+| Invalid JSON or blank research fallback | Could establish unsupported-control cache | Generation must validate; research needs nonblank text |
+
+Available usage from malformed and failed replies is still recorded. Successful genuine native
+compatibility recovery remains; complete answers, bounded outage/format retries, medium defaults
+and independent work are preserved. The request comparison proves avoidance of an inappropriate
+retry, not measured live savings, matching quality or provider/network availability. Saved
+pre-header disconnects lack the transport evidence needed to identify their cause. No paid
+call, new search, service limit, provider/account/network change or owner-app restart was used.
+
 ## Original-ad section recovery — 2026-10-15
 
 The common JobPosting reader now retains separately supplied responsibilities, skills,

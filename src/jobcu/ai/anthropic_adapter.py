@@ -21,6 +21,7 @@ from jobcu.ai.base import (
     AIOutputTruncated,
     AIQuotaExhausted,
     AIRateLimited,
+    AIReasoningUnsupported,
     AIRefused,
     AIUnavailable,
     ProviderAdapter,
@@ -29,6 +30,7 @@ from jobcu.ai.base import (
     Source,
     Usage,
     parse_retry_after,
+    reasoning_control_refused,
     unique_sources,
 )
 from jobcu.settings import Effort
@@ -153,6 +155,11 @@ def _translate(exc: Exception) -> Exception:
             return AIQuotaExhausted(MSG_QUOTA, detail)
         if exc.status_code == 529 or exc.status_code >= 500:
             return AIUnavailable(MSG_UNAVAILABLE, detail)
+        body = exc.body if isinstance(exc.body, dict) else {}
+        error = body.get("error", body)
+        if exc.status_code == 400 and isinstance(error, dict) and reasoning_control_refused(
+                error.get("message"), ("effort", "output_config.effort")):
+            return AIReasoningUnsupported(MSG_BAD_REQUEST, detail)
         return AIBadRequest(MSG_BAD_REQUEST, detail)
     if isinstance(exc, (anthropic.APIConnectionError, anthropic.APITimeoutError)):
         return AIConnectionError(MSG_CONNECTION, detail)

@@ -14,6 +14,7 @@ from jobcu.ai.base import (
     AIModelNotFound,
     AIQuotaExhausted,
     AIRateLimited,
+    AIReasoningUnsupported,
     AIUnavailable,
     AIWebSearchUnavailable,
 )
@@ -114,6 +115,68 @@ def test_gemini_per_minute_limit_keeps_suggested_wait():
     )
     result = gemini_adapter._translate(error)
     assert isinstance(result, AIRateLimited) and result.retry_after == 31
+
+
+@pytest.mark.parametrize("provider, message, unsupported", [
+    ("gemini", "Thinking level is not supported for this model.", True),
+    ("gemini", "thinking level not supported", True),
+    ("gemini", "This model does not support thinking.", True),
+    ("openai", "Unsupported parameter: 'reasoning.effort' is not supported with this model.",
+     True),
+    ("anthropic", "This model does not support the effort parameter.", True),
+    ("anthropic", "output_config.effort is not supported for this model.", True),
+    ("gemini", "Thinking level MEDIUM is not supported for this model.", False),
+    ("gemini", "Invalid schema: property 'thinking' is not supported.", False),
+    ("gemini", "Invalid JSON payload: unknown field thinking_config in response_schema.", False),
+    ("gemini", "thinking level not supported when combined with this tool", False),
+    ("openai", "Unsupported value: 'medium' is not supported with this model.", False),
+    ("openai", "Invalid schema 'reasoning': unsupported type.", False),
+    ("openai", "Unsupported parameter: 'tools' is not supported with this model.", False),
+    ("anthropic", "output_config.effort 'medium' is not supported on this model.", False),
+    ("anthropic", "adaptive thinking is not supported on this model", False),
+    ("anthropic", "effort is not supported when thinking is disabled", False),
+    ("anthropic", "output_config.effort requires a model that supports per-turn effort; "
+     "this model does not", False),
+])
+def test_native_reasoning_refusals_must_identify_the_whole_control(provider, message, unsupported):
+    if provider == "gemini":
+        error = _gemini_error(400, "INVALID_ARGUMENT", message)
+        result = gemini_adapter._translate(error)
+    elif provider == "openai":
+        error = openai.BadRequestError(message, response=_response(400),
+                                      body={"message": message})
+        result = openai_adapter.translate_openai_error(error)
+    else:
+        error = anthropic.BadRequestError(message, response=_response(400), body={
+            "error": {"type": "invalid_request_error", "message": message},
+        })
+        result = anthropic_adapter._translate(error)
+    assert isinstance(result, AIBadRequest)
+    assert isinstance(result, AIReasoningUnsupported) is unsupported
+    assert result.detail == str(error)
+
+
+@pytest.mark.parametrize("code, param, unsupported", [
+    ("unsupported_parameter", "reasoning", True),
+    ("unsupported_parameter", "reasoning.effort", True),
+    ("unsupported_parameter", "tools", False),
+    ("unsupported_value", "reasoning.effort", False),
+    ("invalid_json_schema", "text.format.schema", False),
+])
+def test_openai_structured_error_identity_is_distinct_from_unsupported_values(code, param,
+                                                                            unsupported):
+    error = openai.BadRequestError("Request refused", response=_response(400), body={
+        "code": code, "param": param, "message": "Request refused",
+    })
+    result = openai_adapter.translate_openai_error(error)
+    assert isinstance(result, AIReasoningUnsupported) is unsupported
+
+
+def test_gemini_diagnostics_cannot_reclassify_a_schema_failure_as_reasoning_refusal():
+    error = _gemini_error(400, "INVALID_ARGUMENT", "Invalid JSON schema", [{
+        "description": "thinking level not supported",
+    }])
+    assert type(gemini_adapter._translate(error)) is AIBadRequest
 
 
 @pytest.mark.parametrize("error", [

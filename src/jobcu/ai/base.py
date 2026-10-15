@@ -4,6 +4,7 @@ Each provider adapter turns its provider's answers and errors into these common
 types, so the rest of Jobcu never needs to know which provider is in use.
 """
 
+import re
 import threading
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -102,6 +103,28 @@ class AIConnectionError(AIUnavailable):
 
 class AIBadRequest(AIError):
     pass
+
+
+class AIReasoningUnsupported(AIBadRequest):
+    """The provider explicitly rejects the reasoning control, rather than its value."""
+
+
+def reasoning_control_refused(message: object, controls: tuple[str, ...]) -> bool:
+    """Recognize whole control refusals, never quoted schema fields or unsupported levels.
+
+    Only inspect the provider's error message, not the diagnostic envelope or request text.
+    Unrecognized wording remains a normal bad request; guessing would change reasoning.
+    """
+    if not isinstance(message, str):
+        return False
+    control = r"[`'\"]?(?:" + "|".join(re.escape(name) for name in controls) + r")[`'\"]?"
+    subject = rf"{control}(?: (?:parameter|setting))?"
+    return bool(re.fullmatch(
+        rf"(?:(?:unsupported (?:parameter|setting):\s*)?{subject} (?:is )?not supported"
+        rf"(?: (?:for|by|with|on) (?:this|the) model)?"
+        rf"|(?:this|the) model does not support (?:the )?{subject})[.!]?",
+        message.strip(), re.IGNORECASE,
+    ))
 
 
 class AIWebSearchUnavailable(AIError):
