@@ -311,8 +311,8 @@ def finish(score: JobScore, profile: Profile, *, ad_text: str | None = None,
     if ad_text is not None:
         result["evidence"].update({
             "requirement_checks": requirements.ground(
-                score.requirement_checks, ad_text, str(profile.model_dump(
-                    exclude={"ignored_as_application_specific"}))),
+                score.requirement_checks, ad_text, profile.model_dump(
+                    exclude={"ignored_as_application_specific"})),
             "requirements_complete": complete and bool(ad_text.strip()),
             "requirement_points_proposed": parts["hard_requirements"],
         })

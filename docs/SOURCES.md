@@ -696,6 +696,22 @@ Inference: count available grounding queries, other account work and thinking be
 do not add reasoning tokens twice or present a token-only estimate as an invoice. These are
 public rates, not verified owner billing, tax, currency or remaining allowance.
 
+### Priced grounding and spend controls — 2026-10-15
+
+**Rechecked 2026-10-15:** [Google's grounding guide](https://ai.google.dev/gemini-api/docs/google-search#pricing)
+counts unique nonempty queries within each request for Gemini 3 and newer; Gemini 2.5 and
+older bill per grounded prompt. Repeated streaming metadata must not
+inflate that count; a separate request can incur the same query charge again. The
+[pricing table](https://ai.google.dev/gemini-api/docs/pricing) separately lists cached-input
+rates and grounding fees; thinking is already billed with output. Shared free allowances
+cannot be inferred from one app's ledger. Rates, models and dates remain in the section above.
+
+[Google's billing guide](https://ai.google.dev/gemini-api/docs/billing#spend-caps) documents
+experimental project spend caps in AI Studio's Spend page, with roughly ten minutes of possible
+enforcement delay and overages. Prepay balances and billing graphs have different processing
+delays. These controls are distinct from an estimated local ceiling and alerts-only Cloud
+budgets. No billing account was accessed or changed for this research.
+
 ### Processing tiers and complete cost comparisons — 2026-10-10
 
 [Gemini Flex](https://ai.google.dev/gemini-api/docs/flex-inference) offers a 50% token-price

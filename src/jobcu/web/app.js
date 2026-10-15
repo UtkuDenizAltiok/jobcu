@@ -1881,12 +1881,12 @@ const PROVIDER_NAMES = {
 
 function money(part) {
   if (part.unreported_requests) {
-    const known = part.cost ? `at least ${part.cost.toFixed(2)} ${part.currency || ""}`.trim() : "cost unknown";
+    const known = part.cost ? `estimated ${part.cost.toFixed(2)} ${part.currency || ""}`.trim() : "cost unknown";
     return `${known} (${part.unreported_requests} request(s) missing complete usage)`;
   }
-  if (!part.cost && !part.cost_is_complete) return "cost unknown (no prices saved)";
+  if (!part.cost && !part.cost_is_complete) return "cost unknown (prices or usage incomplete)";
   const amount = `${part.cost.toFixed(2)} ${part.currency || ""}`.trim();
-  return part.cost_is_complete ? `about ${amount}` : `at least ${amount}`;
+  return part.cost_is_complete ? `about ${amount}` : `estimated ${amount} (incomplete)`;
 }
 
 function tokens(count) {
@@ -1927,6 +1927,8 @@ function renderUsage() {
 }
 
 function priceRow(price = {}) {
+  const field = (label, input, className = "") => el("label",
+    { class: `price-field ${className}` }, el("span", { text: label }), input);
   const provider = el("select", { class: "price-provider" },
     ...Object.entries(PROVIDER_NAMES).map(([id, name]) =>
       el("option", { value: id, text: name, ...(price.provider === id ? { selected: "" } : {}) }),
@@ -1935,15 +1937,21 @@ function priceRow(price = {}) {
   return el(
     "div",
     { class: "price-row" },
-    provider,
-    el("input", { class: "price-model", type: "text", placeholder: "Model name",
-                  value: price.model || "", spellcheck: "false" }),
-    el("input", { class: "price-in", type: "number", min: "0", step: "0.01",
-                  placeholder: "In, per million", value: price.input_per_million ?? "" }),
-    el("input", { class: "price-out", type: "number", min: "0", step: "0.01",
-                  placeholder: "Out, per million", value: price.output_per_million ?? "" }),
-    el("input", { class: "price-currency", type: "text", placeholder: "USD",
-                  value: price.currency || "USD", size: "5" }),
+    field("Provider", provider, "price-provider-field"),
+    field("Model name", el("input", { class: "price-model", type: "text", placeholder: "Model name",
+                  value: price.model || "", spellcheck: "false" }), "price-model-field"),
+    field("Input / million", el("input", { class: "price-in", type: "number", min: "0", step: "0.01",
+                  placeholder: "In, per million", value: price.input_per_million ?? "" })),
+    field("Output / million", el("input", { class: "price-out", type: "number", min: "0", step: "0.01",
+                  placeholder: "Out, per million", value: price.output_per_million ?? "" })),
+    field("Cached input / million", el("input", { class: "price-cache", type: "number", min: "0", step: "0.001",
+                  "aria-label": "Cached input price per million tokens",
+                  placeholder: "Cached in, per million", value: price.cached_input_per_million ?? "" })),
+    field("Search / thousand", el("input", { class: "price-web", type: "number", min: "0", step: "0.01",
+                  "aria-label": "Web search price per thousand uses",
+                  placeholder: "Search, per thousand", value: price.web_search_per_thousand ?? "" })),
+    field("Currency", el("input", { class: "price-currency", type: "text", placeholder: "USD",
+                  value: price.currency || "USD", size: "5" })),
     el("button", { type: "button", class: "secondary", text: "Remove",
                    onclick: (event) => event.target.closest(".price-row").remove() }),
   );
@@ -1960,6 +1968,10 @@ function readPrices() {
       model: row.querySelector(".price-model").value.trim(),
       input_per_million: Number(row.querySelector(".price-in").value || 0),
       output_per_million: Number(row.querySelector(".price-out").value || 0),
+      cached_input_per_million: row.querySelector(".price-cache").value === ""
+        ? null : Number(row.querySelector(".price-cache").value),
+      web_search_per_thousand: row.querySelector(".price-web").value === ""
+        ? null : Number(row.querySelector(".price-web").value),
       currency: row.querySelector(".price-currency").value.trim().toUpperCase() || "USD",
     }))
     .filter((price) => price.model);

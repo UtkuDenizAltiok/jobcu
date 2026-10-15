@@ -75,18 +75,35 @@ def total_tokens(usages: list[ModelUsage]) -> int:
 def estimate_cost(usages: list[ModelUsage], prices: list[ModelPrice]) -> tuple[float, bool]:
     """Estimated cost from the user's price table.
 
-    Returns the cost of the models with a known price, and whether every model used
-    had a price (if not, the real cost is higher than the estimate).
+    Price reported usage before account allowances, taxes and other service fees. Thinking is
+    already included in output. Missing cache prices use the regular input price; missing
+    search prices omit those fees. Either omission makes the estimate incomplete.
     """
     table = {(p.provider, p.model): p for p in prices}
     cost = 0.0
     complete = True
+    currencies: set[str] = set()
     for item in usages:
         complete = complete and item.usage.unreported_requests == 0
         price = table.get((item.provider, item.model))
         if price is None:
-            complete = complete and (item.usage.input_tokens + item.usage.output_tokens == 0)
+            complete = complete and not (
+                item.usage.input_tokens or item.usage.output_tokens or item.usage.web_searches)
             continue
-        cost += item.usage.input_tokens / 1e6 * price.input_per_million
+        currencies.add(price.currency.strip().upper())
+        cached = min(max(item.usage.cached_input_tokens, 0), item.usage.input_tokens)
+        cached_price = price.cached_input_per_million
+        if cached and cached_price is None:
+            complete = False
+        cost += (item.usage.input_tokens - cached) / 1e6 * price.input_per_million
+        cost += cached / 1e6 * (price.input_per_million if cached_price is None else cached_price)
         cost += item.usage.output_tokens / 1e6 * price.output_per_million
+        if item.usage.web_searches:
+            if price.web_search_per_thousand is None:
+                complete = False
+            else:
+                cost += item.usage.web_searches / 1000 * price.web_search_per_thousand
+    if len(currencies) > 1:
+        # Adding EUR and USD has no meaningful monetary value without a chosen exchange rate.
+        return 0.0, False
     return cost, complete

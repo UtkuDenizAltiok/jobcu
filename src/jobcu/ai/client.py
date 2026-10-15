@@ -11,6 +11,8 @@ Every AI request in Jobcu goes through `AIClient.generate`, which:
 - records the tokens used
 """
 
+import hashlib
+import json
 import logging
 import random
 import threading
@@ -96,6 +98,7 @@ class AIClient:
         research_adapter: ProviderAdapter | None = None,
         checkpoint: Callable[[], None] | None = None,
         on_wait: Callable[[float], None] | None = None,
+        on_progress: Callable[[str], None] | None = None,
     ) -> None:
         self.settings = settings
         self.keys = keys or KeyStore()
@@ -107,6 +110,7 @@ class AIClient:
         self.checkpoint = checkpoint or (lambda: None)
         self._cancellable = checkpoint is not None
         self.on_wait = on_wait or (lambda seconds: None)
+        self.on_progress = on_progress or (lambda message: None)
         self._adapter = adapter
         self._session_id = str(uuid4())
         self._research_adapter = research_adapter
@@ -124,6 +128,7 @@ class AIClient:
         # gets a fresh client, so changing a model or enabling billing takes effect.
         self._web_unavailable: str | None = None
         self._quota_errors: dict[tuple[str, str], AIQuotaExhausted] = {}
+        self._failed_research: set[str] = set()
 
     @property
     def provider_id(self) -> str:
@@ -192,7 +197,7 @@ class AIClient:
                 quota = self._quota_errors.get((provider, model))
             if quota is not None:
                 raise quota
-            self._check_monthly_limit()
+            self._check_monthly_limit(provider=provider, model=model, research=research)
             try:
                 yield
             except AIError as exc:
@@ -206,7 +211,12 @@ class AIClient:
                             self.web_searches_used += usage.web_searches
                 if isinstance(exc, AIQuotaExhausted):
                     with self._gate:
+                        first = (provider, model) not in self._quota_errors
                         self._quota_errors[(provider, model)] = exc
+                    if first:
+                        # Discovery/ad checks can retain partial results after an account
+                        # refusal. Surface its reason even when their caller catches it.
+                        self.notify(exc.message)
                 raise
 
     def _one_at_a_time(self) -> None:
@@ -259,13 +269,15 @@ class AIClient:
                 if not self.patient or rate_waits > MAX_RATE_LIMIT_WAITS:
                     raise
                 self.notify(MSG_RATE_LIMITED)
-                self._wait(exc.retry_after or min(10 * 2 ** (rate_waits - 1), 120), exc)
+                self._wait(exc.retry_after or min(10 * 2 ** (rate_waits - 1), 120), exc,
+                           retry=rate_waits, maximum=MAX_RATE_LIMIT_WAITS)
                 continue
             except AIUnavailable as exc:
                 outage_retries += 1
                 if not self.patient or outage_retries > MAX_OUTAGE_RETRIES:
                     raise
-                self._wait(min(5 * 2 ** (outage_retries - 1), 60), exc)
+                self._wait(min(5 * 2 ** (outage_retries - 1), 60), exc,
+                           retry=outage_retries, maximum=MAX_OUTAGE_RETRIES)
                 continue
             except AIReasoningUnsupported:
                 if getattr(adapter, "strict_reasoning", False):
@@ -413,6 +425,17 @@ class AIClient:
         if not getattr(adapter, "strict_reasoning", False) and (
                 (provider, model) in self._effort_unsupported):
             effort = None
+        request_key = hashlib.sha256(json.dumps([
+            provider, model, system, prompt, max_searches, max_output_tokens, effort,
+        ], ensure_ascii=False).encode("utf-8")).hexdigest()
+        with self._gate:
+            failed = request_key in self._failed_research
+        if failed:
+            raise AIConnectionError(
+                "This identical online check already exhausted its connection retries in "
+                "this search. Jobcu keeps completed work and leaves missing facts unchecked; "
+                "different checks can still run."
+            )
         waits = outages = 0
         effort_dropped = False
         while True:
@@ -450,18 +473,28 @@ class AIClient:
                 if not self.patient or waits > MAX_RATE_LIMIT_WAITS:
                     raise
                 self.notify(MSG_RATE_LIMITED)
-                self._wait(exc.retry_after or min(10 * 2 ** (waits - 1), 120), exc)
+                self._wait(exc.retry_after or min(10 * 2 ** (waits - 1), 120), exc,
+                           retry=waits, maximum=MAX_RATE_LIMIT_WAITS)
             except AIUnavailable as exc:
                 outages += 1
                 if not self.patient or outages > MAX_OUTAGE_RETRIES:
+                    if self.patient and isinstance(exc, AIConnectionError):
+                        with self._gate:
+                            self._failed_research.add(request_key)
+                        self.notify(
+                            "An online check exhausted its connection retries. Jobcu won't "
+                            "repeat the identical failed check in this search; independent "
+                            "checks can continue. Failed requests may still have charges."
+                        )
                     raise
-                self._wait(min(5 * 2 ** (outages - 1), 60), exc)
+                self._wait(min(5 * 2 ** (outages - 1), 60), exc,
+                           retry=outages, maximum=MAX_OUTAGE_RETRIES)
             else:
                 if effort_dropped and reply.text.strip():
                     self._effort_unsupported.add((provider, model))
                 return reply
 
-    def _wait(self, seconds: float, reason: AIError) -> None:
+    def _wait(self, seconds: float, reason: AIError, *, retry: int, maximum: int) -> None:
         seconds = min(max(seconds, 1.0), MAX_WAIT_SECONDS) + random.uniform(0, 1)
         log.info("AI request waiting %.0fs: %s", seconds, reason.detail or reason.message)
         if isinstance(reason, AIUnavailable):
@@ -471,6 +504,8 @@ class AIClient:
                         "completed work was kept.")
         self.checkpoint()
         self.on_wait(seconds)
+        self.on_progress(f"Waiting about {seconds:.0f} seconds before AI retry {retry} of "
+                         f"{maximum}. Stop cancels waiting.")
         try:
             if not self._cancellable:
                 self.sleep(seconds)
@@ -483,6 +518,7 @@ class AIClient:
                     self.checkpoint()
         finally:
             self.on_wait(0)
+            self.on_progress(f"Retrying an AI request ({retry} of {maximum})")
 
     def _record(self, step: str, provider: str, model: str, usage) -> None:
         if self.usage_log is not None:
@@ -493,7 +529,8 @@ class AIClient:
                 self.notify("Some AI requests did not report complete usage. Jobcu's estimate "
                             "may omit charges; check the provider's billing page.")
 
-    def _check_monthly_limit(self) -> None:
+    def _check_monthly_limit(self, *, provider: str | None = None, model: str | None = None,
+                             research: bool = False) -> None:
         if self.usage_log is None:
             return
         limits = self.settings.limits
@@ -508,6 +545,24 @@ class AIClient:
                 "the AI. You can raise the limit in Settings."
             )
         if limits.monthly_cost_limit is not None:
+            prices = {(p.provider, p.model): p for p in self.settings.prices}
+            needed = {(u.provider, u.model) for u in month if (
+                u.usage.input_tokens or u.usage.output_tokens or u.usage.web_searches)}
+            if provider is not None and model is not None:
+                needed.add((provider, model))
+            currencies = {p.currency.strip().upper() for p in self.settings.prices}
+            missing = needed - prices.keys()
+            web_unpriced = any(u.usage.web_searches and prices.get((u.provider, u.model))
+                               is not None and prices[(u.provider, u.model)]
+                               .web_search_per_thousand is None for u in month)
+            if research and (provider, model) in prices:
+                web_unpriced |= prices[(provider, model)].web_search_per_thousand is None
+            if missing or web_unpriced or len(currencies) != 1:
+                raise AILimitReached(
+                    "Jobcu cannot apply your monthly estimated spending limit until every "
+                    "used model has input/output and applicable search prices in one currency. "
+                    "Save current prices in Settings before continuing."
+                )
             cost, _ = estimate_cost(month, self.settings.prices)
             if cost >= limits.monthly_cost_limit:
                 raise AILimitReached(

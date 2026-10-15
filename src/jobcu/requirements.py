@@ -43,22 +43,47 @@ familiarity does not establish the required depth; use unclear unless the profil
 
 
 def _plain(text: str) -> str:
-    return re.sub(r"\s+", " ", unicodedata.normalize("NFKC", text)).strip().casefold()
+    text = unicodedata.normalize("NFKC", text)
+    text = re.sub(r"(?m)^[ \t]*[•●][ \t]*", "", text)
+    return re.sub(r"\s+", " ", text).strip().casefold()
 
 
-def ground(checks: list[RequirementCheck] | None, ad_text: str, profile_text: str
+def _profile_values(value) -> set[str]:
+    """Complete scalar facts, without JSON/list punctuation between adjacent skills/degrees."""
+    if isinstance(value, str):
+        return {_plain(value)}
+    if isinstance(value, dict):
+        return set().union(*(_profile_values(v) for v in value.values()))
+    if isinstance(value, list):
+        return set().union(*(_profile_values(v) for v in value))
+    return set()
+
+
+def _profile_quote(words: str, profile: str | dict) -> bool:
+    if _plain(words) in _plain(str(profile)):
+        return True
+    if not isinstance(profile, dict):
+        return False
+    parts = [_plain(part) for part in words.split(",")]
+    # A composed quote must consist entirely of complete stated values. Do not turn a bag
+    # of matching words, changed negation or an invented skill into supported evidence.
+    return len(parts) > 1 and all(parts) and set(parts) <= _profile_values(profile)
+
+
+def ground(checks: list[RequirementCheck] | None, ad_text: str, profile_text: str | dict
            ) -> list[dict] | None:
     """Unsupported comparisons and conflicting answers become unknown, never blockers."""
     if checks is None:
         return None
-    ad, person = _plain(ad_text), _plain(profile_text)
+    ad = _plain(ad_text)
     found: dict[str, dict] = {}
     for check in checks:
         data = check.model_dump()
         data["requirement"] = check.requirement.strip() or "A stated requirement"
         words, fact = _plain(check.ad_words), _plain(check.profile_words)
         if not words or words not in ad or (
-            check.status != "unclear" and (not fact or fact not in person)
+            check.status != "unclear" and (
+                not fact or not _profile_quote(check.profile_words, profile_text))
         ):
             data["status"] = "unclear"
         key = words or _plain(data["requirement"])

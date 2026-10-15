@@ -10,17 +10,15 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
-- All product repairs from this session are merged. Application code/tests/dependencies are
-  unchanged from `d988466` ([PR #128](https://github.com/UtkuDenizAltiok/jobcu/pull/128)); its
-  exact-main CI `38715862731` passed Mac, Windows and privacy. The final local source baseline
-  is **1,732 passing tests**, with one existing dependency deprecation warning. Current
-  documentation-only session-close cleanup is merged in
-  [PR #129](https://github.com/UtkuDenizAltiok/jobcu/pull/129), with exact-main CI
-  `38718653775` passing Mac, Windows and privacy on `f074f7c`. Do not run another local full
-  suite for unchanged code merely to prepare a chat.
-- Owner app **8765** and assistant preview **8799** were both closed at session close; preserve
-  the owner's subsequent choice. No service is left running by the assistant. The next normal
-  owner launch loads the repairs. No reset, new key or model choice is required.
+- Main before this development task is `79e6283`
+  ([PR #130](https://github.com/UtkuDenizAltiok/jobcu/pull/130)); its exact-main CI
+  `38765764773` passed Mac, Windows and privacy. The active branch's final local suite is
+  **1,768 passing tests**, with one existing dependency deprecation warning. Publication and
+  exact-head CI are tracked below. Do not rerun unchanged local checks merely for recovery.
+- Owner app **8765** remains open in the owner's chosen state. The assistant's fictional
+  preview **8799** is stopped and its disposable data removed. The read-only capture has
+  finished. The next normal owner launch loads merged repairs; do not restart it automatically.
+  No reset, new key or model choice is required.
 - Saved documents, queries, searches, ratings, marks, settings, keys and authorization are
   preserved. Detailed reviews, complete diagnostic answers, usage and exact publication
   receipts stay outside Git. Private `assistant-review-checkpoint.json` is the recovery index;
@@ -39,6 +37,7 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 | Area | Current record |
 |---|---|
 | AI errors, reasoning and complete answers | [Narrow reasoning recovery](ENGINEERING.md#reasoning-preserving-request-recovery--2026-10-15) preserves chosen effort on unrelated errors; [billing/Stop recovery](ENGINEERING.md#ai-billing-refusals-stop-and-incomplete-usage--2026-10-12) distinguishes refusals, waits and unknown usage. |
+| Bounded research, quotes and money estimates | [Current repairs](ENGINEERING.md#bounded-reference-research-and-priced-usage--2026-10-15) retain candidates/completed groups, bound repeated failures, validate ordinary list quotes and price cache/search usage. These offline checks do not prove live recovery or a complete bill. |
 | Original ads and discovery | [Separate ad sections](ENGINEERING.md#original-ad-section-recovery--2026-10-15) reach matching/scoring; [discovery recovery](ENGINEERING.md#employer-discovery-recovery-and-service-choices--2026-10-10) preserves successful countries/employers and retries incomplete ones. Scoped source holds remain. |
 | Reference cities and travel | [Finite city evidence](ENGINEERING.md#finite-reference-evidence-and-source-recovery--2026-10-15) gates eligible living/reference cities before travel. [Wednesday timing and reuse](ENGINEERING.md#original-evidence-and-repeated-requests--2026-10-12) retain evidence identity and service-specific storage limits. |
 | Scores, duplicates and links | [Task focus/confidence](ENGINEERING.md#task-focus-and-scoring-confidence--2026-10-14) and [duplicate/reference boundaries](ENGINEERING.md#duplicate-boundaries-and-reference-eligibility--2026-10-15) preserve owner score limits, independent vacancy identity and supported originals. Required aggregator routes remain available. |
@@ -46,12 +45,40 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**No active goal or unfinished product implementation, local checks or session-close
-housekeeping.** The previous handover, private pointer reconciliation and disposable
-validation-cache cleanup are complete; publication is verified above. Do not reopen completed
-repairs or start backlog work during Start.
+**Active: owner-requested live-search review, reliability and cost control (2026-10-15).**
+Follow the exact new owner-started 24-hour attempt, preserve the running app/data/limits and
+privately capture progress, failures, retries, unchecked evidence, timings and usage. After it
+ends, apply CONTRIBUTING's full review procedure and implement confirmed improvements across
+the pipeline in coherent steps. No extra search or paid experiment is granted by this task.
 
-The earlier whole-pipeline review has only these **parked dependencies**:
+- Branch: `codex/live-search-reliability-cost`, based on `79e6283`, in an attached isolated
+  worktree. Initial implementation `4779362` is pushed; the locally verified follow-up is
+  ready to commit. The owner's checkout/app remained on unchanged main during the run.
+- Implemented: bounded reference-city groups with retained evidence, numbered retry progress,
+  exhausted-group and exact-request retry protection, private stream-stage diagnostics,
+  model-appropriate grounding units, cache/search pricing and structured requirement quotes.
+  Explicit monthly cap refusals are terminal; ambiguous access refusals mention permissions and
+  billing without claiming a cause. The final local suite passes **1,768 tests**, with one
+  existing dependency warning, including the final cap-handling follow-up. Affected
+  checks, Ruff/privacy/whitespace, JS syntax, full diff review and fictional UI preview pass.
+  No live recovery, complete invoice or matching-quality improvement is established by these
+  offline checks. PR #131 is open; the checked follow-up is ready to push and needs fresh CI.
+- Recovery/evidence: private `assistant-review-checkpoint.json` points to the pinned attempt,
+  completed capture, independent review and evidence folder. Read authorization/revocations
+  before following it. The attempt is saved. All top cards and the balanced blinded sample were
+  judged before score reveal; unknowns remain unknown and owner/legacy labels are preserved.
+  The authorized local estimated spending ceiling and missing tariffs were applied after the
+  run, preserving other choices. Exact private receipts and evidence limits stay outside Git.
+- Verification: affected tests and final full suite, Ruff/privacy/whitespace, complete diff
+  review, Mac/Windows/privacy CI at exact PR and merge heads. Preserve coverage and scores;
+  distinguish reported usage/estimates from actual provider billing.
+- Exact next action: commit/push the checked cap-handling follow-up, update PR #131 and wait for exact-head
+  Mac/Windows/privacy CI, merge with a merge commit, synchronize the owner's main without an app
+  restart and verify merge-head CI. Then clear this active checkpoint and remove disposable
+  scratch. No further paid or job-source request is scheduled.
+
+The earlier whole-pipeline review also has these **parked dependencies**; do not resume them
+without evidence and authority relevant to the active task:
 
 1. **Long research-request interruptions.** Saved failures ended before response headers;
    their provider/network cause is unproved. The short generation diagnostic is complete.
@@ -79,25 +106,11 @@ The earlier whole-pipeline review has only these **parked dependencies**:
 
 ### Waiting on the owner
 
-Run the next search on demand with **24 hours** and existing frequency/service limits when
-ready, then bring its completed results to the next chat. No reset or replacement key is
-needed. The assistant has no scheduled search, reminder or further paid work from this End.
-
-1. Open a fresh **local chat in this repository's project** and use
-   [Start](PROMPTS.md#start-a-session). It verifies/reconciles this handover and waits;
-   it does not begin a private review, new search, paid call or backlog task.
-2. After the owner's next search finishes, use [Review](PROMPTS.md#review-a-search).
-   Follow [CONTRIBUTING](../CONTRIBUTING.md#review-a-completed-search) on authorized isolated
-   evidence: find the latest completed attempt, flag a newer unfinished attempt and reuse
-   only unchanged saved judgements. Do not repeat the previous completed review as preparation.
-3. Check full ads/documents/criteria independently before scores, including every top card
-   and the balanced 30–50-ad sample. Investigate new warnings, missing evidence, duplicate
-   identity, exclusions, travel, ranking and explanations across the pipeline. Use recorded
-   run boundaries and separate corrections, retries, answer waits and cumulative usage.
-4. Select and finish the strongest supported improvement with fictional regressions and
-   required publication checks. Counts alone prove neither accuracy nor coverage; leave
-   missing evidence unknown and keep detailed real evidence outside Git. No extra search or
-   paid experiment is granted by Start, End or the ordinary Review prompt.
+No owner action is needed for publication. Use Jobcu on demand; no new search, reminder or paid
+experiment is scheduled. The reviewed attempt and judgements are saved privately; preparation
+must not repeat them. A fresh local chat can use [Start](PROMPTS.md#start-a-session) to recover
+publication or wait for the next task. Use [Review](PROMPTS.md#review-a-search) for later saved
+evidence and [End](PROMPTS.md#end-a-session) to park a session.
 
 ### Verify before relying on
 
@@ -112,6 +125,9 @@ needed. The assistant has no scheduled search, reminder or further paid work fro
 - Posting-date audits, region/multiple-location exclusions and uncertain negative travel
   decisions still need targeted evidence in an authorized development task. The remaining
   freshness concern includes metadata skipped when another copy already supplies full text.
+- When feed and ad workplaces disagree, the exact vacancy's permitted original is needed
+  before choosing a location. Reconciliation must preserve multiple-site alternatives and
+  recheck filters/travel; do not treat an arbitrary mentioned town as the workplace.
 
 ### Known limitations
 

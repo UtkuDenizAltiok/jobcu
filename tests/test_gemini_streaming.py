@@ -37,12 +37,14 @@ def service():
     clients = []
 
     def make(*attempts):
-        streams = [Events(chunks) for chunks in attempts]
+        streams = [None if isinstance(chunks, Exception) else Events(chunks) for chunks in attempts]
         requests = []
 
         def handle(request):
             requests.append({"path": request.url.path, "body": json.loads(request.content)})
             assert request.url.path.endswith(":streamGenerateContent")
+            if isinstance(attempts[len(requests) - 1], Exception):
+                raise attempts[len(requests) - 1]
             return httpx.Response(200, headers={"Content-Type": "text/event-stream"},
                                   stream=streams[len(requests) - 1])
 
@@ -110,7 +112,7 @@ def test_fragmented_json_keeps_full_evidence_medium_and_final_usage(service, pro
     assert "tools" not in requests[0]["body"]
 
 
-def test_research_retains_late_sources_query_multiplicity_and_cumulative_usage(service):
+def test_research_retains_late_sources_unique_queries_and_cumulative_usage(service):
     first = {"webSearchQueries": ["fictional qualification"], "groundingChunks": [
         {"web": {"uri": "https://example.org/ad", "title": "Original ad"}}]}
     final = {"webSearchQueries": ["fictional qualification", "fictional qualification",
@@ -129,12 +131,24 @@ def test_research_retains_late_sources_query_multiplicity_and_cumulative_usage(s
     assert reply.text == "JOB J0\nRegistration required; town unknown."
     assert [source.url for source in reply.sources] == [
         "https://example.org/ad", "https://example.org/town"]
-    assert reply.usage == Usage(100, 60, reasoning_tokens=40, web_searches=3)
+    assert reply.usage == Usage(100, 60, reasoning_tokens=40, web_searches=2)
     body = requests[0]["body"]
     assert body["tools"] == [{"googleSearch": {}}]
     thinking = body["generationConfig"]["thinkingConfig"]
     assert thinking.get("thinkingLevel", thinking.get("thinking_level")) == "MEDIUM"
     assert streams[0].closed
+
+
+@pytest.mark.parametrize("model,searches", [("gemini-2.5-fictional", 1),
+                                            ("gemini-3-fictional", 2)])
+def test_grounding_billing_unit_matches_model_generation_and_ignores_empty_queries(
+        service, model, searches):
+    adapter, _, _ = service([chunk("Fictional answer", finish="STOP", grounding={
+        "webSearchQueries": ["", " ", "fictional city", "fictional city", "fictional service"],
+    }, usage={"promptTokenCount": 10, "candidatesTokenCount": 5})])
+    reply = adapter.research(model=model, system="Fictional source check", prompt="City service",
+                             max_searches=4, max_output_tokens=6000, effort="medium")
+    assert reply.usage.web_searches == searches
 
 
 @pytest.mark.parametrize("call", [generate, research])
@@ -163,6 +177,22 @@ def test_disconnection_is_distinct_from_provider_credit_or_service_response(serv
     with pytest.raises(AIConnectionError, match="connection.*interrupted"):
         call(adapter)
     assert streams[0].closed
+
+
+@pytest.mark.parametrize("headers_received", [False, True])
+def test_connection_diagnostics_distinguish_headers_from_body_without_private_text(
+        service, caplog, headers_received):
+    failure = httpx.RemoteProtocolError("PRIVATE_DIAGNOSTIC_TEXT")
+    attempt = [chunk("PRIVATE_PARTIAL_TEXT"), failure] if headers_received else failure
+    adapter, _, _ = service(attempt)
+    with caplog.at_level("INFO", logger="jobcu.ai.gemini_adapter"):
+        with pytest.raises(AIConnectionError):
+            generate(adapter)
+    assert f"headers_received={headers_received}" in caplog.text
+    assert f"chunks_received={int(headers_received)}" in caplog.text
+    assert "completion_received=False" in caplog.text
+    assert "RemoteProtocolError" in caplog.text
+    assert "PRIVATE_" not in caplog.text
 
 
 @pytest.mark.parametrize("call", [generate, research])

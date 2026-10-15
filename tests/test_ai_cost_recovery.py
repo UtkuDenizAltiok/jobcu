@@ -7,6 +7,8 @@ from google.genai import errors
 from pydantic import BaseModel
 
 from jobcu.ai.base import (
+    AIAuthError,
+    AIConnectionError,
     AILimitReached,
     AIOutputTruncated,
     AIQuotaExhausted,
@@ -14,6 +16,7 @@ from jobcu.ai.base import (
     AIUnavailable,
     ProviderAdapter,
     RawReply,
+    ResearchReply,
     Usage,
 )
 from jobcu.ai.client import AIClient, in_parallel
@@ -74,6 +77,38 @@ def test_depleted_credit_is_not_temporary_throttling(research, code, message):
     assert "credit" in translated.message.lower()
 
 
+@pytest.mark.parametrize("research", [False, True])
+@pytest.mark.parametrize("code,message", [
+    (403, "Monthly spend cap exceeded"),
+    (429, "Google Search service paused after reaching the monthly cap."),
+])
+def test_explicit_monthly_cap_is_terminal_before_search_or_rate_limit_fallback(
+        research, code, message):
+    error = errors.ClientError(code, {"error": {
+        "code": code, "status": "PERMISSION_DENIED", "message": message}})
+    translated = _translate(error, web_search=research)
+    assert isinstance(translated, AIQuotaExhausted)
+    assert "spending cap" in translated.message and not translated.retryable
+    adapter = ScriptedAdapter(translated, GOOD)
+    client = AIClient(settings(), adapter=adapter, patient=True,
+                      sleep=lambda seconds: pytest.fail("A cap must not cause a retry wait"))
+    for _ in range(2):
+        with pytest.raises(AIQuotaExhausted):
+            ask(client)
+    assert len(adapter.calls) == 1
+
+
+@pytest.mark.parametrize("message", ["Permission denied for this key.",
+                                      "Monthly spend cap has not been reached."])
+def test_ambiguous_permission_refusal_does_not_claim_a_billing_cause(message):
+    error = errors.ClientError(403, {"error": {
+        "code": 403, "status": "PERMISSION_DENIED", "message": message}})
+    translated = _translate(error, web_search=True)
+    assert isinstance(translated, AIAuthError)
+    assert "permissions" in translated.message and "billing" in translated.message
+    assert "does not identify" in translated.message
+
+
 @pytest.mark.parametrize("failure", [AIRateLimited("busy"), AIUnavailable("offline")])
 def test_stop_interrupts_retry_wait_without_sending_another_request(failure):
     stopped = False
@@ -129,11 +164,43 @@ def test_waiting_for_a_request_slot_checks_stop():
 
 def test_definite_account_refusal_blocks_later_dispatch_even_when_a_step_catches_it():
     adapter = ScriptedAdapter(AIQuotaExhausted("Credits depleted"), GOOD)
-    client = AIClient(settings(), adapter=adapter)
+    notices = []
+    client = AIClient(settings(), adapter=adapter, notify=notices.append)
     for _ in range(2):
         with pytest.raises(AIQuotaExhausted):
             ask(client)
     assert len(adapter.calls) == 1
+    assert notices == ["Credits depleted"]
+
+
+def test_identical_exhausted_research_does_not_restart_but_independent_checks_can_run():
+    class Disconnected(ScriptedAdapter):
+        can_search_the_web = True
+
+        def research(self, **request):
+            raw = self.complete_json(**request)
+            return ResearchReply(raw.text, [], raw.usage)
+
+    adapter = Disconnected(*[AIConnectionError("Interrupted") for _ in range(5)], GOOD, GOOD)
+    notes, waits = [], []
+    log = UsageLog()
+    client = AIClient(settings(), adapter=adapter, usage_log=log, notify=notes.append,
+                      sleep=waits.append)
+    with pytest.raises(AIConnectionError):
+        client.research(step="location", system="City service", prompt="Fictional cities")
+    for step in ("employers", "job_places"):
+        with pytest.raises(AIConnectionError, match="identical online check"):
+            client.research(step=step, system="City service", prompt="Fictional cities")
+    assert len(adapter.calls) == 5 and len(waits) == 4
+    assert log.this_month()[0].usage.unreported_requests == 5
+    assert sum("exhausted" in note for note in notes) == 1
+    assert client._web_searches_reserved == 0
+    assert client.research(step="employers", system="City service", prompt="Another city").text
+    # Generation remains available: an online-research failure is not a scoring failure.
+    assert ask(client).ok
+    assert len(adapter.calls) == 7
+    fresh = AIClient(settings(), adapter=Disconnected(GOOD))
+    assert fresh.web_research_unavailable_reason() is None
 
 
 def test_completed_usage_is_kept_before_stop_and_no_later_batch_runs():
@@ -197,6 +264,19 @@ def test_impatient_connection_probe_does_not_repeat_an_outage_request():
     with pytest.raises(AIUnavailable):
         ask(client)
     assert len(adapter.calls) == 1
+
+
+def test_retry_progress_identifies_attempts_and_the_existing_bound():
+    progress = []
+    adapter = ScriptedAdapter(AIConnectionError("Interrupted"),
+                              AIConnectionError("Interrupted again"), GOOD)
+    client = AIClient(settings(), adapter=adapter, sleep=lambda seconds: None,
+                      on_progress=progress.append)
+    assert ask(client).ok
+    assert len(adapter.calls) == 3
+    assert any("retry 1 of 4" in message for message in progress)
+    assert any("retry 2 of 4" in message for message in progress)
+    assert progress[-1] == "Retrying an AI request (2 of 4)"
 
 
 def test_search_stop_reaches_the_ai_wait_during_document_understanding(monkeypatch):

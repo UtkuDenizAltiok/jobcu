@@ -11,7 +11,7 @@ from collections import defaultdict
 from pydantic import BaseModel
 
 from jobcu import places
-from jobcu.ai.base import AIError
+from jobcu.ai.base import AIConnectionError, AIError
 from jobcu.ai.client import AIClient
 from jobcu.countries import COUNTRIES
 from jobcu.location import (
@@ -25,6 +25,10 @@ from jobcu.location import (
 )
 
 log = logging.getLogger(__name__)
+
+# Bound each answer, not the candidate list. Every candidate remains represented, including
+# unchecked cities after a failure. Smaller requests also preserve earlier completed groups.
+REFERENCE_BATCH_SIZE = 8
 
 RESEARCH_SYSTEM = """\
 Check the stated condition for EACH listed reference city, using live web search and current
@@ -83,23 +87,30 @@ def check(client: AIClient, text: str, towns: list[places.Town]) -> Condition:
     checks = [ReferenceCheck(name=town.name, country=town.country, latitude=town.latitude,
                              longitude=town.longitude) for town in towns]
     sources: list[Source] = []
-    notes = ""
+    notes: list[str] = []
     note = "Reference cities selected from the local population and named-place rules."
-    if towns:
+    batches = (len(towns) + REFERENCE_BATCH_SIZE - 1) // REFERENCE_BATCH_SIZE
+    for start in range(0, len(towns), REFERENCE_BATCH_SIZE):
+        batch = towns[start:start + REFERENCE_BATCH_SIZE]
+        batch_checks = checks[start:start + REFERENCE_BATCH_SIZE]
+        progress = getattr(client, "on_progress", lambda message: None)
+        progress(f"Checking reference-city facts: group {start // REFERENCE_BATCH_SIZE + 1} "
+                 f"of {batches}")
         lines = [f"C{i} | {town.name} | {COUNTRIES[town.country].name} | "
                  f"coordinates {town.latitude}, {town.longitude}"
-                 for i, town in enumerate(towns)]
+                 for i, town in enumerate(batch)]
         try:
             reply = client.research(
                 step="location", system=RESEARCH_SYSTEM,
                 prompt=f"Condition (data):\n<<<\n{text}\n>>>\nReference cities:\n"
                        + "\n".join(lines), max_searches=4,
                 max_output_tokens=RESEARCH_TOKENS)
-            sources = [Source(url=s.url, title=s.title) for s in reply.sources]
-            notes = reply.text
+            batch_sources = [Source(url=s.url, title=s.title) for s in reply.sources]
+            sources.extend(s for s in batch_sources if s.url not in {v.url for v in sources})
+            notes.append(reply.text)
             # A statement from memory cannot establish a fresh reference fact.
-            if sources and reply.usage.web_searches:
-                source_ids = {f"S{i}": source for i, source in enumerate(sources)}
+            if batch_sources and reply.usage.web_searches:
+                source_ids = {f"S{i}": source for i, source in enumerate(batch_sources)}
                 answer = client.generate(
                     ReferenceAnswers, step="location", system=STRUCTURE_SYSTEM,
                     prompt=f"Condition: {text}\nReference cities:\n" + "\n".join(lines)
@@ -107,17 +118,23 @@ def check(client: AIClient, text: str, towns: list[places.Town]) -> Condition:
                            + "\n".join(f"{key} | {s.title} | {s.url}"
                                        for key, s in source_ids.items()),
                     max_output_tokens=RESEARCH_TOKENS)
-                _apply(checks, answer, reply.text, source_ids)
+                _apply(batch_checks, answer, reply.text, source_ids)
         except AIError as exc:
             log.info("Reference-city facts couldn't be checked: %s", exc)
             note = exc.message
+            if isinstance(exc, AIConnectionError):
+                # This group's client retries have already been exhausted. Do not multiply
+                # the same outage into a fresh retry budget for every remaining group.
+                note += " Remaining reference-city groups were not sent after these interruptions."
+                break
     known = sum(c.meets is not None for c in checks)
     if known < len(checks):
         note = (f"Checked {known} of {len(checks)} candidate reference cities. "
                 "Missing cities remain unknown; supported cities can still qualify. " + note)
     return Condition(text=text, understood_as=text, kind="towns_that_fit",
                      status="applied" if known or not checks else "not_checked",
-                     sources=sources, note=note, reference_checks=checks, reference_notes=notes)
+                     sources=sources, note=note, reference_checks=checks,
+                     reference_notes="\n\n".join(notes))
 
 
 def _apply(checks, answer, notes, sources) -> None:

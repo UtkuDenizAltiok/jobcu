@@ -1,7 +1,9 @@
 """Google (Gemini) through the official `google-genai` library."""
 
+import logging
 import re
 import threading
+import time
 from collections import Counter
 
 import httpx
@@ -13,7 +15,6 @@ from jobcu.ai.base import (
     MSG_CONNECTION,
     MSG_KEY_REJECTED,
     MSG_MODEL_NOT_FOUND,
-    MSG_NO_PERMISSION,
     MSG_QUOTA,
     MSG_RATE_LIMITED,
     MSG_REFUSED,
@@ -42,6 +43,7 @@ from jobcu.ai.base import (
 from jobcu.settings import Effort
 
 _REFUSAL_REASONS = {"SAFETY", "PROHIBITED_CONTENT", "BLOCKLIST", "SPII", "RECITATION"}
+log = logging.getLogger(__name__)
 
 
 class GeminiAdapter(ProviderAdapter):
@@ -122,11 +124,15 @@ class GeminiAdapter(ProviderAdapter):
         finished = False
         usage_seen = interrupted = False
         stream = None
+        query_billed = not model.removeprefix("models/").startswith("gemini-2.")
+        started = time.monotonic()
+        chunks_received = 0
         self._stream_responses.current = []
         try:
             stream = self._client().models.generate_content_stream(
                 model=model, contents=prompt, config=config)
             for response in stream:
+                chunks_received += 1
                 feedback = response.prompt_feedback
                 if feedback is not None and feedback.block_reason:
                     raise AIRefused(MSG_REFUSED, str(feedback.block_reason))
@@ -159,6 +165,13 @@ class GeminiAdapter(ProviderAdapter):
             if not finished:
                 raise AIUnavailable(MSG_UNAVAILABLE, "AI answer stream ended before completion.")
         except Exception as exc:
+            if isinstance(exc, httpx.TransportError):
+                log.info(
+                    "AI stream connection interrupted after %.1fs: headers_received=%s, "
+                    "chunks_received=%d, completion_received=%s, usage_received=%s, kind=%s",
+                    time.monotonic() - started, bool(self._stream_responses.current),
+                    chunks_received, finished, usage_seen, type(exc).__name__,
+                )
             # STOP is the provider's successful terminal outcome, not merely valid JSON.
             # A later body disconnect cannot undo it. Keep metadata already received;
             # unknown trailing usage remains explicit rather than repeating paid work.
@@ -168,7 +181,8 @@ class GeminiAdapter(ProviderAdapter):
                 translated = _translate(exc, web_search=web_search)
                 if isinstance(translated, AIError) and (usage_seen or queries or isinstance(
                         translated, (AIUnavailable, AIOutputTruncated))):
-                    translated.usage = _usage(counts, queries, unreported=True)
+                    translated.usage = _usage(counts, queries, unreported=True,
+                                              query_billed=query_billed)
                 raise translated from exc
         finally:
             # The SDK's synchronous iterator does not close an interrupted HTTP body.
@@ -187,7 +201,8 @@ class GeminiAdapter(ProviderAdapter):
         return ResearchReply(
             text="".join(text),
             sources=unique_sources(sources),
-            usage=_usage(counts, queries, unreported=interrupted or not usage_seen),
+            usage=_usage(counts, queries, unreported=interrupted or not usage_seen,
+                         query_billed=query_billed),
         )
 
     def list_models(self) -> list[str]:
@@ -206,14 +221,18 @@ def _name(value) -> str:
     return getattr(value, "name", None) or str(value or "")
 
 
-def _usage(counts: Counter, queries: Counter, *, unreported: bool) -> Usage:
+def _usage(counts: Counter, queries: Counter, *, unreported: bool,
+           query_billed: bool = True) -> Usage:
     thoughts = counts["thoughts_token_count"]
+    searches = len({query.strip() for query in queries if query.strip()})
     return Usage(
         input_tokens=counts["prompt_token_count"],
         output_tokens=counts["candidates_token_count"] + thoughts,
         cached_input_tokens=counts["cached_content_token_count"],
         reasoning_tokens=thoughts,
-        web_searches=sum(queries.values()),
+        # Google bills unique nonempty queries within a request, not repeated cumulative
+        # grounding metadata. Keep the same query chargeable again in a separate request.
+        web_searches=searches if query_billed else int(bool(searches)),
         unreported_requests=int(unreported),
     )
 
@@ -232,6 +251,13 @@ def _translate(exc: Exception, *, web_search: bool = False) -> Exception:
                 "Jobcu won't retry this billing refusal. Check the provider's billing page.",
                 detail,
             )
+        if _spend_cap_reached(exc.message or ""):
+            return AIQuotaExhausted(
+                "The AI provider says a monthly spending cap has been reached. "
+                "Jobcu won't retry this account refusal. Check the project's and billing "
+                "account's cap/status on the provider's billing page before another search.",
+                detail,
+            )
         if web_search and _web_search_refused(exc.code, text):
             return AIWebSearchUnavailable(
                 "Google web look-ups aren't available for this model or API project. "
@@ -247,7 +273,11 @@ def _translate(exc: Exception, *, web_search: bool = False) -> Exception:
                 return AIQuotaExhausted(MSG_QUOTA, detail)
             return AIRateLimited(MSG_RATE_LIMITED, detail, _retry_delay(text))
         if exc.code == 403:
-            return AIAuthError(MSG_NO_PERMISSION, detail)
+            return AIAuthError(
+                "The AI provider refused access. Check key permissions and the project's "
+                "billing or spending-cap status. This refusal alone does not identify "
+                "which caused it.", detail,
+            )
         if exc.code == 404:
             return AIModelNotFound(MSG_MODEL_NOT_FOUND, detail)
         if exc.code and exc.code >= 500:
@@ -264,6 +294,15 @@ def _translate(exc: Exception, *, web_search: bool = False) -> Exception:
     if isinstance(exc, AIError):
         return exc
     return AIBadRequest(MSG_BAD_REQUEST, detail)
+
+
+def _spend_cap_reached(message: str) -> bool:
+    """A stated monthly cap is terminal; a generic 403 cannot establish its cause."""
+    text = message.casefold().replace("_", " ")
+    cap = r"(?:monthly (?:spend(?:ing)? |billing )?(?:cap|limit)|spend(?:ing)? cap)"
+    return bool(re.search(
+        rf"\b(?:{cap}(?: has been| is)? (?:reached|exceeded|exhausted)"
+        rf"|(?:reached|reaching|exceeded|exhausted) (?:the |your |its |a )?{cap})\b", text))
 
 
 def _web_search_refused(code: int | None, text: str) -> bool:

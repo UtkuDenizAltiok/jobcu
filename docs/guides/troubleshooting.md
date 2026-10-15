@@ -106,6 +106,27 @@ The permanent retry note records what happened; it does not mean requests are st
 after **Search finished**. During a retry, the current step shows the wait. **Stop** cancels
 retry waits and queued AI work; a request already sent can finish first.
 
+The retry detail shows its number and limit, rather than an unnumbered repeating message.
+Reference-city facts are checked in groups of up to eight, with group progress. Every candidate
+remains represented: completed answers survive a later failed group, while unchecked cities
+remain unknown. Exhausted connections stop further groups for that reference fact to avoid
+repeating the outage for every group. After a particular online request exhausts its retries,
+Jobcu does not restart the same request's retry allowance elsewhere in that search. Different checks and
+countries, job-source readers and ordinary AI scoring remain available. A new search starts
+fresh; this protection does not establish the network/provider cause or guarantee live recovery.
+
+**A requirement could not be confirmed** means its comparison lacks sufficient supported
+evidence; it is not proof that you lack the skill or qualification. Jobcu tolerates ordinary
+bullet/list formatting when validating quotes, while keeping missing or changed facts unknown.
+Saved results retain the messages recorded when that search ran.
+
+**Monthly spending cap reached** is an account spending stop. Jobcu does not retry an explicit
+cap refusal. Check the provider's billing page and the cap period; raising or lifting it can
+allow further charges. Restoring service does not complete missing checks in an already saved
+search. A generic **access refused** message can mean key permissions or billing/spending status;
+the response alone does not prove which. Jobcu's estimated local ceiling is separate from a
+provider's enforced cap, especially when some requests report incomplete usage.
+
 **Credit depleted or payment required** is a billing refusal, so Jobcu does not keep retrying
 it. Check the provider's billing page. Google explains that delayed cut-off can produce a
 negative prepay balance which is deducted from the next top-up; its spend report can lag.
