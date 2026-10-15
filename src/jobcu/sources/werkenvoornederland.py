@@ -35,6 +35,7 @@ _ADDRESS = re.compile(r"/vacatures/(?P<slug>.+?)-(?P<org>[A-Za-z]+)-(?P<year>\d{
 
 class WerkenVoorNederlandSource(JobSource):
     id = "werkenvoornederland"
+    detail_cache_version = 2  # retain separate original JobPosting requirements
     name = "Werken voor Nederland (Dutch government)"
     kind = "employer"
     countries = frozenset({"NL"})
@@ -120,8 +121,9 @@ def from_page(url: str, title: str, page: str) -> FoundJob | None:
         country="NL",
         posted_at=posted,
         date_precision=("exact" if posting.date_has_time else "day") if posted else "unknown",
-        description=description,
-        description_is_complete=len(text) > len(posting.description),
+        description=posting.with_sections(description),
+        description_is_complete=(len(text) > len(posting.description)
+                                 or posting.description_is_complete),
         job_types=posting.job_types,
         closes_at=posting.valid_through,
     )

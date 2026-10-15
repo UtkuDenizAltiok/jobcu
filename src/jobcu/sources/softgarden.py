@@ -35,6 +35,7 @@ _STUDENT = re.compile(r"student|praktik|intern|azubi|ausbildung|schüler|trainee
 
 class SoftgardenSource(CareerSystemSource):
     id = "softgarden"
+    detail_cache_version = 2  # retain separate original JobPosting requirements
     name = "Company career sites (Softgarden)"
     system = "softgarden"
     parallel = 4  # every employer has its own address
@@ -60,7 +61,7 @@ class SoftgardenSource(CareerSystemSource):
         return dataclasses.replace(
             job,
             description=posting.description,
-            description_is_complete=True,
+            description_is_complete=posting.description_is_complete,
             posted_at=posting.date_posted or job.posted_at,
             date_precision=("exact" if posting.date_has_time else "day")
             if posting.date_posted else job.date_precision,

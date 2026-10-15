@@ -72,6 +72,38 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Record step time and answer-wait time; label correction timings separately from cumulative usage. | Corrections and full searches cannot be compared as equivalent performance runs (2026-10-06). |
 | Warn when scoring reads only an excerpt of a lengthy ad. | Unseen requirements must not be assumed satisfied (2026-10-06). |
 
+## Original-ad section recovery — 2026-10-15
+
+The common JobPosting reader now retains separately supplied responsibilities, skills,
+qualifications, education/experience and work/applicant eligibility text. Known credential,
+DefinedTerm and experience-month forms become readable evidence; unknown objects, absent
+values and linked-only credentials do not become facts. Requirement wording, preferences,
+operators and experience-instead-of-education flags survive. Duplicate handling keeps field
+context and distinct skill names. Fields without an actual ad body remain partial evidence.
+
+SuccessFactors previously kept only the first `itemprop="description"` block; it now reads
+all sections belonging to the job, separate marked requirements and JSON-LD originals.
+Nested descriptions are read once, unrelated employer/other-vacancy blocks are excluded,
+and a short visible fragment cannot hide a fuller structured body. Feed dating uses the
+already downloaded page's job text too, including when its date is missing; the date stays
+unknown. Longer Dutch government page extraction also retains separate structured fields.
+Six affected readers use cache version 2, including direct sitemap/feed cache calls. Old
+incomplete caches are refreshed within existing limits; corrected warm caches avoid requests.
+
+Fictional hardware, nursing and teaching regressions reproduce seven original section-loss
+failures and compare recovered evidence in the scoring prompt. They also check mixed markup,
+negations, partial originals, metadata isolation, cache refresh/reuse and no extra page calls.
+This establishes evidence retention, not live matching accuracy, market recall or net savings;
+longer complete evidence can itself require more scoring tokens. No score rubric, AI effort,
+provider, source budget, private history or application link is changed. Existing saved cards
+are not automatically rescored. New requests still need their normal authorization.
+
+The [current source/access evidence](SOURCES.md#original-ad-sections-and-access-boundaries--2026-10-15)
+also establishes a scoped hold for SAP-owned websites. Entry points reject these before robot
+or budget work; the HTTP destination guard prevents a redirect from contacting them. Other
+employers continue independently. This does not broaden source permissions or authorize
+research through a restricted site.
+
 ## Finite reference evidence and source recovery — 2026-10-15
 
 For a travel condition with a known population or named-place rule, `reference_places.py`

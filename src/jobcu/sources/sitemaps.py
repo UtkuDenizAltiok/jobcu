@@ -46,6 +46,7 @@ _LONG_AGO = datetime.min.replace(tzinfo=UTC)
 
 class SitemapSource(CareerSystemSource):
     id = "sitemap"
+    detail_cache_version = 2  # retain separate original JobPosting requirements
     name = "Recruiters' and employers' own sites"
     system = "sitemap"
     parallel = 4  # every site has its own address
@@ -107,7 +108,8 @@ class SitemapSource(CareerSystemSource):
         from jobcu import jobstore
 
         stub = FoundJob(source=self.id, source_job_id=address, url=address, title="")
-        known = jobstore.remembered_ad(stub)
+        known = jobstore.remembered_ad(
+            stub, reader_version=self.detail_cache_version)
         if known is not None and known.title:
             return known
         if not self.allowed(address, ctx):
@@ -118,7 +120,7 @@ class SitemapSource(CareerSystemSource):
             return None
         job = to_found_job(address, page, employer)
         if job is not None:
-            jobstore.remember_ad(job)
+            jobstore.remember_ad(job, reader_version=self.detail_cache_version)
         return job
 
 
@@ -138,7 +140,7 @@ def to_found_job(address: str, page: str, employer: Employer) -> FoundJob | None
         date_precision=("exact" if posting.date_has_time else "day") if posting.date_posted
         else "unknown",
         description=posting.description,
-        description_is_complete=bool(posting.description),
+        description_is_complete=posting.description_is_complete,
         job_types=posting.job_types,
         work_mode="remote" if posting.remote else None,
         employer_url=address,

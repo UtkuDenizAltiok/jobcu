@@ -517,6 +517,142 @@ def test_successfactors_page_dates():
     assert successfactors.date_posted("<html></html>") is None
 
 
+def test_successfactors_keeps_all_original_sections_and_ignores_other_objects():
+    page = '''<main itemscope itemtype="https://schema.org/JobPosting">
+      <h1 itemprop="title">Power Hardware Engineer</h1>
+      <section itemprop="description"><p>Join Example Devices.</p></section>
+      <section itemprop="description"><h2>Your work</h2><p>Design motor controllers.</p>
+        <div itemprop="description">Test isolation barriers.</div>
+        <div itemprop="hiringOrganization" itemscope itemtype="https://schema.org/Organization">
+          <p itemprop="description">Nested company boilerplate.</p></div></section>
+      <section itemprop="qualifications"><p>German C1 required; English helpful.</p></section>
+      <meta itemprop="experienceRequirements" content="Five years required.">
+      <div itemprop="hiringOrganization" itemscope itemtype="https://schema.org/Organization">
+        <p itemprop="description">We employ a million people.</p></div>
+      <aside itemscope itemtype="https://schema.org/JobPosting">
+        <span itemprop="title">Other job</span>
+        <p itemprop="description">Unrelated job requirements.</p></aside>
+      </main>'''
+    found = successfactors.read_page(page)
+    assert 'Design motor controllers.' in found['description']
+    assert found['description'].count('Test isolation barriers.') == 1
+    assert 'German C1 required; English helpful.' in found['description']
+    assert 'Five years required.' in found['description']
+    assert 'million' not in found['description']
+    assert 'Unrelated' not in found['description']
+    assert 'boilerplate' not in found['description']
+    assert found['title'] == 'Power Hardware Engineer'
+
+
+def test_successfactors_reads_json_ld_only_pages_without_an_extra_request():
+    page = ('<script type="application/ld+json">' + json.dumps({
+        '@type': 'JobPosting', 'title': 'Community Nurse',
+        'description': 'Provide patient care.', 'qualifications': 'Registration required.',
+        'hiringOrganization': {'name': 'Example Clinic'},
+        'jobLocation': {'address': {'addressLocality': 'Cork', 'addressCountry': 'IE'}},
+    }) + '</script>')
+    found = successfactors.read_page(page)
+    assert found['title'] == 'Community Nurse'
+    assert 'Provide patient care.' in found['description']
+    assert 'Registration required.' in found['description']
+    assert found['company'] == 'Example Clinic'
+    assert found['place'] == 'Cork, IE'
+
+
+@pytest.mark.parametrize('micro_body', ['', '<p itemprop="description">Join Example.</p>'])
+def test_successfactors_partial_microdata_cannot_hide_the_structured_full_body(micro_body):
+    body = '<p itemprop="qualifications">Registration preferred.</p>' + micro_body
+    body += '<script type="application/ld+json">' + json.dumps({
+        '@type': 'JobPosting', 'title': 'Nurse',
+        'description': 'Provide patient care. Current license required.',
+        'skills': 'Clinical assessment',
+    }) + '</script>'
+    found = successfactors.read_page(body)
+    assert 'Registration preferred.' in found['description']
+    assert 'Current license required.' in found['description']
+    assert 'Clinical assessment' in found['description']
+    if micro_body:
+        assert 'Join Example.' in found['description']
+
+
+@pytest.mark.parametrize('address', [
+    'https://jobs.sap.com/sitemap.xml', 'https://SAP.COM./job/1',
+])
+def test_sap_website_terms_stop_requests_before_robots_or_budgets(address):
+    ctx = context(lambda request: pytest.fail('held website must not be requested'))
+    source = successfactors.SuccessFactorsSource()
+    try:
+        for method in (source.allowed, source.get):
+            with pytest.raises(SourceError, match="terms do not permit"):
+                method(address, ctx)
+        assert ctx.report.requests == 0
+    finally:
+        ctx.http.close()
+
+
+def test_sap_hold_does_not_block_other_employers_or_similar_host_names():
+    for host in ('careers.devices.example', 'sap.com.example', 'devices.successfactors.com'):
+        careers._check_terms('https://' + host + '/job/1')
+
+
+def test_a_redirect_cannot_request_a_terms_held_website_or_stop_other_employers():
+    seen = []
+
+    def handler(request):
+        seen.append(str(request.url))
+        assert request.url.host != 'jobs.sap.com'
+        return httpx.Response(302, headers={'Location': 'https://jobs.sap.com/job/1'}) \
+            if request.url.path == '/redirect' else httpx.Response(200, text='Allowed ad')
+
+    ctx = context(handler)
+    source = successfactors.SuccessFactorsSource()
+    try:
+        with pytest.raises(SourceError, match='terms do not permit'):
+            source.get('https://careers.example/redirect', ctx)
+        assert source.get('https://other.example/job/1', ctx).text == 'Allowed ad'
+        assert seen == ['https://careers.example/redirect', 'https://other.example/job/1']
+    finally:
+        ctx.http.close()
+
+
+@pytest.mark.parametrize('has_date', [True, False])
+def test_feed_page_supplies_requirements_even_when_date_is_missing(has_date):
+    from jobcu import jobstore
+
+    original = job(description='Join Example Devices.')
+    original.source = 'successfactors'
+    original.source_job_id = 'jobs.fake.example/99'
+    original.url = 'https://jobs.fake.example/job/hardware/99/'
+    original.posted_at = None
+    original.description_is_complete = True
+    jobstore.remember_ad(original, reader_version=1)
+    body = sf_full_page('Hardware Engineer', 'Bühl, DE, 77815', NOW,
+                        'Design boards. German C1 required.')
+    if not has_date:
+        body = body.replace('itemprop="datePosted"', 'name="unrelated"')
+    requests = []
+
+    def handler(request):
+        requests.append(request.url.path)
+        return httpx.Response(404) if request.url.path == '/robots.txt' \
+            else httpx.Response(200, text=body)
+
+    ctx = context(handler, 'successfactors')
+    try:
+        source = successfactors.SuccessFactorsSource()
+        found = source._dated(original, ctx)
+        assert 'German C1 required.' in found.description
+        assert 'Join Example Devices.' in found.description
+        assert (found.posted_at is not None) == has_date
+        assert requests == ['/robots.txt', '/job/hardware/99/']
+        if has_date:
+            requests.clear()
+            assert source._dated(original, ctx).description == found.description
+            assert requests == []
+    finally:
+        ctx.http.close()
+
+
 # --- Workday --------------------------------------------------------------------------
 
 

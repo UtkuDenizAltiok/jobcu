@@ -10,6 +10,16 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
 
 ### State
 
+- [Original-ad section recovery](ENGINEERING.md#original-ad-section-recovery--2026-10-15)
+  is implemented on `codex/original-ad-sections`, based on `06484bd`. Separate original
+  requirements and all job-specific description sections reach matching/scoring; corrected
+  caches are versioned and warm reuse remains. Fields without an ad body remain partial.
+  A scoped SAP-owned website hold honors freshly checked terms, including redirects, while
+  other employers continue. Final local 1,693 tests pass with one existing dependency warning;
+  Ruff/privacy, 20 document checks and complete diff/whitespace pass. Publication/exact-head
+  CI remains below. No paid call, new search, provider/account/network change or owner-app
+  restart was made. Saved judgements and private history/settings remain intact; live scoring
+  accuracy, provider availability, coverage and net savings are not established by these tests.
 - [Finite reference evidence and source recovery](ENGINEERING.md#finite-reference-evidence-and-source-recovery--2026-10-15)
   is implemented in [PR #121](https://github.com/UtkuDenizAltiok/jobcu/pull/121), final head
   `5f482ae`, merge `2656b6b`. Exact PR CI `38647881091` and merged-main CI `38648729649`
@@ -282,6 +292,25 @@ contracts/access facts: [SOURCES](SOURCES.md). Detailed history lives in Git and
   on resume and preserve the owner's choice.
 
 ### In progress
+
+**Original-ad section recovery — owner continuation, 2026-10-15.**
+Branch `codex/original-ad-sections`, based on verified main `06484bd`. Prior repairs are
+complete; reuse their unchanged 1,674-test baseline and private balanced judgements. This
+step addresses missing evidence before more AI research: reproduce discarded structured
+requirements and multiple description sections, recover only supplied job-specific text,
+and prevent old reader caches from hiding the correction. Preserve requirements/alternatives,
+missing facts, source permissions, ratings, medium effort and existing request limits.
+Steps: fictional failing reader/pipeline cases; implement section recovery and safe reuse;
+update source evidence, engineering record and guide; affected/full tests, Ruff/privacy,
+document/diff checks; publish with exact-head Mac/Windows/privacy CI and merge commit.
+No provider/account/network change, paid call, new search or owner-app restart is planned.
+Newly checked SAP website restrictions require a scoped access hold for SAP-owned career
+pages; they do not establish restrictions on every employer using SuccessFactors. Exact
+next action: publish the bounded repair and require exact-head Mac/Windows/privacy CI.
+Section recovery, six-reader cache versions and the scoped SAP destination hold are implemented;
+the final 1,693-test suite, Ruff/privacy, 20 documents and complete diff/whitespace pass. One
+existing Starlette/AnyIO deprecation remains. No live quality/cost/availability claim is made.
+Private evidence/checkpoint: `active_original_ad_section_recovery` in the private review index.
 
 **Whole-pipeline quality, coverage and complete-cost improvement — 2026-10-12.**
 Prior free work, including PR #114's owner scoring adjustment, is fully published and verified;

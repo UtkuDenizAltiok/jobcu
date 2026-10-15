@@ -36,7 +36,7 @@ from jobcu.location import Place
 from jobcu.placenames import OTHER, countries_in, is_europe_wide
 from jobcu.sources.base import FoundJob, JobQuery, JobSource, SourceContext, SourceError
 from jobcu.sources.budget import BudgetExhausted, Limits, RequestBudget
-from jobcu.sources.http import Blocked, RobotsRules
+from jobcu.sources.http import Blocked, RobotsRules, SourceTermsDenied, terms_denial
 from jobcu.sources.matching import DEFAULT_RADIUS_KM, matches_places, matches_terms
 from jobcu.text import normalise
 
@@ -44,6 +44,13 @@ log = logging.getLogger(__name__)
 
 DIRECTORY = Path(__file__).resolve().parent.parent / "data" / "employers.json"
 LIMITS = Limits(per_search=1500)
+
+
+def _check_terms(url: str) -> None:
+    # SAP-owned websites prohibit automated extraction (checked 2026-10-15; SOURCES).
+    # This is not a restriction on unrelated employers using SAP's hosted career software.
+    if reason := terms_denial(url):
+        raise SourceError(reason)
 
 
 @dataclass(frozen=True)
@@ -230,6 +237,7 @@ class CareerSystemSource(JobSource):
 
     def get(self, url: str, ctx: SourceContext, **kwargs) -> httpx.Response:
         """One request, counted and checked. 404 means the company's list doesn't exist."""
+        _check_terms(url)
         budget = getattr(self, "_budget", None)
         if budget is None:
             # Condition corrections/directory tools can create a reader without search().
@@ -246,6 +254,8 @@ class CareerSystemSource(JobSource):
         method = kwargs.pop("method", "GET")
         try:
             response = ctx.http.request(method, url, **kwargs)
+        except SourceTermsDenied as exc:
+            raise SourceError(str(exc)) from exc
         except httpx.HTTPError as exc:
             raise SourceError(f"{self.name} couldn't be reached.") from exc
         if response.status_code in (404, 410):
@@ -260,6 +270,7 @@ class CareerSystemSource(JobSource):
         """Whether the site's robots.txt lets automated tools read this address. Asked once per
         site and search; a site without robots.txt allows everything, one that refuses to show
         it allows nothing."""
+        _check_terms(url)
         host = urlsplit(url).hostname or ""
         robots: dict[str, RobotsRules] = self.__dict__.setdefault("_robots", {})
         if host not in robots:

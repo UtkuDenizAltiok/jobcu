@@ -86,6 +86,24 @@ class RequestStopped(Exception):
     """Stop was requested before a source request could start."""
 
 
+class SourceTermsDenied(httpx.RequestError):
+    """An explicitly restricted destination must not be requested, including on redirect."""
+
+
+def terms_denial(url: str) -> str | None:
+    # SAP-owned websites, not every employer using SuccessFactors; checked 2026-10-15.
+    # Primary terms and scope are recorded in SOURCES.
+    host = (urlsplit(url).hostname or "").lower().rstrip(".")
+    if host == "sap.com" or host.endswith(".sap.com"):
+        return "SAP's website terms do not permit Jobcu to read this site automatically."
+    return None
+
+
+def _check_destination(request: httpx.Request) -> None:
+    if reason := terms_denial(str(request.url)):
+        raise SourceTermsDenied(reason)
+
+
 class RobotsRules:
     """A site's robots.txt, read as the standard says (RFC 9309): the group for Jobcu's name,
     or else the one for every robot; within it the most specific rule (the longest path)
@@ -163,6 +181,7 @@ class PoliteClient:
             follow_redirects=True,
             trust_env=False,
             transport=transport,
+            event_hooks={"request": [_check_destination]},
         )
         self._min_intervals = SITE_INTERVALS if min_intervals is None else min_intervals
         self._last_request: dict[str, float] = {}
