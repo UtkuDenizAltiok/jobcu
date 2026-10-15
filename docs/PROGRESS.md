@@ -13,7 +13,7 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 - Main before this development task is `79e6283`
   ([PR #130](https://github.com/UtkuDenizAltiok/jobcu/pull/130)); its exact-main CI
   `38765764773` passed Mac, Windows and privacy. The active branch's final local suite is
-  **1,762 passing tests**, with one existing dependency deprecation warning. Publication and
+  **1,768 passing tests**, with one existing dependency deprecation warning. Publication and
   exact-head CI are tracked below. Do not rerun unchanged local checks merely for recovery.
 - Owner app **8765** remains open in the owner's chosen state. The assistant's fictional
   preview **8799** is stopped and its disposable data removed. The read-only capture has
@@ -57,10 +57,12 @@ the pipeline in coherent steps. No extra search or paid experiment is granted by
 - Implemented: bounded reference-city groups with retained evidence, numbered retry progress,
   exhausted-group and exact-request retry protection, private stream-stage diagnostics,
   model-appropriate grounding units, cache/search pricing and structured requirement quotes.
-  The local final suite passes **1,762 tests**, with one existing dependency warning; focused
+  Explicit monthly cap refusals are terminal; ambiguous access refusals mention permissions and
+  billing without claiming a cause. The final local suite passes **1,768 tests**, with one
+  existing dependency warning, including the final cap-handling follow-up. Affected
   checks, Ruff/privacy/whitespace, JS syntax, full diff review and fictional UI preview pass.
   No live recovery, complete invoice or matching-quality improvement is established by these
-  offline checks. Publication and exact-head CI remain pending.
+  offline checks. PR #131 is open; the checked follow-up is ready to push and needs fresh CI.
 - Recovery/evidence: private `assistant-review-checkpoint.json` points to the pinned attempt,
   completed capture, independent review and evidence folder. Read authorization/revocations
   before following it. The attempt is saved. All top cards and the balanced blinded sample were
@@ -70,7 +72,7 @@ the pipeline in coherent steps. No extra search or paid experiment is granted by
 - Verification: affected tests and final full suite, Ruff/privacy/whitespace, complete diff
   review, Mac/Windows/privacy CI at exact PR and merge heads. Preserve coverage and scores;
   distinguish reported usage/estimates from actual provider billing.
-- Exact next action: commit/push the checked follow-up, create/attach its PR, wait for exact-head
+- Exact next action: commit/push the checked cap-handling follow-up, update PR #131 and wait for exact-head
   Mac/Windows/privacy CI, merge with a merge commit, synchronize the owner's main without an app
   restart and verify merge-head CI. Then clear this active checkpoint and remove disposable
   scratch. No further paid or job-source request is scheduled.

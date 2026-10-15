@@ -15,7 +15,6 @@ from jobcu.ai.base import (
     MSG_CONNECTION,
     MSG_KEY_REJECTED,
     MSG_MODEL_NOT_FOUND,
-    MSG_NO_PERMISSION,
     MSG_QUOTA,
     MSG_RATE_LIMITED,
     MSG_REFUSED,
@@ -252,6 +251,13 @@ def _translate(exc: Exception, *, web_search: bool = False) -> Exception:
                 "Jobcu won't retry this billing refusal. Check the provider's billing page.",
                 detail,
             )
+        if _spend_cap_reached(exc.message or ""):
+            return AIQuotaExhausted(
+                "The AI provider says a monthly spending cap has been reached. "
+                "Jobcu won't retry this account refusal. Check the project's and billing "
+                "account's cap/status on the provider's billing page before another search.",
+                detail,
+            )
         if web_search and _web_search_refused(exc.code, text):
             return AIWebSearchUnavailable(
                 "Google web look-ups aren't available for this model or API project. "
@@ -267,7 +273,11 @@ def _translate(exc: Exception, *, web_search: bool = False) -> Exception:
                 return AIQuotaExhausted(MSG_QUOTA, detail)
             return AIRateLimited(MSG_RATE_LIMITED, detail, _retry_delay(text))
         if exc.code == 403:
-            return AIAuthError(MSG_NO_PERMISSION, detail)
+            return AIAuthError(
+                "The AI provider refused access. Check key permissions and the project's "
+                "billing or spending-cap status. This refusal alone does not identify "
+                "which caused it.", detail,
+            )
         if exc.code == 404:
             return AIModelNotFound(MSG_MODEL_NOT_FOUND, detail)
         if exc.code and exc.code >= 500:
@@ -284,6 +294,15 @@ def _translate(exc: Exception, *, web_search: bool = False) -> Exception:
     if isinstance(exc, AIError):
         return exc
     return AIBadRequest(MSG_BAD_REQUEST, detail)
+
+
+def _spend_cap_reached(message: str) -> bool:
+    """A stated monthly cap is terminal; a generic 403 cannot establish its cause."""
+    text = message.casefold().replace("_", " ")
+    cap = r"(?:monthly (?:spend(?:ing)? |billing )?(?:cap|limit)|spend(?:ing)? cap)"
+    return bool(re.search(
+        rf"\b(?:{cap}(?: has been| is)? (?:reached|exceeded|exhausted)"
+        rf"|(?:reached|reaching|exceeded|exhausted) (?:the |your |its |a )?{cap})\b", text))
 
 
 def _web_search_refused(code: int | None, text: str) -> bool:

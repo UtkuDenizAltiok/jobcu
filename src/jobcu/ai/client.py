@@ -211,7 +211,12 @@ class AIClient:
                             self.web_searches_used += usage.web_searches
                 if isinstance(exc, AIQuotaExhausted):
                     with self._gate:
+                        first = (provider, model) not in self._quota_errors
                         self._quota_errors[(provider, model)] = exc
+                    if first:
+                        # Discovery/ad checks can retain partial results after an account
+                        # refusal. Surface its reason even when their caller catches it.
+                        self.notify(exc.message)
                 raise
 
     def _one_at_a_time(self) -> None:

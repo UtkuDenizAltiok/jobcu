@@ -120,6 +120,13 @@ evidence; it is not proof that you lack the skill or qualification. Jobcu tolera
 bullet/list formatting when validating quotes, while keeping missing or changed facts unknown.
 Saved results retain the messages recorded when that search ran.
 
+**Monthly spending cap reached** is an account spending stop. Jobcu does not retry an explicit
+cap refusal. Check the provider's billing page and the cap period; raising or lifting it can
+allow further charges. Restoring service does not complete missing checks in an already saved
+search. A generic **access refused** message can mean key permissions or billing/spending status;
+the response alone does not prove which. Jobcu's estimated local ceiling is separate from a
+provider's enforced cap, especially when some requests report incomplete usage.
+
 **Credit depleted or payment required** is a billing refusal, so Jobcu does not keep retrying
 it. Check the provider's billing page. Google explains that delayed cut-off can produce a
 negative prepay balance which is deducted from the next top-up; its spend report can lag.

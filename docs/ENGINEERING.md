@@ -361,6 +361,14 @@ or medium effort is reduced. Fictional electronics/nursing/teaching tests verify
 candidate retention, failure isolation, evidence identity and independent recovery. Offline
 checks do not establish a live latency, billing or matching improvement, nor the remote cause.
 
+An explicit reached monthly spending cap is a terminal account refusal, including when reported
+as HTTP 403 or 429: do not retry it or misclassify it as missing hosted-search capability.
+An otherwise ambiguous Gemini 403 mentions both key permissions and billing/spending status;
+the status alone cannot identify which failed. Invalid keys keep their separate diagnosis.
+Fictional refusal tests verify that later requests do not restart the refused account within
+the same search. Its reason is surfaced once even when a discovery/ad check retains partial
+results and catches the refusal. A fresh search/client can recheck after the owner restores service.
+
 User-entered prices now include optional cached-input and per-thousand web-search rates.
 Thinking remains part of output, counted once. Missing applicable rates/usage keep estimates
 incomplete; mixed currencies have no combined money total. A configured estimated spending

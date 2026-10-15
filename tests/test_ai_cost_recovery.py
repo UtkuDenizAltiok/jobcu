@@ -7,6 +7,7 @@ from google.genai import errors
 from pydantic import BaseModel
 
 from jobcu.ai.base import (
+    AIAuthError,
     AIConnectionError,
     AILimitReached,
     AIOutputTruncated,
@@ -76,6 +77,38 @@ def test_depleted_credit_is_not_temporary_throttling(research, code, message):
     assert "credit" in translated.message.lower()
 
 
+@pytest.mark.parametrize("research", [False, True])
+@pytest.mark.parametrize("code,message", [
+    (403, "Monthly spend cap exceeded"),
+    (429, "Google Search service paused after reaching the monthly cap."),
+])
+def test_explicit_monthly_cap_is_terminal_before_search_or_rate_limit_fallback(
+        research, code, message):
+    error = errors.ClientError(code, {"error": {
+        "code": code, "status": "PERMISSION_DENIED", "message": message}})
+    translated = _translate(error, web_search=research)
+    assert isinstance(translated, AIQuotaExhausted)
+    assert "spending cap" in translated.message and not translated.retryable
+    adapter = ScriptedAdapter(translated, GOOD)
+    client = AIClient(settings(), adapter=adapter, patient=True,
+                      sleep=lambda seconds: pytest.fail("A cap must not cause a retry wait"))
+    for _ in range(2):
+        with pytest.raises(AIQuotaExhausted):
+            ask(client)
+    assert len(adapter.calls) == 1
+
+
+@pytest.mark.parametrize("message", ["Permission denied for this key.",
+                                      "Monthly spend cap has not been reached."])
+def test_ambiguous_permission_refusal_does_not_claim_a_billing_cause(message):
+    error = errors.ClientError(403, {"error": {
+        "code": 403, "status": "PERMISSION_DENIED", "message": message}})
+    translated = _translate(error, web_search=True)
+    assert isinstance(translated, AIAuthError)
+    assert "permissions" in translated.message and "billing" in translated.message
+    assert "does not identify" in translated.message
+
+
 @pytest.mark.parametrize("failure", [AIRateLimited("busy"), AIUnavailable("offline")])
 def test_stop_interrupts_retry_wait_without_sending_another_request(failure):
     stopped = False
@@ -131,11 +164,13 @@ def test_waiting_for_a_request_slot_checks_stop():
 
 def test_definite_account_refusal_blocks_later_dispatch_even_when_a_step_catches_it():
     adapter = ScriptedAdapter(AIQuotaExhausted("Credits depleted"), GOOD)
-    client = AIClient(settings(), adapter=adapter)
+    notices = []
+    client = AIClient(settings(), adapter=adapter, notify=notices.append)
     for _ in range(2):
         with pytest.raises(AIQuotaExhausted):
             ask(client)
     assert len(adapter.calls) == 1
+    assert notices == ["Credits depleted"]
 
 
 def test_identical_exhausted_research_does_not_restart_but_independent_checks_can_run():
