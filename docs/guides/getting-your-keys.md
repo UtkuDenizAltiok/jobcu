@@ -220,15 +220,21 @@ Prices are optional for searching. For a money estimate, add your model's prices
 2. In the new row, select your provider and enter the same model name you chose above.
 3. Copy that model's current prices from the provider's pricing page. **In, per million** is
    the price for one million tokens sent to the AI; **Out, per million** is the price for one
-   million tokens it returns. Enter the matching currency, such as USD or EUR.
+   million tokens it returns, including thinking. Add **Cached in, per million** and
+   **Search, per thousand** when applicable. Search units are the provider's queries or tool
+   calls. A blank optional rate means unknown; zero means a confirmed zero rate. Use the same
+   currency, such as USD or EUR, for all models.
 4. Click **Save prices**. If you use a second model, add and save its prices too.
 
-The **Monthly cost limit** relies on these entered prices and their currency. Missing or
-incorrect prices make that limit unreliable.
+The **Monthly estimated cost limit** checks recorded usage against these prices before each
+request, including retries. With this limit set, Jobcu refuses requests whose model or applicable
+search prices are missing, or whose price table mixes currencies. A request already sent can
+finish before the limit takes effect; concurrent requests can cross the estimate together.
 
-Jobcu's estimate can leave out web fees and discounts. It cannot guarantee the provider's
-final bill. Use any spending controls your provider offers as well, checking whether they
-actually stop spending or only send an alert.
+Estimates include entered search fees and cache discounts, before shared free allowances, taxes
+and other service fees. Unknown cached-input rates use regular input prices and mark the result
+incomplete. Missing usage cannot be reconstructed. The local ceiling cannot guarantee the
+provider's final bill; use the provider's spending controls too and check their enforcement delay.
 
 Reducing cost should preserve full evidence and fresh matching. Jobcu already reuses unchanged
 document understanding, bounded-age full ads and identical Maps requests within a search;

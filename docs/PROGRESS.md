@@ -46,12 +46,36 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**No active goal or unfinished product implementation, local checks or session-close
-housekeeping.** The previous handover, private pointer reconciliation and disposable
-validation-cache cleanup are complete; publication is verified above. Do not reopen completed
-repairs or start backlog work during Start.
+**Active: owner-requested live-search review, reliability and cost control (2026-10-15).**
+Follow the exact new owner-started 24-hour attempt, preserve the running app/data/limits and
+privately capture progress, failures, retries, unchecked evidence, timings and usage. After it
+ends, apply CONTRIBUTING's full review procedure and implement confirmed improvements across
+the pipeline in coherent steps. No extra search or paid experiment is granted by this task.
 
-The earlier whole-pipeline review has only these **parked dependencies**:
+- Branch: `codex/live-search-reliability-cost`, based on `79e6283`, in an attached isolated
+  worktree. The owner's checkout/app remain on unchanged main during the run.
+- Implemented: bounded reference-city groups with retained evidence, numbered retry progress,
+  exact-request exhaustion tracking, private stream-stage diagnostics and cache/search pricing.
+  The local final suite passes **1,752 tests**, with one existing dependency warning; focused
+  checks, Ruff/privacy/whitespace, JS syntax, full diff review and fictional UI preview pass.
+  No live recovery, complete invoice or matching-quality improvement is established by these
+  offline checks. Publication and exact-head CI remain pending the completed-run review.
+- Recovery/evidence: private `assistant-review-checkpoint.json` points to the pinned attempt,
+  capture process and evidence folder. Read authorization/revocations before following it.
+  The owner app remains running; do not restart, stop or alter this attempt for development.
+- Steps: capture the run and establish the fictional local test baseline; review its completed
+  evidence independently, trace reliability/latency/usage causes and verify current service
+  prices/rights; fix confirmed causes with general regressions, then check/publish/merge.
+- Verification: affected tests and final full suite, Ruff/privacy/whitespace, complete diff
+  review, Mac/Windows/privacy CI at exact PR and merge heads. Preserve coverage and scores;
+  distinguish reported usage/estimates from actual provider billing.
+- Exact next action: continue read-only capture through completion; refresh the isolated copy
+  and independently review the pinned run's full evidence before scores, then finish publication.
+  The owner also authorized a conservative monthly AI ceiling after this run; apply it privately
+  while preserving other choices. No live limit or configuration has been changed yet.
+
+The earlier whole-pipeline review also has these **parked dependencies**; do not resume them
+without evidence and authority relevant to the active task:
 
 1. **Long research-request interruptions.** Saved failures ended before response headers;
    their provider/network cause is unproved. The short generation diagnostic is complete.

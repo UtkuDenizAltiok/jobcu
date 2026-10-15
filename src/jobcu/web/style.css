@@ -1137,13 +1137,24 @@ dialog::backdrop {
   margin-bottom: 8px;
 }
 
-.price-row input {
+.price-row .price-field {
+  display: grid;
+  gap: 5px;
   flex: 1 1 120px;
   min-width: 90px;
 }
 
-.price-row .price-model {
+.price-row .price-model-field {
   flex: 2 1 200px;
+}
+
+.price-row .price-provider-field {
+  flex-basis: 100%;
+}
+
+.price-row input {
+  width: 100%;
+  min-width: 0;
 }
 
 /* ---- Score check ---- */

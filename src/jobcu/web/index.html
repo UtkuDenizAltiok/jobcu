@@ -427,7 +427,8 @@
       <div class="card">
         <h2>Usage and limits</h2>
         <p class="muted">What Jobcu has used from your AI provider. Prices are yours to fill in,
-          so the cost is an estimate; Jobcu has no prices built in.</p>
+          so the cost is an estimate before account allowances, tax and other service fees.
+          Missing usage or prices makes it incomplete; it is not your provider's bill.</p>
         <p id="usage-month" class="usage-total">—</p>
         <ul class="usage-list" id="usage-models"></ul>
         <p class="muted" id="usage-last"></p>
@@ -449,7 +450,7 @@
                  placeholder="No limit">
         </div>
         <div class="field">
-          <label for="cost-limit">Monthly cost limit</label>
+          <label for="cost-limit">Monthly estimated cost limit</label>
           <input id="cost-limit" type="number" min="0" step="1" inputmode="decimal"
                  placeholder="No limit">
         </div>
@@ -459,8 +460,10 @@
         <p class="status" id="limits-status" role="status" hidden></p>
 
         <h3>Prices</h3>
-        <p class="muted">What your provider charges per million tokens. You find these on the
-          provider's pricing page.</p>
+        <p class="muted">Enter current input, output and cached-input prices per million tokens,
+          and web-search prices per thousand uses, in the same currency. Search units depend
+          on your provider (queries or tool calls). A blank optional price means unknown;
+          enter zero only for a confirmed zero rate. Shared free allowances are not deducted.</p>
         <div id="price-rows"></div>
         <div class="actions">
           <button type="button" class="secondary" id="add-price">Add a model</button>

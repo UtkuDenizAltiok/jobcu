@@ -5,7 +5,7 @@ from dataclasses import replace
 import pytest
 
 from jobcu import reference_places, travel
-from jobcu.ai.base import AIConnectionError, ResearchReply, Source, Usage
+from jobcu.ai.base import AIConnectionError, AIRefused, ResearchReply, Source, Usage
 from jobcu.countries import COUNTRIES
 from jobcu.dedupe import JobGroup
 from jobcu.location import (
@@ -162,6 +162,45 @@ def test_failed_research_remains_unknown_and_a_later_check_is_fresh(cities):
     reference_places.check(client, "City service", cities[:3])
     reference_places.check(client, "City service", cities[:3])
     assert [kind for kind, _ in client.calls].count("research") == 2
+
+
+@pytest.mark.parametrize("profession", ["Power electronics engineer", "Nurse", "Teacher"])
+@pytest.mark.parametrize("fail_middle", [False, True])
+def test_bounded_groups_preserve_all_candidates_and_each_groups_own_evidence(
+        cities, profession, fail_middle):
+    towns = [replace(cities[0], name=f"Fictional City {i}") for i in range(19)]
+
+    class Groups(Client):
+        def __init__(self):
+            super().__init__()
+            self.group, self.progress = 0, []
+            self.on_progress = self.progress.append
+
+        def research(self, **request):
+            self.group += 1
+            if fail_middle and self.group == 2:
+                self.calls.append(("research", request))
+                raise AIRefused("This group could not be checked")
+            reply = super().research(**request)
+            reply.sources[0].url += f"/{self.group}"
+            return reply
+
+    client = Groups()
+    result = reference_places.check(client, f"City service for a fictional {profession}", towns)
+    assert [c.name for c in result.reference_checks] == [town.name for town in towns]
+    requests = [request for kind, request in client.calls if kind == "research"]
+    assert len(requests) == 3
+    assert all(len(request["prompt"].split("Reference cities:\n")[1].splitlines()) <= 8
+               for request in requests)
+    for start, group in ((0, 1), (8, 2), (16, 3)):
+        checks = result.reference_checks[start:start + 8]
+        if fail_middle and group == 2:
+            assert all(c.meets is None for c in checks)
+        else:
+            assert checks[0].meets is True and checks[1].meets is False
+            assert all(c.meets is None for c in checks[2:])
+            assert checks[0].sources[0].url.endswith(f"/{group}")
+    assert len(client.progress) == 3
 
 
 def test_unknown_alternative_prevents_false_exclusion_but_not_a_supported_pass(cities):

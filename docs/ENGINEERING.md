@@ -343,6 +343,30 @@ is changed. [Current primary recovery guidance](SOURCES.md#ai-and-maps) does not
 which end of a particular connection failed. Detailed diagnosis stays private; no paid probe,
 owner settings change, restart, Stop, reset or new search is performed by development.
 
+## Bounded reference research and priced usage — 2026-10-15
+
+Reference-city research now uses groups of at most eight, retaining every candidate, independent
+city evidence/citations and all completed groups. The bound applies to request scope, not recall:
+missing answers remain unknown. Progress identifies the group and each retry number. An
+in-memory fingerprint prevents restarting the retry budget for an identical exhausted research
+request within one client/search. Independent country/fact requests, normal generation and job
+sources remain available; a new search starts fresh. A broad research outage hold was rejected
+because a failed request does not establish that independent requests cannot recover.
+
+Private SDK diagnostics record elapsed time, response-header/chunk/completion/usage receipt and
+transport error class, without request text or identifiers. No timeout, retry count, chosen model
+or medium effort is reduced. Fictional electronics/nursing/teaching tests verify complete
+candidate retention, failure isolation, evidence identity and independent recovery. Offline
+checks do not establish a live latency, billing or matching improvement, nor the remote cause.
+
+User-entered prices now include optional cached-input and per-thousand web-search rates.
+Thinking remains part of output, counted once. Missing applicable rates/usage keep estimates
+incomplete; mixed currencies have no combined money total. A configured estimated spending
+limit requires applicable model/search tariffs in one currency before dispatch. Gemini counts
+unique nonempty grounding queries per request; cumulative duplicate metadata is not another
+charge. Estimates precede account allowances/tax/other fees and cannot cap unreported charges
+or already running requests. [Current service evidence](SOURCES.md#priced-grounding-and-spend-controls--2026-10-15).
+
 ## Original evidence and repeated requests — 2026-10-12
 
 The saved-review procedure remains independent judgement before score reveal, including every

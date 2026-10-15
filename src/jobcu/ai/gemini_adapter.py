@@ -1,7 +1,9 @@
 """Google (Gemini) through the official `google-genai` library."""
 
+import logging
 import re
 import threading
+import time
 from collections import Counter
 
 import httpx
@@ -42,6 +44,7 @@ from jobcu.ai.base import (
 from jobcu.settings import Effort
 
 _REFUSAL_REASONS = {"SAFETY", "PROHIBITED_CONTENT", "BLOCKLIST", "SPII", "RECITATION"}
+log = logging.getLogger(__name__)
 
 
 class GeminiAdapter(ProviderAdapter):
@@ -122,11 +125,14 @@ class GeminiAdapter(ProviderAdapter):
         finished = False
         usage_seen = interrupted = False
         stream = None
+        started = time.monotonic()
+        chunks_received = 0
         self._stream_responses.current = []
         try:
             stream = self._client().models.generate_content_stream(
                 model=model, contents=prompt, config=config)
             for response in stream:
+                chunks_received += 1
                 feedback = response.prompt_feedback
                 if feedback is not None and feedback.block_reason:
                     raise AIRefused(MSG_REFUSED, str(feedback.block_reason))
@@ -159,6 +165,13 @@ class GeminiAdapter(ProviderAdapter):
             if not finished:
                 raise AIUnavailable(MSG_UNAVAILABLE, "AI answer stream ended before completion.")
         except Exception as exc:
+            if isinstance(exc, httpx.TransportError):
+                log.info(
+                    "AI stream connection interrupted after %.1fs: headers_received=%s, "
+                    "chunks_received=%d, completion_received=%s, usage_received=%s, kind=%s",
+                    time.monotonic() - started, bool(self._stream_responses.current),
+                    chunks_received, finished, usage_seen, type(exc).__name__,
+                )
             # STOP is the provider's successful terminal outcome, not merely valid JSON.
             # A later body disconnect cannot undo it. Keep metadata already received;
             # unknown trailing usage remains explicit rather than repeating paid work.
@@ -213,7 +226,9 @@ def _usage(counts: Counter, queries: Counter, *, unreported: bool) -> Usage:
         output_tokens=counts["candidates_token_count"] + thoughts,
         cached_input_tokens=counts["cached_content_token_count"],
         reasoning_tokens=thoughts,
-        web_searches=sum(queries.values()),
+        # Google bills unique nonempty queries within a request, not repeated cumulative
+        # grounding metadata. Keep the same query chargeable again in a separate request.
+        web_searches=len({query.strip() for query in queries if query.strip()}),
         unreported_requests=int(unreported),
     )
 
