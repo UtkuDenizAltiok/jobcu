@@ -749,8 +749,11 @@ Private demand/estimates stay private. Public fictional comparisons and decision
 
 ### Billing refusals and processing evidence — 2026-10-12
 
-**Rechecked:** Google's [billing documentation](https://ai.google.dev/gemini-api/docs/billing)
-identifies exhausted prepay credit as HTTP 402 until replenishment. Delayed cut-off can create
+**Rechecked 2026-10-16:** Google's [billing documentation](https://ai.google.dev/gemini-api/docs/billing)
+and [Interactions error reference](https://ai.google.dev/gemini-api/docs/api-errors) identify
+exhausted prepay credit as HTTP 402 until replenishment. An active monthly spending cap is
+separate from available prepaid credit; do not infer a particular account's balance from
+this general contract. Delayed cut-off can create
 a negative balance, deducted from the next purchase. Billing reports can lag; a balance
 change alone cannot identify the charge for one run. This supports a terminal billing error,
 not repeated minute-scale throttling waits or a diagnosis from a screenshot timestamp.

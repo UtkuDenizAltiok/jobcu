@@ -10,11 +10,12 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
-- City conversion/recovery and request/wait measurements are tracked in
-  [PR #136](https://github.com/UtkuDenizAltiok/jobcu/pull/136); current local suite is
-  **1,857 passing tests** on the unchanged baseline. The exact owner-started run has finished;
-  its private review and confirmed repairs are in progress. The separate native transport
-  candidate passes 1,898 offline tests but is not adopted; live recovery remains unverified.
+- Exact-run review's safe job-type/research-admission fixes and request-kind diagnostics are
+  tracked in [PR #138](https://github.com/UtkuDenizAltiok/jobcu/pull/138), with **1,864 local
+  tests passing**. Exact publication/CI receipts are in the private checkpoint. PR #136's
+  unchanged baseline was 1,857 tests; its merged head `7a708a6` passed Mac/Windows/privacy
+  CI `38944559503`. The separate native transport candidate is not adopted; live recovery
+  remains unverified.
 - Location admission, explicit screening uncertainty and the UK sponsorship deduction are
   tracked in [PR #135](https://github.com/UtkuDenizAltiok/jobcu/pull/135). Final local suite:
   **1,833 passing tests**. These checks use fictional data; real missing place evidence stays
@@ -76,9 +77,11 @@ previous saved search. Owner app 8765 is running; preserve it. No preview was st
 The exact run is frozen and its independent review is sealed privately. Baseline: 1,857
 passing tests. Student-role refinement of broad schedule hints, retention of unknown types,
 skipping extra research for proven ad exclusions, and request-kind diagnostics are implemented
-on `codex/exact-run-safe-fixes`. The final safe code passes **1,864 offline tests**, with one
-existing dependency deprecation warning; Ruff/privacy/whitespace pass. Publish the safe subset,
-require exact-head Mac/Windows/privacy CI, merge and synchronize main.
+in [PR #138](https://github.com/UtkuDenizAltiok/jobcu/pull/138), branch
+`codex/exact-run-safe-fixes`. The final safe code passes **1,864 offline tests**, with one
+existing dependency deprecation warning; Ruff/privacy/whitespace pass. Safe publication is
+tracked privately: require exact-head Mac/Windows/privacy CI, a merge commit, synchronized
+main and exact-main CI. Complete that publication only if Git/CI show it remains unfinished.
 
 The native stateless event-stream candidate is preserved separately at `ac25239`, draft
 [PR #137](https://github.com/UtkuDenizAltiok/jobcu/pull/137), branch `codex/exact-run-review`.
@@ -87,8 +90,11 @@ It is **not adopted**: live verification did not establish usable recovery. Pres
 existing endpoint, selected model/medium effort and owner app state. Do not merge that
 candidate until its private blocking dependency is resolved and bounded verification passes.
 
-Recovery details, exact remaining action and evidence gaps are in private
-`assistant-review-checkpoint.json`. Every paid packet is closed at its recorded stop;
+Exact next action after safe publication: read private `assistant-review-checkpoint.json`,
+the closed verification packet and current billing-state evidence. Resolve the recorded
+external dependency before proposing another bounded verification of the preserved candidate.
+Do not repeat the failed request, broaden evidence collection or adopt the endpoint merely
+because offline tests pass. Recovery details and evidence gaps stay private. Every paid packet is closed at its recorded stop;
 unused maxima grant no further requests. External transport causes, missing reference-city
 facts and opaque final Adzuna destinations remain explicit dependencies. No new search.
 
