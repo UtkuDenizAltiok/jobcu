@@ -313,6 +313,7 @@ class AIClient:
                         effort=effort,
                         max_output_tokens=with_thinking_room(max_output_tokens, effort),
                     )
+                    self._record(step, provider, model, reply.usage)
             except AIRateLimited as exc:
                 self._one_at_a_time()
                 rate_waits += 1
@@ -344,7 +345,6 @@ class AIClient:
                 max_output_tokens *= 2
                 continue
 
-            self._record(step, provider, model, reply.usage)
             self.checkpoint()
             try:
                 answer = output.model_validate(extract_json(reply.text))
@@ -426,12 +426,9 @@ class AIClient:
         try:
             reply = self._research(adapter, provider, model, step, system, prompt, allowed,
                                    max_output_tokens, effort)
-            with self._gate:
-                self.web_searches_used += max(1, reply.usage.web_searches)
         finally:
             with self._gate:
                 self._web_searches_reserved -= allowed
-        self._record(step, provider, model, reply.usage)
         self.checkpoint()
         return reply
 
@@ -506,6 +503,9 @@ class AIClient:
                         max_output_tokens=with_thinking_room(max_output_tokens, effort),
                         effort=effort,
                     )
+                    with self._gate:
+                        self.web_searches_used += max(1, reply.usage.web_searches)
+                    self._record(step, provider, model, reply.usage)
             except AIWebSearchUnavailable as exc:
                 with self._gate:
                     first = self._web_unavailable is None

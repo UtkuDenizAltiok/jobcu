@@ -72,6 +72,23 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Record step time and answer-wait time; label correction timings separately from cumulative usage. | Corrections and full searches cannot be compared as equivalent performance runs (2026-10-06). |
 | Warn when scoring reads only an excerpt of a lengthy ad. | Unseen requirements must not be assumed satisfied (2026-10-06). |
 
+## Receipt admission and bounded spending — 2026-10-17
+
+Successful generation/research usage is recorded while its request slot is occupied.
+Research allowance accounting also happens there, before another queued call can check the
+remaining limits. Error receipts already follow this rule. Preserve exactly one ledger entry
+per actual attempt, including format repairs, truncation and Stop after a complete answer.
+Paused-ledger regressions first reproduce queued dispatches against stale token/money totals,
+then prove those same owner limits prevent them for structured and research requests.
+
+This does not bound a provider's internal hosted-search loop. A request allowance is not a
+server-enforced query maximum, and a token maximum does not bound search fees. No bounded
+paid research experiment is safe merely because the previous call was cheap: verify an
+enforceable bound before offering a monetary ceiling. Keep raw research storage/display
+constraints and the owner-selected model/effort; do not adopt an unverified cheaper path or
+silently reduce candidates/evidence to manufacture a savings claim. The UI/guide explain that
+in-flight provider searches and missing receipts can exceed local estimates.
+
 ## Coordinated connection recovery — 2026-10-17
 
 After a transport interruption, `AIClient` admits only one real queued request at a time

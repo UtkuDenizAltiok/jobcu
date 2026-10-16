@@ -721,6 +721,15 @@ enforcement delay and overages. Prepay balances and billing graphs have differen
 delays. These controls are distinct from an estimated local ceiling and alerts-only Cloud
 budgets. No billing account was accessed or changed for this research.
 
+**Query controls rechecked 2026-10-17:** Google's [grounding guide](https://ai.google.dev/gemini-api/docs/google-search/)
+prices each query selected by newer native models. The locked SDK's `GoogleSearch`/`ToolConfig`
+and [Interactions generation configuration](https://ai.google.dev/api/interactions-api) expose
+no documented hard query-count ceiling for built-in Google Search. Jobcu's request allowance
+cannot enforce one inside the provider; prompt instructions or earlier observed counts are
+not spending guarantees. Token maxima do not cap these query fees. Keep local estimates and
+provider controls distinct, and do not adopt a transport candidate as a cost reduction without
+complete comparative usage and quality evidence.
+
 ### Processing tiers and complete cost comparisons — 2026-10-10
 
 [Gemini Flex](https://ai.google.dev/gemini-api/docs/flex-inference) offers a 50% token-price

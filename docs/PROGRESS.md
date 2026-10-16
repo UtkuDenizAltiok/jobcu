@@ -10,9 +10,14 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
-- Coordinated connection recovery is implemented on `codex/connection-recovery-cost`: **1,873
-  offline tests** pass. Publication must require exact-head Mac/Windows/privacy CI and a
-  merge commit; recover current receipts from the private checkpoint.
+- Successful receipt admission and spending-limit clarity are implemented on
+  `codex/receipt-before-dispatch`: **1,877 offline tests** pass, including four reproduced
+  receipt/admission races. Publication must finish exact-head PR/main CI, merge and sync;
+  recover actual status from the private checkpoint before repeating any work.
+- Coordinated connection recovery is merged in
+  [PR #139](https://github.com/UtkuDenizAltiok/jobcu/pull/139), with **1,873 offline tests**
+  passing. PR head `5666c13` and main merge `973e8d8` passed exact-head Mac/Windows/privacy
+  CI `38966766470` and `38967197096`; main/locked dependencies are synchronized.
 - Exact-run review's safe job-type/research-admission fixes and request-kind diagnostics are
   merged in [PR #138](https://github.com/UtkuDenizAltiok/jobcu/pull/138), with **1,864 local
   tests passing**. PR head `66a2d4e` and main merge `4b71cdc` passed exact-head Mac/Windows/privacy
@@ -87,30 +92,33 @@ existing dependency deprecation warning; Ruff/privacy/whitespace pass. PR #138 i
 main synchronized, and exact PR/main Mac/Windows/privacy CI passed. Do not repeat its checks.
 
 The owner's cost follow-up remains within this exact-run goal: reduce avoidable paid work
-without reducing quality or coverage. On `codex/connection-recovery-cost`, coordinate retries
-after transport interruptions per provider/model/request kind. Reuse a queued real request as
-a single recovery attempt; keep other work queued and restore normal parallel work on success.
-Preserve evidence, medium effort, candidates, every per-request retry bound, Stop and limits.
-The fictional concurrent failure/recovery tests pass; all answers and effort are preserved,
-queued Stop/billing refusals prevent dispatches, and healthy parallel work resumes. Final suite:
-**1,873 passing**, one existing dependency deprecation warning; affected checks, Ruff/privacy/
-whitespace pass. Publish this coherent step, require exact PR/main CI, merge and synchronize.
-No new paid test is authorized; detailed cost evidence and closed test packets remain private.
+without reducing quality or coverage. PR #139's coordinated connection recovery is merged
+and verified on exact PR/main heads; do not repeat those checks. Receipt admission is
+implemented on `codex/receipt-before-dispatch`: successful usage/web allowance accounting now
+stays inside the occupied request slot before queued work can check remaining owner limits.
+Four offline regressions failed before the fix and pass after it. Final suite: **1,877 passing**,
+one existing dependency deprecation warning; affected checks, Ruff/privacy/whitespace pass.
+Complete this step's normal exact-head publication only if Git/private receipts show it remains
+unfinished. All evidence, medium effort, candidates and per-request retry bounds are preserved.
 
-The native stateless event-stream candidate is preserved separately at `ac25239`, draft
+The native stateless event-stream candidate remains separately preserved at `ac25239`, draft
 [PR #137](https://github.com/UtkuDenizAltiok/jobcu/pull/137), branch `codex/exact-run-review`.
-Its 1,898 offline tests pass, including actual-SDK dispatch/receipt/failure isolation contracts.
-It is **not adopted**: live verification did not establish usable recovery. Preserve the
-existing endpoint, selected model/medium effort and owner app state. Do not merge that
-candidate until its private blocking dependency is resolved and bounded verification passes.
+Its 1,898 offline tests and exact-head Mac/Windows/privacy CI pass. It is **not adopted**:
+cost-safe operation and complete city/evidence verification are not established. Keep the
+existing endpoint and chosen model/effort. A token limit/request allowance is not an enforceable
+maximum on provider-controlled hosted-search fees. Do not adopt the candidate or repeat paid
+experiments based on an earlier low estimate or an account top-up.
 
-Exact next action after safe publication: read private `assistant-review-checkpoint.json`,
-the closed verification packet and current billing-state evidence. Resolve the recorded
-external dependency before proposing another bounded verification of the preserved candidate.
-Do not repeat the failed request, broaden evidence collection or adopt the endpoint merely
-because offline tests pass. Recovery details and evidence gaps stay private. Every paid packet is closed at its recorded stop;
-unused maxima grant no further requests. External transport causes, missing reference-city
-facts and opaque final Adzuna destinations remain explicit dependencies. No new search.
+**Exact remaining action/dependency:** finish receipt-admission publication if needed, then
+read private `assistant-review-checkpoint.json` and the closed verification packets. Identify
+a documented, enforceable hosted-query budget or a permitted controlled research interface
+before any further paid verification proposal. Preserve complete evidence/candidate scope and
+verify the protocol offline first. No new paid authority remains; do not repeat a used packet,
+start another search, choose backlog work or claim a verified per-search invoice saving.
+External transport causes, missing originals/reference facts, precise fresh-date/workplace/
+duplicate evidence, an independent recall benchmark and opaque final Adzuna destinations stay
+explicit in the sealed private review. Keep this remaining scope checkpointed; the safe repairs
+and free investigation are complete once publication passes.
 
 The earlier whole-pipeline review also has these **parked dependencies**; do not resume them
 without evidence and authority relevant to the active task:
