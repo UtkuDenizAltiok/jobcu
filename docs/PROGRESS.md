@@ -13,7 +13,8 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 - City conversion/recovery and request/wait measurements are tracked in
   [PR #136](https://github.com/UtkuDenizAltiok/jobcu/pull/136); current local suite is
   **1,857 passing tests** on the unchanged baseline. The exact owner-started run has finished;
-  its private review and confirmed repairs are in progress.
+  its private review and confirmed repairs are in progress. Final code passes **1,898 local tests**;
+  native live recovery is not yet verified.
 - Location admission, explicit screening uncertainty and the UK sponsorship deduction are
   tracked in [PR #135](https://github.com/UtkuDenizAltiok/jobcu/pull/135). Final local suite:
   **1,833 passing tests**. These checks use fictional data; real missing place evidence stays
@@ -75,9 +76,12 @@ previous saved search. Owner app 8765 is running; preserve it. No preview was st
 Branch: `codex/exact-run-review`; base is merged PR #136. The exact run is frozen and its
 independent review is sealed privately. Baseline: 1,857 tests. Student-role refinement of broad
 schedule hints, retention of unknown types and skipping extra research for proven ad exclusions
-are implemented; affected search/scoring and document checks pass. Full final suite is pending.
-Next: verify native stateless event streaming contracts for complete
-answers, sources, usage, reasoning and a single SDK dispatch; no live recovery claim yet.
+are implemented. Native stateless event streaming preserves complete answers, sources, usage,
+reasoning and a single SDK dispatch in actual-SDK offline tests. Final suite: **1,898 passing**
+with one existing dependency deprecation warning; Ruff/privacy/whitespace and document checks
+pass. Implemented/tested; native change is not yet published or merged.
+Next: publish the reviewed native transport change and open a PR; require exact-head CI.
+A bounded live verification proposal may follow the reviewable change; no live recovery claim yet.
 Recovery details and evidence gaps are in private `assistant-review-checkpoint.json`. Earlier bounded paid packets are
 closed; unused maxima grant no further requests. External transport causes and opaque final
 Adzuna destinations remain unresolved unless this task obtains relevant new evidence/authority.

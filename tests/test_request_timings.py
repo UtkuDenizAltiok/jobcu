@@ -28,6 +28,7 @@ def test_request_and_actual_retry_times_are_separate_and_contain_no_prompt(monke
     messages = [record.message for record in caplog.records]
     attempts = [m for m in messages if m.startswith('AI attempt finished')]
     assert len(attempts) == 2 and all('elapsed=1.250s' in m for m in attempts)
+    assert all('request_kind=structured' in m for m in attempts)
     assert any('elapsed=5.000s requested=5.000s' in m for m in messages)
     assert all('PRIVATE_FICTIONAL_JOB_TEXT' not in m for m in messages)
     assert 'outcome=AIUnavailable' in attempts[0] and 'outcome=complete' in attempts[1]

@@ -165,6 +165,8 @@ already read are preferred; missing evidence remains unchecked. Related jobs are
 small batches, and each batch can need a web-research answer and another AI answer to extract
 the facts. Provider thinking, search tools, connection retries and throttling can make this
 stage slow. Its job counter measures progress, not proven accuracy or an estimate of time left.
+Where supported, Jobcu receives progress while the provider is working, while keeping your
+chosen reasoning effort. Only a completed answer can supply job evidence.
 If an online check fails, the existing job evidence is kept and missing details stay uncertain.
 Jobs already known to be outside your selected job types or excluded remote-work choice do
 not receive these extra online checks.

@@ -72,6 +72,30 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Record step time and answer-wait time; label correction timings separately from cumulative usage. | Corrections and full searches cannot be compared as equivalent performance runs (2026-10-06). |
 | Warn when scoring reads only an excerpt of a lengthy ad. | Unseen requirements must not be assumed satisfied (2026-10-06). |
 
+## Native stateless event transport — 2026-10-16
+
+For the API/locked-SDK supported text-model IDs and aliases in `gemini_events.EVENT_MODELS`,
+the native adapter uses Interactions streaming with `store=false`, `background=false` and
+no previous interaction. Other model IDs retain Generate Content. This is an endpoint
+capability choice; it changes no provider/model selection, effort, prompt, evidence scope or
+token allowance. Thought summaries provide incremental events and are discarded, never
+treated as evidence or logged. Background project storage is not enabled.
+
+Only a successful terminal completion supplies an answer. Preserve final input/output/thought,
+cache and search counts, use partial receipts on failures and mark missing final/query usage
+incomplete. Native URL annotations use strict UTF-8 byte boundaries within their own text
+part; ambiguous/repeated passages cannot acquire a citation. Canonical terminal steps replace
+streamed text rather than duplicate it. Closing after terminal completion cannot trigger a
+second paid generation. Each thread closes its own HTTP bodies.
+
+The locked SDK's Interactions resource adds a hidden retry with `attempts=1`. Disable its
+resource retry configuration explicitly, leaving `AIClient` in charge of every dispatch,
+Stop and allowance. Translate its distinct HTTP errors and unwrap transport causes without
+turning account refusals into connection retries. Logs distinguish research and structured
+attempts without payloads. Actual-SDK offline transports exercise these contracts and
+parallel failure isolation; they do not prove live recovery, equal latency or invoice savings.
+See [dated API evidence](SOURCES.md#stateless-native-event-streaming--2026-10-16).
+
 ## Job types and online research — 2026-10-16
 
 The broad `full_time_permanent`/`fixed_term` pair can describe a source's unspecified
