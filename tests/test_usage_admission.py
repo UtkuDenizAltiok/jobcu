@@ -78,3 +78,43 @@ def test_successful_receipt_is_recorded_before_queued_request_checks_its_limit(
             pending.result(timeout=5)
     assert adapter.calls == 1
     assert ledger.this_month()[0].usage == Usage(10, 5, web_searches=int(kind == "research"))
+
+
+def test_completed_web_use_releases_its_reservation_before_accepting_more_work(tmp_path):
+    from test_ai_parallel import Counting, client
+
+    recording, allow_receipt, second_finished = (threading.Event() for _ in range(3))
+
+    class Ledger(UsageLog):
+        first = True
+
+        def record(self, **kwargs):
+            if self.first:
+                self.first = False
+                recording.set()
+                assert allow_receipt.wait(timeout=5)
+            super().record(**kwargs)
+
+    adapter, ledger = Counting(), Ledger(tmp_path)
+    ai = client(adapter, cap=2)
+    ai.parallel_requests, ai.usage_log = 1, ledger
+
+    def work(second=False):
+        try:
+            return ai.research(step="job_places", system="Read fictional evidence",
+                               prompt="Fictional vacancy", max_searches=1)
+        finally:
+            if second:
+                second_finished.set()
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        first = pool.submit(work)
+        assert recording.wait(timeout=5)
+        second = pool.submit(work, True)
+        try:
+            assert not second_finished.wait(timeout=0.1)
+        finally:
+            allow_receipt.set()
+        assert first.result(timeout=5).text == second.result(timeout=5).text == "notes"
+    assert adapter.calls == 2 and ai.web_searches_left() == 0
+    assert ledger.this_month()[0].usage == Usage(2, 2, web_searches=2)

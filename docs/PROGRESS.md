@@ -101,6 +101,13 @@ one existing dependency deprecation warning; affected checks, Ruff/privacy/white
 Complete this step's normal exact-head publication only if Git/private receipts show it remains
 unfinished. All evidence, medium effort, candidates and per-request retry bounds are preserved.
 
+Final inspection of receipt admission also found that a completed web check's reservation
+must be released atomically with charging its use. Otherwise available allowance can be
+counted twice during receipt writing and a valid check can be deferred. Reproduce this on
+`codex/atomic-web-accounting`, preserve receipt-before-slot-release, and verify all queued work
+still finishes within the unchanged allowance. Baseline: unchanged 1,877 passing tests.
+Finish affected/full checks and normal exact-head publication; no paid test is involved.
+
 The native stateless event-stream candidate remains separately preserved at `ac25239`, draft
 [PR #137](https://github.com/UtkuDenizAltiok/jobcu/pull/137), branch `codex/exact-run-review`.
 Its 1,898 offline tests and exact-head Mac/Windows/privacy CI pass. It is **not adopted**:

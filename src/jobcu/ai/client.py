@@ -423,12 +423,21 @@ class AIClient:
                     "in Settings."
                 )
             self._web_searches_reserved += allowed
+        held = allowed
+
+        def completed(usage: Usage) -> None:
+            nonlocal held
+            with self._gate:
+                self.web_searches_used += max(1, usage.web_searches)
+                self._web_searches_reserved -= held
+                held = 0
+
         try:
             reply = self._research(adapter, provider, model, step, system, prompt, allowed,
-                                   max_output_tokens, effort)
+                                   max_output_tokens, effort, completed)
         finally:
             with self._gate:
-                self._web_searches_reserved -= allowed
+                self._web_searches_reserved -= held
         self.checkpoint()
         return reply
 
@@ -467,7 +476,7 @@ class AIClient:
 
     def _research(self, adapter: ProviderAdapter, provider: str, model: str, step: str, system: str,
                   prompt: str, max_searches: int, max_output_tokens: int,
-                  effort: Effort | None) -> ResearchReply:
+                  effort: Effort | None, completed: Callable[[Usage], None]) -> ResearchReply:
         effort = effort or self.settings.ai.reasoning_effort
         if not getattr(adapter, "strict_reasoning", False) and (
                 (provider, model) in self._effort_unsupported):
@@ -503,8 +512,7 @@ class AIClient:
                         max_output_tokens=with_thinking_room(max_output_tokens, effort),
                         effort=effort,
                     )
-                    with self._gate:
-                        self.web_searches_used += max(1, reply.usage.web_searches)
+                    completed(reply.usage)
                     self._record(step, provider, model, reply.usage)
             except AIWebSearchUnavailable as exc:
                 with self._gate:
