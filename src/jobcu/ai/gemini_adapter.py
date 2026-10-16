@@ -32,6 +32,7 @@ from jobcu.ai.base import (
     AIRefused,
     AIUnavailable,
     AIWebSearchUnavailable,
+    Citation,
     ProviderAdapter,
     RawReply,
     ResearchReply,
@@ -118,7 +119,7 @@ class GeminiAdapter(ProviderAdapter):
         additional tokens/queries. Keep every source and ignore thought text, as the SDK's
         ordinary response.text does. A broken stream never supplies a partial judgement.
         """
-        text, sources = [], []
+        text, sources, supports, grounding_chunks = [], [], [], []
         queries: Counter[str] = Counter()
         counts: Counter[str] = Counter()
         finished = False
@@ -152,6 +153,12 @@ class GeminiAdapter(ProviderAdapter):
                         web = chunk.web
                         if web is not None and web.uri:
                             sources.append(Source(web.uri, web.title or ""))
+                    # Streaming support indices refer to chunks accumulated in arrival order.
+                    grounding_chunks.extend(grounding.grounding_chunks or [])
+                    for support in grounding.grounding_supports or []:
+                        words = support.segment.text if support.segment else None
+                        if words:
+                            supports.append((words, support.grounding_chunk_indices or []))
                 finish = _name(candidate.finish_reason)
                 if finish == "MAX_TOKENS":
                     raise AIOutputTruncated(MSG_TRUNCATED)
@@ -198,11 +205,24 @@ class GeminiAdapter(ProviderAdapter):
                     # Cleanup cannot undo STOP or replace a meaningful refusal/
                     # truncation error and its usage with another connection retry.
                     interrupted = True
+        notes = "".join(text)
+        citations = {}
+        for words, indexes in supports:
+            if notes.count(words) != 1:
+                continue
+            for index in indexes:
+                if 0 <= index < len(grounding_chunks):
+                    web = grounding_chunks[index].web
+                    if web and web.uri:
+                        citations[words, web.uri] = Citation(words, web.uri)
         return ResearchReply(
-            text="".join(text),
+            text=notes,
             sources=unique_sources(sources),
             usage=_usage(counts, queries, unreported=interrupted or not usage_seen,
                          query_billed=query_billed),
+            # Segment offsets refer to provider parts in UTF-8 bytes, not Python character
+            # offsets across streamed chunks. Require unique literal text instead of guessing.
+            citations=list(citations.values()) if web_search else None,
         )
 
     def list_models(self) -> list[str]:

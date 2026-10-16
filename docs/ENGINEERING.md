@@ -72,6 +72,54 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Record step time and answer-wait time; label correction timings separately from cumulative usage. | Corrections and full searches cannot be compared as equivalent performance runs (2026-10-06). |
 | Warn when scoring reads only an excerpt of a lengthy ad. | Unseen requirements must not be assumed satisfied (2026-10-06). |
 
+## Saved evidence recovery — 2026-10-16
+
+**Retry incomplete checks** operates on the latest retained pool and location plan. It does
+not call job collection or change the owner's form, provider, model, reasoning or limits.
+It can read permitted missing details during ordinary reevaluation. Its preview performs
+local validation only; pressing Retry is the point that can use AI.
+
+An unchanged finite reference-city condition retains its interpreted scope. Population/name
+rules rebuild the complete candidate set; only sourced, supported, timestamped city facts
+checked within one hour are reused. Legacy, invalid or expired timestamps require fresh
+research. Missing facts use the existing groups of eight; an exhausted connection failure
+stops remaining groups. A changed eligible destination set invalidates prior travel outcomes.
+This narrow same-search recovery does not create a cross-search research cache.
+
+Research replies can retain provider-linked note passages separately from a page list.
+Gemini streaming accumulates grounding chunks in arrival order, resolves support indices
+against that complete list, and retains only unique literal non-thought passages. Reference
+extraction receives the passage-to-source-ID map; when that map is available, a citation must
+be linked inside the same city's paragraph. Ambiguous/repeated text, missing links and another
+city's source remain unknown. Opaque redirect URLs and identical domain titles alone cannot
+reconstruct those associations. This preserves provenance without another AI request; it does
+not verify the source's factual accuracy or the model's complete interpretation. Current
+comparisons must use the latest comparable published facts or explain the specified event.
+See [provider contract](SOURCES.md#grounding-passage-links--2026-10-16).
+
+Ordinary requirement grounding now retains the proposed verdict and local validation failures
+in private evidence, including results extracted from online notes. Legacy unknowns have no
+retained proposal: valid quotes or high points cannot reconstruct a lost verdict. Free
+revalidation can recover a retained proposal only from the actual complete scoring text.
+Remaining explicit unknowns in full ads use focused, numbered comparisons against the saved
+profile. Missing/duplicate IDs cannot erase evidence, confirmed blockers are untargetable,
+and unsupported quotes remain unknown. Only the ordinary-requirement judgement changes;
+other score components and independent warnings remain. Summary-only jobs require their
+original evidence instead. Standalone list bullets can move between lines without invalidating
+the same adjacent quoted sentences; words and negations are still required. AI explanations
+describe uncertainty but are not verified facts.
+
+Recovery honors the existing scoring continuation question and monthly controls. A failed
+comparison stops queued work; already running requests can finish. Completed pool work and
+usage survive Stop or a later failure. Cards rebuild on completed reevaluation. Reopened
+clients restore reported web usage for the same search ID across providers, excluding employer
+discovery's separate allowance, so a correction cannot silently obtain a fresh allowance.
+Missing usage remains unreported; local
+estimates and planned native-search reservations cannot guarantee the provider invoice.
+Fictional tests cover the API/CSRF boundary, no new collection, limits, failed/ambiguous
+answers, preservation and quote recovery. They do not establish live provider availability
+or resolve missing external facts in historical results.
+
 ## Reasoning-preserving request recovery — 2026-10-15
 
 Native adapters previously treated every bad request as a possible unsupported reasoning
@@ -1371,7 +1419,7 @@ The root keeps launchers, README, CONTRIBUTING, AGENTS, LICENSE and Python/tool 
 | Search coordination | `search.py`, `search_api.py`, `pipeline.py`, `pool.py`; progress, collection, decisions, cards and condition reapplication. |
 | Places/criteria | `countries.py`, `location.py`, `reference_places.py`, `places.py`, `placenames.py`, `travel.py`; supported geography, query interpretation, finite reference-city evidence and measurements. |
 | Discovery | `keywords.py`, `employers.py`; multilingual words and periodically discovered employers. |
-| Evidence/matching | `text.py`, `jobposting.py`, `dedupe.py`, `filters.py`, `freshness.py`, `relevance.py`, `jobplace.py`, `requirements.py`, `scoring.py`; text extraction, filtering, research, grounded requirements and fit. |
+| Evidence/matching | `text.py`, `jobposting.py`, `dedupe.py`, `filters.py`, `freshness.py`, `relevance.py`, `jobplace.py`, `requirements.py`, `recheck.py`, `scoring.py`; text extraction, filtering, research, grounded requirements, saved-ad recovery and fit. |
 | Results/evaluation | `applications.py`, `jobidentity.py`, `jobstore.py`, `quality.py`, `quality_api.py`; application routes, remembered jobs, saved results and independent score checks. |
 | `ai/` | `client.py` is the sole AI entry point; provider adapters, schemas, errors and token/web usage. |
 | `sources/` | Isolated adapters and the registry. `base.py` defines `JobSource`; `http.py` applies polite requests/robots; `budget.py` tracks limits; `matching.py` matches lists; `careers.py` uses the directory; `careerlinks.py` recognizes career hosts. See [SOURCES](SOURCES.md). |

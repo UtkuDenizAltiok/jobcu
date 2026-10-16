@@ -75,6 +75,21 @@ def test_unsupported_quotes_become_unknown_without_a_blocker(field, unsupported)
     assert "could not be confirmed" in result["notes"][0]
 
 
+@pytest.mark.parametrize("skill", ["Circuit simulation", "Ward care", "Lesson planning"])
+@pytest.mark.parametrize("bullet", ["•", "●"])
+def test_inline_list_markers_match_the_same_adjacent_ad_sentences(skill, bullet):
+    ad = f"• {skill} is required.\n• Practical experience is required."
+    words = f"{skill} is required. {bullet} Practical experience is required."
+    person = PROFILE.model_copy(update={"skills": [skill]})
+    found = requirements.ground([check("met", ad_words=words, profile_words=skill)],
+                                 ad, person.model_dump())[0]
+    assert found["status"] == "met" and found["grounding_issues"] == []
+    # Formatting tolerance cannot remove negation or make a new quotation true.
+    changed = words.replace("is required", "is not required", 1)
+    assert requirements.ground([check("met", ad_words=changed, profile_words=skill)],
+                               ad, person.model_dump())[0]["status"] == "unclear"
+
+
 def test_missing_checks_are_unknown_even_for_a_complete_ad():
     result = score(None, hard=15)
     assert result["parts"]["hard_requirements"] == 14

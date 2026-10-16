@@ -173,6 +173,33 @@ def test_definite_account_refusal_blocks_later_dispatch_even_when_a_step_catches
     assert notices == ["Credits depleted"]
 
 
+def test_reopened_client_keeps_the_same_searchs_reported_web_allowance():
+    class Web(ScriptedAdapter):
+        can_search_the_web = True
+
+        def research(self, **request):
+            pytest.fail("A completed search's exhausted allowance must not reset")
+
+    configured = settings()
+    configured.limits.web_search_cap = 3
+    ledger = UsageLog()
+    ledger.record(search_id=71, step="employers", provider="gemini", model="fictional-model",
+                  usage=Usage(web_searches=17))  # separate discovery allowance
+    ledger.record(search_id=71, step="places", provider="gemini", model="fictional-model",
+                  usage=Usage(web_searches=2))
+    ledger.record(search_id=71, step="location", provider="openai", model="fictional-other",
+                  usage=Usage(web_searches=1))
+    resumed = AIClient(configured, adapter=Web(), usage_log=ledger, search_id=71)
+    with pytest.raises(AILimitReached, match="allowance"):
+        resumed.research(step="location", system="Fictional fact", prompt="Saved condition")
+    fresh = AIClient(configured, adapter=Web(), usage_log=ledger, search_id=72)
+    assert fresh.web_searches_left() == 3
+    ledger.record(search_id=73, step="employers", provider="gemini", model="fictional-model",
+                  usage=Usage(web_searches=17))
+    discovery_only = AIClient(configured, adapter=Web(), usage_log=ledger, search_id=73)
+    assert discovery_only.web_searches_left() == 3
+
+
 def test_identical_exhausted_research_does_not_restart_but_independent_checks_can_run():
     class Disconnected(ScriptedAdapter):
         can_search_the_web = True

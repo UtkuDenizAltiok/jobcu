@@ -5,9 +5,10 @@ import json
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from jobcu import applications, jobstore, search
+from jobcu import applications, jobstore, recheck, search
 from jobcu import pool as search_pool
-from jobcu.location import ConditionEdit, EditProblem
+from jobcu.location import ConditionEdit, EditProblem, LocationPlan
+from jobcu.profile import Profile
 from jobcu.settings import SearchForm, load_settings, save_settings
 
 router = APIRouter(prefix="/api")
@@ -72,6 +73,40 @@ def change_conditions(search_id: int, body: ConditionEdits) -> dict:
     except EditProblem as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     return run.snapshot()
+
+
+@router.post("/search/{search_id}/retry-checks")
+def retry_checks(search_id: int) -> dict:
+    """Recover incomplete checks on the saved jobs; no collection or settings reset."""
+    try:
+        run = search.manager.reapply(search_id, [], recheck_requirements=True,
+                                     retry_missing_conditions=True)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=409, detail="A search is already running.") from exc
+    except LookupError as exc:
+        raise HTTPException(
+            status_code=404, detail="The saved jobs are no longer available.") from exc
+    except EditProblem as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return run.snapshot()
+
+
+@router.get("/search/{search_id}/retry-checks")
+def retry_check_summary(search_id: int) -> dict:
+    snapshot = current_search()["search"]
+    if snapshot is None or snapshot["id"] != search_id or snapshot["status"] == "running":
+        raise HTTPException(status_code=409, detail="These results are no longer ready to recheck.")
+    jobs = search_pool.load(search_id)
+    if jobs is None:
+        raise HTTPException(status_code=404, detail="The saved jobs are no longer available.")
+    profile = Profile.model_validate(jobs.profile)
+    for job in jobs.jobs:
+        recheck.refresh_validation(job, profile)
+    plan = LocationPlan.model_validate(snapshot["result"]["location"])
+    return {"full_ads": sum(recheck.needs_comparison(j) for j in jobs.jobs),
+            "unchecked_cities": sum(v.meets is None for c in plan.conditions
+                                    if not c.switched_off and c.anchor
+                                    for v in c.anchor.reference_checks or [])}
 
 
 class Answer(BaseModel):

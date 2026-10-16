@@ -730,6 +730,34 @@ function readConditionEdits() {
 }
 
 function setUpConditionActions() {
+  $("retry-checks").addEventListener("click", async () => {
+    setStatus($("retry-checks-status"), "", "");
+    const searchId = state.search.id;
+    $("retry-checks-dialog").dataset.searchId = searchId;
+    $("start-retry-checks").disabled = true;
+    $("retry-checks-summary").textContent = "Checking saved evidence…";
+    $("retry-checks-dialog").showModal();
+    try {
+      const summary = await api(`/api/search/${searchId}/retry-checks`);
+      $("retry-checks-summary").textContent = `${summary.unchecked_cities} unchecked reference cities; ` +
+        `${summary.full_ads} saved full ads needing a fresh requirement comparison.`;
+      $("start-retry-checks").disabled = false;
+    } catch (error) {
+      setStatus($("retry-checks-status"), "problem", error.message);
+    }
+  });
+  $("close-retry-checks").addEventListener("click", () => $("retry-checks-dialog").close());
+  $("start-retry-checks").addEventListener("click", (event) => busy(event.target, async () => {
+    try {
+      const searchId = $("retry-checks-dialog").dataset.searchId;
+      const run = await api(`/api/search/${searchId}/retry-checks`, { method: "POST" });
+      $("retry-checks-dialog").close();
+      showSearch(run);
+      $("progress-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (error) {
+      setStatus($("retry-checks-status"), "problem", error.message);
+    }
+  }));
   $("close-conditions").addEventListener("click", () => $("conditions-dialog").close());
   $("add-condition").addEventListener("click", () => {
     const block = newConditionEditor();
@@ -969,6 +997,7 @@ const SCORE_PARTS = [
 const WORK_MODES = { remote: "Remote", hybrid: "Hybrid", on_site: "On-site" };
 
 function renderResults() {
+  $("retry-checks").hidden = !state.search.can_edit_conditions;
   const jobs = state.search.result.jobs;
   const shown = jobs.cards.length + jobs.date_unknown.length;
   const newCount = jobs.new_count;

@@ -245,6 +245,21 @@ This can use AI again. To look in a different country or collect a new set of jo
 **Where do you want to work?** and start a new search instead.
 Wait for **Your changes are applied** before closing Jobcu; the corrected results are then saved.
 
+If checks failed or remain uncertain, click **Retry incomplete checks** above the results.
+The window counts missing reference-city facts and saved full ads with uncertain requirement
+comparisons before you choose **Retry checks**. This uses AI within your existing limits and
+does not collect another set of jobs. Jobcu keeps recently verified city facts, retries the
+gaps and compares uncertain requirements against the saved full ad and profile. Other score
+parts and confirmed requirement failures are retained. Stop keeps completed comparisons for
+the next attempt; displayed cards are rebuilt when recovery finishes.
+
+Missing original text, unsupported facts or an unavailable service can still leave checks
+unfinished. Repeating a request cannot establish experience absent from your profile. Read
+the specific explanation; quote-validation failures are distinguished from missing evidence.
+Research claims also need supporting sources linked to that city's evidence. A page list or
+an AI answer saying "yes" alone cannot confirm a condition.
+The monthly usage meter includes the earlier search and its recovery requests together.
+
 **What Jobcu understood** shows how it read your documents and, after a search, the choices
 that search used. Before your first search, this button asks your AI to read the documents
 and can use your provider allowance. It does not rewrite your CV or cover letter.

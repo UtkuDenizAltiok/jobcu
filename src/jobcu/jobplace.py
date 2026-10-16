@@ -16,7 +16,7 @@ import threading
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
-from pydantic import BaseModel
+from pydantic import BaseModel, PrivateAttr
 
 from jobcu import places as place_list
 from jobcu import requirements
@@ -116,6 +116,7 @@ class OnlineJob(BaseModel):
     citizenship_or_clearance: CitizenshipOrClearance
     citizenship_or_clearance_words: str
     requirement_checks: list[requirements.RequirementCheck] | None = None
+    _grounded_checks: list[dict] | None = PrivateAttr(default=None)
 
 
 class OnlineAnswer(BaseModel):
@@ -231,7 +232,9 @@ def find_online(client: AIClient, groups: list[JobGroup], indexes: list[int],
                         "doctorate": answer.doctorate,
                         "citizenship_or_clearance": answer.citizenship_or_clearance,
                         "citizenship_or_clearance_words": answer.citizenship_or_clearance_words},
-                    requirement_checks=([c.model_dump() for c in answer.requirement_checks]
+                    requirement_checks=(answer._grounded_checks
+                                        if answer._grounded_checks is not None
+                                        else [c.model_dump() for c in answer.requirement_checks]
                                         if answer.requirement_checks is not None else None))
     return looked_up
 
@@ -267,6 +270,7 @@ def _look_up(client: AIClient, lines: list[str], jobs: int,
     for job in answer.jobs:
         grounded = requirements.ground(job.requirement_checks,
                                        _job_notes(reply.text, job.id, jobs), person)
+        job._grounded_checks = grounded
         job.requirement_checks = ([requirements.RequirementCheck.model_validate(c)
                                   for c in grounded] if grounded is not None else None)
     return {job.id: job for job in answer.jobs}

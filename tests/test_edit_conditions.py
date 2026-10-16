@@ -38,7 +38,7 @@ from jobcu.location import (
     apply_edits,
     check_edits,
 )
-from jobcu.settings import SearchForm
+from jobcu.settings import SearchForm, load_settings
 from jobcu.sources.base import FoundJob, JobSource
 
 NOW = datetime.now(UTC)
@@ -260,6 +260,81 @@ def conditions_ready(ready, monkeypatch):  # noqa: F811
 
 def titles(cards):
     return sorted(card["title"] for card in cards)
+
+
+def test_retry_incomplete_checks_uses_saved_ads_and_preserves_search_choices(
+        conditions_ready, monkeypatch):
+    ai, manager = conditions_ready
+    run = manager.start(SearchForm(location_text="Germany, only big cities"))
+    first = wait_until_done(manager)
+    assert first["status"] == "finished", first["error"]
+    saved = pool.load(run.id)
+    job = next(j for j in saved.jobs if j.scored)
+    job.group.copies[0].description = "PCB layout is required."
+    job.scored["evidence"].update(requirements_complete=True, requirement_checks=[{
+        "requirement": "PCB layout", "ad_words": "PCB layout is required",
+        "profile_words": "PCB layout", "status": "unclear"}])
+    parts = dict(job.scored["parts"])
+    pool.save(saved)
+    choices = load_settings().model_dump()
+    original = ai.complete_json
+    comparisons = []
+
+    def answer(**request):
+        if request["schema_name"] != "Comparisons":
+            return original(**request)
+        comparisons.append(request)
+        return RawReply(json.dumps({"checks": [{
+            "id": "R0", "requirement": "PCB layout", "ad_words": "PCB layout is required",
+            "profile_words": "PCB layout", "status": "met",
+            "explanation": "The profile explicitly lists PCB layout."}]}), Usage(11, 6))
+
+    monkeypatch.setattr(ai, "complete_json", answer)
+    monkeypatch.setattr("jobcu.pipeline.collect", lambda *a, **kw: pytest.fail("No new collection"))
+    client = TestClient(create_app(), base_url="http://127.0.0.1")
+    preview = client.get(f"/api/search/{run.id}/retry-checks")
+    assert preview.status_code == 200 and preview.json() == {
+        "full_ads": 1, "unchecked_cities": 0}
+    assert client.post(f"/api/search/{run.id}/retry-checks").status_code == 403
+    assert client.post(f"/api/search/{run.id}/retry-checks", headers=HEADERS).status_code == 200
+    result = wait_until_done(manager)
+    assert result["status"] == "finished", result["error"]
+    assert result["id"] == run.id and result["kind"] == "reapply"
+    assert result["form"] == first["form"] and load_settings().model_dump() == choices
+    refreshed = next(j for j in pool.load(run.id).jobs if j.scored)
+    assert refreshed.scored["evidence"]["requirement_checks"][0]["status"] == "met"
+    assert {k: v for k, v in refreshed.scored["parts"].items() if k != "hard_requirements"} == {
+        k: v for k, v in parts.items() if k != "hard_requirements"}
+    assert len(comparisons) == 1 and len(ai.scored_titles) == 1
+    assert result["result"]["usage"]["requirements"]["input_tokens"] == 11
+    assert client.get(f"/api/search/{run.id}/retry-checks").json()["full_ads"] == 0
+
+
+def test_stop_during_condition_recovery_keeps_usage_and_completed_pool_work(
+        conditions_ready, monkeypatch):
+    from jobcu.ai.usage import UsageLog
+
+    _, manager = conditions_ready
+    initial = manager.start(SearchForm(location_text="Germany, only big cities"))
+    assert wait_until_done(manager)["status"] == "finished"
+    saved = pool.load(initial.id)
+    job = next(j for j in saved.jobs if j.scored)
+    job.scored["recovery_marker"] = "Completed fictional comparison"
+    run = search.SearchRun(id=initial.id, form=initial.form, started_at=initial.started_at,
+                           steps=[search.Step(i, label) for i, label in search.REAPPLY_STEPS],
+                           result=initial.snapshot()["result"])
+
+    def interrupted(*args):
+        UsageLog().record(step="conditions", provider="gemini", model="model-a",
+                          usage=Usage(13, 7), search_id=run.id)
+        raise search.SearchStopped
+
+    monkeypatch.setattr(search, "apply_edits", interrupted)
+    with pytest.raises(search.SearchStopped):
+        search.reapply_conditions(run, saved, [])
+    assert run.result["usage"]["conditions"]["input_tokens"] == 13
+    kept = next(j for j in pool.load(initial.id).jobs if j.scored)
+    assert kept.scored["recovery_marker"] == "Completed fictional comparison"
 
 
 def test_corrected_conditions_are_applied_to_the_jobs_already_found(conditions_ready):
