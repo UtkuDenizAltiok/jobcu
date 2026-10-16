@@ -906,6 +906,20 @@ A provider attribution establishes provenance, not independent verification or a
 condition. Missing/ambiguous links remain unknown. This uses the existing Generate Content
 contract and adds no service, endpoint, retention right or paid-call authority.
 
+### Transport diagnosis limits — 2026-10-16
+
+**Checked 2026-10-16.** In [SDK issue #1356](https://github.com/googleapis/python-genai/issues/1356),
+a reporter described a disconnect after a minute despite longer timeouts, then attributed their
+own case to an unstable client network. The maintainer could not reproduce it. In
+[issue #2705](https://github.com/googleapis/python-genai/issues/2705), a maintainer confirmed
+TCP keepalive prevented a reported NAT idle-eviction case. That report concerns longer silent
+calls and a different failure mode; it does not identify every pre-header disconnect.
+
+These are competing diagnostic leads, not proof of Jobcu's network path or a reason to change
+reasoning/model settings. The locked SDK passes the configured timeout to HTTPX and its server
+timeout header. A controlled reproduction and private transport evidence are needed before
+claiming an increased deadline, keepalive or another network policy fixes a particular failure.
+
 ### Native reasoning refusals — 2026-10-15
 
 **Checked 2026-10-15.** The official [OpenAI reasoning guide](https://developers.openai.com/api/docs/guides/reasoning)

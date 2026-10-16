@@ -11,13 +11,16 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 ### State
 
 - Saved-evidence recovery, citation provenance, requirement-quote and allowance repairs are in
-  [PR #133](https://github.com/UtkuDenizAltiok/jobcu/pull/133), extending merged
-  [PR #131](https://github.com/UtkuDenizAltiok/jobcu/pull/131). Final local suite: **1,805 passing
-  tests**, with one existing dependency deprecation warning. Exact-head Mac/Windows/privacy
-  CI and merge receipts are on the PR and in the private checkpoint; distinguish those states.
+  merged [PR #133](https://github.com/UtkuDenizAltiok/jobcu/pull/133), extending
+  [PR #131](https://github.com/UtkuDenizAltiok/jobcu/pull/131). Final PR head `40f5d02` passed
+  CI `38852360275`; source merge `e082122` passed exact-main CI `38852830982`, on Mac,
+  Windows and privacy. Final local suite: **1,805 passing tests**, with one existing dependency
+  deprecation warning. Main and locked dependencies are synchronized. This handover changes
+  documentation only; reuse unchanged source checks.
 - Owner app **8765** is closed in the owner's chosen state. The assistant's fictional
   preview **8799** is stopped and its disposable data removed. The read-only capture has
-  finished; active-task evidence and scratch status are in the private checkpoint. The next normal owner
+  finished and disposable private scratch is removed. Needed evidence remains in the private
+  checkpoint's frozen files. The next normal owner
   launch loads merged repairs; do not restart it automatically. No reset, new key or model
   choice is required.
 - Saved documents, queries, searches, ratings, marks, settings, keys and authorization are
@@ -46,42 +49,27 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Active: owner-requested root-cause repair of persistent unchecked evidence (2026-10-16).**
-Preserve the saved run, app state, private data and limits. Trace shared reference-fact failure,
-transport errors and per-job requirement uncertainty; fix confirmed causes without hiding
-warnings or inventing evidence. Reuse the completed independent review and unchanged baseline;
-do not start another search or an unbudgeted paid diagnostic.
+**Blocked on external transport evidence and further bounded live authority.** The confirmed
+source repairs above are implemented, tested and merged; no source changes remain unpublished.
+The owner-requested root-cause task retains this dependency rather than claiming every unknown
+condition or connection problem is solved.
 
-- Branch `codex/evidence-warning-recovery`, base `e6e8f0e`, in an attached isolated worktree.
-  Implemented same-search partial-city recovery, retained requirement validation audit,
-  focused full-ad comparisons, saved-job retry controls, cumulative reported web allowance,
-  provider-linked note passages and inline list-bullet quote tolerance.
-  Owner data, app state and limits remain untouched. Publication receipts stay with its PR
-  and the private checkpoint; distinguish implementation, exact-head CI and merge.
-- Baseline reused: **1,768 passing tests** at the unchanged base. Final suite: **1,805 passed**,
-  one existing dependency deprecation warning. Ruff, privacy, JS syntax and whitespace checks
-  pass. The fictional recovery dialog/workload preview has no browser errors; preview stopped.
-- Private authorization and recovery index have been checked. A specifically authorized
-  bounded live packet is complete; its request allowance is consumed. Captured requirement
-  output was replayed offline after the bullet fix, preserving the uncertain verdict and its
-  explanation. Private evidence, usage and remaining dependencies stay outside every checkout.
-  Preserve existing judgements and ratings; do not rerun the used packet.
-- Exact next action: finish publication with exact-head Mac/Windows/privacy CI and synchronize
-  main if not already recorded by the linked PR/private receipt. Then, only with specific
-  bounded paid authority, validate the final citation-preserving path on the same frozen
-  reference group. Long-request causes and factual completeness remain unproved. No historical
-  owner cards were rewritten; do not start another search or infer met requirements from points.
+- Preserve saved jobs, documents, ratings, app state and limits. No owner cards were rewritten.
+  Reuse the completed independent review; do not start another search or investigate the backlog.
+- The explicitly authorized private test packets are closed, including their first-failure
+  stop condition. An unused maximum is not permission to resume after that stop. Native
+  citation recovery still needs live verification. Complete answers, missing usage, free
+  captured-answer replay and connection inspection are saved outside Git.
+- Exact next action: recheck standing authorization/revocations, then read the current private
+  checkpoint and `transport-investigation-plan.json`. Its frozen evidence and controlled
+  comparison gates must be met before another paid dispatch or transport-policy change.
+  Do not repeat the used scripts, short passing probes or whole saved-result review. If the
+  external evidence/authority is absent, report this dependency and wait for the owner's task.
 
 The earlier whole-pipeline review also has these **parked dependencies**; do not resume them
 without evidence and authority relevant to the active task:
 
-1. **Long research-request interruptions.** Saved failures ended before response headers;
-   their provider/network cause is unproved. The short generation diagnostic is complete.
-   Exact next action if this diagnostic is resumed: verify hosted-search display/suggestions,
-   retention/reuse and bounded full token/query charges, then freeze a fictional reproduction
-   of that request class through `AIClient` on isolated scratch. Respect the existing private
-   authority and remaining monthly/request limits; no new call is scheduled by this handover.
-2. **Provider comparison.** A direct challenger key entered only in Jobcu and a bounded
+1. **Provider comparison.** A direct challenger key entered only in Jobcu and a bounded
    paired-comparison budget remain dependencies of the separate proposal, not of ordinary
    use. [Current decision and counterevidence](ENGINEERING.md#quality-first-api-and-electronics-coverage-decision--2026-10-10)
    select one comparison hypothesis; the coding Token Plan excludes this app. Exact next
@@ -89,20 +77,20 @@ without evidence and authority relevant to the active task:
    against current scoring policy, then run the first paired five-ad batch with complete
    answers and full usage. Any observed regression blocks adoption; missing evidence is
    not equivalence. Keep the working configuration meanwhile.
-3. **Opaque Adzuna destinations.** Independently collected matching employer originals are
+2. **Opaque Adzuna destinations.** Independently collected matching employer originals are
    already preferred. Automatic replacement/probing of the supplied advertiser route needs
    Adzuna's explicit permission and a permitted interface. Exact next action only after that
    permission: verify destination, retention/attribution and request rules before implementing
    bounded handling. No login, blocked-host probe or bypass is authorized.
-4. **Go hosted use/tools.** Previously authorized support questions are already sent; retain
+3. **Go hosted use/tools.** Previously authorized support questions are already sent; retain
    their private receipts and await clarification. No duplicate message, purchase or provider
    switch is pending. Intended use, complete fees, native controls and independent fit outcomes
    must be verified before adoption; shared limits alone do not reject a provider.
 
 ### Waiting on the owner
 
-The active task's bounded verification allowance is consumed. A further paid request needs
-new bounded authority. The owner confirmed active billing with an enforced cap within the
+The active task's bounded test packets are closed. A further paid request needs new bounded
+authority. The owner confirmed active billing with an enforced cap within the
 total service budget; preserve it and the local ceiling. A local estimate is not an invoice
 or provider cap. No new search or additional paid experiment is scheduled.
 Restoring provider service does not retroactively complete a saved search's missing checks.
