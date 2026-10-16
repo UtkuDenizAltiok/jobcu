@@ -92,6 +92,8 @@ search ID, route/model/effort controls, fact, ordered city identities and resear
 An app restart, new search, changed identity or expiry needs fresh research. Nothing enters
 saved snapshots, preparation storage or a cross-search answer cache. Journeys and scores are
 not reused by this mechanism; monthly/Stop checks still govern new conversion requests.
+Completed conversion retires its raw answer, even when the judgement remains unknown, so
+genuinely missing facts can be researched afresh instead of repeatedly converting old notes.
 
 Fictional tests cover same-search recovery, omitted IDs, empty/foreign links, prompt retention,
 route/fact/scope/age invalidation and snapshot privacy. Medium effort, candidate coverage,

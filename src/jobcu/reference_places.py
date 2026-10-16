@@ -142,6 +142,13 @@ def _city_blocks(notes):
     return blocks
 
 
+def _retire_research(client, reply):
+    cache = getattr(client, "reference_research_cache", None)
+    if cache is not None:
+        for key in [key for key, (_, value) in cache.items() if value is reply]:
+            cache.pop(key)
+
+
 def _source_hints(notes, links):
     blocks = _city_blocks(notes)
     return {city: [sid for sid, excerpts in links.items() if any(
@@ -198,12 +205,16 @@ def check(client: AIClient, text: str, towns: list[places.Town], *,
                     for key, source in source_ids.items()})
                 if links is not None and not any(_source_hints(reply.text, links).values()):
                     note = "No city-specific provider source links could support these claims."
+                    _retire_research(client, reply)
                     continue  # no extraction answer could satisfy the source validator
                 answer = client.generate(
                     ReferenceAnswers, step="location", system=STRUCTURE_SYSTEM,
                     prompt=_structure_prompt(text, lines, reply.text, source_ids, links),
                     max_output_tokens=RESEARCH_TOKENS)
                 _apply(batch_checks, answer, reply.text, source_ids, links)
+                # Only a failed conversion owes a retry. A completed but genuinely unknown
+                # answer needs fresh research next time, not endless reconversion of it.
+                _retire_research(client, reply)
                 if any(r.meets is not None and not r.source_ids for r in answer.cities):
                     note = ("Structured source IDs were omitted; provider-linked decisive "
                             "passages were retained where available.")

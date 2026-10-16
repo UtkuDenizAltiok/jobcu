@@ -489,8 +489,13 @@ def test_conversion_failure_keeps_complete_web_answer_for_same_search_recovery(c
 @pytest.mark.parametrize('change', [
     'search', 'model', 'effort', 'host', 'fact', 'cities', 'expiry'])
 def test_transient_web_reuse_is_bound_to_search_route_fact_scope_and_age(cities, change):
-    client = CachedClient()
+    class Unconverted(CachedClient):
+        def generate(self, output, **request):
+            raise AIConnectionError('Fictional conversion failure')
+
+    client = Unconverted()
     reference_places.check(client, 'City service', cities[:2])
+    assert client.reference_research_cache
     next_client = CachedClient(client.reference_research_cache)
     fact, scope = 'City service', cities[:2]
     if change == 'search':
@@ -550,3 +555,15 @@ def test_search_snapshot_never_serializes_transient_grounded_answers():
                     reference_research_cache={'private-answer': object()})
     assert 'private-answer' not in str(run.snapshot())
     assert 'reference_research_cache' not in run.snapshot()
+
+
+@pytest.mark.parametrize('unknown', [True, False])
+def test_completed_conversion_retires_web_answer_even_when_city_facts_remain_unknown(
+        cities, unknown):
+    client = CachedClient()
+    if unknown:
+        client.rows = []
+    reference_places.check(client, 'City service', cities[:2])
+    assert not client.reference_research_cache
+    reference_places.check(client, 'City service', cities[:2])
+    assert [kind for kind, _ in client.calls].count('research') == 2
