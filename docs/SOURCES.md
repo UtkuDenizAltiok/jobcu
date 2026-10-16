@@ -510,7 +510,7 @@ self-enhancement bias in model evaluation. This is chatbot-evaluation research, 
 of Jobcu accuracy. It supports blinded, independently recorded assessments as a useful
 precaution; saved scores and assistant labels are not ground truth or market recall.
 
-[UKSV's vetting explanation](https://www.gov.uk/government/publications/vetting-explained-and-our-vetting-charter/vetting-explained)
+**UK vetting guidance rechecked 2026-10-16:** [UKSV's vetting explanation](https://www.gov.uk/government/publications/vetting-explained-and-our-vetting-charter/vetting-explained)
 describes nationality/residence as factors considered and notes that few posts are reserved
 to UK nationals. [Clearance-level guidance](https://www.gov.uk/government/publications/united-kingdom-security-vetting-clearance-levels/national-security-vetting-clearance-levels)
 says the departmental authority sets the vetting requirement for the post. Inference: a

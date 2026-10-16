@@ -10,6 +10,10 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
+- Location admission, explicit screening uncertainty and the UK sponsorship deduction are
+  tracked in [PR #135](https://github.com/UtkuDenizAltiok/jobcu/pull/135). Final local suite:
+  **1,833 passing tests**. These checks use fictional data; real missing place evidence stays
+  unresolved. Read the PR and private checkpoint for exact publication heads and CI receipts.
 - Saved-evidence recovery, citation provenance, requirement-quote and allowance repairs are in
   merged [PR #133](https://github.com/UtkuDenizAltiok/jobcu/pull/133), extending
   [PR #131](https://github.com/UtkuDenizAltiok/jobcu/pull/131). Final PR head `40f5d02` passed
@@ -49,29 +53,29 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Active: location eligibility, UK sponsorship scoring and application-route corrections
-(owner, 2026-10-16).** Branch `codex/location-eligibility-policy`, based on merged main
-`1455149`. Inspect only the reported saved-job cases privately; preserve the saved search,
-ratings, limits and chosen closed app state. No new searches or paid requests are authorized.
+**Remaining dependency: missing live reference facts, journeys and transport evidence.**
+The implemented location-admission and UK sponsorship step is tracked in
+[PR #135](https://github.com/UtkuDenizAltiok/jobcu/pull/135), branch
+`codex/location-eligibility-policy`. Final local checks: **1,833 passing tests**, one existing
+warning, Ruff/privacy/whitespace and JavaScript syntax. Publication recovery must check the
+PR's actual final head, require Mac/Windows/privacy CI, merge by merge commit and verify
+synchronized main CI; the private checkpoint records the latest publication receipts.
 
-- Trace workplace/reference-city/travel decisions and screening evidence; reproduce confirmed
-  errors with fictional electronics and other-profession cases. Implement the owner's new
-  five-point deduction on UK jobs without explicit job-specific sponsorship evidence.
-- Verify supplied application routes and independently collected originals without probing
-  blocked or opaque advertiser URLs. Keep remaining permission/evidence dependencies explicit.
-- Reuse the unchanged 1,805-test baseline. After changes run affected tests, final full suite,
-  Ruff/privacy/whitespace and relevant UI checks; publish, require exact-head Mac/Windows/privacy
-  CI and merge with a merge commit, then synchronize main and verify its CI.
-- Implemented the UK deduction and supporting quote checks, explicit screening uncertainty,
-  and guards against geometric zero journeys, stale origins and false rejections after only
-  two cities. The final offline suite passes: **1,833 tests**, with one existing dependency warning.
-  Ruff/privacy/whitespace and JavaScript syntax checks pass; publication is pending.
-- Exact next action: commit/push, open the PR, require exact-head CI and publish this
-  coherent step. The saved cases remain unverified; absent city facts and journeys were not
-  invented or rewritten. Adzuna's exact supplied route is already used; no destination probe.
-- The earlier long-research transport/citation live verification remains parked: its paid
-  packets closed at the first failure. Read the private transport plan before seeking any
-  renewed bounded authority; do not repeat used probes or change transport speculatively.
+- The five-point UK deduction is explicit and grounded in vacancy-specific sponsorship
+  evidence. General security/nationality uncertainty has a separate explanation; definite
+  excluding requirements retain their established score maximum. Historical scores remain.
+- Travel guards reject stale origins/geometric zeros and preserve unknowns when other cities
+  remain unmeasured. They do not invent previously missing city facts or route durations.
+  The saved search, ratings, app state and existing limits are preserved. No new search or
+  paid request was made. Details remain in the private current checkpoint.
+- Exact next action for evidence recovery: recheck standing authorization/revocations, read
+  the current private checkpoint and its link to `transport-investigation-plan.json`, then
+  obtain the plan's external evidence and renewed bounded authority before a paid dispatch.
+  Both earlier paid packets closed at the first failure. Do not repeat their scripts, short
+  passing probes or the whole saved-result review; do not make speculative transport changes.
+- Adzuna already retains its exact API-supplied advertiser route. Resolving it to a replacement
+  final destination still needs the permission/interface recorded below. An optional owner
+  clarification about which link behavior was intended is pending; no opaque route was probed.
 
 The earlier whole-pipeline review also has these **parked dependencies**; do not resume them
 without evidence and authority relevant to the active task:
