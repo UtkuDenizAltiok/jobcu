@@ -69,13 +69,7 @@ condition or connection problem is solved.
 The earlier whole-pipeline review also has these **parked dependencies**; do not resume them
 without evidence and authority relevant to the active task:
 
-1. **Long research-request interruptions.** Saved failures ended before response headers;
-   their provider/network cause is unproved. The short generation diagnostic is complete.
-   Exact next action if this diagnostic is resumed: verify hosted-search display/suggestions,
-   retention/reuse and bounded full token/query charges, then freeze a fictional reproduction
-   of that request class through `AIClient` on isolated scratch. Respect the existing private
-   authority and remaining monthly/request limits; no new call is scheduled by this handover.
-2. **Provider comparison.** A direct challenger key entered only in Jobcu and a bounded
+1. **Provider comparison.** A direct challenger key entered only in Jobcu and a bounded
    paired-comparison budget remain dependencies of the separate proposal, not of ordinary
    use. [Current decision and counterevidence](ENGINEERING.md#quality-first-api-and-electronics-coverage-decision--2026-10-10)
    select one comparison hypothesis; the coding Token Plan excludes this app. Exact next
@@ -83,12 +77,12 @@ without evidence and authority relevant to the active task:
    against current scoring policy, then run the first paired five-ad batch with complete
    answers and full usage. Any observed regression blocks adoption; missing evidence is
    not equivalence. Keep the working configuration meanwhile.
-3. **Opaque Adzuna destinations.** Independently collected matching employer originals are
+2. **Opaque Adzuna destinations.** Independently collected matching employer originals are
    already preferred. Automatic replacement/probing of the supplied advertiser route needs
    Adzuna's explicit permission and a permitted interface. Exact next action only after that
    permission: verify destination, retention/attribution and request rules before implementing
    bounded handling. No login, blocked-host probe or bypass is authorized.
-4. **Go hosted use/tools.** Previously authorized support questions are already sent; retain
+3. **Go hosted use/tools.** Previously authorized support questions are already sent; retain
    their private receipts and await clarification. No duplicate message, purchase or provider
    switch is pending. Intended use, complete fees, native controls and independent fit outcomes
    must be verified before adoption; shared limits alone do not reject a provider.
