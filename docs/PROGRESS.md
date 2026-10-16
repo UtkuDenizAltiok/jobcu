@@ -10,10 +10,15 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
-- Successful receipt admission and spending-limit clarity are implemented on
-  `codex/receipt-before-dispatch`: **1,877 offline tests** pass, including four reproduced
-  receipt/admission races. Publication must finish exact-head PR/main CI, merge and sync;
-  recover actual status from the private checkpoint before repeating any work.
+- Atomic web-reservation accounting is implemented in
+  [PR #141](https://github.com/UtkuDenizAltiok/jobcu/pull/141), branch
+  `codex/atomic-web-accounting`: **1,878 offline tests** pass. Its regression first reproduced
+  false deferral during receipt writing, then verified all allowed work finishes. Finish only
+  any remaining exact-head PR/main publication; actual receipts stay private.
+- Successful receipt admission and spending-limit clarity are merged in
+  [PR #140](https://github.com/UtkuDenizAltiok/jobcu/pull/140), with **1,877 offline tests**
+  passing. PR head `d22b4b7` and main merge `66256fd` passed exact-head Mac/Windows/privacy
+  CI `38968135336` and `38968706265`; primary main/locked dependencies are synchronized.
 - Coordinated connection recovery is merged in
   [PR #139](https://github.com/UtkuDenizAltiok/jobcu/pull/139), with **1,873 offline tests**
   passing. PR head `5666c13` and main merge `973e8d8` passed exact-head Mac/Windows/privacy
@@ -23,7 +28,7 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
   tests passing**. PR head `66a2d4e` and main merge `4b71cdc` passed exact-head Mac/Windows/privacy
   CI `38965550282` and `38966116991`; main/locked dependencies are synchronized. PR #136's
   unchanged baseline was 1,857 tests; its merged head `7a708a6` passed Mac/Windows/privacy
-  CI `38944559503`. The separate native transport candidate is not adopted; live recovery
+  CI `38944559503`. The separate native transport candidate is not adopted; cost-safe complete recovery
   remains unverified.
 - Location admission, explicit screening uncertainty and the UK sponsorship deduction are
   tracked in [PR #135](https://github.com/UtkuDenizAltiok/jobcu/pull/135). Final local suite:
@@ -67,7 +72,7 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Capture the exact owner-started run, then review and fix confirmed issues.**
+**Exact-run review and cost control; remaining dependency is checkpointed.**
 The owner's current prompt authorizes read-only live capture and the full Review procedure
 on that exact run when it finishes or fails. Its identity, start boundary, snapshots, logs,
 usage and recovery checkpoint are private, outside every checkout. Do not substitute the
@@ -92,21 +97,17 @@ existing dependency deprecation warning; Ruff/privacy/whitespace pass. PR #138 i
 main synchronized, and exact PR/main Mac/Windows/privacy CI passed. Do not repeat its checks.
 
 The owner's cost follow-up remains within this exact-run goal: reduce avoidable paid work
-without reducing quality or coverage. PR #139's coordinated connection recovery is merged
-and verified on exact PR/main heads; do not repeat those checks. Receipt admission is
-implemented on `codex/receipt-before-dispatch`: successful usage/web allowance accounting now
-stays inside the occupied request slot before queued work can check remaining owner limits.
-Four offline regressions failed before the fix and pass after it. Final suite: **1,877 passing**,
-one existing dependency deprecation warning; affected checks, Ruff/privacy/whitespace pass.
-Complete this step's normal exact-head publication only if Git/private receipts show it remains
-unfinished. All evidence, medium effort, candidates and per-request retry bounds are preserved.
+without reducing quality or coverage. PR #139's coordinated recovery and PR #140's successful
+receipt admission are merged and verified on exact PR/main heads; do not repeat their checks.
+All evidence, medium effort, candidates and per-request retry bounds are preserved.
 
-Final inspection of receipt admission also found that a completed web check's reservation
-must be released atomically with charging its use. Otherwise available allowance can be
-counted twice during receipt writing and a valid check can be deferred. Reproduce this on
-`codex/atomic-web-accounting`, preserve receipt-before-slot-release, and verify all queued work
-still finishes within the unchanged allowance. Baseline: unchanged 1,877 passing tests.
-Finish affected/full checks and normal exact-head publication; no paid test is involved.
+Final inspection reproduced a transient double-count of used/reserved web allowance. The
+atomic fix is published in PR #141, branch `codex/atomic-web-accounting`. Its regression keeps
+all allowed work queued until the first receipt is saved, then finishes within the unchanged
+allowance. Final suite: **1,878 passing**, one existing dependency deprecation warning;
+affected checks, Ruff/privacy/whitespace pass. Complete only this step's exact-head CI/merge/
+main synchronization if publication is still unfinished. No paid test is involved and no new
+spending/search authority exists.
 
 The native stateless event-stream candidate remains separately preserved at `ac25239`, draft
 [PR #137](https://github.com/UtkuDenizAltiok/jobcu/pull/137), branch `codex/exact-run-review`.
@@ -116,7 +117,7 @@ existing endpoint and chosen model/effort. A token limit/request allowance is no
 maximum on provider-controlled hosted-search fees. Do not adopt the candidate or repeat paid
 experiments based on an earlier low estimate or an account top-up.
 
-**Exact remaining action/dependency:** finish receipt-admission publication if needed, then
+**Exact remaining action/dependency:** finish atomic-accounting publication if needed, then
 read private `assistant-review-checkpoint.json` and the closed verification packets. Identify
 a documented, enforceable hosted-query budget or a permitted controlled research interface
 before any further paid verification proposal. Preserve complete evidence/candidate scope and
