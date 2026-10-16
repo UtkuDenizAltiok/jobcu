@@ -604,6 +604,77 @@ def test_quality_sample_keeps_the_final_online_score(ready, monkeypatch):
     assert [ad.score for ad in samples] == [card["score"] for card in cards]
 
 
+@pytest.mark.parametrize("role", ["Hardware Engineer", "Nurse", "Teacher"])
+@pytest.mark.parametrize("include_students", [False, True])
+def test_online_checks_skip_proven_ad_exclusions(ready, monkeypatch, role, include_students):
+    from jobcu import jobplace
+
+    class Roles(FakeSource):
+        def search(self, query, ctx):
+            for i, prefix in enumerate(("Student", "Remote", "Local", "Unknown")):
+                yield FoundJob(
+                    source="fake", source_job_id=str(i), url=f"https://jobs.test/{i}",
+                    title=f"{prefix} {role}", company=f"Fictional Employer {i}",
+                    country="DE", location_text="Berlin", posted_at=datetime.now(UTC),
+                    date_precision="exact", description="Fictional vacancy summary.",
+                    job_types=(["full_time_permanent", "fixed_term"]
+                               if prefix != "Unknown" else []),
+                )
+
+        def load_details(self, job, ctx):
+            return job
+
+    class AdFacts(FakeAI):
+        can_search_the_web = True
+
+        def complete_json(self, **request):
+            reply = super().complete_json(**request)
+            answer = json.loads(reply.text)
+            if request["schema_name"] == "Profile":
+                answer.update(summary=f"Fictional {role}.", field=role,
+                              target_roles=[role], target_fields=[role])
+            if request["schema_name"] == "ScoringAnswer":
+                for score in answer["scores"]:
+                    block = re.search(
+                        rf"JOB {score['job_id']}\b(.*?)(?=\nJOB |\Z)",
+                        request["prompt"], re.DOTALL)[1]
+                    if f"Student {role}" in block:
+                        score["job_type"] = "internship_or_working_student"
+                    if f"Remote {role}" in block:
+                        score.update(fully_remote=True, work_mode="remote")
+                    if f"Unknown {role}" in block:
+                        score["job_type"] = "unclear"
+            return RawReply(json.dumps(answer), reply.usage)
+
+    looked_up = []
+
+    def online(client, groups, indexes, profile, on_progress):
+        looked_up.extend(groups[i].main.title for i in indexes)
+        return jobplace.LookedUp(asked=set(indexes))
+
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [Roles()])
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: AdFacts())
+    monkeypatch.setattr(jobplace, "find_online", online)
+    monkeypatch.setattr(search, "_find_employers", lambda run, *args:
+                        run.update("employers", "skipped"))
+    wanted = ["full_time_permanent", "fixed_term"]
+    if include_students:
+        wanted.append("internship_or_working_student")
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany", job_types=wanted, exclude_remote=True))
+    snapshot = wait_until_done(manager)
+    assert snapshot["status"] == "finished", snapshot["error"]
+    expected = {f"Local {role}", f"Unknown {role}"} | (
+        {f"Student {role}"} if include_students else set())
+    assert set(looked_up) == expected
+    assert {card["title"] for card in snapshot["result"]["jobs"]["cards"]} == expected
+    left_out = {row["reason"]: row["count"]
+                for row in snapshot["result"]["jobs"]["counts"]["left_out"]}
+    assert left_out["Fully remote, according to the ad text"] == 1
+    assert left_out.get("A job type you didn't tick, according to the ad text", 0) == (
+        0 if include_students else 1)
+
+
 @pytest.mark.parametrize("same_reference", [False, True])
 def test_agency_names_cannot_replace_copy_evidence(ready, monkeypatch, same_reference):
     # Two summaries do not prove one vacancy. An exact source reference does.

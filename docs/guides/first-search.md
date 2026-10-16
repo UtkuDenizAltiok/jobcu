@@ -123,6 +123,8 @@ Under **Job types**, tick at least one type you would accept. For example, tick 
 permanent** for ongoing full-time work, or **Internship or working student** for those roles.
 You can select several types. Tick **Don't include remote jobs** only if you want to exclude
 jobs advertised as remote work.
+Full-time student placements still count as student jobs. An unknown job type stays eligible
+until evidence establishes a type you did not select.
 
 ## 4. Start the search and answer any questions
 
@@ -164,6 +166,8 @@ small batches, and each batch can need a web-research answer and another AI answ
 the facts. Provider thinking, search tools, connection retries and throttling can make this
 stage slow. Its job counter measures progress, not proven accuracy or an estimate of time left.
 If an online check fails, the existing job evidence is kept and missing details stay uncertain.
+Jobs already known to be outside your selected job types or excluded remote-work choice do
+not receive these extra online checks.
 
 Jobcu uses workplace facts already provided by a source before looking them up online. Ashby
 employer ads include structured primary and secondary towns/countries as well as free-text

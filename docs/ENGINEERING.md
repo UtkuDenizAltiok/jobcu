@@ -72,6 +72,30 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Record step time and answer-wait time; label correction timings separately from cumulative usage. | Corrections and full searches cannot be compared as equivalent performance runs (2026-10-06). |
 | Warn when scoring reads only an excerpt of a lengthy ad. | Unseen requirements must not be assumed satisfied (2026-10-06). |
 
+## Native event transport candidate — 2026-10-16
+
+The stateless native event-stream candidate in draft PR #137 is not adopted. Offline
+contract tests alone do not establish live availability or recovery. Keep the current
+Generate Content endpoint and chosen model/effort until bounded verification establishes
+complete answers, citations, usage and dispatch behavior. Do not retry an account refusal
+through another endpoint or raise a limit as an implicit compatibility fallback. Private
+verification evidence and its exact dependency remain outside Git.
+
+## Job types and online research — 2026-10-16
+
+The broad `full_time_permanent`/`fixed_term` pair can describe a source's unspecified
+full-time contract. It does not contradict an ad's student/placement classification:
+student work may be full-time. `pipeline.job_types_of` accepts that refinement while
+preserving a source's single explicit type and other conflicting readings. An `unclear`
+answer never becomes an excluding job type when source evidence is absent.
+
+`search._ad_exclusion` supplies the same job-type and fully-remote decisions before extra
+online checks and when building final cards. Keep candidates for final counts and saved
+evidence, but omit proven exclusions from research requests. Unscored/unknown jobs remain
+eligible. Fictional electronics, nursing and teaching searches exercise wanted/unwanted
+student roles, excluded remote work and unknown types without provider traffic. This proves
+request admission and output behavior; it does not measure a live invoice saving.
+
 ## Location admission and UK sponsorship — 2026-10-16
 
 ### Reference conversion efficiency and recovery — 2026-10-16

@@ -10,9 +10,12 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
-- City conversion/recovery and request/wait measurements are tracked in
-  [PR #136](https://github.com/UtkuDenizAltiok/jobcu/pull/136); current local suite is
-  **1,857 passing tests**. The next owner-run capture is prepared privately and is not running.
+- Exact-run review's safe job-type/research-admission fixes and request-kind diagnostics are
+  tracked in [PR #138](https://github.com/UtkuDenizAltiok/jobcu/pull/138), with **1,864 local
+  tests passing**. Exact publication/CI receipts are in the private checkpoint. PR #136's
+  unchanged baseline was 1,857 tests; its merged head `7a708a6` passed Mac/Windows/privacy
+  CI `38944559503`. The separate native transport candidate is not adopted; live recovery
+  remains unverified.
 - Location admission, explicit screening uncertainty and the UK sponsorship deduction are
   tracked in [PR #135](https://github.com/UtkuDenizAltiok/jobcu/pull/135). Final local suite:
   **1,833 passing tests**. These checks use fictional data; real missing place evidence stays
@@ -24,12 +27,11 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
   Windows and privacy. Final local suite: **1,805 passing tests**, with one existing dependency
   deprecation warning. Main and locked dependencies are synchronized. The current source checks are listed above;
   these older receipts establish only their own source heads.
-- Owner app **8765** is closed in the owner's chosen state. The assistant's fictional
-  preview **8799** is stopped and its disposable data removed. The read-only capture has
-  finished and disposable private scratch is removed. Needed evidence remains in the private
-  checkpoint's frozen files. The next normal owner
-  launch loads merged repairs; do not restart it automatically. No reset, new key or model
-  choice is required.
+- Owner app **8765** is running in the owner's chosen state. The assistant's fictional
+  preview **8799** is stopped and its disposable data removed. The prior capture is
+  complete; its disposable scratch is removed. The exact-run observer has finished and
+  keeps evidence outside Git. Do not restart the owner app. No reset, new key or model choice
+  is required.
 - Saved documents, queries, searches, ratings, marks, settings, keys and authorization are
   preserved. Detailed reviews, complete diagnostic answers, usage and exact publication
   receipts stay outside Git. Private `assistant-review-checkpoint.json` is the recovery index;
@@ -56,29 +58,45 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Prepared for the next owner-started search; live transport verification remains incomplete.**
-City conversion/recovery and private timing improvements are tracked in
-[PR #136](https://github.com/UtkuDenizAltiok/jobcu/pull/136), branch
-`codex/location-verification-efficiency`. Final local suite: **1,857 tests**, one existing
-warning; Ruff/privacy/whitespace/document checks pass. Publication recovery must require CI
-on the PR's actual final head, merge commit, synchronized main and exact-main CI; current
-publication receipts are in the private checkpoint.
+**Capture the exact owner-started run, then review and fix confirmed issues.**
+The owner's current prompt authorizes read-only live capture and the full Review procedure
+on that exact run when it finishes or fails. Its identity, start boundary, snapshots, logs,
+usage and recovery checkpoint are private, outside every checkout. Do not substitute the
+previous saved search. Owner app 8765 is running; preserve it. No preview was started.
 
-- Compact conversion retains complete research notes and source validation. Transient
-  same-search memory avoids repeating complete research after conversion failure, within
-  identity/age/usage bounds. Medium effort, candidate scope, freshness and scores remain.
-- Per-attempt AI times and actual retry/source waits are recorded privately; answer waits
-  remain separate. Do not sum overlapping request durations as elapsed search time.
-- The owner's bounded verification packet ended at its first-failure stop. Detailed Maps,
-  native answers, connection trace, missing usage and offline replay evidence remain private.
-  Unused maxima are not further authority. No new job search was started or owner cards changed.
-- Exact next action: when the owner sends the next-search prompt, read the private current
-  checkpoint and `next-run-plan.json`, pin the new active search ID/start boundary and capture
-  that exact run. Do not substitute saved run 4 or start a search/paid experiment. On finish
-  or failure follow the full Review procedure using its new private evidence.
-- Underlying external transport cause and completed live verification of the shorter request
-  remain unresolved. The final employer page for Adzuna-only jobs still needs the permission
-  and interface recorded below. Do not claim either dependency solved or probe opaque routes.
+1. Capture progress, connection failures, retries, unchecked conditions and timings. Separate
+   processing, actual retry/source waits and time waiting for the owner's answers; parallel
+   request durations overlap and must not be summed as wall time. Preserve all limits/data.
+2. Freeze the completed/failed run and follow CONTRIBUTING's full private review: coverage,
+   freshness, original ads, filtering, travel, duplicates, independent fit, explanations and
+   speed. Keep evidence gaps explicit; no extra search or paid experiment is authorized.
+3. Implement confirmed fixes in coherent steps with fictional regressions, full final tests,
+   Ruff/privacy/whitespace and applicable document/JS checks. Publish, require exact-head
+   Mac/Windows/privacy CI, merge with a merge commit, synchronize main and verify its CI.
+
+The exact run is frozen and its independent review is sealed privately. Baseline: 1,857
+passing tests. Student-role refinement of broad schedule hints, retention of unknown types,
+skipping extra research for proven ad exclusions, and request-kind diagnostics are implemented
+in [PR #138](https://github.com/UtkuDenizAltiok/jobcu/pull/138), branch
+`codex/exact-run-safe-fixes`. The final safe code passes **1,864 offline tests**, with one
+existing dependency deprecation warning; Ruff/privacy/whitespace pass. Safe publication is
+tracked privately: require exact-head Mac/Windows/privacy CI, a merge commit, synchronized
+main and exact-main CI. Complete that publication only if Git/CI show it remains unfinished.
+
+The native stateless event-stream candidate is preserved separately at `ac25239`, draft
+[PR #137](https://github.com/UtkuDenizAltiok/jobcu/pull/137), branch `codex/exact-run-review`.
+Its 1,898 offline tests pass, including actual-SDK dispatch/receipt/failure isolation contracts.
+It is **not adopted**: live verification did not establish usable recovery. Preserve the
+existing endpoint, selected model/medium effort and owner app state. Do not merge that
+candidate until its private blocking dependency is resolved and bounded verification passes.
+
+Exact next action after safe publication: read private `assistant-review-checkpoint.json`,
+the closed verification packet and current billing-state evidence. Resolve the recorded
+external dependency before proposing another bounded verification of the preserved candidate.
+Do not repeat the failed request, broaden evidence collection or adopt the endpoint merely
+because offline tests pass. Recovery details and evidence gaps stay private. Every paid packet is closed at its recorded stop;
+unused maxima grant no further requests. External transport causes, missing reference-city
+facts and opaque final Adzuna destinations remain explicit dependencies. No new search.
 
 The earlier whole-pipeline review also has these **parked dependencies**; do not resume them
 without evidence and authority relevant to the active task:
@@ -106,7 +124,8 @@ without evidence and authority relevant to the active task:
 The active task's bounded test packets are closed. A further paid request needs new bounded
 authority. The owner confirmed active billing with an enforced cap within the
 total service budget; preserve it and the local ceiling. A local estimate is not an invoice
-or provider cap. No new search or additional paid experiment is scheduled.
+or provider cap. The exact run and capture are finished; no additional search or paid
+experiment is scheduled.
 Restoring provider service does not retroactively complete a saved search's missing checks.
 A fresh local chat can use [Start](PROMPTS.md#start-a-session) to recover publication if needed
 and wait. Use [Review](PROMPTS.md#review-a-search) for later saved evidence and
