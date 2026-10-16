@@ -74,6 +74,42 @@ Code/tests establish behavior; the latest current decision establishes intent.
 
 ## Location admission and UK sponsorship — 2026-10-16
 
+### Reference conversion efficiency and recovery — 2026-10-16
+
+`reference_places.py` keeps full research notes in the conversion prompt, but replaces repeated
+grounding excerpts and opaque URLs with city-specific source IDs. Actual links/passages remain
+available to the same source validator. Missing model IDs can be recovered only from provider
+links covering the entire decisive excerpt inside that one city block. Explicit wrong IDs,
+cross-city excerpts, signs/negations and incomplete evidence retain their safeguards. If an
+available provider map supplies no usable city links, no conversion call can pass validation;
+skip that paid conversion and retain unknowns. Providers without passage maps keep their
+existing source format and validation.
+
+A complete searched answer with usable sources/complete usage can survive a later conversion
+failure in transient search memory. Reapplying that same search in the same app process can
+reuse the exact request's answer for up to one hour, within a 32-entry bound. Identity includes
+search ID, route/model/effort controls, fact, ordered city identities and research prompt/limits.
+An app restart, new search, changed identity or expiry needs fresh research. Nothing enters
+saved snapshots, preparation storage or a cross-search answer cache. Journeys and scores are
+not reused by this mechanism; monthly/Stop checks still govern new conversion requests.
+Completed conversion retires its raw answer, even when the judgement remains unknown, so
+genuinely missing facts can be researched afresh instead of repeatedly converting old notes.
+
+Fictional tests cover same-search recovery, omitted IDs, empty/foreign links, prompt retention,
+route/fact/scope/age invalidation and snapshot privacy. Medium effort, candidate coverage,
+research freshness and scoring rules stay unchanged. Input reduction and avoided calls can
+be measured; a shorter prompt does not establish a live latency improvement, invoice saving
+or the cause of an external disconnect. Private diagnostics and native receipts stay private.
+
+Private logs also record each AI attempt's ID, step, elapsed request time and outcome, plus
+actual AI retry/source wait duration separately from the requested duration (including Stop).
+No prompt, key, response or account identifier is added to these timing events. Existing
+answer-wait timing remains separate. Concurrent request durations overlap and must not be
+summed as elapsed search time. These events prepare observation of the next owner-started run;
+they do not start monitoring or provider work by themselves.
+
+### UK sponsorship deduction and admission guards
+
 The owner requested a five-point deduction on every UK vacancy without an explicit offer of
 visa sponsorship for that vacancy. `scoring.py` retains the vacancy country and proposed offer
 with its exact clause. An offer needs the positive model classification, a literal supported

@@ -8,6 +8,15 @@ Detailed formats, rate limits, site quirks and past measurements live in
 [dated source research](archive/SOURCE-RESEARCH.md). Its checks span 2026-09-17 to 2026-10-06;
 follow each section's date. Add newly verified facts here with a date and primary source link.
 
+## Routes billing
+
+**Routes pricing rechecked 2026-10-16:** Google's [global price list](https://developers.google.com/maps/billing-and-pricing/pricing)
+lists Compute Route Matrix Essentials/Pro/Enterprise at USD5/10/15 per 1,000 events in the first
+paid tier. [Routes billing guidance](https://developers.google.com/maps/documentation/routes/usage-and-billing)
+describes matrix elements as origins multiplied by destinations and feature-dependent SKUs.
+Free allowances and account-specific charges are separate; a conservative development estimate
+does not establish an invoice. Count attempted elements and keep existing monthly controls.
+
 ## Local deletion evidence
 
 **Checked 2026-10-09.** SQLite's [secure_delete documentation](https://www.sqlite.org/pragma.html#pragma_secure_delete)

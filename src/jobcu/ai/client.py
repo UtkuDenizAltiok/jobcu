@@ -99,6 +99,7 @@ class AIClient:
         checkpoint: Callable[[], None] | None = None,
         on_wait: Callable[[float], None] | None = None,
         on_progress: Callable[[str], None] | None = None,
+        reference_research_cache: dict | None = None,
     ) -> None:
         self.settings = settings
         self.keys = keys or KeyStore()
@@ -133,6 +134,10 @@ class AIClient:
         self._web_unavailable: str | None = None
         self._quota_errors: dict[tuple[str, str], AIQuotaExhausted] = {}
         self._failed_research: set[str] = set()
+        # Transient same-search recovery only: never serialized, shared with another search
+        # or used as a general provider-answer/scoring cache.
+        self.reference_research_cache = (reference_research_cache
+                                         if reference_research_cache is not None else {})
 
     @property
     def provider_id(self) -> str:
@@ -202,9 +207,14 @@ class AIClient:
             if quota is not None:
                 raise quota
             self._check_monthly_limit(provider=provider, model=model, research=research)
+            attempt = uuid4().hex[:12]
+            started = time.monotonic()
+            outcome = "complete"
+            log.info("AI attempt started: id=%s step=%s", attempt, step)
             try:
                 yield
             except AIError as exc:
+                outcome = type(exc).__name__
                 usage = exc.usage
                 if usage is None and isinstance(exc, (AIUnavailable, AIOutputTruncated)):
                     usage = Usage(unreported_requests=1)
@@ -222,6 +232,12 @@ class AIClient:
                         # refusal. Surface its reason even when their caller catches it.
                         self.notify(exc.message)
                 raise
+            except BaseException as exc:
+                outcome = type(exc).__name__
+                raise
+            finally:
+                log.info("AI attempt finished: id=%s step=%s elapsed=%.3fs outcome=%s",
+                         attempt, step, max(0, time.monotonic() - started), outcome)
 
     def _one_at_a_time(self) -> None:
         """The provider said "too many requests": the rest of this search asks one at a time,
@@ -510,6 +526,7 @@ class AIClient:
         self.on_wait(seconds)
         self.on_progress(f"Waiting about {seconds:.0f} seconds before AI retry {retry} of "
                          f"{maximum}. Stop cancels waiting.")
+        started = time.monotonic()
         try:
             if not self._cancellable:
                 self.sleep(seconds)
@@ -521,6 +538,8 @@ class AIClient:
                     remaining -= pause
                     self.checkpoint()
         finally:
+            log.info("AI retry wait finished: elapsed=%.3fs requested=%.3fs kind=%s",
+                     max(0, time.monotonic() - started), seconds, type(reason).__name__)
             self.on_wait(0)
             self.on_progress(f"Retrying an AI request ({retry} of {maximum})")
 

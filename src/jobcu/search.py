@@ -118,6 +118,7 @@ class SearchRun:
     _step_started: dict[str, float] = field(default_factory=dict, repr=False)
     _waiting_since: float | None = field(default=None, repr=False)
     waiting_seconds: float = 0.0
+    reference_research_cache: dict = field(default_factory=dict, repr=False)
 
     def step(self, step_id: str) -> Step:
         return next(s for s in self.steps if s.id == step_id)
@@ -271,6 +272,9 @@ class SearchManager:
                     [REAPPLY_STEPS[0], ("requirements", "Rechecking uncertain requirements"),
                      *REAPPLY_STEPS[1:]] if recheck_requirements else REAPPLY_STEPS)],
                 result=snapshot["result"],
+                reference_research_cache=(current.reference_research_cache
+                                          if current is not None and current.id == search_id
+                                          else {}),
             )
             self._current = run
         threading.Thread(
@@ -351,6 +355,7 @@ def run_search(run: SearchRun) -> None:
         checkpoint=lambda: _checkpoint(run),
         on_wait=lambda seconds: _ai_wait_note(run, seconds),
         on_progress=lambda message: _ai_progress_note(run, message),
+        reference_research_cache=run.reference_research_cache,
     )
 
     def checkpoint() -> None:
@@ -903,6 +908,7 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
         checkpoint=lambda: _checkpoint(run),
         on_wait=lambda seconds: _ai_wait_note(run, seconds),
         on_progress=lambda message: _ai_progress_note(run, message),
+        reference_research_cache=run.reference_research_cache,
     )
     http = PoliteClient(should_stop=lambda: run.stop_requested,
                         on_wait=lambda host, seconds: _source_wait_note(run, host, seconds))
