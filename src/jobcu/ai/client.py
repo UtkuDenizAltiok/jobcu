@@ -127,6 +127,8 @@ class AIClient:
         # How many requests may be waiting for an answer at the same time (see `_slot`).
         self.parallel_requests = PARALLEL_REQUESTS
         self._requests_running = 0
+        self._endpoint_running: dict[tuple[str, str, bool], int] = {}
+        self._connection_recovery: set[tuple[str, str, bool]] = set()
         self._gate = threading.Condition()
         self._adapter_lock = threading.Lock()
         # Remember a definite capability refusal for this search only. A later search
@@ -181,19 +183,37 @@ class AIClient:
         return ai.research_provider, model, self._research_adapter
 
     @contextmanager
-    def _slot(self) -> Iterator[None]:
-        """Waits until fewer than `parallel_requests` requests are waiting for an answer."""
+    def _slot(self, endpoint: tuple[str, str, bool]) -> Iterator[None]:
+        """Keep interrupted paths to one real request until a complete answer restores them."""
         with self._gate:
-            while self._requests_running >= self.parallel_requests:
+            recovery_wait = 0.0
+            try:
+                while True:
+                    recovering = (endpoint in self._connection_recovery
+                                  and self._endpoint_running.get(endpoint, 0) >= 1)
+                    if self._requests_running < self.parallel_requests and not recovering:
+                        break
+                    self.checkpoint()
+                    started = time.monotonic()
+                    try:
+                        self._gate.wait(timeout=0.25)
+                    finally:
+                        if recovering:
+                            recovery_wait += max(0, time.monotonic() - started)
                 self.checkpoint()
-                self._gate.wait(timeout=0.25)
-            self.checkpoint()
+            finally:
+                if recovery_wait:
+                    log.info("AI connection recovery queue wait finished: elapsed=%.3fs "
+                             "request_kind=%s", recovery_wait,
+                             "research" if endpoint[2] else "structured")
             self._requests_running += 1
+            self._endpoint_running[endpoint] = self._endpoint_running.get(endpoint, 0) + 1
         try:
             yield
         finally:
             with self._gate:
                 self._requests_running -= 1
+                self._endpoint_running[endpoint] -= 1
                 self._gate.notify_all()
 
     @contextmanager
@@ -201,7 +221,8 @@ class AIClient:
                  *, research: bool = False) -> Iterator[None]:
         """Every dispatch, including repairs/retries, obeys Stop and recorded limits."""
         self.checkpoint()
-        with self._slot():
+        endpoint = provider, model, research
+        with self._slot(endpoint):
             with self._gate:
                 quota = self._quota_errors.get((provider, model))
             if quota is not None:
@@ -217,6 +238,9 @@ class AIClient:
                 yield
             except AIError as exc:
                 outcome = type(exc).__name__
+                if isinstance(exc, AIConnectionError):
+                    with self._gate:
+                        self._connection_recovery.add(endpoint)
                 usage = exc.usage
                 if usage is None and isinstance(exc, (AIUnavailable, AIOutputTruncated)):
                     usage = Usage(unreported_requests=1)
@@ -237,6 +261,9 @@ class AIClient:
             except BaseException as exc:
                 outcome = type(exc).__name__
                 raise
+            else:
+                with self._gate:
+                    self._connection_recovery.discard(endpoint)
             finally:
                 log.info("AI attempt finished: id=%s step=%s elapsed=%.3fs outcome=%s "
                          "request_kind=%s", attempt, step,
