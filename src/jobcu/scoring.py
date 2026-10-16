@@ -98,7 +98,20 @@ class LanguageAsked(BaseModel):
 # What the AI read in an ad, kept with the score so the rules can be applied again when the full
 # ad is found online (jobplace.py).
 EVIDENCE = ("ad_language", "languages_asked", "years_required", "doctorate",
-            "citizenship_or_clearance", "citizenship_or_clearance_words", "requirement_checks")
+            "citizenship_or_clearance", "citizenship_or_clearance_words", "requirement_checks",
+            "visa_sponsorship", "visa_sponsorship_words")
+
+SPONSORSHIP_RULES = """\
+visa_sponsorship: available_for_this_job only when this vacancy explicitly offers employer \
+visa sponsorship to applicants; otherwise unclear or not_available. A sponsor licence, \
+international employer, relocation assistance, the person's visa eligibility or a general \
+company policy is not an offer for this vacancy. Conditional eligibility (e.g. some roles, \
+subject to approval, may be considered) is unclear. visa_sponsorship_words: quote the complete \
+relevant clause exactly, including any negation or condition; empty when unstated.\
+"""
+UK_SPONSORSHIP_DEDUCTION = 5
+UK_SPONSORSHIP_REASON = "UK visa sponsorship is not explicitly confirmed for this job"
+VisaSponsorship = Literal["available_for_this_job", "not_available", "unclear"]
 
 
 class JobScore(BaseModel):
@@ -110,6 +123,8 @@ class JobScore(BaseModel):
     citizenship_or_clearance: CitizenshipOrClearance
     citizenship_or_clearance_words: str = Field(description="The ad's words, or empty")
     requirement_checks: list[requirements.RequirementCheck] | None = None
+    visa_sponsorship: VisaSponsorship = "unclear"
+    visa_sponsorship_words: str = ""
     role_and_skills: int
     seniority: int
     hard_requirements: int
@@ -169,6 +184,7 @@ ad is written in it.
 - years_required: {YEARS_RULES}
 - doctorate: {DOCTORATE_RULES}
 - citizenship_or_clearance: {CITIZENSHIP_RULES}
+- {SPONSORSHIP_RULES}
 - {requirements.RULES}
 Judge the main work before counting shared skills: a common industry, employer, degree, \
 graduate level or tool does not establish the same occupation or specialisation. Compare the \
@@ -270,6 +286,7 @@ def score_groups(
                 description, complete = _description(groups[index])
                 found[index] = finish(
                     score, profile, ad_text=description, complete=complete,
+                    country=next((c.country for c in groups[index].copies if c.country), None),
                 )
                 if len(groups[index].best_description_copy.description) > MAX_DESCRIPTION_CHARS:
                     found[index]["notes"].insert(
@@ -296,7 +313,7 @@ def score_groups(
 
 
 def finish(score: JobScore, profile: Profile, *, ad_text: str | None = None,
-           complete: bool = False) -> dict:
+           complete: bool = False, country: str | None = None) -> dict:
     """The parts, the limits and the total, worked out from the AI's answer."""
     parts = {name: max(0, min(getattr(score, name), most))
              for name, most in PARTS.items() if name != "languages"}
@@ -308,6 +325,9 @@ def finish(score: JobScore, profile: Profile, *, ad_text: str | None = None,
         "fully_remote": score.fully_remote,
         "evidence": score.model_dump(include=set(EVIDENCE)),
     }
+    result["evidence"]["job_country"] = country
+    result["evidence"]["sponsorship_confirmed"] = sponsorship_confirmed(
+        score.visa_sponsorship, score.visa_sponsorship_words, ad_text or "")
     if ad_text is not None:
         result["evidence"].update({
             "requirement_checks": requirements.ground(
@@ -344,13 +364,24 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
     limits = sorted([*language.limits, *other_limits(score, profile), *rubric_limits,
                      *required.limits],
                     key=lambda x: x["at"])
+    deductions = ([{"points": UK_SPONSORSHIP_DEDUCTION, "why": UK_SPONSORSHIP_REASON}]
+                  if result["evidence"].get("job_country") == "GB"
+                  and not result["evidence"].get("sponsorship_confirmed") else [])
+    before = min([sum(parts.values()), *(limit["at"] for limit in limits)])
+    screening = score.citizenship_or_clearance == "required_possible_or_unclear"
     return {
         **result,
-        "score": min([sum(parts.values()), *(limit["at"] for limit in limits)]),
+        "score": max(0, before - sum(d["points"] for d in deductions)),
+        "score_before_deductions": before,
+        "deductions": deductions,
         "parts": parts,
         # Why the total is lower than the parts add up to, lowest limit first.
         "limits": limits,
         "notes": ([note] if note else []) + language.notes + required.notes + (
+            ["Security or nationality eligibility is unconfirmed" + (
+                f": {score.citizenship_or_clearance_words.strip()}"
+                if score.citizenship_or_clearance_words.strip() else "")]
+            if screening else []) + (
             ["Some requested location conditions could not be confirmed"]
             if uncertain_location else []),
         "required_languages": [
@@ -397,15 +428,37 @@ def with_location_confidence(result: dict, profile: Profile, plan: LocationPlan,
 
 
 def evidence_priority(result: dict | None) -> int:
-    """Missing location evidence must not make its own useful research fall below the gate."""
+    """Missing evidence must not make its own useful research fall below the gate."""
     if not result:
         return 0
     parts = result.get("parts", {})
     proposed = result.get("evidence", {}).get("location_preferences_proposed")
     if proposed is None or "location_and_preferences" not in parts:
-        return result.get("score", 0)
+        return result.get("score_before_deductions", result.get("score", 0))
     total = sum(parts.values()) + max(0, proposed - parts["location_and_preferences"])
     return min([total, *(limit["at"] for limit in result.get("limits", []))])
+
+
+def sponsorship_confirmed(status: str, words: str, ad_text: str) -> bool:
+    """A model label or a short positive fragment cannot overrule the actual ad's clause."""
+    quote, ad = requirements._plain(words), requirements._plain(ad_text)
+    if status != "available_for_this_job" or not quote or quote not in ad:
+        return False
+    # Reject negative, conditional and company-wide statements, even if the model labelled
+    # them positively or clipped their negation out of its quote.
+    uncertain = (r"\b(?:no|not|never|cannot|can't|unable|without|may|might|could|"
+                 r"consider|considered|"
+                 r"potential|potentially|approval|subject to|depending|some roles|other roles|"
+                 r"licen[cs]e)\b|\b\w+n['’]t\b")
+    clauses = re.split(r"[.!?;\n]", ad_text)
+    related = [requirements._plain(c) for c in clauses
+               if re.search(r"\b(?:visa|sponsor\w*)\b", c, re.I)]
+    if any(re.search(uncertain, c) for c in related) or re.search(uncertain, quote):
+        return False
+    return bool(re.search(
+        r"\b(?:(?:visa\s+)?sponsorship\s+(?:is\s+)?(?:available|provided|offered)|"
+        r"(?:provide|offer|provides|offers)\s+(?:skilled worker\s+|visa\s+)?sponsorship|"
+        r"(?:will|can)\s+sponsor\s+(?:your|a|the|work)\s+visa)\b", quote))
 
 
 LEGACY_ONLINE_NOTE = "Languages, experience and other requirements read from the full ad online"
@@ -414,11 +467,14 @@ ONLINE_NOTE = "Online evidence used to check requirements"
 
 def with_ad_read_online(result: dict, profile: Profile, languages: list[LanguageAsked],
                         years_required: float | None,
-                        requirement_checks: list[dict] | None = None, **blockers: str) -> dict:
+                        requirement_checks: list[dict] | None = None,
+                        sponsorship_confirmed: bool | None = None, **blockers: str) -> dict:
     """Reapply limits using researched evidence; research notes do not become a full ad."""
     evidence = {**result["evidence"], "languages_asked": [a.model_dump() for a in languages],
                 "years_required": years_required}
     evidence.update({key: value for key, value in blockers.items() if key in EVIDENCE})
+    if sponsorship_confirmed is not None:
+        evidence["sponsorship_confirmed"] = sponsorship_confirmed
     if requirement_checks is not None:
         if ("requirements_complete" not in evidence
                 and result["parts"]["hard_requirements"] <= LIMIT_REQUIREMENT_POINTS):

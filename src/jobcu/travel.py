@@ -63,9 +63,6 @@ MODE_WORDS = {"transit": "by public transport", "drive": "by car", "walk": "on f
 # The fastest straight-line speed each way of travelling can reach, door to door, so places
 # farther away can't be in reach (an ICE covers about 180 km in 50 minutes).
 FASTEST_KMH = {"transit": 220, "drive": 120, "bicycle": 25, "walk": 7}
-# A job this close to a reference town's centre is in that town, and so is one within the town's
-# built-up area (`places.reach_km`).
-IN_TOWN_KM = 3.0
 # A job whose ad names a reference town is in it, wherever in the town its address is ("Moosach,
 # München" is Munich), unless the address is this far away: then it's another town of that name.
 HOME_TOWN_KM = 30.0
@@ -276,6 +273,19 @@ def _unchecked_reference_in_reach(condition: Condition, group: JobGroup) -> bool
                for town in unchecked_reference_towns(condition.anchor, point.country))
 
 
+def _unmeasured_in_reach(condition: Condition, group: JobGroup, entry: dict) -> bool:
+    """Testing the nearest few cities cannot establish that every other city fails."""
+    point = job_point(group)
+    if point is None:
+        return True
+    limit = (condition.max_minutes or 0) / 60 * FASTEST_KMH[
+        condition.travel_mode or "transit"]
+    centre = condition.anchor is not None and condition.anchor.to_centre
+    minutes = _eligible_minutes(condition, group, entry)
+    return any(town.name not in minutes and edge_distance(point, town, centre) <= limit
+               for town in anchor_towns(condition.anchor, point.country))
+
+
 def answer(condition: Condition, group: JobGroup) -> str:
     """"yes", "no" or "unknown" for a "near" condition and one job."""
     if condition.kind != "near" or not condition.filters:
@@ -297,16 +307,29 @@ def answer(condition: Condition, group: JobGroup) -> str:
     entry = condition.travel.get(job_key(group))
     if not entry:
         return "unknown"
+    point = job_point(group)
+    if point is None or entry.get("point") not in {None, point.key}:
+        return "unknown"
     minutes = [m for m in _eligible_minutes(condition, group, entry).values() if m is not None]
     if minutes and min(minutes) <= (condition.max_minutes or 0):
         return "yes"
-    if entry.get("unchecked") or _unchecked_reference_in_reach(condition, group):
+    if (entry.get("unchecked") or _unchecked_reference_in_reach(condition, group)
+            or _unmeasured_in_reach(condition, group, entry)):
         return "unknown"
     return "no"
 
 
 def _eligible_minutes(condition: Condition, group: JobGroup, entry: dict) -> dict:
     minutes = entry.get("minutes") or {}
+    point = job_point(group)
+    if point is not None and entry.get("point") not in {None, point.key}:
+        return {}  # a journey from a previous workplace is not evidence about this one
+    if entry.get("by") == "distance":
+        home = (home_town(point, anchor_towns(condition.anchor, point.country),
+                          condition.anchor is not None and condition.anchor.to_centre)
+                if point else None)
+        minutes = {name: value for name, value in minutes.items()
+                   if value != 0 or home is not None and normalise(name) == normalise(home.name)}
     if condition.anchor is None or condition.anchor.reference_checks is None:
         return minutes
     accepted = {normalise(town.name) for town in anchor_towns(
@@ -322,11 +345,11 @@ def home_town(point: Point, towns: list[place_list.Town],
     if point.town:
         named = normalise(point.town)
         for town in towns:
-            if normalise(town.name) == named and distance(point, town) <= HOME_TOWN_KM:
+            if normalise(town.name) == named and distance(point, town) <= (
+                    0.1 if to_centre else HOME_TOWN_KM):
                 return town
-    for town in sorted(towns, key=lambda town: distance(point, town)):
-        if distance(point, town) <= max(IN_TOWN_KM, reach(town, to_centre)):
-            return town
+    # The population-derived reach is a rough circle, not a municipal boundary. A nearby
+    # workplace in another town must get a journey; it cannot become an automatic zero.
     return None
 
 
@@ -338,6 +361,9 @@ def detail(condition: Condition, group: JobGroup) -> tuple[str, str] | None:
     entry = condition.travel.get(job_key(group)) if condition.kind == "near" else None
     if not entry:
         return None
+    point = job_point(group)
+    if point is None or entry.get("point") not in {None, point.key}:
+        return "Workplace location needs a new journey check", "Not checked"
     minutes = {town: m for town, m in _eligible_minutes(condition, group, entry).items()
                if m is not None}
     words = MODE_WORDS.get(condition.travel_mode or "transit", "")
@@ -347,10 +373,15 @@ def detail(condition: Condition, group: JobGroup) -> tuple[str, str] | None:
         by = (entry.get("by_town") or {}).get(town) or entry.get("by") or "estimate"
         if entry.get("unchecked"):
             text += "; another sampled journey couldn't be checked"
+        elif _unmeasured_in_reach(condition, group, entry) and best > (
+                condition.max_minutes or 0):
+            text += "; other candidate cities have not been measured"
     elif _unchecked_reference_in_reach(condition, group):
         text, by = "Other candidate cities still need their place facts checked", "Not checked"
     elif entry.get("unchecked"):
         text, by = f"Journey couldn't be checked {words}", "Not checked"
+    elif _unmeasured_in_reach(condition, group, entry):
+        text, by = "Other candidate cities have not been measured", "Not checked"
     elif entry.get("nearest"):
         text, by = f"nearest is {entry['nearest']}, too far {words}", "distance"
     else:

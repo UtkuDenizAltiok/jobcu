@@ -1062,7 +1062,7 @@ final application host. Existing blocked-site rules still prohibit probing Adzun
 Known CV-Library destinations are excluded by owner instruction; no CV-Library collection
 or application-form traffic was added. Opaque redirects remain an unverified destination.
 
-**Adzuna direct-destination request rechecked 2026-10-14:** the current
+**Adzuna direct-destination request rechecked 2026-10-16:** the current
 [Job and Ad API schema](https://developer.adzuna.com/swagger/spec/test2.json) explicitly requires
 using its supplied `redirect_url` to send the user to the advertiser for API compliance.
 Neither response supplies a final-destination field. The

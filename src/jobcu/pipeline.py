@@ -412,6 +412,7 @@ def build_card(
         "parts": scored["parts"] if scored else None,
         # Blockers that hold the score below what its parts add up to (scoring.py).
         "limits": (scored or {}).get("limits", []),
+        "deductions": (scored or {}).get("deductions", []),
         "score_notes": (scored or {}).get("notes", []),
         "score_checks": [{"text": ONLINE_NOTE if note == LEGACY_ONLINE_NOTE else note,
                           "status": "info" if note in {ONLINE_NOTE, LEGACY_ONLINE_NOTE}

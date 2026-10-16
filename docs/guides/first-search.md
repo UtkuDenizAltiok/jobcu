@@ -229,6 +229,11 @@ estimates for unresolved towns where available, within your AI limits; otherwise
 says **couldn't be checked** and that travel condition does not remove the job. A long sample with an
 unchecked alternative also stays uncertain. An explicit **No sampled journey found** is a
 different outcome. Read each card's source: a fallback estimate is not a Maps measurement.
+Checking the nearest few cities does not rule out other cities within possible reach. Such
+jobs stay uncertain until those alternatives are checked. A population-derived city radius
+does not prove the workplace is inside that city; a named workplace needs its own journey
+unless the ad identifies it as the reference city. Asking for the city centre also requires
+the journey from an address elsewhere in that city.
 If Google's response does not identify when a quota resets,
 Jobcu says so. Check your project's Routes API quotas when needed; raising them can increase
 spending. Historical saved results keep their original messages. Development can proceed
@@ -306,6 +311,14 @@ facts about the city.
 
 New searches use the current scoring rules. Saved results keep the scores from their search;
 updating Jobcu does not silently re-score them or use AI on its own.
+
+UK postings receive a **five-point deduction** unless the vacancy explicitly offers visa
+sponsorship. The deduction applies after score maximums and is shown separately from the
+rubric parts. An employer's sponsor licence, relocation help, a general company policy or
+your eligibility for an independent visa does not confirm sponsorship for this vacancy.
+Conditional or unsupported offers keep the deduction. A sponsorship offer does not guarantee
+an individual visa decision. Unresolved security or nationality eligibility is explained
+separately; a screening requirement alone does not prove that you cannot qualify.
 
 **New** means Jobcu has not shown that vacancy before. An employer can have several openings
 with the same title in the same town. Jobcu keeps different references on that employer's
