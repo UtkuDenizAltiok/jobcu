@@ -73,9 +73,10 @@ synchronized main CI; the private checkpoint records the latest publication rece
   obtain the plan's external evidence and renewed bounded authority before a paid dispatch.
   Both earlier paid packets closed at the first failure. Do not repeat their scripts, short
   passing probes or the whole saved-result review; do not make speculative transport changes.
-- Adzuna already retains its exact API-supplied advertiser route. Resolving it to a replacement
-  final destination still needs the permission/interface recorded below. An optional owner
-  clarification about which link behavior was intended is pending; no opaque route was probed.
+- The owner confirmed the desired Adzuna behavior is the employer's final page. Independently
+  verified matching employer links are preferred, but Adzuna-only destinations remain
+  unresolved. The supplied API route does not complete that request. Replacing it still
+  needs the permission/interface recorded below; no opaque route was probed.
 
 The earlier whole-pipeline review also has these **parked dependencies**; do not resume them
 without evidence and authority relevant to the active task:
