@@ -152,8 +152,23 @@ def _retire_research(client, reply):
 def _source_hints(notes, links):
     blocks = _city_blocks(notes)
     return {city: [sid for sid, excerpts in links.items() if any(
-        " ".join(words.split()) in " ".join(found[0][0].split()) for words in excerpts)]
+        _supports_city(words, *found[0]) for words in excerpts)]
         for city, found in blocks.items() if len(found) == 1}
+
+
+def _supports_city(words, block, paragraph):
+    words, block, paragraph = (" ".join(text.split()) for text in (words, block, paragraph))
+    if not words or words not in block:
+        return False
+    if words in paragraph:
+        return True
+    # A provider segment may include the CITY heading, but the heading alone proves no fact.
+    found = _city_blocks(words)
+    if len(found) != 1:
+        return False
+    entries = next(iter(found.values()))
+    body = " ".join(entries[0][1].split()) if len(entries) == 1 else ""
+    return bool(body and body in paragraph)
 
 
 def _structure_prompt(text, lines, notes, sources, links):
@@ -288,7 +303,7 @@ def _apply(checks, answer, notes, sources, links=None) -> None:
                 evidence in (passage := " ".join(text.split())) and passage in block
                 for text in words)]
         cited = [sources[sid] for sid in supplied if sid in sources
-                 and (links is None or any(" ".join(words.split()) in block
+                 and (links is None or any(_supports_city(words, block, paragraph)
                                           for words in links.get(sid, [])))]
         if row.meets is not None and evidence and evidence in paragraph and cited:
             check.meets, check.evidence, check.sources = row.meets, row.evidence, cited

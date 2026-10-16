@@ -567,3 +567,16 @@ def test_completed_conversion_retires_web_answer_even_when_city_facts_remain_unk
     assert not client.reference_research_cache
     reference_places.check(client, 'City service', cities[:2])
     assert [kind for kind, _ in client.calls].count('research') == 2
+
+
+def test_a_provider_link_on_only_a_city_heading_cannot_support_its_claim(cities):
+    class HeadingOnly(Client):
+        def research(self, **request):
+            reply = super().research(**request)
+            reply.citations = [Citation('CITY C0', reply.sources[0].url)]
+            return reply
+
+    client = HeadingOnly()
+    found = reference_places.check(client, 'City service', cities[:2])
+    assert all(c.meets is None for c in found.reference_checks)
+    assert len(client.calls) == 1

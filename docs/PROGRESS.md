@@ -12,7 +12,7 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 - City conversion/recovery and request/wait measurements are tracked in
   [PR #136](https://github.com/UtkuDenizAltiok/jobcu/pull/136); current local suite is
-  **1,856 passing tests**. The next owner-run capture is prepared privately and is not running.
+  **1,857 passing tests**. The next owner-run capture is prepared privately and is not running.
 - Location admission, explicit screening uncertainty and the UK sponsorship deduction are
   tracked in [PR #135](https://github.com/UtkuDenizAltiok/jobcu/pull/135). Final local suite:
   **1,833 passing tests**. These checks use fictional data; real missing place evidence stays
@@ -59,7 +59,7 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 **Prepared for the next owner-started search; live transport verification remains incomplete.**
 City conversion/recovery and private timing improvements are tracked in
 [PR #136](https://github.com/UtkuDenizAltiok/jobcu/pull/136), branch
-`codex/location-verification-efficiency`. Final local suite: **1,856 tests**, one existing
+`codex/location-verification-efficiency`. Final local suite: **1,857 tests**, one existing
 warning; Ruff/privacy/whitespace/document checks pass. Publication recovery must require CI
 on the PR's actual final head, merge commit, synchronized main and exact-main CI; current
 publication receipts are in the private checkpoint.
