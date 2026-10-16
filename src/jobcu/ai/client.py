@@ -210,7 +210,9 @@ class AIClient:
             attempt = uuid4().hex[:12]
             started = time.monotonic()
             outcome = "complete"
-            log.info("AI attempt started: id=%s step=%s", attempt, step)
+            request_kind = "research" if research else "structured"
+            log.info("AI attempt started: id=%s step=%s request_kind=%s",
+                     attempt, step, request_kind)
             try:
                 yield
             except AIError as exc:
@@ -236,8 +238,9 @@ class AIClient:
                 outcome = type(exc).__name__
                 raise
             finally:
-                log.info("AI attempt finished: id=%s step=%s elapsed=%.3fs outcome=%s",
-                         attempt, step, max(0, time.monotonic() - started), outcome)
+                log.info("AI attempt finished: id=%s step=%s elapsed=%.3fs outcome=%s "
+                         "request_kind=%s", attempt, step,
+                         max(0, time.monotonic() - started), outcome, request_kind)
 
     def _one_at_a_time(self) -> None:
         """The provider said "too many requests": the rest of this search asks one at a time,
