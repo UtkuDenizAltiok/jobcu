@@ -449,3 +449,21 @@ def test_the_ad_text_decides_the_job_type_when_the_job_site_leaves_it_open():
         contract)
     assert job_types_of(group_with([]), {"job_type": "part_time"}) == ["part_time"]
     assert job_types_of(group_with([]), {"job_type": None}) == []
+    assert job_types_of(group_with([]), {"job_type": "unclear"}) == []
+
+
+def test_full_time_schedule_does_not_contradict_a_student_role():
+    from jobcu.pipeline import job_types_of
+
+    job = FoundJob(source="s", source_job_id="student", url="https://jobs.test/student",
+                   title="Student Engineer",
+                   job_types=["full_time_permanent", "fixed_term"])
+    group = group_duplicates([job], {"s": "job_board"})[0]
+    assert job_types_of(group, {"job_type": "internship_or_working_student"}) == [
+        "internship_or_working_student"]
+    # A full-time hint still contradicts an unsupported part-time reading.
+    assert job_types_of(group, {"job_type": "part_time"}) == [
+        "fixed_term", "full_time_permanent"]
+    job.job_types = ["full_time_permanent"]
+    assert job_types_of(group, {"job_type": "internship_or_working_student"}) == [
+        "full_time_permanent"]

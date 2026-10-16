@@ -12,7 +12,8 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 - City conversion/recovery and request/wait measurements are tracked in
   [PR #136](https://github.com/UtkuDenizAltiok/jobcu/pull/136); current local suite is
-  **1,857 passing tests**. The newly owner-started run is being captured privately.
+  **1,857 passing tests** on the unchanged baseline. The exact owner-started run has finished;
+  its private review and confirmed repairs are in progress.
 - Location admission, explicit screening uncertainty and the UK sponsorship deduction are
   tracked in [PR #135](https://github.com/UtkuDenizAltiok/jobcu/pull/135). Final local suite:
   **1,833 passing tests**. These checks use fictional data; real missing place evidence stays
@@ -26,7 +27,7 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
   these older receipts establish only their own source heads.
 - Owner app **8765** is running in the owner's chosen state. The assistant's fictional
   preview **8799** is stopped and its disposable data removed. The prior capture is
-  complete; its disposable scratch is removed. The new exact-run observer is read-only and
+  complete; its disposable scratch is removed. The exact-run observer has finished and
   keeps evidence outside Git. Do not restart the owner app. No reset, new key or model choice
   is required.
 - Saved documents, queries, searches, ratings, marks, settings, keys and authorization are
@@ -71,11 +72,13 @@ previous saved search. Owner app 8765 is running; preserve it. No preview was st
    Ruff/privacy/whitespace and applicable document/JS checks. Publish, require exact-head
    Mac/Windows/privacy CI, merge with a merge commit, synchronize main and verify its CI.
 
-Branch: `codex/exact-run-review`; base is the merged PR #136 source. No implementation for this
-new run yet. Reuse the unchanged 1,857-test baseline until relevant code/dependencies change.
-Exact next action: continue the private observer of the pinned run until terminal status, then
-freeze its evidence and begin the full review on private scratch. Recovery details and capture
-state are in private `assistant-review-checkpoint.json`. Earlier bounded paid packets are
+Branch: `codex/exact-run-review`; base is merged PR #136. The exact run is frozen and its
+independent review is sealed privately. Baseline: 1,857 tests. Student-role refinement of broad
+schedule hints, retention of unknown types and skipping extra research for proven ad exclusions
+are implemented; affected search/scoring and document checks pass. Full final suite is pending.
+Next: verify native stateless event streaming contracts for complete
+answers, sources, usage, reasoning and a single SDK dispatch; no live recovery claim yet.
+Recovery details and evidence gaps are in private `assistant-review-checkpoint.json`. Earlier bounded paid packets are
 closed; unused maxima grant no further requests. External transport causes and opaque final
 Adzuna destinations remain unresolved unless this task obtains relevant new evidence/authority.
 
