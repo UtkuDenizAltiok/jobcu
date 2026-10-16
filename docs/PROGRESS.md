@@ -10,6 +10,10 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
+- Location admission, explicit screening uncertainty and the UK sponsorship deduction are
+  tracked in [PR #135](https://github.com/UtkuDenizAltiok/jobcu/pull/135). Final local suite:
+  **1,833 passing tests**. These checks use fictional data; real missing place evidence stays
+  unresolved. Read the PR and private checkpoint for exact publication heads and CI receipts.
 - Saved-evidence recovery, citation provenance, requirement-quote and allowance repairs are in
   merged [PR #133](https://github.com/UtkuDenizAltiok/jobcu/pull/133), extending
   [PR #131](https://github.com/UtkuDenizAltiok/jobcu/pull/131). Final PR head `40f5d02` passed
@@ -49,22 +53,30 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Blocked on external transport evidence and further bounded live authority.** The confirmed
-source repairs above are implemented, tested and merged; no source changes remain unpublished.
-The owner-requested root-cause task retains this dependency rather than claiming every unknown
-condition or connection problem is solved.
+**Remaining dependency: missing live reference facts, journeys and transport evidence.**
+The implemented location-admission and UK sponsorship step is tracked in
+[PR #135](https://github.com/UtkuDenizAltiok/jobcu/pull/135), branch
+`codex/location-eligibility-policy`. Final local checks: **1,833 passing tests**, one existing
+warning, Ruff/privacy/whitespace and JavaScript syntax. Publication recovery must check the
+PR's actual final head, require Mac/Windows/privacy CI, merge by merge commit and verify
+synchronized main CI; the private checkpoint records the latest publication receipts.
 
-- Preserve saved jobs, documents, ratings, app state and limits. No owner cards were rewritten.
-  Reuse the completed independent review; do not start another search or investigate the backlog.
-- The explicitly authorized private test packets are closed, including their first-failure
-  stop condition. An unused maximum is not permission to resume after that stop. Native
-  citation recovery still needs live verification. Complete answers, missing usage, free
-  captured-answer replay and connection inspection are saved outside Git.
-- Exact next action: recheck standing authorization/revocations, then read the current private
-  checkpoint and `transport-investigation-plan.json`. Its frozen evidence and controlled
-  comparison gates must be met before another paid dispatch or transport-policy change.
-  Do not repeat the used scripts, short passing probes or whole saved-result review. If the
-  external evidence/authority is absent, report this dependency and wait for the owner's task.
+- The five-point UK deduction is explicit and grounded in vacancy-specific sponsorship
+  evidence. General security/nationality uncertainty has a separate explanation; definite
+  excluding requirements retain their established score maximum. Historical scores remain.
+- Travel guards reject stale origins/geometric zeros and preserve unknowns when other cities
+  remain unmeasured. They do not invent previously missing city facts or route durations.
+  The saved search, ratings, app state and existing limits are preserved. No new search or
+  paid request was made. Details remain in the private current checkpoint.
+- Exact next action for evidence recovery: recheck standing authorization/revocations, read
+  the current private checkpoint and its link to `transport-investigation-plan.json`, then
+  obtain the plan's external evidence and renewed bounded authority before a paid dispatch.
+  Both earlier paid packets closed at the first failure. Do not repeat their scripts, short
+  passing probes or the whole saved-result review; do not make speculative transport changes.
+- The owner confirmed the desired Adzuna behavior is the employer's final page. Independently
+  verified matching employer links are preferred, but Adzuna-only destinations remain
+  unresolved. The supplied API route does not complete that request. Replacing it still
+  needs the permission/interface recorded below; no opaque route was probed.
 
 The earlier whole-pipeline review also has these **parked dependencies**; do not resume them
 without evidence and authority relevant to the active task:

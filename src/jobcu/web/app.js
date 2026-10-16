@@ -1185,6 +1185,8 @@ function renderCard(card) {
         `${Object.values(card.parts).reduce((a, b) => a + b, 0)}: ` +
         limits.map((l) => `${l.why} (maximum ${l.at})`).join(" · ") })
     : null;
+  const deductions = (card.deductions || []).map((d) =>
+    el("p", { class: "job-limit", text: `−${d.points} points: ${d.why}` }));
 
   const link = safeUrl(card.main_link.url);
   const actions = el(
@@ -1247,6 +1249,7 @@ function renderCard(card) {
       card.reasons.length ? el("p", { class: "job-reasons", text: card.reasons.join(" · ") }) : null,
       parts,
       limit,
+      ...deductions,
       checks.childNodes.length ? checks : null,
       needsChecks,
       actions,
@@ -1260,6 +1263,9 @@ function scoreTooltip(card) {
     .map(([key, label, most]) => `${label}: ${card.parts[key]} of ${most}`);
   if ((card.limits || []).length) {
     lines.push(`Maximum ${Math.min(...card.limits.map((l) => l.at))}`);
+  }
+  for (const deduction of card.deductions || []) {
+    lines.push(`−${deduction.points} points: ${deduction.why}`);
   }
   return lines.join("\n");
 }

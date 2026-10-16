@@ -72,6 +72,40 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Record step time and answer-wait time; label correction timings separately from cumulative usage. | Corrections and full searches cannot be compared as equivalent performance runs (2026-10-06). |
 | Warn when scoring reads only an excerpt of a lengthy ad. | Unseen requirements must not be assumed satisfied (2026-10-06). |
 
+## Location admission and UK sponsorship — 2026-10-16
+
+The owner requested a five-point deduction on every UK vacancy without an explicit offer of
+visa sponsorship for that vacancy. `scoring.py` retains the vacancy country and proposed offer
+with its exact clause. An offer needs the positive model classification, a literal supported
+quote and an explicit positive offer; negative, conditional and company-wide licensing wording
+does not qualify. Ground online research within the individual job paragraph. A person's visa
+eligibility cannot establish an employer offer. Apply the deduction after the existing lowest
+maximum, floor at zero, retain the rubric parts and show the deduction separately on cards and
+score tooltips. Rejudging or recovering requirements cannot compound the deduction. New
+scoring uses the rule; historical saved scores are preserved. Use the score before this
+deduction for the existing incomplete-ad research gate, so the missing offer cannot prevent
+its own verification. No additional request stage is added.
+
+`travel.py` no longer treats the population-derived city radius as proof that a workplace in
+another/unknown town is inside that city. This supersedes the old automatic zero-minute radius
+shortcut; named reference-city workplaces still qualify, while a requested city centre requires
+a journey from an address away from that centre. Old geometric zeros and journeys retained for
+different workplace coordinates cannot establish a pass. Measuring only the nearest two cities
+cannot establish a failure while other eligible cities remain in possible reach. Preserve those
+jobs as unknown and name the unmeasured alternatives; keep a demonstrated passing journey.
+The nearest-city sample count and retry policy stay unchanged. Workplaces previously given a
+geometric zero now use the existing journey checks and service limits. A sampled city edge
+remains approximate; it is not a surveyed municipal boundary.
+
+Nationality/security uncertainty has a separate explicit score note containing the retained
+wording. A conditional screening clause does not establish personal ineligibility; explicit
+excluding nationality rules retain the existing 30-point maximum. Do not turn alliance membership
+or a clearance acronym into an invented eligibility decision. Relevant official guidance and
+application-route permissions remain in [SOURCES](SOURCES.md).
+Fictional engineering, nursing, teaching and hospitality regressions cover the scoring rule;
+finite fictional cities cover stale origins, geometric zeros and unmeasured alternatives.
+Offline regressions do not verify a real journey or repair previously missing reference facts.
+
 ## Saved evidence recovery — 2026-10-16
 
 **Retry incomplete checks** operates on the latest retained pool and location plan. It does

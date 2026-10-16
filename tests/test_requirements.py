@@ -253,7 +253,7 @@ def test_scoring_integration_preserves_every_country_without_extra_ai_calls(coun
     plan = LocationPlan(text="", understood_as="Anywhere", countries=[country], places=[],
                         broad=True, not_checked_yet=[], outside_supported_area=[])
     result = scoring.score_groups(client, PROFILE, plan, [group], [0])
-    assert result[0]["score"] == 55
+    assert result[0]["score"] == (50 if country == "GB" else 55)
     assert len(adapter.calls) == 1
     assert "requirement_checks" in adapter.calls[0]["system"]
 

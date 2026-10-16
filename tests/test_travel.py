@@ -241,8 +241,8 @@ def test_a_close_call_is_measured_from_the_ads_own_place_only():
     job = group("Fürstenfeldbruck", company="Has Many Sites GmbH")
     meter(fake).measure([condition], [job], [0])
     assert [path for path, _, _ in fake.requests] == ["/distanceMatrix/v2:computeRouteMatrix"]
-    assert condition_fit(condition, job) == "no"
-    assert travel.detail(condition, job)[0] == "Munich, 52 min by public transport"
+    assert condition_fit(condition, job) == "unknown"  # other reachable cities were not measured
+    assert travel.detail(condition, job)[0].startswith("Munich, 52 min by public transport")
 
 
 def test_without_a_key_the_ai_estimates_and_says_so():
@@ -278,7 +278,7 @@ def test_the_monthly_limit_stops_google_maps_and_the_ai_takes_over():
     condition = near()
     job = group("Fürstenfeldbruck")
     meter(client=GuessingClient(), settings=settings, notes=notes).measure([condition], [job], [0])
-    assert condition_fit(condition, job) == "no"
+    assert condition_fit(condition, job) == "unknown"  # only the nearest few were estimated
     assert any("used up" in note for note in notes)
 
 
@@ -570,8 +570,12 @@ def test_a_search_keeps_jobs_near_a_big_city_and_leaves_out_far_ones(
     assert result["status"] == "finished", result["error"]
     assert result["result"]["profile"]["field"] == field
     jobs = result["result"]["jobs"]
-    assert sorted(card["location"] for card in jobs["cards"]) == ["Fürstenfeldbruck", "München"]
-    assert [card["location"] for card in jobs["ruled_out_by_conditions"]] == ["Hof"]
+    assert sorted(card["location"] for card in jobs["cards"]) == [
+        "Fürstenfeldbruck", "Hof", "München"]
+    assert jobs["ruled_out_by_conditions"] == []
+    hof = next(card for card in jobs["cards"] if card["location"] == "Hof")
+    assert hof["location_checks"][-1]["status"] == "unclear"
+    assert "other candidate cities" in hof["location_checks"][-1]["detail"]
     bruck = next(card for card in jobs["cards"] if card["location"] == "Fürstenfeldbruck")
     check = bruck["location_checks"][-1]
     assert check["detail"] == "Munich, 25 min by public transport"
@@ -867,11 +871,14 @@ def test_a_citys_own_districts_are_not_reference_places_of_their_own():
     assert [town.name for town in travel.anchor_towns(named, "DE")] == ["Wandsbek"]
 
 
-def test_a_job_within_a_citys_built_up_area_is_in_the_city():
+def test_a_rough_city_radius_cannot_prove_an_unnamed_workplace_is_in_the_city():
     condition = near(minutes=10)
     pasing = group("Somewhere", latitude=48.150, longitude=11.460)  # 9 km west of the centre
-    meter().measure([condition], [pasing], [0])  # no Google request
-    assert travel.detail(condition, pasing)[0] == "in Munich"
+    fake = FakeMaps({"Munich": 15})
+    meter(fake).measure([condition], [pasing], [0])
+    assert fake.requests
+    assert travel.home_town(travel.job_point(pasing), [places.find("Munich", "DE")]) is None
+    assert "in Munich" != travel.detail(condition, pasing)[0]
 
 
 def test_a_distance_limit_counts_from_the_citys_edge():
@@ -897,7 +904,7 @@ def test_a_trip_to_the_city_centre_ends_at_the_centre_when_the_person_says_so():
     # A job 9 km from the centre is measured too, not counted as in the city.
     pasing = group("Somewhere", "2", latitude=48.150, longitude=11.460)
     assert travel.home_town(travel.job_point(pasing), [munich], to_centre=True) is None
-    assert travel.home_town(travel.job_point(pasing), [munich]) == munich
+    assert travel.home_town(travel.job_point(pasing), [munich]) is None
     by_km = Condition(text="within 10 km of Munich city centre", understood_as="…",
                       status="applied", kind="near", max_km=10,
                       anchor=Anchor(named=[TownRef(name="Munich", country="DE")], to_centre=True))

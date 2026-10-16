@@ -34,11 +34,14 @@ from jobcu.scoring import (
     CITIZENSHIP_RULES,
     DOCTORATE_RULES,
     LEVEL_RULES,
+    SPONSORSHIP_RULES,
     YEARS_RULES,
     CitizenshipOrClearance,
     Doctorate,
     LanguageAsked,
+    VisaSponsorship,
     evidence_priority,
+    sponsorship_confirmed,
 )
 from jobcu.travel import job_country, job_point
 
@@ -77,6 +80,8 @@ site the ad names, never the agency's own office;
 - the years of professional experience it requires, in the ad's own words;
 - whether it requires a doctorate (PhD), a specific nationality or citizenship, the right to \
 work without sponsorship, or a security clearance, in the ad's own words.
+- whether this exact vacancy explicitly offers visa sponsorship; quote the whole clause, \
+including conditions and negations. General company sponsorship is not a vacancy offer.
 - other mandatory requirements, including current student enrolment, professional \
 registration/licences and qualifications, in the ad's own words; distinguish required from \
 optional and preserve alternative qualifications.
@@ -101,6 +106,7 @@ when the ad asks for no language.
 - doctorate: {DOCTORATE_RULES}
 - citizenship_or_clearance: {CITIZENSHIP_RULES} When the ad wasn't found: no_such_requirement \
 and not_required.
+- {SPONSORSHIP_RULES}
 - {requirements.RULES} ad_words must be quoted from the research notes. When the notes do not \
 cover mandatory requirements, use null rather than claiming an empty checked list.\
 """
@@ -116,7 +122,10 @@ class OnlineJob(BaseModel):
     citizenship_or_clearance: CitizenshipOrClearance
     citizenship_or_clearance_words: str
     requirement_checks: list[requirements.RequirementCheck] | None = None
+    visa_sponsorship: VisaSponsorship = "unclear"
+    visa_sponsorship_words: str = ""
     _grounded_checks: list[dict] | None = PrivateAttr(default=None)
+    _sponsorship_confirmed: bool = PrivateAttr(default=False)
 
 
 class OnlineAnswer(BaseModel):
@@ -130,7 +139,7 @@ class Requirements:
     languages: list[LanguageAsked]
     years_required: float | None
     # The doctorate, citizenship and clearance evidence, as scoring keeps it.
-    blockers: dict[str, str] = field(default_factory=dict)
+    blockers: dict[str, str | bool] = field(default_factory=dict)
     requirement_checks: list[dict] | None = None
 
 
@@ -231,7 +240,10 @@ def find_online(client: AIClient, groups: list[JobGroup], indexes: list[int],
                     answer.languages_asked, answer.years_required, blockers={
                         "doctorate": answer.doctorate,
                         "citizenship_or_clearance": answer.citizenship_or_clearance,
-                        "citizenship_or_clearance_words": answer.citizenship_or_clearance_words},
+                        "citizenship_or_clearance_words": answer.citizenship_or_clearance_words,
+                        "visa_sponsorship": answer.visa_sponsorship,
+                        "visa_sponsorship_words": answer.visa_sponsorship_words,
+                        "sponsorship_confirmed": answer._sponsorship_confirmed},
                     requirement_checks=(answer._grounded_checks
                                         if answer._grounded_checks is not None
                                         else [c.model_dump() for c in answer.requirement_checks]
@@ -268,6 +280,9 @@ def _look_up(client: AIClient, lines: list[str], jobs: int,
         max_output_tokens=1200 * jobs + 500,
     )
     for job in answer.jobs:
+        job._sponsorship_confirmed = sponsorship_confirmed(
+            job.visa_sponsorship, job.visa_sponsorship_words,
+            _job_notes(reply.text, job.id, jobs))
         grounded = requirements.ground(job.requirement_checks,
                                        _job_notes(reply.text, job.id, jobs), person)
         job._grounded_checks = grounded
