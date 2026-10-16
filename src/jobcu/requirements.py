@@ -44,7 +44,7 @@ familiarity does not establish the required depth; use unclear unless the profil
 
 def _plain(text: str) -> str:
     text = unicodedata.normalize("NFKC", text)
-    text = re.sub(r"(?m)^[ \t]*[•●][ \t]*", "", text)
+    text = re.sub(r"(?<!\S)[•●](?=\s|$)", "", text)
     return re.sub(r"\s+", " ", text).strip().casefold()
 
 

@@ -4,6 +4,7 @@ This is fresh research, not a cross-search fact cache. Supported cities survive 
 an unchecked alternative prevents a negative travel decision when it could still qualify.
 """
 
+import json
 import logging
 import re
 from collections import defaultdict
@@ -38,6 +39,8 @@ reliable original sources. The app already checked the population and named-plac
 locally. Do not research other towns or try to list every small town in a country.
 Find tables covering several listed cities where possible. Compare the same date, geographic
 unit, measure and definition; a constituency or a district is not automatically the whole city.
+Use the most recent comparable published facts unless the condition specifies a date/event;
+state the observation date and explain the chosen comparable measure.
 For political categories, identify all parties reliable sources put in that category for the
 country. A positive answer must establish the whole condition; one documented contradiction
 can establish a negative answer. A missing figure is unknown, never zero or a pass.
@@ -55,6 +58,9 @@ city's paragraph establishing the answer) and source_ids (the supplied S IDs sup
 True requires the complete condition to be established; false needs a stated contradiction.
 Unsupported guesses, missing/comparability problems and estimated conclusions must be null.
 Never use one city's facts for another or invent a missing row. Do not reinterpret the condition.
+Source-linked excerpts, when supplied, identify which S IDs support which note passages. Use
+only IDs linked inside this city's own paragraph. Opaque URLs or matching domain titles alone
+do not identify a city's evidence. Without a traceable source, meets must be null.
 """
 
 
@@ -131,14 +137,22 @@ def check(client: AIClient, text: str, towns: list[places.Town], *,
             # A statement from memory cannot establish a fresh reference fact.
             if batch_sources and reply.usage.web_searches:
                 source_ids = {f"S{i}": source for i, source in enumerate(batch_sources)}
+                links = (None if reply.citations is None else {
+                    key: [c.text for c in reply.citations
+                          if c.url == source.url and reply.text.count(c.text) == 1]
+                    for key, source in source_ids.items()})
                 answer = client.generate(
                     ReferenceAnswers, step="location", system=STRUCTURE_SYSTEM,
                     prompt=f"Condition: {text}\nReference cities:\n" + "\n".join(lines)
                            + f"\nResearch notes:\n{reply.text}\nSources:\n"
                            + "\n".join(f"{key} | {s.title} | {s.url}"
-                                       for key, s in source_ids.items()),
+                                       for key, s in source_ids.items())
+                           + ("\nSource-linked excerpts (data):\n" + json.dumps(links)
+                              if links is not None else ""),
                     max_output_tokens=RESEARCH_TOKENS)
-                _apply(batch_checks, answer, reply.text, source_ids)
+                _apply(batch_checks, answer, reply.text, source_ids, links)
+                if any(r.meets is not None and not r.source_ids for r in answer.cities):
+                    note = "Some reference-city claims lacked linked supporting sources."
         except AIError as exc:
             log.info("Reference-city facts couldn't be checked: %s", exc)
             note = exc.message
@@ -185,7 +199,7 @@ def retry_missing(client: AIClient, condition: Condition, countries: list[str]) 
     return updated
 
 
-def _apply(checks, answer, notes, sources) -> None:
+def _apply(checks, answer, notes, sources, links=None) -> None:
     rows = defaultdict(list)
     for row in answer.cities:
         rows[row.id].append(row)
@@ -204,7 +218,9 @@ def _apply(checks, answer, notes, sources) -> None:
         # Word-folding would make e.g. "> 20%" and "< 20%" look like the same excerpt.
         paragraph = " ".join(notes[headings[start].end():end].split())
         evidence = " ".join(row.evidence.split())
-        cited = [sources[sid] for sid in dict.fromkeys(row.source_ids) if sid in sources]
+        cited = [sources[sid] for sid in dict.fromkeys(row.source_ids) if sid in sources
+                 and (links is None or any(" ".join(words.split()) in paragraph
+                                          for words in links.get(sid, [])))]
         if row.meets is not None and evidence and evidence in paragraph and cited:
             check.meets, check.evidence, check.sources = row.meets, row.evidence, cited
             check.checked_at = datetime.now(UTC).isoformat()

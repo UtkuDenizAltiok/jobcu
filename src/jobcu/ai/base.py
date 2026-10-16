@@ -50,12 +50,22 @@ class Source:
 
 
 @dataclass
+class Citation:
+    """A provider-linked passage in the generated notes, not independently verified facts."""
+
+    text: str
+    url: str
+
+
+@dataclass
 class ResearchReply:
     """An answer the AI looked up on the web, with the pages it used."""
 
     text: str
     sources: list[Source]
     usage: Usage
+    # None: adapter has no passage mapping. Empty: mapping was available but no usable links.
+    citations: list[Citation] | None = None
 
 
 class AIError(Exception):

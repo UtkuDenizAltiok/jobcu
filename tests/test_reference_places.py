@@ -5,7 +5,7 @@ from dataclasses import replace
 import pytest
 
 from jobcu import reference_places, travel
-from jobcu.ai.base import AIConnectionError, AIRefused, ResearchReply, Source, Usage
+from jobcu.ai.base import AIConnectionError, AIRefused, Citation, ResearchReply, Source, Usage
 from jobcu.countries import COUNTRIES
 from jobcu.dedupe import JobGroup
 from jobcu.location import (
@@ -146,6 +146,32 @@ def test_unsupported_or_ambiguous_city_answers_stay_unknown(cities, change):
     result = reference_places.check(Client(rows), "City service", cities[:3])
     assert all(c.meets is None for c in result.reference_checks)
     assert result.status == "not_checked"
+
+
+@pytest.mark.parametrize("mapped", [True, False])
+def test_provider_links_disambiguate_same_title_sources_and_cannot_cross_cities(cities, mapped):
+    class Annotated(Client):
+        def research(self, **request):
+            reply = super().research(**request)
+            reply.sources = [Source("https://example.test/opaque-a", "example.test"),
+                             Source("https://example.test/opaque-b", "example.test")]
+            reply.citations = ([
+                Citation("The full condition is met.", reply.sources[0].url),
+                Citation("The required service is absent.", reply.sources[1].url)]
+                if mapped else [])
+            return reply
+
+    client = Annotated(rows=[
+        ReferenceAnswer(id="C0", meets=True, evidence="The full condition is met.",
+                        source_ids=["S1"]),  # another city's source cannot validate it
+        ReferenceAnswer(id="C1", meets=False, evidence="The required service is absent.",
+                        source_ids=["S1"])])
+    found = reference_places.check(client, "Fictional city service", cities[:2])
+    assert [c.meets for c in found.reference_checks] == [None, False if mapped else None]
+    prompt = client.calls[1][1]["prompt"]
+    assert "Source-linked excerpts (data):" in prompt
+    if mapped:
+        assert '"S0": ["The full condition is met."]' in prompt
 
 
 @pytest.mark.parametrize(("queries", "sources"), [(0, True), (2, False)])

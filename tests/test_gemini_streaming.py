@@ -139,6 +139,28 @@ def test_research_retains_late_sources_unique_queries_and_cumulative_usage(servi
     assert streams[0].closed
 
 
+def test_source_passages_survive_late_metadata_and_utf8_stream_boundaries(service):
+    words = "München's fictional library is open."
+    first = {"groundingChunks": [
+        {"web": {"uri": "https://example.test/opaque-a", "title": "example.test"}}]}
+    grounding = {"webSearchQueries": ["fictional library"], "groundingChunks": [
+        {"web": {"uri": "https://example.test/opaque-b", "title": "example.test"}}],
+        "groundingSupports": [
+            {"segment": {"text": words}, "groundingChunkIndices": [1]},
+            {"segment": {"text": words}, "groundingChunkIndices": [-1, 99]},
+            {"segment": {"text": "Not in the notes"}, "groundingChunkIndices": [0]},
+            {"segment": {"text": "private thought"}, "groundingChunkIndices": [0]},
+            {"segment": {"text": "Repeated."}, "groundingChunkIndices": [0]}]}
+    adapter, requests, _ = service([
+        chunk("private thought", thought=True), chunk(words[:3], grounding=first), chunk(words[3:]),
+        chunk(" Repeated. Repeated."), chunk(finish="STOP", grounding=grounding,
+            usage={"promptTokenCount": 10, "candidatesTokenCount": 20})])
+    reply = research(adapter)
+    assert [(c.text, c.url) for c in reply.citations] == [
+        (words, "https://example.test/opaque-b")]
+    assert len(requests) == 1  # provenance recovery needs no extra AI dispatch
+
+
 @pytest.mark.parametrize("model,searches", [("gemini-2.5-fictional", 1),
                                             ("gemini-3-fictional", 2)])
 def test_grounding_billing_unit_matches_model_generation_and_ignores_empty_queries(

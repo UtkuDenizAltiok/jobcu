@@ -256,6 +256,8 @@ the next attempt; displayed cards are rebuilt when recovery finishes.
 Missing original text, unsupported facts or an unavailable service can still leave checks
 unfinished. Repeating a request cannot establish experience absent from your profile. Read
 the specific explanation; quote-validation failures are distinguished from missing evidence.
+Research claims also need supporting sources linked to that city's evidence. A page list or
+an AI answer saying "yes" alone cannot confirm a condition.
 The monthly usage meter includes the earlier search and its recovery requests together.
 
 **What Jobcu understood** shows how it read your documents and, after a search, the choices

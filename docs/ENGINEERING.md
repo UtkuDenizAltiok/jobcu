@@ -86,6 +86,17 @@ research. Missing facts use the existing groups of eight; an exhausted connectio
 stops remaining groups. A changed eligible destination set invalidates prior travel outcomes.
 This narrow same-search recovery does not create a cross-search research cache.
 
+Research replies can retain provider-linked note passages separately from a page list.
+Gemini streaming accumulates grounding chunks in arrival order, resolves support indices
+against that complete list, and retains only unique literal non-thought passages. Reference
+extraction receives the passage-to-source-ID map; when that map is available, a citation must
+be linked inside the same city's paragraph. Ambiguous/repeated text, missing links and another
+city's source remain unknown. Opaque redirect URLs and identical domain titles alone cannot
+reconstruct those associations. This preserves provenance without another AI request; it does
+not verify the source's factual accuracy or the model's complete interpretation. Current
+comparisons must use the latest comparable published facts or explain the specified event.
+See [provider contract](SOURCES.md#grounding-passage-links--2026-10-16).
+
 Ordinary requirement grounding now retains the proposed verdict and local validation failures
 in private evidence, including results extracted from online notes. Legacy unknowns have no
 retained proposal: valid quotes or high points cannot reconstruct a lost verdict. Free
@@ -94,7 +105,9 @@ Remaining explicit unknowns in full ads use focused, numbered comparisons agains
 profile. Missing/duplicate IDs cannot erase evidence, confirmed blockers are untargetable,
 and unsupported quotes remain unknown. Only the ordinary-requirement judgement changes;
 other score components and independent warnings remain. Summary-only jobs require their
-original evidence instead. AI explanations describe uncertainty but are not verified facts.
+original evidence instead. Standalone list bullets can move between lines without invalidating
+the same adjacent quoted sentences; words and negations are still required. AI explanations
+describe uncertainty but are not verified facts.
 
 Recovery honors the existing scoring continuation question and monthly controls. A failed
 comparison stops queued work; already running requests can finish. Completed pool work and

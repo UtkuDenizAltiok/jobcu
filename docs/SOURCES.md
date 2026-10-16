@@ -894,6 +894,18 @@ Preserve medium thinking and necessary evidence; verify completed answers, metad
 behavior rather than claim savings from a different transport alone. Existing service terms,
 pricing, allowance and endpoint identities still apply; this adds no job source or access right.
 
+### Grounding passage links — 2026-10-16
+
+**Checked 2026-10-16.** Google's [Generate Content grounding contract](https://ai.google.dev/api/generate-content#GroundingSupport)
+links claim segments to grounding-chunk indices. For streaming, indices refer to chunks
+accumulated across all responses in order. Segment offsets are bytes within provider parts;
+the segment also supplies corresponding text. The locked official SDK exposes these fields.
+Inference for Jobcu: retain unique literal note passages with their source URLs rather than
+guess Python character offsets across chunks or infer associations from duplicate page titles.
+A provider attribution establishes provenance, not independent verification or a complete
+condition. Missing/ambiguous links remain unknown. This uses the existing Generate Content
+contract and adds no service, endpoint, retention right or paid-call authority.
+
 ### Native reasoning refusals — 2026-10-15
 
 **Checked 2026-10-15.** The official [OpenAI reasoning guide](https://developers.openai.com/api/docs/guides/reasoning)

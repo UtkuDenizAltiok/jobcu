@@ -10,15 +10,14 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
-- Reliability, requirement-quote and estimated-cost repairs are merged in
-  [PR #131](https://github.com/UtkuDenizAltiok/jobcu/pull/131). Exact final PR head `c12a275`
-  passed CI `38798980833`; merge `72744c9` passed exact-main CI `38799671516`, both on Mac,
-  Windows and privacy. The final local suite is **1,768 passing tests**, with one existing
-  dependency deprecation warning. The owner's main and locked dependencies are synchronized.
-  This closeout changes documentation only; reuse unchanged source checks during recovery.
+- Saved-evidence recovery, citation provenance, requirement-quote and allowance repairs are in
+  [PR #133](https://github.com/UtkuDenizAltiok/jobcu/pull/133), extending merged
+  [PR #131](https://github.com/UtkuDenizAltiok/jobcu/pull/131). Final local suite: **1,805 passing
+  tests**, with one existing dependency deprecation warning. Exact-head Mac/Windows/privacy
+  CI and merge receipts are on the PR and in the private checkpoint; distinguish those states.
 - Owner app **8765** is closed in the owner's chosen state. The assistant's fictional
   preview **8799** is stopped and its disposable data removed. The read-only capture has
-  finished and disposable private investigation scratch is removed. The next normal owner
+  finished; active-task evidence and scratch status are in the private checkpoint. The next normal owner
   launch loads merged repairs; do not restart it automatically. No reset, new key or model
   choice is required.
 - Saved documents, queries, searches, ratings, marks, settings, keys and authorization are
@@ -55,19 +54,23 @@ do not start another search or an unbudgeted paid diagnostic.
 
 - Branch `codex/evidence-warning-recovery`, base `e6e8f0e`, in an attached isolated worktree.
   Implemented same-search partial-city recovery, retained requirement validation audit,
-  focused full-ad comparisons, saved-job retry controls and cumulative reported web allowance.
+  focused full-ad comparisons, saved-job retry controls, cumulative reported web allowance,
+  provider-linked note passages and inline list-bullet quote tolerance.
   Owner data, app state and limits remain untouched. Publication receipts stay with its PR
   and the private checkpoint; distinguish implementation, exact-head CI and merge.
-- Baseline reused: **1,768 passing tests** at the unchanged base. Final suite: **1,796 passed**,
+- Baseline reused: **1,768 passing tests** at the unchanged base. Final suite: **1,805 passed**,
   one existing dependency deprecation warning. Ruff, privacy, JS syntax and whitespace checks
   pass. The fictional recovery dialog/workload preview has no browser errors; preview stopped.
-- Private authorization and recovery index have been checked; the new checkpoint points to an
-  authorized scratch backup outside every checkout. Preserve existing judgements and ratings.
+- Private authorization and recovery index have been checked. A specifically authorized
+  bounded live packet is complete; its request allowance is consumed. Captured requirement
+  output was replayed offline after the bullet fix, preserving the uncertain verdict and its
+  explanation. Private evidence, usage and remaining dependencies stay outside every checkout.
+  Preserve existing judgements and ratings; do not rerun the used packet.
 - Exact next action: finish publication with exact-head Mac/Windows/privacy CI and synchronize
   main if not already recorded by the linked PR/private receipt. Then, only with specific
-  bounded paid authority and active capped provider billing, execute the prepared private
-  three-request packet. Long-request causes and missing real evidence remain unproved;
-  historical checks have not been repaired by offline tests. Do not start another search.
+  bounded paid authority, validate the final citation-preserving path on the same frozen
+  reference group. Long-request causes and factual completeness remain unproved. No historical
+  owner cards were rewritten; do not start another search or infer met requirements from points.
 
 The earlier whole-pipeline review also has these **parked dependencies**; do not resume them
 without evidence and authority relevant to the active task:
@@ -98,10 +101,10 @@ without evidence and authority relevant to the active task:
 
 ### Waiting on the owner
 
-The active task's paid verification request is pending; no paid diagnostic or new search is
-scheduled without that specific authority. Confirm provider billing status and an enforced
-cap within the total service budget privately before paid use; a local estimate is not an invoice
-or provider cap.
+The active task's bounded verification allowance is consumed. A further paid request needs
+new bounded authority. The owner confirmed active billing with an enforced cap within the
+total service budget; preserve it and the local ceiling. A local estimate is not an invoice
+or provider cap. No new search or additional paid experiment is scheduled.
 Restoring provider service does not retroactively complete a saved search's missing checks.
 A fresh local chat can use [Start](PROMPTS.md#start-a-session) to recover publication if needed
 and wait. Use [Review](PROMPTS.md#review-a-search) for later saved evidence and
