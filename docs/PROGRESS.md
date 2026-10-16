@@ -10,6 +10,9 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
+- City conversion/recovery and request/wait measurements are tracked in
+  [PR #136](https://github.com/UtkuDenizAltiok/jobcu/pull/136); current local suite is
+  **1,854 passing tests**. The next owner-run capture is prepared privately and is not running.
 - Location admission, explicit screening uncertainty and the UK sponsorship deduction are
   tracked in [PR #135](https://github.com/UtkuDenizAltiok/jobcu/pull/135). Final local suite:
   **1,833 passing tests**. These checks use fictional data; real missing place evidence stays
@@ -19,8 +22,8 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
   [PR #131](https://github.com/UtkuDenizAltiok/jobcu/pull/131). Final PR head `40f5d02` passed
   CI `38852360275`; source merge `e082122` passed exact-main CI `38852830982`, on Mac,
   Windows and privacy. Final local suite: **1,805 passing tests**, with one existing dependency
-  deprecation warning. Main and locked dependencies are synchronized. This handover changes
-  documentation only; reuse unchanged source checks.
+  deprecation warning. Main and locked dependencies are synchronized. The current source checks are listed above;
+  these older receipts establish only their own source heads.
 - Owner app **8765** is closed in the owner's chosen state. The assistant's fictional
   preview **8799** is stopped and its disposable data removed. The read-only capture has
   finished and disposable private scratch is removed. Needed evidence remains in the private
@@ -53,28 +56,29 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Active: verify location checks and remove confirmed wasted requests before the next
-owner-started search (2026-10-16).** Branch `codex/location-verification-efficiency`, base
-`725bec3`. Preserve the saved run, data, limits, medium effort and chosen closed app state.
-No new job search. Existing source step PR #135 is merged and exact-main CI passed.
+**Prepared for the next owner-started search; live transport verification remains incomplete.**
+City conversion/recovery and private timing improvements are tracked in
+[PR #136](https://github.com/UtkuDenizAltiok/jobcu/pull/136), branch
+`codex/location-verification-efficiency`. Final local suite: **1,854 tests**, one existing
+warning; Ruff/privacy/whitespace/document checks pass. Publication recovery must require CI
+on the PR's actual final head, merge commit, synchronized main and exact-main CI; current
+publication receipts are in the private checkpoint.
 
-- Trace saved failure/usage evidence; fix supported citation recovery and any confirmed
-  repeated requests without weakening location rules, matching quality or coverage.
-- Reuse the unchanged 1,833-test baseline. Reproduce fixes with fictional professions and
-  cities, run affected/final tests and guards, publish with exact-head Mac/Windows/privacy
-  CI, merge commit, synchronize main and verify its CI.
-- The owner's bounded verification packet finished at its first-failure stop. Private receipts
-  and complete captured evidence are preserved; unused maxima are not further authority.
-  Saved city compliance and the underlying external disconnect are not claimed resolved.
-- Implemented compact conversion input, deterministic source-ID recovery, bounded transient
-  same-search answer reuse and request/wait timings. Medium effort, complete notes, source
-  validation, candidate scope and scoring rules remain. Final **1,854-test** suite and guards pass; publication is pending.
-- Exact next action: finish final tests/diff review, publish this step with exact-head CI,
-  synchronize main and preserve the private `next-run-plan.json`. When the owner sends the
-  next-search prompt, pin that new active run; do not review saved run 4 in its place.
-- The previously closed packets remain closed. Real city compliance/transport cause remain
-  unverified until evidence exists. The final employer page for Adzuna-only jobs still needs
-  the previously recorded permission/interface; do not probe opaque routes.
+- Compact conversion retains complete research notes and source validation. Transient
+  same-search memory avoids repeating complete research after conversion failure, within
+  identity/age/usage bounds. Medium effort, candidate scope, freshness and scores remain.
+- Per-attempt AI times and actual retry/source waits are recorded privately; answer waits
+  remain separate. Do not sum overlapping request durations as elapsed search time.
+- The owner's bounded verification packet ended at its first-failure stop. Detailed Maps,
+  native answers, connection trace, missing usage and offline replay evidence remain private.
+  Unused maxima are not further authority. No new job search was started or owner cards changed.
+- Exact next action: when the owner sends the next-search prompt, read the private current
+  checkpoint and `next-run-plan.json`, pin the new active search ID/start boundary and capture
+  that exact run. Do not substitute saved run 4 or start a search/paid experiment. On finish
+  or failure follow the full Review procedure using its new private evidence.
+- Underlying external transport cause and completed live verification of the shorter request
+  remain unresolved. The final employer page for Adzuna-only jobs still needs the permission
+  and interface recorded below. Do not claim either dependency solved or probe opaque routes.
 
 The earlier whole-pipeline review also has these **parked dependencies**; do not resume them
 without evidence and authority relevant to the active task:
