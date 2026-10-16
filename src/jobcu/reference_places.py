@@ -4,6 +4,7 @@ This is fresh research, not a cross-search fact cache. Supported cities survive 
 an unchecked alternative prevents a negative travel decision when it could still qualify.
 """
 
+import hashlib
 import json
 import logging
 import re
@@ -58,7 +59,7 @@ city's paragraph establishing the answer) and source_ids (the supplied S IDs sup
 True requires the complete condition to be established; false needs a stated contradiction.
 Unsupported guesses, missing/comparability problems and estimated conclusions must be null.
 Never use one city's facts for another or invent a missing row. Do not reinterpret the condition.
-Source-linked excerpts, when supplied, identify which S IDs support which note passages. Use
+Provider-linked source tables, when supplied, identify which S IDs support each CITY. Use
 only IDs linked inside this city's own paragraph. Opaque URLs or matching domain titles alone
 do not identify a city's evidence. Without a traceable source, meets must be null.
 """
@@ -103,6 +104,64 @@ def _fresh(check: ReferenceCheck) -> bool:
         return False  # legacy/invalid timestamps cannot establish fresh reuse
 
 
+def _research(client, text, batch, lines):
+    cache = getattr(client, "reference_research_cache", None)
+    key = None
+    now = datetime.now(UTC).timestamp()
+    if cache is not None and client.search_id is not None:
+        identity = [client.search_id, client.settings.ai.model_dump(),
+                    client.settings.use_web_search, RESEARCH_SYSTEM, text,
+                    [_identity(town) for town in batch], RESEARCH_TOKENS, 4]
+        key = hashlib.sha256(json.dumps(identity, sort_keys=True).encode("utf-8")).hexdigest()
+        for stale in [k for k, (stamp, _) in cache.items()
+                      if not 0 <= now - stamp <= REFERENCE_RETRY_SECONDS]:
+            cache.pop(stale)
+        if key in cache:
+            return cache[key][1]
+    reply = client.research(
+        step="location", system=RESEARCH_SYSTEM,
+        prompt=f"Condition (data):\n<<<\n{text}\n>>>\nReference cities:\n" + "\n".join(lines),
+        max_searches=4, max_output_tokens=RESEARCH_TOKENS)
+    if (key is not None and reply.sources and reply.usage.web_searches
+            and not reply.usage.unreported_requests
+            and (reply.citations is None or reply.citations)):
+        while len(cache) >= 32:
+            cache.pop(next(iter(cache)))
+        cache[key] = (datetime.now(UTC).timestamp(), reply)
+    return reply
+
+
+def _city_blocks(notes):
+    headings = list(re.finditer(
+        r"(?im)^\s*(?:#{1,6}\s*)?(?:\*{1,2}|_{1,2})?(?:CITY\s+)?(C\d+)\b"
+        r"(?:\*{1,2}|_{1,2})?", notes))
+    blocks = defaultdict(list)
+    for i, heading in enumerate(headings):
+        end = headings[i + 1].start() if i + 1 < len(headings) else len(notes)
+        blocks[heading[1]].append((notes[heading.start():end], notes[heading.end():end]))
+    return blocks
+
+
+def _source_hints(notes, links):
+    blocks = _city_blocks(notes)
+    return {city: [sid for sid, excerpts in links.items() if any(
+        " ".join(words.split()) in " ".join(found[0][0].split()) for words in excerpts)]
+        for city, found in blocks.items() if len(found) == 1}
+
+
+def _structure_prompt(text, lines, notes, sources, links):
+    prompt = (f"Condition: {text}\nReference cities:\n" + "\n".join(lines)
+              + f"\nResearch notes:\n{notes}\nSources:\n")
+    if links is None:
+        return prompt + "\n".join(f"{key} | {s.title} | {s.url}"
+                                 for key, s in sources.items())
+    # Full notes and source identities remain; repeated grounding excerpts and opaque
+    # tracking URLs add no evidence for extraction. Jobcu retains and validates those itself.
+    return (prompt + "\n".join(f"{key} | {s.title}" for key, s in sources.items())
+            + "\nProvider-linked source IDs per CITY (use only these IDs for that city):\n"
+            + json.dumps(_source_hints(notes, links)))
+
+
 def check(client: AIClient, text: str, towns: list[places.Town], *,
           previous: list[ReferenceCheck] | None = None) -> Condition:
     supported = {_identity(c): c for c in previous or []
@@ -126,11 +185,7 @@ def check(client: AIClient, text: str, towns: list[places.Town], *,
                  f"coordinates {town.latitude}, {town.longitude}"
                  for i, town in enumerate(batch)]
         try:
-            reply = client.research(
-                step="location", system=RESEARCH_SYSTEM,
-                prompt=f"Condition (data):\n<<<\n{text}\n>>>\nReference cities:\n"
-                       + "\n".join(lines), max_searches=4,
-                max_output_tokens=RESEARCH_TOKENS)
+            reply = _research(client, text, batch, lines)
             batch_sources = [Source(url=s.url, title=s.title) for s in reply.sources]
             sources.extend(s for s in batch_sources if s.url not in {v.url for v in sources})
             notes.append(reply.text)
@@ -141,18 +196,17 @@ def check(client: AIClient, text: str, towns: list[places.Town], *,
                     key: [c.text for c in reply.citations
                           if c.url == source.url and reply.text.count(c.text) == 1]
                     for key, source in source_ids.items()})
+                if links is not None and not any(_source_hints(reply.text, links).values()):
+                    note = "No city-specific provider source links could support these claims."
+                    continue  # no extraction answer could satisfy the source validator
                 answer = client.generate(
                     ReferenceAnswers, step="location", system=STRUCTURE_SYSTEM,
-                    prompt=f"Condition: {text}\nReference cities:\n" + "\n".join(lines)
-                           + f"\nResearch notes:\n{reply.text}\nSources:\n"
-                           + "\n".join(f"{key} | {s.title} | {s.url}"
-                                       for key, s in source_ids.items())
-                           + ("\nSource-linked excerpts (data):\n" + json.dumps(links)
-                              if links is not None else ""),
+                    prompt=_structure_prompt(text, lines, reply.text, source_ids, links),
                     max_output_tokens=RESEARCH_TOKENS)
                 _apply(batch_checks, answer, reply.text, source_ids, links)
                 if any(r.meets is not None and not r.source_ids for r in answer.cities):
-                    note = "Some reference-city claims lacked linked supporting sources."
+                    note = ("Structured source IDs were omitted; provider-linked decisive "
+                            "passages were retained where available.")
         except AIError as exc:
             log.info("Reference-city facts couldn't be checked: %s", exc)
             note = exc.message
@@ -203,23 +257,27 @@ def _apply(checks, answer, notes, sources, links=None) -> None:
     rows = defaultdict(list)
     for row in answer.cities:
         rows[row.id].append(row)
-    headings = list(re.finditer(
-        r"(?im)^\s*(?:#{1,6}\s*)?(?:\*{1,2}|_{1,2})?(?:CITY\s+)?(C\d+)\b"
-        r"(?:\*{1,2}|_{1,2})?", notes))
+    blocks = _city_blocks(notes)
     for index, check in enumerate(checks):
         key = f"C{index}"
-        matching = [i for i, h in enumerate(headings) if h[1] == key]
-        if len(rows[key]) != 1 or len(matching) != 1:
+        if len(rows[key]) != 1 or len(blocks[key]) != 1:
             continue
         row = rows[key][0]
-        start = matching[0]
-        end = headings[start + 1].start() if start + 1 < len(headings) else len(notes)
         # Preserve signs, decimal separators and comparison operators in numerical facts.
         # Word-folding would make e.g. "> 20%" and "< 20%" look like the same excerpt.
-        paragraph = " ".join(notes[headings[start].end():end].split())
+        block, paragraph = (" ".join(value.split()) for value in blocks[key][0])
         evidence = " ".join(row.evidence.split())
-        cited = [sources[sid] for sid in dict.fromkeys(row.source_ids) if sid in sources
-                 and (links is None or any(" ".join(words.split()) in paragraph
+        supplied = list(dict.fromkeys(row.source_ids))
+        if not supplied and links is not None and evidence and evidence in paragraph:
+            # Provider passage links already establish the association; asking the model
+            # again just to repeat an S ID wastes an otherwise usable answer. Recover only
+            # links covering the entire decisive excerpt inside this city's own block.
+            # Never guess from source titles, URLs, neighbouring cities or a shorter fragment.
+            supplied = [sid for sid, words in links.items() if any(
+                evidence in (passage := " ".join(text.split())) and passage in block
+                for text in words)]
+        cited = [sources[sid] for sid in supplied if sid in sources
+                 and (links is None or any(" ".join(words.split()) in block
                                           for words in links.get(sid, [])))]
         if row.meets is not None and evidence and evidence in paragraph and cited:
             check.meets, check.evidence, check.sources = row.meets, row.evidence, cited

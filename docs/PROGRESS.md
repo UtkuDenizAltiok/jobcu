@@ -53,30 +53,28 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Remaining dependency: missing live reference facts, journeys and transport evidence.**
-The implemented location-admission and UK sponsorship step is tracked in
-[PR #135](https://github.com/UtkuDenizAltiok/jobcu/pull/135), branch
-`codex/location-eligibility-policy`. Final local checks: **1,833 passing tests**, one existing
-warning, Ruff/privacy/whitespace and JavaScript syntax. Publication recovery must check the
-PR's actual final head, require Mac/Windows/privacy CI, merge by merge commit and verify
-synchronized main CI; the private checkpoint records the latest publication receipts.
+**Active: verify location checks and remove confirmed wasted requests before the next
+owner-started search (2026-10-16).** Branch `codex/location-verification-efficiency`, base
+`725bec3`. Preserve the saved run, data, limits, medium effort and chosen closed app state.
+No new job search. Existing source step PR #135 is merged and exact-main CI passed.
 
-- The five-point UK deduction is explicit and grounded in vacancy-specific sponsorship
-  evidence. General security/nationality uncertainty has a separate explanation; definite
-  excluding requirements retain their established score maximum. Historical scores remain.
-- Travel guards reject stale origins/geometric zeros and preserve unknowns when other cities
-  remain unmeasured. They do not invent previously missing city facts or route durations.
-  The saved search, ratings, app state and existing limits are preserved. No new search or
-  paid request was made. Details remain in the private current checkpoint.
-- Exact next action for evidence recovery: recheck standing authorization/revocations, read
-  the current private checkpoint and its link to `transport-investigation-plan.json`, then
-  obtain the plan's external evidence and renewed bounded authority before a paid dispatch.
-  Both earlier paid packets closed at the first failure. Do not repeat their scripts, short
-  passing probes or the whole saved-result review; do not make speculative transport changes.
-- The owner confirmed the desired Adzuna behavior is the employer's final page. Independently
-  verified matching employer links are preferred, but Adzuna-only destinations remain
-  unresolved. The supplied API route does not complete that request. Replacing it still
-  needs the permission/interface recorded below; no opaque route was probed.
+- Trace saved failure/usage evidence; fix supported citation recovery and any confirmed
+  repeated requests without weakening location rules, matching quality or coverage.
+- Reuse the unchanged 1,833-test baseline. Reproduce fixes with fictional professions and
+  cities, run affected/final tests and guards, publish with exact-head Mac/Windows/privacy
+  CI, merge commit, synchronize main and verify its CI.
+- The owner's bounded verification packet finished at its first-failure stop. Private receipts
+  and complete captured evidence are preserved; unused maxima are not further authority.
+  Saved city compliance and the underlying external disconnect are not claimed resolved.
+- Implemented compact conversion input, deterministic source-ID recovery, bounded transient
+  same-search answer reuse and request/wait timings. Medium effort, complete notes, source
+  validation, candidate scope and scoring rules remain. Final **1,854-test** suite and guards pass; publication is pending.
+- Exact next action: finish final tests/diff review, publish this step with exact-head CI,
+  synchronize main and preserve the private `next-run-plan.json`. When the owner sends the
+  next-search prompt, pin that new active run; do not review saved run 4 in its place.
+- The previously closed packets remain closed. Real city compliance/transport cause remain
+  unverified until evidence exists. The final employer page for Adzuna-only jobs still needs
+  the previously recorded permission/interface; do not probe opaque routes.
 
 The earlier whole-pipeline review also has these **parked dependencies**; do not resume them
 without evidence and authority relevant to the active task:

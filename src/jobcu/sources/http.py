@@ -324,16 +324,21 @@ class PoliteClient:
 
     def _pause(self, seconds: float, host: str) -> None:
         self._check_request(host)
-        if self._should_stop is None:
-            if seconds > 0:
-                self._sleep(seconds)
-        else:
-            while seconds > 0:
-                step = min(seconds, STOP_POLL_SECONDS)
-                self._sleep(step)
-                seconds -= step
-                self._check_request(host)
-        self._check_request(host)
+        started, requested = time.monotonic(), seconds
+        try:
+            if self._should_stop is None:
+                if seconds > 0:
+                    self._sleep(seconds)
+            else:
+                while seconds > 0:
+                    step = min(seconds, STOP_POLL_SECONDS)
+                    self._sleep(step)
+                    seconds -= step
+                    self._check_request(host)
+            self._check_request(host)
+        finally:
+            log.info("Source wait finished: host=%s elapsed=%.3fs requested=%.3fs",
+                     host, max(0, time.monotonic() - started), requested)
 
 
 def _retry_after(response: httpx.Response, *, now: float | None = None) -> float | None:

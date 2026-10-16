@@ -258,6 +258,12 @@ gaps and compares uncertain requirements against the saved full ad and profile. 
 parts and confirmed requirement failures are retained. Stop keeps completed comparisons for
 the next attempt; displayed cards are rebuilt when recovery finishes.
 
+If city research completed but converting its answer failed, the same open app can reuse that
+complete answer for up to one hour when the search, question, cities and provider settings
+match. It retries conversion without repeating that web research. This temporary recovery
+memory is not saved across app restarts or new searches. Unsupported source links and incomplete
+usage do not establish reusable verified city facts.
+
 Missing original text, unsupported facts or an unavailable service can still leave checks
 unfinished. Repeating a request cannot establish experience absent from your profile. Read
 the specific explanation; quote-validation failures are distinguished from missing evidence.

@@ -168,10 +168,12 @@ def test_provider_links_disambiguate_same_title_sources_and_cannot_cross_cities(
                         source_ids=["S1"])])
     found = reference_places.check(client, "Fictional city service", cities[:2])
     assert [c.meets for c in found.reference_checks] == [None, False if mapped else None]
-    prompt = client.calls[1][1]["prompt"]
-    assert "Source-linked excerpts (data):" in prompt
     if mapped:
-        assert '"S0": ["The full condition is met."]' in prompt
+        prompt = client.calls[1][1]["prompt"]
+        assert "Provider-linked source IDs per CITY" in prompt
+        assert '"C0": ["S0"]' in prompt
+    else:
+        assert len(client.calls) == 1  # no extraction can recover absent passage links
 
 
 @pytest.mark.parametrize(("queries", "sources"), [(0, True), (2, False)])
@@ -416,3 +418,135 @@ def test_excerpt_validation_preserves_numerical_comparison_operators(cities, evi
         id="C0", meets=False, evidence=evidence, source_ids=["S0"])]),
         "A numerical service threshold", cities[:1])
     assert result.reference_checks[0].meets is (False if evidence == "Value > 20%" else None)
+
+
+@pytest.mark.parametrize('profession', ['Hardware engineer', 'Nurse', 'Teacher'])
+def test_missing_model_source_ids_use_provider_links_covering_the_decisive_excerpt(
+        cities, profession):
+    class Linked(Client):
+        def research(self, **request):
+            reply = super().research(**request)
+            reply.citations = [Citation(
+                'CITY C0\nThe full condition is met.', reply.sources[0].url)]
+            return reply
+
+    client = Linked(rows=[ReferenceAnswer(id='C0', meets=True,
+        evidence='The full condition is met.', source_ids=[])])
+    found = reference_places.check(client, f'City service for a {profession}', cities[:2])
+    assert [c.meets for c in found.reference_checks] == [True, None]
+    assert found.reference_checks[0].sources[0].url.endswith('official-register')
+    assert len(client.calls) == 2  # research + structure; no repair/repeated research
+
+
+@pytest.mark.parametrize('passage', [
+    'The full condition',  # only part of the decisive excerpt
+    'CITY C1\nThe required service is absent.',  # another city
+    'CITY C0\nThe full condition is met.\nCITY C1\nThe required service is absent.',
+    '',
+])
+def test_recovered_ids_require_full_decisive_excerpt_in_one_city_block(cities, passage):
+    class Linked(Client):
+        def research(self, **request):
+            reply = super().research(**request)
+            reply.citations = [Citation(passage, reply.sources[0].url)] if passage else []
+            return reply
+
+    found = reference_places.check(Linked(rows=[ReferenceAnswer(id='C0', meets=True,
+        evidence='The full condition is met.', source_ids=[])]), 'City service', cities[:2])
+    assert all(c.meets is None for c in found.reference_checks)
+
+
+class CachedClient(Client):
+    def __init__(self, cache=None, search_id=42):
+        from jobcu.settings import Settings
+
+        super().__init__()
+        self.reference_research_cache = {} if cache is None else cache
+        self.search_id = search_id
+        self.settings = Settings()
+        self.settings.ai.provider = 'gemini'
+        self.settings.ai.model = 'fictional-model'
+
+
+def test_conversion_failure_keeps_complete_web_answer_for_same_search_recovery(cities):
+    class Interrupted(CachedClient):
+        def generate(self, output, **request):
+            if not any(kind == 'structure' for kind, _ in self.calls):
+                self.calls.append(('structure', request))
+                raise AIConnectionError('Fictional conversion interruption')
+            return super().generate(output, **request)
+
+    client = Interrupted()
+    first = reference_places.check(client, 'City service', cities[:2])
+    second = reference_places.check(client, 'City service', cities[:2])
+    assert all(c.meets is None for c in first.reference_checks)
+    assert [c.meets for c in second.reference_checks] == [True, False]
+    assert [kind for kind, _ in client.calls].count('research') == 1
+    assert [kind for kind, _ in client.calls].count('structure') == 2
+    assert 'reference_research_cache' not in second.model_dump_json()
+
+
+@pytest.mark.parametrize('change', [
+    'search', 'model', 'effort', 'host', 'fact', 'cities', 'expiry'])
+def test_transient_web_reuse_is_bound_to_search_route_fact_scope_and_age(cities, change):
+    client = CachedClient()
+    reference_places.check(client, 'City service', cities[:2])
+    next_client = CachedClient(client.reference_research_cache)
+    fact, scope = 'City service', cities[:2]
+    if change == 'search':
+        next_client.search_id += 1
+    elif change == 'model':
+        next_client.settings.ai.model = 'different-fictional-model'
+    elif change == 'effort':
+        next_client.settings.ai.reasoning_effort = 'high'
+    elif change == 'host':
+        next_client.settings.ai.base_url = 'https://different.example.test'
+    elif change == 'fact':
+        fact += ' changed'
+    elif change == 'cities':
+        scope = cities[:1]
+    else:
+        for key, (stamp, reply) in list(client.reference_research_cache.items()):
+            client.reference_research_cache[key] = (stamp - 3700, reply)
+    reference_places.check(next_client, fact, scope)
+    assert [kind for kind, _ in next_client.calls].count('research') == 1
+
+
+def test_incomplete_usage_does_not_seed_reference_recovery(cities):
+    class Incomplete(CachedClient):
+        def research(self, **request):
+            reply = super().research(**request)
+            reply.usage.unreported_requests = 1
+            return reply
+
+    client = Incomplete()
+    reference_places.check(client, 'City service', cities[:2])
+    reference_places.check(client, 'City service', cities[:2])
+    assert not client.reference_research_cache
+    assert [kind for kind, _ in client.calls].count('research') == 2
+
+
+def test_compact_source_hints_preserve_every_note_and_validate_the_same_mapping(cities):
+    from jobcu.ai.base import Source
+
+    notes = 'CITY C0\nThe full condition is met.\nCITY C1\nThe service is absent.'
+    sources = {'S0': Source('https://example.test/opaque-' + 'x' * 5000, 'Official A'),
+               'S1': Source('https://example.test/opaque-' + 'y' * 5000, 'Official B')}
+    links = {'S0': ['The full condition is met.'], 'S1': ['The service is absent.']}
+    prompt = reference_places._structure_prompt('City service', ['C0 | Atlas', 'C1 | Birch'],
+                                               notes, sources, links)
+    assert notes in prompt
+    assert '"C0": ["S0"]' in prompt and '"C1": ["S1"]' in prompt
+    assert all(url.url not in prompt for url in sources.values())
+    assert 'Official A' in prompt and 'Official B' in prompt
+    assert len(prompt) < 1000
+
+
+def test_search_snapshot_never_serializes_transient_grounded_answers():
+    from jobcu.search import SearchRun
+    from jobcu.settings import SearchForm
+
+    run = SearchRun(1, SearchForm(), '2026-10-16T10:00:00+00:00',
+                    reference_research_cache={'private-answer': object()})
+    assert 'private-answer' not in str(run.snapshot())
+    assert 'reference_research_cache' not in run.snapshot()
