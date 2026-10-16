@@ -6,13 +6,17 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ## Right now
 
-*Updated 2026-10-16. Engineering checks use fictional data.*
+*Updated 2026-10-17. Engineering checks use fictional data.*
 
 ### State
 
+- Coordinated connection recovery is implemented on `codex/connection-recovery-cost`: **1,873
+  offline tests** pass. Publication must require exact-head Mac/Windows/privacy CI and a
+  merge commit; recover current receipts from the private checkpoint.
 - Exact-run review's safe job-type/research-admission fixes and request-kind diagnostics are
-  tracked in [PR #138](https://github.com/UtkuDenizAltiok/jobcu/pull/138), with **1,864 local
-  tests passing**. Exact publication/CI receipts are in the private checkpoint. PR #136's
+  merged in [PR #138](https://github.com/UtkuDenizAltiok/jobcu/pull/138), with **1,864 local
+  tests passing**. PR head `66a2d4e` and main merge `4b71cdc` passed exact-head Mac/Windows/privacy
+  CI `38965550282` and `38966116991`; main/locked dependencies are synchronized. PR #136's
   unchanged baseline was 1,857 tests; its merged head `7a708a6` passed Mac/Windows/privacy
   CI `38944559503`. The separate native transport candidate is not adopted; live recovery
   remains unverified.
@@ -79,9 +83,19 @@ passing tests. Student-role refinement of broad schedule hints, retention of unk
 skipping extra research for proven ad exclusions, and request-kind diagnostics are implemented
 in [PR #138](https://github.com/UtkuDenizAltiok/jobcu/pull/138), branch
 `codex/exact-run-safe-fixes`. The final safe code passes **1,864 offline tests**, with one
-existing dependency deprecation warning; Ruff/privacy/whitespace pass. Safe publication is
-tracked privately: require exact-head Mac/Windows/privacy CI, a merge commit, synchronized
-main and exact-main CI. Complete that publication only if Git/CI show it remains unfinished.
+existing dependency deprecation warning; Ruff/privacy/whitespace pass. PR #138 is merged,
+main synchronized, and exact PR/main Mac/Windows/privacy CI passed. Do not repeat its checks.
+
+The owner's cost follow-up remains within this exact-run goal: reduce avoidable paid work
+without reducing quality or coverage. On `codex/connection-recovery-cost`, coordinate retries
+after transport interruptions per provider/model/request kind. Reuse a queued real request as
+a single recovery attempt; keep other work queued and restore normal parallel work on success.
+Preserve evidence, medium effort, candidates, every per-request retry bound, Stop and limits.
+The fictional concurrent failure/recovery tests pass; all answers and effort are preserved,
+queued Stop/billing refusals prevent dispatches, and healthy parallel work resumes. Final suite:
+**1,873 passing**, one existing dependency deprecation warning; affected checks, Ruff/privacy/
+whitespace pass. Publish this coherent step, require exact PR/main CI, merge and synchronize.
+No new paid test is authorized; detailed cost evidence and closed test packets remain private.
 
 The native stateless event-stream candidate is preserved separately at `ac25239`, draft
 [PR #137](https://github.com/UtkuDenizAltiok/jobcu/pull/137), branch `codex/exact-run-review`.

@@ -166,6 +166,10 @@ small batches, and each batch can need a web-research answer and another AI answ
 the facts. Provider thinking, search tools, connection retries and throttling can make this
 stage slow. Its job counter measures progress, not proven accuracy or an estimate of time left.
 If an online check fails, the existing job evidence is kept and missing details stay uncertain.
+After a connection interruption, Jobcu waits for one check to recover before sending more
+checks over the same connection path. Your remaining jobs stay queued; normal parallel work
+resumes after a successful answer. This can make recovery slower while avoiding simultaneous
+paid retries. Stop also cancels queued work.
 Jobs already known to be outside your selected job types or excluded remote-work choice do
 not receive these extra online checks.
 

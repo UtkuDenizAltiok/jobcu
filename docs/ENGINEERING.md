@@ -72,6 +72,21 @@ Code/tests establish behavior; the latest current decision establishes intent.
 | Record step time and answer-wait time; label correction timings separately from cumulative usage. | Corrections and full searches cannot be compared as equivalent performance runs (2026-10-06). |
 | Warn when scoring reads only an excerpt of a lengthy ad. | Unseen requirements must not be assumed satisfied (2026-10-06). |
 
+## Coordinated connection recovery — 2026-10-17
+
+After a transport interruption, `AIClient` admits only one real queued request at a time
+on that provider/model/request-kind path until a successful answer restores ordinary
+parallel work. It sends no separate probe, drops no jobs and changes no evidence, reasoning,
+per-request retry bound or owner limit. Research and structured paths remain independent;
+a successful structured answer cannot release an interrupted research queue. Requests already
+in flight finish normally. Stop and account refusals still prevent queued dispatches.
+
+Recovery queue waits are logged separately from attempt time and retry sleeps, without
+payloads. Waits can overlap other work. Fictional concurrent-outage regressions preserve every
+answer and usage receipt, prevent other paid attempts while the recovery request is pending,
+and prove parallel work resumes. This prevents a particular source of repeated failure costs;
+it does not guarantee a live provider recovery, a lower invoice or a fixed cost per search.
+
 ## Native event transport candidate — 2026-10-16
 
 The stateless native event-stream candidate in draft PR #137 is not adopted. Offline
