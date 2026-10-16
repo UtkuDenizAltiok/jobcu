@@ -701,9 +701,11 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             job_pool.jobs[index].scored = scoring.with_location_confidence(
                 job_pool.jobs[index].scored, profile, plan, groups[index],
             )
-    need_town = [i for i in candidates if jobplace.needs_looking_up(groups[i])
+    research_candidates = [i for i in candidates
+                           if _ad_exclusion(groups[i], job_pool.jobs[i].scored, form) is None]
+    need_town = [i for i in research_candidates if jobplace.needs_looking_up(groups[i])
                  and scoring.evidence_priority(job_pool.jobs[i].scored) >= jobplace.MIN_SCORE]
-    need_requirements = [i for i in candidates
+    need_requirements = [i for i in research_candidates
                          if jobplace.needs_requirements(groups[i], job_pool.jobs[i].scored)]
     worth_it = sorted(set(need_town) | set(need_requirements),
                       key=lambda i: -scoring.evidence_priority(job_pool.jobs[i].scored))
@@ -805,14 +807,10 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         if result is not None:
             result = scoring.with_location_confidence(result, profile, plan, groups[index])
             job_pool.jobs[index].scored = result
-        types = pipeline.job_types_of(groups[index], result)
         if route := applications.exclusion_key(groups[index], reported_links):
             left_out[route] += 1
-        elif result and form.exclude_remote and result["fully_remote"]:
-            left_out["remote_text"] += 1
-        elif types and not set(types) & set(form.job_types):
-            # The rules above let it through; the ad text says it's a type not ticked.
-            left_out["job_type_text"] += 1
+        elif reason := _ad_exclusion(groups[index], result, form):
+            left_out[reason] += 1
         else:
             shown.append(index)
 
@@ -896,6 +894,16 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         {i for i in unrelated if i in worked_on},
         plan,
     )
+
+
+def _ad_exclusion(group, scored, form: SearchForm) -> str | None:
+    """Use the same proven ad facts before online work and when building final cards."""
+    if scored and form.exclude_remote and scored.get("fully_remote"):
+        return "remote_text"
+    types = pipeline.job_types_of(group, scored)
+    if types and not set(types) & set(form.job_types):
+        return "job_type_text"
+    return None
 
 
 def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,

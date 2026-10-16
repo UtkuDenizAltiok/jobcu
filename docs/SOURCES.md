@@ -903,6 +903,35 @@ Preserve medium thinking and necessary evidence; verify completed answers, metad
 behavior rather than claim savings from a different transport alone. Existing service terms,
 pricing, allowance and endpoint identities still apply; this adds no job source or access right.
 
+### Stateless native event streaming — 2026-10-16
+
+**Checked 2026-10-16.** Google's [Interactions overview](https://ai.google.dev/gemini-api/docs/interactions-overview)
+documents general availability, supported models and explicit `store=false` stateless use.
+Its [streaming contract](https://ai.google.dev/gemini-api/docs/streaming) starts with creation
+events, separates thought/tool/model steps and ends with completion plus usage. The
+[thinking guide](https://ai.google.dev/gemini-api/docs/thinking) supports incremental summaries
+at the chosen effort and bills output plus full thought tokens. Progress does not establish a
+completed answer. SDK 2.24.0 exposes the supported model IDs/aliases and these event fields.
+
+The [API reference](https://ai.google.dev/api/interactions-api) defines citation segment offsets
+as bytes and the end as exclusive. Use strict UTF-8 boundaries; do not guess character offsets
+from an illustrative snippet. The existing grounded-result display, links, refinement and
+retention constraints above still apply; this adds no hidden answer archive or crawling right.
+
+Google's [background guide](https://ai.google.dev/gemini-api/docs/background-execution) identifies
+a typical 60-second standard-HTTP connection limit. This supports a transport hypothesis, not
+proof of a particular server/intermediary failure or universal recovery. Background execution
+uses provider project storage and is not enabled. The overview and background guide differ
+on `store=false` compatibility with background execution; Jobcu uses neither background nor
+stored conversations, so it does not depend on that disputed combination.
+
+Local inspection/offline tests of the locked SDK show `attempts=1` permits an additional
+Interactions dispatch. Explicitly disabling that resource's retry configuration restores one
+HTTP dispatch per Jobcu attempt. Its new HTTP exceptions require status/body translation and
+transport-cause unwrapping. These fictional tests establish client behavior, not live service
+availability, permissions for every model or net savings. Unverified model IDs keep the
+existing Generate Content path.
+
 ### Grounding passage links — 2026-10-16
 
 **Checked 2026-10-16.** Google's [Generate Content grounding contract](https://ai.google.dev/api/generate-content#GroundingSupport)
