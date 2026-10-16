@@ -204,6 +204,7 @@ class ReferenceCheck(TownRef):
     meets: bool | None = None
     evidence: str = ""
     sources: list[Source] = []
+    checked_at: str | None = None
 
 
 class Anchor(BaseModel):
@@ -1010,6 +1011,15 @@ def apply_edits(client: AIClient, plan: LocationPlan, edits: list[ConditionEdit]
     mentioned = {edit.original for edit in edits if edit.original is not None}
     for edit in edits:
         if needs_checking(edit, plan.conditions):
+            if edit.check_again and edit.original is not None and normalise(edit.text) == (
+                    normalise(plan.conditions[edit.original].text)):
+                from jobcu.reference_places import retry_missing
+
+                corrected = _corrected(plan.conditions[edit.original], edit, plan.countries)
+                resumed = retry_missing(client, corrected, plan.countries)
+                if resumed is not None:
+                    conditions.append(resumed)
+                    continue
             conditions.extend(check_conditions(client, [edit.text.strip()], plan.countries))
         elif edit.original is not None:
             conditions.append(_corrected(plan.conditions[edit.original], edit, plan.countries))

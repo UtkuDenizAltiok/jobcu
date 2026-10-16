@@ -79,20 +79,43 @@ def ground(checks: list[RequirementCheck] | None, ad_text: str, profile_text: st
     found: dict[str, dict] = {}
     for check in checks:
         data = check.model_dump()
+        data["proposed_status"] = check.status
+        data["grounding_issues"] = []
         data["requirement"] = check.requirement.strip() or "A stated requirement"
         words, fact = _plain(check.ad_words), _plain(check.profile_words)
-        if not words or words not in ad or (
-            check.status != "unclear" and (
-                not fact or not _profile_quote(check.profile_words, profile_text))
-        ):
+        if not words or words not in ad:
+            data["grounding_issues"].append("ad_quote_unverified")
+        if check.status != "unclear" and (
+                not fact or not _profile_quote(check.profile_words, profile_text)):
+            data["grounding_issues"].append("profile_quote_unverified")
+        if data["grounding_issues"]:
             data["status"] = "unclear"
         key = words or _plain(data["requirement"])
         if key in found:
             if found[key]["status"] != data["status"]:
                 found[key]["status"] = "unclear"
+                found[key]["proposed_status"] = "unclear"
+                found[key]["grounding_issues"] = ["conflicting_comparisons"]
         else:
             found[key] = data
     return list(found.values())
+
+
+def revalidate(checks: list[dict] | None, ad_text: str, profile: dict) -> list[dict] | None:
+    """Repair validation from retained proposals; never infer a lost legacy judgement."""
+    if checks is None:
+        return None
+    updated = []
+    for stored in checks:
+        proposed = stored.get("proposed_status")
+        if stored["status"] != "unclear" or proposed not in {"met", "not_met"}:
+            # Confirmed outcomes and genuinely uncertain/conflicting comparisons stay as
+            # recorded. An old unknown has no recoverable verdict: do not infer one.
+            updated.append(dict(stored))
+            continue
+        check = RequirementCheck.model_validate({**stored, "status": proposed})
+        updated.extend(ground([check], ad_text, profile))
+    return updated
 
 
 def merge(earlier: list[dict] | None, later: list[dict] | None) -> list[dict] | None:
@@ -121,6 +144,17 @@ def special_blocker(evidence: dict) -> bool:
             or evidence.get("citizenship_or_clearance") == "required_definitely_out_of_reach")
 
 
+def _unknown_note(check: dict) -> str:
+    details = {
+        "ad_quote_unverified": "the supporting ad wording could not be verified",
+        "profile_quote_unverified": "the supporting profile wording could not be verified",
+        "conflicting_comparisons": "the returned comparisons disagreed",
+    }
+    reason = "; ".join(details[i] for i in check.get("grounding_issues", []) if i in details)
+    reason = reason or check.get("explanation", "")
+    return (f"{check['requirement']}: could not be confirmed" + (f" — {reason}" if reason else ""))
+
+
 def judge(evidence: dict, points: int) -> Judgement:
     """The existing rubric bands, made consistent with supported comparison verdicts."""
     if "requirements_complete" not in evidence:
@@ -128,7 +162,7 @@ def judge(evidence: dict, points: int) -> Judgement:
     checks = evidence.get("requirement_checks")
     unmet = [c for c in checks or [] if c["status"] == "not_met"]
     unknown = [c for c in checks or [] if c["status"] == "unclear"]
-    notes = [f"{c['requirement']}: could not be confirmed" for c in unknown]
+    notes = [_unknown_note(c) for c in unknown]
     if checks is None:
         notes.append("Mandatory requirements were not fully checked")
     if not evidence["requirements_complete"]:

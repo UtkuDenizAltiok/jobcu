@@ -7,6 +7,7 @@ an unchecked alternative prevents a negative travel decision when it could still
 import logging
 import re
 from collections import defaultdict
+from datetime import UTC, datetime
 
 from pydantic import BaseModel
 
@@ -29,6 +30,7 @@ log = logging.getLogger(__name__)
 # Bound each answer, not the candidate list. Every candidate remains represented, including
 # unchecked cities after a failure. Smaller requests also preserve earlier completed groups.
 REFERENCE_BATCH_SIZE = 8
+REFERENCE_RETRY_SECONDS = 3600
 
 RESEARCH_SYSTEM = """\
 Check the stated condition for EACH listed reference city, using live web search and current
@@ -67,7 +69,7 @@ class ReferenceAnswers(BaseModel):
     cities: list[ReferenceAnswer]
 
 
-def candidates(anchor: SortedAnchor, countries: list[str]) -> list[places.Town] | None:
+def candidates(anchor: SortedAnchor | Anchor, countries: list[str]) -> list[places.Town] | None:
     """None means open-ended/too broad: retain the existing complete-country method."""
     if not (anchor.min_people or anchor.min_share_of_country or anchor.named):
         return None
@@ -83,16 +85,34 @@ def candidates(anchor: SortedAnchor, countries: list[str]) -> list[places.Town] 
     return towns if len(towns) <= MAX_TOWNS_PER_CONDITION else None
 
 
-def check(client: AIClient, text: str, towns: list[places.Town]) -> Condition:
-    checks = [ReferenceCheck(name=town.name, country=town.country, latitude=town.latitude,
-                             longitude=town.longitude) for town in towns]
-    sources: list[Source] = []
+def _identity(town) -> tuple:
+    return town.country, town.name, town.latitude, town.longitude
+
+
+def _fresh(check: ReferenceCheck) -> bool:
+    try:
+        checked = datetime.fromisoformat(check.checked_at or "")
+        return 0 <= (datetime.now(UTC) - checked).total_seconds() <= REFERENCE_RETRY_SECONDS
+    except (ValueError, TypeError):
+        return False  # legacy/invalid timestamps cannot establish fresh reuse
+
+
+def check(client: AIClient, text: str, towns: list[places.Town], *,
+          previous: list[ReferenceCheck] | None = None) -> Condition:
+    supported = {_identity(c): c for c in previous or []
+                 if c.meets is not None and c.evidence and c.sources and _fresh(c)}
+    checks = [(supported[_identity(town)].model_copy(deep=True) if _identity(town) in supported
+               else ReferenceCheck(name=town.name, country=town.country, latitude=town.latitude,
+                                   longitude=town.longitude)) for town in towns]
+    sources = list({s.url: s for c in checks for s in c.sources}.values())
     notes: list[str] = []
     note = "Reference cities selected from the local population and named-place rules."
-    batches = (len(towns) + REFERENCE_BATCH_SIZE - 1) // REFERENCE_BATCH_SIZE
-    for start in range(0, len(towns), REFERENCE_BATCH_SIZE):
-        batch = towns[start:start + REFERENCE_BATCH_SIZE]
-        batch_checks = checks[start:start + REFERENCE_BATCH_SIZE]
+    pending = [i for i, c in enumerate(checks) if c.meets is None]
+    batches = (len(pending) + REFERENCE_BATCH_SIZE - 1) // REFERENCE_BATCH_SIZE
+    for start in range(0, len(pending), REFERENCE_BATCH_SIZE):
+        indexes = pending[start:start + REFERENCE_BATCH_SIZE]
+        batch = [towns[i] for i in indexes]
+        batch_checks = [checks[i] for i in indexes]
         progress = getattr(client, "on_progress", lambda message: None)
         progress(f"Checking reference-city facts: group {start // REFERENCE_BATCH_SIZE + 1} "
                  f"of {batches}")
@@ -137,6 +157,34 @@ def check(client: AIClient, text: str, towns: list[places.Town]) -> Condition:
                      reference_notes="\n\n".join(notes))
 
 
+def retry_missing(client: AIClient, condition: Condition, countries: list[str]) -> Condition | None:
+    """Retry one unchanged interpreted fact within the same saved search, retaining proof.
+
+    Reworded facts and explicit replacement places use the ordinary interpretation path.
+    Population changes recalculate the complete local candidate list before reusing city facts.
+    """
+    anchor = condition.anchor
+    if (condition.kind != "near" or anchor is None or anchor.reference_checks is None
+            or not anchor.look_up):
+        return None
+    towns = candidates(anchor, countries)
+    if towns is None:
+        return None
+    found = check(client, anchor.look_up, towns, previous=anchor.reference_checks)
+    updated = condition.model_copy(deep=True)
+    old_eligible = {_identity(c) for c in anchor.reference_checks if c.meets is True}
+    new_eligible = {_identity(c) for c in found.reference_checks or [] if c.meets is True}
+    if old_eligible != new_eligible:
+        updated.travel = {}  # old destination sets must not decide the corrected condition
+    updated.anchor.reference_checks = found.reference_checks
+    updated.anchor.reference_notes = found.reference_notes
+    updated.anchor.research_status = found.status
+    updated.anchor.looked_up = True
+    updated.sources, updated.note = found.sources, found.note
+    updated.status = "estimate" if updated.max_minutes or found.status != "applied" else "applied"
+    return updated
+
+
 def _apply(checks, answer, notes, sources) -> None:
     rows = defaultdict(list)
     for row in answer.cities:
@@ -159,3 +207,4 @@ def _apply(checks, answer, notes, sources) -> None:
         cited = [sources[sid] for sid in dict.fromkeys(row.source_ids) if sid in sources]
         if row.meets is not None and evidence and evidence in paragraph and cited:
             check.meets, check.evidence, check.sources = row.meets, row.evidence, cited
+            check.checked_at = datetime.now(UTC).isoformat()

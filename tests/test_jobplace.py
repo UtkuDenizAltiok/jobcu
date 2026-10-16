@@ -173,6 +173,23 @@ def test_the_full_ad_found_online_gives_its_languages_and_years():
     assert all(g.place_from_web is None for g in groups[1:])
 
 
+def test_online_requirement_audit_survives_structured_model_conversion():
+    from test_search import PROFILE
+
+    from jobcu.profile import Profile
+
+    group = jobs(("Berlin", "DE"))[0]
+    row = online("J0")
+    row["requirement_checks"] = [{
+        "requirement": "PCB layout", "ad_words": "An invented required skill",
+        "profile_words": "PCB layout", "status": "met"}]
+    researcher = Researcher(["JOB J0\nPCB layout is required."], [[row]])
+    result = jobplace.find_online(researcher, [group], [0], Profile.model_validate(PROFILE))
+    check = result.requirements[0].requirement_checks[0]
+    assert check["status"] == "unclear" and check["proposed_status"] == "met"
+    assert check["grounding_issues"] == ["ad_quote_unverified"]
+
+
 def test_an_answer_given_without_searching_the_web_is_asked_again_then_ignored():
     groups = jobs(("Deutschland", "DE"), ("Deutschland", "DE"))
     answer = [online("J0", ["Hamburg"], [("German", "B2", True)]), online("J1")]

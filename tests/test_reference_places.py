@@ -16,6 +16,7 @@ from jobcu.location import (
     TownRef,
     _check_sorted_conditions,
     _corrected_near,
+    apply_edits,
 )
 from jobcu.places import Town
 from jobcu.reference_places import ReferenceAnswer, ReferenceAnswers
@@ -233,6 +234,61 @@ def test_unknown_alternative_prevents_false_exclusion_but_not_a_supported_pass(c
     assert travel.answer(condition, group) == "yes"
     condition.travel[travel.job_key(group)]["minutes"] = {"Birch": 0}  # stale/ineligible
     assert travel.answer(condition, group) == "unknown"
+
+
+@pytest.mark.parametrize("profession", ["Power electronics engineer", "Nurse", "Teacher"])
+def test_retry_keeps_recent_supported_facts_and_only_researches_unknown_cities(cities, profession):
+    condition = interpreted(Client())
+    condition.travel = {"fictional:job": {"minutes": {"Atlas": 12}}}
+    client = Client(rows=[ReferenceAnswer(id="C0", meets=True,
+                                          evidence="The full condition is met.",
+                                          source_ids=["S0"])])
+    updated = reference_places.retry_missing(client, condition, ["DE"])
+    assert [c.meets for c in updated.anchor.reference_checks] == [True, False, True]
+    assert updated.anchor.reference_checks[:2] == condition.anchor.reference_checks[:2]
+    request = client.calls[0][1]["prompt"].split("Reference cities:\n")[1]
+    assert "Cedar" in request and "Atlas" not in request and "Birch" not in request
+    assert updated.travel == {}  # new eligible destinations invalidate an old aggregate result
+    assert travel.answer(updated, job(cities[2], profession)) == "yes"
+    assert condition.anchor.reference_checks[2].meets is None  # input snapshot untouched
+
+
+def test_failed_retry_preserves_recent_evidence_and_unchanged_travel(cities):
+    condition = interpreted(Client())
+    condition.travel = {"fictional:job": {"minutes": {"Atlas": 12}}}
+    updated = reference_places.retry_missing(Client(fail=True), condition, ["DE"])
+    assert updated.anchor.reference_checks[:2] == condition.anchor.reference_checks[:2]
+    assert updated.travel == condition.travel
+    assert updated.anchor.reference_checks[2].meets is None
+    assert "Connection interrupted" in updated.note
+    assert updated.sources == condition.sources
+
+
+def test_check_again_uses_the_saved_interpretation_and_keeps_size_and_time_edits(cities):
+    from jobcu.location import LocationPlan
+
+    condition = interpreted(Client())
+    plan = LocationPlan(text=condition.text, understood_as=condition.text, countries=["DE"],
+                        broad=True, places=[], conditions=[condition], not_checked_yet=[],
+                        conditions_about_the_job=[], outside_supported_area=[])
+    client = Client()
+    updated = apply_edits(client, plan, [ConditionEdit(
+        original=0, text=condition.text, check_again=True, max_km=25)]).conditions[0]
+    assert updated.max_km == 25
+    assert updated.anchor.reference_checks[0] == condition.anchor.reference_checks[0]
+    assert [kind for kind, _ in client.calls] == ["research", "structure"]
+
+
+@pytest.mark.parametrize("stamp", [None, "2020-01-01T00:00:00+00:00", "invalid",
+                                   "2026-10-01T00:00:00", "2999-01-01T00:00:00+00:00"])
+def test_retry_does_not_reuse_legacy_expired_or_future_dated_proof(cities, stamp):
+    condition = interpreted(Client())
+    for city in condition.anchor.reference_checks:
+        city.checked_at = stamp
+    client = Client()
+    reference_places.retry_missing(client, condition, ["DE"])
+    request = client.calls[0][1]["prompt"].split("Reference cities:\n")[1]
+    assert all(town.name in request for town in cities[:3])
 
 
 def test_widening_size_does_not_invent_facts_and_limit_only_edits_keep_checks(cities):

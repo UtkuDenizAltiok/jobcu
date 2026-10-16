@@ -117,7 +117,11 @@ class AIClient:
         self._reasoning_note_sent = False
         # Web look-ups used in this search, against the cap in Settings, and those promised to
         # requests still running, so requests sent together never go past the cap.
-        self.web_searches_used = 0
+        previous = (usage_log.for_search(search_id)
+                    if usage_log is not None and search_id is not None else {})
+        # Employer discovery has its own allowance (own_web_searches), also after reopening.
+        self.web_searches_used = sum(u.web_searches for step, u in previous.items()
+                                    if step != "employers")
         self._web_searches_reserved = 0
         # How many requests may be waiting for an answer at the same time (see `_slot`).
         self.parallel_requests = PARALLEL_REQUESTS

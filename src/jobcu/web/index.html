@@ -119,6 +119,7 @@
           <p class="results-summary" id="results-summary"></p>
           <p class="understood" id="understood-as"></p>
           <ul class="notes" id="location-notes"></ul>
+          <button type="button" id="retry-checks" class="secondary" hidden>Retry incomplete checks</button>
           <div class="toolbar">
             <div class="segmented" role="group" aria-label="Show">
               <button type="button" data-list="results" aria-pressed="true">Results</button>
@@ -178,6 +179,20 @@
           <button type="button" class="secondary" id="close-details">Close</button>
         </div>
         <div id="details-content"></div>
+      </dialog>
+
+      <dialog id="retry-checks-dialog" aria-labelledby="retry-checks-title">
+        <h2 id="retry-checks-title">Retry incomplete checks</h2>
+        <p>Use the saved jobs to retry missing location facts and uncertain requirements in full
+          ads. Completed evidence is kept when it is still valid. No new jobs are collected.</p>
+        <p>This uses AI within your existing limits. Missing originals or facts can remain
+          unchecked, and AI travel estimates still need verification.</p>
+        <p id="retry-checks-summary" class="muted"></p>
+        <p id="retry-checks-status" class="status" role="status" hidden></p>
+        <div class="actions">
+          <button type="button" id="start-retry-checks">Retry checks</button>
+          <button type="button" id="close-retry-checks" class="secondary">Close</button>
+        </div>
       </dialog>
 
       <dialog id="conditions-dialog" aria-labelledby="conditions-title">

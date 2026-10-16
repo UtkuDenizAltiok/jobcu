@@ -6,6 +6,7 @@ from the current documents and search choices, reusing valid setup answers while
 and judging jobs afresh.
 """
 
+import copy
 import dataclasses
 import json
 import logging
@@ -32,7 +33,7 @@ from jobcu import (
 )
 from jobcu import pool as search_pool
 from jobcu.ai.base import AIError, AIWebSearchUnavailable
-from jobcu.ai.client import AIClient
+from jobcu.ai.client import AIClient, in_parallel
 from jobcu.ai.usage import UsageLog, estimate_cost
 from jobcu.countries import COUNTRIES, LANGUAGE_NAMES, languages_for
 from jobcu.documents import DocumentError
@@ -232,7 +233,9 @@ class SearchManager:
         ).start()
         return run
 
-    def reapply(self, search_id: int, edits: list[ConditionEdit]) -> SearchRun:
+    def reapply(self, search_id: int, edits: list[ConditionEdit], *,
+                recheck_requirements: bool = False, retry_missing_conditions: bool = False
+                ) -> SearchRun:
         """Applies corrected conditions to the jobs the latest search found, in the background.
 
         Raises LookupError when those jobs aren't kept any more, and EditProblem when the
@@ -249,19 +252,31 @@ class SearchManager:
             job_pool = search_pool.load(search_id) if snapshot else None
             if job_pool is None or not {"jobs", "location"} <= set(snapshot["result"]):
                 raise LookupError(search_id)
+            snapshot = copy.deepcopy(snapshot)
+            if retry_missing_conditions:
+                plan = LocationPlan.model_validate(snapshot["result"]["location"])
+                edits = [ConditionEdit(text=c.text, original=i, check_again=True)
+                         for i, c in enumerate(plan.conditions)
+                         if not c.switched_off and c.kind != "about_job" and (
+                             c.status == "not_checked" or c.reference_status != "applied"
+                             or any(v.meets is None for v in
+                                    ((c.anchor.reference_checks or []) if c.anchor else [])))]
             check_edits(LocationPlan.model_validate(snapshot["result"]["location"]), edits)
             run = SearchRun(
                 id=search_id,
                 form=SearchForm.model_validate(snapshot["form"]),
                 started_at=snapshot["started_at"],
                 kind="reapply",
-                steps=[Step(i, label) for i, label in REAPPLY_STEPS],
+                steps=[Step(i, label) for i, label in (
+                    [REAPPLY_STEPS[0], ("requirements", "Rechecking uncertain requirements"),
+                     *REAPPLY_STEPS[1:]] if recheck_requirements else REAPPLY_STEPS)],
                 result=snapshot["result"],
             )
             self._current = run
         threading.Thread(
             target=self._run,
-            args=(run, lambda run: reapply_conditions(run, job_pool, edits)),
+            args=(run, lambda run: reapply_conditions(
+                run, job_pool, edits, recheck_requirements=recheck_requirements)),
             daemon=True,
             name="search",
         ).start()
@@ -879,7 +894,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
 
 
 def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
-                       edits: list[ConditionEdit]) -> None:
+                       edits: list[ConditionEdit], *, recheck_requirements: bool = False) -> None:
     """The person corrected the conditions after a search: check what they reworded, then
     decide again about the jobs that search found."""
     settings = load_settings()
@@ -889,23 +904,25 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
         on_wait=lambda seconds: _ai_wait_note(run, seconds),
         on_progress=lambda message: _ai_progress_note(run, message),
     )
-    run.update("conditions", "running")
-    plan = LocationPlan.model_validate(run.result["location"])
-    earlier_warnings = condition_warnings(plan)
-    rechecked = sum(1 for edit in edits if needs_checking(edit, plan.conditions))
-    plan = apply_edits(client, plan, edits)
-    detail = f"{rechecked} condition{'s' if rechecked != 1 else ''} read again" if rechecked \
-        else "Nothing to look up"
-    warnings = condition_warnings(plan)
-    if warnings:
-        detail += " · some details are unchecked"
-    run.update("conditions", "done", detail)
-    run.replace_notes(earlier_warnings, warnings)
-    _checkpoint(run)
-
     http = PoliteClient(should_stop=lambda: run.stop_requested,
                         on_wait=lambda host, seconds: _source_wait_note(run, host, seconds))
     try:
+        run.update("conditions", "running")
+        plan = LocationPlan.model_validate(run.result["location"])
+        earlier_warnings = condition_warnings(plan)
+        rechecked = sum(1 for edit in edits if needs_checking(edit, plan.conditions))
+        plan = apply_edits(client, plan, edits)
+        run.set_result("location", plan.model_dump())
+        detail = f"{rechecked} condition{'s' if rechecked != 1 else ''} read again" if rechecked \
+            else "Nothing to look up"
+        warnings = condition_warnings(plan)
+        if warnings:
+            detail += " · some details are unchecked"
+        run.update("conditions", "done", detail)
+        run.replace_notes(earlier_warnings, warnings)
+        _checkpoint(run)
+        if recheck_requirements:
+            _retry_requirements(run, client, job_pool, settings)
         collected = pipeline.collected_again(job_pool.reports)
         _decide(run, client, KeyStore(), http, settings, plan, job_pool, collected,
                 run.result["jobs"]["hidden"], lambda: _checkpoint(run))
@@ -913,6 +930,51 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
         http.close()
         usage = UsageLog().for_search(run.id)
         run.set_result("usage", {step: asdict(used) for step, used in usage.items()})
+        # Stop or a later failure must not discard completed, potentially charged comparisons.
+        search_pool.save(job_pool)
+
+
+def _retry_requirements(run, client, job_pool, settings) -> None:
+    from jobcu import recheck
+
+    run.update("requirements", "running", "Checking retained evidence")
+    profile = Profile.model_validate(job_pool.profile)
+    for job in job_pool.jobs:
+        _checkpoint(run)
+        recheck.refresh_validation(job, profile)
+    pending = sorted((j for j in job_pool.jobs if recheck.needs_comparison(j)),
+                     key=lambda j: -(j.scored or {}).get("score", 0))
+    cap = settings.limits.scoring_cap or len(pending)
+    done = 0
+    stopped = threading.Event()
+    for start in range(0, len(pending), cap or 1):
+        if start and not run.ask({
+            "kind": "scoring_cap", "message": (
+                f"Jobcu rechecked {start} jobs, your per-search scoring limit. "
+                f"{len(pending) - start} more have uncertain requirements. Recheck them too? "
+                "This uses more AI."), "yes": "Recheck the remaining jobs", "no": "Keep results",
+        }):
+            break
+
+        def check(job):
+            if stopped.is_set():
+                return None
+            result = recheck.compare(client, job, profile)
+            if not result:
+                stopped.set()  # preserve completed work without multiplying a service outage
+            return result
+
+        def progress(job, result):
+            nonlocal done
+            if result is None:
+                return
+            done += 1
+            run.update("requirements", "running", f"{done} of {len(pending)} jobs")
+
+        list(in_parallel(client, check, pending[start:start + cap], progress))
+        if stopped.is_set():
+            break
+    run.update("requirements", "done", f"{done} of {len(pending)} jobs attempted")
 
 
 def _ai_progress_note(run: SearchRun, message: str) -> None:
