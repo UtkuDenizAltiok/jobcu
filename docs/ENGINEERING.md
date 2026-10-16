@@ -75,8 +75,10 @@ Code/tests establish behavior; the latest current decision establishes intent.
 ## Receipt admission and bounded spending — 2026-10-17
 
 Successful generation/research usage is recorded while its request slot is occupied.
-Research allowance accounting also happens there, before another queued call can check the
-remaining limits. Error receipts already follow this rule. Preserve exactly one ledger entry
+Research allowance accounting also happens there: atomically convert the held reservation
+to used searches before writing its receipt, so a sibling cannot count both or be falsely
+deferred. Release each reservation once on success/failure; keep the receipt inside the slot
+before queued monthly checks. Error receipts already follow this rule. Preserve exactly one ledger entry
 per actual attempt, including format repairs, truncation and Stop after a complete answer.
 Paused-ledger regressions first reproduce queued dispatches against stale token/money totals,
 then prove those same owner limits prevent them for structured and research requests.
