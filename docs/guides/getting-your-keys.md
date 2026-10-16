@@ -205,7 +205,8 @@ These terms appear there:
 
 - **Tokens** are small pieces of text the AI reads or writes. Providers often price AI work
   by the number of tokens.
-- **Web look-ups** are requests asking the AI to find information online.
+- **Web look-ups** count the searches your AI provider reports. One AI request can perform
+  several searches.
 - **Jobs scored** are job ads the AI has evaluated against your background.
 
 New installs have no per-search scoring or AI web look-up cap. To choose an optional limit,
@@ -213,6 +214,9 @@ enter an amount under **Limits**, then click **Save limits**. Existing saved cho
 Per-search limits control when Jobcu asks whether to do more work. Monthly limits stop
 further AI work when Jobcu's recorded usage reaches them. A blank box means **No limit**;
 it does not mean zero use or free use.
+A web allowance controls whether further online checks can start. Some providers choose how
+many searches to run inside one request, so that request can exceed the allowance before
+Jobcu can ask. It is not a guaranteed cap on provider search charges.
 
 Prices are optional for searching. For a money estimate, add your model's prices:
 
@@ -227,7 +231,8 @@ Prices are optional for searching. For a money estimate, add your model's prices
 4. Click **Save prices**. If you use a second model, add and save its prices too.
 
 The **Monthly estimated cost limit** checks recorded usage against these prices before each
-request, including retries. With this limit set, Jobcu refuses requests whose model or applicable
+request, including retries. Completed usage is recorded before another queued request checks
+the limit. With this limit set, Jobcu refuses requests whose model or applicable
 search prices are missing, or whose price table mixes currencies. A request already sent can
 finish before the limit takes effect; concurrent requests can cross the estimate together.
 
