@@ -23,10 +23,12 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
   Confirmed historical copy links preserve keys, rows, snapshots and raw marks; distinct native
   employer requisitions remain separate. Confirmed saved-evidence alias repair is applied;
   original tables, marks, keys and snapshots were verified unchanged, with recovery outside Git.
-  Specialist-role reassessment and workplace-conflict handling are implemented on
-  `codex/specialist-workplace-evidence`; **1,938 offline tests** and Ruff/privacy/docs/JS/
-  whitespace checks pass. Six regressions reproduce the earlier overly strong core-match
-  rating or unwanted scoring on conflicting workplaces. Publication remains pending.
+  Specialist-role reassessment and workplace-conflict handling are merged in
+  [PR #146](https://github.com/UtkuDenizAltiok/jobcu/pull/146): **1,938 offline tests** pass,
+  plus Ruff/privacy/docs/JS/whitespace checks. Exact PR/main CI receipts are recorded below.
+  Six regressions reproduce the earlier overly strong core-match rating or unwanted scoring
+  on conflicting workplaces. These offline checks do not prove a correct live assessment or
+  invoice savings. No new search, paid AI/Maps test, model change or limit change was made.
 
 - Atomic web-reservation accounting is merged in
   [PR #141](https://github.com/UtkuDenizAltiok/jobcu/pull/141): **1,878 offline tests** pass.
@@ -89,38 +91,33 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Reported result integrity: freshness, fit, duplicates, location and closed ads.**
+**Reported-result verification is parked on missing external evidence.**
 
-The owner requested fixes for newly reported result defects. Review the named cases privately
-against saved evidence and actual criteria, trace confirmed causes, and implement general fixes
-without cutting suitable jobs or weakening evidence. No new search or paid API test is authorized.
-Preserve owner data, ratings and existing limits. Prior exact-run safe repairs are complete;
-the native research candidate remains unadopted and its cost/evidence dependency stays parked.
+The safe implementation steps are merged in PRs #144–#146; no code or publication work remains.
+Final local suite: **1,938 passing tests**, one existing dependency deprecation warning.
+PR #146 head `62ba919` passed Mac/Windows/privacy CI `39047357375`; its merge
+`72edd5c` passed exact-main CI `39047809182`. Main and locked dependencies are synchronized.
+The private recovery index is `assistant-review-checkpoint.json`; detailed case outcomes and
+source/usage evidence stay outside Git. Confirmed copy links changed only aliases, preserving
+all original tables, marks, keys, ratings and saved snapshots. Disposable scratch is removed.
 
-Branch: `codex/specialist-workplace-evidence`; private recovery index:
-`assistant-review-checkpoint.json` outside Git. The previous step's **1,913-test** baseline
-and exact-main Mac/Windows/privacy CI `39046632701` at `e2f40a5` pass. No new search or paid
-verification has been performed in this task.
+Remaining dependencies are distinct from implemented fixes:
 
-1. Freeze the relevant saved evidence on an authorized private scratch copy. Trace original
-   dates/closure and vacancy identity across copies/history, specialist fit and explanations,
-   workplace/reference-city evidence and duplicate score inputs. Keep unproven causes explicit.
-2. First enforce the owner’s location-before-scoring rule: qualifying reference cities and
-   journeys come from each person’s parsed condition (percentages, rankings or other rules).
-   Proven failures skip scoring; unresolved jobs remain available but unscored, with the exact
-   missing evidence shown. No extra paid research is authorized by this rule.
-   Reproduce confirmed faults with fictional electronics and non-engineering cases. Fix coherent
-   causes while preserving recall, original evidence, medium effort and spending limits.
-3. Run affected checks and the final full suite, Ruff/privacy/whitespace and relevant docs/JS
-   checks. Review the full diff; publish exact-head Mac/Windows/privacy CI, merge with a merge
-   commit, synchronize main and verify its exact CI. Save private case outcomes and dependencies.
+- City eligibility facts and journeys missing from interrupted research remain unverified.
+  Jobs stay available but unscored; no village is rejected solely for being small.
+- Exact original age for an independently identified vacancy and the current availability of
+  a reported inaccessible application destination are unverified. Distinct employer
+  requisitions stay separate; access failures are not proof of closure.
+- A summary's actual specialist-fit number still requires supported full-ad assessment; the
+  repaired path is offline-tested, not a claimed live reassessment of every historical card.
+- Automated BA access is held under current official terms. Historical evidence/manual links
+  survive; coverage from that source has not been replaced.
 
-**Exact next action:** publish the tested and reviewed specialist-role/workplace diff;
-require exact PR/main Mac/Windows/privacy CI, merge and synchronize. The confirmed
-copy repair is applied without rewriting historical rows/keys/marks or saved assessments.
-Then save the private case outcomes and exact remaining evidence dependencies.
-Do not infer original vacancy age or closure from an inaccessible page, merge distinct native
-requisitions, guess city eligibility or make paid verification calls.
+**Exact next action:** wait for the missing evidence, a permitted source/interface and applicable
+bounded authority. Then verify the exact saved city/route or vacancy evidence from the private
+checkpoint, without collecting another search. No paid packet is open; Start alone must not
+resume private review or spending. Do not infer original age/closure from inaccessible pages,
+merge distinct requisitions, guess city eligibility or reopen the native experiment.
 
 **Parked research dependency:** PR #137 at `ac25239` remains an unmerged native transport
 candidate. A documented enforceable hosted-query budget or permitted controlled interface,
