@@ -27,7 +27,7 @@ Use this once in a fresh chat. After a cutoff, use the same prompt to recover ex
 Prepare this local Jobcu chat for my next task. A fresh chat has no previous conversation
 context. Follow AGENTS.md's "Starting, or resuming after any interruption" routine: read
 Right now in docs/PROGRESS.md and verify the handover against uncommitted work, Git and
-relevant PR/CI. Preserve existing work and my chosen app state; read only what recovery needs.
+relevant PR/CI. Preserve existing work; read only what recovery needs.
 
 If In progress contains an already authorized unfinished goal, recover its exact next action
 and finish safe, practical remaining steps within that scope. If blocked, save the dependency
@@ -56,7 +56,7 @@ You may privately read my Jobcu documents, query and saved search evidence and a
 ratings while preserving owner/legacy ratings. Check standing authorization and revocations
 before private work or calls. Keep detailed evidence and the review checkpoint outside Git;
 do not publish personal information or real-result aggregates, or put private inputs in web
-queries. Preserve my data and app state; use an authorized isolated copy for investigations.
+queries. Preserve my data; use an authorized isolated copy for investigations.
 
 Start with the read-only saved review; flag a newer unfinished attempt. Judge full evidence
 against the actual documents and criteria before seeing scores, including every top-10 job.
@@ -190,7 +190,7 @@ live claims. Missing evidence is a dependency, not a reason to invent accuracy o
 
 This grants no new private access, paid tests or job searches. Respect standing authority,
 revocations and service limits; spare assistant usage adds no provider budget. Preserve my
-data/app state. An authorized new search must use 24 hours and existing frequency limits.
+data. An authorized new search must use 24 hours and existing frequency limits.
 Update the relevant guides, decisions and prompts, verify/publish under AGENTS,
 and finish with improvements, evidence/limits, unfinished work and simple next steps.
 ```
@@ -205,7 +205,7 @@ End this Jobcu session and prepare a fresh chat that will not know this conversa
 AGENTS.md's "Ending a session" routine. Stop new goals, research, searches and paid calls.
 Checkpoint first; finish the smallest safe coherent step if interrupting would leave broken
 or unreviewable work, including necessary checks/publication where practical. Otherwise park
-it precisely. Preserve unrelated work, my data and my chosen app state.
+it precisely. Preserve unrelated work, my data and active searches.
 
 Update changed facts in Right now/In progress: authorized remaining scope, branch/known head,
 PR/CI, implemented/tested/pushed/merged status, failed/unrun checks, dependencies and one exact
@@ -214,6 +214,7 @@ Keep the handover concise and sufficient for recovery, not a transcript. Reuse v
 do not repeat startup or full tests merely to end, and do not force an unverified merge.
 
 Complete or checkpoint publication, clean up only your disposable scratch/previews, and read
-back the handover against actual Git/CI and relevant service state. Report what is saved,
-verified or unfinished, link to docs/PROMPTS.md and give simple next steps. Then stop.
+back the handover against actual Git/CI and service dependencies needed for recovery.
+Report what is saved, verified or unfinished, link to docs/PROMPTS.md and give simple next
+steps. Then stop.
 ```

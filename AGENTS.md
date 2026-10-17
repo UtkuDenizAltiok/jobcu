@@ -29,8 +29,11 @@ hardware, power electronics and electronic engineering, without excluding suitab
   direct next steps**. Do technical work yourself. Never request keys, passwords, documents or
   private queries in chat; the owner enters them in Jobcu.
 - Jobcu runs on demand: double-click **Start Jobcu.command**, then close the terminal and choose
-  **Terminate** if asked. Do not automatically start or leave it running. Use self-tests or
-  isolated previews; stop instances you started and respect the owner's chosen app state.
+  **Terminate** if asked. The assistant may open, close or restart Jobcu as needed for authorized
+  development without asking the owner to manage it. Use self-tests or isolated previews when
+  useful. Protect active searches, owner data and spending limits; starting the app grants no
+  new search or paid-call authority. App lifecycle is a development detail: the former chosen
+  app-state preservation/tracking rule is superseded (owner, 2026-10-17).
 - Preserve owner data. Adding or testing reset controls does not authorize using them on it;
   perform an owner-data reset only when explicitly asked to do that deletion.
 
@@ -94,9 +97,9 @@ belongs inside the task the owner requested. A backlog item is not an instructio
    source research, private review and test baselines until the relevant task needs them.
    Before any authorized private work, recheck authorization/revocations and its private
    checkpoint. Start/resume grants no new private access, spending or job searches.
-5. Check app/preview state and recorded assistant-owned scratch once, to preserve the owner's
-   state and recover or clean up your own abandoned work. Open or closed Jobcu is no obstacle
-   to development or saved-result review. Do not ask the owner to close it as a routine step.
+5. Recover or clean up recorded assistant-owned scratch and abandoned previews. Inspect running
+   services only when recovery or development needs them; do not routinely check, preserve or
+   record whether Jobcu is open or closed. Manage its lifecycle under the authority above.
 6. Report readiness, any recovered work and exact blocking dependency, then wait for the owner's
    task. Do not open a new goal. After a brief interruption in a prepared chat, refresh only
    state that could have changed; rerun the full recovery only if context or state was lost.
@@ -146,11 +149,12 @@ leave a recoverable branch and exact next action instead of forcing a merge.
    practical; leave synchronized clean main when possible. Preserve a recoverable branch and
    exact next action if blocked or running low. No changes means no ceremonial commit or PR;
    do not create another commit solely to record its own hash. Never label unverified work done.
-4. Delete disposable private scratch copies and stop instances you started. Preserve user data
-   and the owner's chosen service state. Save needed private evidence and review status in the
+4. Delete disposable private scratch copies and stop disposable previews no longer needed.
+   Preserve user data and active searches. Save needed private evidence and review status in the
    private data folder before deleting scratch; keep authorization records private and intact.
-   Read back the handover against Git and running services. A fresh chat must be able to find
-   the files, recover preserved work and run the exact next action without this conversation.
+   Read back the handover against Git/CI and service dependencies needed for its next action.
+   A fresh chat must be able to find the files, recover preserved work and run the exact next
+   action without this conversation. App open/closed state needs no routine handover note.
 5. Report what was saved, verified or unfinished and give direct next steps. Link to PROMPTS.md.
 
 ## Commands and conventions

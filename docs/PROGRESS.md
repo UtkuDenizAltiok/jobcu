@@ -42,12 +42,9 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
   Windows and privacy. Final local suite: **1,805 passing tests**, with one existing dependency
   deprecation warning. Main and locked dependencies are synchronized. The current source checks are listed above;
   these older receipts establish only their own source heads.
-- Neither owner app **8765** nor preview **8799** is listening at the final recovery check.
-  The previously observed owner instance has ended; preserve the current closed state.
-  The assistant started or stopped no instance in this review. Disposable preview data is
-  removed. The prior capture is complete; its disposable scratch is removed. The exact-run
-  observer has finished and keeps evidence outside Git. Do not automatically start Jobcu.
-  No reset, new key or model choice is required.
+- Disposable private scratch and fictional preview data are removed. The prior capture is
+  complete; the exact-run observer has finished and keeps evidence outside Git. No reset,
+  new key or model choice is required.
 - Saved documents, queries, searches, ratings, marks, settings, keys and authorization are
   preserved. Detailed reviews, complete diagnostic answers, usage and exact publication
   receipts stay outside Git. Private `assistant-review-checkpoint.json` is the recovery index;
@@ -78,7 +75,7 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 The owner's current prompt authorizes read-only live capture and the full Review procedure
 on that exact run when it finishes or fails. Its identity, start boundary, snapshots, logs,
 usage and recovery checkpoint are private, outside every checkout. Do not substitute the
-previous saved search. Owner app 8765 is now closed; preserve it. No preview was started.
+previous saved search.
 
 1. Capture progress, connection failures, retries, unchecked conditions and timings. Separate
    processing, actual retry/source waits and time waiting for the owner's answers; parallel

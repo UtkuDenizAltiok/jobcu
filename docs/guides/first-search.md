@@ -244,8 +244,8 @@ unless the ad identifies it as the reference city. Asking for the city centre al
 the journey from an address elsewhere in that city.
 If Google's response does not identify when a quota resets,
 Jobcu says so. Check your project's Routes API quotas when needed; raising them can increase
-spending. Historical saved results keep their original messages. Development can proceed
-while Jobcu is open; the assistant preserves your app state and uses isolated tests/previews.
+spending. Historical saved results keep their original messages. The assistant manages Jobcu
+as development needs, using isolated tests/previews where useful and protecting active searches.
 
 ## 5. Check that Jobcu understood you
 
