@@ -125,7 +125,8 @@ event, geographic unit and category, or rigorous conservative bounds. Quote vali
 provenance, not the correctness of the model's interpretation. Source selection and live
 semantic verification remain necessary. Population rules, candidate coverage, journey
 admission and fresh job scoring are unchanged. Whole-city comparisons receive 20,000 answer
-tokens plus the existing medium thinking room, capped at 32,000 by the shared client. A smaller
+tokens plus the existing medium thinking room: 32,000 tokens on the first attempt. The shared
+client still owns bounded truncation recovery. A smaller
 allowance could end before the final city answers; this reserves space without lowering effort.
 Actual billed tokens still need receipts; the larger allowance is not a cost ceiling.
 
