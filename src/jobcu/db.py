@@ -220,6 +220,16 @@ MIGRATIONS: list[str] = [
         PRIMARY KEY (kind, key)
     );
     """,
+    # 17: Confirmed copies may already have separate historical IDs. Link them without
+    # deleting keys, snapshots, ratings or marks; unproved name matches never create links.
+    """
+    CREATE TABLE job_aliases (
+        job_id INTEGER PRIMARY KEY REFERENCES jobs (id),
+        canonical_id INTEGER NOT NULL REFERENCES jobs (id),
+        CHECK (job_id != canonical_id)
+    );
+    CREATE INDEX job_aliases_canonical_id ON job_aliases (canonical_id);
+    """,
 ]
 
 

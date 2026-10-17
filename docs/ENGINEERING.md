@@ -385,6 +385,29 @@ hosted-research experiments or transferring/reusing grounded output elsewhere.
 
 ## Duplicate boundaries and reference eligibility — 2026-10-15
 
+### Confirmed copy history and date readers — 2026-10-17
+
+Recruitment prefixes and a title's own employer/place suffix are comparison context, not new
+roles. Removing them requires strong matching ad evidence. Recruiter parent/division labels
+also require matching role, workplace and text. Levels, specialist words, reference numbers,
+country differences, contradictory full ads and distinct native employer requisitions remain
+guards; a shared name, boilerplate or neighbouring town alone does not establish a copy.
+
+Migration 17 links historical IDs only when currently available copies pass duplicate checks.
+It keeps every job, key, snapshot, rating and raw mark. Linked copies use the earliest first
+showing and combine current marks; an explicit later mark change applies to the whole linked
+vacancy. A recycled board copy cannot bridge two remembered native employer requisitions.
+Unproved name ambiguities remain separate. Saved-result responses combine confirmed copies
+and remove proven old reposts without rewriting the saved search. Disagreeing old assessments
+stay recorded but do not become a chosen higher match score; a new assessment is needed.
+
+Complete text does not establish that every relevant date reader succeeded. Try remaining
+matched metadata readers after another fails or supplies cached full text, within existing
+source budgets. Cache checks are tracked per copy and progress counts groups once. A permitted
+original can then establish an older date or deadline before paid scoring; failed/missing
+metadata stays unknown. The [BA source hold](SOURCES.md#bundesagentur-access-hold--2026-10-17)
+is independent of this recovery and cannot be bypassed with a fallback reader.
+
 Unicode dash punctuation separates words before ASCII accent folding. Previously a nonbreaking
 dash could join tokens, so otherwise matching copies became separate scoring units. Fictional
 power-supply, patient-care and early-years titles now form one group and one assessment while

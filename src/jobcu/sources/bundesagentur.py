@@ -1,10 +1,9 @@
-"""Bundesagentur für Arbeit (Jobsuche): Germany's largest job database.
+"""Bundesagentur für Arbeit (Jobsuche): automated access paused, 2026-10-17.
 
-There is no official API; this uses the public endpoint documented by the community
-project github.com/bundesAPI/jobsuche-api. It may change
-without notice, so failures are reported plainly and never break a search.
-
-It gives the date a job was **first** published, which catches reposted old jobs.
+Current portal terms prohibit robots and automated collection; SOURCES records the primary
+evidence. The old public-endpoint adapter and parser remain for saved evidence, but no request
+is sent without a permitted interface or explicit permission. A board's first-publication date
+does not establish the employer vacancy's original age.
 """
 
 import base64
@@ -18,6 +17,7 @@ from jobcu.countries import COUNTRIES
 from jobcu.freshness import day_at_utc, days_back, freshness, window_start
 from jobcu.sources.base import FoundJob, JobQuery, JobSource, SourceContext, SourceError
 from jobcu.sources.budget import BudgetExhausted, Limits, RequestBudget
+from jobcu.sources.http import terms_denial
 from jobcu.text import html_to_text
 
 log = logging.getLogger(__name__)
@@ -36,6 +36,9 @@ class BundesagenturSource(JobSource):
     name = "Bundesagentur für Arbeit"
     kind = "job_board"
     countries = frozenset({"DE"})
+
+    def unavailable_reason(self, keys) -> str | None:
+        return terms_denial(API)
 
     def search(self, query: JobQuery, ctx: SourceContext) -> Iterator[FoundJob]:
         self._budget = RequestBudget(self.id, self.name, LIMITS)
@@ -88,6 +91,8 @@ class BundesagenturSource(JobSource):
                 return
 
     def _get(self, url, params, budget, ctx) -> dict:
+        if reason := terms_denial(url):
+            raise SourceError(reason)
         budget.spend()
         ctx.report.requests += 1
         try:

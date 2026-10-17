@@ -262,3 +262,22 @@ def test_cache_failure_cannot_prevent_recovery(monkeypatch, cache_failure):
     load([group], [source])
     assert group.best_description_copy.description == FULL
     assert group.best_description_copy.description_is_complete
+
+
+@pytest.mark.parametrize("cached_first", [False, True])
+def test_complete_text_or_failed_metadata_cannot_skip_an_older_original_date(cached_first):
+    complete = dataclasses.replace(ad("complete"), description=FULL, description_is_complete=True)
+    first, original = Source("first", SourceError("Fictional failure")), Source("original")
+    first.details_supply_dates = original.details_supply_dates = True
+    old = datetime.now(UTC) - timedelta(days=8)
+    original.outcome = lambda job, ctx: dataclasses.replace(
+        job, description=FULL, description_is_complete=True, posted_at=old)
+    copies = [complete, dataclasses.replace(ad("first"), posted_at=None),
+              dataclasses.replace(ad("original"), posted_at=None)]
+    if cached_first:
+        jobstore.remember_ad(dataclasses.replace(copies[1], description=FULL,
+                                                description_is_complete=True))
+    group = JobGroup(copies)
+    load([group], [Source("complete"), first, original])
+    assert original.calls == ["1"]
+    assert group.posted_at == old and group.best_description_copy.description == FULL

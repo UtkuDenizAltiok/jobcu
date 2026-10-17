@@ -65,6 +65,8 @@ _LEVEL_WORDS = re.compile(
 
 
 _REFERENCE_NUMBERS = re.compile(r"\b\d{3,}\b")
+_AD_PREFIX = re.compile(r"^(?:wir\s+suchen|gesucht|we\s+are\s+hiring|wanted)\s*:?\s+", re.I)
+_AD_SUFFIX = re.compile(r"\s+(?:gesucht|wanted)\s*[!.]?$", re.I)
 
 
 def title_similarity(a: str, b: str) -> float:
@@ -123,6 +125,28 @@ def normal_title(title: str | None, *, legacy_dashes: bool = False) -> str:
 def normal_city(location: str | None, *, legacy_dashes: bool = False) -> str:
     first = fold((location or "").split(",")[0], legacy_dashes=legacy_dashes)
     return _CITY_ALIASES.get(first, first)
+
+
+def _title_context(job: FoundJob) -> tuple[str, place_list.Town | None]:
+    """Remove non-role decorations only for evidence-backed comparison, not saved keys.
+
+    A role's specialism, level and reference numbers stay intact. A place suffix also
+    supplies a missing town, so two explicitly different workplaces cannot collapse.
+    """
+    title = _AD_SUFFIX.sub("", _AD_PREFIX.sub("", job.title.strip()))
+    inferred = None
+    parts = re.split(r"\s+[–—-]\s+", title)
+    if len(parts) > 1:
+        suffix = parts[-1].strip()
+        if normal_company(suffix) == normal_company(job.company) and job.company:
+            title = " - ".join(parts[:-1])
+        elif job.country:
+            named = re.sub(r"\s*\([^)]*\)\s*$", "", suffix)
+            town = place_list.locate(named, job.country)
+            listed = place_list.locate(job.location_text, job.country)
+            if town and (listed is None or place_list.distance_km(town, listed) <= NEARBY_KM):
+                inferred, title = town, " - ".join(parts[:-1])
+    return normal_title(title), inferred
 
 
 def is_agency(company: str | None) -> bool:
@@ -215,9 +239,15 @@ def group_duplicates(jobs: list[FoundJob], source_kinds: dict[str, str]) -> list
         complete_texts[a].clear()
 
     companies = [normal_company(j.company) for j in jobs]
-    titles = [normal_title(j.title) for j in jobs]
+    contexts = [_title_context(j) for j in jobs]
+    titles = [title for title, _ in contexts]
+    decorated = [title != normal_title(j.title)
+                 for j, (title, _) in zip(jobs, contexts, strict=True)]
     cities = [_town_part(j.location_text, j.country) for j in jobs]
-    towns = [place_list.locate(j.location_text, j.country) if j.country else None for j in jobs]
+    towns = [(place_list.locate(j.location_text, j.country) if j.country else None) or inferred
+             for j, (_, inferred) in zip(jobs, contexts, strict=True)]
+    cities = [town.name if not city and town else city
+              for city, town in zip(cities, towns, strict=True)]
 
     # The same ad from the same source is always one job.
     by_source_id: dict[tuple[str, str], int] = {}
@@ -242,6 +272,9 @@ def group_duplicates(jobs: list[FoundJob], source_kinds: dict[str, str]) -> list
                         jobs[a], jobs[b], cities[a], cities[b], towns[a], towns[b]):
                     continue
                 title_score = title_similarity(titles[a], titles[b])
+                if (decorated[a] or decorated[b]) and not _both_full_and_similar(
+                        jobs[a], jobs[b], TEXT_MATCH, text_cache):
+                    continue
                 if is_agency(jobs[a].company):
                     # Agencies post near-identical ads for different clients: the text must match.
                     if title_score >= TITLE_MATCH and _both_full_and_similar(
@@ -254,6 +287,24 @@ def group_duplicates(jobs: list[FoundJob], source_kinds: dict[str, str]) -> list
                     jobs[a], jobs[b], TEXT_MATCH, text_cache
                 ):
                     union(a, b)
+
+    # A recruiter can publish the same vacancy under a parent name and a division label.
+    # A shared name prefix alone proves nothing: require the same role/place and strong
+    # matching ad evidence, preserving employer requisition and complete-text guards.
+    for company, members in by_company.items():
+        words = company.split()
+        for end in range(max(1, len(words) - 2), len(words)):
+            parent_members = by_company.get(" ".join(words[:end]), [])
+            for a in members:
+                if not is_agency(jobs[a].company):
+                    continue
+                for b in parent_members:
+                    if (find(a) != find(b) and is_agency(jobs[b].company)
+                            and _same_place(jobs[a], jobs[b], cities[a], cities[b],
+                                            towns[a], towns[b])
+                            and title_similarity(titles[a], titles[b]) >= TITLE_MATCH
+                            and _both_full_and_similar(jobs[a], jobs[b], TEXT_MATCH, text_cache)):
+                        union(a, b)
 
     grouped: dict[int, list[int]] = {}
     for i in range(len(jobs)):

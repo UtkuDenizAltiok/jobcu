@@ -4,6 +4,7 @@ import json
 import sqlite3
 import threading
 from contextlib import contextmanager
+from copy import deepcopy
 from datetime import UTC, datetime, timedelta
 
 import pytest
@@ -27,6 +28,126 @@ def new_search():
     with db.connect() as conn:
         return conn.execute(
             "INSERT INTO searches (status, form_json) VALUES ('running', '{}')").lastrowid
+
+
+def test_confirmed_decorated_copies_link_history_without_deleting_keys_or_marks():
+    from jobcu.dedupe import group_duplicates
+
+    first = group("one", "Registered Nurse", source="board", kind="job_board")
+    second = group("two", "Gesucht: Registered Nurse", source="board", kind="job_board")
+    for g in [first, second]:
+        g.main.description = " ".join(f"Fictional nursing responsibility {i}." for i in range(60))
+    ids, _ = jobstore.remember([first, second], new_search())
+    assert len(set(ids)) == 2  # reproduce historical records made before decorated-title matching
+    jobstore.set_state(ids[0], saved=True)
+    jobstore.set_state(ids[1], applied=True, dismissed=True)
+    jobstore.save_cards([{"job_id": i, "title": "Fictional Nurse"} for i in ids])
+    old = datetime.now(UTC) - timedelta(days=10)
+    with db.connect() as conn:
+        conn.execute("UPDATE jobs SET first_seen_at=? WHERE id=?", (old.isoformat(), ids[1]))
+        keys_before = [tuple(r) for r in conn.execute("SELECT * FROM job_keys ORDER BY key")]
+        marks_before = [tuple(r) for r in conn.execute("SELECT * FROM job_states ORDER BY job_id")]
+    confirmed = group_duplicates([first.main, second.main], {"board": "job_board"})
+    assert len(confirmed) == 1
+    jobstore.link_copies(confirmed)
+    assert jobstore.find_job_ids(confirmed) == [ids[0]]
+    assert jobstore.find_job_ids([second]) == [ids[0]]
+    assert jobstore.states(ids) == {i: jobstore.JobState(True, True, True) for i in ids}
+    assert jobstore.first_seen(ids) == {i: old for i in ids}
+    with db.connect() as conn:
+        assert [tuple(r) for r in conn.execute(
+            "SELECT * FROM job_keys ORDER BY key")] == keys_before
+        assert [tuple(r) for r in conn.execute(
+            "SELECT * FROM job_states ORDER BY job_id")] == marks_before
+        assert conn.execute("SELECT count(*) FROM jobs").fetchone()[0] == 2
+    saved = jobstore.marked_cards("saved")
+    assert len(saved) == 1 and saved[0]["job_id"] == ids[0]
+    # A later explicit owner action applies to the real job through either historical ID.
+    jobstore.set_state(ids[1], applied=False, dismissed=False)
+    assert jobstore.states(ids) == {i: jobstore.JobState(True, False, False) for i in ids}
+    assert jobstore.marked_cards("applied") == []
+
+
+def test_a_recycled_board_cannot_link_two_already_known_employer_requisitions():
+    old = group("old")
+    board = group("board", source="board", kind="job_board")
+    old.copies.append(board.main)
+    old.source_kinds.update(board.source_kinds)
+    (old_id,), _ = jobstore.remember([old], new_search())
+    fresh = group("fresh")
+    fresh.copies.append(board.main)
+    fresh.source_kinds.update(board.source_kinds)
+    (new_id,), _ = jobstore.remember([fresh], new_search())
+    assert new_id != old_id
+    jobstore.link_copies([fresh])
+    assert jobstore.find_job_ids([old, fresh]) == [old_id, new_id]
+    with db.connect() as conn:
+        assert not conn.execute("SELECT * FROM job_aliases").fetchall()
+
+
+def test_later_copy_evidence_flattens_linked_history_without_cycles():
+    names = ["Registered Nurse", "Gesucht: Registered Nurse", "Wanted: Registered Nurse"]
+    groups = [group(str(i), name, source="board", kind="job_board")
+              for i, name in enumerate(names)]
+    for g in groups:
+        g.main.description = " ".join(f"Fictional nursing responsibility {i}." for i in range(60))
+    ids, _ = jobstore.remember(groups, new_search())
+    for pair in [(1, 2), (0, 2)]:
+        jobstore.link_copies([JobGroup([groups[i].main for i in pair],
+                                      source_kinds={"board": "job_board"})])
+    assert jobstore.find_job_ids(groups) == [ids[0]] * 3
+    with db.connect() as conn:
+        assert [tuple(r) for r in conn.execute("SELECT * FROM job_aliases ORDER BY job_id")] == [
+            (ids[1], ids[0]), (ids[2], ids[0])]
+
+
+def test_legacy_country_on_a_linked_copy_still_protects_the_whole_vacancy():
+    groups = [group(str(i), title, source="board", kind="job_board", country=None)
+              for i, title in enumerate(["Registered Nurse", "Gesucht: Registered Nurse"])]
+    for g in groups:
+        g.main.description = " ".join(f"Fictional nursing responsibility {i}." for i in range(60))
+    ids, _ = jobstore.remember(groups, new_search())
+    jobstore.link_copies([JobGroup([g.main for g in groups], source_kinds={"board": "job_board"})])
+    jobstore.save_cards([{"job_id": ids[1], "country": "DE"}])
+    foreign = group("ie-copy", "Registered Nurse", source="another", kind="job_board", country="IE")
+    assert jobstore.find_job_ids([foreign]) == [None]
+
+
+def test_linked_history_view_removes_proven_reposts_and_exposes_score_disagreement():
+    from jobcu import pipeline
+
+    first = group("one", "Registered Nurse", source="board", kind="job_board")
+    second = group("two", "Gesucht: Registered Nurse", source="board", kind="job_board")
+    for g in [first, second]:
+        g.main.description = " ".join(f"Fictional nursing responsibility {i}." for i in range(60))
+    ids, _ = jobstore.remember([first, second], new_search())
+    confirmed = JobGroup([first.main, second.main], source_kinds={"board": "job_board"})
+    jobstore.link_copies([confirmed])
+    now = datetime.now(UTC)
+    with db.connect() as conn:
+        conn.execute("UPDATE jobs SET first_seen_at=?", ((now - timedelta(hours=1)).isoformat(),))
+    original = {"started_at": now.isoformat(), "form": {"posted_within_hours": 24}, "result": {
+        "jobs": {"cards": [{"job_id": i, "score": score, "parts": {}, "is_new": True,
+                            "main_link": {"source": "Board", "url": f"https://example.test/{i}"}}
+                           for i, score in zip(ids, [74, 76], strict=True)],
+                 "date_unknown": [], "counts": {"shown": 2}}}}
+    viewed = deepcopy(original)
+    pipeline.history_view(viewed)
+    cards = viewed["result"]["jobs"]["cards"]
+    assert len(cards) == 1 and cards[0]["job_id"] == ids[0]
+    assert cards[0]["score"] is None and not cards[0]["is_new"]
+    assert "assessed separately" in cards[0]["score_notes"][-1]
+    assert len(cards[0]["also_on"]) == 1
+    assert len(original["result"]["jobs"]["cards"]) == 2
+    # Only the remembered proof of existence changes, never the saved source date/score.
+    with db.connect() as conn:
+        conn.execute("UPDATE jobs SET first_seen_at=? WHERE id=?",
+                     ((now - timedelta(days=9)).isoformat(), ids[1]))
+    viewed = deepcopy(original)
+    pipeline.history_view(viewed)
+    pipeline.history_view(viewed)
+    assert viewed["result"]["jobs"]["cards"] == []
+    assert viewed["result"]["jobs"]["counts"]["left_out"][0]["count"] == 1
 
 
 @pytest.mark.parametrize("title", [

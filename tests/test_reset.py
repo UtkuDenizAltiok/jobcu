@@ -81,12 +81,23 @@ def request_reset(client, scope):
                        json={"scope": scope, "confirm": "RESET"})
 
 
+@pytest.mark.parametrize("scope", ["search", "review"])
+def test_confirmed_copy_links_follow_their_search_history_reset_scope(client, populated, scope):
+    with db.connect() as conn:
+        conn.execute("INSERT INTO jobs (id,title) VALUES (6,'Fictional second copy')")
+        conn.execute("INSERT INTO job_aliases VALUES (6,5)")
+    assert request_reset(client, scope).status_code == 200
+    assert count("job_aliases") == (1 if scope == "review" else 0)
+    assert count("jobs") == (2 if scope == "review" else 0)
+
+
 @pytest.mark.parametrize("scope", ["search", "review", "all"])
 def test_scopes_clear_exact_data_preserve_choices_and_real_spending(client, populated, scope):
     before = load_settings().model_dump()
     response = request_reset(client, scope)
     assert response.status_code == 200 and response.json() == {"reset": True, "scope": scope}
-    assert all(count(table) == (1 if scope == "review" else 0) for table in reset.SEARCH_TABLES)
+    assert all(count(table) == (1 if scope == "review" and table != "job_aliases" else 0)
+               for table in reset.SEARCH_TABLES)
     assert count("quality_ads") == (1 if scope == "search" else 0)
     with db.connect() as conn:
         usage = conn.execute("SELECT * FROM ai_usage").fetchone()

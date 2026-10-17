@@ -96,6 +96,9 @@ def terms_denial(url: str) -> str | None:
     host = (urlsplit(url).hostname or "").lower().rstrip(".")
     if host == "sap.com" or host.endswith(".sap.com"):
         return "SAP's website terms do not permit Jobcu to read this site automatically."
+    if host == "arbeitsagentur.de" or host.endswith(".arbeitsagentur.de"):
+        return ("Bundesagentur für Arbeit's current portal terms prohibit automated collection. "
+                "This source is paused pending a permitted interface or explicit permission.")
     return None
 
 
