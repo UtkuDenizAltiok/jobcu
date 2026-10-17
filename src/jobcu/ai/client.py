@@ -129,6 +129,7 @@ class AIClient:
         self._requests_running = 0
         self._endpoint_running: dict[tuple[str, str, bool], int] = {}
         self._connection_recovery: set[tuple[str, str, bool]] = set()
+        self._uncertain_requests: dict[tuple[str, str, bool], AIConnectionError] = {}
         self._gate = threading.Condition()
         self._adapter_lock = threading.Lock()
         # Remember a definite capability refusal for this search only. A later search
@@ -225,8 +226,11 @@ class AIClient:
         with self._slot(endpoint):
             with self._gate:
                 quota = self._quota_errors.get((provider, model))
+                uncertain = self._uncertain_requests.get(endpoint)
             if quota is not None:
                 raise quota
+            if uncertain is not None:
+                raise uncertain
             self._check_monthly_limit(provider=provider, model=model, research=research)
             attempt = uuid4().hex[:12]
             started = time.monotonic()
@@ -241,9 +245,17 @@ class AIClient:
                 if isinstance(exc, AIConnectionError):
                     with self._gate:
                         self._connection_recovery.add(endpoint)
+                        if exc.request_sent is True:
+                            self._uncertain_requests[endpoint] = exc
+                    if exc.request_sent is True:
+                        self.notify("The AI provider may already have charged for the interrupted "
+                                    "request. Jobcu kept completed work and stopped automatic "
+                                    "requests on this path. Retry incomplete checks explicitly "
+                                    "after checking service and billing.")
                 usage = exc.usage
                 if usage is None and isinstance(exc, (AIUnavailable, AIOutputTruncated)):
-                    usage = Usage(unreported_requests=1)
+                    unsent = isinstance(exc, AIConnectionError) and exc.request_sent is False
+                    usage = Usage(unreported_requests=0 if unsent else 1)
                 if usage is not None:
                     self._record(step, provider, model, usage)
                     if research:
@@ -325,7 +337,8 @@ class AIClient:
                 continue
             except AIUnavailable as exc:
                 outage_retries += 1
-                if not self.patient or outage_retries > MAX_OUTAGE_RETRIES:
+                if (isinstance(exc, AIConnectionError) and exc.request_sent is True
+                        or not self.patient or outage_retries > MAX_OUTAGE_RETRIES):
                     raise
                 self._wait(min(5 * 2 ** (outage_retries - 1), 60), exc,
                            retry=outage_retries, maximum=MAX_OUTAGE_RETRIES)
@@ -535,8 +548,10 @@ class AIClient:
                            retry=waits, maximum=MAX_RATE_LIMIT_WAITS)
             except AIUnavailable as exc:
                 outages += 1
-                if not self.patient or outages > MAX_OUTAGE_RETRIES:
-                    if self.patient and isinstance(exc, AIConnectionError):
+                if (isinstance(exc, AIConnectionError) and exc.request_sent is True
+                        or not self.patient or outages > MAX_OUTAGE_RETRIES):
+                    if (self.patient and isinstance(exc, AIConnectionError)
+                            and exc.request_sent is not True):
                         with self._gate:
                             self._failed_research.add(request_key)
                         self.notify(

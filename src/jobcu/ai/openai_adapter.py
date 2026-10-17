@@ -5,7 +5,6 @@ import openai
 
 from jobcu.ai.base import (
     MSG_BAD_REQUEST,
-    MSG_CONNECTION,
     MSG_KEY_REJECTED,
     MSG_MODEL_NOT_FOUND,
     MSG_NO_PERMISSION,
@@ -16,7 +15,6 @@ from jobcu.ai.base import (
     MSG_UNAVAILABLE,
     AIAuthError,
     AIBadRequest,
-    AIConnectionError,
     AIError,
     AIModelNotFound,
     AIOutputTruncated,
@@ -30,6 +28,7 @@ from jobcu.ai.base import (
     ResearchReply,
     Source,
     Usage,
+    connection_problem,
     parse_retry_after,
     reasoning_control_refused,
     unique_sources,
@@ -206,7 +205,7 @@ def translate_openai_error(exc: Exception) -> Exception:
                 return AIReasoningUnsupported(MSG_BAD_REQUEST, detail)
         return AIBadRequest(MSG_BAD_REQUEST, detail)
     if isinstance(exc, (openai.APIConnectionError, openai.APITimeoutError)):
-        return AIConnectionError(MSG_CONNECTION, detail)
+        return connection_problem(exc)
     if isinstance(exc, AIError):
         return exc
     return AIBadRequest(MSG_BAD_REQUEST, detail)
