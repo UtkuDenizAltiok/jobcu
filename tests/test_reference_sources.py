@@ -253,3 +253,29 @@ def test_geographic_identity_is_required_in_the_citation_even_beside_a_same_name
         "07 1 02 Springford, City: service available\n07 1 03 Springford, County: unavailable"))
     assert checks[0].meets is expected
     assert "07 1 02 Springford, City" in client.calls[0]["prompt"]
+
+
+def test_additional_context_pages_do_not_disable_a_complete_city_comparison():
+    pages = [page(), *[page(url=f"https://context.example.test/{i}", towns=[])
+                      for i in range(8)]]
+    client, checks = Client(pages), [city()]
+    reference_sources.check(client, "Weekend service", checks, http=HTTP())
+    assert checks[0].meets is True and len(client.calls) == 1
+
+
+def test_each_country_gets_its_own_comparison_and_source_identity():
+    pages = [page(), page(url="https://second.example.test/services", country="GB")]
+    client, checks = Client(pages), [city(), city(country="GB")]
+    reference_sources.check(client, "Weekend service", checks, http=HTTP())
+    assert [c.meets for c in checks] == [True, True] and len(client.calls) == 2
+    assert all("C1 |" not in call["prompt"] for call in client.calls)
+
+
+def test_overloaded_country_batch_keeps_an_independent_country_available():
+    pages = [page(), *[page(url=f"https://context.example.test/{i}", towns=[])
+                      for i in range(16)],
+             page(url="https://second.example.test/services", country="GB")]
+    client, checks = Client(pages), [city(), city(country="GB")]
+    reference_sources.check(client, "Weekend service", checks, http=HTTP())
+    assert [c.meets for c in checks] == [None, True] and len(client.calls) == 1
+    assert "page limit" in checks[0].evidence

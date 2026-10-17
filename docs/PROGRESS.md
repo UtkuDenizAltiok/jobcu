@@ -114,7 +114,20 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Parked: remaining city-category and comparable city-result evidence.**
+**Final integration repair: country-specific reviewed-source budgets.**
+
+The new source path's global eight-page guard could discard prepared evidence across countries
+or when a city comparison needs additional classification references. Scope is only this
+confirmed integration defect: reproduce offline, group comparisons by country, bound pages per
+batch, preserve independent countries, then test/publish/merge/deploy. Reuse the unchanged
+2,088-test baseline at main `46bb731`; exact PR/main CI `39072837766` / `39073187583` pass all
+platform/privacy checks. No new job search or paid packet. Three fictional regressions reproduced all three failures first. Final local suite: **2,091
+tests pass**; Ruff/privacy/docs/JS/whitespace pass. Comparisons now group by country and bound
+relevant pages per batch, preserving healthy independent countries. Exact next action: publish
+this small integration step, require its exact-head CI, merge/deploy and check exact-main CI.
+The private source selections/evidence update uses no additional paid requests.
+
+The remaining private evidence dependency below stays parked within the same review scope.
 
 The coherent software/data step in PR #150 is complete in this merge: **2,088 offline tests**
 pass, plus Ruff/privacy/docs/JS/whitespace; one existing dependency warning. Exact PR head

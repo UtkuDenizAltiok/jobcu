@@ -1199,3 +1199,13 @@ Do not equate every unlisted party with a known negative category. Use official 
 figures and explicit category coverage, or rigorous bounds for remaining unclassified votes.
 Robots/access checks and the dated permission review remain required for each selected source.
 Source selections, actual questions, evidence and verification receipts stay private.
+
+
+The federal civic-education agency's [dated election profiles](https://www.bpb.de/themen/parteien/wer-steht-zur-wahl/bundestagswahl-2025/)
+identify expert authors and distinguish programme descriptions from quoted party claims. Its
+[current publisher notice](https://www.bpb.de/die-bpb/ueber-uns/service/impressum/) was checked
+on 2026-10-18. Review the selected article's date, author, applicable rights and robots before
+reading it automatically; retain attribution and do not redistribute complete articles. An
+ideological inference from an expert description must be labelled as an inference, rather than
+misquoted as an explicit binary classification. These references can address gaps in another
+dataset's coverage; a short programme summary alone does not prove every category comparison.
