@@ -10,11 +10,12 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
-- Atomic web-reservation accounting is implemented in
-  [PR #141](https://github.com/UtkuDenizAltiok/jobcu/pull/141), branch
-  `codex/atomic-web-accounting`: **1,878 offline tests** pass. Its regression first reproduced
-  false deferral during receipt writing, then verified all allowed work finishes. Finish only
-  any remaining exact-head PR/main publication; actual receipts stay private.
+- Atomic web-reservation accounting is merged in
+  [PR #141](https://github.com/UtkuDenizAltiok/jobcu/pull/141): **1,878 offline tests** pass.
+  Its regression first reproduced false deferral during receipt writing, then verified all
+  allowed work finishes. PR head `f479f39` and main merge `25e89b6` passed exact-head
+  Mac/Windows/privacy CI `38969270061` and `38969989627`; main/locked dependencies are
+  synchronized. Publication is complete; do not repeat unchanged checks.
 - Successful receipt admission and spending-limit clarity are merged in
   [PR #140](https://github.com/UtkuDenizAltiok/jobcu/pull/140), with **1,877 offline tests**
   passing. PR head `d22b4b7` and main merge `66256fd` passed exact-head Mac/Windows/privacy
@@ -41,11 +42,12 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
   Windows and privacy. Final local suite: **1,805 passing tests**, with one existing dependency
   deprecation warning. Main and locked dependencies are synchronized. The current source checks are listed above;
   these older receipts establish only their own source heads.
-- Owner app **8765** is running in the owner's chosen state. The assistant's fictional
-  preview **8799** is stopped and its disposable data removed. The prior capture is
-  complete; its disposable scratch is removed. The exact-run observer has finished and
-  keeps evidence outside Git. Do not restart the owner app. No reset, new key or model choice
-  is required.
+- Neither owner app **8765** nor preview **8799** is listening at the final recovery check.
+  The previously observed owner instance has ended; preserve the current closed state.
+  The assistant started or stopped no instance in this review. Disposable preview data is
+  removed. The prior capture is complete; its disposable scratch is removed. The exact-run
+  observer has finished and keeps evidence outside Git. Do not automatically start Jobcu.
+  No reset, new key or model choice is required.
 - Saved documents, queries, searches, ratings, marks, settings, keys and authorization are
   preserved. Detailed reviews, complete diagnostic answers, usage and exact publication
   receipts stay outside Git. Private `assistant-review-checkpoint.json` is the recovery index;
@@ -72,11 +74,11 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Exact-run review and cost control; remaining dependency is checkpointed.**
+**Exact-run review's safe repairs are complete; remaining dependency is checkpointed.**
 The owner's current prompt authorizes read-only live capture and the full Review procedure
 on that exact run when it finishes or fails. Its identity, start boundary, snapshots, logs,
 usage and recovery checkpoint are private, outside every checkout. Do not substitute the
-previous saved search. Owner app 8765 is running; preserve it. No preview was started.
+previous saved search. Owner app 8765 is now closed; preserve it. No preview was started.
 
 1. Capture progress, connection failures, retries, unchecked conditions and timings. Separate
    processing, actual retry/source waits and time waiting for the owner's answers; parallel
@@ -102,12 +104,12 @@ receipt admission are merged and verified on exact PR/main heads; do not repeat 
 All evidence, medium effort, candidates and per-request retry bounds are preserved.
 
 Final inspection reproduced a transient double-count of used/reserved web allowance. The
-atomic fix is published in PR #141, branch `codex/atomic-web-accounting`. Its regression keeps
+atomic fix is merged in PR #141. Its regression keeps
 all allowed work queued until the first receipt is saved, then finishes within the unchanged
 allowance. Final suite: **1,878 passing**, one existing dependency deprecation warning;
-affected checks, Ruff/privacy/whitespace pass. Complete only this step's exact-head CI/merge/
-main synchronization if publication is still unfinished. No paid test is involved and no new
-spending/search authority exists.
+affected checks, Ruff/privacy/whitespace and exact PR/main Mac/Windows/privacy CI pass.
+Main is synchronized and publication is complete. No paid test is involved and no new
+spending/search authority exists. Reuse these checks while their code and environment are unchanged.
 
 The native stateless event-stream candidate remains separately preserved at `ac25239`, draft
 [PR #137](https://github.com/UtkuDenizAltiok/jobcu/pull/137), branch `codex/exact-run-review`.
@@ -117,8 +119,8 @@ existing endpoint and chosen model/effort. A token limit/request allowance is no
 maximum on provider-controlled hosted-search fees. Do not adopt the candidate or repeat paid
 experiments based on an earlier low estimate or an account top-up.
 
-**Exact remaining action/dependency:** finish atomic-accounting publication if needed, then
-read private `assistant-review-checkpoint.json` and the closed verification packets. Identify
+**Exact remaining action/dependency:** read private `assistant-review-checkpoint.json` only
+as needed to recover the parked dependency and closed verification packets. Identify
 a documented, enforceable hosted-query budget or a permitted controlled research interface
 before any further paid verification proposal. Preserve complete evidence/candidate scope and
 verify the protocol offline first. No new paid authority remains; do not repeat a used packet,
@@ -126,7 +128,8 @@ start another search, choose backlog work or claim a verified per-search invoice
 External transport causes, missing originals/reference facts, precise fresh-date/workplace/
 duplicate evidence, an independent recall benchmark and opaque final Adzuna destinations stay
 explicit in the sealed private review. Keep this remaining scope checkpointed; the safe repairs
-and free investigation are complete once publication passes.
+and free investigation are complete. Start should report this dependency and wait for the
+owner's next task; do not turn it into new investigation automatically.
 
 The earlier whole-pipeline review also has these **parked dependencies**; do not resume them
 without evidence and authority relevant to the active task:
@@ -157,7 +160,7 @@ total service budget; preserve it and the local ceiling. A local estimate is not
 or provider cap. The exact run and capture are finished; no additional search or paid
 experiment is scheduled.
 Restoring provider service does not retroactively complete a saved search's missing checks.
-A fresh local chat can use [Start](PROMPTS.md#start-a-session) to recover publication if needed
+A fresh local chat can use [Start](PROMPTS.md#start-a-session) to verify recovery state
 and wait. Use [Review](PROMPTS.md#review-a-search) for later saved evidence and
 [End](PROMPTS.md#end-a-session) to park a session.
 
