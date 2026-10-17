@@ -125,6 +125,20 @@ def revalidate(checks: list[dict] | None, ad_text: str, profile: dict) -> list[d
     return updated
 
 
+def update_check(earlier: dict | None, later: dict) -> dict:
+    """Unsupported replacements retain the grounded clause and one failed proposal for audit."""
+    if earlier is None:
+        return later
+    if earlier.get("central_to_role"):
+        later = {**later, "central_to_role": True}
+    if (later.get("grounding_issues") and "grounding_issues" in earlier
+            and "ad_quote_unverified" not in earlier["grounding_issues"]):
+        return {**earlier, "last_retry": later}
+    if earlier["status"] == "not_met" and later["status"] == "unclear":
+        return earlier
+    return later
+
+
 def merge(earlier: list[dict] | None, later: list[dict] | None) -> list[dict] | None:
     """An incomplete research note cannot erase a known requirement by omission."""
     if later is None:
@@ -132,12 +146,7 @@ def merge(earlier: list[dict] | None, later: list[dict] | None) -> list[dict] | 
     combined = {_plain(check["requirement"]): check for check in earlier or []}
     for check in later:
         key = _plain(check["requirement"])
-        previous = combined.get(key)
-        if previous and previous.get("central_to_role"):
-            check = {**check, "central_to_role": True}
-        if previous and previous["status"] == "not_met" and check["status"] == "unclear":
-            continue
-        combined[key] = check
+        combined[key] = update_check(combined.get(key), check)
     return list(combined.values())
 
 
@@ -161,6 +170,10 @@ def _unknown_note(check: dict) -> str:
     }
     reason = "; ".join(details[i] for i in check.get("grounding_issues", []) if i in details)
     reason = reason or check.get("explanation", "")
+    retry = "; ".join(details[i] for i in check.get("last_retry", {}).get("grounding_issues", [])
+                      if i in details)
+    if retry:
+        reason = (reason + "; " if reason else "") + "latest retry: " + retry
     return (f"{check['requirement']}: could not be confirmed" + (f" — {reason}" if reason else ""))
 
 

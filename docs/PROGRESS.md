@@ -10,6 +10,19 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
+- Shared requirement-evidence replacement is repaired in
+  [PR #149](https://github.com/UtkuDenizAltiok/jobcu/pull/149): **1,978 offline tests** pass.
+  Eighteen regressions first reproduced unsupported replies overwriting grounded requirements
+  in both focused recovery and online-ad updates. Failed replacements retain the earlier
+  clause and score restriction, with the latest verification failure visible; supported later
+  evidence still resolves it. Final publication state is the PR's actual head and CI, with
+  exact receipts retained in the private recovery index.
+- Explicit saved-evidence recovery and verified exact-original facts are merged in
+  [PR #148](https://github.com/UtkuDenizAltiok/jobcu/pull/148): **1,960 offline tests** pass.
+  Complete checks are reused; incomplete attempts are retryable only through explicit recovery.
+  Requirement comparisons obey the location gate and preserve central-skill uncertainty.
+  Verified old/closed facts have separate storage, source/undo controls and no paid admission.
+  Original records, owner marks and snapshots survive. Exact source CI receipts are below.
 - Location eligibility before paid scoring is merged in
   [PR #144](https://github.com/UtkuDenizAltiok/jobcu/pull/144): **1,889 offline tests** pass.
   PR head `aa4103c` and main `d37bd0f` passed exact Mac/Windows/privacy CI `39042964831` and
@@ -91,39 +104,39 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Reported-result recovery resumed by the owner.**
+**Source repairs complete; saved city/service verification remains parked.**
 
-Scope: revisit missing evidence and saved-check recovery, complete permitted free original and
-saved-profile checks, and fix reproducible software causes. No new search or paid development
-call is authorized. Preserve all owner records and limits. The previous safe repairs are merged
-in PRs #144–#147; reuse the unchanged **1,938-test** full-suite baseline and exact-main
-Mac/Windows/privacy CI `39060155871` at `210dd6e`.
+PR #149 holds the final shared unsupported-reply safeguard and this handover. Its final local
+suite has **1,978 passing tests**, one existing dependency warning; Ruff/privacy, JS syntax and
+whitespace pass. Eighteen fictional electronics, nursing and teaching cases first reproduced
+the overwrite, then verified both recovery paths, bounded diagnostics and supported resolution.
+Confirm actual PR/main publication state and exact Mac/Windows/privacy CI before treating
+publication as complete; the private checkpoint retains those receipts. Do not rerun unchanged
+source checks or open another improvement goal merely to prepare a chat.
 
-Branch: `codex/saved-evidence-recovery`. Private recovery is indexed by
-`assistant-review-checkpoint.json`; read authorization/revocations before private work.
+PR #148 head `6746810` passed exact Mac/Windows/privacy CI `39062389319`; merge `2c503e9`
+passed exact-main CI `39062917244`. Final local suite: **1,960 passing tests**, one existing
+Starlette/AnyIO deprecation warning, plus Ruff/privacy, 20 document checks, JS syntax and
+whitespace. The fictional source/undo interface was verified and its preview stopped.
+Main and locked dependencies are synchronized. Detailed original/profile verification,
+private data application and integrity receipts are indexed by `assistant-review-checkpoint.json`;
+read authorization/revocations before private access. No new search or paid test was made.
+Disposable document/database/preview copies are removed.
 
-1. Verify exact original/profile evidence and distinguish unavailable external facts from a
-   saved recovery path that never retries incomplete work. Keep targeted judgements separate
-   from independent blinded quality measurements.
-2. Reproduce confirmed recovery/provenance faults with fictional electronics and other
-   professions. Implement bounded, evidence-preserving recovery with no repeated paid work.
-3. Run affected/final checks, review the complete diff, publish exact PR/main CI and merge with
-   a merge commit; synchronize main. Save exact external dependencies only after useful free
-   verification and practical software repairs are exhausted.
+The remaining evidence is specific: missing city eligibility facts and journeys from interrupted
+research, and a live provider assessment of incomplete specialist-role evidence. Targeted
+profile/original diagnostics are not a replacement numerical rating or a blinded benchmark.
+The original-date and unavailable-ad software paths are complete; do not repeat the finished
+private verification or reapply its facts. Current source-permission holds remain in SOURCES.
+A technical HTTP/tool access failure is not itself closure and need not prevent permitted
+normal-browser verification of the exact linked original.
 
-**Implemented and tested, publication pending:** explicit recovery now distinguishes
-attempted/incomplete from complete online evidence; requirement retries run after the hard-location gate and retain
-central-skill uncertainty. Migration 18 stores verified exact-original closure/publication
-bounds separately, excludes known old/closed jobs before paid work, and provides source/undo
-controls without changing historical rows or marks. A private scratch replay verifies the
-newly established original facts; owner-data application waits for final tested publication.
-Final local suite: **1,960 passing tests**, one existing dependency warning. Ruff/privacy,
-20 document checks, JS syntax and whitespace pass; isolated fictional UI is verified and stopped.
-
-**Exact next action:** publish the tested and reviewed diff, require exact PR/main
-Mac/Windows/privacy CI, merge and synchronize. Then apply only
-the independently verified facts from the private checkpoint through tested Jobcu code after
-backup/active-search checks; verify owner records and response integrity. No paid call is open.
+**Exact next action:** finish PR #149 publication if Git/CI still show it pending; otherwise
+await evidence and applicable authority for the saved city/route checks.
+Use the private checkpoint's remaining scope; verify exact reference facts, then journeys, then
+reassess only qualifying jobs. No paid packet is open. Before any paid research proposal,
+establish enforceable request/tool charges and a bounded budget. Do not repeat hosted research
+with unbounded query charges, start another search or treat unknown locations as matches.
 
 **Parked research dependency:** PR #137 at `ac25239` remains an unmerged native transport
 candidate. A documented enforceable hosted-query budget or permitted controlled interface,
