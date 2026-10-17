@@ -138,6 +138,49 @@ def test_unicode_duplicate_copies_are_assessed_once_before_cards_are_saved(ready
         "https://jobs.test/0", "https://jobs.test/1"}
 
 
+@pytest.mark.parametrize("title", [
+    "Power Electronics Engineer", "Registered Nurse", "Primary Teacher"])
+def test_decorated_recruiter_copies_use_one_assessment_and_keep_their_saved_mark(
+        ready, monkeypatch, title):
+    from jobcu.dedupe import JobGroup
+
+    text = " ".join(f"Fictional duty {i} includes development validation and reporting."
+                    for i in range(60))
+    names = [title, f"Gesucht: {title}", f"{title} - Example Recruitment Ltd"]
+    copies = [FoundJob("fake", str(i), f"https://jobs.test/{i}", name,
+              company="Example Recruitment Services" if i == 1 else "Example Recruitment Ltd",
+              location_text="Berlin", country="DE", posted_at=datetime.now(UTC),
+              date_precision="exact", description=text) for i, name in enumerate(names)]
+    with db.connect() as conn:
+        old_search = conn.execute("INSERT INTO searches (status,form_json) "
+                                  "VALUES ('finished','{}')").lastrowid
+    ids, _ = jobstore.remember([JobGroup([c], source_kinds={"fake": "job_board"})
+                               for c in copies], old_search)
+    jobstore.set_state(ids[1], saved=True)
+    assessed = []
+
+    class Tracked(FakeAI):
+        def complete_json(self, **request):
+            if request["schema_name"] == "ScoringAnswer":
+                assessed.extend(re.findall(r"^JOB (J\d+)", request["prompt"], re.MULTILINE))
+            return super().complete_json(**request)
+
+    class Copies(FakeSource):
+        def search(self, query, ctx):
+            yield from copies
+
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: Tracked())
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [Copies()])
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    result = wait_until_done(manager)
+    assert result["status"] == "finished", result["error"]
+    cards = result["result"]["jobs"]["cards"]
+    assert len(cards) == len(assessed) == 1
+    assert cards[0]["state"]["saved"]
+    assert all(s.saved for s in jobstore.states(ids).values())
+
+
 def test_two_identical_searches_reuse_setup_but_collect_and_score_afresh(ready, monkeypatch):
     calls, collections = [], []
 

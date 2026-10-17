@@ -534,6 +534,7 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
 
     run.update("filtering", "running")
     groups = pipeline.make_groups(collected)
+    jobstore.link_copies(groups)
     remembered = jobstore.find_job_ids(groups)
     states = jobstore.states([job_id for job_id in remembered if job_id])
     remembered_states = [states.get(job_id) if job_id else None for job_id in remembered]

@@ -45,6 +45,7 @@ def current_search() -> dict:
             return {"search": None}
         snapshot = json.loads(saved[1])
     applications.filter_snapshot(snapshot)
+    pipeline.history_view(snapshot)
     pipeline.location_gate_view(snapshot)
     _refresh_states(snapshot)
     # The conditions can be corrected afterwards only while Jobcu keeps that search's jobs.

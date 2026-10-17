@@ -21,6 +21,56 @@ def test_names_are_normalised():
     assert normal_title("Hardwareentwickler (m/w/d)") == normal_title("Hardwareentwickler (w/m/d)")
 
 
+VACANCY_TEXT = " ".join(f"Fictional duty {i} involves development validation and reporting."
+                        for i in range(60))
+
+
+@pytest.mark.parametrize("role", [
+    "Power Electronics Engineer", "Registered Nurse", "Primary Teacher"])
+def test_recruitment_decorations_do_not_create_more_assessments_of_the_same_ad(role):
+    names = [role, f"Gesucht: {role}", f"Wir suchen: {role}", f"{role} gesucht",
+             f"{role} - Fictional Works Ltd", f"{role} - Berlin"]
+    copies = [job(job_id=str(i), title=title, company="Fictional Works Ltd", city="Deutschland",
+                  description=VACANCY_TEXT) for i, title in enumerate(names)]
+    grouped = group_duplicates(copies, KINDS)
+    assert len(grouped) == 1 and len(grouped[0].copies) == len(copies)
+    assert {c.title for c in grouped[0].copies} == set(names)  # original evidence retained
+
+
+@pytest.mark.parametrize("different", ["text", "town", "level", "reference", "requisition"])
+def test_decorated_titles_do_not_override_distinct_vacancy_evidence(different):
+    a = job(title="Power Electronics Engineer - Berlin", city="Deutschland",
+            description=VACANCY_TEXT, description_is_complete=True)
+    b = job(job_id="2", title="Gesucht: Power Electronics Engineer - Berlin", city="Deutschland",
+            description=VACANCY_TEXT, description_is_complete=True)
+    kinds = dict(KINDS)
+    if different == "text":
+        b.description = "Community outreach and family care. " * 50
+    elif different == "town":
+        b.title = "Power Electronics Engineer - Hamburg"
+    elif different == "level":
+        b.title = "Senior Power Electronics Engineer - Berlin"
+    elif different == "reference":
+        b.title = "Power Electronics Engineer 99881 - Berlin"
+    else:
+        a.source = b.source = "employer"
+        kinds["employer"] = "employer"
+    assert len(group_duplicates([a, b], kinds)) == 2
+
+
+@pytest.mark.parametrize("company", [
+    "Example Recruitment Services", "Example Recruitment Division"])
+def test_recruiter_division_label_needs_matching_vacancy_evidence(company):
+    first = job(company="Example Recruitment Ltd", description=VACANCY_TEXT)
+    second = job(job_id="2", company=company, description=VACANCY_TEXT)
+    assert len(group_duplicates([first, second], KINDS)) == 1
+    second.description = "Unrelated client position with a different remit. " * 30
+    assert len(group_duplicates([first, second], KINDS)) == 2
+    second.description = VACANCY_TEXT
+    second.country = "IE"
+    assert len(group_duplicates([first, second], KINDS)) == 2
+
+
 @pytest.mark.parametrize("dash", ["‐", "‑", "‒", "–", "—", "﹘", "－"])
 @pytest.mark.parametrize("title", [
     "Power Supply Engineer", "Patient Care Nurse", "Early Years Teacher"])

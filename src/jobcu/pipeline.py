@@ -2,6 +2,7 @@
 scoring and the result cards. search.py runs these steps and reports progress."""
 
 import dataclasses
+import json
 import logging
 import math
 import threading
@@ -14,8 +15,8 @@ from jobcu import applications, jobstore, travel
 from jobcu import places as place_list
 from jobcu.countries import COUNTRIES
 from jobcu.dedupe import SOURCE_KIND_RANK, JobGroup, group_duplicates
-from jobcu.filters import condition_fit
-from jobcu.freshness import earliest_possible, freshness, window_start
+from jobcu.filters import REASONS, condition_fit
+from jobcu.freshness import earliest_possible, freshness, parse_iso, window_start
 from jobcu.jobstore import JobState
 from jobcu.location import LocationPlan
 from jobcu.placenames import countries_in
@@ -167,8 +168,11 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
             group.source_kinds.get(group.copies[i].source,
                                    getattr(collected.sources.get(group.copies[i].source),
                                            "kind", "aggregator")), 3))
-        metadata_attempted = False
+        metadata_checked = set()
         for copy_index in order:
+            if (_complete_ad(group.best_description_copy)
+                    and not date_reader(group.copies[copy_index])):
+                continue
             try:
                 copy = group.copies[copy_index]
                 reader = collected.sources.get(copy.source)
@@ -179,7 +183,8 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
                 log.exception("Reading remembered full-ad evidence failed")
                 continue
             if known is not None and _complete_ad(known):
-                metadata_attempted = date_reader(copy)
+                if date_reader(copy):
+                    metadata_checked.add(copy_index)
                 if _complete_ad(copy):
                     # Fresh list text outranks cached text from the same requisition.
                     known = dataclasses.replace(
@@ -190,9 +195,9 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
                     )
                 group.copies[copy_index] = known
                 remembered += 1
-                break
-        if (_complete_ad(group.best_description_copy) and (metadata_attempted
-                or not any(date_reader(copy) for copy in group.copies))):
+        if (_complete_ad(group.best_description_copy) and not any(
+                date_reader(copy) and i not in metadata_checked
+                for i, copy in enumerate(group.copies))):
             continue
         options, seen = [], set()
         for copy_index in order:
@@ -200,7 +205,8 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
             identity = (copy.source, copy.source_job_id,
                         None if copy.source_job_id else copy.url)
             source, report = collected.sources.get(copy.source), reports.get(copy.source)
-            if _complete_ad(group.best_description_copy) and not date_reader(copy):
+            if (_complete_ad(group.best_description_copy)
+                    and (not date_reader(copy) or copy_index in metadata_checked)):
                 continue
             if (identity in seen or source is None or report is None
                     or type(source).load_details is JobSource.load_details
@@ -220,6 +226,7 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
     stopped = threading.Event()
     exhausted: set[str] = set()
     done, tried = [0], [0]
+    completed = set()
 
     def run_source(source_id: str, items: list[tuple[int, int]]) -> None:
         source = collected.sources[source_id]
@@ -264,8 +271,10 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
             complete = _complete_ad(groups[index].best_description_copy)
             with lock:
                 tried[0] += 1
-                if complete or not pending[index]:
-                    done[0] += 1
+                if not pending[index] or (complete and not any(
+                        date_reader(groups[index].copies[n]) for n in pending[index])):
+                    completed.add(index)
+                    done[0] = len(completed)
                 if tried[0] % 5 == 0 or done[0] == total:
                     run.update("details", "running", f"{done[0]} of {total} jobs checked for full "
                                f"ads, {tried[0]} copies checked{known_note}")
@@ -277,8 +286,9 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
             work.setdefault(groups[index].copies[copy_index].source, []).append((index, copy_index))
         with ThreadPoolExecutor(max_workers=len(work), thread_name_prefix="details") as pool:
             list(pool.map(lambda pair: run_source(*pair), work.items()))
-        pending = {i: options for i, options in pending.items()
-                   if options and not _complete_ad(groups[i].best_description_copy)}
+        pending = {i: options for i, options in pending.items() if options and (
+            not _complete_ad(groups[i].best_description_copy)
+            or any(date_reader(groups[i].copies[n]) for n in options))}
 
 
 def newest_first(groups: list[JobGroup], indexes: list[int]) -> list[int]:
@@ -341,6 +351,82 @@ def location_gate_view(snapshot: dict) -> None:
         jobs[section] = kept
     jobs["location_unchecked"] = pending
     jobs.setdefault("counts", {})["location_unchecked"] = len(pending)
+
+
+def history_view(snapshot: dict) -> None:
+    """Reflect confirmed copy links and repost age without rewriting saved assessments."""
+    jobs = (snapshot.get("result") or {}).get("jobs")
+    if not jobs:
+        return
+    sections = [s for s in ("cards", "date_unknown", "location_unchecked") if s in jobs]
+    cards = [card for section in sections for card in jobs[section]]
+    if not cards:
+        return
+    canonical = jobstore.canonical_ids([c["job_id"] for c in cards])
+    seen = jobstore.first_seen(list(canonical.values()))
+    started = parse_iso(snapshot.get("started_at"))
+    hours = (snapshot.get("form") or {}).get("posted_within_hours")
+    start = window_start(started, hours) if started and hours else None
+    groups = {}
+    for section in sections:
+        for card in jobs[section]:
+            groups.setdefault(canonical[card["job_id"]], []).append((section, card))
+    if (len(groups) == len(cards) and all(canonical[c["job_id"]] == c["job_id"] for c in cards)
+            and not any(start and seen.get(root) and seen[root] < start for root in groups)
+            and not any(c.get("is_new") and started and seen.get(c["job_id"])
+                        and seen[c["job_id"]] < started for c in cards)):
+        return
+    for section in sections:
+        jobs[section] = []
+    reposts, combined = 0, 0
+    for root, entries in groups.items():
+        first = seen.get(root)
+        combined += len(entries) - 1
+        if start and first and first < start:
+            reposts += 1
+            continue
+        section, original = min(entries, key=lambda pair: (
+            applications.opaque((pair[1].get("main_link") or {}).get("url")),
+            pair[1].get("summary_only", True), pair[1]["job_id"] != root))
+        card = {**original, "job_id": root}
+        if started and first and first < started:
+            card["is_new"] = False
+        if len(entries) > 1:
+            links = []
+            main = card.get("main_link") or {}
+            urls = {main.get("url")}
+            for _, copy in entries:
+                for link in [copy.get("main_link") or {}, *copy.get("also_on", [])]:
+                    if link.get("url") and link["url"] not in urls:
+                        urls.add(link["url"])
+                        links.append(link)
+            card["also_on"] = links
+            assessments = {json.dumps([c.get("score"), c.get("parts"), c.get("limits")],
+                                      sort_keys=True) for _, c in entries}
+            if len(assessments) > 1:
+                note = ("These copies were assessed separately. A new assessment is needed "
+                        "for one consistent match score.")
+                card.update(score=None, parts=None, limits=[], deductions=[], reasons=[],
+                            score_notes=[*card.get("score_notes", []), note],
+                            score_checks=[*card.get("score_checks", []),
+                                          {"text": note, "status": "unclear"}])
+        jobs[section].append(card)
+    counts = jobs.setdefault("counts", {})
+    visible = [c for section in sections for c in jobs[section]]
+    counts["shown"] = len(visible)
+    if "location_unchecked" in jobs:
+        counts["location_unchecked"] = len(jobs["location_unchecked"])
+    jobs["new_count"] = sum(bool(c.get("is_new")) for c in visible)
+    if reposts:
+        left_out = Counter()
+        for item in counts.get("left_out", []):
+            left_out[item["reason"]] += item["count"]
+        left_out[REASONS["repost"]] += reposts
+        counts["left_out"] = [{"reason": reason, "count": count}
+                              for reason, count in left_out.items()]
+    if combined:
+        counts["historical_copies_combined"] = (
+            counts.get("historical_copies_combined", 0) + combined)
 
 
 def build_card(

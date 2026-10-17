@@ -9,13 +9,14 @@ everything else about a search are always made fresh.
 
 import dataclasses
 import json
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
 from jobcu import db
-from jobcu.dedupe import JobGroup
+from jobcu.dedupe import JobGroup, group_duplicates
 from jobcu.freshness import parse_iso
-from jobcu.jobidentity import IdentityIndex, copy_key, rows
+from jobcu.jobidentity import IdentityIndex, aliases, copy_key, family_ids, rows
 from jobcu.jobidentity import identity_keys as identity_keys  # preserved helper for local tools
 from jobcu.sources.base import FoundJob
 
@@ -47,9 +48,55 @@ def states(job_ids: list[int]) -> dict[int, JobState]:
     if not job_ids:
         return {}
     with db.connect() as conn:
-        return {row[0]: JobState(bool(row[1]), bool(row[2]), bool(row[3])) for row in rows(
+        linked = aliases(conn)
+        found: dict[int, JobState] = {}
+        for row in rows(
             conn, "SELECT job_id, saved, applied, dismissed FROM job_states WHERE job_id IN ({})",
-            job_ids)}
+            family_ids(job_ids, linked)):
+            state = found.setdefault(linked.get(row[0], row[0]), JobState())
+            state.saved |= bool(row[1])
+            state.applied |= bool(row[2])
+            state.dismissed |= bool(row[3])
+        return {job_id: found[root] for job_id in job_ids
+                if (root := linked.get(job_id, job_id)) in found}
+
+
+def _link_copies(conn, groups: list[JobGroup]) -> None:
+    groups = [g for g in groups if len(g.copies) > 1]
+    if not groups:
+        return
+    linked = aliases(conn)
+    keys = [copy_key(c.source, c.source_job_id)
+            for g in groups for c in g.copies if c.source_job_id]
+    known = {r[0]: r[1] for r in rows(
+        conn, "SELECT key, job_id FROM job_keys WHERE key IN ({})", keys)}
+    for group in groups:
+        ids = {linked.get(known[key], known[key]) for c in group.copies if c.source_job_id
+               and (key := copy_key(c.source, c.source_job_id)) in known}
+        if len(ids) < 2 or len(group_duplicates(group.copies, group.source_kinds)) != 1:
+            continue
+        employer_ids = defaultdict(set)
+        for row in rows(conn, "SELECT key, job_id FROM job_keys WHERE job_id IN ({}) "
+                             "AND key LIKE 'copy:%'", family_ids(ids, linked)):
+            _, source, vacancy = row[0].split(":", 2)
+            if group.source_kinds.get(source) == "employer":
+                employer_ids[source].add(vacancy)
+        if any(len(vacancies) > 1 for vacancies in employer_ids.values()):
+            continue  # a recycled board copy cannot bridge two employer requisitions
+        root = min(ids)
+        children = family_ids(ids, linked) - {root}
+        conn.executemany("INSERT OR REPLACE INTO job_aliases (job_id, canonical_id) VALUES (?, ?)",
+                         [(child, root) for child in children])
+        linked.update({child: root for child in children})
+
+
+def link_copies(groups: list[JobGroup]) -> None:
+    """Link only currently confirmed duplicate copies before filtering or paid assessment."""
+    if not any(len(g.copies) > 1 for g in groups):
+        return
+    with db.connect() as conn:
+        conn.execute("BEGIN IMMEDIATE")
+        _link_copies(conn, groups)
 
 
 def remember(groups: list[JobGroup], search_id: int) -> tuple[list[int], list[bool]]:
@@ -60,6 +107,7 @@ def remember(groups: list[JobGroup], search_id: int) -> tuple[list[int], list[bo
         # Serialize identity allocation, so another writer cannot register these copies
         # between the lookup and bulk save. Owner marks are never rewritten here.
         conn.execute("BEGIN IMMEDIATE")
+        _link_copies(conn, groups)
         index = IdentityIndex.load(conn, groups)
         existing = [job_id for group in groups if (job_id := index.resolve(group)) is not None]
         first_search = {row[0]: row[1] for row in rows(
@@ -91,23 +139,39 @@ def first_seen(job_ids: list[int]) -> dict[int, datetime]:
     if not job_ids:
         return {}
     with db.connect() as conn:
-        return {row[0]: when for row in rows(
-            conn, "SELECT id, first_seen_at FROM jobs WHERE id IN ({})", job_ids)
-                if (when := parse_iso(row[1])) is not None}
+        linked = aliases(conn)
+        found = {}
+        for row in rows(conn, "SELECT id, first_seen_at FROM jobs WHERE id IN ({})",
+                        family_ids(job_ids, linked)):
+            if (when := parse_iso(row[1])) is not None:
+                root = linked.get(row[0], row[0])
+                found[root] = min(found.get(root, when), when)
+        return {job_id: found[root] for job_id in job_ids
+                if (root := linked.get(job_id, job_id)) in found}
+
+
+def canonical_ids(job_ids: list[int]) -> dict[int, int]:
+    with db.connect() as conn:
+        linked = aliases(conn)
+        return {job_id: linked.get(job_id, job_id) for job_id in job_ids}
 
 
 def set_state(job_id: int, **changes: bool) -> JobState:
     allowed = {"saved", "applied", "dismissed"}
     changes = {k: bool(v) for k, v in changes.items() if k in allowed}
     with db.connect() as conn:
+        conn.execute("BEGIN IMMEDIATE")
         if conn.execute("SELECT 1 FROM jobs WHERE id = ?", (job_id,)).fetchone() is None:
             raise KeyError(job_id)
-        conn.execute("INSERT OR IGNORE INTO job_states (job_id) VALUES (?)", (job_id,))
+        linked = aliases(conn)
+        members = family_ids([job_id], linked)
+        conn.executemany("INSERT OR IGNORE INTO job_states (job_id) VALUES (?)",
+                         [(member,) for member in members])
         for name, value in changes.items():
-            conn.execute(
+            conn.executemany(
                 f"UPDATE job_states SET {name} = ?, "
                 "updated_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE job_id = ?",
-                (int(value), job_id),
+                [(int(value), member) for member in members],
             )
     return states([job_id])[job_id]
 
@@ -147,16 +211,29 @@ def marked_cards(kind: str) -> list[dict]:
     if kind not in ("saved", "applied"):
         return []
     with db.connect() as conn:
+        linked = aliases(conn)
         rows = conn.execute(
             f"SELECT c.card_json, s.saved, s.applied, s.dismissed FROM job_states s "
             f"JOIN job_cards c ON c.job_id = s.job_id WHERE s.{kind} = 1 "
             "ORDER BY s.updated_at DESC"
         ).fetchall()
+        stored_cards = {row[0]: row[1] for row in conn.execute(
+            "SELECT job_id, card_json FROM job_cards WHERE job_id IN ("
+            "SELECT canonical_id FROM job_aliases)")}
     cards = []
+    seen = set()
     for row in rows:
         card = json.loads(row[0])
-        card["state"] = {"saved": bool(row[1]), "applied": bool(row[2]), "dismissed": bool(row[3])}
+        root = linked.get(card["job_id"], card["job_id"])
+        if root in seen:
+            continue
+        seen.add(root)
+        card = json.loads(stored_cards[root]) if root in stored_cards else card
+        card["job_id"] = root
         cards.append(card)
+    combined = states([c["job_id"] for c in cards])
+    for card in cards:
+        card["state"] = dataclasses.asdict(combined.get(card["job_id"], JobState()))
     return cards
 
 

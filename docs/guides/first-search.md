@@ -260,6 +260,11 @@ for a later check or condition edit. Earlier saved scores do not turn an uncheck
 into a qualifying match; the saved history is preserved. Research and travel checks can still
 use their normal service allowances, so this rule is not a provider spending cap.
 
+Confirmed duplicate copies share one card, assessment and set of marks. If historical copies
+were assessed separately and disagree, Jobcu says that a new assessment is needed; it does not
+pick the highest old score. Original saved assessments remain in the local history. A matched
+older copy or remembered earlier showing can rule out a repost despite a new board date.
+
 Above the results, **Understood as** shows how Jobcu interpreted your location conditions.
 Read it before relying on the matches.
 

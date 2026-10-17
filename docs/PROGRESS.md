@@ -10,11 +10,16 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
-- The owner’s location-before-scoring rule is implemented on `codex/reported-result-integrity`:
-  **1,889 offline tests** pass, including a regression that sends only qualifying workplaces
-  for scoring and preserves unresolved candidates. Missing-workplace research moves before
-  admission and its findings are reused. Pending jobs have a separate unscored list; historical
-  response views preserve stored assessments and marks. Exact-head publication is pending.
+- Location eligibility before paid scoring is merged in
+  [PR #144](https://github.com/UtkuDenizAltiok/jobcu/pull/144): **1,889 offline tests** pass.
+  PR head `aa4103c` and main `d37bd0f` passed exact Mac/Windows/privacy CI `39042964831` and
+  `39043329386`; main/locked dependencies are synchronized. Pending jobs stay available
+  without scoring; missing-workplace findings are reused and saved assessments stay intact.
+- Duplicate/history, matched date-reader recovery and the dated BA source-permission hold are
+  implemented on `codex/duplicate-evidence-integrity`: **1,913 offline tests** pass. Ten
+  targeted regressions reproduce the old duplicate/missed-date behavior before the repairs.
+  Confirmed historical copy links preserve keys, rows, snapshots and raw marks; distinct native
+  employer requisitions remain separate. Publication and exact-head CI are pending.
 
 - Atomic web-reservation accounting is merged in
   [PR #141](https://github.com/UtkuDenizAltiok/jobcu/pull/141): **1,878 offline tests** pass.
@@ -85,7 +90,7 @@ without cutting suitable jobs or weakening evidence. No new search or paid API t
 Preserve owner data, ratings and existing limits. Prior exact-run safe repairs are complete;
 the native research candidate remains unadopted and its cost/evidence dependency stays parked.
 
-Branch: `codex/reported-result-integrity`; private recovery index:
+Branch: `codex/duplicate-evidence-integrity`; private recovery index:
 `assistant-review-checkpoint.json` outside Git. Reuse the unchanged **1,878-test** final code
 baseline and exact main Mac/Windows/privacy CI `39038969581` at `4b7a081`; documentation since
 the final full local run did not change source, tests, dependencies or environment.
@@ -103,10 +108,13 @@ the final full local run did not change source, tests, dependencies or environme
    checks. Review the full diff; publish exact-head Mac/Windows/privacy CI, merge with a merge
    commit, synchronize main and verify its exact CI. Save private case outcomes and dependencies.
 
-**Exact next action:** publish the tested location-before-scoring step, require exact PR/main
-Mac/Windows/privacy CI, merge and synchronize. Then continue the named identity, freshness,
-full-ad fit and closed-link investigation within this same goal. No blanket score cut,
-assumed city eligibility, automatic owner-data correction or paid verification is authorized.
+**Exact next action:** publish the tested duplicate/history/date/source-hold step, require
+exact PR/main Mac/Windows/privacy CI, merge and synchronize. Then apply only the privately
+reviewed confirmed-copy links through Jobcu code after scratch verification, preserving every
+historical row/key/mark, and verify the response without a new search or score. Continue the
+named specialist-fit evidence and workplace discrepancy investigation within this same goal.
+Do not infer original vacancy age or closure from an inaccessible page, merge distinct native
+requisitions, guess city eligibility or make paid verification calls.
 
 **Parked research dependency:** PR #137 at `ac25239` remains an unmerged native transport
 candidate. A documented enforceable hosted-query budget or permitted controlled interface,

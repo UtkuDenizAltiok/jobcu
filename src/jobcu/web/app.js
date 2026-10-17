@@ -1429,6 +1429,8 @@ function renderDetails(search) {
         ? `${titles.unrelated_ads} left out by the early check of employer titles as clearly unrelated`
         : null,
       `${c.different_jobs} different jobs after ${titles ? "checking extra titles and " : ""}removing duplicates`,
+      c.historical_copies_combined
+        ? `${c.historical_copies_combined} duplicate cards combined from saved history` : null,
       ...c.left_out.map((item) => `${item.count} left out: ${item.reason}`),
       `${c.unrelated} left out as clearly unrelated to what you're looking for`,
       c.not_scored ? `${c.not_scored} not scored (scoring limit)` : null,

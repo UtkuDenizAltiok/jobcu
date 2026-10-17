@@ -10,7 +10,7 @@ from jobcu.location import Place
 from jobcu.sources import adzuna, bundesagentur, reed
 from jobcu.sources.base import JobQuery, SourceContext, SourceError, SourceReport
 from jobcu.sources.budget import BudgetExhausted, Limits, RequestBudget
-from jobcu.sources.http import Blocked, PoliteClient
+from jobcu.sources.http import Blocked, PoliteClient, SourceTermsDenied, terms_denial
 
 NOW = datetime.now(UTC)
 
@@ -216,19 +216,11 @@ def test_bundesagentur_reads_country_types_and_first_publication_date():
                                "breite": 48.3, "laenge": 14.3}],
     }
 
-    def handler(request):
-        if request.url.path.endswith("/jobs"):
-            return httpx.Response(200, json={"ergebnisliste": [item], "maxErgebnisse": 1})
-        return httpx.Response(200, json={**item, "stellenangebotsBeschreibung": "Full ad text"})
-
-    source = bundesagentur.BundesagenturSource()
-    ctx = context(handler, "bundesagentur")
-    query = JobQuery(["DE"], [], [term("Hardwareentwickler", "de")], 24, NOW)
-    jobs = list(source.search(query, ctx))
-    assert len(jobs) == 1
-    assert jobs[0].country == "AT" and jobs[0].job_types == ["fixed_term"]
-    assert jobs[0].url.endswith("/jobdetail/10001-1")
-    full = source.load_details(jobs[0], ctx)
+    # Archived/saved evidence remains readable while automated source access is paused.
+    job = bundesagentur.to_found_job(item)
+    assert job.country == "AT" and job.job_types == ["fixed_term"]
+    assert job.url.endswith("/jobdetail/10001-1")
+    full = bundesagentur.to_found_job(item, {**item, "stellenangebotsBeschreibung": "Full ad text"})
     assert full.description == "Full ad text" and full.description_is_complete
 
 
@@ -243,11 +235,36 @@ def test_bundesagentur_names_a_state_given_only_as_a_code():
     assert bundesagentur.state_name(None) is None
 
 
-def test_bundesagentur_changed_interface_is_reported_plainly():
-    ctx = context(lambda request: httpx.Response(404, json={}), "bundesagentur")
+def test_bundesagentur_terms_hold_prevents_requests_even_when_called_directly():
+    def unexpected(request):
+        pytest.fail("A restricted source must not receive a request")
+    ctx = context(unexpected, "bundesagentur")
     query = JobQuery(["DE"], [], [term("Hardwareentwickler", "de")], 24, NOW)
-    with pytest.raises(SourceError, match="may have changed"):
-        list(bundesagentur.BundesagenturSource().search(query, ctx))
+    source = bundesagentur.BundesagenturSource()
+    assert "prohibit automated" in source.unavailable_reason(None)
+    with pytest.raises(SourceError, match="prohibit automated"):
+        list(source.search(query, ctx))
+    assert ctx.report.requests == 0
+
+
+@pytest.mark.parametrize("redirect", [False, True])
+def test_terms_held_agency_hosts_cannot_be_requested_directly_or_through_redirects(redirect):
+    held = "https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v6/jobs"
+    seen = []
+    def handler(request):
+        seen.append(str(request.url))
+        assert request.url.host != "rest.arbeitsagentur.de"
+        return (httpx.Response(302, headers={"Location": held})
+                if request.url.path == "/redirect" else httpx.Response(200, text="Allowed ad"))
+    ctx = context(handler)
+    try:
+        with pytest.raises(SourceTermsDenied, match="prohibit automated"):
+            ctx.http.get("https://jobs.example.test/redirect" if redirect else held)
+        assert seen == (["https://jobs.example.test/redirect"] if redirect else [])
+        assert ctx.http.get("https://jobs.example.test/allowed").status_code == 200
+        assert terms_denial("https://arbeitsagentur.de.example.test/jobs") is None
+    finally:
+        ctx.http.close()
 
 
 # --- Budgets and polite requests --------------------------------------------------------

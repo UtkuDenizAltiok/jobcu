@@ -40,6 +40,16 @@ def rows(conn: sqlite3.Connection, query: str, values: Iterable) -> Iterator[sql
         yield from conn.execute(query.format(",".join("?" * len(batch))), batch)
 
 
+def aliases(conn: sqlite3.Connection) -> dict[int, int]:
+    """Only proven historical copy links, stored flat so lookups cannot form cycles."""
+    return dict(conn.execute("SELECT job_id, canonical_id FROM job_aliases"))
+
+
+def family_ids(ids: Iterable[int], linked: dict[int, int]) -> set[int]:
+    roots = {linked.get(job_id, job_id) for job_id in ids}
+    return roots | {job_id for job_id, root in linked.items() if root in roots}
+
+
 class IdentityIndex:
     """One transaction's relevant keys; registering a group updates later batch matches."""
 
@@ -50,6 +60,7 @@ class IdentityIndex:
         self.countries: dict[int, set[str]] = defaultdict(set)
         self.ambiguous_names: dict[int, set[str]] = defaultdict(set)
         self.entries: dict[int, list[tuple[str, str]]] = {}
+        self.linked: dict[int, int] = {}
 
     def name_entries(self, group: JobGroup) -> list[tuple[str, str]]:
         if id(group) not in self.entries:
@@ -73,6 +84,7 @@ class IdentityIndex:
     @classmethod
     def load(cls, conn: sqlite3.Connection, groups: list[JobGroup]) -> "IdentityIndex":
         index = cls()
+        index.linked = aliases(conn)
         keys = [copy_key(c.source, c.source_job_id) for g in groups for c in g.copies
                 if c.source_job_id]
         for row in rows(conn, "SELECT key, job_id FROM job_keys WHERE key IN ({})", keys):
@@ -90,6 +102,7 @@ class IdentityIndex:
                       if copy.source_job_id and (key := copy_key(copy.source, copy.source_job_id))
                       in index.copies}
         candidates.update(job_id for key in names for job_id in index.names[key])
+        candidates = family_ids(candidates, index.linked)
         for row in rows(conn, "SELECT key, job_id FROM job_keys WHERE job_id IN ({}) "
                              "AND key LIKE 'copy:%'", candidates):
             index._add_copy(row["key"], row["job_id"])
@@ -104,16 +117,19 @@ class IdentityIndex:
             except (ValueError, AttributeError):
                 continue
             if isinstance(country, str) and country:
-                index.countries[row["job_id"]].add(country.upper())
+                root = index.linked.get(row["job_id"], row["job_id"])
+                index.countries[root].add(country.upper())
         return index
 
     def _add_copy(self, key: str, job_id: int) -> None:
+        job_id = self.linked.get(job_id, job_id)
         self.copies.setdefault(key, job_id)
         _, source, vacancy = key.split(":", 2)
         if vacancy:
             self.sources[job_id][source].add(vacancy)
 
     def _add_name(self, key: str, job_id: int, country: str) -> None:
+        job_id = self.linked.get(job_id, job_id)
         self.names[key].add(job_id)
         if country:
             self.countries[job_id].add(country)

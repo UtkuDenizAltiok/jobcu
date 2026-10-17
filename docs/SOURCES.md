@@ -38,7 +38,7 @@ Countries below describe the adapter's scope, not complete market coverage.
 |---|---|---|
 | Adzuna | Ten supported countries; official API, app ID/key | [Record](archive/SOURCE-RESEARCH.md#adzuna). No Ireland; descriptions are summaries. Blocked ad pages are not fetched. |
 | Reed | UK; official API/key, job details | [Record](archive/SOURCE-RESEARCH.md#reed). List dates have day precision; full details are separate. |
-| Bundesagentur | Germany; public endpoint used by Jobsuche | [Record](archive/SOURCE-RESEARCH.md#bundesagentur). Unofficial API contract; may change without notice. |
+| Bundesagentur | Automated access paused | [Current terms hold](#bundesagentur-access-hold--2026-10-17) supersedes the archived public-endpoint assumption. Saved evidence remains readable. |
 | JobsIreland | Ireland; public list and job pages | [Record](archive/SOURCE-RESEARCH.md#jobsireland). Match titles locally; an empty first page may be a service failure. |
 | Arbeitnow | Germany/UK feeds; public API | [Record](archive/SOURCE-RESEARCH.md#arbeitnow). Free-text locations need interpretation. |
 | jobs.ac.uk | UK/Ireland; search pages and JobPosting data | [Record](archive/SOURCE-RESEARCH.md#jobsacuk). Academic/research/technical jobs; personal-use terms. |
@@ -59,6 +59,21 @@ The [2026-10-06 country matrix](archive/SOURCE-RESEARCH.md#engineering) measures
 only, not reachable vacancies or engineering recall. All seven priority countries are represented.
 
 ## Recorded restrictions and candidates
+
+### Bundesagentur access hold — 2026-10-17
+
+The current [portal terms](https://www.arbeitsagentur.de/nutzungsbedingungen), section 2a(3),
+prohibit robots/webspiders and automated data collection contrary to the intended interface use.
+This supersedes the archived assumption that the public website endpoint was sufficient
+permission. Pause automated search/details and deny these destinations in the HTTP client,
+including redirects, until an explicitly permitted interface or permission is established.
+Keep the historical parser, source identifiers, saved ads and manual links; no login, alternate
+host or blocked-page workaround is authorized. Other permitted sources continue independently.
+The hold has a coverage cost; no complete replacement is claimed.
+
+A portal copy's first-publication date is not proof of an employer vacancy's original date.
+Identity, earlier matching copies and permitted original posting/closing metadata are still
+needed to distinguish a fresh opening from a refreshed advertisement.
 
 These are retained decisions from dated checks; no new access was tested during this cleanup.
 
