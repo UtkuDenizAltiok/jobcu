@@ -529,6 +529,11 @@ these ad/workplace checks. Ordinary comparisons run after current location/trave
 so an explicit retry cannot spend comparison requests on a failed or unresolved hard condition.
 Focused comparisons also retain a previously grounded central-skill flag when a reply omits it;
 an inconclusive retry cannot release the core-match restriction.
+Both focused comparisons and online-ad updates use the same replacement policy: an unsupported
+ad/profile quote cannot overwrite an earlier grounded clause. Retain the latest failed proposal
+separately, show its verification failure, and keep the earlier uncertainty and score restriction.
+Supported later evidence can still resolve the requirement and restore the proposed points;
+failed replies neither establish a blocker nor accumulate retry history or extra requests.
 
 `vacancy_evidence.py` and migration 18 retain independently verified original closure or a
 conservative latest-possible publication bound for the exact saved vacancy. This is separate
