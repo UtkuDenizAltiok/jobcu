@@ -166,10 +166,10 @@ small batches, and each batch can need a web-research answer and another AI answ
 the facts. Provider thinking, search tools, connection retries and throttling can make this
 stage slow. Its job counter measures progress, not proven accuracy or an estimate of time left.
 If an online check fails, the existing job evidence is kept and missing details stay uncertain.
-After a connection interruption, Jobcu waits for one check to recover before sending more
-checks over the same connection path. Your remaining jobs stay queued; normal parallel work
-resumes after a successful answer. This can make recovery slower while avoiding simultaneous
-paid retries. Stop also cancels queued work.
+If the connection fails before a request is sent, Jobcu can wait and retry. If a reply is lost
+after the request may have reached your provider, it stops automatic requests on that path:
+the provider may already have charged. Completed work is kept. Once the service is available,
+use **Try to check it again** for saved evidence. Stop also cancels queued work.
 Jobs already known to be outside your selected job types or excluded remote-work choice do
 not receive these extra online checks.
 
@@ -304,6 +304,13 @@ complete answer for up to one hour when the search, question, cities and provide
 match. It retries conversion without repeating that web research. This temporary recovery
 memory is not saved across app restarts or new searches. Unsupported source links and incomplete
 usage do not establish reusable verified city facts.
+
+When reviewed public reference pages are available for your exact condition, Jobcu reads them
+again and asks your chosen AI to compare their evidence, without buying hosted web searches
+for that comparison. Supporting quotes must exist in those pages and identify the city.
+Unknown facts still need research; a failed comparison keeps them unchecked. A measured
+journey is requested only after a suitable reference city has been established. This does
+not change your population threshold, journey limit or chosen AI effort.
 
 Missing original text, unsupported facts or an unavailable service can still leave checks
 unfinished. Repeating a request cannot establish experience absent from your profile. Read

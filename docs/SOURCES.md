@@ -1164,3 +1164,36 @@ published-post lists and description data; it is an existing adapter, not a new 
 source. Structured employer APIs may improve evidence/reliability, but their value depends on
 employer coverage, original dates and unique jobs. No adapter was added/removed or vacancy
 queried for this comparison; existing restrictions and request budgets remain.
+
+
+## Native streams and selected reference pages — 2026-10-18
+
+Google's [Interactions API](https://ai.google.dev/api/interactions-api) supports streaming,
+structured response schemas, medium thinking and `store=false` without a previous interaction.
+The [streaming guide](https://ai.google.dev/gemini-api/docs/streaming) documents early lifecycle
+events and final completion. The [error guide](https://ai.google.dev/gemini-api/docs/api-errors)
+distinguishes invalid requests, refusals, quotas and retryable server failures. A partial
+usage object is not a complete receipt. SDK automatic retries are disabled; Jobcu owns attempts.
+
+[Google Search grounding](https://ai.google.dev/gemini-api/docs/google-search) bills unique
+queries for the relevant model generation, rather than one fixed fee per API request. The
+current Google Search tool schema has no per-request query ceiling. An instruction asking for
+four searches is not an enforced four-query limit. Directly supplied source text needs no
+hosted search tool; input and output tokens still cost money. No invoice saving is established
+by this contract alone.
+
+The federal election authority's [official city/district tables](https://www.bundeswahlleiterin.de/dam/jcr/903d2260-fbd1-457f-a7d5-2580db9b0580/btw25_wbztabs_gesamt.pdf)
+permit reproduction/distribution with attribution (PDF page 2). City rows can be split across
+constituencies and multiple pages; counties and city states need their correct geographic
+aggregation. The [national results](https://www.bundeswahlleiterin.de/bundestagswahlen/2025/ergebnisse/bund-99.html)
+provide the corresponding election baseline. A dated election file alone cannot establish
+that a later election has not occurred.
+
+[The PopuList](https://popu-list.org/) publishes classifications for public use with citation;
+its [methodology](https://popu-list.org/elementor-page-1041/) explains coverage and expert review.
+Version 4.0 covers national elections through May 2026; parties below its inclusion threshold
+may be absent. Its vote-share graph is explicitly approximate and is not an official result.
+Do not equate every unlisted party with a known negative category. Use official election
+figures and explicit category coverage, or rigorous bounds for remaining unclassified votes.
+Robots/access checks and the dated permission review remain required for each selected source.
+Source selections, actual questions, evidence and verification receipts stay private.

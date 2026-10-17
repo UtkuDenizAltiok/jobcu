@@ -6,7 +6,7 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ## Right now
 
-*Updated 2026-10-17. Engineering checks use fictional data.*
+*Updated 2026-10-18. Engineering checks use fictional data.*
 
 ### State
 
@@ -104,45 +104,36 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Source repairs complete; saved city/service verification remains parked.**
+**City/journey and provider connection/cost recovery is in progress.**
 
-PR #149 holds the final shared unsupported-reply safeguard and this handover. Its final local
-suite has **1,978 passing tests**, one existing dependency warning; Ruff/privacy, JS syntax and
-whitespace pass. Eighteen fictional electronics, nursing and teaching cases first reproduced
-the overwrite, then verified both recovery paths, bounded diagnostics and supported resolution.
-Confirm actual PR/main publication state and exact Mac/Windows/privacy CI before treating
-publication as complete; the private checkpoint retains those receipts. Do not rerun unchanged
-source checks or open another improvement goal merely to prepare a chat.
+Branch: `codex/location-connection-recovery`, source worktree attached to this chat. The
+unchanged baseline is **1,978 tests** at main `bebbf64`; exact PR/main CI `39064042453` /
+`39064322926` passed Mac, Windows and privacy. Preserve owner data, limits, chosen model/effort
+and candidate coverage. No new search is authorized by this task.
 
-PR #148 head `6746810` passed exact Mac/Windows/privacy CI `39062389319`; merge `2c503e9`
-passed exact-main CI `39062917244`. Final local suite: **1,960 passing tests**, one existing
-Starlette/AnyIO deprecation warning, plus Ruff/privacy, 20 document checks, JS syntax and
-whitespace. The fictional source/undo interface was verified and its preview stopped.
-Main and locked dependencies are synchronized. Detailed original/profile verification,
-private data application and integrity receipts are indexed by `assistant-review-checkpoint.json`;
-read authorization/revocations before private access. No new search or paid test was made.
-Disposable document/database/preview copies are removed.
+Implemented: stateless native event decoding/receipts, terminal error classification,
+provider-neutral suspension after ambiguously charged connection failures, and fresh
+selected-public-source comparisons before hosted city research. Fictional regressions cover
+protocol failures, quote/city scope, source permission/access failures and journey admission.
+The final local suite has **2,082 passing tests**, one existing dependency warning, plus
+Ruff/privacy/docs/JS/whitespace checks. The paid packet stopped at its first failure; a final
+source-backed comparison hit its output ceiling. Answer space and complete-failure receipt
+handling are now repaired offline. Further paid work awaits the new bounded continuation
+answer; do not reopen the closed packet. Publication/CI is next, not yet a merged claim. Read ENGINEERING and SOURCES for current decisions and contracts.
 
-The remaining evidence is specific: missing city eligibility facts and journeys from interrupted
-research, and a live provider assessment of incomplete specialist-role evidence. Targeted
-profile/original diagnostics are not a replacement numerical rating or a blinded benchmark.
-The original-date and unavailable-ad software paths are complete; do not repeat the finished
-private verification or reapply its facts. Current source-permission holds remain in SOURCES.
-A technical HTTP/tool access failure is not itself closure and need not prevent permitted
-normal-browser verification of the exact linked original.
+**Exact next action:** check the private checkpoint for the pending bounded continuation answer,
+without rerunning a used packet or spending before approval. If approved, run its prepared
+source-backed city/journey script once, stopping on first failure/incomplete receipt.
+Otherwise finish the tested source step. Finish final checks/diff review, publish,
+require exact-head Mac/Windows/privacy CI, merge with a merge commit, synchronize and verify
+main CI. Install reviewed source selections or verified facts only after successful validation
+and a backup, with no active search. Retain precise unresolved facts and external dependencies.
 
-**Exact next action:** finish PR #149 publication if Git/CI still show it pending; otherwise
-await evidence and applicable authority for the saved city/route checks.
-Use the private checkpoint's remaining scope; verify exact reference facts, then journeys, then
-reassess only qualifying jobs. No paid packet is open. Before any paid research proposal,
-establish enforceable request/tool charges and a bounded budget. Do not repeat hosted research
-with unbounded query charges, start another search or treat unknown locations as matches.
-
-**Parked research dependency:** PR #137 at `ac25239` remains an unmerged native transport
-candidate. A documented enforceable hosted-query budget or permitted controlled interface,
-complete protocol/evidence verification and new bounded spending authority are needed before
-any further paid test proposal. Original external connection causes and invoice reconciliation
-remain unresolved. This new task does not reopen that packet.
+PR #149 is complete; do not repeat its checks or reapply earlier original-ad facts. The earlier
+native candidate PR #137 is superseded only by the tested portions adopted in this branch;
+its old paid packets remain closed. Current bounded authority and billing diagnosis are
+private. Original request-level invoice allocation and the exact external disconnecting
+component must not be invented from daily billing totals or a successful later request.
 
 The earlier whole-pipeline review also has these **parked dependencies**; do not resume them
 without evidence and authority relevant to the active task:
@@ -167,15 +158,11 @@ without evidence and authority relevant to the active task:
 
 ### Waiting on the owner
 
-The active task's bounded test packets are closed. A further paid request needs new bounded
-authority. The owner confirmed active billing with an enforced cap within the
-total service budget; preserve it and the local ceiling. A local estimate is not an invoice
-or provider cap. The exact run and capture are finished; no additional search or paid
-experiment is scheduled.
-Restoring provider service does not retroactively complete a saved search's missing checks.
-A fresh local chat can use [Start](PROMPTS.md#start-a-session) to verify recovery state
-and wait. Use [Review](PROMPTS.md#review-a-search) for later saved evidence and
-[End](PROMPTS.md#end-a-session) to park a session.
+No account change, new search or provider/model switch is pending. Current bounded development
+verification authority and stop conditions are in the private checkpoint; all earlier packets
+remain closed. Preserve existing local/provider limits. A local estimate is not an invoice or
+provider cap. Service restoration does not retroactively complete missing search checks.
+A fresh chat follows [Start](PROMPTS.md#start-a-session) and recovers In progress before new work.
 
 ### Verify before relying on
 

@@ -84,6 +84,24 @@ class ModelPrice(BaseModel):
     currency: str = "USD"
 
 
+class PlaceEvidencePage(BaseModel):
+    """Selected public references, not cached facts or provider answers."""
+
+    url: str
+    title: str
+    country: str
+    towns: list[str] = []  # empty: country context, insufficient as this city's own evidence
+    pages: list[int] = []  # optional one-based PDF pages; never silently truncate a document
+    pages_by_town: dict[str, list[int]] = {}  # whole table pages, not remembered place verdicts
+    aliases_by_town: dict[str, list[str]] = {}  # reviewed names appearing in a shared table
+    permission: str  # dated source/permission review, retained privately with the selection
+
+
+class PlaceEvidenceSet(BaseModel):
+    fact_key: str  # exact interpreted question's SHA-256; not a fuzzy political/keyword rule
+    sources: list[PlaceEvidencePage]
+
+
 JobType = Literal[
     "full_time_permanent",
     "fixed_term",
@@ -119,6 +137,7 @@ class Settings(BaseModel):
     use_web_search: bool = True
     # Sources are all on unless switched off here.
     sources_disabled: list[str] = []
+    place_evidence: list[PlaceEvidenceSet] = []
 
     @model_validator(mode="before")
     @classmethod
