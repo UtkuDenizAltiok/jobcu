@@ -160,6 +160,63 @@ def test_focused_retry_cannot_erase_a_still_unconfirmed_central_skill(expertise)
     assert job.scored["parts"]["role_and_skills"] == 35 and job.scored["score"] <= 80
 
 
+@pytest.mark.parametrize(("role", "expertise"), [
+    ("Hardware engineer", "High-speed circuit design"),
+    ("Nurse", "Critical-care ventilation"),
+    ("Teacher", "Advanced physics teaching"),
+])
+@pytest.mark.parametrize("invalid", ["missing_ad", "invented_ad", "invented_profile"])
+@pytest.mark.parametrize("route", ["focused_retry", "online_ad"])
+def test_unsupported_replacement_preserves_grounded_requirement_and_score_limit(
+        role, expertise, invalid, route):
+    ad = f"Expert {expertise} is required."
+    person = PERSON.model_copy(update={"current_or_last_role": role, "field": role,
+                                       "skills": [], "summary": "General supervised practice."})
+    req = requirements.RequirementCheck(requirement=expertise, ad_words=ad,
+                                       profile_words="", status="unclear", central_to_role=True)
+    job = saved([req])
+    job.group.copies[0].title = role
+    job.group.copies[0].description = ad
+    job.scored = scoring.finish(answer([req]), person, ad_text=ad, complete=True)
+    earlier = copy.deepcopy(job.scored["evidence"]["requirement_checks"][0])
+    changed = {"ad_words": "" if invalid == "missing_ad" else "Invented prerequisite."}
+    if invalid == "invented_profile":
+        changed = {"profile_words": "Expert independent specialist practice."}
+    reply = recheck.Comparison(**{**req.model_dump(), "id": "R0", "status": "met",
+                                  "profile_words": person.summary,
+                                  "central_to_role": False, **changed})
+    if route == "focused_retry":
+        client = Client([reply])
+        assert recheck.compare(client, job, person) and len(client.calls) == 1
+    else:
+        grounded = requirements.ground([reply], ad, person.model_dump())
+        job.scored = scoring.with_ad_read_online(
+            job.scored, person, [], None, requirement_checks=grounded)
+    retained = job.scored["evidence"]["requirement_checks"][0]
+    assert {key: retained[key] for key in earlier} == earlier
+    assert retained["last_retry"]["proposed_status"] == "met"
+    assert retained["last_retry"]["status"] == "unclear"
+    issue = "profile_quote_unverified" if invalid == "invented_profile" else "ad_quote_unverified"
+    assert issue in retained["last_retry"]["grounding_issues"]
+    assert job.scored["parts"]["role_and_skills"] == 35 and job.scored["score"] <= 80
+    assert any("latest retry" in note for note in job.scored["notes"])
+    assert not any(limit["at"] == 55 for limit in job.scored["limits"])
+    # Free validation and a second failed response cannot promote it or grow retry history.
+    recheck.refresh_validation(job, person)
+    if route == "focused_retry":
+        recheck.compare(Client([reply]), job, person)
+    assert job.scored["parts"]["role_and_skills"] == 35
+    assert "last_retry" not in retained["last_retry"]
+    # Supported new profile evidence must still resolve uncertainty without a sticky cap.
+    qualified = person.model_copy(update={"skills": [expertise]})
+    supported = reply.model_copy(update={"ad_words": ad, "profile_words": expertise})
+    assert recheck.compare(Client([supported]), job, qualified)
+    resolved = job.scored["evidence"]["requirement_checks"][0]
+    assert resolved["status"] == "met" and "last_retry" not in resolved
+    assert job.scored["parts"]["role_and_skills"] == 38 and job.scored["score"] > 80
+    assert not any("latest retry" in note for note in job.scored["notes"])
+
+
 def test_explicit_recovery_rearms_only_incomplete_online_evidence():
     from jobcu import jobplace
 

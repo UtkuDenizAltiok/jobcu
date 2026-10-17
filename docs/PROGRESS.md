@@ -10,6 +10,13 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
+- Shared requirement-evidence replacement is repaired in
+  [PR #149](https://github.com/UtkuDenizAltiok/jobcu/pull/149): **1,978 offline tests** pass.
+  Eighteen regressions first reproduced unsupported replies overwriting grounded requirements
+  in both focused recovery and online-ad updates. Failed replacements retain the earlier
+  clause and score restriction, with the latest verification failure visible; supported later
+  evidence still resolves it. Final publication state is the PR's actual head and CI, with
+  exact receipts retained in the private recovery index.
 - Explicit saved-evidence recovery and verified exact-original facts are merged in
   [PR #148](https://github.com/UtkuDenizAltiok/jobcu/pull/148): **1,960 offline tests** pass.
   Complete checks are reused; incomplete attempts are retryable only through explicit recovery.
@@ -97,7 +104,15 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Safe saved-evidence recovery is complete; city/service verification remains parked.**
+**Source repairs complete; saved city/service verification remains parked.**
+
+PR #149 holds the final shared unsupported-reply safeguard and this handover. Its final local
+suite has **1,978 passing tests**, one existing dependency warning; Ruff/privacy, JS syntax and
+whitespace pass. Eighteen fictional electronics, nursing and teaching cases first reproduced
+the overwrite, then verified both recovery paths, bounded diagnostics and supported resolution.
+Confirm actual PR/main publication state and exact Mac/Windows/privacy CI before treating
+publication as complete; the private checkpoint retains those receipts. Do not rerun unchanged
+source checks or open another improvement goal merely to prepare a chat.
 
 PR #148 head `6746810` passed exact Mac/Windows/privacy CI `39062389319`; merge `2c503e9`
 passed exact-main CI `39062917244`. Final local suite: **1,960 passing tests**, one existing
@@ -116,7 +131,8 @@ private verification or reapply its facts. Current source-permission holds remai
 A technical HTTP/tool access failure is not itself closure and need not prevent permitted
 normal-browser verification of the exact linked original.
 
-**Exact next action:** await evidence and applicable authority for the saved city/route checks.
+**Exact next action:** finish PR #149 publication if Git/CI still show it pending; otherwise
+await evidence and applicable authority for the saved city/route checks.
 Use the private checkpoint's remaining scope; verify exact reference facts, then journeys, then
 reassess only qualifying jobs. No paid packet is open. Before any paid research proposal,
 establish enforceable request/tool charges and a bounded budget. Do not repeat hosted research

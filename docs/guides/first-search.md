@@ -289,6 +289,9 @@ wait until hard location conditions pass. An earlier attempt that found no usabl
 retryable; completed checks are reused. Confirmed requirement failures and saved assessments
 survive; supported new evidence can revise the affected score parts. Stop keeps completed
 comparisons for the next attempt; displayed cards are rebuilt when recovery finishes.
+If a retry cannot verify its supporting wording, Jobcu keeps the earlier verified requirement
+and its score limit, and explains why the latest retry was inconclusive. Supported later evidence
+can resolve it; a failed answer cannot improve the match by erasing the requirement.
 
 **Excluded jobs and links** also lists jobs whose exact original confirms closure or an older
 publication. Each entry gives its evidence and source. **Undo evidence exclusion** removes that

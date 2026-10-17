@@ -79,11 +79,11 @@ def compare(client: AIClient, job: PoolJob, profile: Profile) -> bool:
         index = int(row.id[1:])
         # Keep the requested requirement's identity; a new label must not duplicate it.
         raw = requirements.RequirementCheck.model_validate({
-            **row.model_dump(), "requirement": checks[index]["requirement"],
-            "central_to_role": row.central_to_role or checks[index].get("central_to_role", False)})
-        updated[index] = requirements.ground([raw], text, person)[0]
-        if not updated[index]["grounding_issues"] and row.explanation.strip():
-            updated[index]["explanation"] = row.explanation.strip()
+            **row.model_dump(), "requirement": checks[index]["requirement"]})
+        grounded = requirements.ground([raw], text, person)[0]
+        if not grounded["grounding_issues"] and row.explanation.strip():
+            grounded["explanation"] = row.explanation.strip()
+        updated[index] = requirements.update_check(checks[index], grounded)
     _replace(job, profile, updated)
     return True
 
