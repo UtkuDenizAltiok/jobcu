@@ -571,9 +571,10 @@ def test_a_search_keeps_jobs_near_a_big_city_and_leaves_out_far_ones(
     assert result["result"]["profile"]["field"] == field
     jobs = result["result"]["jobs"]
     assert sorted(card["location"] for card in jobs["cards"]) == [
-        "Fürstenfeldbruck", "Hof", "München"]
+        "Fürstenfeldbruck", "München"]
     assert jobs["ruled_out_by_conditions"] == []
-    hof = next(card for card in jobs["cards"] if card["location"] == "Hof")
+    hof = next(card for card in jobs["location_unchecked"] if card["location"] == "Hof")
+    assert hof["score"] is None
     assert hof["location_checks"][-1]["status"] == "unclear"
     assert "other candidate cities" in hof["location_checks"][-1]["detail"]
     bruck = next(card for card in jobs["cards"] if card["location"] == "Fürstenfeldbruck")

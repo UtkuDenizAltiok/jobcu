@@ -92,7 +92,8 @@ def review(snapshot: dict, ads: list[dict]) -> dict:
     jobs = result.get("jobs", {})
     cards = jobs.get("cards", [])
     unknown = jobs.get("date_unknown", [])
-    visible = [*cards, *unknown]
+    pending_location = jobs.get("location_unchecked", [])
+    visible = [*cards, *unknown, *pending_location]
     scored = [c for c in visible if isinstance(c.get("score"), (int, float))]
     top = sorted((c for c in cards if isinstance(c.get("score"), (int, float))),
                  key=lambda c: -c["score"])[:10]
@@ -131,6 +132,7 @@ def review(snapshot: dict, ads: list[dict]) -> dict:
                                   else "unknown"),
         "jobs": {"shown": len(visible), "scored": len(scored),
                  "not_scored": len(visible) - len(scored), "date_unknown": len(unknown),
+                 "location_unchecked": len(pending_location),
                  "summary_only": summary_count,
                  "summary_share": round(summary_count / len(visible), 3) if visible else None,
                  "top_10_summaries": sum(bool(c.get("summary_only")) for c in top),

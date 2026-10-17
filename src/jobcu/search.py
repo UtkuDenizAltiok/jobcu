@@ -636,6 +636,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     checkpoint()
 
     to_score = [i for i in candidates if job_pool.jobs[i].scored is None]
+    points_before_details = {i: travel.job_point(groups[i]) for i in to_score}
     run.update("details", "running")
     pipeline.load_full_ads(groups, to_score, collected, http, keys, run)
     run.update("details", "done", "Full ads read where available")
@@ -651,6 +652,46 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     candidates = [candidates[i] for i in detail_rules.kept]
     kept = set(candidates)
     to_score = [i for i in to_score if i in kept]
+
+    # Missing workplaces have to be identified before a hard location condition can
+    # admit a scoring request. Reuse this lookup's requirements later; never pay twice
+    # for the same job. If the reference facts themselves failed, a town lookup cannot
+    # unblock admission and is deferred with the job instead of adding avoidable work.
+    hard_conditions = [c for c in plan.conditions
+                       if not c.switched_off and c.kind != "about_job"]
+    reference_ready = (not plan.not_checked_yet and all(
+        c.status != "not_checked" and (c.kind != "near" or c.reference_status == "applied")
+        for c in hard_conditions))
+    early_towns = [i for i in candidates if hard_conditions and reference_ready
+                   and jobplace.needs_looking_up(groups[i])
+                   and _ad_exclusion(groups[i], job_pool.jobs[i].scored, form) is None]
+    early_lookup = jobplace.LookedUp()
+    if early_towns and not client.web_research_unavailable_reason():
+        run.update("filtering", "running", "Checking missing workplaces before scoring")
+        early_lookup = jobplace.find_online(client, groups, early_towns, profile,
+                                           lambda *_: None)
+        while early_lookup.not_asked and client.web_searches_left() > 0:
+            waiting = len(early_lookup.not_asked)
+            early_lookup = early_lookup.add(jobplace.find_online(
+                client, groups, early_lookup.not_asked, profile, lambda *_: None))
+            if len(early_lookup.not_asked) >= waiting:
+                break
+        if early_lookup.not_asked:
+            run.note("Some workplaces are waiting for the existing web lookup allowance; "
+                     "those jobs have not been sent for scoring.")
+
+    # Original metadata may identify a different workplace. A journey for the earlier
+    # summary point is not evidence for that workplace; measure only changed points again.
+    moved = [i for i in to_score if travel.job_point(groups[i]) != points_before_details[i]]
+    if measured and moved:
+        travel_meter.measure(measured, groups, moved)
+    detail_location_failures = {i for i in candidates
+                                if fails_a_condition(groups[i], plan.conditions)}
+    ruled_out = sorted(set(ruled_out) | detail_location_failures)
+    candidates = [i for i in candidates if i not in detail_location_failures]
+    location_pending = {i for i in candidates
+                        if pipeline.unchecked_location_conditions(groups[i], plan)}
+    to_score = [i for i in to_score if i in candidates and i not in location_pending]
 
     run.update("scoring", "running")
     order = pipeline.newest_first(groups, to_score)
@@ -701,13 +742,15 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             job_pool.jobs[index].scored = scoring.with_location_confidence(
                 job_pool.jobs[index].scored, profile, plan, groups[index],
             )
-    research_candidates = [i for i in candidates
+    research_candidates = [i for i in candidates if i not in location_pending
                            if _ad_exclusion(groups[i], job_pool.jobs[i].scored, form) is None]
-    need_town = [i for i in research_candidates if jobplace.needs_looking_up(groups[i])
+    later_towns = [i for i in research_candidates if jobplace.needs_looking_up(groups[i])
                  and scoring.evidence_priority(job_pool.jobs[i].scored) >= jobplace.MIN_SCORE]
     need_requirements = [i for i in research_candidates
+                         if i not in early_lookup.asked
                          if jobplace.needs_requirements(groups[i], job_pool.jobs[i].scored)]
-    worth_it = sorted(set(need_town) | set(need_requirements),
+    need_town = list(dict.fromkeys([*early_towns, *later_towns]))
+    worth_it = sorted(set(later_towns) | set(need_requirements),
                       key=lambda i: -scoring.evidence_priority(job_pool.jobs[i].scored))
     # Counted over both rounds, when the person says yes to more web look-ups in between.
     looked_before = 0
@@ -719,9 +762,9 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         looking(0, len(worth_it))
     looking_since = time.monotonic()
     unavailable = client.web_research_unavailable_reason()
-    looked_up = (jobplace.find_online(client, groups, worth_it, profile, looking)
-                 if worth_it and not unavailable
-                 else jobplace.LookedUp())
+    looked_up = early_lookup.add(
+        jobplace.find_online(client, groups, worth_it, profile, looking)
+        if worth_it and not unavailable else jobplace.LookedUp())
     # Look-ups sent together can find the allowance held by others still running; those jobs get
     # another turn while look-ups are left (a test search on 2026-10-01 skipped 100 of 115 jobs
     # without asking).
@@ -772,7 +815,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
                                                      requirement_checks=found.requirement_checks,
                                                      **found.blockers)
             job_pool.jobs[index].scored = {**scored, "read_online": True}
-    placed = [i for i in need_town if groups[i].place_from_web]
+    placed = [i for i in later_towns if groups[i].place_from_web]
     fails = [i for i in placed if fails_a_condition(groups[i], at_once)]
     if measured and placed:
         in_reach = [i for i in placed if i not in fails]
@@ -838,6 +881,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             is_new=new_of[index],
             state=states.get(id_of[index]),
             scored=job_pool.jobs[index].scored,
+            location_pending=index in location_pending,
             plan=plan,
             source_names=names,
             possible_duplicate_of=id_of.get(duplicate) if duplicate is not None else None,
@@ -866,8 +910,11 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
                "job_type_text": "A job type you didn't tick, according to the ad text"}
     run.set_result("location", plan.model_dump())
     run.set_result("jobs", {
-        "cards": pipeline.sort_cards([c for c in cards if c["date_known"]]),
-        "date_unknown": pipeline.sort_cards([c for c in cards if not c["date_known"]]),
+        "cards": pipeline.sort_cards([c for c in cards if c["date_known"]
+                                      and not c["location_pending"]]),
+        "date_unknown": pipeline.sort_cards([c for c in cards if not c["date_known"]
+                                             and not c["location_pending"]]),
+        "location_unchecked": pipeline.sort_cards([c for c in cards if c["location_pending"]]),
         "hidden": hidden_cards,
         "ruled_out_by_conditions": ruled_out_cards,
         "new_count": sum(1 for c in cards if c["is_new"]),
@@ -877,7 +924,9 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             "left_out": [{"reason": reasons[k], "count": v} for k, v in left_out.items() if v],
             "unrelated": len(unrelated),
             "unrelated_titles": sorted({groups[i].main.title for i in unrelated})[:200],
-            "not_scored": sum(1 for i in candidates if job_pool.jobs[i].scored is None),
+            "not_scored": sum(1 for i in candidates if i not in location_pending
+                              and job_pool.jobs[i].scored is None),
+            "location_unchecked": sum(c["location_pending"] for c in cards),
             "shown": len(cards),
         },
         "sources": [

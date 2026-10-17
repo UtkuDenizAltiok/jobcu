@@ -299,6 +299,50 @@ def readable_place(job: FoundJob) -> str | None:
     return f"{text}, near {town.name}"
 
 
+def unchecked_location_conditions(group: JobGroup, plan: LocationPlan) -> list[str]:
+    """Hard location conditions must pass before scoring; unknown is not a pass.
+
+    An unread condition is still a request the person made. Turning a condition off is
+    explicit; failure to interpret or research it cannot silently remove the scoring gate.
+    """
+    return [*plan.not_checked_yet, *(c.understood_as for c in plan.conditions
+            if not c.switched_off and c.kind != "about_job"
+            and (c.status == "not_checked" or condition_fit(c, group) != "yes"))]
+
+
+def location_gate_view(snapshot: dict) -> None:
+    """Apply today's admission rule to a response copy, without rewriting saved history.
+
+    Older searches paid for scores despite explicitly unchecked hard location conditions.
+    Those assessments must not appear as qualifying matches under the new admission rule.
+    The recorded checks, not a guessed journey or a fresh provider request, decide this view.
+    """
+    result = snapshot.get("result") or {}
+    jobs, plan = result.get("jobs"), result.get("location") or {}
+    if not jobs:
+        return
+    hard = [c for c in plan.get("conditions", [])
+            if not c.get("switched_off") and c.get("kind") != "about_job"]
+    unread = bool(plan.get("not_checked_yet")) or any(
+        c.get("status") == "not_checked" for c in hard)
+    if not hard and not unread:
+        return
+    pending = list(jobs.get("location_unchecked", []))
+    for section in ("cards", "date_unknown"):
+        kept = []
+        for card in jobs.get(section, []):
+            unknown = unread or any(c.get("status") == "unclear"
+                                    for c in card.get("location_checks", []))
+            if unknown:
+                pending.append({**card, "location_pending": True, "score": None, "parts": None,
+                                "limits": [], "deductions": [], "reasons": []})
+            else:
+                kept.append(card)
+        jobs[section] = kept
+    jobs["location_unchecked"] = pending
+    jobs.setdefault("counts", {})["location_unchecked"] = len(pending)
+
+
 def build_card(
     group: JobGroup,
     *,
@@ -314,6 +358,7 @@ def build_card(
     ruled_out: bool = False,
     first_seen_at: datetime | None = None,
     reported_links: set[str] | None = None,
+    location_pending: bool = False,
 ) -> dict:
     main = group.main
     best = group.best_description_copy
@@ -342,6 +387,9 @@ def build_card(
     unanswered = 0
     for condition in plan.conditions:
         if not condition.filters:
+            if location_pending and not condition.switched_off and condition.kind != "about_job":
+                checks.append({"label": condition.understood_as, "status": "unclear",
+                               "source": None, "note": condition.note})
             continue
         answer = condition_fit(condition, group)
         # A job left out by a condition only shows what left it out.
@@ -383,11 +431,16 @@ def build_card(
                       f"this job is in, nor does its text, so {conditions} couldn't be checked"),
             "status": "unclear", "source": None, "detail": None, "whole_sentence": True,
         })
+    if location_pending:
+        checks.extend({"label": text, "status": "unclear", "source": None}
+                      for text in plan.not_checked_yet)
     start = window_start(started_at, posted_within_hours)
     state = state or JobState()
     # An old ad posted again looks fresh; Jobcu's memory knows when it first showed this job.
     earliest = earliest_possible(group.posted_at, group.date_precision)
     reposted = bool(first_seen_at and earliest and first_seen_at < earliest - timedelta(days=1))
+    if location_pending:
+        scored = None  # retained legacy assessments are not current qualifying matches
     return {
         "job_id": job_id,
         "is_new": is_new,
@@ -409,6 +462,7 @@ def build_card(
         "first_seen_at": first_seen_at.isoformat() if reposted else None,
         "closes_at": group.closes_at.isoformat() if group.closes_at else None,
         "score": scored["score"] if scored else None,
+        "location_pending": location_pending,
         "parts": scored["parts"] if scored else None,
         # Blockers that hold the score below what its parts add up to (scoring.py).
         "limits": (scored or {}).get("limits", []),

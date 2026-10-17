@@ -999,18 +999,21 @@ const WORK_MODES = { remote: "Remote", hybrid: "Hybrid", on_site: "On-site" };
 function renderResults() {
   $("retry-checks").hidden = !state.search.can_edit_conditions;
   const jobs = state.search.result.jobs;
-  const shown = jobs.cards.length + jobs.date_unknown.length;
+  const pendingLocation = jobs.location_unchecked || [];
+  const shown = jobs.cards.length + jobs.date_unknown.length + pendingLocation.length;
   const newCount = jobs.new_count;
   $("results-summary").textContent =
     `${shown} ${shown === 1 ? "job" : "jobs"} found` +
     (newCount ? `, ${newCount} new since your last search` : "");
 
-  const dismissedNow = [...jobs.cards, ...jobs.date_unknown].filter((c) => c.state.dismissed);
+  const dismissedNow = [...jobs.cards, ...jobs.date_unknown, ...pendingLocation]
+    .filter((c) => c.state.dismissed);
   const hiddenCount = jobs.hidden.length + dismissedNow.length;
   $("show-hidden-label").textContent = hiddenCount ? `Show hidden (${hiddenCount})` : "Show hidden";
 
   if (view.list !== "results") {
     $("date-unknown-section").hidden = true;
+    $("location-unchecked-section").hidden = true;
     const cards = view.marked.filter((c) => view.showHidden || !c.state.dismissed);
     fillList($("job-list"), cards, `No ${view.list} jobs yet.`);
     return;
@@ -1022,6 +1025,9 @@ function renderResults() {
   const unknown = visible(jobs.date_unknown);
   $("date-unknown-section").hidden = !unknown.length;
   fillList($("date-unknown-list"), sortCards(unknown), "");
+  const pending = visible(pendingLocation);
+  $("location-unchecked-section").hidden = !pending.length;
+  fillList($("location-unchecked-list"), sortCards(pending), "");
 
   const ruledOut = jobs.ruled_out_by_conditions || [];
   $("ruled-out-section").hidden = !ruledOut.length;
@@ -1289,7 +1295,8 @@ function stateButton(card, name, label) {
 
 function updateCardState(jobId, newState) {
   const jobs = state.search?.result?.jobs;
-  const lists = jobs ? [jobs.cards, jobs.date_unknown, jobs.hidden] : [];
+  const lists = jobs ? [jobs.cards, jobs.date_unknown, jobs.hidden,
+    jobs.location_unchecked || []] : [];
   for (const list of [...lists, view.marked]) {
     for (const card of list) if (card.job_id === jobId) card.state = newState;
   }
@@ -1425,6 +1432,7 @@ function renderDetails(search) {
       ...c.left_out.map((item) => `${item.count} left out: ${item.reason}`),
       `${c.unrelated} left out as clearly unrelated to what you're looking for`,
       c.not_scored ? `${c.not_scored} not scored (scoring limit)` : null,
+      c.location_unchecked ? `${c.location_unchecked} not scored (location not verified)` : null,
       `${c.shown} shown`,
     ].filter(Boolean);
     const unrelated = el(

@@ -351,7 +351,7 @@ def test_element_access_refusal_keeps_valid_data_and_stops_later_network_reads(c
 @pytest.mark.parametrize(('role', 'field'), [
     ('Hardware Engineer', 'Electronics'), ('Library Assistant', 'Library services'),
 ])
-def test_a_search_scores_and_keeps_uncertain_routes_but_excludes_confirmed_no_routes(
+def test_a_search_defers_scoring_uncertain_routes_and_excludes_confirmed_no_routes(
         ready, monkeypatch, role, field):  # noqa: F811
     import re
     from datetime import UTC, datetime
@@ -426,8 +426,10 @@ def test_a_search_scores_and_keeps_uncertain_routes_but_excludes_confirmed_no_ro
     result = wait_until_done(manager)
     assert result['status'] == 'finished', result['error']
     jobs = result['result']['jobs']
-    assert len(scored) == 1
-    assert [card['location'] for card in jobs['cards']] == ['Freising']
+    assert not scored
+    assert not jobs['cards']
+    assert [card['location'] for card in jobs['location_unchecked']] == ['Freising']
     assert [card['location'] for card in jobs['ruled_out_by_conditions']] == ['Dachau']
-    assert jobs['cards'][0]['location_checks'][-1]['status'] == 'unclear'
+    assert jobs['location_unchecked'][0]['score'] is None
+    assert jobs['location_unchecked'][0]['location_checks'][-1]['status'] == 'unclear'
     assert result['result']['profile']['field'] == field

@@ -29,15 +29,16 @@ def test_completed_search_explains_failed_reference_fact_without_losing_jobs(
     manager.start(SearchForm())
     result = wait_until_done(manager)
     assert result["status"] == "finished"
-    assert result["result"]["jobs"]["cards"]
+    assert not result["result"]["jobs"]["cards"]
+    pending = result["result"]["jobs"]["location_unchecked"]
+    assert pending
     assert any("Library opening hours could not be checked" in note for note in result["notes"])
     detail = next(step["detail"] for step in result["steps"] if step["id"] == "location")
     assert "details are unchecked" in detail
     assert "condition checked" not in detail
-    for card in result["result"]["jobs"]["cards"]:
-        assert card["parts"]["location_and_preferences"] <= 8
-        assert any("location conditions could not be confirmed" in note
-                   for note in card["score_notes"])
+    for card in pending:
+        assert card["score"] is None and card["parts"] is None
+        assert any(check["status"] == "unclear" for check in card["location_checks"])
 
 
 def test_measured_journey_cannot_hide_missing_destination_facts():
