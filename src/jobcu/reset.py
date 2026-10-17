@@ -23,6 +23,7 @@ router = APIRouter(prefix="/api")
 
 # Children before parents. Review samples have their own reset and survive a search reset.
 SEARCH_TABLES = (
+    "vacancy_evidence",
     "application_link_reports", "job_aliases", "job_states", "job_cards", "job_fingerprints",
     "job_keys",
     "search_results", "search_pool", "jobs", "searches", "profile_cache", "preparation_cache",

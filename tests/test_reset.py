@@ -43,6 +43,8 @@ def populated(temporary_data_dir):
         conn.execute("INSERT INTO search_pool VALUES (7,'{}')")
         conn.execute("INSERT INTO application_link_reports (url,job_id,source) "
                      "VALUES ('https://example.test/apply',5,'example')")
+        conn.execute("INSERT INTO vacancy_evidence (job_id,kind,source_url,note) "
+                     "VALUES (5,'closed','https://example.test/original','Confirmed removed')")
         conn.execute("INSERT INTO profile_cache (key,profile_json) VALUES ('example','{}')")
         conn.execute("INSERT INTO preparation_cache (kind,key,answer_json) "
                      "VALUES ('location','example','{}')")
@@ -125,7 +127,7 @@ def test_clear_search_forgets_finished_run_and_stays_empty_after_restart(client,
     search.manager = search.SearchManager()
     assert client.get("/api/search/current").json() == {"search": None}
     assert client.get("/api/jobs/marked/saved").json() == {"cards": []}
-    assert client.get("/api/applications/excluded").json() == {"links": []}
+    assert client.get("/api/applications/excluded").json() == {"links": [], "evidence": []}
     assert client.get("/api/usage").json()["this_month"]["tokens"] == 120
 
 

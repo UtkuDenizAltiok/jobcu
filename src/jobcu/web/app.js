@@ -740,7 +740,9 @@ function setUpConditionActions() {
     try {
       const summary = await api(`/api/search/${searchId}/retry-checks`);
       $("retry-checks-summary").textContent = `${summary.unchecked_cities} unchecked reference cities; ` +
-        `${summary.full_ads} saved full ads needing a fresh requirement comparison.`;
+        `${summary.full_ads} saved full ads needing a fresh requirement comparison; ` +
+        `${summary.online_ads} incomplete ad/workplace checks. ` +
+        "Job checks wait until hard location conditions pass. Existing limits apply.";
       $("start-retry-checks").disabled = false;
     } catch (error) {
       setStatus($("retry-checks-status"), "problem", error.message);
@@ -1320,7 +1322,7 @@ async function refreshApplicationLinks() {
 }
 
 async function loadApplicationLinkReports() {
-  const { links } = await api("/api/applications/excluded");
+  const { links, evidence = [] } = await api("/api/applications/excluded");
   $("application-link-reports").replaceChildren(
     ...(links.length ? links.map((report) => el("div", { class: "card" },
       el("strong", { text: report.title }),
@@ -1341,6 +1343,30 @@ async function loadApplicationLinkReports() {
       }),
     )) : [el("p", { class: "muted", text: "You haven't excluded any links." })]),
   );
+  if (evidence.length) {
+    if (!links.length) $("application-link-reports").replaceChildren();
+    $("application-link-reports").append(...evidence.map((report) => el("div", { class: "card" },
+      el("strong", { text: report.title }),
+      el("p", { text: report.kind === "closed" ? "The original confirms this job is closed." :
+        `The original existed by ${formatDate(report.value)}.` }),
+      el("p", { class: "muted", text: report.note }),
+      ...(safeUrl(report.source_url) ? [el("a", { href: report.source_url, target: "_blank",
+        rel: "noopener noreferrer", text: "Original evidence" })] : []),
+      el("button", { type: "button", class: "secondary", text: "Undo evidence exclusion",
+        onclick: async (event) => busy(event.target, async () => {
+          try {
+            await api(`/api/jobs/evidence/${report.id}`, { method: "DELETE" });
+            await loadApplicationLinkReports();
+            await refreshApplicationLinks();
+            setStatus($("application-links-status"), "success",
+              "Evidence removed. Other search rules still apply.");
+          } catch (error) {
+            setStatus($("application-links-status"), "problem", error.message);
+          }
+        }),
+      }),
+    )));
+  }
 }
 
 async function openApplicationLinks(card = null) {

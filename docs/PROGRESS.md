@@ -91,33 +91,39 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Reported-result verification is parked on missing external evidence.**
+**Reported-result recovery resumed by the owner.**
 
-The safe implementation steps are merged in PRs #144–#146; no code or publication work remains.
-Final local suite: **1,938 passing tests**, one existing dependency deprecation warning.
-PR #146 head `62ba919` passed Mac/Windows/privacy CI `39047357375`; its merge
-`72edd5c` passed exact-main CI `39047809182`. Main and locked dependencies are synchronized.
-The private recovery index is `assistant-review-checkpoint.json`; detailed case outcomes and
-source/usage evidence stay outside Git. Confirmed copy links changed only aliases, preserving
-all original tables, marks, keys, ratings and saved snapshots. Disposable scratch is removed.
+Scope: revisit missing evidence and saved-check recovery, complete permitted free original and
+saved-profile checks, and fix reproducible software causes. No new search or paid development
+call is authorized. Preserve all owner records and limits. The previous safe repairs are merged
+in PRs #144–#147; reuse the unchanged **1,938-test** full-suite baseline and exact-main
+Mac/Windows/privacy CI `39060155871` at `210dd6e`.
 
-Remaining dependencies are distinct from implemented fixes:
+Branch: `codex/saved-evidence-recovery`. Private recovery is indexed by
+`assistant-review-checkpoint.json`; read authorization/revocations before private work.
 
-- City eligibility facts and journeys missing from interrupted research remain unverified.
-  Jobs stay available but unscored; no village is rejected solely for being small.
-- Exact original age for an independently identified vacancy and the current availability of
-  a reported inaccessible application destination are unverified. Distinct employer
-  requisitions stay separate; access failures are not proof of closure.
-- A summary's actual specialist-fit number still requires supported full-ad assessment; the
-  repaired path is offline-tested, not a claimed live reassessment of every historical card.
-- Automated BA access is held under current official terms. Historical evidence/manual links
-  survive; coverage from that source has not been replaced.
+1. Verify exact original/profile evidence and distinguish unavailable external facts from a
+   saved recovery path that never retries incomplete work. Keep targeted judgements separate
+   from independent blinded quality measurements.
+2. Reproduce confirmed recovery/provenance faults with fictional electronics and other
+   professions. Implement bounded, evidence-preserving recovery with no repeated paid work.
+3. Run affected/final checks, review the complete diff, publish exact PR/main CI and merge with
+   a merge commit; synchronize main. Save exact external dependencies only after useful free
+   verification and practical software repairs are exhausted.
 
-**Exact next action:** wait for the missing evidence, a permitted source/interface and applicable
-bounded authority. Then verify the exact saved city/route or vacancy evidence from the private
-checkpoint, without collecting another search. No paid packet is open; Start alone must not
-resume private review or spending. Do not infer original age/closure from inaccessible pages,
-merge distinct requisitions, guess city eligibility or reopen the native experiment.
+**Implemented and tested, publication pending:** explicit recovery now distinguishes
+attempted/incomplete from complete online evidence; requirement retries run after the hard-location gate and retain
+central-skill uncertainty. Migration 18 stores verified exact-original closure/publication
+bounds separately, excludes known old/closed jobs before paid work, and provides source/undo
+controls without changing historical rows or marks. A private scratch replay verifies the
+newly established original facts; owner-data application waits for final tested publication.
+Final local suite: **1,960 passing tests**, one existing dependency warning. Ruff/privacy,
+20 document checks, JS syntax and whitespace pass; isolated fictional UI is verified and stopped.
+
+**Exact next action:** publish the tested and reviewed diff, require exact PR/main
+Mac/Windows/privacy CI, merge and synchronize. Then apply only
+the independently verified facts from the private checkpoint through tested Jobcu code after
+backup/active-search checks; verify owner records and response integrity. No paid call is open.
 
 **Parked research dependency:** PR #137 at `ac25239` remains an unmerged native transport
 candidate. A documented enforceable hosted-query budget or permitted controlled interface,

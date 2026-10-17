@@ -230,6 +230,20 @@ MIGRATIONS: list[str] = [
     );
     CREATE INDEX job_aliases_canonical_id ON job_aliases (canonical_id);
     """,
+    # 18: Verified original evidence is separate from board dates, owner marks and history.
+    """
+    CREATE TABLE vacancy_evidence (
+        id INTEGER PRIMARY KEY,
+        job_id INTEGER NOT NULL REFERENCES jobs (id),
+        kind TEXT NOT NULL CHECK (kind IN ('closed', 'posted_before')),
+        value TEXT,
+        source_url TEXT NOT NULL,
+        note TEXT NOT NULL,
+        checked_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
+        CHECK (kind != 'posted_before' OR value IS NOT NULL)
+    );
+    CREATE INDEX vacancy_evidence_job_id ON vacancy_evidence (job_id);
+    """,
 ]
 
 

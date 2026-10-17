@@ -518,6 +518,29 @@ it. Multiple distant workplaces need disambiguation, rather than picking a conve
 This does not prove that every workplace mention will be extracted correctly, or replace
 missing original ads, city facts or journeys. Invoice savings have not been measured.
 
+### Explicit saved-evidence recovery and original facts — 2026-10-17
+
+An online attempt is not a complete evidence check. Retain `read_online` to prevent automatic
+repetition within normal condition edits, and record whether the result was complete,
+incomplete or not found. Explicit **Retry incomplete checks** reopens incomplete/legacy summary
+checks and failed empty workplace lookups once. Complete evidence and existing assessments
+survive; service/scoring allowances and persistent-failure stops still apply. The dialog counts
+these ad/workplace checks. Ordinary comparisons run after current location/travel admission,
+so an explicit retry cannot spend comparison requests on a failed or unresolved hard condition.
+Focused comparisons also retain a previously grounded central-skill flag when a reply omits it;
+an inconclusive retry cannot release the core-match restriction.
+
+`vacancy_evidence.py` and migration 18 retain independently verified original closure or a
+conservative latest-possible publication bound for the exact saved vacancy. This is separate
+from source dates, first-seen history, scores and owner marks. A loading/error page, unrelated
+requisition or company statement cannot establish closure or original age. Reviewers/readers
+must verify identity and supporting facts before recording them; this module makes no network
+or provider requests. Confirmed alias families share evidence; distinct requisitions do not.
+Old/closed evidence excludes the job before paid work and filters a copy of restored results.
+Saved/Applied history survives; confirmed closed links are disabled there. **Excluded jobs and
+links** shows the evidence, source and undo control. Undo removes only that evidence and starts
+no search; all other search rules remain applicable. No owner reset was performed.
+
 Application reports now recognize the same numeric Adzuna advertisement across its known
 details/land route forms and changed `utm_*`, `se` or `v` tracking fields. The original advertiser
 URL is preserved. Unknown query fields, other identifiers/hosts/ports and unrecognized paths
@@ -1610,7 +1633,7 @@ The root keeps launchers, README, CONTRIBUTING, AGENTS, LICENSE and Python/tool 
 | Places/criteria | `countries.py`, `location.py`, `reference_places.py`, `places.py`, `placenames.py`, `travel.py`; supported geography, query interpretation, finite reference-city evidence and measurements. |
 | Discovery | `keywords.py`, `employers.py`; multilingual words and periodically discovered employers. |
 | Evidence/matching | `text.py`, `jobposting.py`, `dedupe.py`, `filters.py`, `freshness.py`, `relevance.py`, `jobplace.py`, `requirements.py`, `recheck.py`, `scoring.py`; text extraction, filtering, research, grounded requirements, saved-ad recovery and fit. |
-| Results/evaluation | `applications.py`, `jobidentity.py`, `jobstore.py`, `quality.py`, `quality_api.py`; application routes, remembered jobs, saved results and independent score checks. |
+| Results/evaluation | `applications.py`, `vacancy_evidence.py`, `jobidentity.py`, `jobstore.py`, `quality.py`, `quality_api.py`; application routes, verified original facts, remembered jobs, saved results and independent score checks. |
 | `ai/` | `client.py` is the sole AI entry point; provider adapters, schemas, errors and token/web usage. |
 | `sources/` | Isolated adapters and the registry. `base.py` defines `JobSource`; `http.py` applies polite requests/robots; `budget.py` tracks limits; `matching.py` matches lists; `careers.py` uses the directory; `careerlinks.py` recognizes career hosts. See [SOURCES](SOURCES.md). |
 | `data/` | Public reference assets: `employers.json`, `places.csv.gz`, `regions.csv.gz`, `postcodes.csv.gz`. User data never belongs here. |

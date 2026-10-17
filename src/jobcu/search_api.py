@@ -5,7 +5,7 @@ import json
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from jobcu import applications, jobstore, pipeline, recheck, search
+from jobcu import applications, jobplace, jobstore, pipeline, recheck, search, vacancy_evidence
 from jobcu import pool as search_pool
 from jobcu.location import ConditionEdit, EditProblem, LocationPlan
 from jobcu.profile import Profile
@@ -46,6 +46,7 @@ def current_search() -> dict:
         snapshot = json.loads(saved[1])
     applications.filter_snapshot(snapshot)
     pipeline.history_view(snapshot)
+    vacancy_evidence.filter_snapshot(snapshot)
     pipeline.location_gate_view(snapshot)
     _refresh_states(snapshot)
     # The conditions can be corrected afterwards only while Jobcu keeps that search's jobs.
@@ -106,6 +107,9 @@ def retry_check_summary(search_id: int) -> dict:
         recheck.refresh_validation(job, profile)
     plan = LocationPlan.model_validate(snapshot["result"]["location"])
     return {"full_ads": sum(recheck.needs_comparison(j) for j in jobs.jobs),
+            "online_ads": sum(jobplace.needs_evidence_retry(j.group, j.scored)
+                              or jobplace.needs_place_retry(j.group)
+                              for j in jobs.jobs if not j.unrelated),
             "unchecked_cities": sum(v.meets is None for c in plan.conditions
                                     if not c.switched_off and c.anchor
                                     for v in c.anchor.reference_checks or [])}
@@ -152,7 +156,10 @@ def marked_jobs(kind: str) -> dict:
     if kind not in ("saved", "applied"):
         raise HTTPException(status_code=404, detail="Unknown list.")
     reported = applications.reported_urls()
-    return {"cards": [applications.clean_card(c, reported) for c in jobstore.marked_cards(kind)]}
+    cards = jobstore.marked_cards(kind)
+    closed = set(vacancy_evidence.reasons([c["job_id"] for c in cards], None))
+    return {"cards": [vacancy_evidence.annotate(applications.clean_card(c, reported), closed)
+                      for c in cards]}
 
 
 class ApplicationLinkReport(BaseModel):
@@ -172,7 +179,16 @@ def report_application_link(job_id: int, body: ApplicationLinkReport) -> dict:
 
 @router.get("/applications/excluded")
 def excluded_application_links() -> dict:
-    return {"links": applications.reports()}
+    return {"links": applications.reports(), "evidence": vacancy_evidence.records()}
+
+
+@router.delete("/jobs/evidence/{evidence_id}")
+def undo_verified_evidence(evidence_id: int) -> dict:
+    try:
+        vacancy_evidence.undo(evidence_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Unknown evidence record.") from exc
+    return {"removed": True}
 
 
 @router.delete("/applications/excluded/{report_id}")

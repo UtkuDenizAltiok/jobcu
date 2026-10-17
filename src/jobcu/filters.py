@@ -19,13 +19,14 @@ from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from jobcu import applications, travel
+from jobcu import applications, travel, vacancy_evidence
 from jobcu.dedupe import JobGroup
 from jobcu.freshness import freshness, window_start
 from jobcu.jobstore import JobState
 from jobcu.location import fits
 
 REASONS = {
+    **vacancy_evidence.REASONS,
     "dismissed": "Marked Not interested before",
     "location_condition": "The place doesn't fit a condition you wrote",
     "too_old": "Older than your \"Posted within\" choice",
@@ -64,8 +65,10 @@ def apply_rules(
     start = window_start(started_at, posted_within_hours)
     wanted_types = set(job_types)
     reported = applications.reported_urls()
+    original = vacancy_evidence.group_reasons(groups, start)
     for index, group in enumerate(groups):
-        reason = _reason(group, remembered_states[index], start, wanted_types, exclude_remote,
+        reason = original.get(index) or _reason(
+                         group, remembered_states[index], start, wanted_types, exclude_remote,
                          set(countries), conditions or [], started_at,
                          first_shown[index] if first_shown else None, reported)
         if reason:

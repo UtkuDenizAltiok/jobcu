@@ -294,7 +294,7 @@ def test_retry_incomplete_checks_uses_saved_ads_and_preserves_search_choices(
     client = TestClient(create_app(), base_url="http://127.0.0.1")
     preview = client.get(f"/api/search/{run.id}/retry-checks")
     assert preview.status_code == 200 and preview.json() == {
-        "full_ads": 1, "unchecked_cities": 0}
+        "full_ads": 1, "unchecked_cities": 0, "online_ads": 0}
     assert client.post(f"/api/search/{run.id}/retry-checks").status_code == 403
     assert client.post(f"/api/search/{run.id}/retry-checks", headers=HEADERS).status_code == 200
     result = wait_until_done(manager)

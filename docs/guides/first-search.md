@@ -281,12 +281,20 @@ This can use AI again. To look in a different country or collect a new set of jo
 Wait for **Your changes are applied** before closing Jobcu; the corrected results are then saved.
 
 If checks failed or remain uncertain, click **Retry incomplete checks** above the results.
-The window counts missing reference-city facts and saved full ads with uncertain requirement
-comparisons before you choose **Retry checks**. This uses AI within your existing limits and
-does not collect another set of jobs. Jobcu keeps recently verified city facts, retries the
-gaps and compares uncertain requirements against the saved full ad and profile. Other score
-parts and confirmed requirement failures are retained. Stop keeps completed comparisons for
-the next attempt; displayed cards are rebuilt when recovery finishes.
+The window counts missing reference-city facts, saved full ads with uncertain requirements,
+and incomplete ad/workplace checks before you choose **Retry checks**. This uses AI within your
+existing limits and does not collect another set of jobs. Jobcu keeps recently verified city
+facts, retries the gaps and compares uncertain requirements against the saved full ad and profile. Job checks
+wait until hard location conditions pass. An earlier attempt that found no usable ad is
+retryable; completed checks are reused. Confirmed requirement failures and saved assessments
+survive; supported new evidence can revise the affected score parts. Stop keeps completed
+comparisons for the next attempt; displayed cards are rebuilt when recovery finishes.
+
+**Excluded jobs and links** also lists jobs whose exact original confirms closure or an older
+publication. Each entry gives its evidence and source. **Undo evidence exclusion** removes that
+fact without deleting saved history, changing your marks or running a search; other search
+rules still apply. A website error or a refreshed board date alone cannot establish closure
+or a fresh original posting.
 
 If city research completed but converting its answer failed, the same open app can reuse that
 complete answer for up to one hour when the search, question, cities and provider settings
