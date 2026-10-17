@@ -111,6 +111,8 @@ def fails_a_condition(group: JobGroup, conditions: list) -> bool:
 
 def condition_fit(condition, group: JobGroup) -> str:
     """"yes", "no" or "unknown" for a job and one of the conditions the person wrote."""
+    if condition.kind != "about_job" and travel.workplace_conflict(group):
+        return "unknown"
     if condition.kind == "near":
         return travel.answer(condition, group)
     country = next((c.country for c in group.copies if c.country), None)

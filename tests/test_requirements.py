@@ -60,6 +60,29 @@ def test_explicit_unmet_requirement_overrides_contradictory_high_points():
     }]
 
 
+@pytest.mark.parametrize("expertise", [
+    "High-speed communications design", "Intensive-care ventilation", "Advanced physics teaching"])
+def test_unconfirmed_central_expertise_cannot_be_called_a_direct_core_match(expertise):
+    ad = f"Must have expert {expertise}."
+    needed = requirements.RequirementCheck(requirement=expertise, ad_words=ad,
+                                          profile_words="", status="unclear", central_to_role=True)
+    limited = score([needed], ad=ad)
+    assert limited["parts"]["role_and_skills"] == 35
+    assert limited["score"] <= 80
+    assert "Central specialist expertise is unconfirmed" in limited["reasons"]
+    assert not any(limit["at"] == 55 for limit in limited["limits"])
+    # An unsupported invented ad requirement cannot create this restriction.
+    unsupported = score([needed], ad="A different mandatory qualification.")
+    assert unsupported["parts"]["role_and_skills"] == 38
+    # New supported profile evidence restores the proposed role points, without stacking deductions.
+    person = PROFILE.model_copy(update={"skills": [expertise]})
+    grounded = requirements.ground([needed.model_copy(update={
+        "profile_words": expertise, "status": "met"})], ad, person.model_dump())
+    resolved = scoring.with_ad_read_online(limited, person, [], None, requirement_checks=grounded)
+    assert resolved["parts"]["role_and_skills"] == 38 and resolved["score"] > 80
+    assert "Central specialist expertise is unconfirmed" not in resolved["reasons"]
+
+
 @pytest.mark.parametrize(("field", "unsupported"), [
     ("ad_words", "Must already hold a specialist qualification"),
     ("ad_words", ""),
@@ -281,6 +304,7 @@ def test_online_structure_checks_quotes_in_research_notes_and_full_profile(suppo
     class Client:
         def research(self, **kwargs):
             return SimpleNamespace(text=AD if supported else "The vacancy was found.",
+                                   sources=[],
                                    usage=Usage(1, 1, web_searches=1))
 
         def generate(self, schema, **kwargs):

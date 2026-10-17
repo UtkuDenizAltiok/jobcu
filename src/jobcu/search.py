@@ -665,6 +665,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         for c in hard_conditions))
     early_towns = [i for i in candidates if hard_conditions and reference_ready
                    and jobplace.needs_looking_up(groups[i])
+                   and not travel.workplace_conflict(groups[i])
                    and _ad_exclusion(groups[i], job_pool.jobs[i].scored, form) is None]
     early_lookup = jobplace.LookedUp()
     if early_towns and not client.web_research_unavailable_reason():
@@ -813,6 +814,8 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             if found is not None and summary:
                 scored = scoring.with_ad_read_online(scored, profile, found.languages,
                                                      found.years_required,
+                                                     role_and_skills=found.role_and_skills,
+                                                     role_words=found.role_words,
                                                      requirement_checks=found.requirement_checks,
                                                      **found.blockers)
             job_pool.jobs[index].scored = {**scored, "read_online": True}

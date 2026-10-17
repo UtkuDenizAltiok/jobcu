@@ -911,3 +911,24 @@ def test_a_trip_to_the_city_centre_ends_at_the_centre_when_the_person_says_so():
                       anchor=Anchor(named=[TownRef(name="Munich", country="DE")], to_centre=True))
     assert condition_fit(by_km, group("Dachau")) == "no"  # 17 km from the centre
     assert travel._destination("DE", "Munich", centre=True) == "DE:Munich:centre:wednesday-1030"
+
+
+
+def test_conflicting_ad_workplace_does_not_reuse_feed_point_or_old_journey():
+    job = group("Berlin", latitude=52.52, longitude=13.405)
+    job.place_from_text = ["Munich"]
+    condition = near()
+    condition.travel[travel.job_key(job)] = {"minutes": {"Berlin": 0}, "by": travel.MAPS}
+    assert travel.workplace_conflict(job)
+    assert travel.job_point(job) is None
+    assert condition_fit(condition, job) == "unknown"
+    # Updated original metadata may resolve the conflict without inventing a workplace.
+    job.copies[0].location_text = "Munich"
+    job.copies[0].latitude = job.copies[0].longitude = None
+    assert not travel.workplace_conflict(job)
+    assert travel.job_point(job).town == places.find("Munich", "DE").name
+    # A nearby district spelling is not a conflict; distant alternative towns stay unresolved.
+    job.place_from_text = ["Garching bei München"]
+    assert not travel.workplace_conflict(job)
+    job.place_from_text = ["Munich", "Berlin"]
+    assert travel.workplace_conflict(job)

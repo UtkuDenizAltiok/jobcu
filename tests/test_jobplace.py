@@ -2,6 +2,8 @@
 
 from datetime import UTC, datetime
 
+import pytest
+
 from jobcu import jobplace
 from jobcu.ai.base import (
     AIInvalidOutput,
@@ -79,6 +81,53 @@ def test_unavailable_online_checks_explain_missing_evidence_without_clearing_job
     assert looked_up.asked == set() and looked_up.requirements == {}
     assert all(group.place_from_web is None for group in groups)
     assert len(groups) == 6 and "private diagnostic" not in str(researcher.notifications)
+
+
+def test_online_role_reassessment_uses_this_jobs_evidence_and_existing_two_calls():
+    from test_requirements import PROFILE, score
+
+    from jobcu import scoring
+
+    groups = jobs(("Berlin", "DE"), ("Munich", "DE"))
+    words = "Design high-speed communications hardware and radio systems"
+    answers = [{**online("J0"), "role_and_skills": 22, "role_words": words},
+               {**online("J1"), "role_and_skills": 22, "role_words": words}]
+    researcher = Researcher([f"JOB J0\n{words}.\nJOB J1\nProvide ordinary ward care."], [answers])
+    found = jobplace.find_online(researcher, groups, [0, 1], PROFILE)
+    assert len(researcher.prompts) == len(researcher.structure_prompts) == 1
+    first, second = found.requirements[0], found.requirements[1]
+    assert first.role_and_skills == 22 and second.role_and_skills is None
+    updated = scoring.with_ad_read_online(score([]), PROFILE, [], None,
+                                          role_and_skills=first.role_and_skills,
+                                          role_words=first.role_words)
+    assert updated["parts"]["role_and_skills"] == 22 and updated["score"] <= 60
+    assert "Daily tasks are only partly aligned" in updated["reasons"]
+    restored = scoring.with_ad_read_online(
+        updated, PROFILE, [], None, role_and_skills=39, role_words="Provide ordinary ward care")
+    assert restored["parts"]["role_and_skills"] == 39 and restored["score"] > 80
+
+
+@pytest.mark.parametrize(("points", "words", "sources", "found"), [
+    (22, "Missing ad words", True, True),
+    (22, "Ordinary ward care", False, True),
+    (22, "Ordinary ward care", True, False),
+    (41, "Ordinary ward care", True, True),
+    (22, "Ordinary ward care " * 10, True, True),
+])
+def test_unsupported_online_role_evidence_cannot_replace_a_score(points, words, sources, found):
+    answer = {**online("J0", found=found), "role_and_skills": points, "role_words": words}
+
+    class Evidence(Researcher):
+        def research(self, **request):
+            reply = super().research(**request)
+            if not sources:
+                reply.sources.clear()
+            return reply
+
+    researcher = Evidence(["JOB J0\nOrdinary ward care."], [[answer]])
+    result = jobplace._look_up(researcher, ["J0 | Ward Nurse"], 1)["J0"]
+    assert result.role_and_skills is None and result.role_words == ""
+    assert len(researcher.prompts) == len(researcher.structure_prompts) == 1
 
 
 def test_original_employer_url_goes_with_the_best_description():

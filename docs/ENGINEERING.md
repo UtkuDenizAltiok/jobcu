@@ -498,6 +498,26 @@ response reclassifies explicitly unchecked historical matches without provider r
 database rewrites. This does not establish a missing city fact or journey, and does not claim
 a measured invoice saving. Pending locations have separate counts from a scoring allowance.
 
+### Specialist work and conflicting workplaces — 2026-10-17
+
+An existing online ad check now reassesses role/skills against the same rubric as initial
+scoring. The replacement needs sources and a short task quote from that job's own research
+paragraph; missing/cross-job quotes leave the earlier part unchanged. Both higher and lower
+supported points replace the summary judgement, while other blockers still apply. No separate
+research or scoring call is added. A grounded mandatory central skill marked unclear cannot
+support the core-match band; proposed points survive for later supported resolution. Degrees,
+years, incidental tools and unsupported ad quotes do not trigger this restriction.
+
+The existing quick pass may report an explicit workplace contradicting the feed even when
+the feed names a known town. It must quote that workplace within the supplied title/opening;
+unchanged towns, head offices and training/customer destinations are not requested. Known-place
+text remains bounded to the same opening length. Contradictory distant ad/feed towns or
+coordinates have no approved journey origin. They stay pending without scoring, routes or a
+futile town lookup; the card identifies the conflict. Corrected original metadata can resolve
+it. Multiple distant workplaces need disambiguation, rather than picking a convenient copy.
+This does not prove that every workplace mention will be extracted correctly, or replace
+missing original ads, city facts or journeys. Invoice savings have not been measured.
+
 Application reports now recognize the same numeric Adzuna advertisement across its known
 details/land route forms and changed `utm_*`, `se` or `v` tracking fields. The original advertiser
 URL is preserved. Unknown query fields, other identifiers/hosts/ports and unrecognized paths

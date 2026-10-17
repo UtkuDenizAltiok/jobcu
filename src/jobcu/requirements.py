@@ -21,6 +21,8 @@ class RequirementCheck(BaseModel):
     ad_words: str = Field(description="Exact short quote stating the requirement")
     profile_words: str = Field(description="Exact relevant profile quote, or empty if unknown")
     status: Literal["met", "not_met", "unclear"]
+    central_to_role: bool = Field(default=False,
+        description="Required specialist/practical expertise central to the daily work")
 
 
 RULES = """\
@@ -39,6 +41,10 @@ qualifications need only one qualifying alternative. Empty list only when no ord
 requirements are stated. If the ad is incomplete, unseen requirements remain unknown.\
  Do not reduce a required-skills section to its degree alone. A matching tool name or basic \
 familiarity does not establish the required depth; use unclear unless the profile supports it.\
+ Mark central_to_role true for mandatory specialist/domain/practical expertise central to the \
+main work, not for a degree, years, generic soft skills or an incidental tool. Shared PCB tools \
+do not establish high-speed/RF computing expertise; general ward work does not establish \
+specialist clinical practice; lesson planning does not establish a different teaching subject.\
 """
 
 
@@ -92,6 +98,7 @@ def ground(checks: list[RequirementCheck] | None, ad_text: str, profile_text: st
             data["status"] = "unclear"
         key = words or _plain(data["requirement"])
         if key in found:
+            found[key]["central_to_role"] |= data["central_to_role"]
             if found[key]["status"] != data["status"]:
                 found[key]["status"] = "unclear"
                 found[key]["proposed_status"] = "unclear"
@@ -126,6 +133,8 @@ def merge(earlier: list[dict] | None, later: list[dict] | None) -> list[dict] | 
     for check in later:
         key = _plain(check["requirement"])
         previous = combined.get(key)
+        if previous and previous.get("central_to_role"):
+            check = {**check, "central_to_role": True}
         if previous and previous["status"] == "not_met" and check["status"] == "unclear":
             continue
         combined[key] = check
