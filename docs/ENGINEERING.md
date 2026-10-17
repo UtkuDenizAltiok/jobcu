@@ -106,14 +106,61 @@ answer and usage receipt, prevent other paid attempts while the recovery request
 and prove parallel work resumes. This prevents a particular source of repeated failure costs;
 it does not guarantee a live provider recovery, a lower invoice or a fixed cost per search.
 
-## Native event transport candidate — 2026-10-16
+## City evidence and connection dispatch — 2026-10-18
 
-The stateless native event-stream candidate in draft PR #137 is not adopted. Offline
-contract tests alone do not establish live availability or recovery. Keep the current
-Generate Content endpoint and chosen model/effort until bounded verification establishes
-complete answers, citations, usage and dispatch behavior. Do not retry an account refusal
-through another endpoint or raise a limit as an implicit compatibility fallback. Private
-verification evidence and its exact dependency remain outside Git.
+`reference_sources.py` reads explicitly reviewed public references before hosted research.
+Private settings retain exact-condition identities, source addresses, country/city scopes,
+reviewed aliases/geographic identifiers, dated permissions and optional whole PDF pages. They retain no verdict or
+source text. Every new check reads the pages again, respecting robots, access refusals and
+request budgets. Missing, oversized, redirected or unreadable references cannot establish a
+fact. The chosen model compares supplied evidence at medium effort without a hosted search
+tool; unresolved cities remain eligible for ordinary research. A failed paid comparison stops
+that recovery path instead of buying a second research operation.
+
+Answers require unique city IDs, explanations and exact supporting quotes. Country-only
+evidence cannot establish a city fact; shared-table evidence must name the requested city or
+a reviewed alias. When a source supplies a reviewed geographic label/code, the page must
+contain it before buying a comparison, and the city citation must include it. A same-named
+county cannot substitute for that city. Missing IDs, unsupported quotes and unresolved
+comparisons retain their specific unchecked explanation without becoming accepted facts.
+Preserve complete table headers and all rows needed for the whole city;
+constituencies and counties are not interchangeable with cities. Comparisons require the same
+event, geographic unit and category, or rigorous conservative bounds. Every unclassified
+named member must remain in those bounds as well as the Other row; overlapping intervals
+cannot prove the requested comparison. Quote validation proves
+provenance, not the correctness of the model's interpretation. Source selection and live
+semantic verification remain necessary. Population rules, candidate coverage, journey
+admission and fresh job scoring are unchanged. Whole-city comparisons receive 20,000 answer
+tokens plus the existing medium thinking room: 32,000 tokens on the first attempt. The shared
+client still owns bounded truncation recovery. A smaller
+allowance could end before the final city answers; this reserves space without lowering effort.
+Actual billed tokens still need receipts; the larger allowance is not a cost ceiling.
+
+Supported native models now use a stateless event stream for generation and research:
+`store=False`, `background=False`, no previous conversation ID, the selected model/effort and
+no SDK retries. Lifecycle events let the HTTP response begin before a long answer finishes.
+Only terminal success is accepted. Final output replaces streamed fragments; citation offsets
+are UTF-8 bytes. A complete usage receipt needs explicit input/output/thought/cache counts;
+partial receipts remain unknown. Documented refusals, invalid requests, quotas and outages
+retain distinct handling. Unknown future model IDs retain the legacy endpoint; an account
+refusal never triggers a different endpoint or model.
+
+Across providers, a connection failure proven to precede dispatch can retry. A lost reply
+after possible dispatch records unknown usage and suspends further automatic requests on
+that provider/model/request-kind path for the current client, including queued work. Explicit
+saved-evidence recovery creates a fresh client. This supersedes automatically repeating an
+ambiguous paid request: the provider may already have charged for it. Other request kinds and
+completed evidence remain usable. This bounds duplicate attempts; it does not identify the
+external component that closed an earlier connection or prove invoice savings.
+
+## Native event transport candidate — 2026-10-16 (superseded)
+
+Before the 2026-10-18 protocol and dispatch repairs above, the stateless native event-stream
+candidate in draft PR #137 was not adopted: offline contract tests alone did not establish
+live availability or complete recovery. The earlier checkpoint required bounded verification
+of complete answers, citations, usage and dispatch behavior before replacing the old endpoint.
+Those earlier paid packets are closed; their private receipts remain available. An account
+refusal must never be retried through another endpoint or bypassed by raising a limit.
 
 ## Job types and online research — 2026-10-16
 
@@ -1635,7 +1682,7 @@ The root keeps launchers, README, CONTRIBUTING, AGENTS, LICENSE and Python/tool 
 | Documents/profile | `documents.py`, `documents_api.py`, `profile.py`; uploads, text and cached structured profiles. |
 | Search preparation | `preparation.py`; bounded private reuse of exact-input location readings and search-word groups, excluding research, scores and journeys. |
 | Search coordination | `search.py`, `search_api.py`, `pipeline.py`, `pool.py`; progress, collection, decisions, cards and condition reapplication. |
-| Places/criteria | `countries.py`, `location.py`, `reference_places.py`, `places.py`, `placenames.py`, `travel.py`; supported geography, query interpretation, finite reference-city evidence and measurements. |
+| Places/criteria | `countries.py`, `location.py`, `reference_places.py`, `reference_sources.py`, `places.py`, `placenames.py`, `travel.py`; supported geography, query interpretation, finite reference-city evidence and measurements. |
 | Discovery | `keywords.py`, `employers.py`; multilingual words and periodically discovered employers. |
 | Evidence/matching | `text.py`, `jobposting.py`, `dedupe.py`, `filters.py`, `freshness.py`, `relevance.py`, `jobplace.py`, `requirements.py`, `recheck.py`, `scoring.py`; text extraction, filtering, research, grounded requirements, saved-ad recovery and fit. |
 | Results/evaluation | `applications.py`, `vacancy_evidence.py`, `jobidentity.py`, `jobstore.py`, `quality.py`, `quality_api.py`; application routes, verified original facts, remembered jobs, saved results and independent score checks. |

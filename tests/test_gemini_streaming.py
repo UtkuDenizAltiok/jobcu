@@ -247,6 +247,13 @@ def test_interrupted_or_unavailable_request_retries_a_fresh_complete_answer(serv
     settings.ai.provider, settings.ai.model = "gemini", "fictional-model"
     waits = []
     client = AIClient(settings, adapter=adapter, sleep=waits.append)
+    if isinstance(interruption, httpx.RemoteProtocolError):
+        with pytest.raises(AIConnectionError):
+            client.generate(Fit, step="scoring", system="Fictional nurse",
+                            prompt="Registration evidence missing")
+        assert len(requests) == 1 and waits == []
+        assert streams[0].closed and not streams[1].closed
+        return
     answer = client.generate(Fit, step="scoring", system="Fictional nurse",
                              prompt="Registration evidence missing")
     assert answer.requirement == "unknown"
@@ -319,7 +326,7 @@ def test_disconnect_after_terminal_success_keeps_answer_without_another_paid_req
     assert log.this_month()[0].usage == Usage(100, 20, unreported_requests=1)
 
 
-def test_failed_stream_usage_and_queries_count_before_a_fresh_research_retry(service):
+def test_failed_stream_usage_and_queries_survive_without_repeating_ambiguous_research(service):
     grounding = {"webSearchQueries": ["fictional registration"], "groundingChunks": [
         {"web": {"uri": "https://example.org/ad", "title": "Fictional original"}}]}
     adapter, requests, _ = service(
@@ -335,13 +342,13 @@ def test_failed_stream_usage_and_queries_count_before_a_fresh_research_retry(ser
     settings.limits.web_search_cap = 3
     log = UsageLog()
     client = AIClient(settings, adapter=adapter, usage_log=log, sleep=lambda seconds: None)
-    reply = client.research(step="job_places", system="Fictional nurse",
-                            prompt="Current registration evidence", max_searches=3)
-    assert reply.text == "Current evidence unknown"
-    assert len(requests) == 2
-    assert client.web_searches_used == 2 and client.web_searches_left() == 1
-    assert log.this_month()[0].usage == Usage(150, 35, reasoning_tokens=20,
-                                            web_searches=2, unreported_requests=1)
+    with pytest.raises(AIConnectionError):
+        client.research(step="job_places", system="Fictional nurse",
+                        prompt="Current registration evidence", max_searches=3)
+    assert len(requests) == 1
+    assert client.web_searches_used == 1 and client.web_searches_left() == 2
+    assert log.this_month()[0].usage == Usage(100, 30, reasoning_tokens=20,
+                                            web_searches=1, unreported_requests=1)
 
 
 def test_usage_missing_from_a_successful_stream_is_not_a_zero_cost_receipt(service):

@@ -9,6 +9,8 @@ import threading
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
+import httpx
+
 from jobcu.settings import Effort
 
 
@@ -109,6 +111,22 @@ class AIUnavailable(AIError):
 
 class AIConnectionError(AIUnavailable):
     """The connection failed, without a provider billing or service-status response."""
+
+    def __init__(self, message: str, detail: str = "", *, request_sent: bool | None = None):
+        super().__init__(message, detail)
+        self.request_sent = request_sent
+
+
+def connection_problem(exc: Exception) -> AIConnectionError:
+    """A connect/pool failure precedes sending; read/write failures may have incurred charges."""
+    current, seen = exc, set()
+    while current.__cause__ is not None and id(current) not in seen:
+        if isinstance(current, httpx.TransportError):
+            break  # keep HTTPX's dispatch classification above its lower-level socket cause
+        seen.add(id(current))
+        current = current.__cause__
+    unsent = isinstance(current, (httpx.ConnectError, httpx.ConnectTimeout, httpx.PoolTimeout))
+    return AIConnectionError(MSG_CONNECTION, str(exc), request_sent=not unsent)
 
 
 class AIBadRequest(AIError):

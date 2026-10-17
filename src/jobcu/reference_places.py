@@ -194,6 +194,19 @@ def check(client: AIClient, text: str, towns: list[places.Town], *,
     sources = list({s.url: s for c in checks for s in c.sources}.values())
     notes: list[str] = []
     note = "Reference cities selected from the local population and named-place rules."
+    from jobcu import reference_sources
+
+    try:
+        sources.extend(reference_sources.check(client, text, checks))
+    except AIError as exc:
+        # Keep completed source-backed cities; a failed paid comparison must not cause an
+        # additional hosted-research operation in the same recovery attempt.
+        known = sum(c.meets is not None for c in checks)
+        return Condition(text=text, understood_as=text, kind="towns_that_fit",
+                         status="applied" if known else "not_checked",
+                         sources=list({s.url: s for c in checks for s in c.sources}.values()),
+                         note=f"Checked {known} of {len(checks)} reference cities. {exc.message}",
+                         reference_checks=checks)
     pending = [i for i, c in enumerate(checks) if c.meets is None]
     batches = (len(pending) + REFERENCE_BATCH_SIZE - 1) // REFERENCE_BATCH_SIZE
     for start in range(0, len(pending), REFERENCE_BATCH_SIZE):

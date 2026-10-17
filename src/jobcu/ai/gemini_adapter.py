@@ -12,7 +12,6 @@ from google.genai import errors, types
 
 from jobcu.ai.base import (
     MSG_BAD_REQUEST,
-    MSG_CONNECTION,
     MSG_KEY_REJECTED,
     MSG_MODEL_NOT_FOUND,
     MSG_QUOTA,
@@ -38,9 +37,11 @@ from jobcu.ai.base import (
     ResearchReply,
     Source,
     Usage,
+    connection_problem,
     reasoning_control_refused,
     unique_sources,
 )
+from jobcu.ai.gemini_events import EVENT_MODELS, EventAnswer
 from jobcu.settings import Effort
 
 _REFUSAL_REASONS = {"SAFETY", "PROHIBITED_CONTENT", "BLOCKLIST", "SPII", "RECITATION"}
@@ -54,6 +55,7 @@ class GeminiAdapter(ProviderAdapter):
     def __init__(self, api_key: str, base_url: str = "", timeout: float = 180.0) -> None:
         super().__init__(api_key, base_url, timeout)
         self._stream_responses = threading.local()
+        self._interactions = None
 
     def _capture_response(self, response: httpx.Response) -> None:
         responses = getattr(self._stream_responses, "current", None)
@@ -86,6 +88,9 @@ class GeminiAdapter(ProviderAdapter):
         effort: Effort | None,
         max_output_tokens: int,
     ) -> RawReply:
+        if model.removeprefix("models/") in EVENT_MODELS:
+            reply = self._event_stream(model, system, prompt, effort, max_output_tokens, schema)
+            return RawReply(reply.text, reply.usage)
         config = types.GenerateContentConfig(
             system_instruction=system,
             response_mime_type="application/json",
@@ -102,6 +107,9 @@ class GeminiAdapter(ProviderAdapter):
         self, *, model: str, system: str, prompt: str, max_searches: int, max_output_tokens: int,
         effort: Effort | None = None,
     ) -> ResearchReply:
+        if model.removeprefix("models/") in EVENT_MODELS:
+            return self._event_stream(model, system, prompt, effort, max_output_tokens,
+                                      web_search=True)
         config = types.GenerateContentConfig(
             system_instruction=system,
             max_output_tokens=max_output_tokens,
@@ -110,6 +118,82 @@ class GeminiAdapter(ProviderAdapter):
             automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
         )
         return self._stream(model, prompt, config, web_search=True)
+
+    def _event_resource(self):
+        client = self._client()
+        with self._client_lock:
+            if self._interactions is None:
+                self._interactions = client.interactions
+                # This SDK resource interprets attempts=1 as an extra retry.
+                # Jobcu owns the retry/usage budget; disable the second retry layer.
+                self._interactions.sdk_configuration.retry_config = None
+        return self._interactions
+
+    def _event_stream(self, model, system, prompt, effort, max_tokens, schema=None,
+                      *, web_search=False):
+        model = model.removeprefix("models/")
+        state = EventAnswer(model=model, web_search=web_search)
+        generation = {"max_output_tokens": max_tokens, "thinking_summaries": "auto"}
+        if effort:
+            generation["thinking_level"] = effort
+        request = dict(model=model, input=prompt, system_instruction=system,
+                       stream=True, store=False, background=False, generation_config=generation)
+        if schema is not None:
+            request["response_format"] = {
+                "type": "text", "mime_type": "application/json", "schema": schema}
+        if web_search:
+            request["tools"] = [{"type": "google_search"}]
+        stream = None
+        started = time.monotonic()
+        events = 0
+        self._stream_responses.current = []
+        try:
+            stream = self._event_resource().create(**request)
+            for event in stream:
+                events += 1
+                state.add(event.model_dump(mode="json", exclude_none=True))
+                if state.complete:
+                    break
+            return state.reply()
+        except Exception as exc:
+            original = exc
+            seen = set()
+            while original.__cause__ is not None and id(original) not in seen:
+                if isinstance(original, httpx.TransportError):
+                    break
+                seen.add(id(original))
+                original = original.__cause__
+            if isinstance(original, httpx.TransportError):
+                log.info("AI event stream interrupted after %.1fs: headers_received=%s, "
+                         "events_received=%d, completion_received=%s, kind=%s",
+                         time.monotonic() - started, bool(self._stream_responses.current),
+                         events, state.complete, type(original).__name__)
+                exc = original
+            status = getattr(exc, "status_code", None)
+            if isinstance(status, int) and 400 <= status <= 599:
+                body = getattr(exc, "body", None)
+                if not isinstance(body, dict):
+                    body = {"error": {"message": str(body or exc)}}
+                exc = errors.APIError(status, body)
+            translated = _translate(exc, web_search=web_search)
+            if (isinstance(translated, AIError)
+                    and not (isinstance(translated, AIConnectionError)
+                             and translated.request_sent is False)
+                    and (state.steps or state.counts or state.queries
+                         or isinstance(translated, (AIUnavailable, AIOutputTruncated)))):
+                # A failed terminal outcome can still carry a complete final bill. A
+                # missing/partial receipt stays unknown; failure alone does not erase it.
+                translated.usage = state.usage(interrupted=not state.final_usage)
+            raise translated from exc
+        finally:
+            responses = self._stream_responses.current
+            del self._stream_responses.current
+            for resource in [stream, *responses]:
+                if resource is not None:
+                    try:
+                        resource.close()
+                    except httpx.TransportError:
+                        pass
 
     def _stream(self, model: str, prompt: str, config: types.GenerateContentConfig,
                 *, web_search: bool = False) -> ResearchReply:
@@ -186,8 +270,11 @@ class GeminiAdapter(ProviderAdapter):
                 interrupted = True
             else:
                 translated = _translate(exc, web_search=web_search)
-                if isinstance(translated, AIError) and (usage_seen or queries or isinstance(
-                        translated, (AIUnavailable, AIOutputTruncated))):
+                if (isinstance(translated, AIError)
+                        and not (isinstance(translated, AIConnectionError)
+                                 and translated.request_sent is False)
+                        and (usage_seen or queries
+                             or isinstance(translated, (AIUnavailable, AIOutputTruncated)))):
                     translated.usage = _usage(counts, queries, unreported=True,
                                               query_billed=query_billed)
                 raise translated from exc
@@ -308,7 +395,7 @@ def _translate(exc: Exception, *, web_search: bool = False) -> Exception:
             return AIReasoningUnsupported(MSG_BAD_REQUEST, detail)
         return AIBadRequest(MSG_BAD_REQUEST, detail)
     if isinstance(exc, httpx.TransportError):
-        return AIConnectionError(MSG_CONNECTION, detail)
+        return connection_problem(exc)
     if isinstance(exc, httpx.HTTPError):
         return AIUnavailable(MSG_UNAVAILABLE, detail)
     if isinstance(exc, AIError):

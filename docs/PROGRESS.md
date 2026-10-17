@@ -6,9 +6,19 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ## Right now
 
-*Updated 2026-10-17. Engineering checks use fictional data.*
+*Updated 2026-10-18. Engineering checks use fictional data.*
 
 ### State
+
+- City-source verification and connection/cost safeguards are completed in
+  [PR #150](https://github.com/UtkuDenizAltiok/jobcu/pull/150): **2,088 offline tests** pass.
+  Reviewed geographic identifiers prevent city/county substitution before paid comparisons;
+  complete groups and receipts survive later failures. Stateless event streams retain the
+  selected model/effort; ambiguously charged requests stop automatic repetition. Real bounded
+  source/journey checks and preserved-data application are recorded privately. These establish
+  the tested paths, not universal availability, full city coverage or historical invoice causes.
+  Exact main CI and deployment receipts are in the private index; verify their actual heads.
+
 
 - Shared requirement-evidence replacement is repaired in
   [PR #149](https://github.com/UtkuDenizAltiok/jobcu/pull/149): **1,978 offline tests** pass.
@@ -62,8 +72,8 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
   tests passing**. PR head `66a2d4e` and main merge `4b71cdc` passed exact-head Mac/Windows/privacy
   CI `38965550282` and `38966116991`; main/locked dependencies are synchronized. PR #136's
   unchanged baseline was 1,857 tests; its merged head `7a708a6` passed Mac/Windows/privacy
-  CI `38944559503`. The separate native transport candidate is not adopted; cost-safe complete recovery
-  remains unverified.
+  CI `38944559503`. The native transport is superseded by PR #150 below; broader recovery
+  remains limited by the specific evidence dependencies recorded there.
 - Location admission, explicit screening uncertainty and the UK sponsorship deduction are
   tracked in [PR #135](https://github.com/UtkuDenizAltiok/jobcu/pull/135). Final local suite:
   **1,833 passing tests**. These checks use fictional data; real missing place evidence stays
@@ -104,45 +114,36 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Source repairs complete; saved city/service verification remains parked.**
+**Parked: remaining city-category and comparable city-result evidence.**
 
-PR #149 holds the final shared unsupported-reply safeguard and this handover. Its final local
-suite has **1,978 passing tests**, one existing dependency warning; Ruff/privacy, JS syntax and
-whitespace pass. Eighteen fictional electronics, nursing and teaching cases first reproduced
-the overwrite, then verified both recovery paths, bounded diagnostics and supported resolution.
-Confirm actual PR/main publication state and exact Mac/Windows/privacy CI before treating
-publication as complete; the private checkpoint retains those receipts. Do not rerun unchanged
-source checks or open another improvement goal merely to prepare a chat.
+The coherent software/data step in PR #150 is complete in this merge: **2,088 offline tests**
+pass, plus Ruff/privacy/docs/JS/whitespace; one existing dependency warning. Exact PR head
+`dd23de4` passed Mac/Windows/privacy CI `39072837766`. The source selection, event-stream,
+ambiguous-charge, complete-receipt and precise-uncertainty repairs are adopted. Independently
+reviewed city evidence and bounded Maps checks are applied to the same saved search, with
+free geometry settled and cards refreshed without additional paid scoring. Raw assessments,
+marks, identities, other settings and history were verified preserved. The rollback copy and
+exact private receipts are indexed by `assistant-review-checkpoint.json`.
 
-PR #148 head `6746810` passed exact Mac/Windows/privacy CI `39062389319`; merge `2c503e9`
-passed exact-main CI `39062917244`. Final local suite: **1,960 passing tests**, one existing
-Starlette/AnyIO deprecation warning, plus Ruff/privacy, 20 document checks, JS syntax and
-whitespace. The fictional source/undo interface was verified and its preview stopped.
-Main and locked dependencies are synchronized. Detailed original/profile verification,
-private data application and integrity receipts are indexed by `assistant-review-checkpoint.json`;
-read authorization/revocations before private access. No new search or paid test was made.
-Disposable document/database/preview copies are removed.
+No implementation, paid packet or new search remains open for this coherent step. Verify
+actual merge/main CI and app build from Git/private receipts; a PR pass alone is not main CI.
+The older PR #137 candidate is superseded by the tested portions in PR #150. PR #149 and
+previous original-ad applications are complete and must not be repeated.
 
-The remaining evidence is specific: missing city eligibility facts and journeys from interrupted
-research, and a live provider assessment of incomplete specialist-role evidence. Targeted
-profile/original diagnostics are not a replacement numerical rating or a blinded benchmark.
-The original-date and unavailable-ad software paths are complete; do not repeat the finished
-private verification or reapply its facts. Current source-permission holds remain in SOURCES.
-A technical HTTP/tool access failure is not itself closure and need not prevent permitted
-normal-browser verification of the exact linked original.
+**Dependency:** some category comparisons still overlap because the available classification
+framework does not cover every small/named party; other countries still need comparable
+whole-city election evidence. Unmeasured/unchecked alternatives also remain explicit. Neither
+a county result nor an AfD-only shortcut can settle the broader requested comparison.
+The exact historical disconnecting component and original-run invoice allocation remain
+unproven; successful later packets and daily totals do not identify those causes.
 
-**Exact next action:** finish PR #149 publication if Git/CI still show it pending; otherwise
-await evidence and applicable authority for the saved city/route checks.
-Use the private checkpoint's remaining scope; verify exact reference facts, then journeys, then
-reassess only qualifying jobs. No paid packet is open. Before any paid research proposal,
-establish enforceable request/tool charges and a bounded budget. Do not repeat hosted research
-with unbounded query charges, start another search or treat unknown locations as matches.
-
-**Parked research dependency:** PR #137 at `ac25239` remains an unmerged native transport
-candidate. A documented enforceable hosted-query budget or permitted controlled interface,
-complete protocol/evidence verification and new bounded spending authority are needed before
-any further paid test proposal. Original external connection causes and invoice reconciliation
-remain unresolved. This new task does not reopen that packet.
+**Exact next action within the retained review scope:** after reading authorization and the
+private checkpoint, obtain independent classification evidence for its explicitly listed
+unresolved comparisons, or exact comparable city results for the still-unchecked countries.
+Validate that evidence before using it for journeys or admission. Reuse completed facts/routes;
+do not repeat paid requests, rescore blocked jobs or select an unrelated backlog task. Further
+paid verification requires a new bounded packet; all previous packets are closed. Current
+account caps, source evidence and usage reconciliation remain private.
 
 The earlier whole-pipeline review also has these **parked dependencies**; do not resume them
 without evidence and authority relevant to the active task:
@@ -167,15 +168,11 @@ without evidence and authority relevant to the active task:
 
 ### Waiting on the owner
 
-The active task's bounded test packets are closed. A further paid request needs new bounded
-authority. The owner confirmed active billing with an enforced cap within the
-total service budget; preserve it and the local ceiling. A local estimate is not an invoice
-or provider cap. The exact run and capture are finished; no additional search or paid
-experiment is scheduled.
-Restoring provider service does not retroactively complete a saved search's missing checks.
-A fresh local chat can use [Start](PROMPTS.md#start-a-session) to verify recovery state
-and wait. Use [Review](PROMPTS.md#review-a-search) for later saved evidence and
-[End](PROMPTS.md#end-a-session) to park a session.
+No account change, new search or provider/model switch is pending. All bounded development
+verification packets are closed; receipts and specific unresolved evidence are in the private
+checkpoint. Preserve existing local/provider limits. A local estimate is not an invoice or
+provider cap. Service restoration does not retroactively complete missing search checks.
+A fresh chat follows [Start](PROMPTS.md#start-a-session) and recovers In progress before new work.
 
 ### Verify before relying on
 
