@@ -44,7 +44,7 @@ from jobcu.scoring import (
     evidence_priority,
     sponsorship_confirmed,
 )
-from jobcu.travel import job_country, job_point
+from jobcu.travel import job_country, job_point, workplace_conflict
 
 log = logging.getLogger(__name__)
 
@@ -184,6 +184,23 @@ def needs_requirements(group: JobGroup, scored: dict | None) -> bool:
     return (scored is not None and "evidence" in scored and not scored.get("read_online")
             and not group.best_description_copy.description_is_complete
             and evidence_priority(scored) >= MIN_SCORE)
+
+
+def needs_evidence_retry(group: JobGroup, scored: dict | None) -> bool:
+    """An attempted lookup is not complete evidence; retry only on explicit recovery.
+
+    Legacy markers do not prove that the job's main work or requirements were found.
+    Normal condition edits/search polling never rearm these requests.
+    """
+    return bool(scored and scored.get("read_online")
+                and scored.get("online_check") != "complete"
+                and needs_requirements(group, {**scored, "read_online": False}))
+
+
+def needs_place_retry(group: JobGroup) -> bool:
+    """A failed/empty town lookup can be retried explicitly; contradictions need correction."""
+    return (group.place_from_web == [] and job_country(group) is not None
+            and job_point(group) is None and not workplace_conflict(group))
 
 
 _USED_UP = "used up"  # a batch not asked about because the web look-ups ran out

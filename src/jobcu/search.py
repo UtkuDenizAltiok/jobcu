@@ -38,6 +38,7 @@ from jobcu.ai.usage import UsageLog, estimate_cost
 from jobcu.countries import COUNTRIES, LANGUAGE_NAMES, languages_for
 from jobcu.documents import DocumentError
 from jobcu.filters import REASONS, apply_rules, fails_a_condition
+from jobcu.freshness import window_start
 from jobcu.keystore import KeyStore
 from jobcu.keywords import generate_search_words_reusing
 from jobcu.location import (
@@ -54,6 +55,7 @@ from jobcu.relevance import quick_pass, screen_titles
 from jobcu.settings import SearchForm, load_settings, save_settings
 from jobcu.sources.base import JobQuery
 from jobcu.sources.http import PoliteClient
+from jobcu.vacancy_evidence import group_reasons as original_reasons
 
 log = logging.getLogger(__name__)
 
@@ -269,8 +271,8 @@ class SearchManager:
                 started_at=snapshot["started_at"],
                 kind="reapply",
                 steps=[Step(i, label) for i, label in (
-                    [REAPPLY_STEPS[0], ("requirements", "Rechecking uncertain requirements"),
-                     *REAPPLY_STEPS[1:]] if recheck_requirements else REAPPLY_STEPS)],
+                    [*REAPPLY_STEPS[:3], ("requirements", "Rechecking uncertain requirements"),
+                     *REAPPLY_STEPS[3:]] if recheck_requirements else REAPPLY_STEPS)],
                 result=snapshot["result"],
                 reference_research_cache=(current.reference_research_cache
                                           if current is not None and current.id == search_id
@@ -583,7 +585,7 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
 
 
 def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden_cards,
-            checkpoint) -> None:
+            checkpoint, *, retry_requirements: bool = False) -> None:
     """Applies the conditions about places to the kept jobs, then checks, reads and scores the
     ones still in the running, and builds the results.
 
@@ -604,7 +606,9 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     reported_links = applications.reported_urls()
     unavailable_routes = {i: reason for i, group in enumerate(groups)
                           if (reason := applications.exclusion_key(group, reported_links))}
-    excluded = set(ruled_out) | set(unavailable_routes)
+    original = original_reasons(groups, window_start(started_at, form.posted_within_hours))
+    ruled_out = [i for i in ruled_out if i not in unavailable_routes and i not in original]
+    excluded = set(ruled_out) | set(unavailable_routes) | set(original)
     in_running = [i for i in range(len(groups)) if i not in excluded]
     unchecked = [i for i in in_running if job_pool.jobs[i].unrelated is None]
     if unchecked:
@@ -694,6 +698,11 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     location_pending = {i for i in candidates
                         if pipeline.unchecked_location_conditions(groups[i], plan)}
     to_score = [i for i in to_score if i in candidates and i not in location_pending]
+
+    if retry_requirements:
+        eligible = [i for i in candidates if i not in location_pending
+                    and _ad_exclusion(groups[i], job_pool.jobs[i].scored, form) is None]
+        _retry_requirements(run, client, job_pool, settings, indexes=eligible)
 
     run.update("scoring", "running")
     order = pipeline.newest_first(groups, to_score)
@@ -818,7 +827,10 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
                                                      role_words=found.role_words,
                                                      requirement_checks=found.requirement_checks,
                                                      **found.blockers)
-            job_pool.jobs[index].scored = {**scored, "read_online": True}
+            status = ("not_found" if found is None else "complete"
+                      if found.role_and_skills is not None and found.requirement_checks is not None
+                      else "incomplete")
+            job_pool.jobs[index].scored = {**scored, "read_online": True, "online_check": status}
     placed = [i for i in later_towns if groups[i].place_from_web]
     fails = [i for i in placed if fails_a_condition(groups[i], at_once)]
     if measured and placed:
@@ -844,6 +856,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     left_out = Counter(job_pool.left_out)
     left_out.update(detail_rules.left_out)
     left_out.update(unavailable_routes.values())
+    left_out.update(original.values())
     if ruled_out:
         left_out["location_condition"] = len(ruled_out)
     shown: list[int] = []
@@ -989,10 +1002,11 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
         run.replace_notes(earlier_warnings, warnings)
         _checkpoint(run)
         if recheck_requirements:
-            _retry_requirements(run, client, job_pool, settings)
+            _prepare_saved_evidence_retry(job_pool)
         collected = pipeline.collected_again(job_pool.reports)
         _decide(run, client, KeyStore(), http, settings, plan, job_pool, collected,
-                run.result["jobs"]["hidden"], lambda: _checkpoint(run))
+                run.result["jobs"]["hidden"], lambda: _checkpoint(run),
+                retry_requirements=recheck_requirements)
     finally:
         http.close()
         usage = UsageLog().for_search(run.id)
@@ -1001,7 +1015,18 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
         search_pool.save(job_pool)
 
 
-def _retry_requirements(run, client, job_pool, settings) -> None:
+def _prepare_saved_evidence_retry(job_pool) -> None:
+    """Explicit recovery reopens missing evidence, preserving all existing judgements."""
+    for job in job_pool.jobs:
+        if job.unrelated:
+            continue
+        if jobplace.needs_evidence_retry(job.group, job.scored):
+            job.scored = {**job.scored, "read_online": False}
+        if jobplace.needs_place_retry(job.group):
+            job.group.place_from_web = None
+
+
+def _retry_requirements(run, client, job_pool, settings, *, indexes=None) -> None:
     from jobcu import recheck
 
     run.update("requirements", "running", "Checking retained evidence")
@@ -1009,8 +1034,9 @@ def _retry_requirements(run, client, job_pool, settings) -> None:
     for job in job_pool.jobs:
         _checkpoint(run)
         recheck.refresh_validation(job, profile)
-    pending = sorted((j for j in job_pool.jobs if recheck.needs_comparison(j)),
-                     key=lambda j: -(j.scored or {}).get("score", 0))
+    admitted = (job_pool.jobs if indexes is None else [job_pool.jobs[i] for i in indexes])
+    pending = sorted((j for j in admitted if recheck.needs_comparison(j)),
+                     key=lambda j: -((j.scored or {}).get("score") or 0))
     cap = settings.limits.scoring_cap or len(pending)
     done = 0
     stopped = threading.Event()

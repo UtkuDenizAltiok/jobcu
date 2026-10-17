@@ -154,3 +154,59 @@ def test_conflicting_workplaces_use_no_scoring_research_or_routes(monkeypatch, t
     assert any("different workplaces" in c["label"] for c in pending[0]["location_checks"])
     assert not run.result["jobs"]["cards"]
     assert condition.travel == {} and travel.job_point(group) is None
+
+
+@pytest.mark.parametrize("title", ["Power Electronics Engineer", "Ward Nurse", "Physics Teacher"])
+def test_saved_requirement_retry_runs_only_after_current_location_admission(monkeypatch, title):
+    from test_recheck import PERSON, check, saved
+
+    now = datetime.now(UTC)
+    city = Town("Fictional Major City", "DE", 50, 9, 2_000_000)
+    condition = Condition(text="Near a major city", understood_as="Within 50 minutes",
+                          status="applied", kind="near", max_minutes=50,
+                          anchor=Anchor(description="a large city", min_share_of_country=.003))
+    plan = LocationPlan(text="Near a city", understood_as="Near a city", countries=["DE"],
+                        places=[], conditions=[condition], not_checked_yet=[],
+                        outside_supported_area=[], broad=False)
+    jobs = [saved([check("unclear")]) for _ in range(3)]
+    for i, job in enumerate(jobs):
+        copy = job.group.copies[0]
+        copy.source_job_id = str(i)
+        copy.title, copy.location_text = title, "Fictional Village"
+        copy.latitude, copy.longitude = 50, 8.9
+        copy.posted_at, copy.date_precision = now, "exact"
+    with db.connect() as conn:
+        run_id = conn.execute("INSERT INTO searches (status, form_json) "
+                              "VALUES ('running', '{}')").lastrowid
+    kept = pool.Pool(run_id, jobs, PERSON.model_dump())
+    run = search.SearchRun(run_id, SearchForm(), now.isoformat())
+    run.steps.append(search.Step("requirements", "Rechecking requirements"))
+    compared = []
+
+    class Meter:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def measure(self, conditions, groups, indexes):
+            for i in indexes:
+                condition.travel[travel.job_key(groups[i])] = {
+                    "minutes": {city.name: 30 if i == 0 else 75} if i != 2 else {},
+                    "by": travel.MAPS, "unchecked": i == 2}
+
+    def compare(client, job, profile):
+        assert travel.answer(condition, job.group) == "yes"
+        compared.append(job.group.main.source_job_id)
+        return True
+
+    monkeypatch.setattr(travel, "TravelMeter", Meter)
+    monkeypatch.setattr(travel, "anchor_towns", lambda *args: [city])
+    monkeypatch.setattr(search, "_checkpoint", lambda *args: None)
+    monkeypatch.setattr("jobcu.recheck.compare", compare)
+    monkeypatch.setattr(search.scoring, "score_groups", lambda *args, **kw: pytest.fail(
+        "The existing assessment must be reused"))
+    client = SimpleNamespace(parallel_requests=1,
+                             web_research_unavailable_reason=lambda: "Offline test")
+    search._decide(run, client, {}, None, Settings(), plan, kept,
+                   pipeline.Collected([], [], {}), [], lambda: None, retry_requirements=True)
+    assert compared == ["0"]  # not the failed or unchecked location, even on explicit retry
+    assert len(run.result["jobs"]["location_unchecked"]) == 1

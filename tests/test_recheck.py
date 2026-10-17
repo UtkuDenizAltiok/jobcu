@@ -142,3 +142,111 @@ def test_recovery_respects_scoring_limit_and_stops_queued_work_after_failure(fai
                for j in jobs) == (0 if failure else 2)
     assert all(j.scored["evidence"]["requirement_checks"][0]["status"] == "unclear"
                for j in jobs[2:])
+
+
+@pytest.mark.parametrize("expertise", ["High-speed circuit design", "Critical-care ventilation",
+                                      "Advanced physics teaching"])
+def test_focused_retry_cannot_erase_a_still_unconfirmed_central_skill(expertise):
+    ad = f"Expert {expertise} is required."
+    req = requirements.RequirementCheck(requirement=expertise, ad_words=ad,
+                                       profile_words="", status="unclear", central_to_role=True)
+    job = saved([req])
+    job.group.copies[0].description = ad
+    job.scored = scoring.finish(answer([req]), PERSON, ad_text=ad, complete=True)
+    assert job.scored["parts"]["role_and_skills"] == 35
+    reply = recheck.Comparison(**{**req.model_dump(), "id": "R0", "central_to_role": False})
+    assert recheck.compare(Client([reply]), job, PERSON)
+    assert job.scored["evidence"]["requirement_checks"][0]["central_to_role"]
+    assert job.scored["parts"]["role_and_skills"] == 35 and job.scored["score"] <= 80
+
+
+def test_explicit_recovery_rearms_only_incomplete_online_evidence():
+    from jobcu import jobplace
+
+    failed, incomplete, legacy, completed, full = [saved([], complete=False) for _ in range(5)]
+    for job in [failed, incomplete, legacy, completed, full]:
+        job.scored["read_online"] = True
+        job.group.copies[0].location_text = "Berlin"
+    failed.scored["online_check"] = "not_found"
+    incomplete.scored["online_check"] = "incomplete"
+    completed.scored["online_check"] = "complete"
+    full.group.copies[0].description_is_complete = True
+    before = [copy.deepcopy(job.scored) for job in [failed, incomplete, legacy, completed, full]]
+    assert all(not jobplace.needs_requirements(j.group, j.scored)
+               for j in [failed, incomplete, legacy, completed, full])
+    kept = pool.Pool(1, [failed, incomplete, legacy, completed, full], PERSON.model_dump())
+    search._prepare_saved_evidence_retry(kept)
+    assert [jobplace.needs_requirements(j.group, j.scored) for j in kept.jobs] == [
+        True, True, True, False, False]
+    for job, original in zip(kept.jobs, before, strict=True):
+        assert job.scored["parts"] == original["parts"]
+        assert job.scored["evidence"] == original["evidence"]
+    assert completed.scored == before[3] and full.scored == before[4]
+
+
+def test_explicit_recovery_can_retry_a_missing_workplace_without_an_existing_score():
+    from jobcu import jobplace
+
+    job = saved([], complete=False)
+    job.scored = None
+    job.group.copies[0].location_text = "Deutschland"
+    job.group.place_from_web = []
+    assert not jobplace.needs_looking_up(job.group)
+    search._prepare_saved_evidence_retry(pool.Pool(1, [job], PERSON.model_dump()))
+    assert jobplace.needs_looking_up(job.group)
+
+
+@pytest.mark.parametrize("outcome", ["complete", "incomplete", "not_found"])
+def test_recovery_tracks_actual_online_evidence_and_does_not_repeat_completed_work(
+        monkeypatch, outcome):
+    from datetime import UTC, datetime
+    from types import SimpleNamespace
+
+    from jobcu import db, jobplace, pipeline
+    from jobcu.location import LocationPlan
+
+    now = datetime.now(UTC)
+    job = saved([], complete=False)
+    job.group.copies[0].location_text = "Berlin"
+    job.group.copies[0].posted_at = now
+    job.group.copies[0].date_precision = "exact"
+    job.scored.update(read_online=True, online_check="not_found")
+    with db.connect() as conn:
+        search_id = conn.execute("INSERT INTO searches (status,form_json) "
+                                 "VALUES ('finished','{}')").lastrowid
+    kept = pool.Pool(search_id, [job], PERSON.model_dump())
+    run = search.SearchRun(search_id, SearchForm(), now.isoformat())
+    plan = LocationPlan(text="Germany", understood_as="Germany", countries=["DE"],
+                        places=[], conditions=[], not_checked_yet=[],
+                        outside_supported_area=[], broad=True)
+    calls = []
+
+    def online(client, groups, indexes, *args):
+        assert indexes == [0]
+        calls.append(indexes)
+        status = outcome if len(calls) == 1 else "complete"
+        requirements = {} if status == "not_found" else {0: jobplace.Requirements(
+            languages=[], years_required=None, requirement_checks=[],
+            role_and_skills=28 if status == "complete" else None,
+            role_words="Complex specialist duties" if status == "complete" else "")}
+        return jobplace.LookedUp(requirements=requirements, asked={0})
+
+    monkeypatch.setattr(jobplace, "find_online", online)
+    monkeypatch.setattr(scoring, "score_groups", lambda *args, **kw: pytest.fail(
+        "A saved assessment must not trigger a separate scoring call"))
+    client = SimpleNamespace(web_research_unavailable_reason=lambda: None)
+
+    def decide():
+        search._decide(run, client, {}, None, Settings(), plan, kept,
+                       pipeline.Collected([], [], {}), [], lambda: None)
+
+    search._prepare_saved_evidence_retry(kept)
+    decide()
+    assert job.scored["online_check"] == outcome
+    decide()  # normal edits/polling do not rearm an attempted incomplete request
+    assert len(calls) == 1
+    search._prepare_saved_evidence_retry(kept)
+    decide()  # explicit recovery retries only the incomplete result, once
+    assert len(calls) == (1 if outcome == "complete" else 2)
+    assert job.scored["online_check"] == "complete"
+    assert job.scored["parts"]["role_and_skills"] == 28
