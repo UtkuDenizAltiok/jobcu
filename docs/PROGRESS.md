@@ -16,10 +16,17 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
   `39043329386`; main/locked dependencies are synchronized. Pending jobs stay available
   without scoring; missing-workplace findings are reused and saved assessments stay intact.
 - Duplicate/history, matched date-reader recovery and the dated BA source-permission hold are
-  implemented on `codex/duplicate-evidence-integrity`: **1,913 offline tests** pass. Ten
-  targeted regressions reproduce the old duplicate/missed-date behavior before the repairs.
+  merged in [PR #145](https://github.com/UtkuDenizAltiok/jobcu/pull/145):
+  **1,913 offline tests** pass. PR head `58c8b90` and main `e2f40a5` passed exact
+  Mac/Windows/privacy CI `39045657826` and `39046632701`; main/locked dependencies synchronized.
+  Ten targeted regressions reproduce the old duplicate/missed-date behavior before the repairs.
   Confirmed historical copy links preserve keys, rows, snapshots and raw marks; distinct native
-  employer requisitions remain separate. Publication and exact-head CI are pending.
+  employer requisitions remain separate. Confirmed saved-evidence alias repair is applied;
+  original tables, marks, keys and snapshots were verified unchanged, with recovery outside Git.
+  Specialist-role reassessment and workplace-conflict handling are implemented on
+  `codex/specialist-workplace-evidence`; **1,938 offline tests** and Ruff/privacy/docs/JS/
+  whitespace checks pass. Six regressions reproduce the earlier overly strong core-match
+  rating or unwanted scoring on conflicting workplaces. Publication remains pending.
 
 - Atomic web-reservation accounting is merged in
   [PR #141](https://github.com/UtkuDenizAltiok/jobcu/pull/141): **1,878 offline tests** pass.
@@ -90,10 +97,10 @@ without cutting suitable jobs or weakening evidence. No new search or paid API t
 Preserve owner data, ratings and existing limits. Prior exact-run safe repairs are complete;
 the native research candidate remains unadopted and its cost/evidence dependency stays parked.
 
-Branch: `codex/duplicate-evidence-integrity`; private recovery index:
-`assistant-review-checkpoint.json` outside Git. Reuse the unchanged **1,878-test** final code
-baseline and exact main Mac/Windows/privacy CI `39038969581` at `4b7a081`; documentation since
-the final full local run did not change source, tests, dependencies or environment.
+Branch: `codex/specialist-workplace-evidence`; private recovery index:
+`assistant-review-checkpoint.json` outside Git. The previous step's **1,913-test** baseline
+and exact-main Mac/Windows/privacy CI `39046632701` at `e2f40a5` pass. No new search or paid
+verification has been performed in this task.
 
 1. Freeze the relevant saved evidence on an authorized private scratch copy. Trace original
    dates/closure and vacancy identity across copies/history, specialist fit and explanations,
@@ -108,11 +115,10 @@ the final full local run did not change source, tests, dependencies or environme
    checks. Review the full diff; publish exact-head Mac/Windows/privacy CI, merge with a merge
    commit, synchronize main and verify its exact CI. Save private case outcomes and dependencies.
 
-**Exact next action:** publish the tested duplicate/history/date/source-hold step, require
-exact PR/main Mac/Windows/privacy CI, merge and synchronize. Then apply only the privately
-reviewed confirmed-copy links through Jobcu code after scratch verification, preserving every
-historical row/key/mark, and verify the response without a new search or score. Continue the
-named specialist-fit evidence and workplace discrepancy investigation within this same goal.
+**Exact next action:** publish the tested and reviewed specialist-role/workplace diff;
+require exact PR/main Mac/Windows/privacy CI, merge and synchronize. The confirmed
+copy repair is applied without rewriting historical rows/keys/marks or saved assessments.
+Then save the private case outcomes and exact remaining evidence dependencies.
 Do not infer original vacancy age or closure from an inaccessible page, merge distinct native
 requisitions, guess city eligibility or make paid verification calls.
 

@@ -130,6 +130,8 @@ def job_point(group: JobGroup) -> Point | None:
     country = job_country(group)
     if country is None:
         return None
+    if workplace_conflict(group):
+        return None
     for copy in group.copies:
         if copy.latitude is not None and copy.longitude is not None:
             town = place_list.locate(copy.location_text, country)
@@ -140,6 +142,27 @@ def job_point(group: JobGroup) -> Point | None:
         if town is not None:
             return Point(town.latitude, town.longitude, country, "town", town.name)
     return None
+
+
+def workplace_conflict(group: JobGroup) -> bool:
+    """Contradictory ad/feed workplaces cannot support a journey from an arbitrary copy.
+
+    Preserve both descriptions for recovery. A mere mention extracted without a supported
+    workplace quote is rejected by the quick pass before reaching this function.
+    """
+    country = job_country(group)
+    named = [town for name in found_places(group)
+             if (town := place_list.locate(name, country)) is not None]
+    if not named:
+        return False
+    stated = [town for copy in group.copies
+              if (town := place_list.locate(copy.location_text, country)) is not None]
+    points = [(c.latitude, c.longitude) for c in group.copies
+              if c.latitude is not None and c.longitude is not None]
+    return any(place_list.km(a.latitude, a.longitude, b.latitude, b.longitude) > HOME_TOWN_KM
+               for a in named for b in [*stated, *named]) or any(
+        place_list.km(a.latitude, a.longitude, lat, lon) > HOME_TOWN_KM
+        for a in named for lat, lon in points)
 
 
 def found_places(group: JobGroup) -> list[str]:

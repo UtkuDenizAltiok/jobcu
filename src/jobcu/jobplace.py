@@ -34,6 +34,7 @@ from jobcu.scoring import (
     CITIZENSHIP_RULES,
     DOCTORATE_RULES,
     LEVEL_RULES,
+    ROLE_RULES,
     SPONSORSHIP_RULES,
     YEARS_RULES,
     CitizenshipOrClearance,
@@ -85,6 +86,8 @@ including conditions and negations. General company sponsorship is not a vacancy
 - other mandatory requirements, including current student enrolment, professional \
 registration/licences and qualifications, in the ad's own words; distinguish required from \
 optional and preserve alternative qualifications.
+- the main daily deliverables and specialist domain, quoting the ad's central tasks rather \
+than only its title or shared tools; preserve this evidence for a role-fit reassessment.
 Give each job its own paragraph headed JOB and its ID (for example JOB J0); keep that job's \
 quoted requirements in that paragraph. Say plainly when you couldn't find a job's ad, or when \
 the ad doesn't say. Never fill anything \
@@ -108,7 +111,12 @@ when the ad asks for no language.
 and not_required.
 - {SPONSORSHIP_RULES}
 - {requirements.RULES} ad_words must be quoted from the research notes. When the notes do not \
-cover mandatory requirements, use null rather than claiming an empty checked list.\
+cover mandatory requirements, use null rather than claiming an empty checked list.
+- role_and_skills: reassess ONLY the role-and-skills part against the supplied person using \
+the researched ad's actual main work and this same rubric. role_words: an exact quote of at \
+most 20 words from THIS job's notes that establishes its central work. Use null and empty \
+words if this evidence is missing; never copy another job's task quote or a preliminary score.
+{ROLE_RULES}\
 """
 
 
@@ -126,6 +134,8 @@ class OnlineJob(BaseModel):
     visa_sponsorship_words: str = ""
     _grounded_checks: list[dict] | None = PrivateAttr(default=None)
     _sponsorship_confirmed: bool = PrivateAttr(default=False)
+    role_and_skills: int | None = None
+    role_words: str = ""
 
 
 class OnlineAnswer(BaseModel):
@@ -141,6 +151,8 @@ class Requirements:
     # The doctorate, citizenship and clearance evidence, as scoring keeps it.
     blockers: dict[str, str | bool] = field(default_factory=dict)
     requirement_checks: list[dict] | None = None
+    role_and_skills: int | None = None
+    role_words: str = ""
 
 
 @dataclass
@@ -244,6 +256,7 @@ def find_online(client: AIClient, groups: list[JobGroup], indexes: list[int],
                         "visa_sponsorship": answer.visa_sponsorship,
                         "visa_sponsorship_words": answer.visa_sponsorship_words,
                         "sponsorship_confirmed": answer._sponsorship_confirmed},
+                    role_and_skills=answer.role_and_skills, role_words=answer.role_words,
                     requirement_checks=(answer._grounded_checks
                                         if answer._grounded_checks is not None
                                         else [c.model_dump() for c in answer.requirement_checks]
@@ -280,11 +293,17 @@ def _look_up(client: AIClient, lines: list[str], jobs: int,
         max_output_tokens=1200 * jobs + 500,
     )
     for job in answer.jobs:
+        own_notes = _job_notes(reply.text, job.id, jobs)
+        if not (job.found and reply.sources and job.role_and_skills is not None
+                and 0 <= job.role_and_skills <= 40 and job.role_words.strip()
+                and len(job.role_words.split()) <= 20
+                and requirements._plain(job.role_words) in requirements._plain(own_notes)):
+            job.role_and_skills, job.role_words = None, ""
         job._sponsorship_confirmed = sponsorship_confirmed(
             job.visa_sponsorship, job.visa_sponsorship_words,
-            _job_notes(reply.text, job.id, jobs))
+            own_notes)
         grounded = requirements.ground(job.requirement_checks,
-                                       _job_notes(reply.text, job.id, jobs), person)
+                                       own_notes, person)
         job._grounded_checks = grounded
         job.requirement_checks = ([requirements.RequirementCheck.model_validate(c)
                                   for c in grounded] if grounded is not None else None)

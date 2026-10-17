@@ -20,7 +20,7 @@ from jobcu.freshness import earliest_possible, freshness, parse_iso, window_star
 from jobcu.jobstore import JobState
 from jobcu.location import LocationPlan
 from jobcu.placenames import countries_in
-from jobcu.scoring import LEGACY_ONLINE_NOTE, ONLINE_NOTE, PARTS
+from jobcu.scoring import LEGACY_ONLINE_NOTE, ONLINE_NOTE, PARTS, ROLE_REVIEW_NOTE
 from jobcu.sources import all_sources
 from jobcu.sources.base import (
     FoundJob,
@@ -511,7 +511,9 @@ def build_card(
         conditions = "your condition about places" if unanswered == 1 else (
             "your conditions about places")
         checks.append({
-            "label": (f"Jobcu doesn't know where \"{where}\" is, so {conditions} couldn't be "
+            "label": ("The source and ad name different workplaces; location eligibility "
+                      "needs confirmation" if travel.workplace_conflict(group) else
+                      f"Jobcu doesn't know where \"{where}\" is, so {conditions} couldn't be "
                       "checked" if where else
                       f"{source_names.get(main.source, main.source)} doesn't say which town "
                       f"this job is in, nor does its text, so {conditions} couldn't be checked"),
@@ -556,6 +558,7 @@ def build_card(
         "score_notes": (scored or {}).get("notes", []),
         "score_checks": [{"text": ONLINE_NOTE if note == LEGACY_ONLINE_NOTE else note,
                           "status": "info" if note in {ONLINE_NOTE, LEGACY_ONLINE_NOTE}
+                          or note.startswith(ROLE_REVIEW_NOTE)
                           else "unclear"}
                          for note in (scored or {}).get("notes", [])],
         "reasons": scored["reasons"] if scored else [],

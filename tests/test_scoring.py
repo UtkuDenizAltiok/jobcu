@@ -315,6 +315,23 @@ def test_the_quick_pass_reads_the_town_an_ad_names_when_its_site_gave_only_a_cou
                              order["2"]: [], order["3"]: []}
 
 
+@pytest.mark.parametrize("title", ["Hardware Engineer", "Ward Nurse", "Primary Teacher"])
+@pytest.mark.parametrize("quote", ["Workplace: Munich", "", "Workplace: Hamburg",
+                                   "A later workplace: Munich"])
+def test_known_feed_place_needs_its_own_supplied_workplace_quote(title, quote):
+    job = country_only(title, "Workplace: Munich. Our head office is in Hamburg. "
+                       + "x" * 300 + " A later workplace: Munich", where="Berlin")
+    job.company = "Fictional Employer"
+    found = group_duplicates([job], {"adzuna": "aggregator"})
+    adapter = Scripted(lambda r: {"clearly_unrelated": [], "places": [
+        {"id": "J0", "places": ["Munich"], "ad_words": quote}]})
+    result = quick_pass(client(adapter), PROFILE, found, [0])
+    assert result.places == ({0: ["Munich"]} if quote == "Workplace: Munich" else {})
+    assert len(adapter.prompts) == 1
+    assert "Source location: Berlin" in adapter.prompts[0]
+    assert "A later workplace" not in adapter.prompts[0]
+
+
 def test_employer_page_becomes_the_main_link_unless_it_is_an_agency():
     from datetime import UTC, datetime
 

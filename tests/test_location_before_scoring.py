@@ -117,3 +117,40 @@ def test_saved_score_with_unknown_location_is_only_reclassified_in_the_response(
     pending = shown["result"]["jobs"]["location_unchecked"]
     assert len(pending) == 1 and pending[0]["score"] is None
     assert saved["result"]["jobs"]["cards"][0]["score"] == 88
+
+
+@pytest.mark.parametrize("title", ["Power Electronics Engineer", "Ward Nurse", "Primary Teacher"])
+def test_conflicting_workplaces_use_no_scoring_research_or_routes(monkeypatch, title):
+    now = datetime.now(UTC)
+    condition = Condition(text="Near Berlin", understood_as="Within 50 minutes of Berlin",
+                          status="applied", kind="near", max_minutes=50,
+                          anchor=Anchor(description="Berlin",
+                                        named=[TownRef(name="Berlin", country="DE")]))
+    plan = LocationPlan(text="Near Berlin", understood_as="Near Berlin", countries=["DE"],
+                        places=[], conditions=[condition], not_checked_yet=[],
+                        outside_supported_area=[], broad=False)
+    group = JobGroup([FoundJob("fictional", "1", "https://jobs.example.test/1", title,
+                     company="Fictional Employer", location_text="Berlin", country="DE",
+                     latitude=52.52, longitude=13.405, description="Workplace: Munich",
+                     posted_at=now, date_precision="exact", description_is_complete=True)],
+                     place_from_text=["Munich"])
+    with db.connect() as conn:
+        run_id = conn.execute("INSERT INTO searches (status, form_json) "
+                              "VALUES ('running', '{}')").lastrowid
+    saved_pool = pool.Pool(run_id, [pool.PoolJob(group, unrelated=False)], PROFILE)
+    run = search.SearchRun(run_id, SearchForm(), now.isoformat())
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("Conflicting workplace used a scoring, research or route request")
+
+    monkeypatch.setattr(search.scoring, "score_groups", forbidden)
+    monkeypatch.setattr(search.jobplace, "find_online", forbidden)
+    monkeypatch.setattr(travel.TravelMeter, "_minutes", forbidden)
+    client = SimpleNamespace(web_research_unavailable_reason=lambda: None)
+    search._decide(run, client, {}, None, Settings(), plan, saved_pool,
+                   pipeline.Collected([], [], {}), [], lambda: None)
+    pending = run.result["jobs"]["location_unchecked"]
+    assert len(pending) == 1 and pending[0]["score"] is None
+    assert any("different workplaces" in c["label"] for c in pending[0]["location_checks"])
+    assert not run.result["jobs"]["cards"]
+    assert condition.travel == {} and travel.job_point(group) is None

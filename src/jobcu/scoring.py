@@ -166,6 +166,29 @@ residence/clearance history does not establish ineligibility. Do not invent nati
 residency exclusions; use required_possible_or_unclear without an explicit excluding rule and \
 the corresponding stated profile fact."""
 
+ROLE_RULES = """\
+role_and_skills [40]: how well the job's field, daily tasks and required skills match the \
+person's experience, skills and target roles.
+  36-40 one of the person's target roles, and its main tasks and required skills are the \
+person's main skills
+  28-35 the same kind of role with a few gaps, or a neighbouring specialisation (e.g. a \
+children's ward for an adult ICU nurse, a secondary-school post for a primary teacher, RF \
+design for a power electronics engineer)
+  18-27 a related job whose daily tasks are partly different (e.g. a nurse educator or case \
+manager for a ward nurse, a catering manager for a sous-chef, test or field engineering for a \
+design engineer)
+  8-17 loosely related (e.g. a care assistant for a registered nurse, a school administrator \
+for a teacher, installation or IT support for a design engineer)
+  0-7 a different field
+Only 36-40 qualifies for an uncapped overall match. The 28-35 band has a total maximum of 80; \
+the related/loose/different bands retain their lower maximums. Matching seniority, language or \
+country must not compensate for different main work.
+
+Core-band points require support for the central specialist work, not only a shared title, \
+PCB/tool names or one secondary task. Do not assume that omitted specialist prerequisites \
+in a truncated ad are satisfied.
+"""
+
 SYSTEM_PROMPT = f"""\
 You score how well job ads fit one person, for a personal job search app. Score every job \
 independently against the person's profile and the rubric. Never compare jobs with each other, \
@@ -198,22 +221,7 @@ expertise. Missing knowledge remains unclear, not a proven blocker.
 
 THEN SCORE THESE PARTS (maximum points in brackets)
 
-role_and_skills [40]: how well the job's field, daily tasks and required skills match the \
-person's experience, skills and target roles.
-  36-40 one of the person's target roles, and its main tasks and required skills are the \
-person's main skills
-  28-35 the same kind of role with a few gaps, or a neighbouring specialisation (e.g. a \
-children's ward for an adult ICU nurse, a secondary-school post for a primary teacher, RF \
-design for a power electronics engineer)
-  18-27 a related job whose daily tasks are partly different (e.g. a nurse educator or case \
-manager for a ward nurse, a catering manager for a sous-chef, test or field engineering for a \
-design engineer)
-  8-17 loosely related (e.g. a care assistant for a registered nurse, a school administrator \
-for a teacher, installation or IT support for a design engineer)
-  0-7 a different field
-Only 36-40 qualifies for an uncapped overall match. The 28-35 band has a total maximum of 80; \
-the related/loose/different bands retain their lower maximums. Matching seniority, language or \
-country must not compensate for different main work.
+{ROLE_RULES}
 
 seniority [20]: the level and years the job asks for, compared with the person. Full-time work \
 counts fully. Internships, working-student jobs and thesis work in a company count, but less \
@@ -349,6 +357,14 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
             "requirement_points_proposed", result["parts"]["hard_requirements"]))
     parts = {**result["parts"], "languages": language.points,
              "hard_requirements": required.points}
+    proposed_role = result["evidence"].get("role_points_proposed", parts["role_and_skills"])
+    central_unknown = any(c.get("central_to_role") and c["status"] != "met"
+                          and "grounding_issues" in c
+                          and "ad_quote_unverified" not in c["grounding_issues"]
+                          for c in result["evidence"].get("requirement_checks") or [])
+    parts["role_and_skills"] = min(proposed_role, 35) if central_unknown else proposed_role
+    evidence = {**result["evidence"], "role_points_proposed": proposed_role,
+                "central_role_uncertain": central_unknown}
     uncertain_location = result["evidence"].get("location_conditions_uncertain", False)
     if "location_preferences_proposed" in result["evidence"]:
         parts["location_and_preferences"] = min(
@@ -369,15 +385,31 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
                   and not result["evidence"].get("sponsorship_confirmed") else [])
     before = min([sum(parts.values()), *(limit["at"] for limit in limits)])
     screening = score.citizenship_or_clearance == "required_possible_or_unclear"
+    reasons = result.get("reasons", [])
+    if (central_unknown or evidence.get("role_checked_online")
+            or result["evidence"].get("central_role_uncertain")):
+        role = parts["role_and_skills"]
+        reason = ("Central specialist expertise is unconfirmed" if central_unknown else
+                  "Main work and core skills match" if role >= 36 else
+                  "Main work has specialist skill gaps" if role >= 28 else
+                  "Daily tasks are only partly aligned" if role >= 18 else
+                  "Daily work is loosely related" if role >= 8 else
+                  "Main work is in another field")
+        reasons = ([limits[0]["why"]] if limits and limits[0]["at"] < 80 else []) + [reason]
     return {
         **result,
+        "evidence": evidence,
+        "reasons": reasons,
         "score": max(0, before - sum(d["points"] for d in deductions)),
         "score_before_deductions": before,
         "deductions": deductions,
         "parts": parts,
         # Why the total is lower than the parts add up to, lowest limit first.
         "limits": limits,
-        "notes": ([note] if note else []) + language.notes + required.notes + (
+        "notes": ([note] if note else []) + (
+            [f'{ROLE_REVIEW_NOTE}: "{evidence["role_words"]}"']
+            if evidence.get("role_checked_online") and evidence.get("role_words") else []
+        ) + language.notes + required.notes + (
             ["Security or nationality eligibility is unconfirmed" + (
                 f": {score.citizenship_or_clearance_words.strip()}"
                 if score.citizenship_or_clearance_words.strip() else "")]
@@ -463,11 +495,13 @@ def sponsorship_confirmed(status: str, words: str, ad_text: str) -> bool:
 
 LEGACY_ONLINE_NOTE = "Languages, experience and other requirements read from the full ad online"
 ONLINE_NOTE = "Online evidence used to check requirements"
+ROLE_REVIEW_NOTE = "Role fit checked against online evidence"
 
 
 def with_ad_read_online(result: dict, profile: Profile, languages: list[LanguageAsked],
                         years_required: float | None,
                         requirement_checks: list[dict] | None = None,
+                        role_and_skills: int | None = None, role_words: str = "",
                         sponsorship_confirmed: bool | None = None, **blockers: str) -> dict:
     """Reapply limits using researched evidence; research notes do not become a full ad."""
     evidence = {**result["evidence"], "languages_asked": [a.model_dump() for a in languages],
@@ -475,6 +509,12 @@ def with_ad_read_online(result: dict, profile: Profile, languages: list[Language
     evidence.update({key: value for key, value in blockers.items() if key in EVIDENCE})
     if sponsorship_confirmed is not None:
         evidence["sponsorship_confirmed"] = sponsorship_confirmed
+    parts = dict(result["parts"])
+    if (role_and_skills is not None and 0 <= role_and_skills <= PARTS["role_and_skills"]
+            and role_words):
+        parts["role_and_skills"] = role_and_skills
+        evidence.update(role_points_proposed=role_and_skills, role_checked_online=True,
+                        role_words=role_words)
     if requirement_checks is not None:
         if ("requirements_complete" not in evidence
                 and result["parts"]["hard_requirements"] <= LIMIT_REQUIREMENT_POINTS):
@@ -482,7 +522,7 @@ def with_ad_read_online(result: dict, profile: Profile, languages: list[Language
         evidence["requirement_checks"] = requirements.merge(
             evidence.get("requirement_checks"), requirement_checks)
         evidence.setdefault("requirements_complete", False)
-    return judge({**result, "evidence": evidence}, profile, note=ONLINE_NOTE)
+    return judge({**result, "parts": parts, "evidence": evidence}, profile, note=ONLINE_NOTE)
 
 
 def _full_evidence(evidence: dict) -> dict:

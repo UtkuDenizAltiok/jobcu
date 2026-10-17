@@ -265,6 +265,12 @@ were assessed separately and disagree, Jobcu says that a new assessment is neede
 pick the highest old score. Original saved assessments remain in the local history. A matched
 older copy or remembered earlier showing can rule out a repost despite a new board date.
 
+If the ad and its feed name different workplaces, Jobcu keeps the conflict visible and does
+not score or measure a journey from a guessed town. Correct workplace evidence is needed.
+When an existing online ad check reveals different main duties, its supported evidence can
+raise or lower the role-and-skills score. A shared title or tool is not enough to confirm
+central specialist expertise; uncertainty in a required central skill limits the match band.
+
 Above the results, **Understood as** shows how Jobcu interpreted your location conditions.
 Read it before relying on the matches.
 
