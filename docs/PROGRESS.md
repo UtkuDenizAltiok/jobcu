@@ -104,36 +104,36 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**City/journey and provider connection/cost recovery is in progress.**
+**City/journey and provider connection/cost recovery: final publication/application.**
 
-Branch: `codex/location-connection-recovery`, source worktree attached to this chat. The
-unchanged baseline is **1,978 tests** at main `bebbf64`; exact PR/main CI `39064042453` /
-`39064322926` passed Mac, Windows and privacy. Preserve owner data, limits, chosen model/effort
-and candidate coverage. No new search is authorized by this task.
+Branch `codex/location-connection-recovery`, PR #150. Baseline: **1,978 tests** at `bebbf64`,
+exact PR/main CI `39064042453` / `39064322926` passed Mac/Windows/privacy. Final local source:
+**2,088 tests pass**, plus Ruff/privacy/docs/JS/whitespace; one existing dependency warning.
+The earlier source head `401c6be` passed all platforms; the final geographic-scope/diagnostic
+head still needs its own exact CI. Do not substitute that earlier pass.
 
 Implemented: stateless native event decoding/receipts, terminal error classification,
-provider-neutral suspension after ambiguously charged connection failures, and fresh
-selected-public-source comparisons before hosted city research. Fictional regressions cover
-protocol failures, quote/city scope, source permission/access failures and journey admission.
-The final local suite has **2,082 passing tests**, one existing dependency warning, plus
-Ruff/privacy/docs/JS/whitespace checks. The paid packet stopped at its first failure; a final
-source-backed comparison hit its output ceiling. Answer space and complete-failure receipt
-handling are now repaired offline. Further paid work awaits the new bounded continuation
-answer; do not reopen the closed packet. Publication/CI is next, not yet a merged claim. Read ENGINEERING and SOURCES for current decisions and contracts.
+provider-neutral suspension after ambiguously charged connection failures, and fresh reviewed
+source comparisons before hosted city research. City geographic IDs are checked before paid
+comparison and in citations. Complete groups survive later failures; unverified explanations
+stay labelled. Medium-effort whole-city comparisons have sufficient initial output space.
+The prepared owner update preserves raw assessments, marks, identities, other settings and
+history. Real source/arithmetic and Maps receipts, backup and exact application checks are
+private. Do not adopt a model-only answer where independent evidence remains inconclusive.
 
-**Exact next action:** check the private checkpoint for the pending bounded continuation answer,
-without rerunning a used packet or spending before approval. If approved, run its prepared
-source-backed city/journey script once, stopping on first failure/incomplete receipt.
-Otherwise finish the tested source step. Finish final checks/diff review, publish,
-require exact-head Mac/Windows/privacy CI, merge with a merge commit, synchronize and verify
-main CI. Install reviewed source selections or verified facts only after successful validation
-and a backup, with no active search. Retain precise unresolved facts and external dependencies.
+**Exact next action:** require exact final PR Mac/Windows/privacy CI; confirm no active search,
+apply the prepared private evidence/card update with its backup and integrity guards, then
+merge with a merge commit, synchronize main/locked dependencies, restart the updated app and
+verify exact-main CI/health. No more paid calls or new search: all verification packets closed.
+Private `checkpoint.json` contains paths and exact commands; never rerun a used packet.
 
-PR #149 is complete; do not repeat its checks or reapply earlier original-ad facts. The earlier
-native candidate PR #137 is superseded only by the tested portions adopted in this branch;
-its old paid packets remain closed. Current bounded authority and billing diagnosis are
-private. Original request-level invoice allocation and the exact external disconnecting
-component must not be invented from daily billing totals or a successful later request.
+Remaining evidence must stay specific: some category comparisons overlap; other-country city
+facts and unmeasured journeys remain unchecked. The exact component closing the original
+connection and exact original-run invoice allocation are still unproven. Later successful
+connections and daily billing totals do not prove those historical causes. Current account
+caps and complete cost reconciliation are recorded privately; no account/limit change is made.
+PR #149 is complete; earlier original-ad facts must not be reapplied. The older native PR #137
+candidate is superseded only by the tested parts adopted in PR #150.
 
 The earlier whole-pipeline review also has these **parked dependencies**; do not resume them
 without evidence and authority relevant to the active task:
@@ -158,9 +158,9 @@ without evidence and authority relevant to the active task:
 
 ### Waiting on the owner
 
-No account change, new search or provider/model switch is pending. Current bounded development
-verification authority and stop conditions are in the private checkpoint; all earlier packets
-remain closed. Preserve existing local/provider limits. A local estimate is not an invoice or
+No account change, new search or provider/model switch is pending. All bounded development
+verification packets are closed; receipts and specific unresolved evidence are in the private
+checkpoint. Preserve existing local/provider limits. A local estimate is not an invoice or
 provider cap. Service restoration does not retroactively complete missing search checks.
 A fresh chat follows [Start](PROMPTS.md#start-a-session) and recovers In progress before new work.
 

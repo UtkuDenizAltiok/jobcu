@@ -110,7 +110,7 @@ it does not guarantee a live provider recovery, a lower invoice or a fixed cost 
 
 `reference_sources.py` reads explicitly reviewed public references before hosted research.
 Private settings retain exact-condition identities, source addresses, country/city scopes,
-reviewed aliases, dated permissions and optional whole PDF pages. They retain no verdict or
+reviewed aliases/geographic identifiers, dated permissions and optional whole PDF pages. They retain no verdict or
 source text. Every new check reads the pages again, respecting robots, access refusals and
 request budgets. Missing, oversized, redirected or unreadable references cannot establish a
 fact. The chosen model compares supplied evidence at medium effort without a hosted search
@@ -119,9 +119,15 @@ that recovery path instead of buying a second research operation.
 
 Answers require unique city IDs, explanations and exact supporting quotes. Country-only
 evidence cannot establish a city fact; shared-table evidence must name the requested city or
-a reviewed alias. Preserve complete table headers and all rows needed for the whole city;
+a reviewed alias. When a source supplies a reviewed geographic label/code, the page must
+contain it before buying a comparison, and the city citation must include it. A same-named
+county cannot substitute for that city. Missing IDs, unsupported quotes and unresolved
+comparisons retain their specific unchecked explanation without becoming accepted facts.
+Preserve complete table headers and all rows needed for the whole city;
 constituencies and counties are not interchangeable with cities. Comparisons require the same
-event, geographic unit and category, or rigorous conservative bounds. Quote validation proves
+event, geographic unit and category, or rigorous conservative bounds. Every unclassified
+named member must remain in those bounds as well as the Other row; overlapping intervals
+cannot prove the requested comparison. Quote validation proves
 provenance, not the correctness of the model's interpretation. Source selection and live
 semantic verification remain necessary. Population rules, candidate coverage, journey
 admission and fresh job scoring are unchanged. Whole-city comparisons receive 20,000 answer

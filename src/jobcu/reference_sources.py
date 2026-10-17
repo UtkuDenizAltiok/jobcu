@@ -42,6 +42,9 @@ latest event if the supplied current index identifies a later event. Missing dat
 For categories include every applicable member, or prove the comparison with conservative
 bounds covering every possible member. State the figures, definitions, dates and calculation;
 never present a bound as an exact percentage or estimate missing facts.
+An explicitly named but unclassified member remains possible too: an 'Other' row alone does
+not cover all unclassified members. Do not silently treat named, unclassified members as
+outside the category. An overlapping lower/upper comparison stays unknown.
 Return one ID per city, meets true/false/null, a concise explanation, and supporting exact
 quotes with the supplied source IDs. A pass establishes the whole condition; a fail needs a
 documented contradiction. Each known answer needs city-specific evidence as well as every
@@ -150,12 +153,22 @@ def check(client, text: str, checks: list[ReferenceCheck], *, http=None) -> list
                     content = None
                 if content:
                     country_pages[f"S{len(country_pages)}"] = (scoped, content)
-            batch = [c for c in batch if any(
-                c.country == p.country and c.name in p.towns for p, _ in country_pages.values())]
+            covered = [c for c in batch if any(
+                c.country == p.country and _has_scope(p, c.name, data)
+                for p, data in country_pages.values())]
+            for check in batch:
+                if check not in covered:
+                    check.evidence = ("Selected references did not contain this city's reviewed "
+                                      "geographic unit. No source comparison was bought for it.")
+            batch = covered
             if not batch or sum(len(content) for _, content in country_pages.values()) > (
                     MAX_CONTEXT_CHARS):
                 continue
-            lines = [f"C{i} | {c.name} | {c.country}" for i, c in enumerate(batch)]
+            lines = [f"C{i} | {c.name} | {c.country} | reviewed geographic labels: "
+                     + json.dumps({sid: p.required_labels_by_town[c.name]
+                                   for sid, (p, _) in country_pages.items()
+                                   if c.name in p.required_labels_by_town})
+                     for i, c in enumerate(batch)]
             prompt = f"Condition: {text}\nCities:\n" + "\n".join(lines) + "\nPages:\n"
             prompt += "\n\n".join(f"{sid} | {p.title} | {p.url}\n{content}"
                                     for sid, (p, content) in country_pages.items())
@@ -177,12 +190,23 @@ def _stopped(client) -> bool:
     return False
 
 
+def _has_scope(page, city, content):
+    label = page.required_labels_by_town.get(city)
+    return city in page.towns and (not label or _plain(label) in _plain(content))
+
+
 def _apply(checks, answer, pages):
     for i, check in enumerate(checks):
         rows = [r for r in answer.cities if r.id == f"C{i}"]
-        if len(rows) != 1 or rows[0].meets is None:
+        if len(rows) != 1:
+            check.evidence = "The comparison omitted this city or returned conflicting city IDs."
             continue
         row = rows[0]
+        if row.meets is None:
+            check.evidence = ("Unverified comparison: " + row.explanation.strip()
+                              if row.explanation.strip() else
+                              "The supplied references did not establish this city's condition.")
+            continue
         cited, local = [], False
         valid = bool(row.explanation.strip() and row.quotes)
         for quote in row.quotes:
@@ -194,11 +218,13 @@ def _apply(checks, answer, pages):
             if page.country != check.country:
                 valid = False
                 break
-            names = [check.name, *page.aliases_by_town.get(check.name, [])]
+            required = page.required_labels_by_town.get(check.name)
+            names = [required] if required else [
+                check.name, *page.aliases_by_town.get(check.name, [])]
             named = any(re.search(r"(?<!\w)" + re.escape(normalise(name)) + r"(?!\w)",
                                   normalise(quote.words)) for name in names)
             # A shared table's quote for a different city cannot establish this one.
-            local |= check.name in page.towns and (len(page.towns) == 1 or named)
+            local |= check.name in page.towns and (named or len(page.towns) == 1 and not required)
             cited.append(Source(url=page.url, title=page.title))
         if valid and local:
             check.meets = row.meets
@@ -206,3 +232,7 @@ def _apply(checks, answer, pages):
                 [q.model_dump() for q in row.quotes], ensure_ascii=False)
             check.sources = list({s.url: s for s in cited}.values())
             check.checked_at = datetime.now(UTC).isoformat()
+        else:
+            check.evidence = ("The comparison could not be verified: supporting quotes were "
+                              "missing, did not match the current pages, or did not identify "
+                              "this city in its country.")

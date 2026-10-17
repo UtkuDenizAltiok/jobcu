@@ -221,3 +221,35 @@ def test_later_comparison_failure_keeps_each_completed_city_and_buys_no_hosted_r
     assert [c.meets for c in result.reference_checks] == [True] * 8 + [None]
     assert all(c.evidence and c.sources for c in result.reference_checks[:8])
     assert "Checked 8 of 9" in result.note and len(client.calls) == 2
+
+
+@pytest.mark.parametrize("rows,reason", [([], "omitted"),
+    ([reply(meets=None, explanation="The two bounds overlap.")], "Unverified comparison"),
+    ([reply(quotes=[])], "supporting quotes")])
+def test_missing_facts_and_rejected_evidence_keep_their_actual_unchecked_reason(rows, reason):
+    checks = [city()]
+    reference_sources.check(Client([page()], rows), "Weekend service", checks, http=HTTP())
+    assert checks[0].meets is None and checks[0].checked_at is None
+    assert reason in checks[0].evidence and not checks[0].sources
+
+
+def test_same_named_county_cannot_replace_a_reviewed_city_or_buy_a_comparison():
+    client = Client([page(required_labels_by_town={"Springford": "07 1 02 Springford, City"})])
+    checks = [city()]
+    reference_sources.check(client, "Weekend service", checks,
+                            http=HTTP("07 1 03 Springford, County: service available"))
+    assert not client.calls and checks[0].meets is None
+    assert "geographic unit" in checks[0].evidence
+
+
+@pytest.mark.parametrize("quote,expected", [("07 1 03 Springford, County", None),
+                                           ("07 1 02 Springford, City", True)])
+def test_geographic_identity_is_required_in_the_citation_even_beside_a_same_named_county(
+        quote, expected):
+    client = Client([page(required_labels_by_town={"Springford": "07 1 02 Springford, City"})],
+                    [reply(quotes=[reference_sources.Quote(source_id="S0", words=quote)])])
+    checks = [city()]
+    reference_sources.check(client, "Weekend service", checks, http=HTTP(
+        "07 1 02 Springford, City: service available\n07 1 03 Springford, County: unavailable"))
+    assert checks[0].meets is expected
+    assert "07 1 02 Springford, City" in client.calls[0]["prompt"]

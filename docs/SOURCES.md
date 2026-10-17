@@ -1185,7 +1185,9 @@ by this contract alone.
 The federal election authority's [official city/district tables](https://www.bundeswahlleiterin.de/dam/jcr/903d2260-fbd1-457f-a7d5-2580db9b0580/btw25_wbztabs_gesamt.pdf)
 permit reproduction/distribution with attribution (PDF page 2). City rows can be split across
 constituencies and multiple pages; counties and city states need their correct geographic
-aggregation. The [national results](https://www.bundeswahlleiterin.de/bundestagswahlen/2025/ergebnisse/bund-99.html)
+aggregation. Review the full geographic identifier rather than matching only the name
+before a comma; an identically named surrounding county can occupy different table pages.
+The [national results](https://www.bundeswahlleiterin.de/bundestagswahlen/2025/ergebnisse/bund-99.html)
 provide the corresponding election baseline. A dated election file alone cannot establish
 that a later election has not occurred.
 
