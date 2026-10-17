@@ -93,9 +93,9 @@ owner authorization recorded privately as described in [AGENTS.md](AGENTS.md). C
 recipient, scope, search window, spending limits and any revocation before using it. A normal
 development prompt grants no private access or paid testing permission. Follow
 [AGENTS.md](AGENTS.md), preserve owner ratings, and keep detailed evidence outside Git.
-The saved search can be reviewed whether Jobcu is running or stopped. Checking app state in
-Start preserves the owner's session; it is not a prerequisite for result analysis. In a
-prepared chat, inspect only relevant state changes rather than repeat startup. No newly
+The saved search can be reviewed whether Jobcu is running or stopped. Manage Jobcu's lifecycle
+as needed for development under AGENTS; routine open/closed state checks and notes are unnecessary.
+In a prepared chat, inspect only relevant changes rather than repeat startup. No newly
 completed search is needed for [Deep improvement](docs/PROMPTS.md#deep-improvement).
 Use the stages below for the claims being investigated; they do not grant additional source
 traffic or paid calls. Reuse unchanged saved evidence and completed review work. If original
