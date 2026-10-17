@@ -10,6 +10,12 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
+- Prepared reference evidence is isolated by country and page budget in
+  [PR #151](https://github.com/UtkuDenizAltiok/jobcu/pull/151): **2,091 offline tests** pass.
+  Three regressions first reproduce otherwise usable references being discarded. Actual
+  PR/main CI and deployment receipts are indexed privately; inspect their exact heads.
+
+
 - City-source verification and connection/cost safeguards are completed in
   [PR #150](https://github.com/UtkuDenizAltiok/jobcu/pull/150): **2,088 offline tests** pass.
   Reviewed geographic identifiers prevent city/county substitution before paid comparisons;
@@ -114,11 +120,21 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Parked: remaining city-category and comparable city-result evidence.**
+**Parked: remaining comparable city-result evidence.**
+
+The country-source integration in PR #151 is complete in this merge. Three fictional
+regressions first reproduced the global page-limit and mixed-country failures. The final
+local suite has **2,091 passing tests**, plus Ruff/privacy/docs/JS/whitespace; one existing
+dependency warning. Exact PR head `873e97f` passed Mac/Windows/privacy CI `39073928526`.
+Reference comparisons now group by country with up to 16 relevant pages per batch and the
+unchanged total-text bound. Additional sources or an overloaded batch do not discard healthy
+countries. No paid request or new search was used for this integration repair. Deployment,
+source-selection readback and actual main CI receipts are in the private recovery index.
 
 The coherent software/data step in PR #150 is complete in this merge: **2,088 offline tests**
 pass, plus Ruff/privacy/docs/JS/whitespace; one existing dependency warning. Exact PR head
-`dd23de4` passed Mac/Windows/privacy CI `39072837766`. The source selection, event-stream,
+`dd23de4` passed Mac/Windows/privacy CI `39072837766`; its merge `46bb731` passed
+exact-main CI `39073187583`. The source selection, event-stream,
 ambiguous-charge, complete-receipt and precise-uncertainty repairs are adopted. Independently
 reviewed city evidence and bounded Maps checks are applied to the same saved search, with
 free geometry settled and cards refreshed without additional paid scoring. Raw assessments,
@@ -130,8 +146,8 @@ actual merge/main CI and app build from Git/private receipts; a PR pass alone is
 The older PR #137 candidate is superseded by the tested portions in PR #150. PR #149 and
 previous original-ad applications are complete and must not be repeated.
 
-**Dependency:** some category comparisons still overlap because the available classification
-framework does not cover every small/named party; other countries still need comparable
+**Dependency:** a close category comparison still overlaps because the available classification
+evidence does not yet settle every small/named party; other countries still need comparable
 whole-city election evidence. Unmeasured/unchecked alternatives also remain explicit. Neither
 a county result nor an AfD-only shortcut can settle the broader requested comparison.
 The exact historical disconnecting component and original-run invoice allocation remain

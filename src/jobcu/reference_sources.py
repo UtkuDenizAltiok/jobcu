@@ -27,7 +27,7 @@ from jobcu.text import html_to_text, normalise
 log = logging.getLogger(__name__)
 MAX_DOCUMENT_BYTES = 8_000_000
 MAX_CONTEXT_CHARS = 400_000
-MAX_SOURCES = 8
+MAX_SOURCES = 16
 BATCH_SIZE = 8
 # Whole-city aggregation and explicit category bounds need room at medium effort. Keep
 # that effort; reserve a complete answer inside the shared client's 32k output ceiling.
@@ -128,21 +128,27 @@ def check(client, text: str, checks: list[ReferenceCheck], *, http=None) -> list
     selected = [p for entry in sets if entry.fact_key == fact_key(text) for p in entry.sources]
     pending = [c for c in checks if c.meets is None]
     selected = [p for p in selected if any(c.country == p.country for c in pending)]
-    if not selected or not pending or len(selected) > MAX_SOURCES:
+    if not selected or not pending:
         return []
     owned = http is None
     http = http or PoliteClient(should_stop=lambda: _stopped(client))
     robots = {}
     try:
         sources = []
-        for start in range(0, len(pending), BATCH_SIZE):
-            batch = pending[start:start + BATCH_SIZE]
+        by_country = {country: [c for c in pending if c.country == country]
+                      for country in dict.fromkeys(c.country for c in pending)}
+        batches = [cities[start:start + BATCH_SIZE] for cities in by_country.values()
+                   for start in range(0, len(cities), BATCH_SIZE)]
+        for batch in batches:
+            pages = [p for p in selected if p.country == batch[0].country
+                     and (not p.towns or any(c.name in p.towns for c in batch))]
+            if len(pages) > MAX_SOURCES:
+                for check in batch:
+                    check.evidence = ("This country's selected references exceed the page limit "
+                                      "for one comparison. Other countries remain available.")
+                continue
             country_pages = {}
-            for page in selected:
-                if not any(c.country == page.country for c in batch):
-                    continue
-                if page.towns and not any(c.name in page.towns for c in batch):
-                    continue
+            for page in pages:
                 client.checkpoint()
                 selected_pages = list(dict.fromkeys([*page.pages, *(p for c in batch
                     for p in page.pages_by_town.get(c.name, []))]))

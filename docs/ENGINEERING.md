@@ -112,7 +112,10 @@ it does not guarantee a live provider recovery, a lower invoice or a fixed cost 
 Private settings retain exact-condition identities, source addresses, country/city scopes,
 reviewed aliases/geographic identifiers, dated permissions and optional whole PDF pages. They retain no verdict or
 source text. Every new check reads the pages again, respecting robots, access refusals and
-request budgets. Missing, oversized, redirected or unreadable references cannot establish a
+request budgets. Comparisons are grouped by country, with up to 16 relevant reference pages
+per city batch and the unchanged total-text bound. Additional references or an overloaded
+batch cannot disable independent countries. Missing, oversized, redirected or unreadable
+references cannot establish a
 fact. The chosen model compares supplied evidence at medium effort without a hosted search
 tool; unresolved cities remain eligible for ordinary research. A failed paid comparison stops
 that recovery path instead of buying a second research operation.
