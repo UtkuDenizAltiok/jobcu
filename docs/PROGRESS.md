@@ -10,6 +10,12 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
+- The owner’s location-before-scoring rule is implemented on `codex/reported-result-integrity`:
+  **1,889 offline tests** pass, including a regression that sends only qualifying workplaces
+  for scoring and preserves unresolved candidates. Missing-workplace research moves before
+  admission and its findings are reused. Pending jobs have a separate unscored list; historical
+  response views preserve stored assessments and marks. Exact-head publication is pending.
+
 - Atomic web-reservation accounting is merged in
   [PR #141](https://github.com/UtkuDenizAltiok/jobcu/pull/141): **1,878 offline tests** pass.
   Its regression first reproduced false deferral during receipt writing, then verified all
@@ -71,62 +77,42 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Exact-run review's safe repairs are complete; remaining dependency is checkpointed.**
-The owner's current prompt authorizes read-only live capture and the full Review procedure
-on that exact run when it finishes or fails. Its identity, start boundary, snapshots, logs,
-usage and recovery checkpoint are private, outside every checkout. Do not substitute the
-previous saved search.
+**Reported result integrity: freshness, fit, duplicates, location and closed ads.**
 
-1. Capture progress, connection failures, retries, unchecked conditions and timings. Separate
-   processing, actual retry/source waits and time waiting for the owner's answers; parallel
-   request durations overlap and must not be summed as wall time. Preserve all limits/data.
-2. Freeze the completed/failed run and follow CONTRIBUTING's full private review: coverage,
-   freshness, original ads, filtering, travel, duplicates, independent fit, explanations and
-   speed. Keep evidence gaps explicit; no extra search or paid experiment is authorized.
-3. Implement confirmed fixes in coherent steps with fictional regressions, full final tests,
-   Ruff/privacy/whitespace and applicable document/JS checks. Publish, require exact-head
-   Mac/Windows/privacy CI, merge with a merge commit, synchronize main and verify its CI.
+The owner requested fixes for newly reported result defects. Review the named cases privately
+against saved evidence and actual criteria, trace confirmed causes, and implement general fixes
+without cutting suitable jobs or weakening evidence. No new search or paid API test is authorized.
+Preserve owner data, ratings and existing limits. Prior exact-run safe repairs are complete;
+the native research candidate remains unadopted and its cost/evidence dependency stays parked.
 
-The exact run is frozen and its independent review is sealed privately. Baseline: 1,857
-passing tests. Student-role refinement of broad schedule hints, retention of unknown types,
-skipping extra research for proven ad exclusions, and request-kind diagnostics are implemented
-in [PR #138](https://github.com/UtkuDenizAltiok/jobcu/pull/138), branch
-`codex/exact-run-safe-fixes`. The final safe code passes **1,864 offline tests**, with one
-existing dependency deprecation warning; Ruff/privacy/whitespace pass. PR #138 is merged,
-main synchronized, and exact PR/main Mac/Windows/privacy CI passed. Do not repeat its checks.
+Branch: `codex/reported-result-integrity`; private recovery index:
+`assistant-review-checkpoint.json` outside Git. Reuse the unchanged **1,878-test** final code
+baseline and exact main Mac/Windows/privacy CI `39038969581` at `4b7a081`; documentation since
+the final full local run did not change source, tests, dependencies or environment.
 
-The owner's cost follow-up remains within this exact-run goal: reduce avoidable paid work
-without reducing quality or coverage. PR #139's coordinated recovery and PR #140's successful
-receipt admission are merged and verified on exact PR/main heads; do not repeat their checks.
-All evidence, medium effort, candidates and per-request retry bounds are preserved.
+1. Freeze the relevant saved evidence on an authorized private scratch copy. Trace original
+   dates/closure and vacancy identity across copies/history, specialist fit and explanations,
+   workplace/reference-city evidence and duplicate score inputs. Keep unproven causes explicit.
+2. First enforce the owner’s location-before-scoring rule: qualifying reference cities and
+   journeys come from each person’s parsed condition (percentages, rankings or other rules).
+   Proven failures skip scoring; unresolved jobs remain available but unscored, with the exact
+   missing evidence shown. No extra paid research is authorized by this rule.
+   Reproduce confirmed faults with fictional electronics and non-engineering cases. Fix coherent
+   causes while preserving recall, original evidence, medium effort and spending limits.
+3. Run affected checks and the final full suite, Ruff/privacy/whitespace and relevant docs/JS
+   checks. Review the full diff; publish exact-head Mac/Windows/privacy CI, merge with a merge
+   commit, synchronize main and verify its exact CI. Save private case outcomes and dependencies.
 
-Final inspection reproduced a transient double-count of used/reserved web allowance. The
-atomic fix is merged in PR #141. Its regression keeps
-all allowed work queued until the first receipt is saved, then finishes within the unchanged
-allowance. Final suite: **1,878 passing**, one existing dependency deprecation warning;
-affected checks, Ruff/privacy/whitespace and exact PR/main Mac/Windows/privacy CI pass.
-Main is synchronized and publication is complete. No paid test is involved and no new
-spending/search authority exists. Reuse these checks while their code and environment are unchanged.
+**Exact next action:** publish the tested location-before-scoring step, require exact PR/main
+Mac/Windows/privacy CI, merge and synchronize. Then continue the named identity, freshness,
+full-ad fit and closed-link investigation within this same goal. No blanket score cut,
+assumed city eligibility, automatic owner-data correction or paid verification is authorized.
 
-The native stateless event-stream candidate remains separately preserved at `ac25239`, draft
-[PR #137](https://github.com/UtkuDenizAltiok/jobcu/pull/137), branch `codex/exact-run-review`.
-Its 1,898 offline tests and exact-head Mac/Windows/privacy CI pass. It is **not adopted**:
-cost-safe operation and complete city/evidence verification are not established. Keep the
-existing endpoint and chosen model/effort. A token limit/request allowance is not an enforceable
-maximum on provider-controlled hosted-search fees. Do not adopt the candidate or repeat paid
-experiments based on an earlier low estimate or an account top-up.
-
-**Exact remaining action/dependency:** read private `assistant-review-checkpoint.json` only
-as needed to recover the parked dependency and closed verification packets. Identify
-a documented, enforceable hosted-query budget or a permitted controlled research interface
-before any further paid verification proposal. Preserve complete evidence/candidate scope and
-verify the protocol offline first. No new paid authority remains; do not repeat a used packet,
-start another search, choose backlog work or claim a verified per-search invoice saving.
-External transport causes, missing originals/reference facts, precise fresh-date/workplace/
-duplicate evidence, an independent recall benchmark and opaque final Adzuna destinations stay
-explicit in the sealed private review. Keep this remaining scope checkpointed; the safe repairs
-and free investigation are complete. Start should report this dependency and wait for the
-owner's next task; do not turn it into new investigation automatically.
+**Parked research dependency:** PR #137 at `ac25239` remains an unmerged native transport
+candidate. A documented enforceable hosted-query budget or permitted controlled interface,
+complete protocol/evidence verification and new bounded spending authority are needed before
+any further paid test proposal. Original external connection causes and invoice reconciliation
+remain unresolved. This new task does not reopen that packet.
 
 The earlier whole-pipeline review also has these **parked dependencies**; do not resume them
 without evidence and authority relevant to the active task:

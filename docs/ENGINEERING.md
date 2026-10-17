@@ -445,7 +445,8 @@ preserves stated basic/introductory proficiency instead of flattening it to an u
 These prompt changes reuse the existing schemas, batches, calls and medium default; actual token
 or outcome changes remain unmeasured. Original-ad completeness is not proof of checklist accuracy.
 
-Filtering retains uncertain locations. Scoring now surfaces unchecked reference-city facts and
+**Superseded for scoring admission by the 2026-10-17 rule below.** Filtering retains uncertain
+locations. Scoring surfaces unchecked reference-city facts and
 bounds location/preferences points to 8 where the job's evidence is uncertain or estimated.
 Keep the proposed points separately, refresh confidence before research/ranking and on final
 or corrected cards, and restore them when the condition resolves or is disabled. Evidence
@@ -455,6 +456,24 @@ cannot prove a missing destination fact; an attempted lookup cannot create an on
 note. Excerpt warnings survive confidence updates. Historical snapshots are not rewritten.
 Reference-city population remains distinct from workplace population: a small workplace town
 may qualify through a large enough city within the stated journey limit.
+
+### Location eligibility before scoring — 2026-10-17
+
+The owner requires hard location conditions to pass before paid scoring. The gate consumes
+each person's parsed conditions: population percentage, named/ranked reference cities, travel
+limits and researched facts remain general inputs. It does not reject villages by their own
+size or hard-code one person's percentage. A proved failing condition excludes the job before
+scoring. An unknown or unread hard condition retains the job in the pool and a separate
+**Location not verified — not scored** list; it sends no scoring or later fit-research request
+for that job. Optional preferences and explicitly disabled conditions do not block admission.
+Original-ad metadata can change a workplace; only changed journey origins are measured again
+before admission. Resolving or disabling the condition lets retained candidates proceed.
+
+This supersedes paying for a score with reduced location points while a hard condition is
+unknown. Stored historical assessments and owner marks are preserved; the current-search
+response reclassifies explicitly unchecked historical matches without provider requests or
+database rewrites. This does not establish a missing city fact or journey, and does not claim
+a measured invoice saving. Pending locations have separate counts from a scoring allowance.
 
 Application reports now recognize the same numeric Adzuna advertisement across its known
 details/land route forms and changed `utm_*`, `se` or `v` tracking fields. The original advertiser

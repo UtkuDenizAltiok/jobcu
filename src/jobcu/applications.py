@@ -198,7 +198,7 @@ def filter_snapshot(snapshot: dict) -> None:
         return
     reported = reported_urls()
     removed = Counter()
-    for section in ("cards", "date_unknown"):
+    for section in ("cards", "date_unknown", "location_unchecked"):
         if section not in jobs:
             continue
         kept = []
@@ -216,12 +216,14 @@ def filter_snapshot(snapshot: dict) -> None:
             jobs[section] = [clean_card(card, reported) for card in jobs[section]]
     if removed:
         counts = jobs.setdefault("counts", {})
-        counts["shown"] = len(jobs["cards"]) + len(jobs["date_unknown"])
+        shown = jobs["cards"] + jobs["date_unknown"] + jobs.get("location_unchecked", [])
+        counts["shown"] = len(shown)
+        if "location_unchecked" in jobs:
+            counts["location_unchecked"] = len(jobs["location_unchecked"])
         counts["left_out"] = [*counts.get("left_out", []),
                               *({"reason": reason, "count": count}
                                 for reason, count in removed.items())]
-        jobs["new_count"] = sum(c.get("is_new", False)
-                                for c in jobs["cards"] + jobs["date_unknown"])
+        jobs["new_count"] = sum(c.get("is_new", False) for c in shown)
         snapshot.setdefault("notes", []).append(
             "Unavailable application links were removed. Jobs without another saved link "
             "are left out; the original saved search is preserved."

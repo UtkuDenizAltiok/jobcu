@@ -249,6 +249,17 @@ as development needs, using isolated tests/previews where useful and protecting 
 
 ## 5. Check that Jobcu understood you
 
+Jobcu checks hard location conditions before sending a job for paid scoring. A small workplace
+can qualify through a suitable city within your travel limit; the workplace itself need not
+meet the city's population rule. Your own percentage, named cities or ranking rule controls
+which cities count.
+
+Jobs that fail are left out. Jobs awaiting city facts, a workplace or a journey appear under
+**Location not verified — not scored**, with the missing evidence shown. They remain available
+for a later check or condition edit. Earlier saved scores do not turn an unchecked location
+into a qualifying match; the saved history is preserved. Research and travel checks can still
+use their normal service allowances, so this rule is not a provider spending cap.
+
 Above the results, **Understood as** shows how Jobcu interpreted your location conditions.
 Read it before relying on the matches.
 

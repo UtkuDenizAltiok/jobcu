@@ -5,7 +5,7 @@ import json
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from jobcu import applications, jobstore, recheck, search
+from jobcu import applications, jobstore, pipeline, recheck, search
 from jobcu import pool as search_pool
 from jobcu.location import ConditionEdit, EditProblem, LocationPlan
 from jobcu.profile import Profile
@@ -45,6 +45,7 @@ def current_search() -> dict:
             return {"search": None}
         snapshot = json.loads(saved[1])
     applications.filter_snapshot(snapshot)
+    pipeline.location_gate_view(snapshot)
     _refresh_states(snapshot)
     # The conditions can be corrected afterwards only while Jobcu keeps that search's jobs.
     snapshot["can_edit_conditions"] = (
@@ -186,7 +187,8 @@ def _refresh_states(snapshot: dict) -> None:
     jobs = (snapshot.get("result") or {}).get("jobs")
     if not jobs:
         return
-    cards = jobs["cards"] + jobs["date_unknown"] + jobs["hidden"]
+    cards = (jobs["cards"] + jobs["date_unknown"] + jobs["hidden"]
+             + jobs.get("location_unchecked", []))
     states = jobstore.states([card["job_id"] for card in cards])
     for card in cards:
         state = states.get(card["job_id"])

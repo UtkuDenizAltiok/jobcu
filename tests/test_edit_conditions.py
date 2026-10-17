@@ -490,12 +490,14 @@ def test_the_town_an_ad_names_decides_when_its_site_gave_only_a_country(conditio
     assert first["status"] == "finished", first["error"]
     jobs = first["result"]["jobs"]
     # Berlin fits, Garching is too small, and the ad that names no town is kept, saying why.
-    assert titles(jobs["cards"]) == ["Hardware Engineer", "PCB Designer"]
+    assert titles(jobs["cards"]) == ["Hardware Engineer"]
+    assert titles(jobs["location_unchecked"]) == ["PCB Designer"]
     assert titles(jobs["ruled_out_by_conditions"]) == ["Electronics Engineer"]
     berlin = next(c for c in jobs["cards"] if c["title"] == "Hardware Engineer")
     assert berlin["location"] == "Berlin" and berlin["location_from_ad_text"]
     assert [c["status"] for c in berlin["location_checks"]] == ["verified", "verified"]
-    unknown = next(c for c in jobs["cards"] if c["title"] == "PCB Designer")
+    unknown = jobs["location_unchecked"][0]
+    assert unknown["score"] is None
     assert unknown["location"] == "Deutschland" and not unknown["location_from_ad_text"]
     assert unknown["location_checks"][-1] == {
         "label": "Country Only doesn't say which town this job is in, nor does its text, so "
@@ -555,6 +557,7 @@ def test_the_town_of_a_good_job_is_found_online_and_the_conditions_decide(condit
     jobs = result["result"]["jobs"]
     # Only the job no text placed is looked up; Garching is too small for "only big cities".
     assert ai.looked_up == [["PCB Designer"]]
+    assert ai.scored_titles == [["Hardware Engineer"]]
     assert titles(jobs["cards"]) == ["Hardware Engineer"]
     assert titles(jobs["ruled_out_by_conditions"]) == ["Electronics Engineer", "PCB Designer"]
     assert result["steps"][-1]["detail"] == "Found online: the town of 1 of 1 jobs"
