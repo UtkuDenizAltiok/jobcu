@@ -10,7 +10,7 @@ is small. `location.py` reads the condition; this module measures it for each jo
    with the same name (the owner's decision).
 2. **Which reference places could be in reach:** straight-line distances rule out places no
    train or car could reach in time and settle jobs inside a reference town at once, so only
-   the nearest few places in between are asked about.
+   destinations are asked about in small rounds until one fits or every candidate is checked.
    A reference place is where the person would live (the owner, 2026-09-24), so a reachable
    part of the city is enough unless the person asks for its centre. A city's own districts in
    the town list (Hamburg's Wandsbek) are part of the city, not reference places of their own.
@@ -66,8 +66,8 @@ FASTEST_KMH = {"transit": 220, "drive": 120, "bicycle": 25, "walk": 7}
 # A job whose ad names a reference town is in it, wherever in the town its address is ("Moosach,
 # München" is Munich), unless the address is this far away: then it's another town of that name.
 HOME_TOWN_KM = 30.0
-# How many of the nearest reference places are asked about for each job. The nearest by straight
-# line is almost always the fastest; a second keeps a margin without doubling Google's use.
+# Destinations per round. Continue with further candidates only when no tested city fits;
+# this is a request batch size, never a limit on which living cities can qualify.
 NEAREST = 2
 ESTIMATE_BATCH = 30
 MEMORY_DAYS = 30
@@ -238,7 +238,8 @@ def anchor_towns(anchor: Anchor | None, country: str) -> list[place_list.Town]:
     chosen: set[place_list.Town] | None = None
     if anchor.min_people or anchor.min_share_of_country:
         smallest = max(anchor.min_people or 0,
-                       round((anchor.min_share_of_country or 0) * COUNTRIES[country].people))
+                       place_list.people_for_share(anchor.min_share_of_country,
+                                                    COUNTRIES[country].people))
         # A city's own districts count as the city (search 9: "Marienthal, 53 min by car").
         chosen = {town for town in place_list.towns_in(country) if town.people >= smallest
                   and place_list.part_of(town) is None}
@@ -720,22 +721,11 @@ class TravelMeter:
                 condition.travel[key] = {"minutes": {home.name: 0}, "by": "distance",
                                          "from": point.how}
                 continue
-            reachable = [town for km, town in ranked if km <= reach_km][:NEAREST]
+            reachable = [town for km, town in ranked if km <= reach_km]
             if not reachable:
                 condition.travel[key] = {"minutes": {}, "by": "distance", "from": point.how,
                                          "nearest": ranked[0][1].name}
                 continue
-            known = condition.travel.get(key) or {}
-            complete = all(town.name in (known.get("minutes") or {}) and
-                           town.name not in (known.get("unchecked") or []) for town in reachable)
-            passes = any((value := (known.get("minutes") or {}).get(town.name)) is not None
-                         and value <= condition.max_minutes for town in reachable)
-            timing_matches = (known.get("timing_profile") == TRAVEL_TIMING
-                              or mode != "transit" and known.get("by") == MAPS)
-            if known.get("point") == point.key and (complete or passes) and timing_matches and (
-                    known.get("by") != MAPS
-                    or known.get("routing_version") == MAPS_ROUTING_VERSION):
-                continue  # measured before (a corrected limit needs nothing new)
             place = wanted.setdefault(point.key, (point, [], []))
             place[2].append(key)
             for town in reachable:
@@ -747,20 +737,84 @@ class TravelMeter:
         if self._maps and not centre:
             self._note("Google Maps compares sampled city-edge and city-centre destinations; "
                        "other districts may have faster connections.")
-        found = self._minutes(list(wanted.values()), mode, centre,
-                              max_minutes=condition.max_minutes)
-        for point, _towns, keys in wanted.values():
-            if point.key not in found:
-                continue
-            reading = found[point.key]
+        readings = {point.key: TravelReading({}) for point, _, _ in wanted.values()}
+        for point, towns, keys in wanted.values():
+            reading = readings[point.key]
+            names = {t.name for t in towns}
             for key in keys:
-                condition.travel[key] = {"minutes": reading.minutes, "by": reading.by,
-                                         "by_town": reading.by_town,
-                                         "unchecked": sorted(reading.unchecked),
-                                         "from": point.how, "point": point.key,
-                                         "timing_profile": TRAVEL_TIMING}
-                if reading.by == MAPS or MAPS in reading.by_town.values():
-                    condition.travel[key]["routing_version"] = MAPS_ROUTING_VERSION
+                known = condition.travel.get(key) or {}
+                timing_matches = (known.get("timing_profile") == TRAVEL_TIMING
+                                  or mode != "transit" and known.get("by") == MAPS)
+                has_maps = known.get("by") == MAPS or MAPS in (
+                    known.get("by_town") or {}).values()
+                if known.get("point") != point.key or not timing_matches or (
+                        has_maps and known.get("routing_version") != MAPS_ROUTING_VERSION):
+                    continue
+                for name, value in (known.get("minutes") or {}).items():
+                    if name in names:
+                        source = (known.get("by_town") or {}).get(
+                            name, known.get("by", ESTIMATE))
+                        if reading.by_town.get(name) == MAPS and source != MAPS:
+                            continue
+                        reading.minutes[name] = value
+                        reading.by_town[name] = source
+                        if name in (known.get("unchecked") or []):
+                            reading.unchecked.add(name)
+                        else:
+                            reading.unchecked.discard(name)
+                reading.unchecked.update(name for name in (known.get("unchecked") or [])
+                                         if name in names and name not in reading.minutes)
+
+        def save():
+            for point, _, keys in wanted.values():
+                reading = readings[point.key]
+                usable = {name: value for name, value in reading.minutes.items()
+                          if value is not None}
+                best = min(usable, key=usable.get) if usable else None
+                reading.by = reading.by_town.get(best, MAPS if self._maps else ESTIMATE)
+                for key in keys:
+                    condition.travel[key] = {
+                        "minutes": dict(reading.minutes), "by": reading.by,
+                        "by_town": dict(reading.by_town),
+                        "unchecked": sorted(reading.unchecked), "from": point.how,
+                        "point": point.key, "timing_profile": TRAVEL_TIMING}
+                    if reading.by == MAPS or MAPS in reading.by_town.values():
+                        condition.travel[key]["routing_version"] = MAPS_ROUTING_VERSION
+
+        save()  # a second vacancy at an already checked workplace needs no new request
+        # A failed round stays visible and stops that origin. Never multiply the same outage
+        # across untested alternatives; an explicit later recovery can retry missing cells.
+        stopped: set[str] = set()
+        while True:
+            pending = []
+            for point, towns, keys in wanted.values():
+                reading = readings[point.key]
+                if point.key in stopped or any(
+                        value is not None and value <= condition.max_minutes
+                        for value in reading.minutes.values()):
+                    continue
+                remaining = [t for t in towns if t.name not in reading.minutes
+                             or t.name in reading.unchecked]
+                if remaining:
+                    pending.append((point, remaining[:NEAREST], keys))
+            if not pending:
+                break
+            found = self._minutes(pending, mode, centre, max_minutes=condition.max_minutes)
+            for point, towns, _ in pending:
+                reading = readings[point.key]
+                new = found.get(point.key, TravelReading({}))
+                requested = {t.name for t in towns}
+                # A reply cannot add unrequested cities or replace earlier successful cells.
+                values = {k: v for k, v in new.minutes.items() if k in requested}
+                reading.minutes.update(values)
+                reading.by_town.update({k: new.by_town.get(k, new.by) for k in values})
+                reading.unchecked.difference_update(requested)
+                unresolved = (requested - values.keys()) | (new.unchecked & requested)
+                reading.unchecked.update(unresolved)
+                if unresolved:
+                    stopped.add(point.key)
+            # Save each completed round before another request can fail or Stop can interrupt.
+            save()
         self._settle_status(condition)
 
     def _minutes(self, places, mode, centre=False, *, max_minutes=None

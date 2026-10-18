@@ -381,6 +381,39 @@ or budget work; the HTTP destination guard prevents a redirect from contacting t
 employers continue independently. This does not broaden source permissions or authorize
 research through a restricted site.
 
+## Workplace-scoped city checks and complete journey rounds — 2026-10-18
+
+Initial searches and saved-condition recovery now schedule finite reference-city research
+after source collection, quick relevance and full-ad reading. `Anchor.reference_deferred`
+represents scheduled work, not a failed check. `reference_places.resolve_for_jobs` unions
+the population/name candidates within the collected workplaces' existing geographic travel
+bounds for each shared interpreted fact. It sends only unresolved relevant cities, then the
+normal source/citation checks establish eligible destinations before timed journeys or scoring.
+Standalone/open-ended conditions retain their existing path. No model, effort or limit changes.
+
+Completed sourced facts belong to the unchanged condition of that saved search; recovery does
+not buy them again just because the one-hour transient research-note memory expired. New
+searches still research fresh facts. Unneeded unknown placeholders are omitted from the result,
+while `unchecked_reference_towns` recalculates absent candidates when another workplace needs
+them: omission cannot become a pass or a negative decision. Missing workplaces remain blocked.
+Country/municipal identity, comparable event and category-source requirements remain intact.
+
+`travel.NEAREST` is now destinations per round, superseding the earlier two-candidate total.
+Failed nearest journeys automatically advance to the next geographically reachable eligible
+cities, stopping at the first pass or after all candidates are measured. A failed/incomplete
+round stops that origin without repeatedly dispatching other alternatives. Every completed
+round is retained before the next request. Identical workplaces share validated measurements;
+completed cells are not repurchased, and Maps readings take priority over older AI estimates.
+The configured Maps/AI limits and labelled estimate fallback still apply. These samples retain
+the city-edge/centre limitation; testing all cities does not test every possible city district.
+
+Population cutoffs now round fractional people upward in both workplace and reference-city
+rules: a place below the requested country share cannot pass through rounding down. This
+corrects arithmetic, not the observation dates or precision of the shipped population dataset.
+Fictional engineering/nursing/teaching flows verify full-ad workplace correction before facts,
+shared work, third-city admission, complete negatives, interruptions, failure stops and reuse.
+Request counts establish those cases, not live invoice savings or universal source availability.
+
 ## Finite reference evidence and source recovery — 2026-10-15
 
 For a travel condition with a known population or named-place rule, `reference_places.py`

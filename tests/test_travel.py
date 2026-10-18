@@ -240,8 +240,9 @@ def test_a_close_call_is_measured_from_the_ads_own_place_only():
     condition = near()
     job = group("Fürstenfeldbruck", company="Has Many Sites GmbH")
     meter(fake).measure([condition], [job], [0])
-    assert [path for path, _, _ in fake.requests] == ["/distanceMatrix/v2:computeRouteMatrix"]
-    assert condition_fit(condition, job) == "unknown"  # other reachable cities were not measured
+    assert len(fake.requests) > 1  # finish the other reachable alternatives too
+    assert all(path == "/distanceMatrix/v2:computeRouteMatrix" for path, _, _ in fake.requests)
+    assert condition_fit(condition, job) == "no"
     assert travel.detail(condition, job)[0].startswith("Munich, 52 min by public transport")
 
 
@@ -278,7 +279,7 @@ def test_the_monthly_limit_stops_google_maps_and_the_ai_takes_over():
     condition = near()
     job = group("Fürstenfeldbruck")
     meter(client=GuessingClient(), settings=settings, notes=notes).measure([condition], [job], [0])
-    assert condition_fit(condition, job) == "unknown"  # only the nearest few were estimated
+    assert condition_fit(condition, job) == "no"  # all reachable cities have an estimate
     assert any("used up" in note for note in notes)
 
 
@@ -572,11 +573,8 @@ def test_a_search_keeps_jobs_near_a_big_city_and_leaves_out_far_ones(
     jobs = result["result"]["jobs"]
     assert sorted(card["location"] for card in jobs["cards"]) == [
         "Fürstenfeldbruck", "München"]
-    assert jobs["ruled_out_by_conditions"] == []
-    hof = next(card for card in jobs["location_unchecked"] if card["location"] == "Hof")
-    assert hof["score"] is None
-    assert hof["location_checks"][-1]["status"] == "unclear"
-    assert "other candidate cities" in hof["location_checks"][-1]["detail"]
+    assert [card["location"] for card in jobs["ruled_out_by_conditions"]] == ["Hof"]
+    assert jobs["location_unchecked"] == []
     bruck = next(card for card in jobs["cards"] if card["location"] == "Fürstenfeldbruck")
     check = bruck["location_checks"][-1]
     assert check["detail"] == "Munich, 25 min by public transport"

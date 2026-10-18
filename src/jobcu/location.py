@@ -230,6 +230,7 @@ class Anchor(BaseModel):
     # Separate from journey confidence: a measured route cannot verify a city fact.
     research_status: Literal["applied", "estimate", "not_checked"] | None = None
     reference_checks: list[ReferenceCheck] | None = None  # None: legacy/open-ended research
+    reference_deferred: bool = False  # first select the collected workplaces' reachable cities
     # In-flight recovery only. Retaining an undisplayed grounded answer needs a verified
     # provider-specific display/retention policy, not an unrestricted hidden archive.
     reference_notes: str = Field(default="", exclude=True)
@@ -307,6 +308,8 @@ def condition_warnings(plan: LocationPlan) -> list[str]:
     for condition in plan.conditions:
         if condition.switched_off or condition.kind == "about_job":
             continue
+        if condition.anchor is not None and condition.anchor.reference_deferred:
+            continue  # scheduled after collection, not a failed or omitted check
         if condition.status == "not_checked":
             note = condition.note or "Jobcu could not check this condition."
         elif condition.reference_status != "applied" or (
@@ -519,7 +522,8 @@ def _read_location(client: AIClient, text: str) -> tuple[LocationInterpretation,
 
 
 def _plan_from_reading(client: AIClient, text: str,
-                       reading: LocationInterpretation) -> LocationPlan:
+                       reading: LocationInterpretation, *,
+                       defer_reference_checks: bool = False) -> LocationPlan:
     plain = LocationUnderstanding.model_validate({
         **reading.model_dump(),
         "conditions_about_places": [c.text for c in reading.conditions_about_places],
@@ -528,6 +532,7 @@ def _plan_from_reading(client: AIClient, text: str,
     plan = plan_from(text, plain)
     plan.conditions = _check_sorted_conditions(
         client, reading.conditions_about_places + reading.conditions_about_the_job, plan.countries,
+        defer_reference_checks=defer_reference_checks,
     )
     _narrow_countries(plan)
     plan.not_checked_yet = [
@@ -545,7 +550,8 @@ def interpret_location(client: AIClient, text: str) -> LocationPlan:
     return _plan_from_reading(client, text, reading)
 
 
-def interpret_location_reusing(client: AIClient, text: str) -> tuple[LocationPlan, bool]:
+def interpret_location_reusing(client: AIClient, text: str, *,
+                               defer_reference_checks: bool = False) -> tuple[LocationPlan, bool]:
     """Reuse the same text reading, never a previous researched plan or travel judgement."""
     original_text = text
     text = text.strip()
@@ -566,7 +572,8 @@ def interpret_location_reusing(client: AIClient, text: str) -> tuple[LocationPla
         if complete:
             preparation.write("location", request_key, reading)
     client.checkpoint()
-    return _plan_from_reading(client, text, reading), reused
+    return _plan_from_reading(client, text, reading,
+                              defer_reference_checks=defer_reference_checks), reused
 
 
 def _narrow_countries(plan: LocationPlan) -> None:
@@ -590,11 +597,13 @@ def _narrow_countries(plan: LocationPlan) -> None:
 
 
 def check_conditions(
-    client: AIClient, conditions: list[str], countries: list[str]
+    client: AIClient, conditions: list[str], countries: list[str], *,
+    defer_reference_checks: bool = False,
 ) -> list[Condition]:
     """Check new or edited conditions without borrowing another search's research."""
     sorted_conditions, _ = _sort_conditions(client, conditions, countries)
-    return _check_sorted_conditions(client, sorted_conditions, countries)
+    return _check_sorted_conditions(client, sorted_conditions, countries,
+                                     defer_reference_checks=defer_reference_checks)
 
 
 def _sort_conditions(
@@ -624,7 +633,8 @@ def _sort_conditions(
 
 
 def _check_sorted_conditions(
-    client: AIClient, sorted_conditions: list[SortedCondition], countries: list[str]
+    client: AIClient, sorted_conditions: list[SortedCondition], countries: list[str], *,
+    defer_reference_checks: bool = False,
 ) -> list[Condition]:
     """Apply the same checks to initial interpretations and newly edited conditions."""
     names = ", ".join(COUNTRIES[code].name for code in countries) or "the supported countries"
@@ -667,9 +677,12 @@ def _check_sorted_conditions(
         key = (normalise(fact), None if candidates is None else tuple(
             (town.country, town.name, town.latitude, town.longitude) for town in candidates))
         if key not in looked_up:
-            looked_up[key] = (_research_condition(client, fact, names, countries)
-                             if candidates is None else reference_places.check(
-                                 client, fact, candidates))
+            if candidates is not None and defer_reference_checks:
+                looked_up[key] = reference_places.deferred(fact, candidates)
+            else:
+                looked_up[key] = (_research_condition(client, fact, names, countries)
+                                 if candidates is None else reference_places.check(
+                                     client, fact, candidates))
         found = looked_up[key]
         return found.model_copy(update={"text": fact})
 
@@ -708,7 +721,8 @@ def _check_sorted_conditions(
                     note="Jobcu looks a few conditions up per search; this one was left out."))
                 continue
             researched += looks_up
-            checked.append(_near_condition(sorted_condition, countries, research))
+            checked.append(_near_condition(sorted_condition, countries, research,
+                                           defer_reference_checks=defer_reference_checks))
             continue
         known = any(k[0] == normalise(text) for k in looked_up)
         if researched >= MAX_CONDITIONS and not known:
@@ -741,6 +755,7 @@ DEFAULT_CITY_PEOPLE = 20_000
 def _near_condition(
     sorted_condition: SortedCondition, countries: list[str],
     research: Callable[[str, SortedAnchor], Condition],
+    *, defer_reference_checks: bool = False,
 ) -> Condition:
     """A limit and the places it is measured to. Places of a size and named places need nothing
     more; any fact about the places ("a university town", "far-right parties below average") is
@@ -766,6 +781,7 @@ def _near_condition(
             anchor.reference_checks = found.reference_checks
             anchor.reference_notes = found.reference_notes
             anchor.looked_up = True
+            anchor.reference_deferred = defer_reference_checks
         elif found.kind == "town_size":
             anchor.min_people = found.min_people or anchor.min_people
             anchor.min_share_of_country = (found.min_share_of_country
@@ -999,7 +1015,8 @@ def _check_near_edit(condition: Condition, edit: ConditionEdit, countries: list[
                           "condition off.")
 
 
-def apply_edits(client: AIClient, plan: LocationPlan, edits: list[ConditionEdit]) -> LocationPlan:
+def apply_edits(client: AIClient, plan: LocationPlan, edits: list[ConditionEdit], *,
+                defer_reference_checks: bool = False) -> LocationPlan:
     """The plan with the person's corrections.
 
     Reworded and new conditions are checked again, exactly like in a search. Everything else
@@ -1016,11 +1033,13 @@ def apply_edits(client: AIClient, plan: LocationPlan, edits: list[ConditionEdit]
                 from jobcu.reference_places import retry_missing
 
                 corrected = _corrected(plan.conditions[edit.original], edit, plan.countries)
-                resumed = retry_missing(client, corrected, plan.countries)
+                resumed = retry_missing(client, corrected, plan.countries,
+                                        defer_reference_checks=defer_reference_checks)
                 if resumed is not None:
                     conditions.append(resumed)
                     continue
-            conditions.extend(check_conditions(client, [edit.text.strip()], plan.countries))
+            conditions.extend(check_conditions(client, [edit.text.strip()], plan.countries,
+                                                defer_reference_checks=defer_reference_checks))
         elif edit.original is not None:
             conditions.append(_corrected(plan.conditions[edit.original], edit, plan.countries))
     # Conditions the window didn't mention stay as they were.
@@ -1104,6 +1123,7 @@ def _corrected_near(condition: Condition, edit: ConditionEdit, countries: list[s
         # Changing only minutes or size does not confirm another missing city fact.
         anchor.research_status = "applied"
         anchor.reference_checks = None
+        anchor.reference_deferred = False
         anchor.reference_notes = ""
     condition.anchor = anchor
     condition.changed_by_you = condition.changed_by_you or changed
@@ -1191,7 +1211,7 @@ def _town_keys(towns: list[TownRef]) -> set[tuple[str, str]]:
 def smallest_town(condition: Condition, country: str) -> int:
     """How many people a town must have for a "town_size" condition, in this country."""
     people = COUNTRIES[country].people if country in COUNTRIES else 0
-    by_share = round((condition.min_share_of_country or 0) * people)
+    by_share = place_list.people_for_share(condition.min_share_of_country, people)
     return max(condition.min_people or 0, by_share)
 
 

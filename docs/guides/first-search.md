@@ -312,6 +312,16 @@ Unknown facts still need research; a failed comparison keeps them unchecked. A m
 journey is requested only after a suitable reference city has been established. This does
 not change your population threshold, journey limit or chosen AI effort.
 
+For conditions about living near a particular kind of city, Jobcu first collects the jobs and
+reads fuller ads where available. It then checks city facts for the workplaces those ads name,
+sharing the work when several jobs need the same city. A saved recovery keeps already verified
+city facts and checks the remaining relevant ones. A new search checks fresh facts.
+
+If the nearest cities take too long to reach, Jobcu continues to other candidate cities. It
+stops when one fits, all reachable candidates have been checked, or an existing limit/service
+failure prevents completion. Completed journeys are reused; a successful connection is not
+repeated merely to fill the other alternatives.
+
 Missing original text, unsupported facts or an unavailable service can still leave checks
 unfinished. Repeating a request cannot establish experience absent from your profile. Read
 the specific explanation; quote-validation failures are distinguished from missing evidence.
@@ -439,7 +449,8 @@ Read warnings on a job before making a decision:
   is missing, and the condition remains retryable. Resolved condition warnings disappear when
   you recheck the condition; unrelated source warnings remain.
   When your condition names cities or a minimum population, Jobcu first calculates which
-  cities qualify for that part, then checks the remaining fact for those cities. It keeps
+  cities qualify for that part, then checks the remaining fact for cities relevant to the
+  collected workplaces. It keeps
   supported answers when others are missing. A confirmed suitable city can qualify a job;
   an unchecked alternative cannot be treated as either suitable or unsuitable. **Edit →
   Reference city checks** shows the individual findings. **Try to check it again** can recheck

@@ -324,7 +324,7 @@ def test_stop_during_condition_recovery_keeps_usage_and_completed_pool_work(
                            steps=[search.Step(i, label) for i, label in search.REAPPLY_STEPS],
                            result=initial.snapshot()["result"])
 
-    def interrupted(*args):
+    def interrupted(*args, **kwargs):
         UsageLog().record(step="conditions", provider="gemini", model="model-a",
                           usage=Usage(13, 7), search_id=run.id)
         raise search.SearchStopped

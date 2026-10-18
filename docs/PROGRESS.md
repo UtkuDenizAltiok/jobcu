@@ -120,7 +120,31 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Parked: remaining comparable city-result evidence.**
+**Active: complete the automatic location eligibility flow (owner, 2026-10-18).**
+
+Authorized scope: trace and repair the general workplace → population-qualified living city →
+reachable journey → comparable election-condition flow, including fresh source acquisition,
+shared work and explicit reasons for interrupted checks. Preserve recall, medium effort,
+owner data and existing limits. Do not start a search or reuse closed paid-test packets.
+
+Steps: (1) reproduce the remaining automation gaps with fictional cases and inspect the
+retained private dependency under standing authorization; (2) implement coherent general
+repairs and verify affected behavior; (3) complete full-suite/Ruff/privacy/docs/JS checks,
+publish, require exact-head Mac/Windows/privacy CI, merge and synchronize main. The unchanged
+baseline is main `85c28be`, 2,091 passing local tests and exact-main CI `39074334213`.
+Implemented on `codex/complete-location-flow`: research finite living-city facts after full
+ads identify the actual workplaces; share each fact's relevant cities; retain completed
+same-search facts during explicit recovery; finish route alternatives in small rounds, stopping
+on a pass or incomplete round. Completed measurements are shared, with Maps ahead of estimates.
+Fractional population cutoffs round upward without binary-float boundary errors. Targeted
+fictional regressions first reproduce premature route completion and cutoff errors. The full
+local suite passes **2,114 tests**, with one existing dependency warning; Ruff/privacy/whitespace
+also pass. Exact next action: publish this coherent step through exact-head PR/main
+Mac/Windows/privacy CI. No owner data changed or
+paid calls made for this step. Shipped population observation dates are unchanged.
+Paid verification requires a new concrete bounded packet; none is currently open.
+
+The preceding coherent step is complete; its receipts and remaining evidence dependency follow.
 
 The country-source integration in PR #151 is complete in this merge. Three fictional
 regressions first reproduced the global page-limit and mixed-country failures. The final

@@ -16,6 +16,7 @@ import csv
 import gzip
 import re
 from dataclasses import dataclass
+from decimal import ROUND_CEILING, Decimal
 from functools import cache
 from math import asin, cos, radians, sin, sqrt
 from pathlib import Path
@@ -27,6 +28,13 @@ REGIONS = Path(__file__).resolve().parent / "data" / "regions.csv.gz"
 POSTCODES = Path(__file__).resolve().parent / "data" / "postcodes.csv.gz"
 MAX_NAME_WORDS = 4  # "Frankfurt am Main", "'s-Hertogenbosch"
 EARTH_RADIUS_KM = 6371.0
+
+
+def people_for_share(share: float | None, population: int) -> int:
+    """The smallest whole population satisfying the decimal percentage the person supplied."""
+    return int((Decimal(str(share or 0)) * population).to_integral_value(rounding=ROUND_CEILING))
+
+
 # Job ads shorten names: "Ottobrunn" for "Ottobrunn bei München", "Halle" for "Halle (Saale)".
 _QUALIFIERS = re.compile(
     r"\s*[(,].*|\s+(?:bei|an der|an dem|am|im|in der|ob der|vor der|unter|auf|a\.d\.|sur|sous|"
