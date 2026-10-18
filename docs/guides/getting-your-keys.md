@@ -308,6 +308,11 @@ remaining allowance can be lower. **Credits reserved** counts attempted requests
 including interrupted ones, and is not an invoice. See **Search details** for partial coverage.
 JSearch failures stop that source without automatic retries; the other feeds continue. No
 live comparison has established how many useful extra jobs or net AI savings it will bring.
+When a promising job lacks its town or country, Jobcu can use a JSearch detail lookup within
+the same credit ceiling, even if its description was already supplied. It reuses recent
+matching evidence first. A shorter detail reply keeps the earlier richer complete description.
+The country used for a search is not proof of the job's actual country, and these details do
+not replace the city conditions or measured journeys.
 
 ## Optional Google Maps
 

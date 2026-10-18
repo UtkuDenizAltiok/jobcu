@@ -9,6 +9,24 @@ Code/tests establish behavior; the latest current decision establishes intent.
 
 ## Current decisions
 
+### Source workplace metadata before AI lookup — 2026-10-19
+
+Complete supplied ad text does not establish a complete workplace. Detail readers can declare
+that they supply missing town/country fields; JSearch does so. The normal full-ad stage checks
+those fields even when usable text already exists, within the same source allowance and
+failure controls. Lookup locale alone still cannot establish workplace country.
+
+Reuse a cached country/town for the same workplace while preserving fresh complete text.
+An explicitly changed town or country prevents copying the conflicting cached location;
+resolve it through the detail reader instead. JSearch details that shrink earlier complete
+text retain the richer text while adding independently supplied metadata and links. This
+supersedes the assumption that any non-ellipsis detail description outranks complete list text.
+
+Nine fictional regressions first reproduce skipped metadata, unsafe replacement and cache
+loss across hardware, nursing and teaching. Existing date readers, source caps and admission
+checks remain in force. More complete source evidence can avoid an AI lookup; live net cost,
+coverage and original-ad completeness require the private comparison procedure.
+
 ### Silent AI stream termination — 2026-10-19
 
 A Gemini event or content stream that reaches EOF without its required completion frame is

@@ -529,6 +529,67 @@ def test_unmatched_details_stop_source_and_preserve_original(setup):
     assert original.description == "Original summary..." and len(requests) == 2
 
 
+def test_shorter_unmarked_detail_text_cannot_erase_richer_complete_evidence(setup):
+    richer = FULL + " Fluent fictional language and four years of experience are required."
+    source, ctx, _ = setup(lambda _: httpx.Response(
+        200, json={"status": "OK", "data": [item(job_description="Develop circuits.")]}
+    ))
+    original = jsearch.to_found_job(item(job_description=richer, job_country=None))
+    original.source_context = {"country": "de", "language": "en"}
+    full = source.load_details(original, ctx)
+    assert full.description == richer and full.description_is_complete
+    assert full.country == "DE" and original.country is None
+
+
+@pytest.mark.parametrize("title", ["Hardware Engineer", "Registered Nurse", "Primary Teacher"])
+@pytest.mark.parametrize("missing", ["country", "town"])
+def test_complete_list_text_still_recovers_missing_workplace_metadata(setup, title, missing):
+    source, ctx, requests = setup(lambda _: httpx.Response(
+        200, json={"status": "OK", "data": [item(job_title=title)]}
+    ))
+    changes = {"job_country": None} if missing == "country" else {"job_city": None}
+    job = jsearch.to_found_job(item(job_title=title, **changes))
+    job.source_context = {"country": "de", "language": "en"}
+    groups = [JobGroup([job])]
+    collected = pipeline.Collected([job], [ctx.report], {"jsearch": source})
+    run = SimpleNamespace(stop_requested=False, update=lambda *a: None, note=lambda *a: None)
+    pipeline.load_full_ads(groups, [0], collected, ctx.http, ctx.keys, run)
+    recovered = groups[0].copies[0]
+    assert recovered.country == "DE" and recovered.location_text == "Berlin"
+    assert recovered.description == FULL and len(requests) == 2
+    pipeline.load_full_ads(groups, [0], collected, ctx.http, ctx.keys, run)
+    assert len(requests) == 2
+
+
+def test_cached_country_fills_the_same_workplace_without_replacing_fresh_complete_text(setup):
+    source, ctx, requests = setup()
+    known = jsearch.to_found_job(item())
+    jobstore.remember_ad(known)
+    fresh = jsearch.to_found_job(item(job_country=None, job_description=FULL + " New benefits."))
+    fresh.source_context = {"country": "de", "language": "en"}
+    groups = [JobGroup([fresh])]
+    collected = pipeline.Collected([fresh], [ctx.report], {"jsearch": source})
+    run = SimpleNamespace(stop_requested=False, update=lambda *a: None, note=lambda *a: None)
+    pipeline.load_full_ads(groups, [0], collected, ctx.http, ctx.keys, run)
+    assert groups[0].copies[0].country == "DE" and not requests
+    assert groups[0].copies[0].description == fresh.description
+
+
+def test_cached_country_does_not_fill_a_changed_workplace_without_a_detail_read(setup):
+    source, ctx, requests = setup(lambda _: httpx.Response(
+        200, json={"status": "OK", "data": [item(job_country="IE", job_city="Cork")]}
+    ))
+    jobstore.remember_ad(jsearch.to_found_job(item()))
+    fresh = jsearch.to_found_job(item(job_country=None, job_city="Cork"))
+    fresh.source_context = {"country": "ie", "language": "en"}
+    groups = [JobGroup([fresh])]
+    collected = pipeline.Collected([fresh], [ctx.report], {"jsearch": source})
+    run = SimpleNamespace(stop_requested=False, update=lambda *a: None, note=lambda *a: None)
+    pipeline.load_full_ads(groups, [0], collected, ctx.http, ctx.keys, run)
+    assert groups[0].copies[0].country == "IE" and len(requests) == 2
+    assert groups[0].copies[0].location_text == "Cork"
+
+
 def test_missing_lookup_or_multi_id_cannot_consume_credits(setup):
     source, ctx, requests = setup()
     for job in [

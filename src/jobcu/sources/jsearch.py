@@ -266,6 +266,7 @@ def plan_queries(query: JobQuery, *, offset: int = 0) -> list[Query]:
 
 class JSearchSource(JobSource):
     id, name, kind = "jsearch", "JSearch", "aggregator"
+    details_supply_locations = True
 
     def __init__(self):
         self._budget: RequestBudget | None = None
@@ -489,9 +490,11 @@ class JSearchSource(JobSource):
             if v not in (None, "", [])
             and k not in {"older_copy", "posted_at", "date_precision", "source_context"}
         }
-        if not full.description or (
-            not full.description_is_complete
-            and (job.description_is_complete or len(full.description) < len(job.description))
+        if (
+            not full.description
+            or (not full.description_is_complete and job.description_is_complete)
+            or (len(full.description) < len(job.description)
+                and (job.description_is_complete or not full.description_is_complete))
         ):
             updates.pop("description", None)
             updates.pop("description_is_complete", None)

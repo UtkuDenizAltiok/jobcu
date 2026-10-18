@@ -153,6 +153,13 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
         return ((copy.posted_at is None or copy.closes_at is None)
                 and getattr(collected.sources.get(copy.source), "details_supply_dates", False))
 
+    def location_reader(copy):
+        return ((not copy.country or not copy.location_text)
+                and getattr(collected.sources.get(copy.source), "details_supply_locations", False))
+
+    def metadata_reader(copy):
+        return date_reader(copy) or location_reader(copy)
+
     for index in dict.fromkeys(indexes):
         if run.stop_requested:
             return
@@ -162,7 +169,7 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
                         if c.description_is_complete and not _complete_ad(c) else c
                         for c in group.copies]
         if (_complete_ad(group.best_description_copy)
-                and not any(date_reader(copy) for copy in group.copies)):
+                and not any(metadata_reader(copy) for copy in group.copies)):
             continue
         order = sorted(range(len(group.copies)), key=lambda i: SOURCE_KIND_RANK.get(
             group.source_kinds.get(group.copies[i].source,
@@ -171,7 +178,7 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
         metadata_checked = set()
         for copy_index in order:
             if (_complete_ad(group.best_description_copy)
-                    and not date_reader(group.copies[copy_index])):
+                    and not metadata_reader(group.copies[copy_index])):
                 continue
             try:
                 copy = group.copies[copy_index]
@@ -183,8 +190,6 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
                 log.exception("Reading remembered full-ad evidence failed")
                 continue
             if known is not None and _complete_ad(known):
-                if date_reader(copy):
-                    metadata_checked.add(copy_index)
                 if _complete_ad(copy):
                     # Fresh list text outranks cached text from the same requisition.
                     known = dataclasses.replace(
@@ -192,11 +197,21 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
                         date_precision=(copy.date_precision if copy.posted_at
                                         else known.date_precision),
                         closes_at=copy.closes_at or known.closes_at,
+                        # Do not carry a cached country/town across an explicitly changed
+                        # workplace. The detail reader can resolve the new location instead.
+                        country=copy.country or (known.country if (
+                            not copy.location_text or copy.location_text == known.location_text
+                        ) else None),
+                        location_text=copy.location_text or (known.location_text if (
+                            not copy.country or copy.country == known.country
+                        ) else None),
                     )
+                if not location_reader(known):
+                    metadata_checked.add(copy_index)
                 group.copies[copy_index] = known
                 remembered += 1
         if (_complete_ad(group.best_description_copy) and not any(
-                date_reader(copy) and i not in metadata_checked
+                metadata_reader(copy) and i not in metadata_checked
                 for i, copy in enumerate(group.copies))):
             continue
         options, seen = [], set()
@@ -206,7 +221,7 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
                         None if copy.source_job_id else copy.url)
             source, report = collected.sources.get(copy.source), reports.get(copy.source)
             if (_complete_ad(group.best_description_copy)
-                    and (not date_reader(copy) or copy_index in metadata_checked)):
+                    and (not metadata_reader(copy) or copy_index in metadata_checked)):
                 continue
             if (identity in seen or source is None or report is None
                     or type(source).load_details is JobSource.load_details
@@ -252,7 +267,7 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
                                                    description_is_complete=False)
                     groups[index].copies[copy_index] = full
                     try:
-                        if not (date_reader(copy) and full is requested):
+                        if not (metadata_reader(copy) and full is requested):
                             # A reader returning its unchanged argument after failure does not
                             # establish a successful metadata check, even with complete list text.
                             jobstore.remember_ad(full, reader_version=source.detail_cache_version)
@@ -272,7 +287,7 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
             with lock:
                 tried[0] += 1
                 if not pending[index] or (complete and not any(
-                        date_reader(groups[index].copies[n]) for n in pending[index])):
+                        metadata_reader(groups[index].copies[n]) for n in pending[index])):
                     completed.add(index)
                     done[0] = len(completed)
                 if tried[0] % 5 == 0 or done[0] == total:
@@ -288,7 +303,7 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
             list(pool.map(lambda pair: run_source(*pair), work.items()))
         pending = {i: options for i, options in pending.items() if options and (
             not _complete_ad(groups[i].best_description_copy)
-            or any(date_reader(groups[i].copies[n]) for n in options))}
+            or any(metadata_reader(groups[i].copies[n]) for n in options))}
 
 
 def newest_first(groups: list[JobGroup], indexes: list[int]) -> list[int]:
