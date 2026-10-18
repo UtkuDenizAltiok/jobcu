@@ -548,6 +548,7 @@ def test_same_vacancy_gets_one_group_and_supplied_full_text_needs_no_detail_call
         j,
         source="other",
         source_job_id="other-id",
+        url="https://other-board.example.test/vacancies/other-id",
         description="Short summary",
         description_is_complete=False,
     )

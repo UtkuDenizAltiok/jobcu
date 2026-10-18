@@ -10,7 +10,8 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
-- Optional JSearch integration is implemented and locally verified: **2,191 offline tests**
+- Optional JSearch integration is implemented and locally verified in
+  [PR #155](https://github.com/UtkuDenizAltiok/jobcu/pull/155): **2,191 offline tests**
   pass, extending the 2,115-test baseline. Publication is the active step below. The
   [dated assessment and controls](SOURCES.md#jsearch-assessment--2026-10-18) govern the direct
   Free adapter, explicit opt-in and shared page/detail ceilings. Existing feeds, scores,
@@ -154,10 +155,13 @@ receipt gate, atomic reservations, positive opt-in, alternative links and guides
 Final full suite: **2,191 passing** with the existing dependency deprecation; Ruff, privacy,
 JS syntax and whitespace pass. A disposable fictional UI preview confirmed the account link
 and explicit source switch; its service and data are removed. No live/account/private request
-was sent. Exact next action: finish the complete diff review, commit/push this branch and open
-its PR, require exact-head Mac/Windows/privacy CI, then merge and synchronise main. Current
-changes are not yet pushed, merged or deployed. Recheck active-search status before any runtime
-replacement; no key, source opt-in or owner limit change is authorised by deployment.
+was sent. PR #155 is published; first head `d656fce` passed local verification. The final
+fixture also checks distinct source URLs for the same vacancy; all 2,191 tests pass again.
+Exact next action: push the final fixture and this checkpoint, require Mac/Windows/privacy CI
+on its actual head, then merge and synchronise main. Source changes are pushed but not merged
+or deployed. Recheck active-search status
+before any runtime replacement; no key, source opt-in or owner limit change is authorised by
+deployment.
 
 **Parked: comparable city-election evidence within the retained owner review.**
 
