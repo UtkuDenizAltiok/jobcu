@@ -1350,6 +1350,18 @@ queried for this comparison; existing restrictions and request budgets remain.
 
 ## Native streams and selected reference pages — 2026-10-18
 
+**Responses control check, 2026-10-19:** OpenAI's current
+[Responses reference](https://developers.openai.com/api/reference/cli/resources/responses/methods/create)
+documents `max_tool_calls` as a total ceiling across built-in tools: further attempts are
+ignored. Jobcu sends the already allowed research count through that field. This controls
+tool calls, while token/retrieved-content charges and account limits remain separate.
+The same reference distinguishes completed, failed and incomplete responses and provides
+usage separately from output. Error outcomes must retain received usage rather than erase it.
+The [current Gemini Interactions schema](https://ai.google.dev/api/interactions-api) does not
+document a corresponding per-request hosted-query ceiling. A prompt instruction cannot create
+that guarantee. These are dated protocol facts, not comparative matching results or a reason
+to switch a configured provider automatically.
+
 Google's [Interactions API](https://ai.google.dev/api/interactions-api) supports streaming,
 structured response schemas, medium thinking and `store=false` without a previous interaction.
 The [streaming guide](https://ai.google.dev/gemini-api/docs/streaming) documents early lifecycle

@@ -9,6 +9,26 @@ Code/tests establish behavior; the latest current decision establishes intent.
 
 ## Current decisions
 
+### Responses completion, receipts and research bounds — 2026-10-19
+
+Native OpenAI research sends its existing search allowance as the documented Responses
+`max_tool_calls` ceiling. It limits total built-in tool calls; it is not an output-token or
+currency ceiling. No larger allowance, model choice or hosted-tool entitlement is introduced.
+Custom Responses endpoints retain their research-disabled policy until separately supported.
+
+Both structured and research answers require `completed` status and no refusal. Truncation,
+failed execution and unconfirmed/nonterminal states cannot supply facts or a match judgement.
+Retain the available token/tool receipt on errors; successful answers without complete token
+counts stay usable with explicitly incomplete usage. Output already contains reasoning tokens.
+Known research activity followed by a failed incomplete bill reaches the shared cost guard.
+Structured truncation retains both bills when the existing larger-output repair succeeds.
+
+Eighteen locked-SDK regressions first reproduce omitted bounds, accepted partial research,
+lost failure receipts and missing-usage crashes. Four additional cases protect partial counts
+and once-only repair accounting. The native and custom structured paths share these checks;
+medium effort, schema validation, source links and existing retry limits remain unchanged.
+No paid provider request or live quality/cost claim was needed for this repair.
+
 ### Research failure with an incomplete bill — 2026-10-19
 
 When research reports observed search-tool use and incomplete usage before a temporary

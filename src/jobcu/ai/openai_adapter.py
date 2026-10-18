@@ -16,6 +16,7 @@ from jobcu.ai.base import (
     AIAuthError,
     AIBadRequest,
     AIError,
+    AIInvalidOutput,
     AIModelNotFound,
     AIOutputTruncated,
     AIQuotaExhausted,
@@ -99,25 +100,9 @@ class OpenAIAdapter(ProviderAdapter):
         except Exception as exc:
             raise translate_openai_error(exc) from exc
 
-        if response.status == "incomplete":
-            reason = getattr(response.incomplete_details, "reason", "")
-            if reason == "content_filter":
-                raise AIRefused(MSG_REFUSED)
-            raise AIOutputTruncated(MSG_TRUNCATED)
-        for item in response.output:
-            for part in getattr(item, "content", None) or []:
-                if getattr(part, "type", "") == "refusal":
-                    raise AIRefused(MSG_REFUSED, getattr(part, "refusal", ""))
-        usage = response.usage
-        return RawReply(
-            text=response.output_text,
-            usage=Usage(
-                input_tokens=usage.input_tokens,
-                output_tokens=usage.output_tokens,
-                cached_input_tokens=_attr(usage.input_tokens_details, "cached_tokens"),
-                reasoning_tokens=_attr(usage.output_tokens_details, "reasoning_tokens"),
-            ),
-        )
+        usage = _response_usage(response)
+        _check_response(response, usage)
+        return RawReply(text=response.output_text, usage=usage)
 
     def research(
         self, *, model: str, system: str, prompt: str, max_searches: int, max_output_tokens: int,
@@ -133,6 +118,7 @@ class OpenAIAdapter(ProviderAdapter):
                 instructions=system,
                 input=prompt,
                 tools=[{"type": "web_search"}],
+                max_tool_calls=max_searches,
                 max_output_tokens=max_output_tokens,
                 store=False,
                 **extra,
@@ -148,21 +134,52 @@ class OpenAIAdapter(ProviderAdapter):
                     url = getattr(annotation, "url", None)
                     if url:
                         sources.append(Source(url, getattr(annotation, "title", "") or ""))
-        usage = response.usage
+        usage = _response_usage(response, searches=searches)
+        _check_response(response, usage)
         return ResearchReply(
             text=response.output_text,
             sources=unique_sources(sources),
-            usage=Usage(
-                input_tokens=usage.input_tokens,
-                output_tokens=usage.output_tokens,
-                cached_input_tokens=_attr(usage.input_tokens_details, "cached_tokens"),
-                reasoning_tokens=_attr(usage.output_tokens_details, "reasoning_tokens"),
-                web_searches=searches,
-            ),
+            usage=usage,
         )
 
     def list_models(self) -> list[str]:
         return list_openai_style_models(self._client())
+
+
+def _response_usage(response, *, searches: int = 0) -> Usage:
+    receipt = response.usage
+    complete = all(type(getattr(receipt, name, None)) is int
+                   and getattr(receipt, name) >= 0 for name in ("input_tokens", "output_tokens"))
+    return Usage(
+        input_tokens=_attr(receipt, "input_tokens"),
+        output_tokens=_attr(receipt, "output_tokens"),  # already includes reasoning
+        cached_input_tokens=_attr(getattr(receipt, "input_tokens_details", None), "cached_tokens"),
+        reasoning_tokens=_attr(getattr(receipt, "output_tokens_details", None), "reasoning_tokens"),
+        web_searches=searches,
+        unreported_requests=int(not complete),
+    )
+
+
+def _check_response(response, usage: Usage) -> None:
+    """Partial text is not a completed answer; a failure can still have a bill."""
+    failure = None
+    if response.status == "incomplete":
+        reason = getattr(response.incomplete_details, "reason", "")
+        failure = AIRefused(MSG_REFUSED) if reason == "content_filter" \
+            else AIOutputTruncated(MSG_TRUNCATED)
+    elif response.status == "failed":
+        failure = AIUnavailable("The AI provider reported that its request failed. "
+                                "Completed work was kept. Try again later.",
+                                getattr(response.error, "code", "") or "")
+    elif response.status != "completed":
+        failure = AIInvalidOutput("The AI provider did not confirm a completed answer.")
+    for item in response.output:
+        for part in getattr(item, "content", None) or []:
+            if getattr(part, "type", "") == "refusal":
+                failure = AIRefused(MSG_REFUSED, getattr(part, "refusal", ""))
+    if failure is not None:
+        failure.usage = usage
+        raise failure
 
 
 def list_openai_style_models(client: openai.OpenAI) -> list[str]:
@@ -212,4 +229,5 @@ def translate_openai_error(exc: Exception) -> Exception:
 
 
 def _attr(obj, name: str) -> int:
-    return (getattr(obj, name, 0) or 0) if obj is not None else 0
+    value = getattr(obj, name, None)
+    return value if type(value) is int and value >= 0 else 0
