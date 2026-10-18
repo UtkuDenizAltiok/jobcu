@@ -60,6 +60,159 @@ only, not reachable vacancies or engineering recall. All seven priority countrie
 
 ## Recorded restrictions and candidates
 
+### JSearch assessment — 2026-10-18
+
+**Decision:** promising candidate for an optional additional discovery source and fuller ad
+evidence. Do not replace existing sources, subscribe, activate collection or claim savings
+from this documentation assessment. No vacancy/API test, owner-data review, account change
+or purchase was made. Useful unique coverage and actual cost remain unmeasured.
+
+#### Contract and evidence quality
+
+OpenWeb Ninja's [product page](https://www.openwebninja.com/api/jsearch) describes a commercial
+API over Google for Jobs results. This is a third-party service, not Google's own public job
+search API or proof of separate direct partnerships with every named board. Its breadth is
+a vendor claim. The [current OpenAPI](https://openwebninja.s3.us-east-1.amazonaws.com/portal/openapi/jsearch.yaml)
+and [maintainer reference](https://github.com/OpenWeb-Ninja/openwebninja-skills/blob/main/openwebninja/apis/jsearch/README.md)
+were read directly, rather than relying on cached search snippets or tutorial examples.
+
+| Area | Current contract | Implication for Jobcu |
+|---|---|---|
+| Search | `/search-v2`, `data.jobs[]`, continuation in `data.cursor`; up to 10 jobs per page, 1–20 pages per call | Retain cursors and count page credits, not just HTTP requests. Search ranking is not exhaustive coverage. |
+| Details | `/job-details` accepts up to 20 comma-separated IDs; each ID consumes a request credit | Batching reduces round trips, not credit use. Recover only additional evidence actually needed. |
+| Descriptions | `job_description` is described as full text but is nullable | Potentially better than a snippet. A field name alone cannot establish complete employer requirements. |
+| Links | Main apply URL, direct-link flags and alternative publisher apply options | Prefer a matching permitted employer/ATS vacancy when supplied; do not promise every link reaches an employer or remains live. |
+| Locations | Nullable city, country and coordinates | A coordinate can describe a town rather than the actual workplace. Preserve provenance and ambiguity; it cannot establish commuting time. |
+| Enrichment | Detail fields describe AI-extracted sponsorship, experience and skills | These are derived claims, not quoted requirements or independent scoring truth. Unknown sponsorship stays unknown. |
+
+The downloaded schema contains `/search-v2`, details and two salary endpoints; `/search` is
+absent. Older marketplace overview text and cached references still describe `/search`, and
+an older cached reference mentions a deep-pagination multiplier not present in the current
+contract. Integrations must use the current cursor contract and reconcile actual metering.
+The schema mentions `enrich=true` in response-field descriptions without declaring that query
+parameter or its fee. Do not enable it or assume the public sample's enriched fields are
+ordinary guaranteed output. Marketing mentions expiration data, but the current schema does
+not declare an expiration field. Neither discrepancy proves actual runtime behavior.
+
+For reproducibility, the public schema retrieved on this date had SHA-256
+`9f9ef1eec6cd97873211941c35b49c51b6ce8390fae803f2c2186b1127b7d03c`.
+No provider example ad or third-party document text is copied into Jobcu's fixtures.
+
+#### Countries, freshness and the existing pipeline
+
+Google's [JobPosting guidance](https://developers.google.com/search/docs/appearance/structured-data/job-posting#region-availability)
+lists Germany, UK, Switzerland, Netherlands, Belgium and Italy; Ireland is absent. That does
+not prove JSearch returns no Irish jobs. It leaves Irish contribution and support across all
+30 Jobcu countries unestablished. Google also documents expired results and incorrect
+locations despite its publication rules. Search-index presence cannot prove vacancy validity.
+
+The API accepts country/language inputs and relative date filters (`today`, `3days`, `week`,
+`month`), without a documented exact rolling 24-hour parameter. Its timestamps are nullable;
+ISO formatting alone cannot prove time precision or the employer's original publication date.
+**Inference:** compare a conservative wider discovery window with Jobcu's exact saved window,
+historical identity and permitted original dates. Do not widen the user's accepted age or
+translate a refreshed board/index date into a new vacancy. Test boundary behavior first.
+
+JSearch does not provide the evidence needed to decide population shares, city-election
+comparisons, sampled journeys or personal fit. Its radius filter is not a travel-time filter.
+More structured full text could reduce some online-ad research, but additional unique jobs
+can also add downstream work. A net saving requires measured total AI/source/Maps usage on
+equal coverage and quality. It is not established by API prices or a short response time.
+
+The appropriate proposed integration is one isolated `JobSource`, using the existing local
+key store, request accounting, Stop handling, deduplication and freshness/location gates.
+There is no need to install the vendor's agent skill/MCP server or change the chosen AI.
+Use vacancy/requisition identity across providers; a JSearch ID alone does not deduplicate
+Adzuna, a recruiter and the employer. Retain current employer feeds for originals and backup.
+Never pay to score a job whose location gate is still unresolved or fails.
+
+#### Price and spending controls
+
+The [direct price list](https://www.openwebninja.com/api/jsearch) currently advertises:
+
+| Direct plan | USD price | Included allowance | Extra usage |
+|---|---:|---:|---:|
+| Free | $0/month | 200 credits/month | Hard limit |
+| Pay as you go | $0.005 per unit | No monthly fee | Usage billed |
+| Pro | $25/month | 10,000 credits/month | $0.003 per extra |
+
+The [marketplace pricing page](https://rapidapi.com/letscrape-6bRBa3qguO5/api/jsearch/pricing)
+likewise lists 200 free units and Pro at $25 for 10,000. It additionally displays a bandwidth
+platform fee: 10,240 MB/month included, then
+$0.001/MB. The direct provider advertises no credit card for its free tier and no RapidAPI
+transfer limit. Marketplace onboarding rules differ; do not assume a generic platform FAQ
+overrides this API's actual plan/checkout. No checkout was inspected or accepted.
+
+For ordinary requests, budget search pages plus requested detail IDs, with separate allowances
+for any other opted-in endpoints and attempted retries. Reserve the maximum requested pages
+before dispatch; release only reconciled unused capacity. Do not assume an empty response,
+error, timeout or same-query retry is free. The current published error-charging treatment is
+not sufficiently explicit to make that claim. Paid overages are not a spending ceiling.
+
+**Illustrative arithmetic, not observed demand:** seven countries × four localized queries ×
+three pages uses up to 84 search credits per run, returning at most 840 rows before duplicates
+and filtering. Thirty such runs use up to 2,520 credits: $12.60 at the direct usage rate, before
+details, retries, tax and any AI/Maps work. Twenty detail IDs per run add 600 credits/month,
+bringing that scenario to $15.60. It does not predict relevant jobs, recall or the owner's bill.
+The 200-credit tier is suitable for a bounded comparison, not that daily scenario. At these
+rates the $25 plan and usage pricing intersect at 5,000 ordinary units before other charges.
+Committing most of the total service allowance to a subscription needs measured justification.
+
+The [quota endpoint description](https://www.openwebninja.com/blog/check-api-quota-usage-programmatically)
+documents plan, billing period, remaining units, reset time and exceeded status. A later
+adapter should combine provider quota receipts with atomic local page/ID reservations, modest
+fair country shares and bounded retries. Shared account usage and in-flight work mean a
+quota read alone is not a hard cap; use a verified provider cap as well. Never auto-upgrade.
+
+There is also a newer [prepaid agent storefront](https://www.openwebninja.com/blog/zeroclick-agent-storefront)
+advertising most APIs at $0.003/request with a $0.50 minimum card credit purchase; the
+[x402 discovery manifest](https://x402.openwebninja.com/.well-known/x402) likewise advertises
+JSearch at 0.003 USDC. These are separate payment routes. The exact JSearch batch/page
+multipliers, balance/refund terms and ordinary-app suitability still need confirmation; do
+not apply the cheaper headline rate to the direct plan or create a wallet/payment account.
+The direct hard-limited free tier is the simpler proposed comparison route.
+
+#### Rights and privacy
+
+The provider's current [terms](https://www.openwebninja.com/terms), sections 2, 3 and 8, expressly
+allow official API integration and use of API output in applications, including commercial
+products. They limit that grant to the provider's own rights and leave original-source terms,
+third-party rights and lawful storage/reuse with the customer. They exclude a competing
+standalone data/API resale product. This is permission to use their API under its plan, not
+blanket proof that every upstream board's full text can be stored and forwarded for matching.
+Clarify the intended local history, display, AI processing and provenance before activation;
+do not use an intermediary to bypass a held host or infer a board partnership from its logo.
+No support message was sent and no legal agreement accepted during this research.
+
+The [privacy policy](https://www.openwebninja.com/privacy) describes US hosting and one-year API
+request-log/IP retention. A possible adapter would send only needed role/location terms;
+it has no reason to upload a CV, cover letter or private preference narrative. Jobcu remains
+local, but this would add another external recipient for those search terms. The policy does
+not establish that query bodies are never retained. Provider log retention is not a licence
+for Jobcu to keep third-party ad text indefinitely.
+
+#### Recommended next step and unresolved questions
+
+Prefer a small direct free-tier comparison after account/test authority and the applicable
+content-use rights are established. Do not buy Pro, remove a source or activate a second AI
+on this evidence. A proposed maximum is 40 page/detail credits: three one-page query families
+per priority country (21), one continuation per country (7), and up to 12 details. This is a
+proposal, not dispatch authority, and must fit the account's remaining hard-limited quota.
+
+Use an independent 15–25-vacancy original-ad benchmark plus the existing-source union, following
+CONTRIBUTING's source-comparison procedure. Prioritize electronics/hardware/power electronics
+in the recorded country order; offline field/admission regressions also need fictional nursing
+and teaching profiles. Measure unique fresh relevant additions, recovered full requirements,
+original application links, correct workplace granularity, stale/closed jobs, cross-source
+duplicates, country gaps, page/ID credits, failures and latency. Keep benchmark/results private
+only under the relevant authorization. Do not need AI/Maps calls merely to measure source fields.
+
+Open questions are actual Irish/other-country yield; employer-original date and `today`
+semantics; city-centre versus workplace coordinates; complete descriptions; stable identity;
+expiry availability; enrichment fees/controls; error/retry metering; and applicable text reuse.
+Current marketplace latency badges and vendor-written comparisons are not independent
+measurements of Jobcu's countries, professions, coverage or speed. Answer these before adoption.
+
 ### Bundesagentur access hold — 2026-10-17
 
 The current [portal terms](https://www.arbeitsagentur.de/nutzungsbedingungen), section 2a(3),

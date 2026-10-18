@@ -129,6 +129,26 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
+**Active: owner-requested JSearch assessment — 2026-10-18.**
+
+Scope: investigate the current public API contract, country/industry coverage claims, freshness,
+full-ad and original-link fields, pricing, privacy and reuse/access terms; assess fit with the
+existing Jobcu pipeline. This is research, not integration or source activation. No account,
+key, subscription, live vacancy query, paid test or owner-data review is needed or authorized
+by this task. Existing saved-location dependencies remain parked below.
+
+Steps: verify primary documentation and conflicting claims; compare with current adapters and
+the quality-first admission rules; record dated evidence and a practical recommendation in
+SOURCES; run documentation/privacy/whitespace checks and publish through exact-head PR/main CI.
+Branch: `codex/jsearch-source-assessment`. Primary research is complete in
+[SOURCES](SOURCES.md#jsearch-assessment--2026-10-18): current cursor/page and detail-ID billing,
+nullable original evidence, the Ireland documentation gap, separate payment channels and
+conditional content rights. Proposed direct free-tier comparison remains unstarted and needs
+its own account/test authority; no source or AI change is selected. Exact next action: review
+and publish the documentation-only assessment. All 20 documentation checks and Ruff/privacy/
+whitespace checks pass. Push/open the PR, require Mac/Windows/privacy on its exact head, merge
+with a merge commit, clear this finished research checkpoint and verify synchronized main CI.
+
 **Parked: comparable city-election evidence within the retained owner review.**
 
 The automatic flow repair in PR #152 is complete in this merge. Full-ad workplaces now select
