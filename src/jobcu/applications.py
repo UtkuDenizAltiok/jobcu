@@ -118,11 +118,15 @@ def _reported(url: str | None, reports: set[str]) -> bool:
         _advertisement_identity(earlier) == identity for earlier in reports)
 
 
+def _copy_urls(copy):
+    return (copy.url, copy.employer_url, *(o.get("url") for o in copy.application_options))
+
+
 def links(group: JobGroup, source_names: dict[str, str],
           reported: set[str] | None = None) -> tuple[dict, list[dict]]:
     reported = reported_urls() if reported is None else reported
     known_blocked = any(blocked(url) or _reported(url, reported)
-                        for c in group.copies for url in (c.url, c.employer_url))
+                        for c in group.copies for url in _copy_urls(c))
 
     def allowed(url):
         return url and not _reported(url, reported) and not blocked(url) and not (
@@ -136,22 +140,25 @@ def links(group: JobGroup, source_names: dict[str, str],
                      and not is_agency(c.company)), None)
     other = [{"source": source_names.get(c.source, c.source), "url": c.url}
              for c in copies if allowed(c.url)]
+    other += [option for c in copies for option in c.application_options
+              if allowed(option.get("url"))]
     main = ({"source": "Employer's site", "url": employer.employer_url}
             if employer else other.pop(0) if other else {"source": "", "url": ""})
     seen = {main["source"]} if not employer else set()
+    urls = {main["url"]}
     also = []
     for link in other:
-        if link["source"] not in seen and link["url"] != main["url"]:
+        if link["source"] not in seen and link["url"] not in urls:
             seen.add(link["source"])
+            urls.add(link["url"])
             also.append(link)
     return main, also
 
 
 def exclusion_key(group: JobGroup, reported: set[str] | None = None) -> str | None:
     reported = reported_urls() if reported is None else reported
-    known = any(blocked(c.url) or blocked(c.employer_url) for c in group.copies)
-    marked = any(_reported(c.url, reported) or _reported(c.employer_url, reported)
-                 for c in group.copies)
+    known = any(blocked(url) for c in group.copies for url in _copy_urls(c))
+    marked = any(_reported(url, reported) for c in group.copies for url in _copy_urls(c))
     if (known or marked) and not links(group, {}, reported)[0]["url"]:
         return "application_route" if known else "reported_application_route"
     return None

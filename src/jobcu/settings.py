@@ -136,8 +136,10 @@ class Settings(BaseModel):
     limits: LimitSettings = LimitSettings()
     prices: list[ModelPrice] = []
     use_web_search: bool = True
-    # Sources are all on unless switched off here.
+    # Established sources are on unless switched off here; new opt-ins are separate below.
     sources_disabled: list[str] = []
+    # New sources with a separate account/budget need a positive choice, including on upgrade.
+    source_opt_ins: list[str] = []
     place_evidence: list[PlaceEvidenceSet] = []
 
     @model_validator(mode="before")

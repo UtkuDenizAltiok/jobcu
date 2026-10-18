@@ -215,6 +215,7 @@ class PoliteClient:
                 check_attempt: Callable[[], None] | None = None,
                 before_attempt: Callable[[], None] | None = None,
                 retry_response: Callable[[httpx.Response], bool] | None = None,
+                retry_transport: bool = True,
                 **kwargs) -> httpx.Response:
         self._check_stop()
         key = (method, url, repr(sorted((kwargs.get("params") or {}).items())),
@@ -234,8 +235,8 @@ class PoliteClient:
             except httpx.TransportError as exc:
                 # A host name that doesn't exist won't appear by waiting: an address the
                 # person's AI guessed cost 15 seconds of retries each (search 11).
-                if attempt == MAX_RETRIES or (isinstance(exc, httpx.ConnectError)
-                                              and not self._exists(host)):
+                if (not retry_transport or attempt == MAX_RETRIES or
+                        (isinstance(exc, httpx.ConnectError) and not self._exists(host))):
                     raise
                 if check_attempt is not None:
                     check_attempt()

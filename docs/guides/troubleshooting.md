@@ -63,6 +63,19 @@ Open **Settings → AI provider** and read the message under **Test connection**
 After correcting setup, click **Test connection** again. This can use provider allowance or
 paid credit. See [Set up your keys](getting-your-keys.md) for the full setup steps.
 
+## JSearch is off or stopped
+
+Saving its key does not enable it. Tick **Settings → Job sources → JSearch** when ready.
+Use a direct Free key; a paid or unrecognised plan is refused before vacancy requests.
+**Check JSearch account** reads only the account allowance and reserves one credit locally.
+
+An allowance warning can mean the provider's Free quota, Jobcu's monthly reservations or its
+share for one search has been reached. Read **Search details** and the provider's reset date;
+the other job sources still run. **Credits reserved** includes interrupted attempts and can
+differ from the provider's meter. Jobcu does not upgrade the account or resend an ambiguous
+request automatically. A connection failure does not mean the jobs already received were lost.
+After correcting the account or connection, the next ordinary search can use the source again.
+
 ## My document will not upload
 
 For a CV, use PDF (`.pdf`) or Word (`.docx`). For a cover letter, you can also use plain text

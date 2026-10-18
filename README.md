@@ -27,6 +27,8 @@ choice. An **API key** is a secret code from that service which lets Jobcu use y
    provider, save its API key, choose a model, and click **Test connection**. A model is the
    version of the AI you want to use. Follow [Set up your keys](docs/guides/getting-your-keys.md)
    for the individual steps and cost controls.
+   Optional [job-site keys](docs/guides/getting-your-keys.md#optional-job-site-keys), including
+   JSearch's direct Free account, add sources. JSearch stays off until explicitly enabled.
 3. **Add your documents.** Click **Search** at the top. Click **Add CV**, choose your CV file,
    then do the same with **Add Cover letter**. Your file names appear when they have been added.
    Jobcu uses these documents to understand your experience and the work you want.

@@ -62,10 +62,12 @@ only, not reachable vacancies or engineering recall. All seven priority countrie
 
 ### JSearch assessment — 2026-10-18
 
-**Decision:** promising candidate for an optional additional discovery source and fuller ad
-evidence. Do not replace existing sources, subscribe, activate collection or claim savings
-from this documentation assessment. No vacancy/API test, owner-data review, account change
-or purchase was made. Useful unique coverage and actual cost remain unmeasured.
+**Decision, updated after the owner's implementation request:** add JSearch as an optional
+extra source through its direct Free API. It stays off until explicitly enabled and does not
+replace existing feeds. The earlier assessment-only status is superseded by the implementation
+below; its coverage, rights and metering qualifications still apply. No live vacancy/API test,
+owner-data review, account change or purchase was made. Useful unique coverage and net cost
+remain unmeasured.
 
 #### Contract and evidence quality
 
@@ -119,7 +121,7 @@ More structured full text could reduce some online-ad research, but additional u
 can also add downstream work. A net saving requires measured total AI/source/Maps usage on
 equal coverage and quality. It is not established by API prices or a short response time.
 
-The appropriate proposed integration is one isolated `JobSource`, using the existing local
+The integration is one isolated `JobSource`, using the existing local
 key store, request accounting, Stop handling, deduplication and freshness/location gates.
 There is no need to install the vendor's agent skill/MCP server or change the chosen AI.
 Use vacancy/requisition identity across providers; a JSearch ID alone does not deduplicate
@@ -159,9 +161,9 @@ rates the $25 plan and usage pricing intersect at 5,000 ordinary units before ot
 Committing most of the total service allowance to a subscription needs measured justification.
 
 The [quota endpoint description](https://www.openwebninja.com/blog/check-api-quota-usage-programmatically)
-documents plan, billing period, remaining units, reset time and exceeded status. A later
-adapter should combine provider quota receipts with atomic local page/ID reservations, modest
-fair country shares and bounded retries. Shared account usage and in-flight work mean a
+documents plan, billing period, remaining units, reset time and exceeded status. The adapter
+combines provider quota receipts with atomic local page/ID reservations and interleaved
+country/language queries. Shared account usage and in-flight work mean a
 quota read alone is not a hard cap; use a verified provider cap as well. Never auto-upgrade.
 
 There is also a newer [prepaid agent storefront](https://www.openwebninja.com/blog/zeroclick-agent-storefront)
@@ -185,19 +187,45 @@ do not use an intermediary to bypass a held host or infer a board partnership fr
 No support message was sent and no legal agreement accepted during this research.
 
 The [privacy policy](https://www.openwebninja.com/privacy) describes US hosting and one-year API
-request-log/IP retention. A possible adapter would send only needed role/location terms;
+request-log/IP retention. The adapter sends only generated role/skill terms and search country;
 it has no reason to upload a CV, cover letter or private preference narrative. Jobcu remains
-local, but this would add another external recipient for those search terms. The policy does
+local, but enabling it adds another external recipient for those search terms. The policy does
 not establish that query bodies are never retained. Provider log retention is not a licence
 for Jobcu to keep third-party ad text indefinitely.
 
-#### Recommended next step and unresolved questions
+#### Implemented controls and remaining comparison
+
+`sources/jsearch.py` uses direct `x-api-key` authentication and `/search-v2` cursor pages.
+Saving a key does not enable collection, including when upgrading an existing installation.
+Before vacancies, `/usage?api_id=jsearch` must report an active direct Free plan and a complete,
+current request allowance no greater than 200. Paid, unknown and incomplete accounts stop this
+source. Calendar-month reservations are atomic and capped at 200, including account checks;
+provider-period remaining quota can further reduce the allowance. The provider's advertised
+Free hard limit is also required: local accounting alone cannot cap other clients' usage.
+
+Each search receives an adaptive share, at most 40 credits including account checks and full-ad
+details. Countries and native/English queries take turns; cursor pages follow initial queries,
+with at most three pages per query. Two units are kept for selective missing full ads when the
+allowance permits. Small allowances rotate the starting country. Exhaustion is reported as
+partial coverage, while other feeds continue. One page or one detail ID is requested per call;
+reserved attempts are never assumed free or refunded after errors. Automatic HTTP and transport
+retries are disabled for this adapter, and credentials never follow redirects. No enrichment,
+salary-estimate, marketplace, storefront or wallet route is used.
+
+Supplied descriptions and application alternatives enter existing reuse, deduplication and
+admission checks. Earlier dates and complete text survive weaker detail replies. Missing dates
+stay unknown, midnight dates are day precision, and a wider source date filter does not widen
+the user's accepted age. Lookup country is stored separately from workplace evidence. Source
+coordinates are not promoted to an address; derived sponsorship/skill fields are not requirements.
+Employer links require both the supplied direct flag and a matching employer/known ATS host;
+original board routes remain available. Jobcu makes no request to those destinations merely to
+resolve a redirect. Fictional tests cover hardware, nursing and teaching, failures and ceilings.
 
 Prefer a small direct free-tier comparison after account/test authority and the applicable
 content-use rights are established. Do not buy Pro, remove a source or activate a second AI
-on this evidence. A proposed maximum is 40 page/detail credits: three one-page query families
-per priority country (21), one continuation per country (7), and up to 12 details. This is a
-proposal, not dispatch authority, and must fit the account's remaining hard-limited quota.
+on this evidence. A development comparison needs its own authorised packet, counting account
+checks, pages and detail IDs within the adapter's limits and remaining provider quota. The
+implementation request itself authorises no live comparison or additional job search.
 
 Use an independent 15–25-vacancy original-ad benchmark plus the existing-source union, following
 CONTRIBUTING's source-comparison procedure. Prioritize electronics/hardware/power electronics
@@ -211,7 +239,8 @@ Open questions are actual Irish/other-country yield; employer-original date and 
 semantics; city-centre versus workplace coordinates; complete descriptions; stable identity;
 expiry availability; enrichment fees/controls; error/retry metering; and applicable text reuse.
 Current marketplace latency badges and vendor-written comparisons are not independent
-measurements of Jobcu's countries, professions, coverage or speed. Answer these before adoption.
+measurements of Jobcu's countries, professions, coverage or speed. Keep these questions explicit
+when evaluating the optional source; publishing its adapter does not establish their answers.
 
 ### Bundesagentur access hold — 2026-10-17
 

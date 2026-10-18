@@ -53,6 +53,7 @@ from jobcu.location import (
 from jobcu.profile import Profile, progress_detail, read_profile_reusing
 from jobcu.relevance import quick_pass, screen_titles
 from jobcu.settings import SearchForm, load_settings, save_settings
+from jobcu.sources import disabled_sources
 from jobcu.sources.base import JobQuery
 from jobcu.sources.http import PoliteClient
 from jobcu.vacancy_evidence import group_reasons as original_reasons
@@ -521,7 +522,7 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
     _find_employers(run, settings, client, http, profile, plan)
     checkpoint()
     run.update("sources", "running")
-    collected = pipeline.collect(query, http, keys, settings.sources_disabled, run)
+    collected = pipeline.collect(query, http, keys, disabled_sources(settings), run)
     ads_found = collected.ads_found  # source collection count, before the title filter
     names = {source_id: source.name for source_id, source in collected.sources.items()}
     working = [r for r in collected.reports if r.status in ("ok", "partial")]

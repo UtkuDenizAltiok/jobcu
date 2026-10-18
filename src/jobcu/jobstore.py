@@ -26,7 +26,7 @@ AD_TEXT_DAYS = 3
 AD_DETAIL_FIELDS = ("description", "description_is_complete", "job_types", "work_mode",
                     "employer_url", "salary_text", "company", "posted_at", "closes_at",
                     "latitude", "longitude", "title", "location_text", "country",
-                    "date_precision")
+                    "date_precision", "application_options")
 _TIMES = ("posted_at", "closes_at")
 
 

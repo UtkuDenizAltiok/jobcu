@@ -10,13 +10,13 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
-- JSearch's [dated assessment](SOURCES.md#jsearch-assessment--2026-10-18) is complete in
-  [PR #154](https://github.com/UtkuDenizAltiok/jobcu/pull/154). It remains a candidate, with no
-  adapter, account, paid test or live job query started. Proposed next development is a bounded
-  direct free-tier comparison after rights/account/test authority; it is not a new active
-  task. All 20 documentation checks and Ruff/privacy/whitespace pass. Exact PR head `9358ae2`
-  passed Mac/Windows/privacy CI `39154355593`; inspect the actual merge/main CI before relying
-  on publication. Existing runtime, limits and parked saved-location dependencies are unchanged.
+- Optional JSearch integration is implemented and locally verified: **2,191 offline tests**
+  pass, extending the 2,115-test baseline. Publication is the active step below. The
+  [dated assessment and controls](SOURCES.md#jsearch-assessment--2026-10-18) govern the direct
+  Free adapter, explicit opt-in and shared page/detail ceilings. Existing feeds, scores,
+  provider/model/effort, owner data and limits are preserved. No account, purchase, live API
+  comparison or new job search was started; useful added coverage and net savings remain
+  unmeasured. Research PR #154 is merged as `511aa02`; exact main CI `39154798101` passed.
 
 - Workplace-scoped city research and complete journey alternatives are implemented in
   [PR #152](https://github.com/UtkuDenizAltiok/jobcu/pull/152): **2,115 offline tests** pass.
@@ -136,6 +136,28 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 | Unchanged setup | [Exact setup reuse](ENGINEERING.md#search-preparation-reuse-and-connection-clarity--2026-10-14) covers documents, raw box text, model/host/controls and prompt identity; editing even one letter invalidates relevant reuse. Fresh facts, jobs and scores remain separate. |
 
 ### In progress
+
+**Active: owner-authorized optional JSearch integration — 2026-10-18.**
+
+Scope: combine official JSearch discovery/descriptions/application options with Jobcu's existing
+sources, freshness/history/deduplication, location admission and matching. Preserve scores,
+source coverage, provider/model/effort, owner data and existing limits. Keep JSearch disabled
+until configured explicitly; no account creation, paid activation, live query, private review
+or new search is authorized by this implementation task.
+
+Branch: `codex/jsearch-integration`. Steps: establish the offline baseline and current contract;
+implement bounded source/accounting and safe field/link handling; add simple settings and
+guidance; verify fictional engineering and non-engineering cases, limits and failures; review,
+publish and merge after exact-head Mac/Windows/privacy CI. Prior city-evidence dependencies
+remain parked below. The unchanged 2,115-test baseline passed locally. The adapter, quota
+receipt gate, atomic reservations, positive opt-in, alternative links and guides are implemented.
+Final full suite: **2,191 passing** with the existing dependency deprecation; Ruff, privacy,
+JS syntax and whitespace pass. A disposable fictional UI preview confirmed the account link
+and explicit source switch; its service and data are removed. No live/account/private request
+was sent. Exact next action: finish the complete diff review, commit/push this branch and open
+its PR, require exact-head Mac/Windows/privacy CI, then merge and synchronise main. Current
+changes are not yet pushed, merged or deployed. Recheck active-search status before any runtime
+replacement; no key, source opt-in or owner limit change is authorised by deployment.
 
 **Parked: comparable city-election evidence within the retained owner review.**
 
