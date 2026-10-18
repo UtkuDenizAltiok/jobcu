@@ -6,11 +6,13 @@ from google.genai import errors
 
 from jobcu.ai.base import (
     MSG_BAD_REQUEST,
+    MSG_CONNECTION,
     MSG_QUOTA,
     MSG_REFUSED,
     MSG_TRUNCATED,
     MSG_UNAVAILABLE,
     AIBadRequest,
+    AIConnectionError,
     AIOutputTruncated,
     AIQuotaExhausted,
     AIRefused,
@@ -174,7 +176,10 @@ class EventAnswer:
 
     def reply(self) -> ResearchReply:
         if not self.complete:
-            raise AIUnavailable(MSG_UNAVAILABLE, "AI event stream ended before completion.")
+            # A clean socket EOF still followed dispatch: the provider may have generated
+            # and billed work. Classify it like an interrupted body, not a retryable outage.
+            raise AIConnectionError(MSG_CONNECTION, "AI event stream ended before completion.",
+                                    request_sent=True)
         parts = [part for index in sorted(self.steps)
                  if self.steps[index]["kind"] == "model_output"
                  for part in self.steps[index]["parts"]]

@@ -12,6 +12,7 @@ from google.genai import errors, types
 
 from jobcu.ai.base import (
     MSG_BAD_REQUEST,
+    MSG_CONNECTION,
     MSG_KEY_REJECTED,
     MSG_MODEL_NOT_FOUND,
     MSG_QUOTA,
@@ -254,7 +255,9 @@ class GeminiAdapter(ProviderAdapter):
                     text.extend(part.text for part in candidate.content.parts or []
                                 if part.text and not part.thought)
             if not finished:
-                raise AIUnavailable(MSG_UNAVAILABLE, "AI answer stream ended before completion.")
+                raise AIConnectionError(MSG_CONNECTION,
+                                        "AI answer stream ended before completion.",
+                                        request_sent=True)
         except Exception as exc:
             if isinstance(exc, httpx.TransportError):
                 log.info(
