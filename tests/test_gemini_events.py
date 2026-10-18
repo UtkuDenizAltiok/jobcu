@@ -182,6 +182,43 @@ def test_eof_or_missing_terminal_never_returns_a_valid_partial_answer(service, e
     assert len(requests) == 1 and streams[0].closed
 
 
+@pytest.mark.parametrize("research_path", [False, True])
+@pytest.mark.parametrize("partial", [False, True])
+def test_silent_eof_stops_client_repetition_of_possibly_billed_work(
+    service, research_path, partial
+):
+    from pydantic import BaseModel
+
+    from jobcu.ai.client import AIClient
+    from jobcu.ai.usage import UsageLog
+    from jobcu.settings import Settings
+
+    class Answer(BaseModel):
+        ok: bool
+
+    first = [start(), text('{"ok":true}')] if partial else []
+    adapter, requests, streams = service(first, [start(), text('{"ok":true}'), done()])
+    settings = Settings()
+    settings.ai.provider, settings.ai.model = "gemini", "gemini-3.8-flash"
+    ledger, waits = UsageLog(), []
+    client = AIClient(settings, adapter=adapter, usage_log=ledger, sleep=waits.append)
+
+    def ask():
+        if research_path:
+            return client.research(step="location_research", system="Use original evidence",
+                                   prompt="Fictional library service")
+        return client.generate(Answer, step="scoring", system="Use stated evidence",
+                               prompt="Fictional applicant and vacancy")
+
+    for _ in range(2):
+        with pytest.raises(AIConnectionError) as caught:
+            ask()
+        assert caught.value.request_sent is True
+    assert len(requests) == len(streams) == 1 and streams[0].closed
+    assert not waits and ledger.this_month()[0].usage.unreported_requests == 1
+    assert requests[0]["body"]["generation_config"]["thinking_level"] == "medium"
+
+
 def test_missing_final_receipt_is_explicit_without_repeating_completed_work(service):
     adapter, requests, _ = service([start(), text('{"ok":true}'), done(usage=False)])
     reply = generate(adapter)

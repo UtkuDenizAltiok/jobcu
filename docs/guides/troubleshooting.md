@@ -115,6 +115,9 @@ not by itself repair a connection failure. Missing details remain unchecked if r
 to the AI service. The cause may be the network or the service; this message does not report
 an empty balance. The incomplete-usage warning means some failed requests supplied no complete
 usage receipt, so Jobcu cannot confirm their charges. It does not prove that they were charged.
+This also applies when the connection closes quietly before the AI service confirms the
+answer is finished. Jobcu keeps completed work and stops automatic repetition on that path
+because the service may already have charged for the interrupted request.
 The permanent retry note records what happened; it does not mean requests are still running
 after **Search finished**. During a retry, the current step shows the wait. **Stop** cancels
 retry waits and queued AI work; a request already sent can finish first.

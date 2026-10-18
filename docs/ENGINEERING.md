@@ -9,6 +9,22 @@ Code/tests establish behavior; the latest current decision establishes intent.
 
 ## Current decisions
 
+### Silent AI stream termination — 2026-10-19
+
+A Gemini event or content stream that reaches EOF without its required completion frame is
+an interrupted, potentially billed request. Route it through the shared sent-request guard,
+retain any receipt once, close the response and stop automatic repetition on that request
+path. A plausible partial JSON answer or research passage cannot establish completion.
+This extends the interruption handling in PR #150; an EOF was previously a generic outage,
+so the shared client could repeat it and obtain a second billed answer.
+
+Eight locked-SDK regressions first reproduce the repetition: both transports, structured
+generation and research, with empty and plausible partial answers. The repaired paths send
+one request, do not wait/retry, record one incomplete receipt and block a later repeat on
+that path. Medium effort and recovery for known transient responses remain unchanged.
+This establishes a software defect and its fixture behavior, not the upstream cause of a
+historical connection loss or an invoice saving.
+
 ### Optional JSearch integration — 2026-10-18
 
 The owner requested combining JSearch discovery with Jobcu's complete pipeline. The dated

@@ -192,6 +192,36 @@ def test_silent_eof_is_not_a_complete_answer_even_when_text_looks_valid(service,
     assert streams[0].closed
 
 
+@pytest.mark.parametrize("research_path", [False, True])
+@pytest.mark.parametrize("partial", [False, True])
+def test_legacy_eof_stops_paid_repetition_through_the_shared_client(
+    service, research_path, partial
+):
+    class Answer(BaseModel):
+        ok: bool
+
+    first = [chunk('{"ok":true}')] if partial else []
+    adapter, requests, streams = service(first, [chunk('{"ok":true}', finish="STOP")])
+    settings = Settings()
+    settings.ai.provider, settings.ai.model = "gemini", "fictional-model"
+    ledger, waits = UsageLog(), []
+    client = AIClient(settings, adapter=adapter, usage_log=ledger, sleep=waits.append)
+
+    def ask():
+        if research_path:
+            return client.research(step="location_research", system="Check original evidence",
+                                   prompt="Fictional library hours")
+        return client.generate(Answer, step="scoring", system="Use stated evidence",
+                               prompt="Fictional teacher and job")
+
+    for _ in range(2):
+        with pytest.raises(AIConnectionError) as caught:
+            ask()
+        assert caught.value.request_sent is True
+    assert len(requests) == 1 and streams[0].closed and not waits
+    assert ledger.this_month()[0].usage.unreported_requests == 1
+
+
 @pytest.mark.parametrize("call", [generate, research])
 def test_disconnection_is_distinct_from_provider_credit_or_service_response(service, call):
     adapter, _, streams = service([
