@@ -1617,6 +1617,10 @@ async function loadSettings() {
     const status = keyStatuses.find((k) => k.name === row.dataset.keyName);
     renderKeyRow(row, status, status.label);
   }
+  for (const link of document.querySelectorAll("[data-key-page]")) {
+    const status = keyStatuses.find((k) => k.name === link.dataset.keyPage);
+    if (status?.key_page) link.href = status.key_page;
+  }
   renderChecklist();
 }
 
@@ -2058,7 +2062,7 @@ function renderSources(sources) {
       });
       box.dataset.sourceId = source.id;
       const used = source.requests_this_month
-        ? `${source.requests_today} requests today, ${source.requests_this_month} this month`
+        ? `${source.requests_today} ${source.unit || "requests"} today, ${source.requests_this_month} this month`
         : source.needs_key
           ? "needs a key in Settings"
           : "";
@@ -2076,8 +2080,11 @@ async function saveSources() {
   const disabled = [...document.querySelectorAll("#source-list input[type=checkbox]")]
     .filter((box) => !box.checked)
     .map((box) => box.dataset.sourceId);
+  const enabled = [...document.querySelectorAll("#source-list input[type=checkbox]")]
+    .filter((box) => box.checked)
+    .map((box) => box.dataset.sourceId);
   try {
-    state.usage = await api("/api/settings/sources", { method: "PUT", body: { disabled } });
+    state.usage = await api("/api/settings/sources", { method: "PUT", body: { disabled, enabled } });
     setStatus($("sources-status"), "ok", "Saved.");
   } catch (error) {
     setStatus($("sources-status"), "problem", error.message);

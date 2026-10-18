@@ -268,8 +268,8 @@ The extra keys below are optional and can be added later.
 
 ## Optional job-site keys
 
-Adzuna and Reed keys let Jobcu include ads from those services. Other available sources
-need no user key, so you can try Jobcu before setting these up.
+Adzuna, Reed and optional JSearch keys let Jobcu include ads from those services. Other
+available sources need no user key, so you can use Jobcu before setting these up.
 
 1. For **Adzuna**, [register for API access](https://developer.adzuna.com/signup), then find
    **Application ID** and **Application Key** under **API Access Details**. Give truthful
@@ -281,6 +281,33 @@ need no user key, so you can try Jobcu before setting these up.
    click **Test Reed**.
 
 Read the test message to confirm each connection worked. Keep these keys secret too.
+
+### Optional JSearch
+
+JSearch adds another way to discover jobs, descriptions and application links. Existing
+sources keep running. Jobcu still checks dates, duplicates, your location conditions and fit;
+JSearch does not decide your scores or replace city and travel checks.
+
+1. If you want this source, use the direct **Free** account described on
+   [JSearch's page](https://www.openwebninja.com/api/jsearch). Check its current terms and Free
+   hard limit. Jobcu does not support paid plans or RapidAPI keys for this source.
+2. In **Settings → Job site keys (optional) → JSearch**, save the direct Free key. You can
+   click **Check JSearch account** to read its allowance. This sends an account check, with
+   one credit reserved locally; it does not search jobs or enable the source.
+3. Under **Settings → Job sources**, tick **JSearch** when you want future searches to use it.
+   Saving its key alone leaves it off. Untick it to stop future JSearch collection.
+
+Jobcu sends generated role/skill search words and the search country to JSearch. It does
+not send your CV, cover letter or full preference text to this source. Necessary ad text still
+goes to your chosen AI provider for Jobcu's ordinary matching.
+
+The dated Free offer is 200 credits a month. Jobcu reserves at most 200 per calendar month,
+including account checks, each requested page and each individual detail lookup. It spreads
+the remaining allowance across searches, with a ceiling of 40 per run; the provider's own
+remaining allowance can be lower. **Credits reserved** counts attempted requests conservatively,
+including interrupted ones, and is not an invoice. See **Search details** for partial coverage.
+JSearch failures stop that source without automatic retries; the other feeds continue. No
+live comparison has established how many useful extra jobs or net AI savings it will bring.
 
 ## Optional Google Maps
 

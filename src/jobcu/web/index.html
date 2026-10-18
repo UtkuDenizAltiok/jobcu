@@ -39,7 +39,7 @@
         </div>
         <p class="muted">Set up your AI and add your two documents. You can do these in any order.</p>
         <ol class="checklist" id="setup-checklist"></ol>
-        <p class="field-hint">Adzuna, Reed and Google Maps keys are optional. You can add them in Settings later.</p>
+        <p class="field-hint">Job-site and Google Maps keys are optional. You can add them in Settings later.</p>
       </div>
 
       <div class="card search-panel">
@@ -403,7 +403,7 @@
 
       <div class="card">
         <h2>Job site keys (optional)</h2>
-        <p class="muted">Free keys from Adzuna and Reed add their job ads. Jobcu's other job
+        <p class="muted">Optional keys add ads from Adzuna, Reed and JSearch. The other job
           sites and company career pages need no key.</p>
 
         <h3>Adzuna</h3>
@@ -429,6 +429,22 @@
           <button type="button" class="secondary" data-check-site="reed">Test Reed</button>
         </div>
         <p class="status" id="reed-status" role="status" hidden></p>
+
+        <h3>JSearch</h3>
+        <p class="field-hint">Use a direct <a data-key-page="jsearch_api_key"
+          target="_blank" rel="noopener noreferrer">JSearch Free account</a>. Jobcu accepts
+          only the Free plan and reserves at most 200 credits a month, including account
+          checks, pages and individual job details. Your provider allowance may be lower.</p>
+        <p class="field-hint">Only role/skill search words and the search country go to JSearch.
+          Saving a key keeps this source off; enable it under Job sources when you are ready.</p>
+        <div class="field">
+          <span class="label">Direct Free API key</span>
+          <div class="key-row" data-key-row data-key-name="jsearch_api_key"></div>
+        </div>
+        <div class="actions">
+          <button type="button" class="secondary" data-check-site="jsearch">Check JSearch account</button>
+        </div>
+        <p class="status" id="jsearch-status" role="status" hidden></p>
       </div>
 
       <div class="card">
@@ -503,7 +519,8 @@
 
       <div class="card">
         <h2>Job sources</h2>
-        <p class="muted">Every source is searched unless you switch it off. The counts are
+        <p class="muted">Enabled sources are searched when available. JSearch needs a separate
+          choice and stays off until you enable it. The counts are
           requests Jobcu has sent to sites that limit them.</p>
         <ul class="usage-list" id="source-list"></ul>
         <p class="status" id="sources-status" role="status" hidden></p>

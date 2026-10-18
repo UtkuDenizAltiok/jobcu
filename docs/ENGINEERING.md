@@ -9,6 +9,35 @@ Code/tests establish behavior; the latest current decision establishes intent.
 
 ## Current decisions
 
+### Optional JSearch integration — 2026-10-18
+
+The owner requested combining JSearch discovery with Jobcu's complete pipeline. The dated
+[contract, terms and pricing](SOURCES.md#jsearch-assessment--2026-10-18) govern the isolated
+`sources/jsearch.py` adapter. This supersedes its assessment-only status, without claiming
+live coverage or savings. Existing sources, matching, medium effort and service limits stay.
+
+`source_opt_ins` defaults empty for both new and legacy settings. A saved key is insufficient;
+the Sources UI sends an explicit positive choice. Older clients preserve that choice rather
+than silently enabling a new source. Full-ad recovery rechecks the switch. Before vacancy
+requests a current direct Free quota receipt is mandatory; paid/unknown plans fail closed.
+Atomic calendar-month reservations, provider-period remaining quota and an adaptive per-run
+share all apply. Reserve each attempt before sending, including account checks; one-page
+discovery and one-ID details avoid unknown batch charges. No automatic retry or credential
+redirect is allowed. A failed source keeps collected jobs while other sources continue.
+
+Reuse generated local-language/English role terms, interleave countries before cursor pages,
+and retain older copies as date evidence. Existing full-text reuse runs before selective
+details, under the same source cap. `FoundJob.source_context` preserves lookup locale without
+inventing workplace country. Nullable/derived fields cannot establish precision, sponsorship,
+salary or expiry. In particular, source coordinates do not establish a workplace address.
+`application_options` survives pools and the existing short ad cache; links retain permitted
+alternatives and existing blocked/reported-route controls. No redirect probing is added.
+New dataclass defaults keep old saved records readable without a migration or mark rewrite.
+
+Fictional hardware, nursing and teaching cases cover field handling, grouping, text reuse,
+failure isolation and ceilings. There is no new AI stage. More unique jobs may add ordinary
+matching/travel work; only an authorised equal-coverage comparison can establish net savings.
+
 ### Search behavior
 
 | Decision | Reason and date |

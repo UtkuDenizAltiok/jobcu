@@ -24,7 +24,7 @@ from jobcu.settings import (
     load_settings,
     save_settings,
 )
-from jobcu.sources import adzuna, all_sources, reed
+from jobcu.sources import OPT_IN_SOURCES, adzuna, all_sources, disabled_sources, jsearch, reed
 from jobcu.sources.http import PoliteClient
 
 router = APIRouter(prefix="/api")
@@ -33,6 +33,7 @@ JOB_SITE_KEYS = {
     adzuna.KEY_APP_ID: "Adzuna Application ID",
     adzuna.KEY_APP_KEY: "Adzuna Application Key",
     reed.KEY_API_KEY: "Reed API key",
+    jsearch.KEY_API_KEY: "JSearch direct Free key",
 }
 TRAVEL_KEYS = {travel.KEY_NAME: "Google Maps API key"}
 ALLOWED_KEYS = ({info.key_name for info in PROVIDERS.values()} | set(JOB_SITE_KEYS)
@@ -66,7 +67,9 @@ def get_settings() -> dict:
             for info in PROVIDERS.values()
         ],
         "job_site_keys": [
-            {**_key_status(keys, name), "label": label} for name, label in JOB_SITE_KEYS.items()
+            {**_key_status(keys, name), "label": label,
+             "key_page": jsearch.KEY_PAGE if name == jsearch.KEY_API_KEY else None}
+            for name, label in JOB_SITE_KEYS.items()
         ],
         "travel_keys": [
             {**_key_status(keys, name), "label": label} for name, label in TRAVEL_KEYS.items()
@@ -163,7 +166,8 @@ def check_research_ai() -> dict:
 
 @router.post("/job-sites/{site}/check")
 def check_job_site(site: str) -> dict:
-    checks = {"adzuna": adzuna.check_keys, "reed": reed.check_keys}
+    checks = {"adzuna": adzuna.check_keys, "reed": reed.check_keys,
+              "jsearch": jsearch.check_keys}
     if site not in checks:
         raise HTTPException(status_code=404, detail="Unknown job site.")
     result = checks[site](KeyStore())
@@ -221,6 +225,7 @@ def put_prices(body: Prices) -> dict:
 
 class SourceChoice(BaseModel):
     disabled: list[str]
+    enabled: list[str] | None = None
 
 
 @router.put("/settings/sources")
@@ -228,6 +233,9 @@ def put_sources(choice: SourceChoice) -> dict:
     known = {source.id for source in all_sources()}
     settings = load_settings()
     settings.sources_disabled = sorted(set(choice.disabled) & known)
+    if choice.enabled is not None:
+        settings.source_opt_ins = sorted(set(choice.enabled) & OPT_IN_SOURCES -
+                                        set(settings.sources_disabled))
     save_settings(settings)
     return get_usage()
 
@@ -289,10 +297,11 @@ def get_usage(now: datetime | None = None) -> dict:
             {
                 "id": source.id,
                 "name": source.name,
-                "enabled": source.id not in settings.sources_disabled,
+                "enabled": source.id not in disabled_sources(settings),
                 "requests_today": today.get(source.id, 0),
                 "requests_this_month": month.get(source.id, 0),
                 "needs_key": bool(source.unavailable_reason(KeyStore())),
+                "unit": "credits reserved" if source.id == "jsearch" else "requests",
             }
             for source in all_sources()
         ],

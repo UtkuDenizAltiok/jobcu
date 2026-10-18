@@ -1,5 +1,6 @@
 """Job sources: one isolated module per source. A failing source never breaks a search."""
 
+from jobcu.settings import Settings
 from jobcu.sources.adzuna import AdzunaSource
 from jobcu.sources.arbeitnow import ArbeitnowSource
 from jobcu.sources.ashby import AshbySource
@@ -13,6 +14,7 @@ from jobcu.sources.greenhouse import GreenhouseSource
 from jobcu.sources.jobsacuk import JobsAcUkSource
 from jobcu.sources.jobsireland import JobsIrelandSource
 from jobcu.sources.jobtech import JobTechSource
+from jobcu.sources.jsearch import JSearchSource
 from jobcu.sources.leforem import LeForemSource
 from jobcu.sources.lever import LeverSource
 from jobcu.sources.nav import NavSource
@@ -32,6 +34,12 @@ from jobcu.sources.werkenvoornederland import WerkenVoorNederlandSource
 from jobcu.sources.workable import WorkableSource
 from jobcu.sources.workday import WorkdaySource
 
+OPT_IN_SOURCES = frozenset({"jsearch"})
+
+
+def disabled_sources(settings: Settings) -> list[str]:
+    return sorted(set(settings.sources_disabled) | (OPT_IN_SOURCES - set(settings.source_opt_ins)))
+
 
 def career_sources() -> list[CareerSystemSource]:
     """Company career systems, read for the employers in the employer directory."""
@@ -43,7 +51,8 @@ def career_sources() -> list[CareerSystemSource]:
 
 def all_sources() -> list[JobSource]:
     """Fresh source objects for one search, in the order they're shown."""
-    return [AdzunaSource(), ArbeitnowSource(), JobTechSource(), BundesagenturSource(),
-            ServiceBundSource(), EuraxessSource(), JobsAcUkSource(), JobsIrelandSource(),
+    return [AdzunaSource(), JSearchSource(), ArbeitnowSource(), JobTechSource(),
+            BundesagenturSource(), ServiceBundSource(), EuraxessSource(), JobsAcUkSource(),
+            JobsIrelandSource(),
             ReedSource(), TeachingVacanciesSource(), NhsJobsSource(), LeForemSource(),
             WerkenVoorNederlandSource(), NavSource(), *career_sources()]

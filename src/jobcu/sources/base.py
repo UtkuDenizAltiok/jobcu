@@ -51,6 +51,10 @@ class FoundJob:
     # Older employer copies are retained only as freshness evidence, never shown or counted.
     # A newer board date cannot make the same employer vacancy fresh again.
     older_copy: bool = False
+    # Supplied alternative application destinations, not discovered by redirect probing.
+    application_options: list[dict[str, str]] = field(default_factory=list)
+    # Lookup locale for opaque source IDs; not evidence of the workplace's country/language.
+    source_context: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass

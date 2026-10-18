@@ -174,5 +174,39 @@ def test_limits_and_source_switches_are_saved(client):
     data = client.put("/api/settings/sources", headers=HEADERS,
                       json={"disabled": ["workday", "not-a-source"]}).json()
     switched_off = {s["id"] for s in data["sources"] if not s["enabled"]}
-    assert switched_off == {"workday"}
+    assert switched_off == {"workday", "jsearch"}  # optional sources need positive opt-in
     assert load_settings().sources_disabled == ["workday"]
+
+
+def test_jsearch_key_and_legacy_source_choice_do_not_enable_optional_source(client):
+    value = "fictional-jsearch-key-123456"
+    response = client.put("/api/keys/jsearch_api_key", json={"value": value}, headers=HEADERS)
+    assert response.status_code == 200 and value not in client.get("/api/settings").text
+    response = client.put("/api/settings/sources", json={"disabled": []}, headers=HEADERS)
+    source = next(s for s in response.json()["sources"] if s["id"] == "jsearch")
+    assert not source["enabled"] and source["unit"] == "credits reserved"
+    assert load_settings().source_opt_ins == []
+
+
+def test_optional_source_needs_positive_choice_and_preserves_other_limits(client):
+    from jobcu.settings import save_settings
+
+    settings = load_settings()
+    settings.limits.monthly_cost_limit = 18
+    settings.sources_disabled = ["workday"]
+    save_settings(settings)
+    client.put("/api/settings/sources", headers=HEADERS,
+               json={"disabled": ["workday"], "enabled": ["jsearch", "unknown"]})
+    settings = load_settings()
+    assert settings.source_opt_ins == ["jsearch"]
+    assert settings.sources_disabled == ["workday"] and settings.limits.monthly_cost_limit == 18
+    client.put("/api/settings/sources", headers=HEADERS, json={"disabled": ["workday"]})
+    assert load_settings().source_opt_ins == ["jsearch"]  # older client preserves the choice
+    client.put("/api/settings/sources", headers=HEADERS,
+               json={"disabled": ["jsearch"], "enabled": ["jsearch"]})
+    assert load_settings().source_opt_ins == []
+
+
+def test_jsearch_account_check_without_key_sends_no_query(client):
+    response = client.post("/api/job-sites/jsearch/check", headers=HEADERS).json()
+    assert not response["ok"] and "Free key" in response["message"]

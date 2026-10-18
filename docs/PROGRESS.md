@@ -10,13 +10,18 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
-- JSearch's [dated assessment](SOURCES.md#jsearch-assessment--2026-10-18) is complete in
-  [PR #154](https://github.com/UtkuDenizAltiok/jobcu/pull/154). It remains a candidate, with no
-  adapter, account, paid test or live job query started. Proposed next development is a bounded
-  direct free-tier comparison after rights/account/test authority; it is not a new active
-  task. All 20 documentation checks and Ruff/privacy/whitespace pass. Exact PR head `9358ae2`
-  passed Mac/Windows/privacy CI `39154355593`; inspect the actual merge/main CI before relying
-  on publication. Existing runtime, limits and parked saved-location dependencies are unchanged.
+- Optional JSearch integration is merged in
+  [PR #155](https://github.com/UtkuDenizAltiok/jobcu/pull/155): **2,191 offline tests**
+  pass, extending the 2,115-test baseline. Exact PR head `6dd60fa` passed Mac/Windows/privacy
+  CI `39158878068`. The
+  [dated assessment and controls](SOURCES.md#jsearch-assessment--2026-10-18) govern the direct
+  Free adapter, explicit opt-in and shared page/detail ceilings. Existing feeds, scores,
+  provider/model/effort, owner data and limits are preserved. No account, purchase, live API
+  comparison or new job search was started; useful added coverage and net savings remain
+  unmeasured. Build `fcc971bcb9991cf8` is locally adopted; private readback verified JSearch
+  remains off and settings, keys and all logical database rows are unchanged. The deployment
+  receipt is indexed privately. Verify exact merge/main CI rather than inferring it from PR
+  checks. Research PR #154 is merged as `511aa02`; its main CI `39154798101` passed.
 
 - Workplace-scoped city research and complete journey alternatives are implemented in
   [PR #152](https://github.com/UtkuDenizAltiok/jobcu/pull/152): **2,115 offline tests** pass.
