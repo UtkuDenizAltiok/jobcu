@@ -9,6 +9,19 @@ Code/tests establish behavior; the latest current decision establishes intent.
 
 ## Current decisions
 
+### API replacement decision refreshed — 2026-10-19
+
+The [dated market refresh](SOURCES.md#api-market-refresh--2026-10-19) retains direct MiMo Pro
+as the first comparison hypothesis, with the documented rights/controls and quality gates.
+Readable privacy terms improve the assessment but do not settle third-party-use wording or
+matching accuracy. Cheaper Haiku/Luna rates, newer aliases and promotional Mistral pricing do
+not justify a silent downgrade. Preserve the selected provider/models and medium defaults.
+
+Prioritise verified duplicate-work and usage/connection repairs while comparison dependencies
+remain. Evaluate cited research separately and count actual tools, retrieved text and token
+demand; another developer's benchmark cannot establish Jobcu quality or a complete bill.
+No new account, provider switch, subscription or private-data transfer is implied by research.
+
 ### Responses completion, receipts and research bounds — 2026-10-19
 
 Native OpenAI research sends its existing search allowance as the documented Responses

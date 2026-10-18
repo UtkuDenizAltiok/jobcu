@@ -456,6 +456,47 @@ and robots/terms permissions are unchanged. No new vacancy collection permission
 
 ## AI and Maps
 
+### API market refresh — 2026-10-19
+
+This refresh supplements the [broader developer/host survey](#public-api-market-and-quality-evidence--2026-10-10).
+It is not a census of every regional deployment or preview. Rates below are USD per million
+uncached input/output tokens; actual reasoning demand, context tiers, caching, hosted tools,
+retrieved text and account fees determine the complete bill. No comparison request or account
+change was made for this research.
+
+| Focused candidate | Current price/contract evidence | Adoption limit |
+|---|---|---|
+| Direct MiMo-V2.6-Pro | [Specification](https://mimo.mi.com/models/en-US/mimo-v2.6-pro), [pricing](https://mimo.mi.com/docs/en-US/price/pay-as-you-go): 0.435 / 0.87. [Thinking](https://mimo.mi.com/docs/en-US/quick-start/usage-guide/text-generation/deep-thinking) is enabled/disabled, not literal medium. | Retain the first comparison hypothesis, subject to rights, native controls and paired quality checks below. |
+| Claude Haiku 5.5 | [Overview](https://platform.claude.com/docs/en/models/haiku-5-5/overview), [pricing](https://platform.claude.com/docs/en/about-claude/pricing): 0.10 / 0.50 through 100K prompt tokens; 0.50 / 2.50 above. Native medium/adaptive thinking; search adds tool and retrieved-input charges. | Lower token prices alone do not settle matching/factual quality; see the independent counterevidence below. |
+| GPT-6 Luna | [Model](https://developers.openai.com/api/docs/models/gpt-6-luna), [pricing](https://developers.openai.com/api/docs/pricing): 0.10 / 0.50 at the short-context Standard tier; native medium and Responses research. | A low unit price is not evidence of equal full-ad, eligibility or cited-research results. |
+| DeepSeek V4.1 Flash | [Current pricing](https://api-docs.deepseek.com/quick_start/pricing/) identifies `deepseek-flash` with the October 17 snapshot: 0.30 / 1.20 peak, 0.15 / 0.60 off-peak. | Do not transfer older snapshot benchmarks, peak/off-peak prices or hosted-tool entitlement. Native effort mapping still needs exact verification. |
+| Mistral Large 4 | [Current table](https://docs.mistral.ai/inference/pricing): promotional 0.68 / 2.09, standard 1.36 / 4.18. | A temporary price and a separately benchmarked Preview are not proof of stable-model quality or long-term savings. |
+| Grok 4.7 | [Current prices](https://docs.x.ai/developers/pricing): 2 / 6; search is separately metered. [Text guidance](https://docs.x.ai/developers/model-capabilities/text/best-practices) distinguishes visible output limits from reasoning. | Do not treat a visible-output ceiling as a complete billed-token ceiling or assume fewer tool calls without measurement. |
+
+Artificial Analysis' [same-medium Haiku/Flash comparison](https://artificialanalysis.ai/models/comparisons/claude-haiku-5-5-medium-vs-gemini-3-8-flash-medium)
+reports Intelligence Index 34/40 and AA-Omniscience 4/29, while Haiku leads its Briefcase measure
+1372/1182. This is mixed independent evidence, not a universal quality ranking. Its
+[methodology](https://artificialanalysis.ai/methodology/intelligence-benchmarking) and the earlier
+MiMo counterevidence still matter; none measures Jobcu recall or unsupported requirements.
+Use the [paired no-regression procedure](../CONTRIBUTING.md#compare-a-provider-without-lowering-quality).
+No cheaper quality-equivalent replacement is established by this survey.
+
+**MiMo rights/privacy follow-up:** the [service agreement](https://mimo.mi.com/docs/quick-start/terms/user-agreement)
+rendered in the browser, updated July 7, 2026. Sections 3.2.8/3.2.9 retain broad restrictions on
+unauthorised third-party tools/software. API examples establish integration capability but do
+not explicitly settle that wording for Jobcu; retain the clarification dependency. No agreement
+was accepted or message sent. The [June 25 privacy policy](https://privacy.mi.com/XiaomiMiMoPlatformos/en_GB/)
+says submitted API content is not used for model training, describes Netherlands/Singapore
+hosting and necessary-purpose retention rather than a fixed retention period, and says online
+search shares queries/IP addresses with Google. This resolves the earlier unreadable-page
+gap, not the rights, live quality or hosted-tool integration gates.
+
+Compare complete research bills: providers meter different units, and one model turn may use
+several searches. The [Responses tool ceiling](#native-streams-and-selected-reference-pages--2026-10-18)
+is enforceable for its documented built-in calls; a request to a model to keep searches short
+does not create a corresponding guarantee elsewhere. Preserve complete evidence and medium
+defaults while reducing proven repeated work.
+
 **Checked 2026-10-14:** Google's [Gemini troubleshooting guide](https://ai.google.dev/gemini-api/docs/troubleshooting)
 distinguishes transient network/service failures from client/billing refusals. It recommends
 bounded retries with increasing waits for transient failures and no retry for HTTP 402.
@@ -1393,6 +1434,18 @@ Do not equate every unlisted party with a known negative category. Use official 
 figures and explicit category coverage, or rigorous bounds for remaining unclassified votes.
 Robots/access checks and the dated permission review remain required for each selected source.
 Source selections, actual questions, evidence and verification receipts stay private.
+
+**UK reference-data lead, checked 2026-10-19:** the [Commons Library data index](https://commonslibrary.parliament.uk/data/)
+encourages re-use under the [Open Parliament Licence v3.0](https://www.parliament.uk/site-information/copyright/open-parliament-licence/),
+with its required attribution and no implied endorsement. Its independent
+[election-results service](https://electionresults.parliament.uk/) publishes verified results,
+CSV downloads, a public SQLite export and a [data dictionary](https://electionresults.parliament.uk/meta/data-dictionary).
+The [election index](https://electionresults.parliament.uk/elections) separates general elections,
+by-elections and notional boundary-adjusted results. These cannot be interchanged in a city/
+national comparison. A constituency/region is still not automatically a whole city; verify
+the population/election geographic units, complete counts and category definition first.
+Recheck robots/access for the chosen independent host; a blocked download does not authorise
+another route to that blocked host. No city verdict follows from finding the dataset.
 
 
 The federal civic-education agency's [dated election profiles](https://www.bpb.de/themen/parteien/wer-steht-zur-wahl/bundestagswahl-2025/)

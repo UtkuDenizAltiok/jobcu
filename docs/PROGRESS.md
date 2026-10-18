@@ -165,7 +165,7 @@ location evidence/admission, scoring, explanations, connection recovery and spee
 recall, medium effort, data, marks, history, licensing and all existing service/monthly limits.
 Choose and prepare a justified cheaper provider without claiming unmeasured equivalence.
 
-Branch: `codex/responses-research-receipts`, base `1478fa2`. The previous JSearch step and its
+Branch: `codex/api-source-assessment`, base `cecf409`. The previous JSearch step and its
 exact-main Mac/Windows/privacy CI `39159332622` are complete. No unexplained local work.
 One same-chat heartbeat continues this authorised scope; no separate chat or project task.
 Across all continuations together, ceilings are EUR1.20 total estimated paid API usage,
@@ -195,16 +195,20 @@ PR #159 head `4d02448` passed exact Mac/Windows/privacy CI `39172214147`, then m
 All 2,240 local offline tests pass. Research failures with observed tools and incomplete usage
 now stop automatic repetition on that research path, retaining one lower-bound receipt.
 
-The current step repairs native Responses research bounds and failure accounting. Eighteen
-locked-SDK regressions first reproduce omitted ceilings, accepted unfinished research, lost
-failure receipts and missing-usage crashes. Four additional cases protect partial counts and
-once-only truncation-repair bills. The affected 163-test suite passes; medium/schema/source
-behavior and custom endpoint research restrictions remain. All 2,262 offline tests and
-Ruff/privacy/whitespace/complete-diff checks pass. Exact next action: publish through exact-head
-Mac/Windows/privacy CI, merge with a merge commit and synchronize main. Private billing
-reconciliation and source evidence remain outside Git. Continue the same integrated goal;
-provider prices and general benchmarks do not establish matching equivalence. Preserve the
-working configuration until the documented no-regression gates are met.
+PR #160 head `10582c0` passed exact Mac/Windows/privacy CI `39172881920`, then merged as
+`cecf409`. Exact-main CI `39173362803` passed all three checks. All 2,262 local offline tests pass.
+Responses research now sends the documented tool ceiling and rejects unfinished/refused
+answers; native/custom structured errors retain receipts, including truncation repairs.
+
+The current documentation step records the dated market refresh, readable provider terms and
+independent official reference-data leads. No paired provider quality result or new city verdict
+is established. Exact next action: document/privacy/whitespace/diff checks, publish through
+exact-head CI and a merge commit. Then continue
+the same integrated goal with private source evidence. The private checkpoint names the final
+municipal table, unresolved classification and independent permitted UK data route. Recheck
+access/geography and validate counts before adopting facts; do not bypass a blocked download
+or treat constituency totals as city totals. Preserve the shared budget and current medium
+configuration until no-regression gates are met.
 
 **Parked: comparable city-election evidence within the retained owner review.**
 
