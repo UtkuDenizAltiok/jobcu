@@ -10,6 +10,13 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
+- Silent incomplete AI streams now use the possibly-billed request guard in
+  [PR #156](https://github.com/UtkuDenizAltiok/jobcu/pull/156). All **2,199 offline tests**
+  pass; eight regressions reproduce the earlier automatic repetition. Exact PR head
+  `5910dfd` passed Mac/Windows/privacy CI `39166290234` and merged as `a0f8161`.
+  Exact-main CI `39166844812` is pending; verify its actual head. The integrated review below
+  continues. This establishes the software path, not a historical upstream outage cause.
+
 - Optional JSearch integration is merged in
   [PR #155](https://github.com/UtkuDenizAltiok/jobcu/pull/155): **2,191 offline tests**
   pass, extending the 2,115-test baseline. Exact PR head `6dd60fa` passed Mac/Windows/privacy
@@ -152,7 +159,7 @@ location evidence/admission, scoring, explanations, connection recovery and spee
 recall, medium effort, data, marks, history, licensing and all existing service/monthly limits.
 Choose and prepare a justified cheaper provider without claiming unmeasured equivalence.
 
-Branch: `codex/integrated-search-review`, base `987ccbc`. The previous JSearch step and its
+Branch: `codex/jsearch-workplace-evidence`, base `a0f8161`. The previous JSearch step and its
 exact-main Mac/Windows/privacy CI `39159332622` are complete. No unexplained local work.
 One same-chat heartbeat continues this authorised scope; no separate chat or project task.
 Across all continuations together, ceilings are EUR1.20 total estimated paid API usage,
@@ -172,12 +179,13 @@ Private evidence, the
 working copy, aggregate budget and source-check script are indexed under private
 `assistant-reviews/2026-10-18-integrated-review/`; check that ledger before every continuation.
 A bounded JSearch-only comparison is captured privately; no AI or Maps dispatch has been made.
-The first confirmed repair routes silent stream EOF through the possibly-billed request
-guard. Eight regressions first reproduce repeat dispatch; all 2,199 tests now pass, plus
-Ruff/privacy/whitespace and complete-diff review. Implemented and locally tested; publication
-and merge are pending. Exact next action: publish this coherent repair,
+The first repair is merged in PR #156; exact-main CI is pending above. The next coherent
+repair recovers source workplace metadata despite complete list text and preserves richer
+complete descriptions when details shrink. Nine fictional regressions reproduce the defects;
+all 2,208 offline tests pass, plus Ruff/privacy/whitespace/full-diff review. Publication and
+merge are pending. Exact next action: publish this step,
 require exact-head Mac/Windows/privacy CI, merge with a merge commit and sync main. Then
-continue the same integrated goal using the private findings and shared remaining budget.
+continue the same goal using the private findings and shared remaining budget.
 The native OpenAI research path also currently omits its supported server-side tool-call
 limit; retain that confirmed contract gap for the same reliability/cost scope. Do not switch
 providers without the documented no-regression gates or claim the historical closer identified.
