@@ -118,6 +118,10 @@ usage receipt, so Jobcu cannot confirm their charges. It does not prove that the
 This also applies when the connection closes quietly before the AI service confirms the
 answer is finished. Jobcu keeps completed work and stops automatic repetition on that path
 because the service may already have charged for the interrupted request.
+If online research reports using search tools and then fails without complete usage, Jobcu
+also stops automatic research on that provider/model path for this search. This avoids buying
+the same research again with an unknown bill. Completed work is kept and ordinary matching
+remains available. Check service and billing before choosing **Retry incomplete checks**.
 The permanent retry note records what happened; it does not mean requests are still running
 after **Search finished**. During a retry, the current step shows the wait. **Stop** cancels
 retry waits and queued AI work; a request already sent can finish first.

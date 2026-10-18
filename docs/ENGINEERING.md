@@ -9,6 +9,21 @@ Code/tests establish behavior; the latest current decision establishes intent.
 
 ## Current decisions
 
+### Research failure with an incomplete bill — 2026-10-19
+
+When research reports observed search-tool use and incomplete usage before a temporary
+service/rate failure, stop automatic research on that provider/model path for this client.
+Record the available lower bound once and explain the financial uncertainty without calling
+it a proven connection failure. A queued later request receives the same stop before dispatch;
+already running requests can still finish. Structured generation remains independent.
+
+This supersedes automatic retry for that narrow failure case. Early temporary failures with
+no observed searches and failed requests with complete receipts retain bounded recovery.
+Successful answers and medium effort are unchanged. Six fictional client regressions first
+reproduce repeated dispatch; locked native event-stream cases exercise failed status and
+service-error endings after tool activity. Separate boundary cases protect transient recovery.
+These checks establish the software path, not historical invoice allocation or measured savings.
+
 ### Employer-original matching evidence — 2026-10-19
 
 For an already matched vacancy group, prefer usable complete text from an employer source
