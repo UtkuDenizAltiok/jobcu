@@ -96,6 +96,77 @@ def _identity(town) -> tuple:
     return town.country, town.name, town.latitude, town.longitude
 
 
+def deferred(text: str, towns: list[places.Town]) -> Condition:
+    """Prepare the rule without buying facts about cities unrelated to any collected job."""
+    return Condition(
+        text=text, understood_as=text, kind="towns_that_fit", status="not_checked",
+        note="City facts are scheduled after the job workplaces have been collected.",
+        reference_checks=[ReferenceCheck(name=t.name, country=t.country,
+                                        latitude=t.latitude, longitude=t.longitude) for t in towns])
+
+
+def resolve_for_jobs(client, plan, groups) -> None:
+    """Research each shared fact once, restricted to reachable population/name candidates.
+
+    Geometry only narrows the research scope; it never proves a timed journey. Omitted
+    candidates remain unknown in unchecked_reference_towns if a later workplace needs them.
+    """
+    from jobcu import travel
+
+    shared = defaultdict(list)
+    for condition in plan.conditions:
+        anchor = condition.anchor
+        if not condition.switched_off and anchor is not None and anchor.reference_deferred:
+            shared[anchor.look_up].append(condition)
+    points = [p for group in groups if (p := travel.job_point(group)) is not None]
+    for fact, conditions in shared.items():
+        towns = {}
+        previous = {}
+        for condition in conditions:
+            anchor = condition.anchor
+            base = anchor.model_copy(update={"reference_checks": None})
+            for prior in anchor.reference_checks or []:
+                previous[_identity(prior)] = prior
+            for country in dict.fromkeys(p.country for p in points):
+                limit = condition.max_km if condition.max_km is not None else (
+                    (condition.max_minutes or 0) / 60 * travel.FASTEST_KMH[
+                        condition.travel_mode or "transit"])
+                for town in travel.anchor_towns(base, country):
+                    if any(p.country == country and travel.edge_distance(
+                            p, town, anchor.to_centre) <= limit for p in points):
+                        towns[_identity(town)] = town
+        # These are facts of this exact saved search and unchanged interpreted condition.
+        # A recovery must not buy completed facts again merely because an hour elapsed.
+        supported = {key: c for key, c in previous.items()
+                     if c.meets is not None and c.evidence and c.sources}
+        selected = sorted((t for key, t in towns.items() if key not in supported),
+                          key=lambda t: (plan.countries.index(t.country), -t.people, t.name))
+        if selected:
+            found = check(client, fact, selected)
+        else:
+            found = Condition(text=fact, understood_as=fact, kind="towns_that_fit",
+                              status="applied", reference_checks=[],
+                              note=("Previously verified city facts were retained without "
+                                    "another request." if towns else
+                                    "No candidate city is within the collected workplaces' "
+                                    "geographic travel bound; no city research was needed."))
+        results = {**supported, **{_identity(c): c for c in found.reference_checks}}
+        known = sum(results[key].meets is not None for key in towns)
+        status = ("applied" if not towns or any(c.meets is not None for c in results.values())
+                  else found.status)
+        for condition in conditions:
+            anchor = condition.anchor
+            anchor.reference_deferred = False
+            anchor.reference_checks = [c.model_copy(deep=True) for c in results.values()]
+            anchor.reference_notes = found.reference_notes
+            anchor.research_status = status
+            condition.sources = list({s.url: s for c in results.values()
+                                      for s in c.sources}.values())
+            condition.note = (f"Checked {known} of {len(towns)} reference cities relevant to "
+                              "the collected workplaces. " + found.note)
+            condition.status = "estimate" if condition.max_minutes else status
+
+
 def _fresh(check: ReferenceCheck) -> bool:
     try:
         checked = datetime.fromisoformat(check.checked_at or "")
@@ -264,7 +335,8 @@ def check(client: AIClient, text: str, towns: list[places.Town], *,
                      reference_notes="\n\n".join(notes))
 
 
-def retry_missing(client: AIClient, condition: Condition, countries: list[str]) -> Condition | None:
+def retry_missing(client: AIClient, condition: Condition, countries: list[str], *,
+                  defer_reference_checks: bool = False) -> Condition | None:
     """Retry one unchanged interpreted fact within the same saved search, retaining proof.
 
     Reworded facts and explicit replacement places use the ordinary interpretation path.
@@ -277,6 +349,11 @@ def retry_missing(client: AIClient, condition: Condition, countries: list[str]) 
     towns = candidates(anchor, countries)
     if towns is None:
         return None
+    if defer_reference_checks:
+        updated = condition.model_copy(deep=True)
+        updated.anchor.reference_deferred = True
+        updated.status = "estimate"
+        return updated
     found = check(client, anchor.look_up, towns, previous=anchor.reference_checks)
     updated = condition.model_copy(deep=True)
     old_eligible = {_identity(c) for c in anchor.reference_checks if c.meets is True}

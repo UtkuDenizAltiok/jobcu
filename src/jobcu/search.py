@@ -377,7 +377,8 @@ def run_search(run: SearchRun) -> None:
     checkpoint()
 
     run.update("location", "running", "Reading what you wrote")
-    plan, reused = interpret_location_reusing(client, run.form.location_text)
+    plan, reused = interpret_location_reusing(client, run.form.location_text,
+                                              defer_reference_checks=True)
     run.set_result("location", plan.model_dump())
     names = [COUNTRIES[code].name for code in plan.countries]
     detail = f"{len(names)} countries" if plan.broad else ", ".join(names)
@@ -596,6 +597,8 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     started_at = datetime.fromisoformat(run.started_at)
     profile = Profile.model_validate(job_pool.profile)
     groups = [job.group for job in job_pool.jobs]
+    deferred_references = any(c.anchor is not None and c.anchor.reference_deferred
+                              and not c.switched_off for c in plan.conditions)
     # Travel times cost a request each, so they're measured last, only for jobs still worth a
     # closer look; everything else about places is worked out at once.
     measured = [c for c in plan.conditions if c.kind == "near" and c.max_minutes and c.filters]
@@ -624,7 +627,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         in_running = [i for i in in_running if i not in set(newly_out)]
     unrelated = [i for i in in_running if job_pool.jobs[i].unrelated]
     candidates = [i for i in in_running if not job_pool.jobs[i].unrelated]
-    if measured and candidates:
+    if measured and candidates and not deferred_references:
         run.update("filtering", "running", "Measuring travel times")
         if not keys.get(travel.KEY_NAME):
             run.note("Travel times are AI estimates. A Google Maps key in Settings gives real "
@@ -665,7 +668,8 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     hard_conditions = [c for c in plan.conditions
                        if not c.switched_off and c.kind != "about_job"]
     reference_ready = (not plan.not_checked_yet and all(
-        c.status != "not_checked" and (c.kind != "near" or c.reference_status == "applied")
+        c.status != "not_checked" and (c.kind != "near" or c.reference_status == "applied"
+                                      or c.anchor is not None and c.anchor.reference_deferred)
         for c in hard_conditions))
     early_towns = [i for i in candidates if hard_conditions and reference_ready
                    and jobplace.needs_looking_up(groups[i])
@@ -689,7 +693,18 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     # Original metadata may identify a different workplace. A journey for the earlier
     # summary point is not evidence for that workplace; measure only changed points again.
     moved = [i for i in to_score if travel.job_point(groups[i]) != points_before_details[i]]
-    if measured and moved:
+    if deferred_references:
+        from jobcu import reference_places
+
+        run.update("filtering", "running", "Checking reachable living cities")
+        reference_places.resolve_for_jobs(client, plan, [groups[i] for i in candidates])
+        run.set_result("location", plan.model_dump())
+        for warning in condition_warnings(plan):
+            run.note(warning)
+        checkpoint()
+        if measured and candidates:
+            travel_meter.measure(measured, groups, candidates)
+    elif measured and moved:
         travel_meter.measure(measured, groups, moved)
     detail_location_failures = {i for i in candidates
                                 if fails_a_condition(groups[i], plan.conditions)}
@@ -991,7 +1006,7 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
         plan = LocationPlan.model_validate(run.result["location"])
         earlier_warnings = condition_warnings(plan)
         rechecked = sum(1 for edit in edits if needs_checking(edit, plan.conditions))
-        plan = apply_edits(client, plan, edits)
+        plan = apply_edits(client, plan, edits, defer_reference_checks=True)
         run.set_result("location", plan.model_dump())
         detail = f"{rechecked} condition{'s' if rechecked != 1 else ''} read again" if rechecked \
             else "Nothing to look up"

@@ -10,6 +10,14 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
+- Workplace-scoped city research and complete journey alternatives are implemented in
+  [PR #152](https://github.com/UtkuDenizAltiok/jobcu/pull/152): **2,115 offline tests** pass.
+  Facts follow fuller workplace evidence, shared completed checks survive saved recovery,
+  further eligible cities are measured when nearer ones fail, and smaller batches can use
+  remaining route allowance. Decimal population cutoffs preserve exact boundaries. Exact
+  PR head `0a5c3b1` passed Mac/Windows/privacy CI `39113149122`; merge/main CI, guarded saved
+  application and deployment receipts are indexed privately. No limit/model/effort changes.
+
 - Prepared reference evidence is isolated by country and page budget in
   [PR #151](https://github.com/UtkuDenizAltiok/jobcu/pull/151): **2,091 offline tests** pass.
   Three regressions first reproduce otherwise usable references being discarded. Actual
@@ -120,7 +128,26 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Parked: remaining comparable city-result evidence.**
+**Parked: remaining saved-location evidence within the retained owner review.**
+
+The automatic flow repair in PR #152 is complete in this merge. Full-ad workplaces now select
+the finite living-city research scope. Shared sourced facts and completed routes survive
+recovery, alternative cities continue in small rounds, and an oversized matrix cannot block
+a later smaller matrix within the same allowance. Fractional population cutoffs round upward
+without binary-float boundary errors. The final local suite has **2,115 passing tests**,
+plus Ruff/privacy/whitespace and the existing documentation checks; one existing dependency
+warning. Exact PR head `0a5c3b1` passed Mac/Windows/privacy CI `39113149122`. Actual main CI,
+bounded real verification, guarded application and deployment receipts remain private.
+
+**Exact next action:** read authorization and `assistant-review-checkpoint.json` before private
+recovery. Follow only its current checkpoint: finish an explicitly approved remaining route
+packet once, or retain its precise budget dependency; apply only confirmed evidence against
+the unchanged saved result. Never rerun closed packet scripts or buy completed facts again.
+The original broader city-result dependencies below remain separate from repaired automation;
+source code/tests cannot supply unavailable facts. Shipped population observation dates are
+unchanged. No new search, account change, larger monthly limit or reset is authorized.
+
+The preceding coherent step is complete; its receipts and remaining evidence dependency follow.
 
 The country-source integration in PR #151 is complete in this merge. Three fictional
 regressions first reproduced the global page-limit and mixed-country failures. The final

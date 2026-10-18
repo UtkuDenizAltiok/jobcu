@@ -240,8 +240,9 @@ def test_a_close_call_is_measured_from_the_ads_own_place_only():
     condition = near()
     job = group("Fürstenfeldbruck", company="Has Many Sites GmbH")
     meter(fake).measure([condition], [job], [0])
-    assert [path for path, _, _ in fake.requests] == ["/distanceMatrix/v2:computeRouteMatrix"]
-    assert condition_fit(condition, job) == "unknown"  # other reachable cities were not measured
+    assert len(fake.requests) > 1  # finish the other reachable alternatives too
+    assert all(path == "/distanceMatrix/v2:computeRouteMatrix" for path, _, _ in fake.requests)
+    assert condition_fit(condition, job) == "no"
     assert travel.detail(condition, job)[0].startswith("Munich, 52 min by public transport")
 
 
@@ -278,8 +279,8 @@ def test_the_monthly_limit_stops_google_maps_and_the_ai_takes_over():
     condition = near()
     job = group("Fürstenfeldbruck")
     meter(client=GuessingClient(), settings=settings, notes=notes).measure([condition], [job], [0])
-    assert condition_fit(condition, job) == "unknown"  # only the nearest few were estimated
-    assert any("used up" in note for note in notes)
+    assert condition_fit(condition, job) == "no"  # all reachable cities have an estimate
+    assert any("route allowance" in note for note in notes)
 
 
 def test_a_corrected_limit_needs_no_new_look_up():
@@ -475,7 +476,7 @@ def test_both_destination_samples_must_fit_within_the_existing_maps_limit():
     tested.measure([condition], [job], [0])  # the mocked HTTP refuses any unexpected request
     assert tested._routes.used_this_search == 0
     assert condition_fit(condition, job) == "unknown"
-    assert any("route limit" in note for note in notes)
+    assert any("route allowance" in note for note in notes)
 
 
 def test_an_old_single_edge_answer_is_rechecked_after_the_routing_change():
@@ -572,11 +573,8 @@ def test_a_search_keeps_jobs_near_a_big_city_and_leaves_out_far_ones(
     jobs = result["result"]["jobs"]
     assert sorted(card["location"] for card in jobs["cards"]) == [
         "Fürstenfeldbruck", "München"]
-    assert jobs["ruled_out_by_conditions"] == []
-    hof = next(card for card in jobs["location_unchecked"] if card["location"] == "Hof")
-    assert hof["score"] is None
-    assert hof["location_checks"][-1]["status"] == "unclear"
-    assert "other candidate cities" in hof["location_checks"][-1]["detail"]
+    assert [card["location"] for card in jobs["ruled_out_by_conditions"]] == ["Hof"]
+    assert jobs["location_unchecked"] == []
     bruck = next(card for card in jobs["cards"] if card["location"] == "Fürstenfeldbruck")
     check = bruck["location_checks"][-1]
     assert check["detail"] == "Munich, 25 min by public transport"

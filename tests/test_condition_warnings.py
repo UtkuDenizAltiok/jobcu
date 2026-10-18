@@ -24,7 +24,7 @@ def partial_plan():
 def test_completed_search_explains_failed_reference_fact_without_losing_jobs(
         ready, monkeypatch):  # noqa: F811
     plan = partial_plan()
-    monkeypatch.setattr(search, "interpret_location_reusing", lambda *_: (plan, False))
+    monkeypatch.setattr(search, "interpret_location_reusing", lambda *_, **kw: (plan, False))
     manager = search.SearchManager()
     manager.start(SearchForm())
     result = wait_until_done(manager)
