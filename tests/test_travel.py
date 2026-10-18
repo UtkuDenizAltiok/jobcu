@@ -280,7 +280,7 @@ def test_the_monthly_limit_stops_google_maps_and_the_ai_takes_over():
     job = group("Fürstenfeldbruck")
     meter(client=GuessingClient(), settings=settings, notes=notes).measure([condition], [job], [0])
     assert condition_fit(condition, job) == "no"  # all reachable cities have an estimate
-    assert any("used up" in note for note in notes)
+    assert any("route allowance" in note for note in notes)
 
 
 def test_a_corrected_limit_needs_no_new_look_up():
@@ -476,7 +476,7 @@ def test_both_destination_samples_must_fit_within_the_existing_maps_limit():
     tested.measure([condition], [job], [0])  # the mocked HTTP refuses any unexpected request
     assert tested._routes.used_this_search == 0
     assert condition_fit(condition, job) == "unknown"
-    assert any("route limit" in note for note in notes)
+    assert any("route allowance" in note for note in notes)
 
 
 def test_an_old_single_edge_answer_is_rechecked_after_the_routing_change():

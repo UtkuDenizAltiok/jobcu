@@ -866,6 +866,7 @@ class TravelMeter:
     def _with_maps(self, places, mode, centre=False) -> dict[str, TravelReading]:
         measured: dict[str, TravelReading] = {}
         reported = False
+        limit_reported = False
         for point, towns, _ in places:
             try:
                 measured[point.key] = self._maps.minutes(point, towns, mode, centre)
@@ -875,10 +876,13 @@ class TravelMeter:
                                "they remain unknown.")
                     reported = True
             except BudgetExhausted:
-                self._note("Google Maps: this month's route limit is used up, so the "
-                           "remaining travel times use AI estimates where available, "
-                           "otherwise they remain unknown.")
-                break
+                if not limit_reported:
+                    self._note("Google Maps: some journey batches exceed this month's remaining "
+                               "route allowance. Smaller batches are still checked; unfinished "
+                               "times use AI estimates where available, otherwise they remain "
+                               "unknown.")
+                    limit_reported = True
+                continue  # a smaller matrix can still fit; no refused request was dispatched
             except MapsError as exc:
                 self._note(f"{exc} The remaining travel times use AI estimates where "
                            "available, otherwise they remain unknown.")

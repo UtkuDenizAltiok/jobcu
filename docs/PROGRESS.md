@@ -138,10 +138,13 @@ same-search facts during explicit recovery; finish route alternatives in small r
 on a pass or incomplete round. Completed measurements are shared, with Maps ahead of estimates.
 Fractional population cutoffs round upward without binary-float boundary errors. Targeted
 fictional regressions first reproduce premature route completion and cutoff errors. The full
-local suite passes **2,114 tests**, with one existing dependency warning; Ruff/privacy/whitespace
+local suite passes **2,115 tests**, with one existing dependency warning; Ruff/privacy/whitespace
 also pass. Exact next action: publish this coherent step through exact-head PR/main
 Mac/Windows/privacy CI. No owner data changed or
-paid calls made for this step. Shipped population observation dates are unchanged.
+paid calls were used for the initial implementation. The subsequent authorized saved-route
+packet and exact usage/application status are checkpointed privately. It exposed a batch that
+could block a later smaller batch fitting the same allowance; that general repair has a
+red/green regression and keeps the original limits. Shipped population dates are unchanged.
 Paid verification requires a new concrete bounded packet; none is currently open.
 
 The preceding coherent step is complete; its receipts and remaining evidence dependency follow.

@@ -321,6 +321,8 @@ If the nearest cities take too long to reach, Jobcu continues to other candidate
 stops when one fits, all reachable candidates have been checked, or an existing limit/service
 failure prevents completion. Completed journeys are reused; a successful connection is not
 repeated merely to fill the other alternatives.
+If a batch needs more Maps elements than remain in your allowance, smaller batches can still
+finish within that same limit.
 
 Missing original text, unsupported facts or an unavailable service can still leave checks
 unfinished. Repeating a request cannot establish experience absent from your profile. Read

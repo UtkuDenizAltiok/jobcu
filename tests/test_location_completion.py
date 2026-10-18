@@ -282,3 +282,27 @@ def test_search_checks_full_ad_workplace_then_city_facts_before_scoring(monkeypa
     assert phases == ["full_ad", "city_facts", "score"]
     assert calls == [["Unrelated Distant City"]]
     assert len(run.result["jobs"]["cards"]) == 1
+
+
+def test_a_batch_exceeding_remaining_routes_does_not_block_a_smaller_batch():
+    from jobcu.sources.budget import BudgetExhausted
+
+    cities = [Town(f"City {i}", "DE", 50, 8 + i / 10, 500_000) for i in range(3)]
+    places = [(travel.Point(50, 7, "DE", "address"), cities[:2], ["job-a"]),
+              (travel.Point(50, 9, "DE", "address"), cities[2:], ["job-b"])]
+    notes, sent = [], []
+
+    class Maps:
+        def minutes(self, point, towns, mode, centre):
+            elements = len(travel.route_targets(point, towns, centre))
+            if elements > 2 - sum(sent):
+                raise BudgetExhausted("Remaining allowance cannot cover this batch.")
+            sent.append(elements)
+            return travel.TravelReading({t.name: 25 for t in towns})
+
+    meter = travel.TravelMeter(None, None, None, Settings(), note=notes.append)
+    meter._maps = Maps()
+    found = meter._minutes(places, "transit", max_minutes=50)
+    assert found[places[1][0].key].minutes == {"City 2": 25}
+    assert found[places[0][0].key].unchecked == {"City 0", "City 1"}
+    assert sent == [2] and len(notes) == 1

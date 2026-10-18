@@ -406,6 +406,9 @@ round is retained before the next request. Identical workplaces share validated 
 completed cells are not repurchased, and Maps readings take priority over older AI estimates.
 The configured Maps/AI limits and labelled estimate fallback still apply. These samples retain
 the city-edge/centre limitation; testing all cities does not test every possible city district.
+An oversized matrix does not block a later smaller matrix that fits the remaining allowance;
+only the normal atomic budget can admit either request. Limit notes describe a batch that
+does not fit, rather than incorrectly declaring the entire allowance exhausted.
 
 Population cutoffs now round fractional people upward in both workplace and reference-city
 rules: a place below the requested country share cannot pass through rounding down. This
