@@ -179,7 +179,15 @@ class JobGroup:
 
     @property
     def best_description_copy(self) -> FoundJob:
-        return max(self.copies, key=lambda c: (c.description_is_complete, len(c.description)))
+        def evidence_rank(copy):
+            text = (copy.description or "").strip()
+            complete = bool(copy.description_is_complete and text)
+            original = self.source_kinds.get(copy.source) == "employer"
+            # Extra board boilerplate must not outrank the employer's own requirements.
+            # An incomplete/empty original still yields to usable complete source text.
+            return complete, complete and original, len(text)
+
+        return max(self.copies, key=evidence_rank)
 
     @property
     def earliest_copy(self) -> FoundJob | None:

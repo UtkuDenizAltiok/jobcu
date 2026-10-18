@@ -14,8 +14,14 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
   [PR #156](https://github.com/UtkuDenizAltiok/jobcu/pull/156). All **2,199 offline tests**
   pass; eight regressions reproduce the earlier automatic repetition. Exact PR head
   `5910dfd` passed Mac/Windows/privacy CI `39166290234` and merged as `a0f8161`.
-  Exact-main CI `39166844812` is pending; verify its actual head. The integrated review below
+  Exact-main CI `39166844812` passed at that merge. The integrated review below
   continues. This establishes the software path, not a historical upstream outage cause.
+
+- Source workplace metadata and richer-description preservation are merged in
+  [PR #157](https://github.com/UtkuDenizAltiok/jobcu/pull/157), with **2,208 offline tests**
+  passing. Exact head `9eed2ba` passed Mac/Windows/privacy CI `39167102066`; merge `7fae5ed`
+  passed exact-main CI `39167726713`. Saved evidence replay and actual usage receipts
+  stay private. Source and monthly limits are unchanged.
 
 - Optional JSearch integration is merged in
   [PR #155](https://github.com/UtkuDenizAltiok/jobcu/pull/155): **2,191 offline tests**
@@ -24,10 +30,10 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
   [dated assessment and controls](SOURCES.md#jsearch-assessment--2026-10-18) govern the direct
   Free adapter, explicit opt-in and shared page/detail ceilings. Existing feeds, scores,
   provider/model/effort, owner data and limits are preserved. No account, purchase, live API
-  comparison or new job search was started; useful added coverage and net savings remain
-  unmeasured. Build `fcc971bcb9991cf8` is locally adopted; private readback verified JSearch
-  remains off and settings, keys and all logical database rows are unchanged. The deployment
-  receipt is indexed privately. Verify exact merge/main CI rather than inferring it from PR
+  comparison or new job search was started in that initial implementation; useful added
+  coverage and net savings remain unmeasured. Its initial deployment receipt is indexed
+  privately. Current configuration can have changed since then; do not restore historical
+  settings from an adoption receipt. Verify exact merge/main CI rather than inferring it from PR
   checks. Research PR #154 is merged as `511aa02`; its main CI `39154798101` passed.
 
 - Workplace-scoped city research and complete journey alternatives are implemented in
@@ -159,7 +165,7 @@ location evidence/admission, scoring, explanations, connection recovery and spee
 recall, medium effort, data, marks, history, licensing and all existing service/monthly limits.
 Choose and prepare a justified cheaper provider without claiming unmeasured equivalence.
 
-Branch: `codex/jsearch-workplace-evidence`, base `a0f8161`. The previous JSearch step and its
+Branch: `codex/original-ad-evidence`, base `7fae5ed`. The previous JSearch step and its
 exact-main Mac/Windows/privacy CI `39159332622` are complete. No unexplained local work.
 One same-chat heartbeat continues this authorised scope; no separate chat or project task.
 Across all continuations together, ceilings are EUR1.20 total estimated paid API usage,
@@ -179,13 +185,16 @@ Private evidence, the
 working copy, aggregate budget and source-check script are indexed under private
 `assistant-reviews/2026-10-18-integrated-review/`; check that ledger before every continuation.
 A bounded JSearch-only comparison is captured privately; no AI or Maps dispatch has been made.
-The first repair is merged in PR #156; exact-main CI is pending above. The next coherent
-repair recovers source workplace metadata despite complete list text and preserves richer
-complete descriptions when details shrink. Nine fictional regressions reproduce the defects;
-all 2,208 offline tests pass, plus Ruff/privacy/whitespace/full-diff review. Publication and
-merge are pending. Exact next action: publish this step,
-require exact-head Mac/Windows/privacy CI, merge with a merge commit and sync main. Then
-continue the same goal using the private findings and shared remaining budget.
+The first two coherent repairs are merged in PRs #156/#157 above. The current step prefers
+usable complete employer-original text over longer secondary copies; incomplete/empty
+originals still yield to complete evidence. Eighteen fictional cases first reproduce hidden
+original requirements across hardware, nursing and teaching; four boundary cases protect
+fallback. All 2,230 offline tests and the affected 272-test suite pass, with
+Ruff/privacy/whitespace/full-diff review. Publication and merge remain.
+Exact next action: publish, require exact-head Mac/Windows/privacy CI,
+merge with a merge commit and sync main. Then continue the same goal with the private
+pipeline/provider findings and shared remaining budget. Published prices and general
+benchmarks do not yet establish a replacement's matching quality; preserve medium defaults.
 The native OpenAI research path also currently omits its supported server-side tool-call
 limit; retain that confirmed contract gap for the same reliability/cost scope. Do not switch
 providers without the documented no-regression gates or claim the historical closer identified.

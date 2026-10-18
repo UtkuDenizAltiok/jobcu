@@ -3,7 +3,7 @@ from itertools import permutations
 
 import pytest
 
-from jobcu.dedupe import group_duplicates, normal_company, normal_title, title_similarity
+from jobcu.dedupe import JobGroup, group_duplicates, normal_company, normal_title, title_similarity
 from jobcu.sources.base import FoundJob
 
 KINDS = {"adzuna": "aggregator", "board": "job_board"}
@@ -19,6 +19,45 @@ def job(source="adzuna", job_id="1", title="Hardware Engineer (m/w/d)", company=
 def test_names_are_normalised():
     assert normal_company("ACME Deutschland GmbH & Co. KG") == "acme"
     assert normal_title("Hardwareentwickler (m/w/d)") == normal_title("Hardwareentwickler (w/m/d)")
+
+
+@pytest.mark.parametrize("role,requirement", [
+    ("Power Electronics Engineer", "Four years designing power converters are required."),
+    ("Registered Nurse", "Current nursing registration is required."),
+    ("Primary Teacher", "An education degree and fluent German are required."),
+])
+@pytest.mark.parametrize("secondary_kind", ["aggregator", "job_board", "linkedin"])
+@pytest.mark.parametrize("original_first", [False, True])
+def test_longer_secondary_copy_cannot_hide_an_original_requirement(
+    role, requirement, secondary_kind, original_first
+):
+    original = job("official", title=role, description=f"Fictional vacancy. {requirement}",
+                   description_is_complete=True)
+    secondary = job("secondary", title=role, description="A rewarding fictional role. " * 30,
+                    description_is_complete=True)
+    copies = [original, secondary] if original_first else [secondary, original]
+    group = JobGroup(copies, source_kinds={"official": "employer", "secondary": secondary_kind})
+    assert group.best_description_copy is original
+    assert requirement in group.best_description_copy.description
+    assert group.copies == copies  # retain both source descriptions and identities
+
+
+@pytest.mark.parametrize("original_text,complete", [("Summary", False), ("", True), (" ", True)])
+def test_incomplete_or_empty_original_cannot_displace_usable_complete_text(original_text, complete):
+    original = job("official", description=original_text, description_is_complete=complete)
+    secondary = job("secondary", description=TEXT, description_is_complete=True)
+    group = JobGroup([original, secondary], source_kinds={"official": "employer"})
+    assert group.best_description_copy is secondary
+
+
+def test_same_provenance_keeps_richer_complete_text_and_a_link_does_not_change_provenance():
+    short = job("one", description="Fictional complete text.", description_is_complete=True,
+                employer_url="https://employer.example.test/jobs/one")
+    long = job("two", description=TEXT, description_is_complete=True)
+    group = JobGroup([short, long], source_kinds={"one": "aggregator", "two": "aggregator"})
+    assert group.best_description_copy is long
+    group.source_kinds = {"one": "employer", "two": "employer"}
+    assert group.best_description_copy is long
 
 
 VACANCY_TEXT = " ".join(f"Fictional duty {i} involves development validation and reporting."

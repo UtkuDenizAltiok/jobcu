@@ -161,7 +161,9 @@ start a separate job search or require you to reset anything.
 town when missing, and requirements omitted from short summaries. Your AI searches for the
 same vacancy, then organizes the findings so Jobcu can recheck fit and location conditions.
 It does not independently audit every score or guarantee the job is suitable. Complete ads
-already read are preferred; missing evidence remains unchecked. Related jobs are checked in
+already read are preferred. For matched copies of the same job, usable complete employer text
+takes priority over a longer board description. An incomplete employer copy still uses a
+complete alternative when available; missing evidence remains unchecked. Related jobs are checked in
 small batches, and each batch can need a web-research answer and another AI answer to extract
 the facts. Provider thinking, search tools, connection retries and throttling can make this
 stage slow. Its job counter measures progress, not proven accuracy or an estimate of time left.
