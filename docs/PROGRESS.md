@@ -165,7 +165,7 @@ location evidence/admission, scoring, explanations, connection recovery and spee
 recall, medium effort, data, marks, history, licensing and all existing service/monthly limits.
 Choose and prepare a justified cheaper provider without claiming unmeasured equivalence.
 
-Branch: `codex/research-usage-safeguard`, base `e3d49a4`. The previous JSearch step and its
+Branch: `codex/responses-research-receipts`, base `1478fa2`. The previous JSearch step and its
 exact-main Mac/Windows/privacy CI `39159332622` are complete. No unexplained local work.
 One same-chat heartbeat continues this authorised scope; no separate chat or project task.
 Across all continuations together, ceilings are EUR1.20 total estimated paid API usage,
@@ -190,17 +190,21 @@ passed Mac/Windows/privacy CI `39168267567`; merge `e3d49a4` passed exact-main C
 `39168641212`. All 2,230 offline tests pass. Usable complete employer-original text now wins
 over longer secondary copies; incomplete/empty originals still yield to complete evidence.
 
-The current step stops repeated research after observed tool activity and an incomplete
-failure receipt. Six client regressions first reproduce dispatch repetition; two locked-SDK
-cases and two transient-recovery boundaries pass with the guard. The affected 193-test suite
-passes. Successful answers, medium effort and early transient recovery remain. Private billing
-evidence and query reconciliation stay outside Git. All 2,240 offline tests and
+PR #159 head `4d02448` passed exact Mac/Windows/privacy CI `39172214147`, then merged as
+`1478fa2`. Its exact-main CI `39172539288` is pending; do not infer it from the PR pass.
+All 2,240 local offline tests pass. Research failures with observed tools and incomplete usage
+now stop automatic repetition on that research path, retaining one lower-bound receipt.
+
+The current step repairs native Responses research bounds and failure accounting. Eighteen
+locked-SDK regressions first reproduce omitted ceilings, accepted unfinished research, lost
+failure receipts and missing-usage crashes. Four additional cases protect partial counts and
+once-only truncation-repair bills. The affected 163-test suite passes; medium/schema/source
+behavior and custom endpoint research restrictions remain. All 2,262 offline tests and
 Ruff/privacy/whitespace/complete-diff checks pass. Exact next action: publish through exact-head
-Mac/Windows/privacy CI and a merge commit, then synchronize main. Continue the same integrated goal afterwards. The native
-OpenAI research path also omits its supported server-side tool-call limit; retain that confirmed
-contract gap for the same reliability/cost scope. Published prices/general benchmarks do not
-yet establish a replacement's matching quality. Preserve the working configuration until the
-no-regression gates are met; do not claim the historical disconnect cause identified.
+Mac/Windows/privacy CI, merge with a merge commit and synchronize main. Private billing
+reconciliation and source evidence remain outside Git. Continue the same integrated goal;
+provider prices and general benchmarks do not establish matching equivalence. Preserve the
+working configuration until the documented no-regression gates are met.
 
 **Parked: comparable city-election evidence within the retained owner review.**
 

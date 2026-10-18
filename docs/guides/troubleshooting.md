@@ -122,6 +122,10 @@ If online research reports using search tools and then fails without complete us
 also stops automatic research on that provider/model path for this search. This avoids buying
 the same research again with an unknown bill. Completed work is kept and ordinary matching
 remains available. Check service and billing before choosing **Retry incomplete checks**.
+An unfinished or refused research answer does not count as confirmed evidence, even if the
+provider returned some text. Available charges from that attempt still appear in usage;
+missing usage remains marked incomplete. Supported provider tool ceilings use the search
+allowance already granted in Jobcu and do not replace the provider's enforced spending cap.
 The permanent retry note records what happened; it does not mean requests are still running
 after **Search finished**. During a retry, the current step shows the wait. **Stop** cancels
 retry waits and queued AI work; a request already sent can finish first.
