@@ -15,8 +15,9 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
   Facts follow fuller workplace evidence, shared completed checks survive saved recovery,
   further eligible cities are measured when nearer ones fail, and smaller batches can use
   remaining route allowance. Decimal population cutoffs preserve exact boundaries. Exact
-  PR head `0a5c3b1` passed Mac/Windows/privacy CI `39113149122`; merge/main CI, guarded saved
-  application and deployment receipts are indexed privately. No limit/model/effort changes.
+  PR head `0a5c3b1` and main merge `94f5152` passed Mac/Windows/privacy CI `39113149122` and
+  `39113542857`. Guarded saved application and deployed-build readback are complete; their
+  receipts are indexed privately. No limit/model/effort changes.
 
 - Prepared reference evidence is isolated by country and page budget in
   [PR #151](https://github.com/UtkuDenizAltiok/jobcu/pull/151): **2,091 offline tests** pass.
@@ -128,7 +129,7 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### In progress
 
-**Parked: remaining saved-location evidence within the retained owner review.**
+**Parked: comparable city-election evidence within the retained owner review.**
 
 The automatic flow repair in PR #152 is complete in this merge. Full-ad workplaces now select
 the finite living-city research scope. Shared sourced facts and completed routes survive
@@ -136,16 +137,19 @@ recovery, alternative cities continue in small rounds, and an oversized matrix c
 a later smaller matrix within the same allowance. Fractional population cutoffs round upward
 without binary-float boundary errors. The final local suite has **2,115 passing tests**,
 plus Ruff/privacy/whitespace and the existing documentation checks; one existing dependency
-warning. Exact PR head `0a5c3b1` passed Mac/Windows/privacy CI `39113149122`. Actual main CI,
-bounded real verification, guarded application and deployment receipts remain private.
+warning. Exact PR head `0a5c3b1` and main merge `94f5152` passed Mac/Windows/privacy CI
+`39113149122` and `39113542857`. The bounded real verification, confirmed saved-result
+application and deployed-build readback are complete. All paid packets are closed; preserve
+their private receipts and never rerun their scripts. Raw assessments, marks, history, other
+saved results and settings were independently checked unchanged.
 
 **Exact next action:** read authorization and `assistant-review-checkpoint.json` before private
-recovery. Follow only its current checkpoint: finish an explicitly approved remaining route
-packet once, or retain its precise budget dependency; apply only confirmed evidence against
-the unchanged saved result. Never rerun closed packet scripts or buy completed facts again.
-The original broader city-result dependencies below remain separate from repaired automation;
-source code/tests cannot supply unavailable facts. Shipped population observation dates are
-unchanged. No new search, account change, larger monthly limit or reset is authorized.
+recovery. No route packet, application or deployment remains open. Follow the retained source
+dependency below: obtain independent party-classification evidence for the overlapping
+comparison or comparable whole-city election results for the unresolved countries. Validate
+those facts before further journeys or admission; reuse completed evidence. The repaired
+automation does not establish those factual comparisons. Shipped population observation dates
+are unchanged. No new search, account change, larger monthly limit or reset is authorized.
 
 The preceding coherent step is complete; its receipts and remaining evidence dependency follow.
 
