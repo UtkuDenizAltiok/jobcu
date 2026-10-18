@@ -9,6 +9,21 @@ Code/tests establish behavior; the latest current decision establishes intent.
 
 ## Current decisions
 
+### Employer-original matching evidence — 2026-10-19
+
+For an already matched vacancy group, prefer usable complete text from an employer source
+over longer complete board/aggregator text. Extra secondary boilerplate must not displace
+an original experience, registration or language requirement. This supersedes longest-text
+selection between all complete copies. Keep longer text within equal provenance; an empty
+or incomplete employer description still yields to usable complete secondary text. A supplied
+employer application link does not turn an aggregator description into employer-original text.
+
+Eighteen fictional hardware/nursing/teaching cases first reproduce losing the original
+requirement, across secondary source types and both copy orders. Four boundary cases protect
+fallback and equal-provenance reuse. Both copies, identities and links remain available;
+scores are calculated fresh from the chosen evidence. This changes selection inside an
+already matched group, not vacancy-identity thresholds or any stored owner score/mark.
+
 ### Source workplace metadata before AI lookup — 2026-10-19
 
 Complete supplied ad text does not establish a complete workplace. Detail readers can declare
