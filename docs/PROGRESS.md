@@ -10,6 +10,14 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed change hist
 
 ### State
 
+- JSearch's [dated assessment](SOURCES.md#jsearch-assessment--2026-10-18) is complete in
+  [PR #154](https://github.com/UtkuDenizAltiok/jobcu/pull/154). It remains a candidate, with no
+  adapter, account, paid test or live job query started. Proposed next development is a bounded
+  direct free-tier comparison after rights/account/test authority; it is not a new active
+  task. All 20 documentation checks and Ruff/privacy/whitespace pass. Exact PR head `9358ae2`
+  passed Mac/Windows/privacy CI `39154355593`; inspect the actual merge/main CI before relying
+  on publication. Existing runtime, limits and parked saved-location dependencies are unchanged.
+
 - Workplace-scoped city research and complete journey alternatives are implemented in
   [PR #152](https://github.com/UtkuDenizAltiok/jobcu/pull/152): **2,115 offline tests** pass.
   Facts follow fuller workplace evidence, shared completed checks survive saved recovery,
