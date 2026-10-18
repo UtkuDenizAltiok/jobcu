@@ -165,7 +165,7 @@ location evidence/admission, scoring, explanations, connection recovery and spee
 recall, medium effort, data, marks, history, licensing and all existing service/monthly limits.
 Choose and prepare a justified cheaper provider without claiming unmeasured equivalence.
 
-Branch: `codex/original-ad-evidence`, base `7fae5ed`. The previous JSearch step and its
+Branch: `codex/research-usage-safeguard`, base `e3d49a4`. The previous JSearch step and its
 exact-main Mac/Windows/privacy CI `39159332622` are complete. No unexplained local work.
 One same-chat heartbeat continues this authorised scope; no separate chat or project task.
 Across all continuations together, ceilings are EUR1.20 total estimated paid API usage,
@@ -185,19 +185,22 @@ Private evidence, the
 working copy, aggregate budget and source-check script are indexed under private
 `assistant-reviews/2026-10-18-integrated-review/`; check that ledger before every continuation.
 A bounded JSearch-only comparison is captured privately; no AI or Maps dispatch has been made.
-The first two coherent repairs are merged in PRs #156/#157 above. The current step prefers
-usable complete employer-original text over longer secondary copies; incomplete/empty
-originals still yield to complete evidence. Eighteen fictional cases first reproduce hidden
-original requirements across hardware, nursing and teaching; four boundary cases protect
-fallback. All 2,230 offline tests and the affected 272-test suite pass, with
-Ruff/privacy/whitespace/full-diff review. Publication and merge remain.
-Exact next action: publish, require exact-head Mac/Windows/privacy CI,
-merge with a merge commit and sync main. Then continue the same goal with the private
-pipeline/provider findings and shared remaining budget. Published prices and general
-benchmarks do not yet establish a replacement's matching quality; preserve medium defaults.
-The native OpenAI research path also currently omits its supported server-side tool-call
-limit; retain that confirmed contract gap for the same reliability/cost scope. Do not switch
-providers without the documented no-regression gates or claim the historical closer identified.
+The first three coherent repairs are merged in PRs #156/#157/#158. PR #158 head `5512a40`
+passed Mac/Windows/privacy CI `39168267567`; merge `e3d49a4` passed exact-main CI
+`39168641212`. All 2,230 offline tests pass. Usable complete employer-original text now wins
+over longer secondary copies; incomplete/empty originals still yield to complete evidence.
+
+The current step stops repeated research after observed tool activity and an incomplete
+failure receipt. Six client regressions first reproduce dispatch repetition; two locked-SDK
+cases and two transient-recovery boundaries pass with the guard. The affected 193-test suite
+passes. Successful answers, medium effort and early transient recovery remain. Private billing
+evidence and query reconciliation stay outside Git. All 2,240 offline tests and
+Ruff/privacy/whitespace/complete-diff checks pass. Exact next action: publish through exact-head
+Mac/Windows/privacy CI and a merge commit, then synchronize main. Continue the same integrated goal afterwards. The native
+OpenAI research path also omits its supported server-side tool-call limit; retain that confirmed
+contract gap for the same reliability/cost scope. Published prices/general benchmarks do not
+yet establish a replacement's matching quality. Preserve the working configuration until the
+no-regression gates are met; do not claim the historical disconnect cause identified.
 
 **Parked: comparable city-election evidence within the retained owner review.**
 

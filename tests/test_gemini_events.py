@@ -20,6 +20,7 @@ from jobcu.ai.base import (
     AIReasoningUnsupported,
     AIRefused,
     AIUnavailable,
+    AIUsageUncertain,
     AIWebSearchUnavailable,
     Usage,
 )
@@ -110,6 +111,33 @@ def research(adapter, model="gemini-3.8-flash"):
     return adapter.research(model=model, system="Find original fictional evidence",
                             prompt="Fictional town library", effort="medium",
                             max_output_tokens=6000, max_searches=4)
+
+
+@pytest.mark.parametrize("ending", [
+    event("interaction.status_update", status="failed"),
+    event("error", error={"code": "service_unavailable", "message": "Fictional outage"}),
+])
+def test_failed_research_after_native_search_activity_does_not_repeat_without_a_bill(
+        service, ending):
+    from jobcu.ai.client import AIClient
+    from jobcu.ai.usage import UsageLog
+    from jobcu.settings import Settings
+
+    adapter, requests, streams = service([
+        start(0, "google_search_call", arguments={"queries": ["fictional city", "library"]}),
+        event("step.stop", index=0, usage={"total_input_tokens": 12}), ending,
+    ], [start(), text("An automatically repeated answer"), done()])
+    configured = Settings()
+    configured.ai.provider, configured.ai.model = "gemini", "gemini-3.8-flash"
+    ledger, waits = UsageLog(), []
+    client = AIClient(configured, adapter=adapter, usage_log=ledger, sleep=waits.append)
+    for prompt in ("Fictional city library", "Another fictional city"):
+        with pytest.raises(AIUsageUncertain):
+            client.research(step="location", system="Use sourced evidence", prompt=prompt)
+    assert len(requests) == 1 and streams[0].closed and not waits
+    assert ledger.this_month()[0].usage == Usage(
+        input_tokens=12, web_searches=2, unreported_requests=1)
+    assert client._web_searches_reserved == 0
 
 
 @pytest.mark.parametrize("profession", ["electronics engineer", "nurse", "teacher"])

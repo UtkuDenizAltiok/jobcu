@@ -14,6 +14,7 @@ from jobcu.ai.base import (
     AIQuotaExhausted,
     AIRateLimited,
     AIUnavailable,
+    AIUsageUncertain,
     ProviderAdapter,
     RawReply,
     ResearchReply,
@@ -291,6 +292,58 @@ def test_impatient_connection_probe_does_not_repeat_an_outage_request():
     with pytest.raises(AIUnavailable):
         ask(client)
     assert len(adapter.calls) == 1
+
+
+@pytest.mark.parametrize("profession", ["hardware engineer", "nurse", "teacher"])
+@pytest.mark.parametrize("error_type", [AIUnavailable, AIRateLimited])
+def test_observed_research_with_missing_failure_receipt_stops_automatic_paid_work(
+        profession, error_type):
+    class Web(ScriptedAdapter):
+        can_search_the_web = True
+
+        def research(self, **request):
+            raw = self.complete_json(**request)
+            return ResearchReply(raw.text, [], raw.usage)
+
+    failure = error_type("Fictional service failure after research")
+    failure.usage = Usage(10, 30, reasoning_tokens=20, web_searches=2, unreported_requests=1)
+    adapter = Web(failure, GOOD)
+    ledger, notices, waits = UsageLog(), [], []
+    client = AIClient(settings(), adapter=adapter, usage_log=ledger, notify=notices.append,
+                      sleep=waits.append)
+    with pytest.raises(AIUsageUncertain) as first:
+        client.research(step="location", system="Use sourced fictional evidence",
+                        prompt=f"A fictional city for a {profession}")
+    assert not first.value.retryable
+    assert "usage" in first.value.message and "stopped" in first.value.message
+    for prompt in (profession, "Another independent city"):
+        with pytest.raises(type(first.value)):
+            client.research(step="job_places", system="Fictional evidence", prompt=prompt)
+    assert len(adapter.calls) == 1 and not waits
+    assert ledger.this_month()[0].usage == failure.usage
+    assert client.web_searches_used == 2 and client._web_searches_reserved == 0
+    assert sum("stopped automatic" in note for note in notices) == 1
+    # A paused research route must not pause ordinary structured matching.
+    assert ask(client).ok and len(adapter.calls) == 2
+
+
+@pytest.mark.parametrize("usage", [Usage(unreported_requests=1),
+                                   Usage(10, 30, web_searches=2)])
+def test_early_failure_or_complete_research_receipt_keeps_bounded_transient_recovery(usage):
+    class Web(ScriptedAdapter):
+        can_search_the_web = True
+
+        def research(self, **request):
+            raw = self.complete_json(**request)
+            return ResearchReply(raw.text, [], raw.usage)
+
+    failure = AIUnavailable("Fictional temporary service error")
+    failure.usage = usage
+    adapter, waits, ledger = Web(failure, GOOD), [], UsageLog()
+    client = AIClient(settings(), adapter=adapter, usage_log=ledger, sleep=waits.append)
+    assert client.research(step="location", system="Fictional evidence", prompt="Town").text
+    assert len(adapter.calls) == 2 and len(waits) == 1
+    assert ledger.this_month()[0].usage == usage + Usage(10, 5)
 
 
 def test_retry_progress_identifies_attempts_and_the_existing_bound():

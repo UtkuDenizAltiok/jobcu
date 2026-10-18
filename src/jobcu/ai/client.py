@@ -39,6 +39,7 @@ from jobcu.ai.base import (
     AIRateLimited,
     AIReasoningUnsupported,
     AIUnavailable,
+    AIUsageUncertain,
     AIWebSearchUnavailable,
     ProviderAdapter,
     ResearchReply,
@@ -129,7 +130,7 @@ class AIClient:
         self._requests_running = 0
         self._endpoint_running: dict[tuple[str, str, bool], int] = {}
         self._connection_recovery: set[tuple[str, str, bool]] = set()
-        self._uncertain_requests: dict[tuple[str, str, bool], AIConnectionError] = {}
+        self._uncertain_requests: dict[tuple[str, str, bool], AIError] = {}
         self._gate = threading.Condition()
         self._adapter_lock = threading.Lock()
         # Remember a definite capability refusal for this search only. A later search
@@ -256,6 +257,25 @@ class AIClient:
                 if usage is None and isinstance(exc, (AIUnavailable, AIOutputTruncated)):
                     unsent = isinstance(exc, AIConnectionError) and exc.request_sent is False
                     usage = Usage(unreported_requests=0 if unsent else 1)
+                guard = None
+                if (research and isinstance(exc, (AIUnavailable, AIRateLimited))
+                        and usage is not None and usage.web_searches > 0
+                        and usage.unreported_requests
+                        and not (isinstance(exc, AIConnectionError)
+                                 and exc.request_sent is True)):
+                    # A tool ran before a service/rate failure. Repeating it may buy the
+                    # same research again, while its missing bill defeats the local cap.
+                    guard = AIUsageUncertain(
+                        "Online research failed after using search tools, without complete "
+                        "usage. Jobcu kept completed work and stopped automatic research on "
+                        "this path. Check service and billing before explicitly retrying "
+                        "incomplete checks.", exc.detail)
+                    guard.usage = usage
+                    with self._gate:
+                        first = endpoint not in self._uncertain_requests
+                        self._uncertain_requests[endpoint] = guard
+                    if first:
+                        self.notify(guard.message)
                 if usage is not None:
                     self._record(step, provider, model, usage)
                     if research:
@@ -269,6 +289,9 @@ class AIClient:
                         # Discovery/ad checks can retain partial results after an account
                         # refusal. Surface its reason even when their caller catches it.
                         self.notify(exc.message)
+                if guard is not None:
+                    outcome = type(guard).__name__
+                    raise guard from exc
                 raise
             except BaseException as exc:
                 outcome = type(exc).__name__

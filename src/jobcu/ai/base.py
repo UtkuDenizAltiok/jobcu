@@ -109,6 +109,10 @@ class AIUnavailable(AIError):
     retryable = True
 
 
+class AIUsageUncertain(AIError):
+    """Observed paid research failed without enough usage to safely repeat it."""
+
+
 class AIConnectionError(AIUnavailable):
     """The connection failed, without a provider billing or service-status response."""
 
