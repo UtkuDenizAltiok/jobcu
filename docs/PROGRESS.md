@@ -191,7 +191,7 @@ passed Mac/Windows/privacy CI `39168267567`; merge `e3d49a4` passed exact-main C
 over longer secondary copies; incomplete/empty originals still yield to complete evidence.
 
 PR #159 head `4d02448` passed exact Mac/Windows/privacy CI `39172214147`, then merged as
-`1478fa2`. Its exact-main CI `39172539288` is pending; do not infer it from the PR pass.
+`1478fa2`. Exact-main CI `39172539288` passed all three checks.
 All 2,240 local offline tests pass. Research failures with observed tools and incomplete usage
 now stop automatic repetition on that research path, retaining one lower-bound receipt.
 
@@ -292,9 +292,10 @@ without evidence and authority relevant to the active task:
 
 ### Waiting on the owner
 
-No account change, new search or provider/model switch is pending. All bounded development
-verification packets are closed; receipts and specific unresolved evidence are in the private
-checkpoint. Preserve existing local/provider limits. A local estimate is not an invoice or
+No owner response is required during the integrated review. Its current bounded allowance
+is recorded above and in the private shared ledger; older verification packets remain closed
+and must not be replayed. No account change, new job search or provider/model switch is pending.
+Preserve existing local/provider limits. A local estimate is not an invoice or
 provider cap. Service restoration does not retroactively complete missing search checks.
 A fresh chat follows [Start](PROMPTS.md#start-a-session) and recovers In progress before new work.
 
