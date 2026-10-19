@@ -258,6 +258,16 @@ projection, with the original source address retained. Selecting rows does not e
 their geographic units cover a whole city, or that omitted columns are irrelevant; both belong
 in the source/scope review. Existing HTML/PDF references and unselected CSVs keep their path.
 
+`must_cite_for_towns` records sources a review found indispensable for a particular condition's
+comparison. An unavailable required source, or a missing required city identifier, prevents
+buying that city's supplied-reference comparison; other cities remain available. Each city's
+prompt names its required source IDs. A known answer must cite exact current text from every
+dependency, with city-specific identity in each required city source. A geography/context
+citation cannot stand in for an omitted measurement, nor can another city's row borrow identity
+from a separate source. Country context can be a dependency without claiming city scope.
+This opt-in dependency review complements quotation checks; it does not prove the semantic
+correctness of figures or category reasoning. Unsupported findings remain unknown.
+
 Answers require unique city IDs, explanations and exact supporting quotes. Country-only
 evidence cannot establish a city fact; shared-table evidence must name the requested city or
 a reviewed alias. When a source supplies a reviewed geographic label/code, the page must
@@ -267,8 +277,16 @@ comparisons retain their specific unchecked explanation without becoming accepte
 Preserve complete table headers and all rows needed for the whole city;
 constituencies and counties are not interchangeable with cities. Comparisons require the same
 event, geographic unit and category, or rigorous conservative bounds. Every unclassified
-named member must remain in those bounds as well as the Other row; overlapping intervals
-cannot prove the requested comparison. Quote validation proves
+named member must remain in those bounds as well as the Other row. Shared members must have
+the same category membership in both units. `ai/instructions.py` supplies this rule to fresh
+reference comparisons and hosted research: bound the city-minus-national difference jointly
+instead of combining incompatible separate extrema. Unknown members' positive differences
+raise its maximum; negative differences lower its minimum. Apply the requested operator and
+strict/inclusive boundary. For an at-or-below request, a maximum at zero qualifies, a minimum
+above zero contradicts it, and a remaining overlap stays unknown. Distinct independent
+candidates cannot be merged into one member. Separate share intervals can overlap while the
+joint difference proves the comparison; this does not resolve missing geographic data or
+invent category assignments. Quote validation proves
 provenance, not the correctness of the model's interpretation. Source selection and live
 semantic verification remain necessary. Population rules, candidate coverage, journey
 admission and fresh job scoring are unchanged. Whole-city comparisons receive 20,000 answer

@@ -20,6 +20,7 @@ from pypdf import PdfReader
 from pypdf.errors import PdfReadError
 
 from jobcu.ai.base import AIError
+from jobcu.ai.instructions import CATEGORY_COMPARISON
 from jobcu.location import ReferenceCheck, Source
 from jobcu.settings import EvidenceCSV, PlaceEvidencePage
 from jobcu.sources.http import Blocked, PoliteClient, RobotsRules
@@ -45,12 +46,17 @@ bounds covering every possible member. State the figures, definitions, dates and
 never present a bound as an exact percentage or estimate missing facts.
 An explicitly named but unclassified member remains possible too: an 'Other' row alone does
 not cover all unclassified members. Do not silently treat named, unclassified members as
-outside the category. An overlapping lower/upper comparison stays unknown.
+outside the category.
+""" + CATEGORY_COMPARISON + """\
 Return one ID per city, meets true/false/null, a concise explanation, and supporting exact
 quotes with the supplied source IDs. A pass establishes the whole condition; a fail needs a
 documented contradiction. Each known answer needs city-specific evidence as well as every
 other source needed for the comparison. A quote that supports only the country's figure
 cannot establish the city's figure. Do not invent a source, quote, city or missing figure.
+Each city lists required source IDs when a review identified indispensable evidence. Cite
+supporting exact words/figures from every required source before giving a known answer.
+Each quote must be one contiguous passage from its source. Use separate quotes for separate
+table rows; never join, reorder or rewrite rows inside a quote.
 """
 
 
@@ -174,13 +180,15 @@ def check(client, text: str, checks: list[ReferenceCheck], *, http=None) -> list
                    for start in range(0, len(cities), BATCH_SIZE)]
         for batch in batches:
             pages = [p for p in selected if p.country == batch[0].country
-                     and (not p.towns or any(c.name in p.towns for c in batch))]
+                     and (not p.towns or any(c.name in p.towns
+                                            or c.name in p.must_cite_for_towns for c in batch))]
             if len(pages) > MAX_SOURCES:
                 for check in batch:
                     check.evidence = ("This country's selected references exceed the page limit "
                                       "for one comparison. Other countries remain available.")
                 continue
             country_pages = {}
+            missing_required = set()
             for page in pages:
                 client.checkpoint()
                 selected_pages = list(dict.fromkeys([*page.pages, *(p for c in batch
@@ -192,11 +200,17 @@ def check(client, text: str, checks: list[ReferenceCheck], *, http=None) -> list
                     content = None
                 if content:
                     country_pages[f"S{len(country_pages)}"] = (scoped, content)
-            covered = [c for c in batch if any(
+                missing_required.update(name for name in page.must_cite_for_towns
+                                        if not content or (page.towns
+                                        and not _has_scope(scoped, name, content)))
+            covered = [c for c in batch if c.name not in missing_required and any(
                 c.country == p.country and _has_scope(p, c.name, data)
                 for p, data in country_pages.values())]
             for check in batch:
-                if check not in covered:
+                if check.name in missing_required:
+                    check.evidence = ("A required current reference could not be read. No source "
+                                      "comparison was bought for this city.")
+                elif check not in covered:
                     check.evidence = ("Selected references did not contain this city's reviewed "
                                       "geographic unit. No source comparison was bought for it.")
             batch = covered
@@ -207,6 +221,9 @@ def check(client, text: str, checks: list[ReferenceCheck], *, http=None) -> list
                      + json.dumps({sid: p.required_labels_by_town[c.name]
                                    for sid, (p, _) in country_pages.items()
                                    if c.name in p.required_labels_by_town})
+                     + " | required source IDs: " + json.dumps([
+                         sid for sid, (p, _) in country_pages.items()
+                         if c.name in p.must_cite_for_towns])
                      for i, c in enumerate(batch)]
             prompt = f"Condition: {text}\nCities:\n" + "\n".join(lines) + "\nPages:\n"
             prompt += "\n\n".join(f"{sid} | {p.title} | {p.url}\n{content}"
@@ -246,7 +263,14 @@ def _apply(checks, answer, pages):
                               if row.explanation.strip() else
                               "The supplied references did not establish this city's condition.")
             continue
-        cited, local = [], False
+        required_ids = {sid for sid, (page, _) in pages.items()
+                        if check.name in page.must_cite_for_towns}
+        if required_ids - {quote.source_id for quote in row.quotes}:
+            check.evidence = ("The comparison could not be verified: a required current "
+                              "reference was not cited. Geography or context alone cannot "
+                              "replace the evidence needed for this condition.")
+            continue
+        cited, local, dependencies = [], False, set()
         valid = bool(row.explanation.strip() and row.quotes)
         for quote in row.quotes:
             found = pages.get(quote.source_id)
@@ -257,15 +281,19 @@ def _apply(checks, answer, pages):
             if page.country != check.country:
                 valid = False
                 break
-            required = page.required_labels_by_town.get(check.name)
-            names = [required] if required else [
+            label = page.required_labels_by_town.get(check.name)
+            names = [label] if label else [
                 check.name, *page.aliases_by_town.get(check.name, [])]
             named = any(re.search(r"(?<!\w)" + re.escape(normalise(name)) + r"(?!\w)",
                                   normalise(quote.words)) for name in names)
             # A shared table's quote for a different city cannot establish this one.
-            local |= check.name in page.towns and (named or len(page.towns) == 1 and not required)
+            city_quote = (check.name in page.towns
+                          and (named or len(page.towns) == 1 and not label))
+            local |= city_quote
+            if not page.towns or city_quote:
+                dependencies.add(quote.source_id)
             cited.append(Source(url=page.url, title=page.title))
-        if valid and local:
+        if valid and local and required_ids <= dependencies:
             check.meets = row.meets
             check.evidence = row.explanation + "\n" + json.dumps(
                 [q.model_dump() for q in row.quotes], ensure_ascii=False)

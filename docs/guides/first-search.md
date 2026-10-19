@@ -464,6 +464,8 @@ Read warnings on a job before making a decision:
   When reviewed official tables are available, Jobcu can read the relevant complete rows
   before buying another web research request. It still checks current source text and needs
   evidence for the whole requested city; selecting a table does not prove that city qualifies.
+  A reviewed comparison also needs citations to each required source, including the deciding
+  city data. A boundary description alone cannot establish a separate measurement about it.
 - Jobs under **Posting date unknown** may be older than your chosen posting window.
   **First seen by Jobcu** is when Jobcu first found a job, not necessarily when it was posted.
   Check the original posting date and application deadline where available.

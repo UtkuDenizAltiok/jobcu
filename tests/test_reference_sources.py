@@ -395,3 +395,94 @@ def test_csv_projection_preserves_network_and_context_bounds_without_partial_evi
             client, checks = Client([selected_csv_page()]), [city()]
             reference_sources.check(client, "Weekend service", checks, http=HTTP(body))
             assert not client.calls and checks[0].meets is None
+
+
+@pytest.mark.parametrize("condition", ["Circuit-training capacity", "Weekend nursing capacity",
+                                       "Bilingual teaching capacity"])
+@pytest.mark.parametrize("meets", [True, False])
+def test_geography_citation_cannot_replace_a_required_city_measurement(condition, meets):
+    pages = [page(),
+             page(url="https://city.example.test/counts", must_cite_for_towns=["Springford"])]
+    client = Client(pages, [reply(meets=meets)], fact=condition)
+    checks = [city()]
+    reference_sources.check(client, condition, checks, http=HTTP())
+    assert checks[0].meets is None and not checks[0].sources
+    assert "required" in checks[0].evidence.lower()
+
+
+def test_unavailable_required_reference_does_not_buy_an_unsupported_comparison():
+    class MissingTable(HTTP):
+        def get(self, url, **options):
+            if url.endswith("/counts"):
+                return httpx.Response(403, text="Unavailable")
+            return super().get(url, **options)
+
+    pages = [page(), page(url="https://city.example.test/counts",
+                          must_cite_for_towns=["Springford"])]
+    client, checks = Client(pages), [city()]
+    reference_sources.check(client, "Weekend service", checks, http=MissingTable())
+    assert checks[0].meets is None and not client.calls
+    assert "required" in checks[0].evidence.lower()
+
+
+def test_a_required_table_quote_for_another_city_cannot_borrow_geography_from_context():
+    source = page(url="https://city.example.test/counts", towns=["Springford", "Otherford"],
+                  must_cite_for_towns=["Springford"],
+                  required_labels_by_town={"Springford": "F101 Springford"})
+    words = "F101 Springford: 14 staff.\nF102 Otherford: 99 staff."
+    client = Client([page(), source], [reply(quotes=[
+        reference_sources.Quote(source_id="S0", words=FACT),
+        reference_sources.Quote(source_id="S1", words="F102 Otherford: 99 staff.")])])
+    checks = [city()]
+    reference_sources.check(client, "Weekend service", checks, http=HTTP(words + "\n" + FACT))
+    assert checks[0].meets is None and not checks[0].sources
+
+
+@pytest.mark.parametrize("meets", [True, False])
+def test_all_current_required_city_and_country_quotes_admit_the_supported_result(meets):
+    pages = [page(required_labels_by_town={"Springford": "F101 Springford"},
+                  must_cite_for_towns=["Springford"]),
+             page(url=NATIONAL_URL, towns=[], must_cite_for_towns=["Springford"])]
+    words = "F101 Springford: 14 staff.\nNational comparison threshold: 10 staff."
+    client = Client(pages, [reply(meets=meets, quotes=[
+        reference_sources.Quote(source_id="S0", words="F101 Springford: 14 staff."),
+        reference_sources.Quote(source_id="S1",
+                                words="National comparison threshold: 10 staff.")])])
+    checks = [city()]
+    reference_sources.check(client, "Weekend service", checks, http=HTTP(words))
+    assert checks[0].meets is meets and checks[0].checked_at and len(checks[0].sources) == 2
+    assert 'required source IDs: ["S0", "S1"]' in client.calls[0]["prompt"]
+
+
+def test_missing_required_city_label_is_rejected_before_a_paid_comparison():
+    pages = [page(), page(url="https://city.example.test/counts",
+                          must_cite_for_towns=["Springford"],
+                          required_labels_by_town={"Springford": "F101 Springford"})]
+    client, checks = Client(pages), [city()]
+    reference_sources.check(client, "Weekend service", checks, http=HTTP(FACT))
+    assert checks[0].meets is None and not client.calls
+
+
+def test_a_missing_dependency_keeps_an_independent_city_available():
+    class MissingTable(HTTP):
+        def get(self, url, **options):
+            if url.endswith("/counts"):
+                return httpx.Response(403, text="Unavailable")
+            return super().get(url, **options)
+
+    quote = "Otherford: " + FACT
+    pages = [page(towns=["Springford", "Otherford"]),
+             page(url="https://city.example.test/counts", must_cite_for_towns=["Springford"])]
+    client = Client(pages, [reply(quotes=[reference_sources.Quote(source_id="S0", words=quote)])])
+    checks = [city(), city(name="Otherford")]
+    reference_sources.check(client, "Weekend service", checks, http=MissingTable(quote))
+    assert [c.meets for c in checks] == [None, True]
+    assert len(client.calls) == 1 and "C0 | Otherford" in client.calls[0]["prompt"]
+
+
+def test_conflicting_required_city_scope_cannot_silently_drop_the_dependency():
+    pages = [page(), page(url="https://city.example.test/counts", towns=["Otherford"],
+                          must_cite_for_towns=["Springford"])]
+    client, checks = Client(pages), [city()]
+    reference_sources.check(client, "Weekend service", checks, http=HTTP(FACT))
+    assert checks[0].meets is None and not client.calls
