@@ -1,5 +1,7 @@
 """Current fictional sources support bounded reference checks across user conditions."""
 
+import csv
+import io
 from types import SimpleNamespace
 
 import httpx
@@ -279,3 +281,117 @@ def test_overloaded_country_batch_keeps_an_independent_country_available():
     reference_sources.check(client, "Weekend service", checks, http=HTTP())
     assert [c.meets for c in checks] == [None, True] and len(client.calls) == 1
     assert "page limit" in checks[0].evidence
+
+
+def csv_text(rows, *, delimiter=","):
+    output = io.StringIO(newline="")
+    csv.writer(output, delimiter=delimiter, lineterminator="\n").writerows(rows)
+    return output.getvalue()
+
+
+def selected_csv_page(**extra):
+    selection = {"columns": ["City", "Date", "Service", "Count"],
+                 "equals": {"City": ["Springford"], "Date": ["2030-01-02"]}}
+    selection.update(extra)
+    return page(csv_selection=selection,
+                required_labels_by_town={"Springford": "Springford"})
+
+
+@pytest.mark.parametrize("condition", ["Circuit-training service", "Weekend nursing service",
+                                       "Bilingual teaching service"])
+def test_complete_large_csv_preserves_all_reviewed_rows_within_existing_input_budget(condition):
+    rows = [["City", "Date", "Service", "Count", "Unneeded metadata"]]
+    rows.extend([["Otherford", "2030-01-02", "Unavailable", "0", "x" * 600]
+                 for _ in range(1000)])
+    rows.extend([["Springford", "2030-01-02", "Staffed", "14", "x" * 600],
+                 ["Springford", "2030-01-02", "Night", "0", "x" * 600]])
+    body = csv_text(rows)
+    assert reference_sources.MAX_CONTEXT_CHARS < len(body) < reference_sources.MAX_DOCUMENT_BYTES
+    quote = "Springford,2030-01-02,Staffed,14"
+    client = Client([selected_csv_page()], [reply(quotes=[reference_sources.Quote(
+        source_id="S0", words=quote)])], fact=condition)
+    checks = [city()]
+    sources = reference_sources.check(client, condition, checks, http=HTTP(body))
+    assert checks[0].meets is True and sources[0].url == CITY_URL
+    assert len(client.calls) == 1 and len(client.calls[0]["prompt"]) < 2000
+    assert "City,Date,Service,Count\n" in client.calls[0]["prompt"]
+    assert "Springford,2030-01-02,Night,0" in client.calls[0]["prompt"]
+    assert "Otherford" not in client.calls[0]["prompt"]
+    assert "Unneeded metadata" not in client.calls[0]["prompt"]
+
+
+def test_csv_scope_is_exact_fresh_and_cannot_reuse_an_old_city_quotation():
+    header = ["City", "Date", "Service", "Count"]
+    first = csv_text([header, ["Springford", "2030-01-02", "Staffed", "14"],
+                      ["Springford County", "2030-01-02", "Staffed", "99"],
+                      ["Springford", "2029-01-02", "Staffed", "98"]])
+    quote = "Springford,2030-01-02,Staffed,14"
+    client = Client([selected_csv_page()], [reply(quotes=[reference_sources.Quote(
+        source_id="S0", words=quote)])])
+    original = [city()]
+    reference_sources.check(client, "Weekend service", original, http=HTTP(first))
+    assert original[0].meets is True
+    assert "County" not in client.calls[0]["prompt"]
+    assert "2029-01-02" not in client.calls[0]["prompt"]
+    changed = [city()]
+    reference_sources.check(client, "Weekend service", changed, http=HTTP(csv_text(
+        [header, ["Springford", "2030-01-02", "Closed", "0"]])))
+    assert changed[0].meets is None and len(client.calls) == 2
+    absent = [city()]
+    reference_sources.check(client, "Weekend service", absent, http=HTTP(csv_text(
+        [header, ["Springford County", "2030-01-02", "Staffed", "99"]])))
+    assert absent[0].meets is None and len(client.calls) == 2
+
+
+@pytest.mark.parametrize("delimiter", [",", ";", "\t"])
+def test_csv_preserves_bom_quoted_delimiters_newlines_zeroes_and_all_allowed_values(delimiter):
+    rows = [["City", "Date", "Service", "Count", "Ignored"],
+            ["Springford", "2030-01-02", 'Night, day; and\tweekend\n"staffed"', "0", "noise"],
+            ["Springford", "2030-01-03", "Later", "2", "noise"]]
+    body = "\ufeff" + csv_text(rows, delimiter=delimiter)
+    source = selected_csv_page(delimiter=delimiter,
+                              equals={"Date": ["2030-01-02", "2030-01-03"]})
+    content = reference_sources._read(HTTP(body), source, {})
+    parsed = list(csv.reader(io.StringIO(content, newline=""), delimiter=delimiter))
+    assert parsed == [row[:4] for row in rows]
+
+
+@pytest.mark.parametrize("body", [
+    "", "City,Date,Service,Count\n",  # a header is not evidence that a count is zero
+    "City,Date,Service,Service,Count\nSpringford,2030-01-02,Staffed,Staffed,14\n",
+    "City,Date,Service\nSpringford,2030-01-02,Staffed\n",
+    "City,Date,Service,Count\nSpringford,2030-01-02,Staffed,14\nOtherford,2030-01-02\n",
+    'City,Date,Service,Count\nSpringford,2030-01-02,"Staffed,14\n',
+    "City,Date,Service,Count\nSPRINGFORD,2030-01-02,Staffed,14\n",
+    "City,Date,Service,Count\n Springford,2030-01-02,Staffed,14\n",
+    "<html>Login or download temporarily unavailable</html>",
+    "%PDF fictional table",  # CSV selection must never fall back to a different reader
+])
+def test_invalid_incomplete_or_nonmatching_csv_buys_no_comparison(body):
+    client, checks = Client([selected_csv_page()]), [city()]
+    reference_sources.check(client, "Weekend service", checks, http=HTTP(body))
+    assert not client.calls and checks[0].meets is None and not checks[0].sources
+
+
+def test_csv_unknown_filter_column_and_dropped_geographic_label_cannot_pass():
+    body = "City,Date,Service,Count\nSpringford,2030-01-02,Staffed,14\n"
+    pages = [selected_csv_page(equals={"District": ["Springford"]}),
+             selected_csv_page(columns=["Date", "Service", "Count"])]
+    for source in pages:
+        client, checks = Client([source]), [city()]
+        reference_sources.check(client, "Weekend service", checks, http=HTTP(body))
+        assert not client.calls and checks[0].meets is None
+
+
+def test_csv_projection_preserves_network_and_context_bounds_without_partial_evidence(monkeypatch):
+    body = "City,Date,Service,Count\nSpringford,2030-01-02,Staffed,14\n"
+    for http in (HTTP(body, robots="User-agent: *\nDisallow: /"), HTTP(body, status=302)):
+        client = Client([selected_csv_page()])
+        reference_sources.check(client, "Weekend service", [city()], http=http)
+        assert not client.calls
+    for limit, value in [("MAX_DOCUMENT_BYTES", 25), ("MAX_CONTEXT_CHARS", 25)]:
+        with monkeypatch.context() as patch:
+            patch.setattr(reference_sources, limit, value)
+            client, checks = Client([selected_csv_page()]), [city()]
+            reference_sources.check(client, "Weekend service", checks, http=HTTP(body))
+            assert not client.calls and checks[0].meets is None

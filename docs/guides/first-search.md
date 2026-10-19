@@ -461,6 +461,9 @@ Read warnings on a job before making a decision:
   partial findings. A new search researches these facts afresh; unchanged box readings can
   still be reused. Individual findings and their cited excerpts stay with your saved result;
   full background research answers are not kept as a hidden cache.
+  When reviewed official tables are available, Jobcu can read the relevant complete rows
+  before buying another web research request. It still checks current source text and needs
+  evidence for the whole requested city; selecting a table does not prove that city qualifies.
 - Jobs under **Posting date unknown** may be older than your chosen posting window.
   **First seen by Jobcu** is when Jobcu first found a job, not necessarily when it was posted.
   Check the original posting date and application deadline where available.

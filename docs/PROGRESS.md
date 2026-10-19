@@ -165,7 +165,7 @@ location evidence/admission, scoring, explanations, connection recovery and spee
 recall, medium effort, data, marks, history, licensing and all existing service/monthly limits.
 Choose and prepare a justified cheaper provider without claiming unmeasured equivalence.
 
-Branch: `codex/api-source-assessment`, base `cecf409`. The previous JSearch step and its
+Branch: `codex/reference-csv-scope`, base `eda1c6e`. The previous JSearch step and its
 exact-main Mac/Windows/privacy CI `39159332622` are complete. No unexplained local work.
 One same-chat heartbeat continues this authorised scope; no separate chat or project task.
 Across all continuations together, ceilings are EUR1.20 total estimated paid API usage,
@@ -200,11 +200,18 @@ PR #160 head `10582c0` passed exact Mac/Windows/privacy CI `39172881920`, then m
 Responses research now sends the documented tool ceiling and rejects unfinished/refused
 answers; native/custom structured errors retain receipts, including truncation repairs.
 
-The current documentation step records the dated market refresh, readable provider terms and
-independent official reference-data leads. No paired provider quality result or new city verdict
-is established. Exact next action: document/privacy/whitespace/diff checks, publish through
-exact-head CI and a merge commit. Then continue
-the same integrated goal with private source evidence. The private checkpoint names the final
+PR #161 records the dated market refresh, readable provider terms and independent official
+reference-data leads. Exact PR head `6f3b2f3` passed CI `39173723994` and merged as `eda1c6e`;
+exact-main CI `39189394698` passed all three checks. No paired provider
+quality result or new city verdict is established.
+
+The current step repairs complete CSV reference tables being discarded by the AI input bound.
+Explicit reviewed row/column selection keeps every matching row, validates the whole table
+and preserves existing download/context/geographic/quote limits. Four regressions first
+reproduced the failure; all **2,289 offline tests** now pass, including invalid/freshness and
+fictional engineering/nursing/teaching cases. Ruff/privacy/whitespace and the complete diff
+review pass. Exact next action: publish, require exact-head Mac/Windows/privacy CI, merge
+commit, sync main and verify its exact-head CI. The private checkpoint names the final
 municipal table, unresolved classification and independent permitted UK data route. Recheck
 access/geography and validate counts before adopting facts; do not bypass a blocked download
 or treat constituency totals as city totals. Preserve the shared budget and current medium
