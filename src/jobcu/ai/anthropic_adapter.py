@@ -15,6 +15,7 @@ from jobcu.ai.base import (
     AIAuthError,
     AIBadRequest,
     AIError,
+    AIInvalidOutput,
     AIModelNotFound,
     AIOutputTruncated,
     AIQuotaExhausted,
@@ -77,12 +78,9 @@ class AnthropicAdapter(ProviderAdapter):
         except Exception as exc:
             raise _translate(exc) from exc
 
-        if response.stop_reason == "refusal":
-            raise AIRefused(MSG_REFUSED)
-        if response.stop_reason == "max_tokens":
-            raise AIOutputTruncated(MSG_TRUNCATED)
+        usage = _check_response(response)
         text = "".join(block.text for block in response.content if block.type == "text")
-        return RawReply(text=text, usage=_usage(response.usage))
+        return RawReply(text=text, usage=usage)
 
     def research(
         self, *, model: str, system: str, prompt: str, max_searches: int, max_output_tokens: int,
@@ -103,6 +101,7 @@ class AnthropicAdapter(ProviderAdapter):
             )
         except Exception as exc:
             raise _translate(exc) from exc
+        usage = _check_response(response)
         text, sources = [], []
         for block in response.content:
             if block.type == "text":
@@ -116,7 +115,7 @@ class AnthropicAdapter(ProviderAdapter):
                     url = getattr(item, "url", None)
                     if url:
                         sources.append(Source(url, getattr(item, "title", "") or ""))
-        return ResearchReply("".join(text), unique_sources(sources), _usage(response.usage))
+        return ResearchReply("".join(text), unique_sources(sources), usage)
 
     def list_models(self) -> list[str]:
         try:
@@ -126,16 +125,40 @@ class AnthropicAdapter(ProviderAdapter):
 
 
 def _usage(usage) -> Usage:
-    cache_write = usage.cache_creation_input_tokens or 0
-    cache_read = usage.cache_read_input_tokens or 0
-    tool_use = usage.server_tool_use
+    cache_write = getattr(usage, "cache_creation_input_tokens", 0) or 0
+    cache_read = getattr(usage, "cache_read_input_tokens", 0) or 0
+    tool_use = getattr(usage, "server_tool_use", None)
+    input_tokens = getattr(usage, "input_tokens", None)
+    output_tokens = getattr(usage, "output_tokens", None)
     return Usage(
         # Anthropic reports cached and uncached input separately; Jobcu counts the total.
-        input_tokens=usage.input_tokens + cache_write + cache_read,
-        output_tokens=usage.output_tokens,
+        input_tokens=(input_tokens or 0) + cache_write + cache_read,
+        output_tokens=output_tokens or 0,
         cached_input_tokens=cache_read,
         web_searches=(tool_use.web_search_requests or 0) if tool_use else 0,
+        unreported_requests=int(input_tokens is None or output_tokens is None),
     )
+
+
+def _check_response(response) -> Usage:
+    usage = _usage(getattr(response, "usage", None))
+    reason = getattr(response, "stop_reason", None)
+    error = None
+    if reason == "refusal":
+        error = AIRefused(MSG_REFUSED)
+    elif reason == "max_tokens":
+        error = AIOutputTruncated(MSG_TRUNCATED)
+    elif reason == "model_context_window_exceeded":
+        # Raising the output allowance cannot repair an exhausted input/context window.
+        error = AIInvalidOutput("The AI provider reached its text limit before finishing.")
+    elif reason not in {"end_turn", "stop_sequence"}:
+        error = AIInvalidOutput("The AI provider has not confirmed a finished answer.")
+    elif not isinstance(getattr(response, "content", None), list):
+        error = AIInvalidOutput("The AI provider returned no supported answer content.")
+    if error is not None:
+        error.usage = usage
+        raise error
+    return usage
 
 
 def _translate(exc: Exception) -> Exception:

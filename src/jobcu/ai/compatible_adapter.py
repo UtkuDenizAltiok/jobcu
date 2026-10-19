@@ -19,6 +19,7 @@ from jobcu.ai.base import (
     MSG_REFUSED,
     MSG_TRUNCATED,
     AIBadRequest,
+    AIInvalidOutput,
     AIOutputTruncated,
     AIRefused,
     ProviderAdapter,
@@ -135,23 +136,27 @@ class CompatibleAdapter(_CustomEndpoint, ProviderAdapter):
         except Exception as exc:
             raise translate_openai_error(exc) from exc
 
+        usage = _chat_usage(response.usage)
         if not response.choices:
-            raise AIBadRequest("The AI provider sent an empty answer.")
+            error = AIInvalidOutput("The custom AI provider sent no answer to check.")
+            error.usage = usage
+            raise error
         choice = response.choices[0]
+        error = None
         if choice.finish_reason == "length":
-            raise AIOutputTruncated(MSG_TRUNCATED)
-        if choice.finish_reason == "content_filter" or getattr(choice.message, "refusal", None):
-            raise AIRefused(MSG_REFUSED)
-        usage = response.usage
-        return RawReply(
-            text=choice.message.content or "",
-            usage=Usage(
-                input_tokens=(usage.prompt_tokens or 0) if usage else 0,
-                output_tokens=(usage.completion_tokens or 0) if usage else 0,
-                cached_input_tokens=_detail(usage, "prompt_tokens_details", "cached_tokens"),
-                reasoning_tokens=_detail(usage, "completion_tokens_details", "reasoning_tokens"),
-            ),
-        )
+            error = AIOutputTruncated(MSG_TRUNCATED)
+        elif choice.finish_reason == "content_filter" or getattr(choice.message, "refusal", None):
+            error = AIRefused(MSG_REFUSED)
+        elif (choice.finish_reason != "stop" or choice.message is None
+              or getattr(choice.message, "tool_calls", None)
+              or getattr(choice.message, "function_call", None)):
+            error = AIInvalidOutput("The custom AI provider did not confirm a completed answer.")
+        elif choice.message.content is not None and not isinstance(choice.message.content, str):
+            error = AIInvalidOutput("The custom AI provider returned an unsupported answer format.")
+        if error is not None:
+            error.usage = usage
+            raise error
+        return RawReply(text=choice.message.content or "", usage=usage)
 
     def list_models(self) -> list[str]:
         return list_openai_style_models(self._client())
@@ -194,6 +199,15 @@ class CompatibleMessagesAdapter(_CustomEndpoint, AnthropicAdapter):
                     max_retries=0, timeout=self.timeout,
                 )
         return self._sdk_client
+
+
+def _chat_usage(usage) -> Usage:
+    input_tokens = getattr(usage, "prompt_tokens", None)
+    output_tokens = getattr(usage, "completion_tokens", None)
+    return Usage(input_tokens=input_tokens or 0, output_tokens=output_tokens or 0,
+                 cached_input_tokens=_detail(usage, "prompt_tokens_details", "cached_tokens"),
+                 reasoning_tokens=_detail(usage, "completion_tokens_details", "reasoning_tokens"),
+                 unreported_requests=int(input_tokens is None or output_tokens is None))
 
 
 def _detail(usage, group: str, name: str) -> int:
