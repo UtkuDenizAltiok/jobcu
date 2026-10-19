@@ -165,7 +165,7 @@ location evidence/admission, scoring, explanations, connection recovery and spee
 recall, medium effort, data, marks, history, licensing and all existing service/monthly limits.
 Choose and prepare a justified cheaper provider without claiming unmeasured equivalence.
 
-Branch: `codex/chat-usage-receipts`, base `63f3677`. The previous JSearch step and its
+Branch: `codex/jsearch-date-recovery`, base `6befbcf`. The previous JSearch step and its
 exact-main Mac/Windows/privacy CI `39159332622` are complete. No unexplained local work.
 One same-chat heartbeat continues this authorised scope; no separate chat or project task.
 Across all continuations together, ceilings are EUR1.20 total estimated paid API usage,
@@ -241,8 +241,15 @@ counts. Unconfirmed completion reasons can also admit otherwise valid JSON. Lock
 fictional regressions first reproduced 28 failures. Completed usable answers retain their
 missing-usage warning; unfinished replies keep their bills and cannot become confirmed facts.
 All **2,388 offline tests**, Ruff/privacy/whitespace, documentation checks and complete diff
-review pass. Exact next action: publish, require exact-head Mac/Windows/privacy CI, merge
-commit, sync main and verify exact-main CI. No paid calls or new provider account are needed.
+review pass. PR #165 head `e7831ac` passed exact Mac/Windows/privacy CI `39197055911` and
+merged as `6befbcf`; exact-main CI is pending and must be checked at that actual head.
+
+Current step: recover a missing JSearch publication date despite complete list text, without
+requesting details merely because its unsupported application deadline is absent. Existing
+source allowance, cache reuse, unknown-date handling and selected AI remain unchanged.
+Six fictional cases first reproduced the missed date recovery. All **2,398 offline tests**,
+Ruff/privacy/whitespace and complete diff review pass. Exact next action: publish, require
+exact-head Mac/Windows/privacy CI, merge commit, sync main and check exact-main CI. No live call.
 The private checkpoint names the final
 municipal table, unresolved classification and independent permitted UK data route. Recheck
 access/geography and validate counts before adopting facts; do not bypass a blocked download

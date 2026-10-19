@@ -150,8 +150,11 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
     remembered = 0
 
     def date_reader(copy):
-        return ((copy.posted_at is None or copy.closes_at is None)
-                and getattr(collected.sources.get(copy.source), "details_supply_dates", False))
+        source = collected.sources.get(copy.source)
+        return (((copy.posted_at is None or copy.closes_at is None)
+                 and getattr(source, "details_supply_dates", False))
+                or (copy.posted_at is None
+                    and getattr(source, "details_supply_posted_date", False)))
 
     def location_reader(copy):
         return ((not copy.country or not copy.location_text)

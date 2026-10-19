@@ -190,9 +190,12 @@ good coverage. Use the final results and their explanations to decide what fits.
 that day may overlap the window; unknown dates have their own section. A source's date is
 not independent proof of the original employer posting date. Greenhouse edit dates are not
 treated as new postings. Its existing detail read can recover the original publication and
-application deadline before scoring. If none of the matched ads provides a posting date, the
-job stays in **Posting date unknown**. Check originals for uncertain dates rather than assume
-every collected ad first appeared within exactly 24 hours.
+application deadline before scoring. JSearch can recover a missing posting date even when
+its full text is already available, within your existing source allowance. Known dates do not
+trigger extra JSearch requests just because no application deadline is supplied. If none of
+the matched ads provides a posting date, the job stays in **Posting date unknown**. Check
+originals for uncertain dates rather than assume every collected ad first appeared within
+exactly 24 hours.
 
 During the search, Jobcu may pause to ask whether to go beyond a limit you set:
 
