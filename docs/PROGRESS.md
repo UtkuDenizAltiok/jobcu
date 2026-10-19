@@ -218,9 +218,15 @@ without citing a separate reviewed source needed for the condition's deciding fi
 Explicit required-source dependencies now reject missing/mis-scoped references before a paid
 comparison and require their current city-specific quotes before accepting a finding. Nine
 regressions first reproduced omissions, borrowed geography and conflicting source scopes.
-All **2,302 offline tests** and Ruff/privacy/whitespace checks pass; the complete diff is
-reviewed. Exact next action: publish, require exact-head Mac/Windows/privacy CI, merge commit,
-sync main and verify exact-main CI. The private checkpoint names the final
+A related reasoning repair keeps each shared member's category consistent in both units and
+bounds their difference jointly; incompatible independent extrema must not create an unnecessary
+unknown. The rule preserves the condition's comparison operator and strict/inclusive boundary.
+All **2,302 offline tests**, Ruff/privacy/whitespace and complete diff review pass. Private
+semantic verification retains its remaining arithmetic/citation dependency; no unsupported
+finding is adopted. Exact next action: publish the
+final PR #163 head, require its Mac/Windows/privacy CI, merge commit, sync main and verify
+exact-main CI. Old-head CI `39191253521` passed at `767b0d7`; it does not verify the added
+shared instruction. The private checkpoint names the final
 municipal table, unresolved classification and independent permitted UK data route. Recheck
 access/geography and validate counts before adopting facts; do not bypass a blocked download
 or treat constituency totals as city totals. Preserve the shared budget and current medium

@@ -20,6 +20,7 @@ from pypdf import PdfReader
 from pypdf.errors import PdfReadError
 
 from jobcu.ai.base import AIError
+from jobcu.ai.instructions import CATEGORY_COMPARISON
 from jobcu.location import ReferenceCheck, Source
 from jobcu.settings import EvidenceCSV, PlaceEvidencePage
 from jobcu.sources.http import Blocked, PoliteClient, RobotsRules
@@ -45,7 +46,8 @@ bounds covering every possible member. State the figures, definitions, dates and
 never present a bound as an exact percentage or estimate missing facts.
 An explicitly named but unclassified member remains possible too: an 'Other' row alone does
 not cover all unclassified members. Do not silently treat named, unclassified members as
-outside the category. An overlapping lower/upper comparison stays unknown.
+outside the category.
+""" + CATEGORY_COMPARISON + """\
 Return one ID per city, meets true/false/null, a concise explanation, and supporting exact
 quotes with the supplied source IDs. A pass establishes the whole condition; a fail needs a
 documented contradiction. Each known answer needs city-specific evidence as well as every
@@ -53,6 +55,8 @@ other source needed for the comparison. A quote that supports only the country's
 cannot establish the city's figure. Do not invent a source, quote, city or missing figure.
 Each city lists required source IDs when a review identified indispensable evidence. Cite
 supporting exact words/figures from every required source before giving a known answer.
+Each quote must be one contiguous passage from its source. Use separate quotes for separate
+table rows; never join, reorder or rewrite rows inside a quote.
 """
 
 
