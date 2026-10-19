@@ -63,6 +63,11 @@ Open **Settings → AI provider** and read the message under **Test connection**
 After correcting setup, click **Test connection** again. This can use provider allowance or
 paid credit. See [Set up your keys](getting-your-keys.md) for the full setup steps.
 
+Text in a reply does not always mean the provider finished. Jobcu keeps completed work but
+does not accept an unfinished reply as completed evidence. Reported usage from cut-off or
+refused replies remains in the budget summary. A usable completed answer can still have
+missing usage; its cost estimate stays incomplete rather than being shown as a known free call.
+
 ## JSearch is off or stopped
 
 Saving its key does not enable it. Tick **Settings → Job sources → JSearch** when ready.

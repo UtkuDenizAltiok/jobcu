@@ -1456,3 +1456,17 @@ reading it automatically; retain attribution and do not redistribute complete ar
 ideological inference from an expert description must be labelled as an inference, rather than
 misquoted as an explicit binary classification. These references can address gaps in another
 dataset's coverage; a short programme summary alone does not prove every category comparison.
+
+## Completion-state contracts — 2026-10-19
+
+The [Chat completion object](https://developers.openai.com/api/reference/resources/chat)
+defines natural stops, length limits, filters and tool/function calls; usage is optional in the
+response schema. A compatible host must confirm completion rather than merely supply parseable
+JSON. Missing primary counts cannot establish a complete zero-cost receipt.
+
+Anthropic's [stop-reason guide](https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons)
+distinguishes finished turns/stop sequences, output limits, refusals, pending tools, paused
+server-tool loops and context-window exhaustion. Continuing a paused turn is an additional
+operation; Jobcu does not silently buy it or switch models. Installed-SDK fictional fixtures
+verify parsing, receipts and retained controls. They do not establish another host's tariff,
+cache premium, access rights or real matching/grounding quality.

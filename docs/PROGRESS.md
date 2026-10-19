@@ -165,7 +165,7 @@ location evidence/admission, scoring, explanations, connection recovery and spee
 recall, medium effort, data, marks, history, licensing and all existing service/monthly limits.
 Choose and prepare a justified cheaper provider without claiming unmeasured equivalence.
 
-Branch: `codex/reference-table-calculations`, base `fa6d45d`. The previous JSearch step and its
+Branch: `codex/chat-usage-receipts`, base `63f3677`. The previous JSearch step and its
 exact-main Mac/Windows/privacy CI `39159332622` are complete. No unexplained local work.
 One same-chat heartbeat continues this authorised scope; no separate chat or project task.
 Across all continuations together, ceilings are EUR1.20 total estimated paid API usage,
@@ -230,10 +230,19 @@ The current step replaces repeated AI addition of long numeric CSV tables with o
 local calculations. Original rows remain available for source-quote verification; calculated
 values have explicit provenance, every record is validated and unnamed/collective entries
 stay separate. Download/AI input budgets and selected provider/medium effort are unchanged.
-All **2,342 offline tests**, Ruff/privacy/whitespace and complete diff review pass. Exact next
-action: publish, require exact-head Mac/Windows/privacy CI, merge commit, sync main and verify
-exact-main CI. Then adopt only independently verified source selections through guarded
-private readback; no automatic score/mark changes or new search.
+All **2,342 offline tests**, Ruff/privacy/whitespace and complete diff review pass. PR #164
+head `ae5be69` passed CI `39194583216`; merge `63f3677` passed exact-main CI `39194963534`,
+all on Mac/Windows/privacy. Guarded private source-selection adoption/readback is complete;
+existing other-country references, settings, scores, marks, documents and saved results remain.
+
+The current step repairs confirmed Chat and Messages protocol accounting gaps: missing usage
+can look like a complete zero-cost receipt, and truncation/refusal replies discard available
+counts. Unconfirmed completion reasons can also admit otherwise valid JSON. Locked-SDK
+fictional regressions first reproduced 28 failures. Completed usable answers retain their
+missing-usage warning; unfinished replies keep their bills and cannot become confirmed facts.
+All **2,388 offline tests**, Ruff/privacy/whitespace, documentation checks and complete diff
+review pass. Exact next action: publish, require exact-head Mac/Windows/privacy CI, merge
+commit, sync main and verify exact-main CI. No paid calls or new provider account are needed.
 The private checkpoint names the final
 municipal table, unresolved classification and independent permitted UK data route. Recheck
 access/geography and validate counts before adopting facts; do not bypass a blocked download

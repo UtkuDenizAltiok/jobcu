@@ -232,6 +232,22 @@ answer and usage receipt, prevent other paid attempts while the recovery request
 and prove parallel work resumes. This prevents a particular source of repeated failure costs;
 it does not guarantee a live provider recovery, a lower invoice or a fixed cost per search.
 
+## Chat and Messages completion receipts — 2026-10-19
+
+Compatible Chat and native/custom Messages retain reported input/output/cache/tool counts on
+truncation, refusals and invalid completion states before raising a typed error. Missing primary
+counts remain unknown, preserving available counts rather than claiming a complete zero bill.
+A completed usable answer survives missing usage, with the existing incomplete-estimate notice.
+The bounded structured truncation repair records both attempts once and preserves medium.
+
+Unfinished tool turns, unconfirmed stop reasons and unsupported message bodies cannot become
+completed facts. Messages context-window exhaustion is terminal: increasing output room cannot
+repair that input/context limit. Completed stop sequences still pass normal schema validation.
+Research retains sources and its existing web-use ceiling; no host, model, reasoning or schema
+negotiation changes. These are response/accounting contracts, not a live provider-quality test
+or a guarantee that configured tariffs include every provider-specific fee. Dated protocol
+references are in [SOURCES](SOURCES.md#completion-state-contracts--2026-10-19).
+
 ## City evidence and connection dispatch — 2026-10-18
 
 `reference_sources.py` reads explicitly reviewed public references before hosted research.
