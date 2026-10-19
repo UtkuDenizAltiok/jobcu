@@ -114,6 +114,7 @@ class PlaceEvidencePage(BaseModel):
     pages_by_town: dict[str, list[int]] = {}  # whole table pages, not remembered place verdicts
     aliases_by_town: dict[str, list[str]] = {}  # reviewed names appearing in a shared table
     required_labels_by_town: dict[str, str] = {}  # exact reviewed geographic unit in the source
+    must_cite_for_towns: list[str] = []  # reviewed dependencies for this condition's comparison
     csv_selection: EvidenceCSV | None = None  # explicit source scope, not inferred city keywords
     permission: str  # dated source/permission review, retained privately with the selection
 

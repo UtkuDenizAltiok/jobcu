@@ -258,6 +258,16 @@ projection, with the original source address retained. Selecting rows does not e
 their geographic units cover a whole city, or that omitted columns are irrelevant; both belong
 in the source/scope review. Existing HTML/PDF references and unselected CSVs keep their path.
 
+`must_cite_for_towns` records sources a review found indispensable for a particular condition's
+comparison. An unavailable required source, or a missing required city identifier, prevents
+buying that city's supplied-reference comparison; other cities remain available. Each city's
+prompt names its required source IDs. A known answer must cite exact current text from every
+dependency, with city-specific identity in each required city source. A geography/context
+citation cannot stand in for an omitted measurement, nor can another city's row borrow identity
+from a separate source. Country context can be a dependency without claiming city scope.
+This opt-in dependency review complements quotation checks; it does not prove the semantic
+correctness of figures or category reasoning. Unsupported findings remain unknown.
+
 Answers require unique city IDs, explanations and exact supporting quotes. Country-only
 evidence cannot establish a city fact; shared-table evidence must name the requested city or
 a reviewed alias. When a source supplies a reviewed geographic label/code, the page must

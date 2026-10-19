@@ -165,7 +165,7 @@ location evidence/admission, scoring, explanations, connection recovery and spee
 recall, medium effort, data, marks, history, licensing and all existing service/monthly limits.
 Choose and prepare a justified cheaper provider without claiming unmeasured equivalence.
 
-Branch: `codex/reference-csv-scope`, base `eda1c6e`. The previous JSearch step and its
+Branch: `codex/reference-required-evidence`, base `d0b64cd`. The previous JSearch step and its
 exact-main Mac/Windows/privacy CI `39159332622` are complete. No unexplained local work.
 One same-chat heartbeat continues this authorised scope; no separate chat or project task.
 Across all continuations together, ceilings are EUR1.20 total estimated paid API usage,
@@ -205,13 +205,22 @@ reference-data leads. Exact PR head `6f3b2f3` passed CI `39173723994` and merged
 exact-main CI `39189394698` passed all three checks. No paired provider
 quality result or new city verdict is established.
 
-The current step repairs complete CSV reference tables being discarded by the AI input bound.
+PR #162 repairs complete CSV reference tables being discarded by the AI input bound.
 Explicit reviewed row/column selection keeps every matching row, validates the whole table
 and preserves existing download/context/geographic/quote limits. Four regressions first
 reproduced the failure; all **2,289 offline tests** now pass, including invalid/freshness and
 fictional engineering/nursing/teaching cases. Ruff/privacy/whitespace and the complete diff
-review pass. Exact next action: publish, require exact-head Mac/Windows/privacy CI, merge
-commit, sync main and verify its exact-head CI. The private checkpoint names the final
+review pass. Exact head `3d7dbf6` passed CI `39190075675`; merge `d0b64cd` passed exact-main
+CI `39190501803`, all on Mac/Windows/privacy.
+
+The current step closes a reference validation gap: an answer could cite a city's geography
+without citing a separate reviewed source needed for the condition's deciding figures.
+Explicit required-source dependencies now reject missing/mis-scoped references before a paid
+comparison and require their current city-specific quotes before accepting a finding. Nine
+regressions first reproduced omissions, borrowed geography and conflicting source scopes.
+All **2,302 offline tests** and Ruff/privacy/whitespace checks pass; the complete diff is
+reviewed. Exact next action: publish, require exact-head Mac/Windows/privacy CI, merge commit,
+sync main and verify exact-main CI. The private checkpoint names the final
 municipal table, unresolved classification and independent permitted UK data route. Recheck
 access/geography and validate counts before adopting facts; do not bypass a blocked download
 or treat constituency totals as city totals. Preserve the shared budget and current medium

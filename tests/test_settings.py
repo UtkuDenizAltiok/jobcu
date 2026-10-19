@@ -63,7 +63,8 @@ def test_reviewed_csv_selection_roundtrips_without_changing_legacy_references():
                   country="DE", towns=["Springford"], permission="Fictional reuse permission")
     assert PlaceEvidencePage(**legacy).csv_selection is None
     selected = PlaceEvidencePage(**legacy, csv_selection={"delimiter": ";",
-        "columns": ["Town", "Service"], "equals": {"Region": ["Fictional city"]}})
+        "columns": ["Town", "Service"], "equals": {"Region": ["Fictional city"]}},
+        must_cite_for_towns=["Springford"])
     settings = Settings(place_evidence=[PlaceEvidenceSet(fact_key="fictional", sources=[selected])])
     save_settings(settings)
     assert load_settings().place_evidence == settings.place_evidence
