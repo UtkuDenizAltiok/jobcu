@@ -5,6 +5,7 @@ from pydantic import ValidationError
 
 from jobcu.settings import (
     AISettings,
+    CSVCalculation,
     EvidenceCSV,
     PlaceEvidencePage,
     PlaceEvidenceSet,
@@ -80,6 +81,27 @@ def test_reviewed_csv_selection_roundtrips_without_changing_legacy_references():
 def test_invalid_reviewed_csv_scope_is_rejected(selection):
     with pytest.raises(ValidationError):
         EvidenceCSV.model_validate(selection)
+
+
+def test_calculation_scope_roundtrips_as_selection_metadata_without_a_saved_verdict():
+    selection = EvidenceCSV(columns=["City", "Group", "Count", "Member"], calculation={
+        "group_by": ["Group"], "sum_columns": ["Count"], "row_identity": ["Member"]})
+    assert EvidenceCSV.model_validate_json(selection.model_dump_json()) == selection
+
+
+@pytest.mark.parametrize("spec", [
+    {"group_by": [], "sum_columns": ["Count"]},
+    {"group_by": ["Group"], "sum_columns": []},
+    {"group_by": ["Group"], "sum_columns": ["Group"]},
+    {"group_by": ["Group"], "sum_columns": ["Count"], "row_identity": ["Group"]},
+    {"group_by": [" "], "sum_columns": ["Count"]},
+    {"group_by": ["Group"], "sum_columns": ["Count"], "sums": ["Count"]},
+    {"group_by": ["Group"], "sum_columns": ["Count"], "separate_values": {"Other": ["A"]}},
+    {"group_by": ["Group"], "sum_columns": ["Count"], "separate_values": {"Group": []}},
+])
+def test_invalid_or_ambiguous_calculation_metadata_is_rejected(spec):
+    with pytest.raises(ValidationError):
+        CSVCalculation.model_validate(spec)
 
 
 def test_older_settings_move_from_low_to_medium_thinking_once(temporary_data_dir):

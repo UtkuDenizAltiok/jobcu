@@ -466,6 +466,9 @@ Read warnings on a job before making a decision:
   evidence for the whole requested city; selecting a table does not prove that city qualifies.
   A reviewed comparison also needs citations to each required source, including the deciding
   city data. A boundary description alone cannot establish a separate measurement about it.
+  Where a reviewed table supports exact totals, Jobcu can add its numbers on your computer
+  before asking the AI to interpret them. These figures are labelled as local calculations
+  and keep a link to the original table. They still need the right city, date and definition.
 - Jobs under **Posting date unknown** may be older than your chosen posting window.
   **First seen by Jobcu** is when Jobcu first found a job, not necessarily when it was posted.
   Check the original posting date and application deadline where available.

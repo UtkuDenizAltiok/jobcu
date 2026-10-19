@@ -258,6 +258,24 @@ projection, with the original source address retained. Selecting rows does not e
 their geographic units cover a whole city, or that omitted columns are irrelevant; both belong
 in the source/scope review. Existing HTML/PDF references and unselected CSVs keep their path.
 
+An optional `CSVCalculation` groups explicitly reviewed columns and adds strict integer
+measures locally. Every remaining selected column must be constant, except declared row
+identity fields; a varying undeclared qualifier rejects the view. Explicit `separate_values`
+keep reviewed collective labels as separate records rather than one shared member. Missing/noninteger cells,
+malformed rows and unknown columns produce no partial result. Blank grouping values keep
+separate source-row identities even when their names repeat. The convenience unlabelled
+subtotal does not make those records one member. All rows contribute to exact group/grand
+totals and record counts. The compact view keeps constant geographic/event context in every
+row; a dropped reviewed geographic identity prevents paid comparison.
+
+The original projected rows remain available for quotation validation within the unchanged
+8 MB download bound. AI input uses the calculated view within the same per-source/combined
+400,000-character budget. `Quote.kind=calculation` validates only against current local output;
+`source` still validates against source text. Invented totals, disguised publisher quotations
+and unavailable calculation views cannot pass. Accepted calculated evidence is labelled as
+local arithmetic, with the original URL retained. This removes AI row addition without caching
+facts or choosing categories; comparable units, classification and semantic review still matter.
+
 `must_cite_for_towns` records sources a review found indispensable for a particular condition's
 comparison. An unavailable required source, or a missing required city identifier, prevents
 buying that city's supplied-reference comparison; other cities remain available. Each city's
@@ -286,7 +304,9 @@ strict/inclusive boundary. For an at-or-below request, a maximum at zero qualifi
 above zero contradicts it, and a remaining overlap stays unknown. Distinct independent
 candidates cannot be merged into one member. Separate share intervals can overlap while the
 joint difference proves the comparison; this does not resolve missing geographic data or
-invent category assignments. Quote validation proves
+invent category assignments. For a proven city subset, the national count of a shared member
+cannot be below its city count. That lower count bound can bound the difference when a fuller
+national figure is absent; it is never an invented exact national count. Quote validation proves
 provenance, not the correctness of the model's interpretation. Source selection and live
 semantic verification remain necessary. Population rules, candidate coverage, journey
 admission and fresh job scoring are unchanged. Whole-city comparisons receive 20,000 answer
@@ -1877,7 +1897,7 @@ The root keeps launchers, README, CONTRIBUTING, AGENTS, LICENSE and Python/tool 
 | Documents/profile | `documents.py`, `documents_api.py`, `profile.py`; uploads, text and cached structured profiles. |
 | Search preparation | `preparation.py`; bounded private reuse of exact-input location readings and search-word groups, excluding research, scores and journeys. |
 | Search coordination | `search.py`, `search_api.py`, `pipeline.py`, `pool.py`; progress, collection, decisions, cards and condition reapplication. |
-| Places/criteria | `countries.py`, `location.py`, `reference_places.py`, `reference_sources.py`, `places.py`, `placenames.py`, `travel.py`; supported geography, query interpretation, finite reference-city evidence and measurements. |
+| Places/criteria | `countries.py`, `location.py`, `reference_places.py`, `reference_sources.py`, `reference_tables.py`, `places.py`, `placenames.py`, `travel.py`; supported geography, query interpretation, finite reference-city evidence, exact table calculations and measurements. |
 | Discovery | `keywords.py`, `employers.py`; multilingual words and periodically discovered employers. |
 | Evidence/matching | `text.py`, `jobposting.py`, `dedupe.py`, `filters.py`, `freshness.py`, `relevance.py`, `jobplace.py`, `requirements.py`, `recheck.py`, `scoring.py`; text extraction, filtering, research, grounded requirements, saved-ad recovery and fit. |
 | Results/evaluation | `applications.py`, `vacancy_evidence.py`, `jobidentity.py`, `jobstore.py`, `quality.py`, `quality_api.py`; application routes, verified original facts, remembered jobs, saved results and independent score checks. |

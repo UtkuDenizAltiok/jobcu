@@ -12,6 +12,7 @@ import json
 import logging
 import re
 from datetime import UTC, datetime
+from typing import Literal
 from urllib.parse import urlsplit
 
 import httpx
@@ -22,6 +23,7 @@ from pypdf.errors import PdfReadError
 from jobcu.ai.base import AIError
 from jobcu.ai.instructions import CATEGORY_COMPARISON
 from jobcu.location import ReferenceCheck, Source
+from jobcu.reference_tables import calculate
 from jobcu.settings import EvidenceCSV, PlaceEvidencePage
 from jobcu.sources.http import Blocked, PoliteClient, RobotsRules
 from jobcu.text import html_to_text, normalise
@@ -57,12 +59,18 @@ Each city lists required source IDs when a review identified indispensable evide
 supporting exact words/figures from every required source before giving a known answer.
 Each quote must be one contiguous passage from its source. Use separate quotes for separate
 table rows; never join, reorder or rewrite rows inside a quote.
+Some tables are explicitly labelled local calculations from every selected source row. Use
+kind=calculation for exact passages from those views; these are not publisher quotations.
+Use kind=source only for supplied original source text. Do not invent or alter a calculated sum.
+An unlabelled_total is only a convenience subtotal; its individual rows remain distinct
+potential members, with their own category membership.
 """
 
 
 class Quote(BaseModel):
     source_id: str
     words: str
+    kind: Literal["source", "calculation"] = "source"
 
 
 class Answer(BaseModel):
@@ -156,7 +164,9 @@ def _read(http, page: PlaceEvidencePage, robots: dict) -> str | None:
     else:
         kind = response.headers.get("content-type", "").split(";", 1)[0]
         text = response.text if kind in {"text/csv", "text/plain"} else html_to_text(response.text)
-    return text if text.strip() and len(text) <= MAX_CONTEXT_CHARS else None
+    shown = (calculate(text, page.csv_selection) if page.csv_selection is not None
+             and page.csv_selection.calculation is not None else text)
+    return text if shown and shown.strip() and len(shown) <= MAX_CONTEXT_CHARS else None
 
 
 def check(client, text: str, checks: list[ReferenceCheck], *, http=None) -> list[Source]:
@@ -187,7 +197,7 @@ def check(client, text: str, checks: list[ReferenceCheck], *, http=None) -> list
                     check.evidence = ("This country's selected references exceed the page limit "
                                       "for one comparison. Other countries remain available.")
                 continue
-            country_pages = {}
+            country_pages, views, calculations = {}, {}, {}
             missing_required = set()
             for page in pages:
                 client.checkpoint()
@@ -198,14 +208,25 @@ def check(client, text: str, checks: list[ReferenceCheck], *, http=None) -> list
                     content = _read(http, scoped, robots)
                 except (httpx.HTTPError, Blocked, ValueError, OSError, PdfReadError):
                     content = None
+                computed = (calculate(content, scoped.csv_selection) if content
+                            and scoped.csv_selection is not None
+                            and scoped.csv_selection.calculation is not None else None)
+                shown = computed if scoped.csv_selection and (
+                    scoped.csv_selection.calculation is not None) else content
+                if not shown:
+                    content = None
                 if content:
-                    country_pages[f"S{len(country_pages)}"] = (scoped, content)
+                    sid = f"S{len(country_pages)}"
+                    country_pages[sid] = (scoped, content)
+                    views[sid] = shown
+                    if computed:
+                        calculations[sid] = computed
                 missing_required.update(name for name in page.must_cite_for_towns
                                         if not content or (page.towns
-                                        and not _has_scope(scoped, name, content)))
+                                        and not _has_scope(scoped, name, shown)))
             covered = [c for c in batch if c.name not in missing_required and any(
-                c.country == p.country and _has_scope(p, c.name, data)
-                for p, data in country_pages.values())]
+                c.country == p.country and _has_scope(p, c.name, views[sid])
+                for sid, (p, _) in country_pages.items())]
             for check in batch:
                 if check.name in missing_required:
                     check.evidence = ("A required current reference could not be read. No source "
@@ -214,8 +235,7 @@ def check(client, text: str, checks: list[ReferenceCheck], *, http=None) -> list
                     check.evidence = ("Selected references did not contain this city's reviewed "
                                       "geographic unit. No source comparison was bought for it.")
             batch = covered
-            if not batch or sum(len(content) for _, content in country_pages.values()) > (
-                    MAX_CONTEXT_CHARS):
+            if not batch or sum(len(view) for view in views.values()) > MAX_CONTEXT_CHARS:
                 continue
             lines = [f"C{i} | {c.name} | {c.country} | reviewed geographic labels: "
                      + json.dumps({sid: p.required_labels_by_town[c.name]
@@ -226,14 +246,18 @@ def check(client, text: str, checks: list[ReferenceCheck], *, http=None) -> list
                          if c.name in p.must_cite_for_towns])
                      for i, c in enumerate(batch)]
             prompt = f"Condition: {text}\nCities:\n" + "\n".join(lines) + "\nPages:\n"
-            prompt += "\n\n".join(f"{sid} | {p.title} | {p.url}\n{content}"
-                                    for sid, (p, content) in country_pages.items())
+            prompt += "\n\n".join(
+                f"{sid} | {p.title} | {p.url}\n"
+                + ("LOCAL CALCULATION: exact integer sums over every selected source row; "
+                   "use quote kind=calculation, not publisher wording.\n" if sid in calculations
+                   else "ORIGINAL SOURCE TEXT: use quote kind=source.\n")
+                + views[sid] for sid, (p, _) in country_pages.items())
             try:
                 answer = client.generate(Answers, step="location", system=SYSTEM, prompt=prompt,
                                          max_output_tokens=ANSWER_TOKENS)
             except AIError:
                 raise  # no hidden hosted-search retry after a failed paid comparison
-            _apply(batch, answer, country_pages)
+            _apply(batch, answer, country_pages, calculations=calculations)
             sources.extend(s for c in batch if c.meets is not None for s in c.sources)
         return list({s.url: s for s in sources}.values())
     finally:
@@ -251,7 +275,8 @@ def _has_scope(page, city, content):
     return city in page.towns and (not label or _plain(label) in _plain(content))
 
 
-def _apply(checks, answer, pages):
+def _apply(checks, answer, pages, *, calculations=None):
+    calculations = calculations or {}
     for i, check in enumerate(checks):
         rows = [r for r in answer.cities if r.id == f"C{i}"]
         if len(rows) != 1:
@@ -274,7 +299,10 @@ def _apply(checks, answer, pages):
         valid = bool(row.explanation.strip() and row.quotes)
         for quote in row.quotes:
             found = pages.get(quote.source_id)
-            if not found or not _plain(quote.words) or _plain(quote.words) not in _plain(found[1]):
+            quoted_text = (calculations.get(quote.source_id) if quote.kind == "calculation"
+                           else found[1] if found else None)
+            if (not found or not quoted_text or not _plain(quote.words)
+                    or _plain(quote.words) not in _plain(quoted_text)):
                 valid = False
                 break
             page = found[0]
@@ -295,7 +323,9 @@ def _apply(checks, answer, pages):
             cited.append(Source(url=page.url, title=page.title))
         if valid and local and required_ids <= dependencies:
             check.meets = row.meets
-            check.evidence = row.explanation + "\n" + json.dumps(
+            provenance = ("Includes exact totals calculated locally from the current source "
+                          "rows.\n" if any(q.kind == "calculation" for q in row.quotes) else "")
+            check.evidence = provenance + row.explanation + "\n" + json.dumps(
                 [q.model_dump() for q in row.quotes], ensure_ascii=False)
             check.sources = list({s.url: s for s in cited}.values())
             check.checked_at = datetime.now(UTC).isoformat()
