@@ -267,6 +267,7 @@ def plan_queries(query: JobQuery, *, offset: int = 0) -> list[Query]:
 class JSearchSource(JobSource):
     id, name, kind = "jsearch", "JSearch", "aggregator"
     details_supply_locations = True
+    details_supply_posted_date = True
 
     def __init__(self):
         self._budget: RequestBudget | None = None

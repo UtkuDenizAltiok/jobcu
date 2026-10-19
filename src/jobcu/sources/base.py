@@ -95,6 +95,8 @@ class JobSource(ABC):
     detail_cache_version = 1
     # A reader may recover publication/deadline metadata despite complete list text.
     details_supply_dates = False
+    # Readers without deadline data can request only a missing publication date.
+    details_supply_posted_date = False
     # Some list responses omit workplace fields which the same source's details can supply.
     details_supply_locations = False
     countries: frozenset[str] | None = None  # None means every supported country

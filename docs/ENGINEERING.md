@@ -90,6 +90,21 @@ loss across hardware, nursing and teaching. Existing date readers, source caps a
 checks remain in force. More complete source evidence can avoid an AI lookup; live net cost,
 coverage and original-ad completeness require the private comparison procedure.
 
+### Missing publication dates despite complete text — 2026-10-19
+
+A detail reader may declare that it supplies missing publication dates without claiming it
+supplies application deadlines. JSearch uses this narrower capability. Complete list text or
+a matched copy with a newer date must not skip its missing date: an older recovered date
+still reaches the ordinary freshness filter before scoring. A known publication date does
+not buy another detail request merely because the source has no declared deadline field.
+
+Six fictional hardware/nursing/teaching cases first reproduce the skipped recovery, including
+matched complete copies. Successful detail evidence reuses the existing cache; a successful
+reply with no date remains unknown and does not repeat inside the cache lifetime. Service
+failure, exhausted allowance and Stop retain the ad rather than inventing freshness. Existing
+source limits, detail identity/expiry and conservative earlier-date selection are unchanged.
+This establishes the recovery path, not the accuracy of a source's claimed publication date.
+
 ### Silent AI stream termination — 2026-10-19
 
 A Gemini event or content stream that reaches EOF without its required completion frame is

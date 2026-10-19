@@ -561,6 +561,69 @@ def test_complete_list_text_still_recovers_missing_workplace_metadata(setup, tit
     assert len(requests) == 2
 
 
+@pytest.mark.parametrize("title", ["Hardware Engineer", "Registered Nurse", "Primary Teacher"])
+@pytest.mark.parametrize("other_complete", [False, True])
+def test_complete_text_cannot_skip_a_missing_publication_date(setup, title, other_complete):
+    from jobcu.filters import apply_rules
+
+    old = NOW - timedelta(days=8)
+    source, ctx, requests = setup(lambda _: httpx.Response(200, json={"status": "OK",
+        "data": [item(job_title=title, job_posted_at_datetime_utc=old.isoformat())]}))
+    job = jsearch.to_found_job(item(job_title=title, job_posted_at_datetime_utc=None))
+    copies = [job]
+    if other_complete:
+        copies.append(dataclasses.replace(job, source="other", source_job_id="other-id",
+            url="https://other.example.test/vacancy", posted_at=NOW - timedelta(hours=1)))
+    groups = [JobGroup(copies)]
+    collected = pipeline.Collected(copies, [ctx.report], {"jsearch": source})
+    run = SimpleNamespace(stop_requested=False, update=lambda *a: None, note=lambda *a: None)
+    pipeline.load_full_ads(groups, [0], collected, ctx.http, ctx.keys, run)
+    assert groups[0].posted_at == old and len(requests) == 2
+    assert groups[0].best_description_copy.description == FULL
+    outcome = apply_rules(groups, [None], started_at=NOW, posted_within_hours=24,
+        job_types=["full_time"], exclude_remote=False, countries=["DE"])
+    assert outcome.kept == [] and outcome.left_out == {"too_old": 1}
+    # A repeated list missing the same field uses the successful detail receipt.
+    groups = [JobGroup([job])]
+    pipeline.load_full_ads(groups, [0], collected, ctx.http, ctx.keys, run)
+    assert groups[0].posted_at == old and len(requests) == 2
+
+
+def test_complete_known_date_does_not_buy_details_for_an_unsupported_deadline(setup):
+    source, ctx, requests = setup()
+    job = jsearch.to_found_job(item())
+    assert job.posted_at is not None and job.closes_at is None
+    collected = pipeline.Collected([job], [ctx.report], {"jsearch": source})
+    run = SimpleNamespace(stop_requested=False, update=lambda *a: None, note=lambda *a: None)
+    pipeline.load_full_ads([JobGroup([job])], [0], collected, ctx.http, ctx.keys, run)
+    assert not requests and reserved() == 0
+
+
+@pytest.mark.parametrize("reply", ["unknown", "failure", "exhausted"])
+def test_missing_date_recovery_preserves_unknown_and_respects_source_failures(setup, reply):
+    def handle(_):
+        if reply == "failure":
+            return httpx.Response(503, json={"status": "ERROR"})
+        return httpx.Response(200, json={"status": "OK",
+            "data": [item(job_posted_at_datetime_utc=None)]})
+
+    source, ctx, requests = setup(handle, account=receipt(remaining=0 if reply == "exhausted"
+                                                        else 190))
+    job = jsearch.to_found_job(item(job_posted_at_datetime_utc=None))
+    groups = [JobGroup([job])]
+    collected = pipeline.Collected([job], [ctx.report], {"jsearch": source})
+    run = SimpleNamespace(stop_requested=False, update=lambda *a: None, note=lambda *a: None)
+    pipeline.load_full_ads(groups, [0], collected, ctx.http, ctx.keys, run)
+    assert groups[0].posted_at is None
+    assert groups[0].best_description_copy.description == FULL
+    assert reserved() <= 2
+    if reply == "exhausted":
+        assert len(requests) == 1
+    elif reply == "unknown":
+        pipeline.load_full_ads(groups, [0], collected, ctx.http, ctx.keys, run)
+        assert len(requests) == 2
+
+
 def test_cached_country_fills_the_same_workplace_without_replacing_fresh_complete_text(setup):
     source, ctx, requests = setup()
     known = jsearch.to_found_job(item())
