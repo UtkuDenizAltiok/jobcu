@@ -486,3 +486,101 @@ def test_conflicting_required_city_scope_cannot_silently_drop_the_dependency():
     client, checks = Client(pages), [city()]
     reference_sources.check(client, "Weekend service", checks, http=HTTP(FACT))
     assert checks[0].meets is None and not client.calls
+
+
+def calculated_page():
+    return page(csv_selection={"columns": ["City", "Group", "Member", "Count"],
+        "calculation": {"group_by": ["Group"], "sum_columns": ["Count"],
+                        "row_identity": ["Member"]}}, must_cite_for_towns=["Springford"],
+        required_labels_by_town={"Springford": "Springford"})
+
+
+def calculation_quote(total=1000, *, kind="calculation"):
+    return reference_sources.Quote(source_id="S0", kind=kind,
+        words=csv_text([["total", "Springford", "", total, 1000, "", ""]]).rstrip())
+
+
+@pytest.mark.parametrize("condition", ["Circuit-training capacity", "Weekend nursing capacity",
+                                       "Bilingual teaching capacity"])
+def test_exact_calculation_avoids_raw_input_overload_without_losing_source_rows(condition):
+    rows = [["City", "Group", "Member", "Count"],
+            *[["Springford", "A", "x" * 600 + str(i), "1"] for i in range(1000)]]
+    body = csv_text(rows)
+    assert len(body) > reference_sources.MAX_CONTEXT_CHARS
+    client = Client([calculated_page()], [reply(quotes=[calculation_quote()])], fact=condition)
+    checks = [city()]
+    sources = reference_sources.check(client, condition, checks, http=HTTP(body))
+    assert checks[0].meets is True and sources[0].url == CITY_URL
+    assert len(client.calls[0]["prompt"]) < 3000
+    assert "LOCAL CALCULATION" in client.calls[0]["prompt"]
+    assert checks[0].evidence.startswith("Includes exact totals calculated locally")
+    assert '"kind": "calculation"' in checks[0].evidence
+
+
+@pytest.mark.parametrize("quote", [calculation_quote(999), calculation_quote(kind="source"),
+    reference_sources.Quote(source_id="S0", kind="calculation", words="Springford,A,one,1")])
+def test_invented_calculations_and_mislabelled_publisher_quotes_cannot_pass(quote):
+    body = csv_text([["City", "Group", "Member", "Count"], ["Springford", "A", "one", "1"]])
+    client, checks = Client([calculated_page()], [reply(quotes=[quote])]), [city()]
+    reference_sources.check(client, "Weekend service", checks, http=HTTP(body))
+    assert checks[0].meets is None and not checks[0].sources
+
+
+def test_current_raw_source_quotes_remain_verifiable_beside_calculations():
+    words = "Springford,A,one,1"
+    body = "City,Group,Member,Count\n" + words + "\n"
+    client = Client([calculated_page()], [reply(quotes=[reference_sources.Quote(
+        source_id="S0", words=words)])])
+    checks = [city()]
+    reference_sources.check(client, "Weekend service", checks, http=HTTP(body))
+    assert checks[0].meets is True
+    assert not checks[0].evidence.startswith("Includes exact totals calculated locally")
+
+
+@pytest.mark.parametrize("body", [
+    "City,Group,Member,Count\nSpringford,A,one,1\nOtherford,A,two,2\n",
+    "City,Group,Member,Count\nSpringford,A,one,1\nSpringford,A,two,NaN\n",
+])
+def test_ambiguous_or_invalid_calculation_buys_no_comparison(body):
+    client, checks = Client([calculated_page()]), [city()]
+    reference_sources.check(client, "Weekend service", checks, http=HTTP(body))
+    assert not client.calls and checks[0].meets is None
+
+
+@pytest.mark.parametrize("limit", ["MAX_DOCUMENT_BYTES", "MAX_CONTEXT_CHARS"])
+def test_calculated_views_keep_the_original_network_and_per_source_input_limits(monkeypatch, limit):
+    monkeypatch.setattr(reference_sources, limit, 10)
+    body = "City,Group,Member,Count\nSpringford,A,one,1\n"
+    client, checks = Client([calculated_page()]), [city()]
+    reference_sources.check(client, "Weekend service", checks, http=HTTP(body))
+    assert not client.calls and checks[0].meets is None
+
+
+def test_multiple_calculations_still_obey_the_combined_context_budget(monkeypatch):
+    first = calculated_page()
+    second = first.model_copy(update={"url": "https://second.example.test/counts"})
+    body = "City,Group,Member,Count\nSpringford,A,one,1\n"
+    view = reference_sources.calculate(body, first.csv_selection)
+    monkeypatch.setattr(reference_sources, "MAX_CONTEXT_CHARS", 2 * len(view) - 1)
+    assert reference_sources._read(HTTP(body), first, {}) == body
+    client, checks = Client([first, second]), [city()]
+    reference_sources.check(client, "Weekend service", checks, http=HTTP(body))
+    assert not client.calls and checks[0].meets is None
+
+
+def test_a_calculation_citation_is_not_available_for_an_untransformed_source():
+    client = Client([page()], [reply(quotes=[reference_sources.Quote(
+        source_id="S0", words=FACT, kind="calculation")])])
+    checks = [city()]
+    reference_sources.check(client, "Weekend service", checks, http=HTTP())
+    assert checks[0].meets is None and not checks[0].sources
+
+
+def test_calculating_a_required_source_cannot_drop_its_geographic_identity():
+    source = calculated_page()
+    source.csv_selection.calculation.row_identity.append("City")
+    # Declaring the city as an individual-row identity would hide it in named groups.
+    client, checks = Client([source]), [city()]
+    reference_sources.check(client, "Weekend service", checks,
+                            http=HTTP("City,Group,Member,Count\nSpringford,A,one,1\n"))
+    assert not client.calls and checks[0].meets is None

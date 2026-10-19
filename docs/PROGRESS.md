@@ -165,7 +165,7 @@ location evidence/admission, scoring, explanations, connection recovery and spee
 recall, medium effort, data, marks, history, licensing and all existing service/monthly limits.
 Choose and prepare a justified cheaper provider without claiming unmeasured equivalence.
 
-Branch: `codex/reference-required-evidence`, base `d0b64cd`. The previous JSearch step and its
+Branch: `codex/reference-table-calculations`, base `fa6d45d`. The previous JSearch step and its
 exact-main Mac/Windows/privacy CI `39159332622` are complete. No unexplained local work.
 One same-chat heartbeat continues this authorised scope; no separate chat or project task.
 Across all continuations together, ceilings are EUR1.20 total estimated paid API usage,
@@ -223,10 +223,18 @@ bounds their difference jointly; incompatible independent extrema must not creat
 unknown. The rule preserves the condition's comparison operator and strict/inclusive boundary.
 All **2,302 offline tests**, Ruff/privacy/whitespace and complete diff review pass. Private
 semantic verification retains its remaining arithmetic/citation dependency; no unsupported
-finding is adopted. Exact next action: publish the
-final PR #163 head, require its Mac/Windows/privacy CI, merge commit, sync main and verify
-exact-main CI. Old-head CI `39191253521` passed at `767b0d7`; it does not verify the added
-shared instruction. The private checkpoint names the final
+finding is adopted. Final PR #163 head `9d0ac5b` passed Mac/Windows/privacy CI `39192340799`
+and merged as `fa6d45d`; exact-main CI `39192707904` passed all three checks.
+
+The current step replaces repeated AI addition of long numeric CSV tables with optional exact
+local calculations. Original rows remain available for source-quote verification; calculated
+values have explicit provenance, every record is validated and unnamed/collective entries
+stay separate. Download/AI input budgets and selected provider/medium effort are unchanged.
+All **2,342 offline tests**, Ruff/privacy/whitespace and complete diff review pass. Exact next
+action: publish, require exact-head Mac/Windows/privacy CI, merge commit, sync main and verify
+exact-main CI. Then adopt only independently verified source selections through guarded
+private readback; no automatic score/mark changes or new search.
+The private checkpoint names the final
 municipal table, unresolved classification and independent permitted UK data route. Recheck
 access/geography and validate counts before adopting facts; do not bypass a blocked download
 or treat constituency totals as city totals. Preserve the shared budget and current medium

@@ -84,6 +84,26 @@ class ModelPrice(BaseModel):
     currency: str = "USD"
 
 
+class CSVCalculation(BaseModel):
+    """An explicitly reviewed integer aggregation, with raw rows retained for verification."""
+
+    model_config = {"extra": "forbid"}
+    group_by: list[str] = Field(min_length=1)
+    sum_columns: list[str] = Field(min_length=1)
+    row_identity: list[str] = []  # individual identities when any grouping value is blank
+    separate_values: dict[str, list[str]] = {}  # reviewed collective/non-entity group labels
+
+    @model_validator(mode="after")
+    def distinct_columns(self):
+        columns = [*self.group_by, *self.sum_columns, *self.row_identity]
+        if len(set(columns)) != len(columns) or any(not name.strip() for name in columns):
+            raise ValueError("Calculation columns must be distinct and nonblank")
+        if any(name not in self.group_by or not values
+               for name, values in self.separate_values.items()):
+            raise ValueError("Separate values must name a grouping column and exact labels")
+        return self
+
+
 class EvidenceCSV(BaseModel):
     """Reviewed exact rows/columns of a fresh complete public CSV, never a verdict."""
 
@@ -92,6 +112,7 @@ class EvidenceCSV(BaseModel):
     delimiter: Literal[",", ";", "\t"] = ","
     columns: list[str] = Field(min_length=1)
     equals: dict[str, list[str]] = {}  # AND across columns, OR within each exact value list
+    calculation: CSVCalculation | None = None
 
     @model_validator(mode="after")
     def valid_selection(self):
