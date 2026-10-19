@@ -4,6 +4,7 @@ Only source addresses/scopes are remembered. Pages and verdicts are fresh for th
 missing, oversized, blocked or unsupported evidence leaves normal research available.
 """
 
+import csv
 import hashlib
 import io
 import ipaddress
@@ -20,7 +21,7 @@ from pypdf.errors import PdfReadError
 
 from jobcu.ai.base import AIError
 from jobcu.location import ReferenceCheck, Source
-from jobcu.settings import PlaceEvidencePage
+from jobcu.settings import EvidenceCSV, PlaceEvidencePage
 from jobcu.sources.http import Blocked, PoliteClient, RobotsRules
 from jobcu.text import html_to_text, normalise
 
@@ -89,6 +90,34 @@ def _public(url: str) -> bool:
         return True
 
 
+def _selected_csv(body: bytes, selection: EvidenceCSV) -> str | None:
+    """Validate the whole table before admitting every exactly selected row."""
+    try:
+        reader = csv.reader(io.StringIO(body.decode("utf-8-sig"), newline=""),
+                            delimiter=selection.delimiter, strict=True)
+        header = next(reader, [])
+        if not header or len(set(header)) != len(header) or any(not h.strip() for h in header):
+            return None
+        if not set(selection.columns).union(selection.equals).issubset(header):
+            return None
+        columns = [header.index(name) for name in selection.columns]
+        filters = [(header.index(name), set(values)) for name, values in selection.equals.items()]
+        output = io.StringIO(newline="")
+        writer = csv.writer(output, delimiter=selection.delimiter, lineterminator="\n")
+        writer.writerow(selection.columns)
+        matched = 0
+        for row in reader:
+            # An invalid discarded row can hide shifted/missing evidence too.
+            if len(row) != len(header):
+                return None
+            if all(row[index] in allowed for index, allowed in filters):
+                writer.writerow([row[index] for index in columns])
+                matched += 1
+        return output.getvalue() if matched else None
+    except (csv.Error, UnicodeDecodeError):
+        return None
+
+
 def _read(http, page: PlaceEvidencePage, robots: dict) -> str | None:
     if not page.permission.strip() or not _public(page.url):
         return None
@@ -107,7 +136,11 @@ def _read(http, page: PlaceEvidencePage, robots: dict) -> str | None:
     response = http.get(page.url, follow_redirects=False)
     if response.status_code != 200 or len(response.content) > MAX_DOCUMENT_BYTES:
         return None
-    if response.content.startswith(b"%PDF"):
+    if page.csv_selection is not None:
+        text = _selected_csv(response.content, page.csv_selection)
+        if text is None:
+            return None
+    elif response.content.startswith(b"%PDF"):
         reader = PdfReader(io.BytesIO(response.content))
         pages = page.pages or list(range(1, len(reader.pages) + 1))
         if not pages or len(pages) > 100 or any(p < 1 or p > len(reader.pages) for p in pages):

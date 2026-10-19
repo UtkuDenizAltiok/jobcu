@@ -246,6 +246,18 @@ fact. The chosen model compares supplied evidence at medium effort without a hos
 tool; unresolved cities remain eligible for ordinary research. A failed paid comparison stops
 that recovery path instead of buying a second research operation.
 
+Reviewed CSV references can optionally select exact columns and row values before the
+400,000-character comparison bound. `EvidenceCSV` records the delimiter, ordered columns and
+AND filters with exact allowed values; it never infers a city from a name fragment. The whole
+fresh UTF-8 table must fit the unchanged 8 MB download bound. Duplicate/missing headers,
+malformed records (including discarded rows), missing filter columns and empty selections
+reject that reference before any paid comparison. All matching rows and selected cells,
+including zeroes and quoted multiline values, survive. An oversized projection is rejected
+whole; no first-rows truncation. Geographic labels and citations are checked against the fresh
+projection, with the original source address retained. Selecting rows does not establish that
+their geographic units cover a whole city, or that omitted columns are irrelevant; both belong
+in the source/scope review. Existing HTML/PDF references and unselected CSVs keep their path.
+
 Answers require unique city IDs, explanations and exact supporting quotes. Country-only
 evidence cannot establish a city fact; shared-table evidence must name the requested city or
 a reviewed alias. When a source supplies a reviewed geographic label/code, the page must

@@ -84,6 +84,25 @@ class ModelPrice(BaseModel):
     currency: str = "USD"
 
 
+class EvidenceCSV(BaseModel):
+    """Reviewed exact rows/columns of a fresh complete public CSV, never a verdict."""
+
+    model_config = {"extra": "forbid"}
+
+    delimiter: Literal[",", ";", "\t"] = ","
+    columns: list[str] = Field(min_length=1)
+    equals: dict[str, list[str]] = {}  # AND across columns, OR within each exact value list
+
+    @model_validator(mode="after")
+    def valid_selection(self):
+        if len(set(self.columns)) != len(self.columns) or any(
+                not name.strip() for name in self.columns):
+            raise ValueError("CSV columns must have unique nonblank names")
+        if any(not name.strip() or not values for name, values in self.equals.items()):
+            raise ValueError("CSV row filters need a named column and at least one exact value")
+        return self
+
+
 class PlaceEvidencePage(BaseModel):
     """Selected public references, not cached facts or provider answers."""
 
@@ -95,6 +114,7 @@ class PlaceEvidencePage(BaseModel):
     pages_by_town: dict[str, list[int]] = {}  # whole table pages, not remembered place verdicts
     aliases_by_town: dict[str, list[str]] = {}  # reviewed names appearing in a shared table
     required_labels_by_town: dict[str, str] = {}  # exact reviewed geographic unit in the source
+    csv_selection: EvidenceCSV | None = None  # explicit source scope, not inferred city keywords
     permission: str  # dated source/permission review, retained privately with the selection
 
 

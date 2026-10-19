@@ -1,6 +1,18 @@
 import json
 
-from jobcu.settings import AISettings, Settings, load_settings, save_settings, settings_path
+import pytest
+from pydantic import ValidationError
+
+from jobcu.settings import (
+    AISettings,
+    EvidenceCSV,
+    PlaceEvidencePage,
+    PlaceEvidenceSet,
+    Settings,
+    load_settings,
+    save_settings,
+    settings_path,
+)
 
 
 def test_defaults_when_nothing_saved():
@@ -44,6 +56,29 @@ def test_damaged_settings_file_is_set_aside():
     path.write_text("{broken", encoding="utf-8")
     assert load_settings() == Settings()
     assert path.with_name(path.name + ".damaged").exists()
+
+
+def test_reviewed_csv_selection_roundtrips_without_changing_legacy_references():
+    legacy = dict(url="https://fictional.example.test/table", title="Fictional services",
+                  country="DE", towns=["Springford"], permission="Fictional reuse permission")
+    assert PlaceEvidencePage(**legacy).csv_selection is None
+    selected = PlaceEvidencePage(**legacy, csv_selection={"delimiter": ";",
+        "columns": ["Town", "Service"], "equals": {"Region": ["Fictional city"]}})
+    settings = Settings(place_evidence=[PlaceEvidenceSet(fact_key="fictional", sources=[selected])])
+    save_settings(settings)
+    assert load_settings().place_evidence == settings.place_evidence
+
+
+@pytest.mark.parametrize("selection", [
+    {"columns": []}, {"columns": ["Town", "Town"]}, {"columns": [" "]},
+    {"columns": ["Town"], "equals": {"Region": []}},
+    {"columns": ["Town"], "equals": {" ": ["City"]}},
+    {"columns": ["Town"], "delimiter": "|"},
+    {"columns": ["Town"], "equal": {"Region": ["City"]}},
+])
+def test_invalid_reviewed_csv_scope_is_rejected(selection):
+    with pytest.raises(ValidationError):
+        EvidenceCSV.model_validate(selection)
 
 
 def test_older_settings_move_from_low_to_medium_thinking_once(temporary_data_dir):
