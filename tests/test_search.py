@@ -449,6 +449,30 @@ def test_full_search_finds_filters_scores_and_remembers(ready):
     assert again["new_count"] == 0
 
 
+def test_opt_in_capture_keeps_raw_rejected_jobs_full_ads_and_exact_run(ready):
+    from jobcu import review_capture
+
+    review_capture.arm_next_search()
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany", posted_within_hours=72))
+    result = wait_until_done(manager)
+    assert result["status"] == "finished", result["error"]
+    capture = manager.current.capture
+    events = [json.loads(line) for line in
+              (capture.folder / "events.jsonl").read_text(encoding="utf-8").splitlines()]
+    raw = next(event for event in events if event["kind"] == "collected")
+    assert "Nurse" in {job["title"] for job in raw["jobs"]}
+    decided = next(event for event in events if event["kind"] == "decided")
+    assert any(copy["description_is_complete"] for job in decided["pool"]["jobs"]
+               for copy in job["group"]["copies"])
+    assert events[-1]["kind"] == "finished"
+    assert events[-1]["snapshot"]["id"] == result["id"]
+    assert events[-1]["snapshot"]["form"]["posted_within_hours"] == 72
+    manager.start(SearchForm(location_text="Germany"))
+    assert wait_until_done(manager)["status"] == "finished"
+    assert manager.current.capture is None
+
+
 @pytest.mark.parametrize(("title", "field", "skill"), [
     ("Power Electronics Engineer", "Electronics", "Power converter design"),
     ("Registered Nurse", "Nursing", "Clinical patient care"),

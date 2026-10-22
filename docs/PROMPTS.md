@@ -40,6 +40,36 @@ Report briefly that the chat is ready, any recovered work and any blocking depen
 wait for my next task. Start is preparation and recovery, not a new improvement task.
 ```
 
+## Start the prepared provider comparison
+
+Use after the assistant's preparation/preflight is ready and you have clicked Search once.
+This captures the previous 72 hours of ads; it does not run for three days.
+
+```text
+I have just started my prepared 72-hour Jobcu baseline search. Pin this exact new run by ID,
+start time, form and provider; do not review a previous saved search or start another one.
+Follow it in this chat without scheduled chat checks or recurring automations.
+
+Privately preserve the one-run capture, candidate/rejection and full-ad evidence, progress,
+failures, retries and usage. Separate processing, actual retry waits and waits for my answers;
+account for overlapping work and label missing timing or billing evidence.
+
+When it finishes or fails, follow the full Review a search procedure. Compare the chosen
+MiMo challenger with Gemini on the same frozen evidence, including independent balanced
+judgements and separate cited research. Keep source coverage, criteria, required evidence
+and default effort. Lower token prices or a connection success are not equal-quality proof.
+
+Use only the remaining one-off allowance in the existing private shared ledger; it does not
+reset on continuation. Respect account/local limits and stop paid tests on the first service
+failure or incomplete usage. No additional broad searches or unbounded hosted experiments.
+
+Fix confirmed general causes coherently, with fictional engineering/non-engineering tests,
+exact-head Mac/Windows/privacy CI, merge commits and synchronized clean main. Keep causes
+and quality/coverage/cost limits explicit. Switch providers only if the paired quality and
+grounded-research gates pass with materially lower complete cost. Preserve my data and normal
+monthly ceiling, and restore any trial-only local adjustment afterward.
+```
+
 ## Review a search
 
 After Start, use this when a new Jobcu search has finished. The assistant reviews saved evidence

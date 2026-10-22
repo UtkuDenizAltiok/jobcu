@@ -46,6 +46,7 @@ that comparison is incomplete; do not purchase another subscription just for its
 | Anthropic | [Claude Console](https://platform.claude.com/settings/keys) |
 | Google | [Google AI Studio](https://aistudio.google.com/apikey); [key instructions](https://ai.google.dev/gemini-api/docs/api-key) |
 | OpenAI | [OpenAI API keys](https://platform.openai.com/api-keys) |
+| Xiaomi (MiMo) | [MiMo API platform](https://platform.xiaomimimo.com/) |
 | Other | Use the instructions from the service you chose. See below. |
 
 A successful connection test means Jobcu can send an ordinary AI request. It does not prove
@@ -86,7 +87,7 @@ reading and scoring. Existing one-provider setups continue to work without this 
 
 1. Open **Advanced AI settings (optional)** and find **Online research**.
 2. Choose **Online research provider**. Leave **Same as main AI** for the existing behavior.
-   A separate provider must be one of the supported native Anthropic, Google or OpenAI options.
+   A separate provider must be one of the supported native Anthropic, Google, OpenAI or Xiaomi options.
 3. Enter its exact **Online research model** and save its **Research provider API key**.
    If that provider's key is already saved, the same masked key is used. Enter it only in Jobcu.
 4. Click the main **Save** button. **Test research connection** checks that model's ordinary
@@ -98,49 +99,44 @@ reading and scoring. Existing one-provider setups continue to work without this 
 
 ### Recommended setup now
 
-**Trial recommendation checked 2026-10-22:** for an owner-requested cheaper, single-provider
-trial, evaluate **OpenAI → `gpt-6-luna`**, with **Medium** for both effort settings. Its native
-connection supports structured answers and cited online research. Leave **Interpretation model**
-empty, **Online research provider → Same as main AI**, and **Online research model** empty.
-This avoids retaining a separate research provider's charges. It is not a measured
-quality-equivalent winner or a change to Jobcu's provider-neutral defaults.
+**Checked 2026-10-22:** use direct **Xiaomi (MiMo) → `mimo-v2.6-pro`** as the first challenger,
+with the current Gemini setup as the baseline. MiMo's published token prices are lower, and
+its general reasoning/document evidence justifies testing it first. Its factual benchmark
+weaknesses mean equal Jobcu quality is **not yet established**. The earlier OpenAI trial proposal
+is superseded. See the [decision](../ENGINEERING.md#one-provider-search-trial--2026-10-22) and
+[primary evidence](../SOURCES.md#challenger-selection-recheck--2026-10-22).
 
-The assistant should compare job understanding and research before the broad trial search,
-using a finite approved budget. A **Test connection** success proves neither. Keep the existing
-working provider available; do not delete its key, documents or history. The earlier Gemini
-recommendation remains the comparison baseline, superseded as automatic advice for this
-cheaper-provider trial. The [dated decision](../ENGINEERING.md#one-provider-search-trial--2026-10-22)
-and [current evidence](../SOURCES.md#one-provider-trial-evidence--2026-10-22) explain why MiMo,
-DeepSeek and Kimi have not been adopted for this immediate run. They are not proven worse.
+1. Open the [MiMo API platform](https://platform.xiaomimimo.com/). Choose ordinary pay-as-you-go
+   API access and create a dedicated key. Complete account/payment/terms steps yourself.
+   Do not buy Token Plan, a coding subscription, or the expensive Ultraspeed model.
+2. Enable the **Web Search** plugin in that console. Review current privacy terms: necessary
+   document/search text goes to Xiaomi when used, while Jobcu's files stay on this computer.
+   Overseas processing is not a promise of local-only or zero-retention processing.
+3. Keep funding inside the agreed comparison allocation, including tax/FX; disable automatic
+   replenishment. Check actual account stopping controls. A prepaid balance, alert or Jobcu
+   estimate alone is not a guaranteed exact invoice ceiling. If the minimum purchase or
+   enforcement terms exceed the allocation, stop before paying and tell the assistant.
+4. In Jobcu **Settings**, temporarily select **Xiaomi (MiMo)** to display its API-key row. Paste
+   the key there and click the key row's **Save**. Then reselect the existing Google provider.
+   Do not click **Test connection**, change the main model, or start a search yet. A saved key
+   does not require adopting its provider; never paste it in chat.
+5. Tell the assistant the key is saved and Web Search is enabled. The assistant checks the
+   shared budget/lower limits and runs one finite preflight through Jobcu on isolated data:
+   structured output, cited research, complete usage and a small independent quality packet.
+   Stop on a service failure or uncertain bill; do not keep clicking Test or replenish blindly.
+6. After preflight passes, use **Posted within → 72 hours**, preserve your documents/criteria
+   and start **one** baseline search with the agreed provider. This means ads from the previous
+   three days, not a search running for three days. Send the
+   [comparison start prompt](../PROMPTS.md#start-the-prepared-provider-comparison).
+7. The assistant reviews the exact run and compares MiMo on the same saved evidence. No second
+   broad search is needed. Switch only after the quality/research and full-cost gates pass;
+   otherwise keep Gemini and explain the specific failed gate.
 
-To prepare the trial:
-
-1. Open the provider's [API platform](https://platform.openai.com/). Use direct pay-as-you-go
-   API access, not a coding subscription. Complete account, terms and payment steps yourself.
-2. Use a dedicated Jobcu project/key. In **Project settings → Limits → Spend → Edit spend
-   limit**, enter the agreed amount, enable **Enforce a hard limit**, and save. An alert alone
-   does not stop usage. Leave room for tax, currency conversion and enforcement delay; do not
-   set the whole personal budget as an API cap. Disable optional automatic top-ups for a finite
-   trial. If these controls or model access are unavailable, stop before searching.
-3. In Jobcu **Settings**, select **OpenAI**, paste the key only into its **API key** field and
-   save it. Enter `gpt-6-luna` as **Model** and use the settings above, then **Save**. Do not
-   paste the key in chat. Necessary document/search text will go to this provider.
-4. Before testing or searching, have the assistant check the current price table, lower local
-   monthly limits, account headroom and the approved verification reservation. Keep all price
-   entries in one currency. The published short-context Standard tariff is not an invoice;
-   cache writes, longer contexts, tools and taxes can add charges. Do not raise a limit just
-   because an earlier provider's estimate nearly reached it.
-5. After the bounded check passes, return to **Search**, preserve your existing documents and
-   criteria, select **Posted within → 72 hours**, and click **Find matching jobs** once. This
-   means ads posted during the previous three days, not a search running for three days.
-   When an assistant is monitoring, leave this exact run active and answer Jobcu's questions;
-   do not launch a replacement search for a retry warning.
-
-The monthly service budget remains an overall ceiling, not an invoice or automatic cap shared
-by unrelated providers. Maps has separate billing. Keep existing job-source/Maps connections
-unless measured benefit justifies paying for another service. OpenCode Go and other direct
-APIs remain evaluation candidates; no subscription or account change is required merely to
-prepare this trial.
+The normal monthly service budget stays in force. An expressly authorized one-off development
+allowance is tracked separately and does not recur. Existing job sources and Google Maps are
+retained; no new job-source or travel subscription is recommended without measured benefit.
+Capture is local and event-driven. There are no scheduled chat checks, repeated test calls or
+new searches started by the capture. Connection success alone cannot prove matching quality.
 
 For recurring Maps refusals:
 

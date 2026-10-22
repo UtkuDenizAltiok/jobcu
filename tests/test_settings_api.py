@@ -53,7 +53,7 @@ def test_custom_format_and_research_choice_save_without_calls_or_key_exposure(cl
     assert data["ai"]["research_model"] == "research-example"
     assert data["ai"]["scoring_effort"] == data["ai"]["reasoning_effort"] == "medium"
     assert [p["id"] for p in data["providers"] if p["can_research"]] == [
-        "anthropic", "gemini", "openai"]
+        "anthropic", "gemini", "openai", "mimo"]
     client.put("/api/settings/ai", json={"provider": "openai_compatible", "model": "another"},
                headers=HEADERS)
     assert load_settings().ai.research_provider == "gemini"

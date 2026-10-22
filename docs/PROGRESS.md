@@ -25,26 +25,22 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed history is 
   protect source provenance; comparison instructions require consistent category membership
   in both units. These paths do not make every factual comparison decidable or prove perfect
   model arithmetic.
-- Latest code verification: **2,398 offline tests pass**, plus Ruff, privacy, documentation,
-  whitespace and complete diff review.
-  [PR #166](https://github.com/UtkuDenizAltiok/jobcu/pull/166) head `dcae7ec`
-  passed Mac/Windows/privacy CI `39197633886` and merged as `8448a46`. Exact-main CI
-  `39198080455` passed all three checks at that merge. The final handover changes only this
-  document; its publication receipts are indexed privately. Verify Git/CI at their actual heads.
-- Local startup self-test and saved-settings validation pass on the final code, without a
-  provider/source request or new search. Reviewed source selections were applied through
-  guarded private backup/readback. Other settings, documents, saved results, scores, marks,
-  history, provider/model/effort, limits and proprietary licensing are preserved. No new broad job search or provider switch was made.
-- All paid verification packets are closed. Never replay their scripts or reset the shared
-  allowance on a continuation. Detailed findings, usage and publication/deployment receipts
-  remain outside Git. Disposable key/document/database scratch and temporary browser tabs
-  are removed; standing authorization remains intact.
-- The owner's new 72-hour search task is in preparation. The current code is synchronized at
-  main `4051d0e`; exact-main CI `39247382704` passed Mac, Windows and privacy. The dated
-  [trial decision](ENGINEERING.md#one-provider-search-trial--2026-10-22) selects one cheaper
-  complete-workflow candidate for evaluation, without claiming equal quality or changing the
-  saved provider. The owner subsequently stopped this task; its private observer is stopped and same-chat
-  monitor paused. No new search or paid request occurred; the proposed model was not adopted.
+- Comparison preparation adds an optional native Xiaomi (MiMo) provider, enabled thinking,
+  native sourced research and conservative usage/uncertainty stops. Direct MiMo-V2.6-Pro is
+  the selected challenger; it is not an adopted replacement or a proven quality/cost winner.
+  [Dated selection and limits](ENGINEERING.md#one-provider-search-trial--2026-10-22).
+- Explicit one-search private capture now preserves original inputs, AI attempts/receipts,
+  raw candidates, rejected jobs and enriched full ads for a fair saved-evidence comparison.
+  It is off by default, starts no searches and has no scheduled chat checks. The earlier
+  observer is stopped and the heartbeat stays paused.
+- Current local verification: **2,450 offline tests pass**, plus Ruff, privacy, documentation,
+  JavaScript syntax, whitespace, complete diff review and an isolated local startup self-test.
+  Publication and exact-head PR/main Mac/Windows/privacy receipts are indexed privately;
+  verify actual Git/CI heads on recovery, rather than infer a merge from local tests.
+- Existing owner documents, queries, results, scores, marks, history, sources, Maps, provider,
+  models, effort and limits are preserved. No new job search or paid request occurred during
+  this preparation. Earlier trial-only adjustments were restored; the normal monthly budget
+  is unchanged. All older paid packets remain closed; no allowance resets on continuation.
 
 ### Current behavior to preserve
 
@@ -59,25 +55,26 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed history is 
 
 ### In progress
 
-**None. The owner stopped new tasks and future work on 2026-10-22.**
+**Comparison software prepared; live preflight waits for owner setup.**
 
-The proposed cheaper-provider trial and next-search review are stopped pending the owner's
-clarification. Do not restart monitoring, ask for setup, run a search, spend, or resume the
-trial automatically. The private `assistant-review-checkpoint.json` indexes the stopped task
-under `assistant-reviews/2026-10-22-72h-search/checkpoint.json` and its closed ledger.
-The observer is stopped and the same-chat heartbeat is paused. Trial-only local limit/price
-changes were restored with exact readback; owner settings, keys and data are preserved.
-No provider switch, new search or paid test occurred. The published trial recommendation is
-an untested proposal, not an adopted provider or permission to proceed.
+The optional native provider, one-run evidence capture, dated choice, guide and start prompt
+are implemented and locally verified as described above. The private
+`assistant-review-checkpoint.json` indexes
+`assistant-reviews/2026-10-22-provider-comparison/checkpoint.json` and the shared one-off ledger.
+Its exact publication receipts distinguish tested, pushed and merged. If publication remains
+incomplete, finish the recorded branch/PR with exact-head Mac/Windows/privacy CI, a merge
+commit and synchronized main. Do not repeat valid checks or select unrelated backlog work.
 
-Preparation documentation merged in PR #168 at `9b9cf8f` after its final-head Mac, Windows and
-privacy checks passed. The exact-main CI receipt and any pending checks are indexed privately.
-This final stop checkpoint is saved locally for recovery; no new publication is authorized
-by the stop request. The exact next action is to wait for the owner's instructions.
+The next owner-dependent action is saving the selected direct key and confirming Web Search
+and billing controls. No paid request has occurred; do not reset the shared allowance or
+spend before access and a finite reservation are established. Preparation does not establish
+live quality, complete-cost savings or an adopted replacement.
 
-The earlier integrated task remains complete and parked. Its historical checkpoints and
-closed packets do not reopen goals or allowances. Check standing authorization/revocations
-before any future private work.
+The later paid preflight needs the owner's direct pay-as-you-go key, activated Web Search and
+budget/account headroom. The owner starts one 72-hour search only after that gate passes.
+Use the [setup sequence](guides/getting-your-keys.md#recommended-setup-now) and
+[start prompt](PROMPTS.md#start-the-prepared-provider-comparison). No recurring automation,
+extra broad search or provider switch is authorized by preparation. Preserve all owner data.
 
 ### Parked dependencies and exact next actions
 
@@ -91,12 +88,11 @@ before any future private work.
    repaired, but the exact original disconnecting component and invoice allocation remain
    unproved. Use saved run boundaries and complete receipts; later success and day-level
    charges cannot identify the original cause. Do not repeat an unchanged paid probe.
-3. **Provider replacement, prior ordering.** Direct MiMo Pro was the first comparison hypothesis;
-   the new task's dated trial decision supersedes that immediate ordering. App-use
-   rights, native reasoning/tool support, a direct key entered only in Jobcu and a bounded
-   independent paired fit/grounded-research check are adoption gates. Keep the current working
-   model and medium effort. New lower prices and general benchmarks do not establish equal
-   quality; no account, purchase or provider switch is pending.
+3. **Provider replacement.** Direct MiMo Pro is the selected first challenger after the owner's
+   clarification; the immediate OpenAI proposal is superseded. Offline native contract checks
+   pass. A saved key, Web Search access, complete paid receipts and independent paired fit/
+   grounded-research outcomes remain adoption gates. Preserve the working baseline and medium
+   defaults. General benchmarks and token rates cannot establish whole-workflow savings/parity.
 4. **Coverage and freshness claims.** A dated independent fresh-job benchmark and balanced
    full-evidence judgements are needed before claiming whole-market recall, precision or net
    savings. Targeted saved checks do not establish those outcomes. Continue only when an owner
@@ -109,9 +105,11 @@ before any future private work.
 
 ### Waiting on the owner
 
-Wait for the owner's next instruction. Do not repeat the stopped trial's setup/budget
-questions or resume its monitor, paid comparison or search. Preserve the local stop checkpoint
-and private publication receipts for a future explicitly authorized task.
+After publication, follow the linked setup sequence: create/save a direct MiMo pay-as-you-go
+key only in Jobcu, enable Web Search and report setup status, not the key. The assistant then
+checks the existing shared allowance, account and lower-limit gates before finite preflight.
+Do not start the actual search yet. No new account, payment or provider switch was made by
+the assistant. Missing access must not be mistaken for a failed quality comparison.
 
 ### Verify before relying on
 

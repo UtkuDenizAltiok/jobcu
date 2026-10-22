@@ -1723,6 +1723,9 @@ function renderAiWebHint() {
       : separateDocument
         ? ` Online research also uses ${documentModel}, where supported.`
         : " It also handles online research where supported. No second AI is needed.");
+  const notices = [...new Set([currentProvider()?.reasoning_notice, research?.reasoning_notice]
+    .filter(Boolean))];
+  if (notices.length) $("ai-setup-summary").textContent += " " + notices.join(" ");
   $("ai-web-hint").hidden = false;
   if (research) {
     $("ai-web-hint").textContent = `Online research uses your separate ${research.name} model. `
@@ -1951,6 +1954,7 @@ const PROVIDER_NAMES = {
   anthropic: "Anthropic",
   gemini: "Google",
   openai: "OpenAI",
+  mimo: "Xiaomi",
   openai_compatible: "Other",
 };
 

@@ -8,7 +8,60 @@ Detailed formats, rate limits, site quirks and past measurements live in
 [dated source research](archive/SOURCE-RESEARCH.md). Its checks span 2026-09-17 to 2026-10-06;
 follow each section's date. Add newly verified facts here with a date and primary source link.
 
+## Challenger selection recheck — 2026-10-22
+
+Choose **direct MiMo-V2.6-Pro for evaluation**, retaining Gemini as the working baseline.
+This revises the immediate OpenAI proposal below; integration convenience alone does not
+establish equal quality. No live comparison or saving has yet been measured.
+
+| Candidate | Current primary evidence and implication |
+|---|---|
+| MiMo-V2.6-Pro | [Overseas pricing](https://mimo.mi.com/docs/en-US/price/pay-as-you-go), updated October 21: USD0.435 input / 0.87 output / 0.0036 cached input per million; web/search parsing USD5/1,000 uses, independently billed. Retrieved text and multiple operations matter; Ultraspeed is a different, much dearer tariff. |
+| Gemini 3.8 Flash | [Standard pricing](https://ai.google.dev/gemini-api/docs/pricing): USD0.75/3.75 input/output through December 31, including thinking. Search has a shared 5,000-query monthly allowance, then USD14/1,000 queries. A cheaper token tariff alone cannot beat unused free grounding or establish the complete bill. |
+| MiniMax M3.1 Flash | [Official prices](https://platform.minimax.io/docs/pricing/overview): USD0.15/0.60, cached input 0.015. A credible cheaper reserve, not dismissed for a smaller name. Its [publisher comparison against Gemini Medium](https://artificialanalysis.ai/models/comparisons/minimax-m3-1-flash-vs-gemini-3-8-flash-medium) reports composite 42/40, factual score 16/29 and long-context 80/84: mixed evidence, not demonstrated equal job research. |
+| DeepSeek V4 Pro | [Official pricing](https://api-docs.deepseek.com/quick_start/pricing/) varies by time/model; cheap off-peak tokens and standalone search do not establish matching parity. [Publisher comparison](https://artificialanalysis.ai/models/comparisons/mimo-v2-6-pro-vs-deepseek-v4-pro) reports MiMo/DeepSeek composite 46/36 and factual score 8/1. Native tool accounting/integration is a separate gate. |
+| Kimi K3 | [Official pricing](https://platform.kimi.com/docs/pricing/chat) and [publisher comparison](https://artificialanalysis.ai/models/comparisons/mimo-v2-6-pro-vs-kimi-k3): K3's USD3/15 input/output is above the Gemini tariff. It beats MiMo on factual and long-context scores in that comparison, but fails the requested cheaper-standard-tariff requirement. |
+| GLM-5.3 | [Official pricing](https://docs.z.ai/guides/overview/pricing): USD1.40/4.40 input/output. [Publisher comparison](https://artificialanalysis.ai/models/comparisons/mimo-v2-6-pro-vs-glm-5-3) reports composite 46/45 for MiMo/GLM, with GLM stronger on factual questions. It also costs more per token than the baseline. |
+
+**Why this first choice, with counterevidence:** the benchmark publisher's
+[MiMo/Gemini comparison](https://artificialanalysis.ai/models/comparisons/mimo-v2-6-pro-vs-gemini-3-8-flash)
+reports composite 46/41 and long-context 86/81, but factual score **8/30** and PDF reasoning
+19/21; Gemini there uses **High**, not Jobcu's Medium. MiMo is also slower on the published
+500-token latency measure. Its reasoning margin, document context and inexpensive output
+justify the first quality-focused trial, not a blanket superiority claim. MiniMax remains a
+reasonable reserve if MiMo fails, rather than another account to buy now. These are primary
+benchmark-publisher measurements, not a Jobcu-labelled experiment or evidence of recall.
+
+**Native contract:** the [Chat reference](https://mimo.mi.com/docs/en-US/api/chat/openai-api)
+documents `/v1/chat/completions`, `max_completion_tokens` including thinking, JSON-object
+output and enabled/disabled thinking. It does not promise strict JSON Schema or a literal
+medium scale. Web-search annotations are flat source URLs/titles, not passage mappings.
+`max_keyword` limits keywords, while **`limit` limits returned results, not search rounds**.
+Usage separately reports `web_search_usage.tool_usage` and `page_usage`. Count their sum
+conservatively for local estimates; do not assert an exact invoice unit equivalence.
+The [web-search guide](https://mimo.mi.com/docs/en-US/quick-start/usage-guide/text-generation/tool-calling/web-search)
+requires activating the plugin; multiple keywords/content retrieval can cost extra. Its
+thinking-disabled sample is not Jobcu's configuration. No documented hard currency or total
+round ceiling was found. Finite paid packets need account controls/headroom, not prompt caps.
+
+**Permitted path assessment:** the rendered
+[overseas agreement](https://mimo.mi.com/docs/quick-start/terms/user-agreement), July 7, describes
+an API platform and keys for API use in sections 1.1/2.3. Sections 3.2.8–3.2.9 restrict
+unauthorized third-party tools; they do not expressly ban all non-coding API applications.
+**Engineering inference:** using the documented API, normal key and supported SDK in the
+owner's local server is the documented integration path, distinct from accessing consumer
+services through unapproved tools. This is not individual vendor approval or an unrestricted
+right to redistribute source text. Respect existing source rights; do not expose keys to page
+code or reuse consumer login sessions. Owner account/terms acceptance remains the owner's step.
+The separate [Token Plan](https://mimo.mi.com/docs/en-US/tokenplan/Token%20Plan/subscription)
+restricts non-coding/custom-backend use and is unsuitable here. Use ordinary pay-as-you-go.
+See the [key FAQ](https://mimo.mi.com/docs/en-US/quick-start/faq/api-integration).
+Overseas data processing/storage and provider retention remain distinct from local app storage.
+
 ## One-provider trial evidence — 2026-10-22
+
+**Earlier proposal, superseded by the challenger recheck above.** Its protocol facts explain
+the proposal; they do not justify retaining OpenAI as the selected challenger.
 
 Primary documentation was rechecked for a cheaper single-provider trial, not a quality verdict.
 
