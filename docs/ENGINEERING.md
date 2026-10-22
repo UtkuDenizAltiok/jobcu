@@ -9,6 +9,16 @@ Code/tests establish behavior; the latest current decision establishes intent.
 
 ## Current decisions
 
+### Running-build identity — 2026-10-22
+
+Bind the code fingerprint at module import, rather than the first health request. Otherwise,
+an already running process first checked after a checkout update hashes new disk files while
+still serving old loaded Python. The launcher can then wrongly skip replacement. Health reads
+retain the process identity; a new launcher sees the changed package and replaces the old app.
+Three fictional file-update regressions reproduce this before repair for Python, JavaScript
+and HTML, including changes before the very first health read and stable unchanged restarts.
+This fixes version detection; protect active searches when managing the app lifecycle.
+
 ### One-provider search trial — 2026-10-22
 
 **Revised after the owner's clarification:** select direct **MiMo-V2.6-Pro** as the single

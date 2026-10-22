@@ -33,7 +33,11 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed history is 
   raw candidates, rejected jobs and enriched full ads for a fair saved-evidence comparison.
   It is off by default, starts no searches and has no scheduled chat checks. The earlier
   observer is stopped and the heartbeat stays paused.
-- Current local verification: **2,450 offline tests pass**, plus Ruff, privacy, documentation,
+- Startup version detection binds the fingerprint at module import. An older loaded server
+  can no longer identify itself as a newer checkout merely because its first health request
+  arrived after files changed. Three fictional before/after regressions cover Python, JS and
+  HTML updates. [Reason](ENGINEERING.md#running-build-identity--2026-10-22).
+- Current local verification: **2,453 offline tests pass**, plus Ruff, privacy, documentation,
   JavaScript syntax, whitespace, complete diff review and an isolated local startup self-test.
   Publication and exact-head PR/main Mac/Windows/privacy receipts are indexed privately;
   verify actual Git/CI heads on recovery, rather than infer a merge from local tests.
@@ -57,8 +61,8 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed history is 
 
 **Comparison software prepared; live preflight waits for owner setup.**
 
-The optional native provider, one-run evidence capture, dated choice, guide and start prompt
-are implemented and locally verified as described above. The private
+The optional native provider, one-run evidence capture, dated choice, guide, start prompt
+and required startup version guard are implemented and locally verified as described above. The private
 `assistant-review-checkpoint.json` indexes
 `assistant-reviews/2026-10-22-provider-comparison/checkpoint.json` and the shared one-off ledger.
 Its exact publication receipts distinguish tested, pushed and merged. If publication remains
