@@ -43,8 +43,8 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed history is 
   main `4051d0e`; exact-main CI `39247382704` passed Mac, Windows and privacy. The dated
   [trial decision](ENGINEERING.md#one-provider-search-trial--2026-10-22) selects one cheaper
   complete-workflow candidate for evaluation, without claiming equal quality or changing the
-  saved provider. A private read-only observer and same-chat monitor are armed for one new
-  matching run, not a previous saved search. No new search or paid request has occurred.
+  saved provider. The owner subsequently stopped this task; its private observer is stopped and same-chat
+  monitor paused. No new search or paid request occurred; the proposed model was not adopted.
 
 ### Current behavior to preserve
 
@@ -59,41 +59,25 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed history is 
 
 ### In progress
 
-**Prepare and review the owner's next 72-hour search (2026-10-22).**
+**None. The owner stopped new tasks and future work on 2026-10-22.**
 
-The owner has reopened work for one search of jobs posted within 72 hours, a justified
-cheaper AI-provider trial, private observation of that exact run and confirmed fixes. Keep
-existing sources and travel services unless a demonstrated material benefit justifies an
-alternative. The private checkpoint and shared budget ledger are indexed by
-`assistant-review-checkpoint.json`; earlier paid packets remain closed.
+The proposed cheaper-provider trial and next-search review are stopped pending the owner's
+clarification. Do not restart monitoring, ask for setup, run a search, spend, or resume the
+trial automatically. The private `assistant-review-checkpoint.json` indexes the stopped task
+under `assistant-reviews/2026-10-22-72h-search/checkpoint.json` and its closed ledger.
+The observer is stopped and the same-chat heartbeat is paused. Trial-only local limit/price
+changes were restored with exact readback; owner settings, keys and data are preserved.
+No provider switch, new search or paid test occurred. The published trial recommendation is
+an untested proposal, not an adopted provider or permission to proceed.
 
-Preparation branch: `codex/72-hour-search-review`, based on main `4051d0e`. Preparation only: no new
-search, paid request, provider switch or account change has occurred. The selected trial is
-direct GPT-6 Luna, Medium, for both generation and research. Existing sources/Maps stay in
-place. The private observer rejects mismatched new runs and expires after 24 hours without
-starting work. The same-chat heartbeat checks for meaningful changes and bounded cleanup.
-Publication status is indexed privately. The owner authorized a temporary local-limit adjustment
-for this trial, with its separate allowance and cleanup recorded privately; other settings are
-unchanged. Next action: wait for the owner's new provider key in Jobcu and account spending
-control, then recheck lower limits against the private ledger. After those gates, reserve a finite
-comparison packet in the private shared ledger and compare fictional job understanding and
-cited research before instructing the owner to start. Current prices and general benchmarks
-do not establish equal matching or grounded-research quality.
+Preparation documentation merged in PR #168 at `9b9cf8f` after its final-head Mac, Windows and
+privacy checks passed. The exact-main CI receipt and any pending checks are indexed privately.
+This final stop checkpoint is saved locally for recovery; no new publication is authorized
+by the stop request. The exact next action is to wait for the owner's instructions.
 
-The following parked record describes the completed previous task, not current authority.
-
-The owner requested End on 2026-10-19. That integrated task's code/configuration steps and
-handover publication are complete; remaining evidence/account gates are parked below.
-The earlier eight-hour authority expired at **2026-10-19 07:50 Europe/Istanbul**. Its expired
-heartbeat was paused and is now reused for the new task; no separate chat/task was created.
-All earlier paid packets are closed. Start
-must not restart the parked dependencies or backlog outside the new task's scope.
-
-The private `assistant-review-checkpoint.json` now indexes the current task under
-`assistant-reviews/2026-10-22-72h-search/checkpoint.json`, including the shared ledger and
-observer. The completed earlier task remains in its dated folder. Recheck standing
-`assistant-authorization.json` and revocations before any private access. Historical checkpoints
-are retained as history only; their old active labels do not reopen completed work or budgets.
+The earlier integrated task remains complete and parked. Its historical checkpoints and
+closed packets do not reopen goals or allowances. Check standing authorization/revocations
+before any future private work.
 
 ### Parked dependencies and exact next actions
 
@@ -125,13 +109,9 @@ are retained as history only; their old active labels do not reopen completed wo
 
 ### Waiting on the owner
 
-The owner must enter the new provider's key only in Jobcu and configure its account spending
-control. The authorized temporary local-limit adjustment is recorded privately and must be
-reconciled after this trial; it is not a permanent monthly budget increase. Further paid checks
-need a finite reservation within the current shared
-ledger and lower limits. A local cost estimate is not an invoice or provider-enforced cap.
-Service restoration does not complete missing checks. A fresh chat follows
-[Start](PROMPTS.md#start-a-session), recovers this exact goal and must not reopen closed packets.
+Wait for the owner's next instruction. Do not repeat the stopped trial's setup/budget
+questions or resume its monitor, paid comparison or search. Preserve the local stop checkpoint
+and private publication receipts for a future explicitly authorized task.
 
 ### Verify before relying on
 
