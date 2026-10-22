@@ -11,35 +11,48 @@ Code/tests establish behavior; the latest current decision establishes intent.
 
 ### One-provider search trial — 2026-10-22
 
-For the newly authorized single 72-hour-freshness search, select **direct GPT-6 Luna at Medium
-as the operational trial**, including native research. Keep existing job sources and Maps;
-no evidence yet justifies another paid service for this run. This is a task-specific trial,
-not a preferred app default or a demonstrated equal-quality replacement. It supersedes the
-earlier MiMo-first ordering for this immediate trial, for the following reasons.
+**Revised after the owner's clarification:** select direct **MiMo-V2.6-Pro** as the single
+quality-first challenger. The earlier immediate GPT-6 Luna proposal is superseded: existing
+integration and a literal medium setting were insufficient reasons to prefer it over stronger
+published reasoning/document evidence. Neither candidate has passed Jobcu's paired evaluation.
+Keep the working Gemini configuration for the owner's baseline. Retain existing sources and
+Maps; another paid subscription has no demonstrated material benefit for this comparison.
+The [dated recheck](SOURCES.md#challenger-selection-recheck--2026-10-22) includes counterevidence.
 
-The [fresh primary-source check](SOURCES.md#one-provider-trial-evidence--2026-10-22) confirms
-medium, structured output and hosted research on the existing native Responses path. Its
-low token tariff applies to both generation and research content; tool calls still cost money.
-Moving only scoring would leave the old research provider's charges in place. MiMo remains a
-quality hypothesis, but its rendered third-party-app restrictions are still unresolved.
-DeepSeek now documents inexpensive standalone search; its Responses `max_tool_calls` is
-explicitly ignored, so enabling that research path needs separate accounting/bounding work.
-Kimi's current flagship has a different effort scale and no verified Jobcu research integration.
-These are operational/adoption gates, not evidence that their matching quality is worse.
+The optional native Xiaomi provider uses the documented pay-as-you-go Chat endpoint, enabled
+thinking, `max_completion_tokens` and JSON-object output with prompt schema/client validation.
+No unsupported strict-schema probe is bought first. There is no literal medium control;
+settings and search notices disclose provider-controlled thinking. Default effort and selected
+models remain unchanged. Native keys stay on the fixed native host. Research requires its
+activated Web Search plugin, completed output and provider-returned source annotations. Flat
+annotations do not establish passage citations; never invent that mapping or promote URLs
+from generated prose. Existing original-text/geographic/quote checks still decide evidence.
 
-Before the owner's broad run, compare independently specified fictional multilingual hardware,
-power-electronics and non-engineering cases, plus cited research, through `ai/client.py` at
-medium under one finite private reservation. Check requirements, unknowns, blockers, dates and
-citations before cost/ranking claims. An ordinary connection test cannot pass that gate.
-Reject an observed regression; a small passing sample still cannot prove universal equivalence.
-Do not spend or switch the owner setup before its key/account and lower-limit gates are met.
+Search `max_keyword` bounds keywords and `limit` bounds results per operation, **not search
+rounds or currency**. Conservatively count both reported search-call and page units against the
+existing allowance and price estimate. Missing/invalid receipts or an exceeded requested
+envelope stop automatic requests on that provider/model path, retaining available usage once.
+An incomplete bill is not zero. Already dispatched requests may finish. These controls do not
+prove invoice accuracy or create a provider-side hard currency ceiling; no unlimited paid
+hosted-search experiment is authorized by the adapter.
 
-Observation is private and read-only: pin a newly owner-started run by ID, start time, kind,
-72-hour form and provider/model; preserve logs from the arming boundary and final evidence.
-Record processing, retry waits and answer waits separately, accounting for overlap rather
-than subtracting summed concurrent request durations from wall time. Missing attribution stays
-unknown. No observer may start, restart or automatically repeat a search. A finite same-chat
-heartbeat follows completion/failure into the existing review/publication procedure.
+A private one-search capture can be explicitly armed for an authorized comparison. It records
+actual AI inputs/schema/effort, responses/receipts, attempts/retry intervals, raw candidates
+before title filtering, rule decisions, enriched pool, original document text and final run
+snapshot. It never starts a search, alters settings or runs a timer/heartbeat. It consumes its
+arm once; later searches are unaffected. Files remain inside the private data folder, with
+keys/HTTP headers/hidden reasoning excluded. Saving failure keeps the running search intact
+and explicitly marks incomplete review evidence. Detailed procedure:
+[private comparison](../CONTRIBUTING.md#compare-a-provider-without-lowering-quality).
+
+Use one owner-started 72-hour-freshness baseline, then reuse its frozen evidence for the
+challenger. Judge 30–50 balanced full ads including top cards and rejected candidates, plus
+fictional engineering/non-engineering regressions and separate cited research. Preserve
+criteria, original evidence, source coverage and medium defaults. New search-term/employer
+recall needs independent coverage evidence; a fixed-ad comparison cannot prove equal whole-
+market coverage. Adopt only with no observed quality/research regression and a material
+complete-cost saving (target at least 30% on the measured packet). Keep uncertainty explicit.
+No private calls, automatic provider switch or scheduled chat checks are part of preparation.
 
 ### API replacement decision refreshed — 2026-10-19
 
@@ -1964,6 +1977,7 @@ The root keeps launchers, README, CONTRIBUTING, AGENTS, LICENSE and Python/tool 
 | Discovery | `keywords.py`, `employers.py`; multilingual words and periodically discovered employers. |
 | Evidence/matching | `text.py`, `jobposting.py`, `dedupe.py`, `filters.py`, `freshness.py`, `relevance.py`, `jobplace.py`, `requirements.py`, `recheck.py`, `scoring.py`; text extraction, filtering, research, grounded requirements, saved-ad recovery and fit. |
 | Results/evaluation | `applications.py`, `vacancy_evidence.py`, `jobidentity.py`, `jobstore.py`, `quality.py`, `quality_api.py`; application routes, verified original facts, remembered jobs, saved results and independent score checks. |
+| Private comparison capture | `review_capture.py`; explicitly armed one-run document/candidate/request/response evidence outside Git, without searches, timers or paid replay. |
 | `ai/` | `client.py` is the sole AI entry point; provider adapters, schemas, errors and token/web usage. |
 | `sources/` | Isolated adapters and the registry. `base.py` defines `JobSource`; `http.py` applies polite requests/robots; `budget.py` tracks limits; `matching.py` matches lists; `careers.py` uses the directory; `careerlinks.py` recognizes career hosts. See [SOURCES](SOURCES.md). |
 | `data/` | Public reference assets: `employers.json`, `places.csv.gz`, `regions.csv.gz`, `postcodes.csv.gz`. User data never belongs here. |

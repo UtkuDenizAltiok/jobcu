@@ -173,6 +173,23 @@ for CI and merge with a merge commit.
 
 ### Compare a provider without lowering quality
 
+For an explicitly authorized next-run comparison, the assistant may call
+`review_capture.arm_next_search()` locally after checking private authorization. The opt-in
+arm lives in the private data folder and is consumed by one ordinary search; it does not start
+one or monitor the chat. Nothing is captured by default. `review-captures/search-*/events.jsonl`
+then preserves actual request/schema/effort, responses and receipts, errors, AI retry intervals,
+document inputs, raw collected jobs before title filtering, rule decisions, enriched pool and
+the final run snapshot. Never copy this file into Git, a fixture or public output.
+
+Freeze this folder with the exact code/settings and private review ledger before later runs.
+Use it to choose a balanced packet and replay only authorized requests through `AIClient` on
+private scratch. A capture is evidence, not an executable paid replay. It does not store API
+keys, headers or hidden reasoning; it does store sensitive document/ad text. Missing records,
+capture errors and a crash without a final snapshot remain explicit. AI intervals overlap;
+use interval unions with answer waits, not sums subtracted from wall time. Source wait events
+record requested delays only; measure actual source waits from the matching private logs.
+Do not infer complete processing attribution from requested delays or finite samples.
+
 Research the wider public API market, including stronger models outside a subscription's
 catalogue. The assistant chooses one justified challenger and prepares its integration and
 comparison; the owner need not buy/test a list of models. Published benchmarks can inform a

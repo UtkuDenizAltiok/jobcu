@@ -16,12 +16,12 @@ from jobcu.paths import ensure_data_dir
 
 SETTINGS_FILENAME = "settings.json"
 
-ProviderId = Literal["anthropic", "gemini", "openai", "openai_compatible"]
+ProviderId = Literal["anthropic", "gemini", "openai", "mimo", "openai_compatible"]
 Effort = Literal["minimal", "low", "medium", "high"]
 CompatibleProtocol = Literal["chat_completions", "responses", "messages"]
 CompatibleReasoning = Literal["effort", "thinking", "provider_default"]
 CompatibleMedium = Literal["medium", "high", "max"]
-ResearchProviderId = Literal["anthropic", "gemini", "openai"]
+ResearchProviderId = Literal["anthropic", "gemini", "openai", "mimo"]
 
 
 class AISettings(BaseModel):

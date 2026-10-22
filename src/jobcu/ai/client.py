@@ -101,6 +101,7 @@ class AIClient:
         on_wait: Callable[[float], None] | None = None,
         on_progress: Callable[[str], None] | None = None,
         reference_research_cache: dict | None = None,
+        capture=None,
     ) -> None:
         self.settings = settings
         self.keys = keys or KeyStore()
@@ -113,10 +114,12 @@ class AIClient:
         self._cancellable = checkpoint is not None
         self.on_wait = on_wait or (lambda seconds: None)
         self.on_progress = on_progress or (lambda message: None)
+        self.capture = capture
         self._adapter = adapter
         self._session_id = str(uuid4())
         self._research_adapter = research_adapter
         self._reasoning_note_sent = False
+        self._native_reasoning_notices: set[str] = set()
         # Web look-ups used in this search, against the cap in Settings, and those promised to
         # requests still running, so requests sent together never go past the cap.
         previous = (usage_log.for_search(search_id)
@@ -243,6 +246,10 @@ class AIClient:
                 yield
             except AIError as exc:
                 outcome = type(exc).__name__
+                if isinstance(exc, AIUsageUncertain):
+                    with self._gate:
+                        self._uncertain_requests[endpoint] = exc
+                    self.notify(exc.message)
                 if isinstance(exc, AIConnectionError):
                     with self._gate:
                         self._connection_recovery.add(endpoint)
@@ -323,6 +330,7 @@ class AIClient:
         provider = self.provider_id
         model = self.model_for(reasoning)
         adapter = self.adapter()
+        self._note_native_reasoning(adapter)
         self._check_monthly_limit()
 
         effort = self.settings.ai.reasoning_effort if reasoning else self.settings.ai.scoring_effort
@@ -339,7 +347,7 @@ class AIClient:
         while True:
             try:
                 with self._request(step, provider, model):
-                    reply = adapter.complete_json(
+                    reply = self._call_adapter(adapter.complete_json, step, provider,
                         model=model,
                         system=system,
                         prompt=request_prompt,
@@ -450,6 +458,7 @@ class AIClient:
         if reason:
             raise AIWebSearchUnavailable(reason)
         provider, model, adapter = self.research_endpoint()
+        self._note_native_reasoning(adapter)
         self._check_monthly_limit()
         with self._gate:
             allowed = min(max_searches, self.web_searches_left())
@@ -488,6 +497,15 @@ class AIClient:
         if not self.research_endpoint()[2].can_search_the_web:
             return MSG_NO_WEB_SEARCH
         return None
+
+    def _note_native_reasoning(self, adapter: ProviderAdapter) -> None:
+        notice = getattr(adapter, "reasoning_notice", None)
+        if notice:
+            with self._gate:
+                first = notice not in self._native_reasoning_notices
+                self._native_reasoning_notices.add(notice)
+            if first:
+                self.notify(notice)
 
     def _note_custom_reasoning(self) -> None:
         ai = self.settings.ai
@@ -540,7 +558,7 @@ class AIClient:
                     if allowed <= 0:
                         raise AILimitReached("Jobcu has used this search's allowance of web "
                                              "look-ups, including failed attempts.")
-                    reply = adapter.research(
+                    reply = self._call_adapter(adapter.research, step, provider,
                         model=model,
                         system=system,
                         prompt=prompt,
@@ -603,6 +621,9 @@ class AIClient:
         self.on_progress(f"Waiting about {seconds:.0f} seconds before AI retry {retry} of "
                          f"{maximum}. Stop cancels waiting.")
         started = time.monotonic()
+        if self.capture:
+            self.capture.event("ai_wait_start", requested=seconds, retry=retry,
+                               error=type(reason).__name__)
         try:
             if not self._cancellable:
                 self.sleep(seconds)
@@ -614,10 +635,18 @@ class AIClient:
                     remaining -= pause
                     self.checkpoint()
         finally:
+            if self.capture:
+                self.capture.event("ai_wait_end", started=started,
+                                   elapsed=max(0, time.monotonic() - started))
             log.info("AI retry wait finished: elapsed=%.3fs requested=%.3fs kind=%s",
                      max(0, time.monotonic() - started), seconds, type(reason).__name__)
             self.on_wait(0)
             self.on_progress(f"Retrying an AI request ({retry} of {maximum})")
+
+    def _call_adapter(self, method, step: str, provider: str, **arguments):
+        if self.capture:
+            return self.capture.call(method, step=step, provider=provider, **arguments)
+        return method(**arguments)
 
     def _record(self, step: str, provider: str, model: str, usage) -> None:
         if self.usage_log is not None:

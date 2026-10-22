@@ -62,6 +62,7 @@ def get_settings() -> dict:
                 "needs_base_url": info.needs_base_url,
                 "key_optional": info.key_optional,
                 "can_research": not info.needs_base_url,
+                "reasoning_notice": getattr(info.adapter, "reasoning_notice", ""),
                 "key": _key_status(keys, info.key_name),
             }
             for info in PROVIDERS.values()

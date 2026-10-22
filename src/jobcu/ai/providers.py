@@ -10,6 +10,7 @@ from jobcu.ai.compatible_adapter import (
     CompatibleResponsesAdapter,
 )
 from jobcu.ai.gemini_adapter import GeminiAdapter
+from jobcu.ai.mimo_adapter import MiMoAdapter
 from jobcu.ai.openai_adapter import OpenAIAdapter
 from jobcu.settings import AISettings
 
@@ -42,6 +43,10 @@ PROVIDERS: dict[str, ProviderInfo] = {
         ProviderInfo(
             "openai", "OpenAI", OpenAIAdapter,
             key_page="https://platform.openai.com/api-keys",
+        ),
+        ProviderInfo(
+            "mimo", "Xiaomi (MiMo)", MiMoAdapter,
+            key_page="https://platform.xiaomimimo.com/",
         ),
         ProviderInfo(
             "openai_compatible", "Other API", CompatibleAdapter,

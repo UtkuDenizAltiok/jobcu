@@ -48,6 +48,7 @@ class _CustomEndpoint:
 
 class CompatibleAdapter(_CustomEndpoint, ProviderAdapter):
     strict_reasoning = True
+    formats = MODES
     # Remembers which mode worked for each (address, model) while Jobcu runs.
     _mode_cache: ClassVar[dict[tuple[str, str], str]] = {}
 
@@ -84,9 +85,10 @@ class CompatibleAdapter(_CustomEndpoint, ProviderAdapter):
         max_output_tokens: int,
     ) -> RawReply:
         cache_key = (self.base_url, model)
-        start = MODES.index(self._mode_cache.get(cache_key, MODES[0]))
+        cached = self._mode_cache.get(cache_key, self.formats[0])
+        start = self.formats.index(cached) if cached in self.formats else 0
         last_error: Exception | None = None
-        for mode in MODES[start:]:
+        for mode in self.formats[start:]:
             try:
                 reply = self._request(mode, model, system, prompt, schema, schema_name,
                                       max_output_tokens, effort)
@@ -130,33 +132,16 @@ class CompatibleAdapter(_CustomEndpoint, ProviderAdapter):
                     {"role": "system", "content": system},
                     {"role": "user", "content": prompt},
                 ],
-                max_tokens=max_output_tokens,
+                **self._token_limit(max_output_tokens),
                 **extra,
             )
         except Exception as exc:
             raise translate_openai_error(exc) from exc
 
-        usage = _chat_usage(response.usage)
-        if not response.choices:
-            error = AIInvalidOutput("The custom AI provider sent no answer to check.")
-            error.usage = usage
-            raise error
-        choice = response.choices[0]
-        error = None
-        if choice.finish_reason == "length":
-            error = AIOutputTruncated(MSG_TRUNCATED)
-        elif choice.finish_reason == "content_filter" or getattr(choice.message, "refusal", None):
-            error = AIRefused(MSG_REFUSED)
-        elif (choice.finish_reason != "stop" or choice.message is None
-              or getattr(choice.message, "tool_calls", None)
-              or getattr(choice.message, "function_call", None)):
-            error = AIInvalidOutput("The custom AI provider did not confirm a completed answer.")
-        elif choice.message.content is not None and not isinstance(choice.message.content, str):
-            error = AIInvalidOutput("The custom AI provider returned an unsupported answer format.")
-        if error is not None:
-            error.usage = usage
-            raise error
-        return RawReply(text=choice.message.content or "", usage=usage)
+        return _chat_reply(response)
+
+    def _token_limit(self, maximum: int) -> dict:
+        return {"max_tokens": maximum}
 
     def list_models(self) -> list[str]:
         return list_openai_style_models(self._client())
@@ -208,6 +193,30 @@ def _chat_usage(usage) -> Usage:
                  cached_input_tokens=_detail(usage, "prompt_tokens_details", "cached_tokens"),
                  reasoning_tokens=_detail(usage, "completion_tokens_details", "reasoning_tokens"),
                  unreported_requests=int(input_tokens is None or output_tokens is None))
+
+
+def _chat_reply(response, usage: Usage | None = None) -> RawReply:
+    usage = usage if usage is not None else _chat_usage(response.usage)
+    if not response.choices:
+        error = AIInvalidOutput("The custom AI provider sent no answer to check.")
+        error.usage = usage
+        raise error
+    choice = response.choices[0]
+    error = None
+    if choice.finish_reason == "length":
+        error = AIOutputTruncated(MSG_TRUNCATED)
+    elif choice.finish_reason == "content_filter" or getattr(choice.message, "refusal", None):
+        error = AIRefused(MSG_REFUSED)
+    elif (choice.finish_reason != "stop" or choice.message is None
+          or getattr(choice.message, "tool_calls", None)
+          or getattr(choice.message, "function_call", None)):
+        error = AIInvalidOutput("The custom AI provider did not confirm a completed answer.")
+    elif choice.message.content is not None and not isinstance(choice.message.content, str):
+        error = AIInvalidOutput("The custom AI provider returned an unsupported answer format.")
+    if error is not None:
+        error.usage = usage
+        raise error
+    return RawReply(text=choice.message.content or "", usage=usage)
 
 
 def _detail(usage, group: str, name: str) -> int:

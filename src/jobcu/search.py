@@ -28,6 +28,7 @@ from jobcu import (
     pipeline,
     preparation,
     quality,
+    review_capture,
     scoring,
     travel,
 )
@@ -122,6 +123,7 @@ class SearchRun:
     _waiting_since: float | None = field(default=None, repr=False)
     waiting_seconds: float = 0.0
     reference_research_cache: dict = field(default_factory=dict, repr=False)
+    capture: review_capture.Capture | None = field(default=None, repr=False)
 
     def step(self, step_id: str) -> Step:
         return next(s for s in self.steps if s.id == step_id)
@@ -164,12 +166,17 @@ class SearchRun:
             self.answered_always = False
             self._answered.clear()
             self._waiting_since = time.monotonic()
+        if self.capture:
+            self.capture.event("answer_wait_start", question=question)
         answered = self._answered.wait(QUESTION_TIMEOUT_SECONDS)
         with self._lock:
             self.waiting_seconds += max(0, time.monotonic() - self._waiting_since)
             self._waiting_since = None
             self.question = None
-            return answered and self._answer and not self.stop_requested
+            result = answered and self._answer and not self.stop_requested
+        if self.capture:
+            self.capture.event("answer_wait_end", accepted=result, answered=answered)
+        return result
 
     def answer(self, value: bool, always: bool = False) -> bool:
         with self._lock:
@@ -320,6 +327,8 @@ class SearchManager:
         with run._lock:
             run.error = error
             run.status = status
+        if run.capture:
+            run.capture.event("finished", snapshot=run.snapshot())
 
     def stop(self, search_id: int) -> bool:
         run = self._current
@@ -353,12 +362,17 @@ def _mark_remaining(run: SearchRun, status: StepStatus) -> None:
 def run_search(run: SearchRun) -> None:
     """The search steps, in order."""
     settings = load_settings()
+    run.capture = review_capture.claim(run.id, run.note)
+    if run.capture:
+        run.capture.event("inputs", form=run.form.model_dump(),
+                          ai=settings.ai.model_dump(exclude={"base_url"}))
     client = AIClient(
         settings, KeyStore(), usage_log=UsageLog(), search_id=run.id, notify=run.note,
         checkpoint=lambda: _checkpoint(run),
         on_wait=lambda seconds: _ai_wait_note(run, seconds),
         on_progress=lambda message: _ai_progress_note(run, message),
         reference_research_cache=run.reference_research_cache,
+        capture=run.capture,
     )
 
     def checkpoint() -> None:
@@ -367,6 +381,8 @@ def run_search(run: SearchRun) -> None:
     run.update("documents", "running")
     cv_text = documents.read_text("cv")
     cover_letter_text = documents.read_text("cover_letter")
+    if run.capture:
+        run.capture.event("documents", cv=cv_text, cover_letter=cover_letter_text)
     run.update("documents", "done")
     checkpoint()
 
@@ -523,6 +539,8 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
     checkpoint()
     run.update("sources", "running")
     collected = pipeline.collect(query, http, keys, disabled_sources(settings), run)
+    if run.capture:
+        run.capture.event("collected", jobs=collected.jobs, reports=collected.reports)
     ads_found = collected.ads_found  # source collection count, before the title filter
     names = {source_id: source.name for source_id, source in collected.sources.items()}
     working = [r for r in collected.reports if r.status in ("ok", "partial")]
@@ -554,6 +572,9 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
         countries=plan.countries,
     )
     hidden = [i for i, s in enumerate(remembered_states) if s is not None and s.dismissed]
+    if run.capture:
+        run.capture.event("rules", groups=groups, kept=outcome.kept,
+                          left_out=outcome.left_out, dismissed=hidden)
     hidden_ids, hidden_new = jobstore.remember([groups[i] for i in hidden], run.id)
     hidden_states = jobstore.states(hidden_ids)
     reported_links = applications.reported_urls()
@@ -967,6 +988,8 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         ],
     })
     search_pool.save(job_pool)
+    if run.capture:
+        run.capture.event("decided", pool=job_pool)
     # Only what this pass worked out is new for the score check.
     worked_on = set(unchecked) | set(scored_now)
     _keep_for_the_score_check(
@@ -1107,6 +1130,8 @@ def _ai_wait_note(run: SearchRun, seconds: float) -> None:
 
 
 def _source_wait_note(run: SearchRun, host: str, seconds: float) -> None:
+    if capture := getattr(run, "capture", None):
+        capture.event("source_wait_requested", host=host, seconds=seconds)
     if host == "routes.googleapis.com":
         run.note("Google Maps delayed requests. Jobcu retries within your route limit; "
                  "the current step shows waits, and Stop cancels waiting.")
