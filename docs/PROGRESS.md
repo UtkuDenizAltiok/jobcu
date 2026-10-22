@@ -71,9 +71,11 @@ Preparation branch: `codex/72-hour-search-review`, based on main `4051d0e`. Prep
 search, paid request, provider switch or account change has occurred. The selected trial is
 direct GPT-6 Luna, Medium, for both generation and research. Existing sources/Maps stay in
 place. The private observer rejects mismatched new runs and expires after 24 hours without
-starting work. The same-chat heartbeat checks for meaningful changes and has the same expiry.
-Publication status is indexed privately. Next action: wait for the owner's new provider key
-in Jobcu and resolution of the lower existing monthly limit. After those gates, reserve a finite
+starting work. The same-chat heartbeat checks for meaningful changes and bounded cleanup.
+Publication status is indexed privately. The owner authorized a temporary local-limit adjustment
+for this trial, with its separate allowance and cleanup recorded privately; other settings are
+unchanged. Next action: wait for the owner's new provider key in Jobcu and account spending
+control, then recheck lower limits against the private ledger. After those gates, reserve a finite
 comparison packet in the private shared ledger and compare fictional job understanding and
 cited research before instructing the owner to start. Current prices and general benchmarks
 do not establish equal matching or grounded-research quality.
@@ -124,8 +126,9 @@ are retained as history only; their old active labels do not reopen completed wo
 ### Waiting on the owner
 
 The owner must enter the new provider's key only in Jobcu and configure its account spending
-control. A clarification about the lower existing local monthly limit is pending; do not
-raise it silently. Further paid checks need a finite reservation within the current shared
+control. The authorized temporary local-limit adjustment is recorded privately and must be
+reconciled after this trial; it is not a permanent monthly budget increase. Further paid checks
+need a finite reservation within the current shared
 ledger and lower limits. A local cost estimate is not an invoice or provider-enforced cap.
 Service restoration does not complete missing checks. A fresh chat follows
 [Start](PROMPTS.md#start-a-session), recovers this exact goal and must not reopen closed packets.
