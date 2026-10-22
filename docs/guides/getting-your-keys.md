@@ -98,36 +98,49 @@ reading and scoring. Existing one-provider setups continue to work without this 
 
 ### Recommended setup now
 
-**Recommendation checked 2026-10-10:** use **Google → Gemini 3.8 Flash**, at **Medium**, for
-all AI tasks, plus your existing Google Maps connection for measured journeys. Gemini can read
-documents, score jobs and research current information with the same key/model. Leave
-**Interpretation model** empty and **Online research provider → Same as main AI**. No second
-AI is required. The visible setup summary tells you if an existing override is still selected;
-closing advanced settings does not remove it. Your current saved setup is preserved.
+**Trial recommendation checked 2026-10-22:** for an owner-requested cheaper, single-provider
+trial, evaluate **OpenAI → `gpt-6-luna`**, with **Medium** for both effort settings. Its native
+connection supports structured answers and cited online research. Leave **Interpretation model**
+empty, **Online research provider → Same as main AI**, and **Online research model** empty.
+This avoids retaining a separate research provider's charges. It is not a measured
+quality-equivalent winner or a change to Jobcu's provider-neutral defaults.
 
-OpenCode Go remains a serious candidate. Several of its models support documents, structured
-answers and, through appropriate services, online research. A shared allowance can be sufficient
-for one daily search; it does not by itself rule Go out. Keep Gemini working while the assistant
-checks the chosen Go model's matching quality, current hosted tools and intended-use fit.
-The published coding-agent guidance describes expected service use, not an inability to read
-job ads. Jobcu's current custom-API research guard is a fixable integration limit.
-The following generic provider question identifies the remaining service ambiguity:
+The assistant should compare job understanding and research before the broad trial search,
+using a finite approved budget. A **Test connection** success proves neither. Keep the existing
+working provider available; do not delete its key, documents or history. The earlier Gemini
+recommendation remains the comparison baseline, superseded as automatic advice for this
+cheaper-provider trial. The [dated decision](../ENGINEERING.md#one-provider-search-trial--2026-10-22)
+and [current evidence](../SOURCES.md#one-provider-trial-evidence--2026-10-22) explain why MiMo,
+DeepSeek and Kimi have not been adopted for this immediate run. They are not proven worse.
 
-> Does Go permit a local personal non-coding app to interpret documents and return JSON job
-> matches on demand, with an honest app user agent and stable session header? Does GPT-6 Luna
-> through Go Responses include hosted web search with citations, and how do its queries count
-> toward the allowance or any separate charges?
+To prepare the trial:
 
-With your instructions, the assistant sent separate Discord forum and Reddit questions;
-the Reddit post has no Discord reference. No provider clarification was received at the
-decision checkpoint. The assistant makes technical choices; you do not
-need to select another model, obtain another key or run an extra search to decide the basic
-setup. Keep this setup for your next **24 hours** search; do not buy Go solely for Jobcu yet.
-The [current decision](../ENGINEERING.md#go-feasibility-and-interruption-continuity--2026-10-09)
-and [service evidence](../SOURCES.md#opencode-go-and-ai-credit-eligibility) explain the basis.
-Your agreed total ceiling is **EUR30/month**, not a promised invoice or automatic spending cap.
-AI Studio prepaid credit pays for Gemini only; Maps uses separate Cloud billing. A paid Maps
-subscription or further top-up is not required merely because a quota previously refused calls.
+1. Open the provider's [API platform](https://platform.openai.com/). Use direct pay-as-you-go
+   API access, not a coding subscription. Complete account, terms and payment steps yourself.
+2. Use a dedicated Jobcu project/key. In **Project settings → Limits → Spend → Edit spend
+   limit**, enter the agreed amount, enable **Enforce a hard limit**, and save. An alert alone
+   does not stop usage. Leave room for tax, currency conversion and enforcement delay; do not
+   set the whole personal budget as an API cap. Disable optional automatic top-ups for a finite
+   trial. If these controls or model access are unavailable, stop before searching.
+3. In Jobcu **Settings**, select **OpenAI**, paste the key only into its **API key** field and
+   save it. Enter `gpt-6-luna` as **Model** and use the settings above, then **Save**. Do not
+   paste the key in chat. Necessary document/search text will go to this provider.
+4. Before testing or searching, have the assistant check the current price table, lower local
+   monthly limits, account headroom and the approved verification reservation. Keep all price
+   entries in one currency. The published short-context Standard tariff is not an invoice;
+   cache writes, longer contexts, tools and taxes can add charges. Do not raise a limit just
+   because an earlier provider's estimate nearly reached it.
+5. After the bounded check passes, return to **Search**, preserve your existing documents and
+   criteria, select **Posted within → 72 hours**, and click **Find matching jobs** once. This
+   means ads posted during the previous three days, not a search running for three days.
+   When an assistant is monitoring, leave this exact run active and answer Jobcu's questions;
+   do not launch a replacement search for a retry warning.
+
+The monthly service budget remains an overall ceiling, not an invoice or automatic cap shared
+by unrelated providers. Maps has separate billing. Keep existing job-source/Maps connections
+unless measured benefit justifies paying for another service. OpenCode Go and other direct
+APIs remain evaluation candidates; no subscription or account change is required merely to
+prepare this trial.
 
 For recurring Maps refusals:
 
