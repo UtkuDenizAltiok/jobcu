@@ -58,6 +58,15 @@ restricts non-coding/custom-backend use and is unsuitable here. Use ordinary pay
 See the [key FAQ](https://mimo.mi.com/docs/en-US/quick-start/faq/api-integration).
 Overseas data processing/storage and provider retention remain distinct from local app storage.
 
+**Funding controls checked the same day:** the [payment FAQ](https://mimo.mi.com/docs/en-US/quick-start/faq/payment)
+supports overseas USD top-ups and balance alerts. It explicitly permits a negative balance
+from delayed billing before service stops; the next top-up first pays that debt. It does not
+document an exact enforced spending ceiling. The [welcome offer](https://mimo.mi.com/docs/en-US/quick-start/promotions/Welcome%20Bonus)
+describes a first-top-up bonus with no qualifying minimum, but does not establish every
+checkout's payment minimum or entitlement. Do not enlarge a trial allowance because a bonus
+appears, or treat balance alerts/prepayment as a hard cap. Check actual account controls and
+leave financial headroom before paid tests.
+
 ## One-provider trial evidence — 2026-10-22
 
 **Earlier proposal, superseded by the challenger recheck above.** Its protocol facts explain
