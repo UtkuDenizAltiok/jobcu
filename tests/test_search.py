@@ -97,7 +97,9 @@ def ready(monkeypatch):
     monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [FakeSource()])
 
 
-def wait_until_done(manager, answer=None, timeout=15):
+def wait_until_done(manager, answer=None, timeout=60):
+    # Functional completion, not a 15-second performance requirement. Windows CI can spend
+    # seconds on each fictional request's local storage; keep a finite hang guard.
     deadline = time.monotonic() + timeout
     while manager.current.status == "running" and time.monotonic() < deadline:
         if answer is not None and manager.current.question:

@@ -19,6 +19,11 @@ Three fictional file-update regressions reproduce this before repair for Python,
 and HTML, including changes before the very first health read and stable unchanged restarts.
 This fixes version detection; protect active searches when managing the app lifecycle.
 
+The functional search-test helper allows 60 seconds for background completion. A Windows run
+with simulated calls taking 1–3 seconds each exhausted its former 15-second wait while the
+search was still running, without an application error. This is a finite test hang guard,
+not a product speed requirement; behavior/assertions and application retry limits are intact.
+
 ### One-provider search trial — 2026-10-22
 
 **Revised after the owner's clarification:** select direct **MiMo-V2.6-Pro** as the single
