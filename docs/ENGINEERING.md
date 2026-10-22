@@ -9,6 +9,38 @@ Code/tests establish behavior; the latest current decision establishes intent.
 
 ## Current decisions
 
+### One-provider search trial — 2026-10-22
+
+For the newly authorized single 72-hour-freshness search, select **direct GPT-6 Luna at Medium
+as the operational trial**, including native research. Keep existing job sources and Maps;
+no evidence yet justifies another paid service for this run. This is a task-specific trial,
+not a preferred app default or a demonstrated equal-quality replacement. It supersedes the
+earlier MiMo-first ordering for this immediate trial, for the following reasons.
+
+The [fresh primary-source check](SOURCES.md#one-provider-trial-evidence--2026-10-22) confirms
+medium, structured output and hosted research on the existing native Responses path. Its
+low token tariff applies to both generation and research content; tool calls still cost money.
+Moving only scoring would leave the old research provider's charges in place. MiMo remains a
+quality hypothesis, but its rendered third-party-app restrictions are still unresolved.
+DeepSeek now documents inexpensive standalone search; its Responses `max_tool_calls` is
+explicitly ignored, so enabling that research path needs separate accounting/bounding work.
+Kimi's current flagship has a different effort scale and no verified Jobcu research integration.
+These are operational/adoption gates, not evidence that their matching quality is worse.
+
+Before the owner's broad run, compare independently specified fictional multilingual hardware,
+power-electronics and non-engineering cases, plus cited research, through `ai/client.py` at
+medium under one finite private reservation. Check requirements, unknowns, blockers, dates and
+citations before cost/ranking claims. An ordinary connection test cannot pass that gate.
+Reject an observed regression; a small passing sample still cannot prove universal equivalence.
+Do not spend or switch the owner setup before its key/account and lower-limit gates are met.
+
+Observation is private and read-only: pin a newly owner-started run by ID, start time, kind,
+72-hour form and provider/model; preserve logs from the arming boundary and final evidence.
+Record processing, retry waits and answer waits separately, accounting for overlap rather
+than subtracting summed concurrent request durations from wall time. Missing attribution stays
+unknown. No observer may start, restart or automatically repeat a search. A finite same-chat
+heartbeat follows completion/failure into the existing review/publication procedure.
+
 ### API replacement decision refreshed — 2026-10-19
 
 The [dated market refresh](SOURCES.md#api-market-refresh--2026-10-19) retains direct MiMo Pro

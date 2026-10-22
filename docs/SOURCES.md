@@ -8,6 +8,29 @@ Detailed formats, rate limits, site quirks and past measurements live in
 [dated source research](archive/SOURCE-RESEARCH.md). Its checks span 2026-09-17 to 2026-10-06;
 follow each section's date. Add newly verified facts here with a date and primary source link.
 
+## One-provider trial evidence — 2026-10-22
+
+Primary documentation was rechecked for a cheaper single-provider trial, not a quality verdict.
+
+| Candidate | Current evidence and adoption limit |
+|---|---|
+| Direct GPT-6 Luna | The [model specification](https://developers.openai.com/api/docs/models/gpt-6-luna) documents native medium, structured output and Responses web search. [Standard short-context prices](https://developers.openai.com/api/docs/pricing) are USD0.10 input / 0.50 output per million tokens, with separately priced cache writes and search at USD10/1,000 calls plus retrieved tokens. Context, processing tier and regional premiums matter. Jobcu's existing native adapter supports this path; live quality/account access remains untested. |
+| Direct MiMo-V2.6-Pro | The [current rendered agreement](https://mimo.mi.com/docs/quick-start/terms/user-agreement), updated July 7, still contains third-party-software restrictions in 3.2.8–3.2.9. Their application to this local API client remains unresolved; published API functionality does not settle it. The page also confirms retirement of V2.5 IDs on October 21. No permission request or account action was sent. |
+| Direct DeepSeek | The [current table](https://api-docs.deepseek.com/quick_start/pricing/) identifies `deepseek-flash` as V4.1-Flash-1017, with time-dependent rates. [Standalone search/fetch](https://api-docs.deepseek.com/guides/search/) each cost USD0.75/1,000 successful requests. [Responses compatibility](https://api-docs.deepseek.com/guides/responses_api/) documents server search only for V4 Pro and explicitly ignores `max_tool_calls`. A new safely bounded integration is needed; compatibility is not proof of a spending bound. |
+| Kimi K3 | The [current flagship guide](https://platform.kimi.com/docs/guide/kimi-k3-quickstart) documents always-on thinking with low/high/max, default max, rather than literal medium. Its API capability is not a verified Jobcu hosted-research path or evidence of cheaper equal-quality results. |
+
+[OpenAI's current spending controls](https://developers.openai.com/api/docs/guides/spend-limits)
+distinguish alerts from enforced organization/project monthly limits. In project settings,
+Limits → Spend → Edit spend limit → Enforce a hard limit enables rejection after tracked spend
+reaches the cap. Propagation permits small overspend, so leave headroom. Do not confuse an
+alert, prepaid balance, local estimate or token-only tariff with an exact end-to-end ceiling.
+Jobcu's simple price table does not separately represent every context/cache-write charge.
+
+[API data controls](https://developers.openai.com/api/docs/guides/your-data) state no training on
+API content by default, with abuse-monitoring content retained up to 30 days by default, subject
+to stated exceptions. Jobcu's `store=False` does not itself establish zero retention. Necessary
+document/query text goes to the chosen provider; the app's files remain device-local.
+
 ## Routes billing
 
 **Routes pricing rechecked 2026-10-16:** Google's [global price list](https://developers.google.com/maps/billing-and-pricing/pricing)

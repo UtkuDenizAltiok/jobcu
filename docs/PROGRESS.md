@@ -6,7 +6,7 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed history is 
 
 ## Right now
 
-*Updated 2026-10-19. Engineering checks use fictional data.*
+*Updated 2026-10-22. Engineering checks use fictional data.*
 
 ### State
 
@@ -39,6 +39,12 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed history is 
   allowance on a continuation. Detailed findings, usage and publication/deployment receipts
   remain outside Git. Disposable key/document/database scratch and temporary browser tabs
   are removed; standing authorization remains intact.
+- The owner's new 72-hour search task is in preparation. The current code is synchronized at
+  main `4051d0e`; exact-main CI `39247382704` passed Mac, Windows and privacy. The dated
+  [trial decision](ENGINEERING.md#one-provider-search-trial--2026-10-22) selects one cheaper
+  complete-workflow candidate for evaluation, without claiming equal quality or changing the
+  saved provider. A private read-only observer and same-chat monitor are armed for one new
+  matching run, not a previous saved search. No new search or paid request has occurred.
 
 ### Current behavior to preserve
 
@@ -48,24 +54,42 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed history is 
 | Full ads and metadata | [Employer-original evidence](ENGINEERING.md#employer-original-matching-evidence--2026-10-19), [workplaces](ENGINEERING.md#source-workplace-metadata-before-ai-lookup--2026-10-19) and [missing dates](ENGINEERING.md#missing-publication-dates-despite-complete-text--2026-10-19). |
 | Reference cities and travel | [Finite evidence](ENGINEERING.md#finite-reference-evidence-and-source-recovery--2026-10-15), [city-source dispatch](ENGINEERING.md#city-evidence-and-connection-dispatch--2026-10-18) and [evidence reuse](ENGINEERING.md#original-evidence-and-repeated-requests--2026-10-12). Preserve geographic, quote, source, journey and admission checks. |
 | Scores, duplicates and links | [Scoring confidence](ENGINEERING.md#task-focus-and-scoring-confidence--2026-10-14) and [duplicate/reference boundaries](ENGINEERING.md#duplicate-boundaries-and-reference-eligibility--2026-10-15). Pending/failed location gates do not receive paid scoring; independently collected matched employer links are preferred. |
-| Provider/source decisions | [Current API decision](ENGINEERING.md#api-replacement-decision-refreshed--2026-10-19) and [JSearch contract](SOURCES.md#jsearch-assessment--2026-10-18). Published capability and prices are not matching quality or useful unique coverage. |
+| Provider/source decisions | [Current trial decision](ENGINEERING.md#one-provider-search-trial--2026-10-22) and [JSearch contract](SOURCES.md#jsearch-assessment--2026-10-18). Published capability and prices are not matching quality or useful unique coverage. |
 | Setup reuse | [Exact setup identity](ENGINEERING.md#search-preparation-reuse-and-connection-clarity--2026-10-14). Editing inputs invalidates relevant reuse; scores and fresh facts are not reused as setup. |
 
 ### In progress
 
-**None. The project is parked at the owner's request.**
+**Prepare and review the owner's next 72-hour search (2026-10-22).**
 
-The owner requested End on 2026-10-19: finish already-started work, validate and publish it,
-then park without new improvements. The integrated task's code/configuration steps are
-complete; remaining evidence/account gates are parked below. Any interrupted handover
-publication is tracked privately below.
-The earlier eight-hour authority expired at **2026-10-19 07:50 Europe/Istanbul**. Its same-chat
-heartbeat is paused; no separate chat/task was created. All paid packets are closed. Start
-must wait for the next owner task and must not restart the parked dependencies or backlog.
+The owner has reopened work for one search of jobs posted within 72 hours, a justified
+cheaper AI-provider trial, private observation of that exact run and confirmed fixes. Keep
+existing sources and travel services unless a demonstrated material benefit justifies an
+alternative. The private checkpoint and shared budget ledger are indexed by
+`assistant-review-checkpoint.json`; earlier paid packets remain closed.
 
-For an interruption during final publication, the private
-`assistant-review-checkpoint.json` indexes the exact branch/head/PR/CI and next action under
-`assistant-reviews/2026-10-18-integrated-review/checkpoint.json`. Recheck standing
+Preparation branch: `codex/72-hour-search-review`, based on main `4051d0e`. Preparation only: no new
+search, paid request, provider switch or account change has occurred. The selected trial is
+direct GPT-6 Luna, Medium, for both generation and research. Existing sources/Maps stay in
+place. The private observer rejects mismatched new runs and expires after 24 hours without
+starting work. The same-chat heartbeat checks for meaningful changes and has the same expiry.
+Publication status is indexed privately. Next action: wait for the owner's new provider key
+in Jobcu and resolution of the lower existing monthly limit. After those gates, reserve a finite
+comparison packet in the private shared ledger and compare fictional job understanding and
+cited research before instructing the owner to start. Current prices and general benchmarks
+do not establish equal matching or grounded-research quality.
+
+The following parked record describes the completed previous task, not current authority.
+
+The owner requested End on 2026-10-19. That integrated task's code/configuration steps and
+handover publication are complete; remaining evidence/account gates are parked below.
+The earlier eight-hour authority expired at **2026-10-19 07:50 Europe/Istanbul**. Its expired
+heartbeat was paused and is now reused for the new task; no separate chat/task was created.
+All earlier paid packets are closed. Start
+must not restart the parked dependencies or backlog outside the new task's scope.
+
+The private `assistant-review-checkpoint.json` now indexes the current task under
+`assistant-reviews/2026-10-22-72h-search/checkpoint.json`, including the shared ledger and
+observer. The completed earlier task remains in its dated folder. Recheck standing
 `assistant-authorization.json` and revocations before any private access. Historical checkpoints
 are retained as history only; their old active labels do not reopen completed work or budgets.
 
@@ -81,7 +105,8 @@ are retained as history only; their old active labels do not reopen completed wo
    repaired, but the exact original disconnecting component and invoice allocation remain
    unproved. Use saved run boundaries and complete receipts; later success and day-level
    charges cannot identify the original cause. Do not repeat an unchanged paid probe.
-3. **Provider replacement.** Direct MiMo Pro remains the first comparison hypothesis. App-use
+3. **Provider replacement, prior ordering.** Direct MiMo Pro was the first comparison hypothesis;
+   the new task's dated trial decision supersedes that immediate ordering. App-use
    rights, native reasoning/tool support, a direct key entered only in Jobcu and a bounded
    independent paired fit/grounded-research check are adoption gates. Keep the current working
    model and medium effort. New lower prices and general benchmarks do not establish equal
@@ -98,11 +123,12 @@ are retained as history only; their old active labels do not reopen completed wo
 
 ### Waiting on the owner
 
-No response is needed to finish handover publication. After it, wait for the next owner task.
-Further paid checks need a bounded authorised packet within existing limits. A local cost
-estimate is not an invoice or provider-enforced cap. Service restoration does not complete
-missing checks. A fresh chat follows [Start](PROMPTS.md#start-a-session), reads the current
-handover and waits; it must not resume a closed experiment or select backlog work.
+The owner must enter the new provider's key only in Jobcu and configure its account spending
+control. A clarification about the lower existing local monthly limit is pending; do not
+raise it silently. Further paid checks need a finite reservation within the current shared
+ledger and lower limits. A local cost estimate is not an invoice or provider-enforced cap.
+Service restoration does not complete missing checks. A fresh chat follows
+[Start](PROMPTS.md#start-a-session), recovers this exact goal and must not reopen closed packets.
 
 ### Verify before relying on
 
