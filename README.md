@@ -80,7 +80,11 @@ a misunderstanding and apply it to the jobs already found.
 
 Your keys, documents, query and results stay outside the source folder and GitHub. A search
 sends the necessary text to the AI providers you chose and search words to job sources.
-Jobcu has no user accounts, telemetry or cloud storage, and never logs in to job sites.
+Jobcu has no user accounts or telemetry and never logs in to job sites. Optional connection
+recovery temporarily stores necessary request text and answers at the supported AI provider.
+It is off by default and requires your permission in Settings. Jobcu deletes each temporary
+record after retrieving its answer and usage; if deletion fails, provider retention can apply
+for up to 55 days. Local recovery IDs allow cleanup after reopening.
 
 Provider charges depend on your model, account and search. Prices and limits in Jobcu are
 optional controls; new installs have no per-search scoring or AI web-check cap. Jobcu's usage

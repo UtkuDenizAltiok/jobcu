@@ -45,6 +45,10 @@ hardware, power electronics and electronic engineering, without excluding suitab
 2. **Device-local app.** No hosting, user accounts, telemetry, analytics or cloud storage.
    Connections are to job sources, the chosen AI provider and optional Google Maps. Explain
    that necessary text goes to that provider; local storage does not mean offline use.
+   Owner exception (2026-10-23): explicitly enabled temporary Google interaction storage is
+   permitted for recovery of the same AI request, with automatic cancellation/deletion and
+   local tracking of outstanding requests and bills. Failed deletion can leave the provider's
+   normal retention in effect. This does not authorize other cloud storage or provider changes.
 3. **Private data stays outside Git and public output.** Keys, documents, queries, profiles,
    results, ratings, logs and account identifiers never enter fixtures, docs, PRs, issues,
    screenshots or CI logs. Use fictional examples and approved aggregate findings.

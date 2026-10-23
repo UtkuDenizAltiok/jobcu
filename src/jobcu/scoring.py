@@ -12,6 +12,7 @@ job on its own. Batch size is checked against the quality test set.
 """
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Literal
 
@@ -271,6 +272,7 @@ def score_groups(
     indexes: list[int],
     batch_size: int = BATCH_SIZE,
     on_progress=lambda done, total: None,
+    *, on_result: Callable[[int, dict], None] | None = None,
 ) -> dict[int, dict]:
     """Score the given groups, a few batches at a time. Returns a result per index, including
     the total score."""
@@ -299,10 +301,13 @@ def score_groups(
                 if len(groups[index].best_description_copy.description) > MAX_DESCRIPTION_CHARS:
                     found[index]["notes"].insert(
                         0, "Only part of this lengthy ad was read for scoring")
+                if on_result is not None:
+                    on_result(index, found[index])
         # A job the AI skipped is asked about again on its own.
         for index in ids.values():
             if index not in found and len(batch) > 1:
-                found.update(score_groups(client, profile, plan, groups, [index], 1))
+                found.update(score_groups(client, profile, plan, groups, [index], 1,
+                                          on_result=on_result))
         return found
 
     done = 0

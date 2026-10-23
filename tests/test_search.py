@@ -185,6 +185,198 @@ def test_interrupted_pool_save_failure_keeps_original_error_and_private_evidence
     assert any(record["kind"] == "pool_checkpoint" for record in records)
 
 
+@pytest.mark.parametrize("profession", ["Hardware Engineer", "Community Nurse", "Primary Teacher"])
+def test_original_search_keeps_completed_scores_before_a_later_failure(
+        ready, monkeypatch, profession):
+    from jobcu import pool
+
+    class Source(FakeSource):
+        titles = [f"{profession} {i}" for i in range(9)]
+
+    class Reader(FakeAI):
+        scoring_calls = 0
+
+        def complete_json(self, **request):
+            if request["schema_name"] == "Profile":
+                return RawReply(json.dumps({**PROFILE, "field": profession,
+                    "target_roles": [profession], "target_fields": [profession]}), Usage(10, 5))
+            if request["schema_name"] == "ScoringAnswer":
+                self.scoring_calls += 1
+                if self.scoring_calls > 1:
+                    raise AIAuthError("Fictional later scoring failure")
+            return super().complete_json(**request)
+
+    reader = Reader()
+    monkeypatch.setattr("jobcu.ai.client.PARALLEL_REQUESTS", 1)
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [Source()])
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: reader)
+    manager = search.SearchManager()
+    run = manager.start(SearchForm())
+    snapshot = wait_until_done(manager)
+    assert snapshot["status"] == "failed"
+    kept = pool.load(run.id)
+    assert len(kept.jobs) == 9
+    assert sum(job.scored is not None for job in kept.jobs) == 4
+    assert all(job.unrelated is False for job in kept.jobs)
+
+
+@pytest.mark.parametrize("profession", ["Hardware Engineer", "Community Nurse", "Primary Teacher"])
+@pytest.mark.parametrize("failure", ["before_dispatch", "optional_research"])
+def test_fresh_search_finishes_automatically_through_recoverable_failures(
+        ready, monkeypatch, profession, failure):
+    from jobcu.ai.base import AIConnectionError
+
+    class Source(FakeSource):
+        titles = [profession]
+
+        def load_details(self, job, ctx):
+            return job  # fictional summary requires the later online ad check
+
+    class Reader(FakeAI):
+        can_search_the_web = True
+        score_attempts = research_attempts = 0
+
+        def complete_json(self, **request):
+            if request["schema_name"] == "Profile":
+                return RawReply(json.dumps({**PROFILE, "field": profession,
+                    "target_roles": [profession], "target_fields": [profession]}), Usage(10, 5))
+            if request["schema_name"] == "ScoringAnswer":
+                self.score_attempts += 1
+                if failure == "before_dispatch" and self.score_attempts == 1:
+                    raise AIConnectionError("Fictional connect failure", request_sent=False)
+            return super().complete_json(**request)
+
+        def research(self, **request):
+            from jobcu.ai.base import ResearchReply
+            self.research_attempts += 1
+            if failure == "optional_research":
+                error = AIConnectionError("Fictional missing terminal frame", request_sent=True)
+                error.usage = Usage(web_searches=2, unreported_requests=1)
+                raise error
+            return ResearchReply("Fictional completed notes", [], Usage(10, 5, web_searches=1))
+
+    reader = Reader()
+    monkeypatch.setattr("jobcu.ai.client.PARALLEL_REQUESTS", 1)
+    monkeypatch.setattr("jobcu.ai.client.AIClient._wait", lambda *args, **kwargs: None)
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [Source()])
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: reader)
+    monkeypatch.setattr(search, "_find_employers", lambda run, *args:
+                        run.update("employers", "skipped"))
+    # Ordinary structure extraction for the successful fictional research.
+    original = reader.complete_json
+    def complete(**request):
+        if request["schema_name"] == "OnlineAnswer":
+            return RawReply('{"jobs":[]}', Usage(10, 5))
+        return original(**request)
+    monkeypatch.setattr(reader, "complete_json", complete)
+    manager = search.SearchManager()
+    manager.start(SearchForm())
+    snapshot = wait_until_done(manager)
+    assert snapshot["status"] == "finished" and snapshot["error"] is None
+    assert [j["title"] for j in snapshot["result"]["jobs"]["cards"]] == [profession]
+    assert reader.score_attempts == (2 if failure == "before_dispatch" else 1)
+    if failure == "optional_research":
+        assert reader.research_attempts == 1  # a possibly billed request is never replayed
+        assert any("incomplete usage" in n or "complete usage" in n for n in snapshot["notes"])
+
+
+@pytest.mark.parametrize("profession,task", [
+    ("Hardware Engineer", "Design electronic hardware"),
+    ("Community Nurse", "Deliver community nursing care"),
+    ("Primary Teacher", "Teach primary school pupils"),
+])
+def test_fresh_search_recovers_native_research_without_another_generation(
+        ready, monkeypatch, profession, task):
+    import httpx
+    from google import genai
+    from google.genai import types
+    from test_gemini_background import operation
+    from test_jobplace import online
+
+    from jobcu.ai.client import AIClient
+    from jobcu.ai.gemini_adapter import GeminiAdapter
+
+    class Source(FakeSource):
+        titles = [profession]
+
+        def load_details(self, job, ctx):
+            return job
+
+    records, requests, gets = {}, [], {}
+    reader = FakeAI()
+    def handle(request):
+        requests.append((request.method, request.url.path))
+        if request.method == "DELETE":
+            return httpx.Response(200, json={})
+        if request.method == "POST":
+            body = json.loads(request.content)
+            identifier = f"fictional-{len(records)}"
+            records[identifier] = body
+            return httpx.Response(200, json={"id": identifier, "status": "in_progress"})
+        identifier = request.url.path.rsplit("/", 1)[1]
+        body = records[identifier]
+        gets[identifier] = gets.get(identifier, 0) + 1
+        if body.get("tools") and gets[identifier] == 1:
+            raise httpx.ReadError("Fictional research connection loss", request=request)
+        final = operation(identifier, research=bool(body.get("tools")))
+        if body.get("tools"):
+            words = f"JOB J0\n{task}. This vacancy is based in Berlin."
+            final["steps"][-1]["content"] = [{"type": "text", "text": words,
+                "annotations": [{"type": "url_citation", "url": "https://jobs.test/0",
+                                 "start_index": 0, "end_index": len(words.encode())}]}]
+        else:
+            fields = body["response_format"]["schema"]["properties"]
+            name = next(name for name, field in [
+                ("Profile", "summary"), ("LocationInterpretation", "understood_as"),
+                ("SearchWordsAnswer", "terms"), ("QuickPassAnswer", "clearly_unrelated"),
+                ("ScoringAnswer", "scores"), ("OnlineAnswer", "jobs")] if field in fields)
+            if name == "Profile":
+                answer = {**PROFILE, "field": profession, "target_roles": [profession],
+                          "target_fields": [profession]}
+            elif name == "OnlineAnswer":
+                answer = {"jobs": [{**online("J0", ["Berlin"]), "requirement_checks": [],
+                                    "role_and_skills": 35, "role_words": task}]}
+            else:
+                answer = json.loads(reader.complete_json(
+                    schema_name=name, prompt=body["input"]).text)
+            final["steps"][-1]["content"] = [{"type": "text", "text": json.dumps(answer)}]
+        return httpx.Response(200, json=final)
+
+    sdk = genai.Client(api_key="fictional-key", http_options=types.HttpOptions(
+        client_args={"transport": httpx.MockTransport(handle)},
+        retry_options=types.HttpRetryOptions(attempts=1)))
+    native = GeminiAdapter("fictional-key")
+    native._genai_client = sdk
+    settings = load_settings()
+    settings.ai.recover_interrupted_requests = True
+    settings.ai.model = "gemini-3.8-flash"
+    save_settings(settings)
+    original = AIClient.__init__
+    def initialize(self, *args, **kwargs):
+        kwargs["sleep"] = lambda seconds: None
+        original(self, *args, **kwargs)
+    monkeypatch.setattr(AIClient, "__init__", initialize)
+    monkeypatch.setattr(AIClient, "adapter", lambda self: native)
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [Source()])
+    monkeypatch.setattr(search, "_find_employers", lambda run, *args:
+                        run.update("employers", "skipped"))
+    manager = search.SearchManager()
+    try:
+        manager.start(SearchForm())
+        snapshot = wait_until_done(manager)
+        assert snapshot["status"] == "finished" and snapshot["error"] is None
+        cards = snapshot["result"]["jobs"]["cards"]
+        assert len(cards) == 1 and cards[0]["title"] == profession
+        research = [key for key, body in records.items() if body.get("tools")]
+        assert len(research) == 1 and gets[research[0]] == 2
+        assert snapshot["result"]["usage"]["job_places"]["unreported_requests"] == 0
+        assert sum(method == "DELETE" for method, _ in requests) == len(records)
+        with db.connect() as conn:
+            assert conn.execute("SELECT COUNT(*) FROM ai_recovery_requests").fetchone()[0] == 0
+    finally:
+        sdk.close()
+
+
 def test_completed_filtering_is_not_reopened_after_full_ads(ready, monkeypatch):
     updates = []
     update = search.SearchRun.update
@@ -858,7 +1050,8 @@ def test_quality_sample_keeps_the_final_online_score(ready, monkeypatch):
 
     monkeypatch.setattr(FakeSource, "load_details", lambda self, job, ctx: job)
 
-    def found(client, groups, indexes, profile, on_progress, *, on_evidence=None):
+    def found(client, groups, indexes, profile, on_progress, *, on_evidence=None,
+              research_cache=None):
         return jobplace.LookedUp(asked=set(indexes), requirements={i: jobplace.Requirements(
             [LanguageAsked(language="German", level="C1", must_have=True)], 12) for i in indexes})
 
@@ -918,7 +1111,8 @@ def test_online_checks_skip_proven_ad_exclusions(ready, monkeypatch, role, inclu
 
     looked_up = []
 
-    def online(client, groups, indexes, profile, on_progress, *, on_evidence=None):
+    def online(client, groups, indexes, profile, on_progress, *, on_evidence=None,
+               research_cache=None):
         looked_up.extend(groups[i].main.title for i in indexes)
         return jobplace.LookedUp(asked=set(indexes))
 

@@ -240,6 +240,56 @@ def test_a_job_that_fits_only_partly_is_limited_by_the_rubric_s_own_bands(role, 
     assert [limit["why"] for limit in result["limits"]] == expected
 
 
+def test_completed_scores_reach_checkpoint_before_a_later_batch_fails():
+    from jobcu.ai.base import AIAuthError
+
+    def answer(request):
+        if "JOB J1" in request["prompt"]:
+            raise AIAuthError("Fictional later failure")
+        return {"scores": [score_json("J0")]}
+
+    ai = client(Scripted(answer))
+    ai.parallel_requests = 1
+    saved = {}
+    with pytest.raises(AIAuthError):
+        score_groups(ai, PROFILE, PLAN, groups("Engineer", "Engineer II"), [0, 1],
+                     batch_size=1, on_result=lambda i, value: saved.__setitem__(i, value))
+    assert set(saved) == {0} and "evidence" in saved[0]
+
+
+def test_scores_in_an_incomplete_answer_survive_a_failed_single_job_fallback():
+    from jobcu.ai.base import AIAuthError
+
+    def answer(request):
+        if "JOB J0" not in request["prompt"]:
+            raise AIAuthError("Fictional fallback failure")
+        return {"scores": [score_json("J0")]}
+
+    ai, saved = client(Scripted(answer)), {}
+    with pytest.raises(AIAuthError):
+        score_groups(ai, PROFILE, PLAN, groups("Engineer", "Engineer II"), [0, 1],
+                     batch_size=2, on_result=lambda i, value: saved.__setitem__(i, value))
+    assert set(saved) == {0}
+
+
+def test_completed_preliminary_checks_survive_a_later_batch_failure(monkeypatch):
+    from jobcu import relevance
+    from jobcu.ai.base import AIAuthError
+
+    monkeypatch.setattr(relevance, "BATCH_SIZE", 1)
+    def answer(request):
+        if "J1 |" in request["prompt"]:
+            raise AIAuthError("Fictional later screening failure")
+        return {"clearly_unrelated": ["J0"], "places": []}
+
+    ai, saved = client(Scripted(answer)), {}
+    ai.parallel_requests = 1
+    with pytest.raises(AIAuthError):
+        quick_pass(ai, PROFILE, groups("Driver", "Engineer"), [0, 1],
+                   on_result=lambda i, unrelated, towns: saved.__setitem__(i, unrelated))
+    assert saved == {0: True}  # the unanswered job is not claimed to have been screened
+
+
 def test_every_job_in_a_batch_gets_a_score_even_if_the_ai_skips_one():
     def answer(request):
         ids = re.findall(r"JOB (J\d+)", request["prompt"])

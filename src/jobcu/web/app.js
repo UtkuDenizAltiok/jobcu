@@ -1675,6 +1675,7 @@ function renderProviderDetails() {
   if (!provider) return;
   // Model names belong to one provider, so switching provider starts empty.
   const saved = state.settings.ai;
+  $("request-recovery").checked = Boolean(saved.recover_interrupted_requests);
   const same = provider.id === saved.provider;
   $("model").value = same ? saved.model : "";
   $("reasoning-model").value = same ? saved.reasoning_model : "";
@@ -1729,6 +1730,8 @@ function renderResearchDetails() {
 
 function renderAiWebHint() {
   const research = state.settings.providers.find((p) => p.id === $("research-provider").value);
+  $("request-recovery-field").hidden = !(currentProvider()?.can_recover_requests
+    || research?.can_recover_requests);
   const main = $("model").value.trim();
   const documentModel = $("reasoning-model").value.trim();
   const separateDocument = documentModel && documentModel !== main;
@@ -1853,6 +1856,7 @@ async function saveAiChoice() {
     compatible_medium: $("compatible-medium").value,
     research_provider: $("research-provider").value || null,
     research_model: $("research-model").value,
+    recover_interrupted_requests: $("request-recovery").checked,
   };
   // Only the AI part is replaced, so the key rows keep their live status objects.
   state.settings.ai = (await api("/api/settings/ai", { method: "PUT", body })).ai;

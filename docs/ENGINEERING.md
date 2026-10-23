@@ -461,11 +461,12 @@ client still owns bounded truncation recovery. A smaller
 allowance could end before the final city answers; this reserves space without lowering effort.
 Actual billed tokens still need receipts; the larger allowance is not a cost ceiling.
 
-Supported native models now use a stateless event stream for generation and research:
+Supported native models use a stateless event stream by default for generation and research:
 `store=False`, `background=False`, no previous conversation ID, the selected model/effort and
 no SDK retries. Lifecycle events let the HTTP response begin before a long answer finishes.
-Only terminal success is accepted. Final output replaces streamed fragments; citation offsets
-are UTF-8 bytes. A complete usage receipt needs explicit input/output/thought/cache counts;
+The explicit 2026-10-23 recovery option below supersedes the stateless-only decision when
+permission is given. Only terminal success is accepted. Final output replaces streamed fragments;
+citation offsets are UTF-8 bytes. A complete usage receipt needs explicit input/output/thought/cache counts;
 partial receipts remain unknown. Documented refusals, invalid requests, quotas and outages
 retain distinct handling. Unknown future model IDs retain the legacy endpoint; an account
 refusal never triggers a different endpoint or model.
@@ -477,6 +478,44 @@ saved-evidence recovery creates a fresh client. This supersedes automatically re
 ambiguous paid request: the provider may already have charged for it. Other request kinds and
 completed evidence remain usable. This bounds duplicate attempts; it does not identify the
 external component that closed an earlier connection or prove invoice savings.
+
+## Same-request recovery and completed batches — 2026-10-23
+
+A foreground connection can end before a long model task finishes. Explicitly permitted
+background execution on supported native models keeps one provider operation ID: create once,
+then retrieve that ID through bounded connection/rate-limit waits. Ordinary status polling
+backs off to five seconds so long tasks do not require constant network requests. It does not
+repeat generation after an ambiguous lost creation response. Account refusals, deadlines, unrecognized states and
+unrecoverable connections remain explicit. Default behavior stays stateless; the owner approved
+the documented temporary-storage exception in AGENTS. This changes transport, not provider,
+model, medium effort, prompts, job coverage or evidence validation.
+
+`ai/request_recovery.py` journals IDs and request attribution locally, without prompt/answer
+text or keys. Running requests are protected from another thread's cleanup. Stop cancels the
+operation, reconciles available usage, then deletes its stored provider record. Completed answers
+survive failed deletion; bounded cleanup retries and startup cleanup retain IDs until deletion
+succeeds. Unknown cancellation blocks new generation while unresolved. Application shutdown asks
+active searches to stop; an abrupt process loss can leave remote work until startup cleanup.
+This is request recovery within a normally started search, independent of saved-search continuation.
+[Provider storage and retention facts](SOURCES.md#temporary-provider-recovery--2026-10-23).
+
+Cumulative receipts update one usage row per provider/operation ID, retaining the original date
+and attribution. Later partial receipts cannot add another charge or replace a complete receipt
+with an unknown one. Observed in-flight usage obeys local limits; a completed answer is retained
+when its final bill reaches a limit. Unknown usage, shared provider allowances and unenforced
+search-tool ceilings still prevent treating a local estimate as an invoice or guaranteed cap.
+
+Preliminary checks and validated scores now checkpoint each completed batch, including successful
+jobs before a missing-job fallback fails. A later error cannot erase them from the interrupted
+pool. Sourced research notes also survive a failed structure conversion with an exact input,
+profile and AI-settings identity; reformatting can reuse those notes without another web call.
+Notes alone are never accepted as validated requirements. Completed-work preservation does not
+reuse stale scores for a fresh search or relax citation, workplace or requirement gates.
+
+Offline SDK transports exercise dropped retrieval, throttling, concurrent calls, Stop/completion
+races, unavailable deletion and abandoned requests. Fresh-search regressions finish the original
+pipeline after a retrieval interruption for fictional electronics, nursing and teaching profiles.
+These prove software paths, not live availability, equal model quality or complete future bills.
 
 ## Native event transport candidate — 2026-10-16 (superseded)
 

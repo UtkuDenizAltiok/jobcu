@@ -62,6 +62,7 @@ def get_settings() -> dict:
                 "needs_base_url": info.needs_base_url,
                 "key_optional": info.key_optional,
                 "can_research": not info.needs_base_url,
+                "can_recover_requests": getattr(info.adapter, "can_recover_requests", False),
                 "reasoning_notice": getattr(info.adapter, "reasoning_notice", ""),
                 "key": _key_status(keys, info.key_name),
             }
@@ -88,6 +89,7 @@ class AIChoice(BaseModel):
     compatible_medium: CompatibleMedium = "medium"
     research_provider: ResearchProviderId | None = None
     research_model: str = ""
+    recover_interrupted_requests: bool = False
 
 
 @router.put("/settings/ai")

@@ -40,6 +40,7 @@ class Pool:
     ads_found: int = 0
     different_jobs: int = 0
     hidden_cards: list[dict] = field(default_factory=list)
+    research_notes: dict[str, dict] = field(default_factory=dict)
 
 
 def save(pool: Pool) -> None:

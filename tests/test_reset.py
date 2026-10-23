@@ -288,3 +288,18 @@ def test_inflight_action_blocks_reset_without_cancelling_it(populated):
             release.set()
         assert pending.result().json() == {"done": True}
     assert request_reset(client, "review").status_code == 200
+
+
+def test_reset_keeps_outstanding_provider_ids_for_cancellation_and_billing(populated):
+    from jobcu.ai import request_recovery
+    from jobcu.ai.request_recovery import RecoveryContext
+
+    request_recovery.track(RecoveryContext(True, 'gemini', 'job_places', search_id=7),
+                           'fictional-pending', 'fictional-model')
+    request_recovery.release('gemini', 'fictional-pending', deleted=False)
+    assert reset.clear_data('searches')
+    row, = request_recovery.pending(force=True)
+    assert row['interaction_id'] == 'fictional-pending'
+    assert row['search_id'] is None
+    with db.connect() as conn:
+        assert conn.execute('SELECT COUNT(*) FROM ai_usage').fetchone()[0] == 1
