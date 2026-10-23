@@ -112,7 +112,7 @@ class SearchRun:
     id: int
     form: SearchForm
     started_at: str
-    kind: Literal["search", "reapply"] = "search"
+    kind: Literal["search", "reapply", "resume"] = "search"
     status: RunStatus = "running"
     steps: list[Step] = field(default_factory=lambda: [Step(i, label) for i, label in STEPS])
     notes: list[str] = field(default_factory=list)
@@ -251,7 +251,8 @@ class SearchManager:
         return run
 
     def reapply(self, search_id: int, edits: list[ConditionEdit], *,
-                recheck_requirements: bool = False, retry_missing_conditions: bool = False
+                recheck_requirements: bool = False, retry_missing_conditions: bool = False,
+                resume_only: bool = False,
                 ) -> SearchRun:
         """Applies corrected conditions to the jobs the latest search found, in the background.
 
@@ -267,7 +268,11 @@ class SearchManager:
                 saved = jobstore.latest_results()
                 snapshot = json.loads(saved[1]) if saved and saved[0] == search_id else None
             job_pool = search_pool.load(search_id) if snapshot else None
-            if job_pool is None or not {"jobs", "location"} <= set(snapshot["result"]):
+            required = {"location"} if resume_only else {"jobs", "location"}
+            if job_pool is None or not required <= set(snapshot["result"]):
+                raise LookupError(search_id)
+            if resume_only and (snapshot["status"] not in {"stopped", "failed"}
+                                or "jobs" in snapshot["result"]):
                 raise LookupError(search_id)
             snapshot = copy.deepcopy(snapshot)
             if retry_missing_conditions:
@@ -279,11 +284,17 @@ class SearchManager:
                              or any(v.meets is None for v in
                                     ((c.anchor.reference_checks or []) if c.anchor else [])))]
             check_edits(LocationPlan.model_validate(snapshot["result"]["location"]), edits)
+            earlier_notes = [note for note in snapshot.get("notes", [])
+                             if note not in {STOPPING_NOTE, STOPPED_NOTE}]
+            if snapshot.get("error"):
+                earlier_notes.append(snapshot["error"])
             run = SearchRun(
                 id=search_id,
                 form=SearchForm.model_validate(snapshot["form"]),
                 started_at=snapshot["started_at"],
-                kind="reapply",
+                kind="resume" if resume_only else "reapply",
+                notes=([f"Before continuation: {note}" for note in earlier_notes]
+                       if resume_only else []),
                 steps=[Step(i, label) for i, label in (
                     [*REAPPLY_STEPS[:4], ("requirements", "Rechecking uncertain requirements"),
                      *REAPPLY_STEPS[4:]] if recheck_requirements else REAPPLY_STEPS)],
@@ -292,6 +303,12 @@ class SearchManager:
                                           if current is not None and current.id == search_id
                                           else {}),
             )
+            if resume_only:
+                run.step("conditions").label = "Using saved search conditions"
+                run.step("scoring").label = "Scoring remaining jobs"
+                run.capture = review_capture.resume(search_id, run.note)
+                if run.capture:
+                    run.capture.event("continuation", previous_snapshot=snapshot)
             self._current = run
         threading.Thread(
             target=self._run,
@@ -613,6 +630,7 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
         source_names=names,
         ads_found=ads_found,
         different_jobs=len(groups),
+        hidden_cards=hidden_cards,
     )
     try:
         _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden_cards,
@@ -721,19 +739,26 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         c.status != "not_checked" and (c.kind != "near" or c.reference_status == "applied"
                                       or c.anchor is not None and c.anchor.reference_deferred)
         for c in hard_conditions))
-    early_towns = [i for i in candidates if hard_conditions and reference_ready
+    def keep_online(index: int, evidence: dict) -> None:
+        job_pool.jobs[index].online_evidence = evidence
+
+    early_lookup = jobplace.saved_lookups(groups, {
+        i: job.online_evidence for i, job in enumerate(job_pool.jobs)
+        if job.online_evidence is not None})
+    early_towns = [i for i in candidates if i not in early_lookup.asked
+                   and hard_conditions and reference_ready
                    and jobplace.needs_looking_up(groups[i])
                    and not travel.workplace_conflict(groups[i])
                    and _ad_exclusion(groups[i], job_pool.jobs[i].scored, form) is None]
-    early_lookup = jobplace.LookedUp()
     if early_towns and not client.web_research_unavailable_reason():
         run.update("eligibility", "running", "Checking missing workplaces before scoring")
-        early_lookup = jobplace.find_online(client, groups, early_towns, profile,
-                                           lambda *_: None)
+        early_lookup = early_lookup.add(jobplace.find_online(
+            client, groups, early_towns, profile, lambda *_: None, on_evidence=keep_online))
         while early_lookup.not_asked and client.web_searches_left() > 0:
             waiting = len(early_lookup.not_asked)
             early_lookup = early_lookup.add(jobplace.find_online(
-                client, groups, early_lookup.not_asked, profile, lambda *_: None))
+                client, groups, early_lookup.not_asked, profile, lambda *_: None,
+                on_evidence=keep_online))
             if len(early_lookup.not_asked) >= waiting:
                 break
         if early_lookup.not_asked:
@@ -842,7 +867,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     looking_since = time.monotonic()
     unavailable = client.web_research_unavailable_reason()
     looked_up = early_lookup.add(
-        jobplace.find_online(client, groups, worth_it, profile, looking)
+        jobplace.find_online(client, groups, worth_it, profile, looking, on_evidence=keep_online)
         if worth_it and not unavailable else jobplace.LookedUp())
     # Look-ups sent together can find the allowance held by others still running; those jobs get
     # another turn while look-ups are left (a test search on 2026-10-01 skipped 100 of 115 jobs
@@ -851,7 +876,8 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         waiting = len(looked_up.not_asked)
         looked_before = len(worth_it) - waiting
         looked_up = looked_up.add(
-            jobplace.find_online(client, groups, looked_up.not_asked, profile, looking))
+            jobplace.find_online(client, groups, looked_up.not_asked, profile, looking,
+                                 on_evidence=keep_online))
         if len(looked_up.not_asked) >= waiting:
             break
     if looked_up.not_asked:
@@ -879,7 +905,8 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             looked_before = len(worth_it) - waiting
             client.allow_more_web_searches(jobplace.SEARCHES_PER_JOB * waiting)
             looked_up = looked_up.add(
-                jobplace.find_online(client, groups, looked_up.not_asked, profile, looking))
+                jobplace.find_online(client, groups, looked_up.not_asked, profile, looking,
+                                     on_evidence=keep_online))
             if len(looked_up.not_asked) >= waiting:
                 break  # no progress: stop rather than loop
     for index in looked_up.asked:
@@ -1053,6 +1080,7 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
         on_wait=lambda seconds: _ai_wait_note(run, seconds),
         on_progress=lambda message: _ai_progress_note(run, message),
         reference_research_cache=run.reference_research_cache,
+        capture=run.capture,
     )
     http = PoliteClient(should_stop=lambda: run.stop_requested,
                         on_wait=lambda host, seconds: _source_wait_note(run, host, seconds))
@@ -1061,7 +1089,8 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
         plan = LocationPlan.model_validate(run.result["location"])
         earlier_warnings = condition_warnings(plan)
         rechecked = sum(1 for edit in edits if needs_checking(edit, plan.conditions))
-        plan = apply_edits(client, plan, edits, defer_reference_checks=True)
+        if run.kind != "resume":
+            plan = apply_edits(client, plan, edits, defer_reference_checks=True)
         run.set_result("location", plan.model_dump())
         detail = f"{rechecked} condition{'s' if rechecked != 1 else ''} read again" if rechecked \
             else "Nothing to look up"
@@ -1075,7 +1104,8 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
             _prepare_saved_evidence_retry(job_pool)
         collected = pipeline.collected_again(job_pool.reports)
         _decide(run, client, KeyStore(), http, settings, plan, job_pool, collected,
-                run.result["jobs"]["hidden"], lambda: _checkpoint(run),
+                run.result.get("jobs", {}).get("hidden", job_pool.hidden_cards),
+                lambda: _checkpoint(run),
                 retry_requirements=recheck_requirements)
     except Exception:
         # _decide saves successful passes; preserve only an interrupted pass here.
@@ -1093,8 +1123,10 @@ def _prepare_saved_evidence_retry(job_pool) -> None:
         if job.unrelated:
             continue
         if jobplace.needs_evidence_retry(job.group, job.scored):
+            job.online_evidence = None
             job.scored = {**job.scored, "read_online": False}
         if jobplace.needs_place_retry(job.group):
+            job.online_evidence = None
             job.group.place_from_web = None
 
 

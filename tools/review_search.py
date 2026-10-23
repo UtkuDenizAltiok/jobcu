@@ -100,7 +100,8 @@ def top_quality(cards: list[dict], ads: list[dict]) -> dict:
 
 def review(snapshot: dict, ads: list[dict]) -> dict:
     """Build a measurement report from allowlisted fields; no free text passes through."""
-    kind = snapshot.get("kind") if snapshot.get("kind") in {"search", "reapply"} else "unknown"
+    kind = snapshot.get("kind") if snapshot.get("kind") in {"search", "reapply", "resume"} \
+        else "unknown"
     result = snapshot.get("result", {})
     jobs = result.get("jobs", {})
     cards = jobs.get("cards", [])
@@ -135,9 +136,11 @@ def review(snapshot: dict, ads: list[dict]) -> dict:
     report = {
         "status": snapshot.get("status") if snapshot.get("status") in STATUSES else "unknown",
         "kind": kind,
-        "timing_scope": {"search": "original_search", "reapply": "latest_correction"}
+        "timing_scope": {"search": "original_search", "reapply": "latest_correction",
+                         "resume": "latest_continuation"}
                         .get(kind, "unknown"),
-        "usage_scope": {"search": "original_search", "reapply": "search_and_all_corrections"}
+        "usage_scope": {"search": "original_search", "reapply": "search_and_all_corrections",
+                        "resume": "search_and_all_continuations"}
                        .get(kind, "unknown"),
         "is_latest_attempt": snapshot.get("review_is_latest_attempt"),
         "latest_attempt_status": (snapshot.get("review_latest_attempt_status")
@@ -190,6 +193,10 @@ def review(snapshot: dict, ads: list[dict]) -> dict:
         checks.append("Timings cover only the latest condition correction; usage includes the "
                       "original search and all corrections. Compare complete original searches "
                       "for performance.")
+    elif kind == "resume":
+        checks.append("Timings cover only the latest continuation; usage includes the "
+                      "original search and all continuations. Use preserved attempt evidence "
+                      "for complete-search performance.")
     elif kind == "unknown":
         checks.append("This saved run has no recognized kind; timing and usage scopes are unknown.")
     if not visible:

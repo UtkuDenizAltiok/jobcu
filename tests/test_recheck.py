@@ -278,7 +278,7 @@ def test_recovery_tracks_actual_online_evidence_and_does_not_repeat_completed_wo
                         outside_supported_area=[], broad=True)
     calls = []
 
-    def online(client, groups, indexes, *args):
+    def online(client, groups, indexes, *args, **kwargs):
         assert indexes == [0]
         calls.append(indexes)
         status = outcome if len(calls) == 1 else "complete"

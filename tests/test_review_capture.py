@@ -43,6 +43,36 @@ def test_parallel_claim_cannot_capture_two_searches():
     assert sum(value is not None for value in captured) == 1
 
 
+def test_continuation_reopens_only_its_original_capture_and_keeps_next_arm():
+    review_capture.arm_next_search()
+    original = review_capture.claim(7, lambda message: pytest.fail(message))
+    review_capture.arm_next_search()
+    assert review_capture.resume(8, lambda message: pytest.fail(message)) is None
+    resumed = review_capture.resume(7, lambda message: pytest.fail(message))
+    assert resumed.folder == original.folder
+    resumed.event("continuation")
+    assert [row["kind"] for row in records(original)] == ["search", "continuation"]
+    assert review_capture.claim(8, lambda message: pytest.fail(message)) is not None
+
+
+def test_continuation_does_not_create_capture_without_original_opt_in(temporary_data_dir):
+    assert review_capture.resume(7, lambda message: pytest.fail(message)) is None
+    assert not (temporary_data_dir / "review-captures").exists()
+
+
+def test_continuation_rejects_ambiguous_or_mismatched_capture():
+    review_capture.arm_next_search()
+    capture = review_capture.claim(7, lambda message: pytest.fail(message))
+    path = capture.folder / "events.jsonl"
+    path.write_text('{"kind":"search","search_id":8}\n', encoding="utf-8")
+    notes = []
+    assert review_capture.resume(7, notes.append) is None
+    assert len(notes) == 1
+    (capture.folder.parent / "search-7-other").mkdir()
+    assert review_capture.resume(7, notes.append) is None
+    assert len(notes) == 2
+
+
 def test_capture_rejects_repository_data_folder(tmp_path, monkeypatch):
     repo = tmp_path / "repo"
     (repo / ".git").mkdir(parents=True)
@@ -64,6 +94,18 @@ def test_capture_rejects_symlink_escape(temporary_data_dir, tmp_path, component)
     notices = []
     assert review_capture.claim(7, notices.append) is None
     assert len(notices) == 1
+
+
+@pytest.mark.skipif(os.name == "nt", reason="Unprivileged Windows symlinks are unavailable")
+def test_continuation_rejects_a_linked_capture_folder(tmp_path):
+    review_capture.arm_next_search()
+    capture = review_capture.claim(7, lambda message: pytest.fail(message))
+    target = tmp_path / "elsewhere"
+    capture.folder.rename(target)
+    capture.folder.symlink_to(target)
+    notes = []
+    assert review_capture.resume(7, notes.append) is None
+    assert len(notes) == 1
 
 
 class Answer(BaseModel):

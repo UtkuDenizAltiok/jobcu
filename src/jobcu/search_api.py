@@ -55,7 +55,23 @@ def current_search() -> dict:
         and "jobs" in snapshot["result"]
         and search_pool.exists(snapshot["id"])
     )
+    snapshot["can_resume"] = (
+        snapshot["status"] in {"stopped", "failed"} and "jobs" not in snapshot["result"]
+        and "location" in snapshot["result"] and search_pool.exists(snapshot["id"])
+    )
     return {"search": snapshot}
+
+
+@router.post("/search/{search_id}/resume")
+def resume_search(search_id: int) -> dict:
+    """Continue a saved pre-result attempt without starting source collection again."""
+    try:
+        return search.manager.reapply(search_id, [], resume_only=True).snapshot()
+    except RuntimeError as exc:
+        raise HTTPException(status_code=409, detail="A search is already running.") from exc
+    except LookupError as exc:
+        raise HTTPException(status_code=404,
+                            detail="This interrupted search cannot be continued.") from exc
 
 
 class ConditionEdits(BaseModel):
@@ -98,7 +114,8 @@ def retry_checks(search_id: int) -> dict:
 @router.get("/search/{search_id}/retry-checks")
 def retry_check_summary(search_id: int) -> dict:
     snapshot = current_search()["search"]
-    if snapshot is None or snapshot["id"] != search_id or snapshot["status"] == "running":
+    if (snapshot is None or snapshot["id"] != search_id or snapshot["status"] == "running"
+            or "location" not in snapshot["result"]):
         raise HTTPException(status_code=409, detail="These results are no longer ready to recheck.")
     jobs = search_pool.load(search_id)
     if jobs is None:
@@ -107,7 +124,8 @@ def retry_check_summary(search_id: int) -> dict:
     for job in jobs.jobs:
         recheck.refresh_validation(job, profile)
     plan = LocationPlan.model_validate(snapshot["result"]["location"])
-    return {"full_ads": sum(recheck.needs_comparison(j) for j in jobs.jobs),
+    return {"saved_candidates": len(jobs.jobs),
+            "full_ads": sum(recheck.needs_comparison(j) for j in jobs.jobs),
             "online_ads": sum(jobplace.needs_evidence_retry(j.group, j.scored)
                               or jobplace.needs_place_retry(j.group)
                               for j in jobs.jobs if not j.unrelated),

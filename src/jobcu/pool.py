@@ -25,6 +25,7 @@ class PoolJob:
     group: JobGroup
     unrelated: bool | None = None  # the quick relevance check's answer; None before it ran
     scored: dict | None = None  # the score and what scoring read from the ad
+    online_evidence: dict | None = None  # completed lookup, kept before any later batch fails
 
 
 @dataclass
@@ -38,6 +39,7 @@ class Pool:
     source_names: dict[str, str] = field(default_factory=dict)
     ads_found: int = 0
     different_jobs: int = 0
+    hidden_cards: list[dict] = field(default_factory=list)
 
 
 def save(pool: Pool) -> None:
@@ -96,5 +98,6 @@ def _from_dict(data: dict) -> Pool:
                            place_from_web=group.get("place_from_web")),
             unrelated=stored["unrelated"],
             scored=stored["scored"],
+            online_evidence=stored.get("online_evidence"),
         ))
     return Pool(jobs=jobs, **data)

@@ -715,18 +715,26 @@ def in_parallel[Item, Result](
                 on_done(item, results[-1])
         return results
     done: dict[int, Result] = {}
+    failure: BaseException | None = None
     with ThreadPoolExecutor(max_workers=at_once, thread_name_prefix="ai") as pool:
         futures = {pool.submit(work, item): position for position, item in enumerate(items)}
-        try:
-            for future in as_completed(futures):
+        for future in as_completed(futures):
+            if future.cancelled():
+                continue
+            try:
                 position = futures[future]
                 done[position] = future.result()
                 if on_done is not None:
                     on_done(items[position], done[position])
-        except BaseException:
-            for future in futures:
-                future.cancel()
-            raise
+            except BaseException as exc:
+                if failure is None:
+                    failure = exc
+                    for queued in futures:
+                        queued.cancel()
+                # Requests already running can finish with useful, billed evidence.
+                # Deliver their checkpoints before propagating the original failure.
+    if failure is not None:
+        raise failure
     return [done[position] for position in range(len(items))]
 
 

@@ -730,16 +730,23 @@ function readConditionEdits() {
 }
 
 function setUpConditionActions() {
-  $("retry-checks").addEventListener("click", async () => {
+  async function openRecovery(continuing) {
     setStatus($("retry-checks-status"), "", "");
     const searchId = state.search.id;
     $("retry-checks-dialog").dataset.searchId = searchId;
+    $("retry-checks-dialog").dataset.continuing = String(continuing);
+    $("retry-checks-title").textContent = continuing ? "Continue saved search" : "Retry incomplete checks";
+    $("start-retry-checks").textContent = continuing ? "Continue search" : "Retry checks";
+    $("retry-checks-explanation").textContent = continuing
+      ? "Continue this interrupted search using its saved candidates and completed evidence. No new jobs are collected. Check service and billing before continuing after an interrupted AI request."
+      : "Use the saved jobs to retry missing location facts and uncertain requirements in full ads. Completed evidence is kept when it is still valid. No new jobs are collected.";
     $("start-retry-checks").disabled = true;
     $("retry-checks-summary").textContent = "Checking saved evidence…";
     $("retry-checks-dialog").showModal();
     try {
       const summary = await api(`/api/search/${searchId}/retry-checks`);
-      $("retry-checks-summary").textContent = `${summary.unchecked_cities} unchecked reference cities; ` +
+      $("retry-checks-summary").textContent = `${summary.saved_candidates} saved candidates; ` +
+        `${summary.unchecked_cities} unchecked reference cities; ` +
         `${summary.full_ads} saved full ads needing a fresh requirement comparison; ` +
         `${summary.online_ads} incomplete ad/workplace checks. ` +
         "Job checks wait until hard location conditions pass. Existing limits apply.";
@@ -747,12 +754,15 @@ function setUpConditionActions() {
     } catch (error) {
       setStatus($("retry-checks-status"), "problem", error.message);
     }
-  });
+  }
+  $("retry-checks").addEventListener("click", () => openRecovery(false));
+  $("resume-search").addEventListener("click", () => openRecovery(true));
   $("close-retry-checks").addEventListener("click", () => $("retry-checks-dialog").close());
   $("start-retry-checks").addEventListener("click", (event) => busy(event.target, async () => {
     try {
       const searchId = $("retry-checks-dialog").dataset.searchId;
-      const run = await api(`/api/search/${searchId}/retry-checks`, { method: "POST" });
+      const action = $("retry-checks-dialog").dataset.continuing === "true" ? "resume" : "retry-checks";
+      const run = await api(`/api/search/${searchId}/${action}`, { method: "POST" });
       $("retry-checks-dialog").close();
       showSearch(run);
       $("progress-card").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -890,7 +900,10 @@ function showSearch(search) {
   const running = search.status === "running";
   for (const button of document.querySelectorAll("[data-reset]")) button.disabled = running;
   $("progress-card").hidden = false;
-  $("progress-title").textContent = (search.kind === "reapply"
+  $("progress-title").textContent = (search.kind === "resume" ? {
+    running: "Continuing your saved search…", finished: "Search finished",
+    failed: "The search stopped because of a problem", stopped: "Search stopped",
+  } : search.kind === "reapply"
     ? {
         running: "Applying your changes…",
         finished: "Your changes are applied",
@@ -904,6 +917,7 @@ function showSearch(search) {
         stopped: "Search stopped",
       })[search.status];
   $("stop-search").hidden = !running;
+  $("resume-search").hidden = !search.can_resume;
   renderChecklist();
 
   $("search-steps").replaceChildren(

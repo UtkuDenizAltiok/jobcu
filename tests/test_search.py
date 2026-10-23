@@ -205,6 +205,55 @@ def test_completed_filtering_is_not_reopened_after_full_ads(ready, monkeypatch):
     assert ("filtering", "running") not in updates[details_end:]
 
 
+@pytest.mark.parametrize("title", ["Hardware Engineer", "Community Nurse", "Primary Teacher"])
+@pytest.mark.parametrize("outcome", ["stopped", "failed"])
+def test_resume_before_cards_keeps_identity_and_never_collects_again(
+        ready, monkeypatch, title, outcome):
+    from jobcu import pipeline, review_capture
+
+    class Source(FakeSource):
+        titles = [title]
+
+    monkeypatch.setattr(pipeline, "all_sources", lambda: [Source()])
+    original = search.scoring.score_groups
+    def interrupt(*args, **kwargs):
+        if outcome == "stopped":
+            raise search.SearchStopped
+        raise AIAuthError("Fictional interrupted provider")
+    monkeypatch.setattr(search.scoring, "score_groups", interrupt)
+    review_capture.arm_next_search()
+    manager = search.SearchManager()
+    run = manager.start(SearchForm())
+    first = wait_until_done(manager)
+    assert first["status"] == outcome and "jobs" not in first["result"]
+    monkeypatch.setattr(search.scoring, "score_groups", original)
+    def forbidden(*args, **kwargs):
+        pytest.fail("Continuing saved work must never collect sources again")
+    monkeypatch.setattr(pipeline, "collect", forbidden)
+    manager = search.SearchManager()  # Reopen with no in-memory run.
+    monkeypatch.setattr(search, "manager", manager)
+    with TestClient(create_app(), base_url="http://127.0.0.1") as client:
+        current = client.get("/api/search/current").json()["search"]
+        assert current["can_resume"] and not current["can_edit_conditions"]
+        response = client.post(f"/api/search/{run.id}/resume", headers=HEADERS)
+        assert response.status_code == 200
+    resumed = wait_until_done(manager)
+    assert resumed["status"] == "finished", resumed["error"]
+    assert resumed["id"] == first["id"] and resumed["started_at"] == first["started_at"]
+    assert resumed["form"] == first["form"] and resumed["kind"] == "resume"
+    if outcome == "failed":
+        assert "Before continuation: Fictional interrupted provider" in resumed["notes"]
+    assert [card["title"] for card in resumed["result"]["jobs"]["cards"]] == [title]
+    assert manager.current.capture.folder == run.capture.folder
+    events = [json.loads(line) for line in
+              (run.capture.folder / "events.jsonl").read_text(encoding="utf-8").splitlines()]
+    continuation = next(i for i, event in enumerate(events) if event["kind"] == "continuation")
+    assert any(event["kind"] == "ai_end" for event in events[continuation + 1:])
+    assert events[continuation]["previous_snapshot"]["status"] == outcome
+    with db.connect() as conn:
+        assert conn.execute("SELECT COUNT(*) FROM searches").fetchone()[0] == 1
+
+
 def test_stop_distinguishes_interrupted_work_from_steps_not_reached():
     run = search.SearchRun(1, SearchForm(), datetime.now(UTC).isoformat())
     run.update("filtering", "running")
@@ -809,7 +858,7 @@ def test_quality_sample_keeps_the_final_online_score(ready, monkeypatch):
 
     monkeypatch.setattr(FakeSource, "load_details", lambda self, job, ctx: job)
 
-    def found(client, groups, indexes, profile, on_progress):
+    def found(client, groups, indexes, profile, on_progress, *, on_evidence=None):
         return jobplace.LookedUp(asked=set(indexes), requirements={i: jobplace.Requirements(
             [LanguageAsked(language="German", level="C1", must_have=True)], 12) for i in indexes})
 
@@ -869,7 +918,7 @@ def test_online_checks_skip_proven_ad_exclusions(ready, monkeypatch, role, inclu
 
     looked_up = []
 
-    def online(client, groups, indexes, profile, on_progress):
+    def online(client, groups, indexes, profile, on_progress, *, on_evidence=None):
         looked_up.extend(groups[i].main.title for i in indexes)
         return jobplace.LookedUp(asked=set(indexes))
 
