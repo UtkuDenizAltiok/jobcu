@@ -89,7 +89,7 @@ update and points to these steps. This reminder does not check whether a newer c
 
 If your copy is managed with Git, such as the owner's Mac development folder, the start file
 checks for updates when it is safe to do so. If it cannot update, it shows a warning and starts
-the version already installed. Development updates follow the project rules in AGENTS.md.
+the version already installed.
 
 ## Remove Jobcu
 

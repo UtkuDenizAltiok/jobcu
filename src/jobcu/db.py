@@ -51,7 +51,7 @@ MIGRATIONS: list[str] = [
         PRIMARY KEY (day, source)
     );
     """,
-    # 4: Jobs remembered between searches (HANDOVER section 12): which jobs were shown
+    # 4: Jobs remembered between searches: which jobs were shown
     # before (for the "New" badge), their Saved / Applied / Not interested state, and
     # each search's results so they can be shown again.
     """
@@ -106,7 +106,7 @@ MIGRATIONS: list[str] = [
     );
     CREATE INDEX ad_texts_fetched_at ON ad_texts (fetched_at);
     """,
-    # 7: The score check (HANDOVER section 13): real job ads from the user's own searches and
+    # 7: The score check: real job ads from the user's own searches and
     # what the user thinks of each, so Jobcu's scores can be measured against their judgement.
     """
     CREATE TABLE quality_ads (

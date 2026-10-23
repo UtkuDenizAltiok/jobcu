@@ -1,10 +1,9 @@
 """Runs one complete Jobcu search for a made-up person, to measure what a change does.
 
-The default person is a graduate engineer in electronics and power electronics hardware, the
-kind of work tested first and most (AGENTS.md, "Mission and priorities"); the CV and cover
-letter are made up here, never anyone's real documents. The search runs inside Jobcu itself
-(every source, the person's AI provider from the settings), and the tool prints what each
-source found and the best cards.
+The default person is a graduate engineer in electronics and power electronics hardware.
+The CV and cover letter are made up here, never anyone's real documents. The search runs
+inside Jobcu itself (every source, the person's AI provider from the settings), and the tool
+prints what each source found and the best cards.
 
     JOBCU_DATA_DIR=/some/empty/folder uv run python tools/made_up_search.py
     ... --where "Munich or within 40 km, or Dublin" --hours 24

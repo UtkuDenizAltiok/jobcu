@@ -94,20 +94,13 @@ Its previous spending remains counted across restarts, month changes and deleted
 
 ## Project documents
 
-For assistant development, use **Start** once in a local project chat, then **Review** after
-a completed search or **Deep improvement** without needing a new search. Both assess coverage
-and improve the app. Use **End** before closing the chat; the next chat recovers saved unfinished
-work without choosing a new task. Copy the blocks from [PROMPTS](docs/PROMPTS.md).
-
 | You need | Open |
 |---|---|
-| Copy a session, search-review or improvement prompt | [PROMPTS](docs/PROMPTS.md) |
-| See current work and the next action | [PROGRESS](docs/PROGRESS.md) |
-| Develop Jobcu with Codex | [CONTRIBUTING](CONTRIBUTING.md) |
-| Read the working rules | [AGENTS](AGENTS.md) |
-| Find product decisions, code, tools and lessons | [ENGINEERING](docs/ENGINEERING.md) |
+| Develop and test Jobcu | [CONTRIBUTING](CONTRIBUTING.md) |
+| Understand the implementation and tools | [ENGINEERING](docs/ENGINEERING.md) |
 | Check source methods, restrictions and evidence | [SOURCES](docs/SOURCES.md) |
-| Look up dated background | [Original concept](docs/archive/HANDOVER.md), [decision history](docs/archive/DECISION-HISTORY.md), [source research](docs/archive/SOURCE-RESEARCH.md) |
+
+Completed changes and historical discussions are in Git commits and pull requests.
 
 ## Ownership and data credits
 
