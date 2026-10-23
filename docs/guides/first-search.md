@@ -208,6 +208,13 @@ During the search, Jobcu may pause to ask whether to go beyond a limit you set:
 Choose an **Always** option only if you want that lasting change. You can restore a number
 in **Settings → Usage and limits**, then click **Save limits**.
 
+Duplicate removal happens before full ads are read. **Checking workplaces and location
+conditions** follows full ads when needed; it can find evidence that changes which jobs are
+eligible for scoring. A completed step stays **Completed**. **Stopped before completion**
+means work was interrupted; **Not completed** means the search did not reach that step.
+Stopping before scoring can leave no result cards. The stopped attempt and completed candidate
+evidence are kept locally, including when you reopen Jobcu; previous saved jobs and marks remain.
+
 To cancel a running search, click **Stop**. To try again, wait for it to stop, then click
 **Find matching jobs** again. A new search uses AI again and may incur further charges.
 

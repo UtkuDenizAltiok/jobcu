@@ -4,7 +4,6 @@ import threading
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
 from email.utils import format_datetime
-from types import SimpleNamespace
 
 import httpx
 import pytest
@@ -229,8 +228,9 @@ def test_zero_is_honored_and_invalid_delays_use_normal_backoff(header, delay):
 def test_cancelled_collection_keeps_already_found_ads(title, monkeypatch):
     from jobcu import pipeline, search
 
-    clock, notes = Clock(), []
-    run = SimpleNamespace(stop_requested=False, update=lambda *a: None, note=notes.append)
+    clock = Clock()
+    run = search.SearchRun(1, search.SearchForm(), datetime.fromtimestamp(NOW, UTC).isoformat())
+    notes = run.notes
 
     class FictionalSource(JobSource):
         id, name, kind = "fictional", "Fictional employer", "employer"

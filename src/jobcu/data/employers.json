@@ -2035,7 +2035,7 @@
   },
   {
    "name": "Amplitude",
-   "system": "greenhouse",
+   "system": "ashby",
    "board": "amplitude",
    "countries": [
     "GB",
@@ -4499,21 +4499,6 @@
     "DE": [
      "Berlin"
     ],
-    "GB": [
-     "London"
-    ]
-   }
-  },
-  {
-   "name": "Wayve",
-   "system": "greenhouse",
-   "board": "wayve",
-   "countries": [
-    "DE",
-    "GB"
-   ],
-   "elsewhere": true,
-   "towns": {
     "GB": [
      "London"
     ]

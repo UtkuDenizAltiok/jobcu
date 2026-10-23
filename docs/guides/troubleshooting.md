@@ -135,6 +135,16 @@ The permanent retry note records what happened; it does not mean requests are st
 after **Search finished**. During a retry, the current step shows the wait. **Stop** cancels
 retry waits and queued AI work; a request already sent can finish first.
 
+Job-site retry history appears once per host. A retry notice can remain after the site recovers;
+read the final source report for missing coverage. A quota stop, a site refusing automated
+access and a short feed history remain separate limitations. Repeated requests cannot repair
+a permission restriction or make older jobs appear in a short feed.
+
+Duplicate removal precedes full-ad reading. Later workplace research has a separate row.
+After a stop, **Stopped before completion** identifies the interrupted row and **Not completed**
+identifies steps that were never reached. A stop before scoring can produce no cards. The latest
+attempt still survives reopening; it does not become an older search's results.
+
 The retry detail shows its number and limit, rather than an unnumbered repeating message.
 Reference-city facts are checked in groups of up to eight, with group progress. Every candidate
 remains represented: completed answers survive a later failed group, while unchecked cities

@@ -293,7 +293,8 @@ textarea {
   color: var(--ok);
 }
 
-.steps li[data-status="failed"] .icon {
+.steps li[data-status="failed"] .icon,
+.steps li[data-status="interrupted"] .icon {
   color: var(--problem);
 }
 
@@ -306,7 +307,8 @@ textarea {
   color: var(--text-muted);
 }
 
-.steps .step-detail {
+.steps .step-detail,
+.steps .step-state {
   grid-column: 2;
   color: var(--text-muted);
   font-size: 0.9rem;

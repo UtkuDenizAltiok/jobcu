@@ -108,6 +108,11 @@ Run `uv run python tools/review_search.py`. It opens the latest saved results in
 SQLite mode, with no provider or job-site requests and allowlisted aggregate output only.
 Keep even aggregates local until the owner approves a public summary.
 
+For an explicitly pinned attempt, add `--search-id ID` and use its frozen private data folder
+with `--data-dir`. A missing result snapshot is reported as missing; an older search is never
+substituted. A stop before scoring can have candidate evidence without result cards, so ranking
+and precision are unavailable rather than zero-quality results.
+
 Inspect source messages, unchecked conditions, unknown dates, scoring limits, summary shares,
 top-10 blockers, step times and token/web usage privately. Separate answer-wait time from work.
 The report flags a newer attempt without saved results. Correction timings cover only the
@@ -185,8 +190,12 @@ Freeze this folder with the exact code/settings and private review ledger before
 Use it to choose a balanced packet and replay only authorized requests through `AIClient` on
 private scratch. A capture is evidence, not an executable paid replay. It does not store API
 keys, headers or hidden reasoning; it does store sensitive document/ad text. Missing records,
-capture errors and a crash without a final snapshot remain explicit. AI intervals overlap;
-use interval unions with answer waits, not sums subtracted from wall time. Source wait events
+capture errors and a crash without a final snapshot remain explicit.
+An interrupted decision pass also saves the enriched pool and a `pool_checkpoint` capture
+event before terminal persistence. A failed checkpoint remains explicit and must not replace
+the original failure. Preserve the immutable original capture when reconstructing older runs.
+AI intervals overlap; use interval unions with answer waits, not sums subtracted from wall
+time. Source wait events
 record requested delays only; measure actual source waits from the matching private logs.
 Do not infer complete processing attribution from requested delays or finite samples.
 

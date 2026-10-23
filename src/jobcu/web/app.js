@@ -843,7 +843,11 @@ const JOB_TYPE_LABELS = {
   internship_or_working_student: "Internship or working student",
   freelance_or_contract: "Freelance or contract",
 };
-const STEP_ICONS = { waiting: "○", running: "●", done: "✓", failed: "!", skipped: "–" };
+const STEP_ICONS = { waiting: "○", running: "●", done: "✓", failed: "!", skipped: "–", interrupted: "!" };
+const STEP_STATUS_TEXT = {
+  waiting: "Waiting", running: "In progress", done: "Completed", failed: "Failed",
+  skipped: "Not completed", interrupted: "Stopped before completion",
+};
 let pollTimer = null;
 
 async function loadSearchForm() {
@@ -909,6 +913,7 @@ function showSearch(search) {
         { "data-status": step.status },
         el("span", { class: "icon", "aria-hidden": "true", text: STEP_ICONS[step.status] }),
         el("span", { class: "label", text: step.label }),
+        el("span", { class: "step-state", text: STEP_STATUS_TEXT[step.status] || "" }),
         step.detail ? el("span", { class: "step-detail", text: step.detail }) : null,
       ),
     ),

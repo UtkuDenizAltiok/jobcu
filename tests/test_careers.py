@@ -544,6 +544,25 @@ def test_successfactors_keeps_all_original_sections_and_ignores_other_objects():
     assert found['title'] == 'Power Hardware Engineer'
 
 
+@pytest.mark.parametrize('title,requirement', [
+    ('Electronics Engineer', 'Design power converters.'),
+    ('Community Nurse', 'A nursing registration is required.'),
+    ('Primary Teacher', 'A teaching qualification is required.'),
+])
+def test_successfactors_comments_cannot_discard_an_employers_jobs(title, requirement):
+    page = f'''<!-- site navigation -->
+      <main itemscope itemtype="https://schema.org/JobPosting">
+        <!-- ad heading --><h1 itemprop="title">{title}</h1>
+        <div itemprop="description">Full role description. <!-- separator -->
+          <span>{requirement}</span></div>
+        <meta itemprop="addressLocality" content="Dublin">
+      </main><!-- footer -->'''
+    found = successfactors.read_page(page)
+    assert found['title'] == title
+    assert requirement in found['description']
+    assert found['has_description']
+
+
 def test_successfactors_reads_json_ld_only_pages_without_an_extra_request():
     page = ('<script type="application/ld+json">' + json.dumps({
         '@type': 'JobPosting', 'title': 'Community Nurse',
@@ -726,6 +745,43 @@ def test_workday_reads_the_searched_countries_newest_first_and_stops_at_old_jobs
 
     survey = wd.WorkdaySource().survey(board, context(workday_handler([])))
     assert survey.counts == {"IE": 30, "other": 70}
+
+
+@pytest.mark.parametrize('title', ['Hardware Engineer', 'Community Nurse', 'Primary Teacher'])
+@pytest.mark.parametrize('body', ['<p>Complete fictional requirements</p>', None])
+def test_workday_reuses_workplaces_in_the_same_detail_response(title, body):
+    from jobcu.dedupe import JobGroup
+    from jobcu.jobplace import needs_looking_up
+
+    calls = []
+    def handler(request):
+        calls.append(request.url.path)
+        return httpx.Response(200, json={'jobPostingInfo': {
+            'location': 'Ireland, Dublin', 'additionalLocations': ['Ireland, Cork', None, {}],
+            'jobDescription': body}})
+
+    job = FoundJob(source='workday', source_job_id='https://jobs.example/detail',
+                   url='https://jobs.example/ad', title=title, country='IE')
+    assert needs_looking_up(JobGroup([job]))
+    full = wd.WorkdaySource().load_details(job, context(handler))
+    assert full.location_text == 'Ireland, Dublin; Ireland, Cork'
+    assert full.country == 'IE'
+    assert not needs_looking_up(JobGroup([full]))
+    assert full.description_is_complete is bool(body)
+    assert calls == ['/detail']  # Existing full-ad response, no extra source/AI lookup.
+
+
+@pytest.mark.parametrize('location,additional', [(None, None), ({}, []), (' ', 'Dublin')])
+def test_workday_missing_workplace_metadata_cannot_erase_a_known_location(location, additional):
+    def handler(request):
+        return httpx.Response(200, json={'jobPostingInfo': {
+            'location': location, 'additionalLocations': additional,
+            'jobDescription': '<p>Complete fictional ad</p>'}})
+    job = FoundJob(source='workday', source_job_id='https://jobs.example/detail',
+                   url='https://jobs.example/ad', title='Nurse', country='IE',
+                   location_text='Ireland, Limerick')
+    full = wd.WorkdaySource().load_details(job, context(handler))
+    assert full.location_text == job.location_text and full.description_is_complete
 
 
 def test_workday_stops_when_a_site_answers_every_page_with_the_same_jobs():
