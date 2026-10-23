@@ -1,8 +1,7 @@
 # Source and service index
 
 This indexes the adapters in the current code and the dated access evidence behind them.
-It does **not** confirm today's availability, vacancies or recall. Read [AGENTS](../AGENTS.md)
-and recheck current terms/robots rules before adding or changing collection.
+It does **not** confirm today's availability, vacancies, terms or recall.
 
 Dates below describe recorded checks, not current availability. Historical investigations are
 retained in Git. Adapter parsing and request details are in `src/jobcu/sources/`.

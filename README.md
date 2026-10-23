@@ -97,7 +97,6 @@ Its previous spending remains counted across restarts, month changes and deleted
 | You need | Open |
 |---|---|
 | Develop and test Jobcu | [CONTRIBUTING](CONTRIBUTING.md) |
-| Read contributor constraints | [AGENTS](AGENTS.md) |
 | Understand the implementation and tools | [ENGINEERING](docs/ENGINEERING.md) |
 | Check source methods, restrictions and evidence | [SOURCES](docs/SOURCES.md) |
 

@@ -141,7 +141,7 @@ not current availability or complete market coverage.
 
 ## Project layout
 
-The root keeps launchers, README, CONTRIBUTING, AGENTS, LICENSE and Python/tool configuration.
+The root keeps launchers, README, CONTRIBUTING, LICENSE and Python/tool configuration.
 `src/`, `tests/` and `tools/` keep their established paths; no extra build step is required.
 
 | Area | Modules and purpose |
