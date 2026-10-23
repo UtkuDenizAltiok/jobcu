@@ -146,6 +146,32 @@ def test_review_never_creates_missing_data(temporary_data_dir, capsys):
     assert not temporary_data_dir.exists()
 
 
+def test_pinned_review_never_substitutes_older_results(temporary_data_dir):
+    with db.connect() as conn:
+        conn.execute("INSERT INTO searches (id,status,form_json) VALUES (1,'finished','{}')")
+        conn.execute("INSERT INTO search_results VALUES (1, ?)", (json.dumps(snapshot()),))
+        conn.execute("INSERT INTO searches (id,status,form_json) VALUES (2,'stopped','{}')")
+    path = temporary_data_dir / db.DB_FILENAME
+    before = path.read_bytes()
+    saved, ads = tool.read_saved(temporary_data_dir, search_id=2)
+    assert saved["id"] == 2 and saved["status"] == "stopped" and ads == []
+    report = tool.review(saved, ads)
+    assert report["saved_results_available"] is False
+    assert report["jobs"]["shown"] == 0
+    assert all(value is None for value in report["funnel"].values())
+    assert any("no saved result snapshot" in note for note in report["checks_needed"])
+    assert tool.read_saved(temporary_data_dir, search_id=3) == (None, [])
+    assert path.read_bytes() == before
+
+
+def test_pinned_review_cli_reports_only_the_requested_attempt(temporary_data_dir, capsys):
+    with db.connect() as conn:
+        conn.execute("INSERT INTO searches (id,status,form_json) VALUES (3,'failed','{}')")
+    assert tool.main(["--data-dir", str(temporary_data_dir), "--search-id", "3"]) == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["status"] == "failed" and report["saved_results_available"] is False
+
+
 def test_sqlite_is_read_only_and_older_results_are_identified(temporary_data_dir):
     with db.connect() as conn:
         conn.execute("INSERT INTO searches (id, status, form_json) VALUES (1, 'finished', '{}')")

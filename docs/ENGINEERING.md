@@ -9,6 +9,39 @@ Code/tests establish behavior; the latest current decision establishes intent.
 
 ## Current decisions
 
+### Interrupted attempts and source-reader recovery — 2026-10-23
+
+Duplicate/rule filtering finishes before full-ad loading. Subsequent workplace and location
+research has its own progress row, so it cannot overwrite completed duplicate removal.
+The UI spells out each state, including an interrupted active step and steps never reached.
+The terminal stop note uses past tense; source retry history is one notice per host, with
+individual waits retained in private evidence. A recovered source's final report decides its
+coverage status. These display changes do not alter collection, scoring or retry allowances.
+
+Initial searches and corrections preserve enriched pools when a decision pass stops/fails.
+Capture is attempted before database persistence; a checkpoint failure cannot mask the original
+failure. Every terminal attempt is saved even before it has cards, so reopening cannot silently
+substitute older results. Such attempts cannot offer condition correction without results.
+The offline review tool can pin an exact attempt and distinguishes missing snapshots/funnels
+from measured zeros. Silent Gemini event EOF diagnostics record counts/receipt flags only;
+no prompt, answer, key or account identifier enters the diagnostic message.
+
+SuccessFactors microdata parsing handles comment nodes whose attribute access returns `None`
+despite a supplied default. Comments inside/outside the job no longer discard the employer's
+list. Existing nested-vacancy/organization exclusions and all original ad sections remain.
+Fictional regressions cover electronics, nursing and teaching. No source access is expanded.
+Publicly verified employer-board moves are recorded in [SOURCES](SOURCES.md).
+
+Workday full-ad responses also supply `location` and `additionalLocations`. Preserve every
+nonempty stated location from that same response, including metadata-only responses; retain
+known locations when fields are absent/malformed. This lets ordinary workplace resolution use
+received evidence before buying missing-town research. Country filters, full-ad completeness,
+scores and admission rules remain intact; a URL slug is not workplace evidence. Cache version
+2 lets the upgraded reader refresh older bodies that discarded those fields. Existing request
+budgets and access gates still apply. Fictional electronics/nursing/teaching cases reproduce a
+needless lookup before repair and confirm it is unnecessary afterwards. Actual workflow savings
+and geographic accuracy still require paired evidence; this is not a cheaper-provider claim.
+
 ### Running-build identity — 2026-10-22
 
 Bind the code fingerprint at module import, rather than the first health request. Otherwise,

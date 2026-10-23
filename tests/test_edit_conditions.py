@@ -356,7 +356,8 @@ def test_corrected_conditions_are_applied_to_the_jobs_already_found(conditions_r
     manager.reapply(run.id, [ConditionEdit(text="only big cities", original=0, use=False)])
     second = wait_until_done(manager)
     assert second["status"] == "finished" and second["kind"] == "reapply", second["error"]
-    assert [step["status"] for step in second["steps"]] == ["done"] * 5
+    assert all(step["status"] == "done" for step in second["steps"])
+    assert "eligibility" in {step["id"] for step in second["steps"]}
     jobs = second["result"]["jobs"]
     assert titles(jobs["cards"]) == ["Electronics Engineer", "Hardware Engineer"]
     assert jobs["ruled_out_by_conditions"] == []

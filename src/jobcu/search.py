@@ -61,7 +61,11 @@ from jobcu.vacancy_evidence import group_reasons as original_reasons
 
 log = logging.getLogger(__name__)
 
-StepStatus = Literal["waiting", "running", "done", "failed", "skipped"]
+STOPPING_NOTE = ("Stopping… retry waits and queued AI work are cancelled. "
+                 "A request already sent may finish first.")
+STOPPED_NOTE = "Search stopped. Retry waits and queued AI work were cancelled."
+
+StepStatus = Literal["waiting", "running", "done", "failed", "skipped", "interrupted"]
 RunStatus = Literal["running", "finished", "failed", "stopped"]
 
 STEPS: list[tuple[str, str]] = [
@@ -73,6 +77,7 @@ STEPS: list[tuple[str, str]] = [
     ("sources", "Searching job sources"),
     ("filtering", "Removing duplicates and jobs that don't fit"),
     ("details", "Reading the full job ads"),
+    ("eligibility", "Checking workplaces and location conditions"),
     ("scoring", "Scoring jobs"),
     ("places", "Checking the best jobs online"),
 ]
@@ -81,6 +86,7 @@ REAPPLY_STEPS: list[tuple[str, str]] = [
     ("conditions", "Checking the conditions you changed"),
     ("filtering", "Applying your conditions to the jobs found"),
     ("details", "Reading the full job ads"),
+    ("eligibility", "Checking workplaces and location conditions"),
     ("scoring", "Scoring jobs that came back in"),
     ("places", "Checking the best jobs online"),
 ]
@@ -279,8 +285,8 @@ class SearchManager:
                 started_at=snapshot["started_at"],
                 kind="reapply",
                 steps=[Step(i, label) for i, label in (
-                    [*REAPPLY_STEPS[:3], ("requirements", "Rechecking uncertain requirements"),
-                     *REAPPLY_STEPS[3:]] if recheck_requirements else REAPPLY_STEPS)],
+                    [*REAPPLY_STEPS[:4], ("requirements", "Rechecking uncertain requirements"),
+                     *REAPPLY_STEPS[4:]] if recheck_requirements else REAPPLY_STEPS)],
                 result=snapshot["result"],
                 reference_research_cache=(current.reference_research_cache
                                           if current is not None and current.id == search_id
@@ -312,12 +318,17 @@ class SearchManager:
             status = "failed"
             error = "Something went wrong in Jobcu. Please try again."
 
-        _mark_remaining(run, "failed" if status == "failed" else "skipped")
+        _mark_remaining(run, "failed" if status == "failed" else "skipped",
+                        stopped=status == "stopped")
+        if status == "stopped":
+            with run._lock:
+                run.notes = [STOPPED_NOTE if note == STOPPING_NOTE else note for note in run.notes]
         try:
             # Polling and new searches must still see "running" until the save commits.
             snapshot = {**run.snapshot(), "status": status, "error": error}
-            result_json = json.dumps(snapshot) if "jobs" in snapshot["result"] else None
-            jobstore.finish_search(run.id, status, result_json)
+            # A stopped/failed attempt must survive reopening even before it has cards;
+            # otherwise the previous search silently becomes the apparent current run.
+            jobstore.finish_search(run.id, status, json.dumps(snapshot))
         except Exception:
             log.exception("Search %s could not be saved", run.id)
             status = "failed"
@@ -335,8 +346,7 @@ class SearchManager:
         if run is None or run.id != search_id or run.status != "running":
             return False
         run.stop_requested = True
-        run.note("Stopping… retry waits and queued AI work are cancelled. "
-                 "A request already sent may finish first.")
+        run.note(STOPPING_NOTE)
         run.answer(False)
         return True
 
@@ -351,10 +361,10 @@ class SearchManager:
             return completed
 
 
-def _mark_remaining(run: SearchRun, status: StepStatus) -> None:
+def _mark_remaining(run: SearchRun, status: StepStatus, *, stopped: bool = False) -> None:
     for step in run.steps:
         if step.status == "running":
-            run.update(step.id, status)
+            run.update(step.id, "interrupted" if stopped else status)
         elif step.status == "waiting":
             run.update(step.id, "skipped")
 
@@ -604,7 +614,24 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
         ads_found=ads_found,
         different_jobs=len(groups),
     )
-    _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden_cards, checkpoint)
+    try:
+        _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden_cards,
+                checkpoint)
+    except Exception:
+        _preserve_interrupted_pool(run, job_pool)
+        raise
+
+
+def _preserve_interrupted_pool(run, job_pool) -> None:
+    """Keep completed evidence without masking the failure or starting more work."""
+    if run.capture:
+        run.capture.event("pool_checkpoint", pool=job_pool, interrupted=True)
+    try:
+        search_pool.save(job_pool)
+    except Exception:
+        log.exception("Keeping interrupted candidate evidence failed")
+        run.note("Jobcu couldn't keep all candidate evidence from this interrupted search. "
+                 "Previously saved jobs and marks are unchanged.")
 
 
 def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden_cards,
@@ -671,6 +698,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     pipeline.load_full_ads(groups, to_score, collected, http, keys, run)
     run.update("details", "done", "Full ads read where available")
     checkpoint()
+    run.update("eligibility", "running")
 
     # Full or remembered text can reveal an original date, closing date or other objective
     # fact absent from the list summary. Recheck those facts before spending AI on scoring.
@@ -699,7 +727,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
                    and _ad_exclusion(groups[i], job_pool.jobs[i].scored, form) is None]
     early_lookup = jobplace.LookedUp()
     if early_towns and not client.web_research_unavailable_reason():
-        run.update("filtering", "running", "Checking missing workplaces before scoring")
+        run.update("eligibility", "running", "Checking missing workplaces before scoring")
         early_lookup = jobplace.find_online(client, groups, early_towns, profile,
                                            lambda *_: None)
         while early_lookup.not_asked and client.web_searches_left() > 0:
@@ -718,7 +746,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     if deferred_references:
         from jobcu import reference_places
 
-        run.update("filtering", "running", "Checking reachable living cities")
+        run.update("eligibility", "running", "Checking reachable living cities")
         reference_places.resolve_for_jobs(client, plan, [groups[i] for i in candidates])
         run.set_result("location", plan.model_dump())
         for warning in condition_warnings(plan):
@@ -735,6 +763,9 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     location_pending = {i for i in candidates
                         if pipeline.unchecked_location_conditions(groups[i], plan)}
     to_score = [i for i in to_score if i in candidates and i not in location_pending]
+    run.update("eligibility", "done", (
+        f"{len(location_pending)} jobs still need location evidence" if location_pending
+        else "Location conditions checked for the remaining jobs"))
 
     if retry_requirements:
         eligible = [i for i in candidates if i not in location_pending
@@ -1046,12 +1077,14 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
         _decide(run, client, KeyStore(), http, settings, plan, job_pool, collected,
                 run.result["jobs"]["hidden"], lambda: _checkpoint(run),
                 retry_requirements=recheck_requirements)
+    except Exception:
+        # _decide saves successful passes; preserve only an interrupted pass here.
+        _preserve_interrupted_pool(run, job_pool)
+        raise
     finally:
         http.close()
         usage = UsageLog().for_search(run.id)
         run.set_result("usage", {step: asdict(used) for step, used in usage.items()})
-        # Stop or a later failure must not discard completed, potentially charged comparisons.
-        search_pool.save(job_pool)
 
 
 def _prepare_saved_evidence_retry(job_pool) -> None:
@@ -1141,9 +1174,14 @@ def _source_wait_note(run: SearchRun, host: str, seconds: float) -> None:
             run.update(active, "running", f"Google Maps: waiting about {seconds:.0f} seconds "
                        "before retrying. Click Stop to cancel waiting.")
         return
-    run.note(f"{host} is temporarily unavailable or limiting requests. Jobcu will wait about "
-             f"{seconds:.0f} seconds before asking again. Other sites can continue; "
-             "you can click Stop to cancel waiting.")
+    prefix = f"Requests to {host} needed retry waits. "
+    message = (prefix + f"Its most recent requested wait was about {seconds:.0f} seconds "
+               "because the site was temporarily unavailable or limiting requests. "
+               "Other sites can continue; Stop cancels waiting. "
+               "The final source report shows any missing coverage.")
+    with run._lock:
+        run.notes[:] = [note for note in run.notes if not note.startswith(prefix)]
+        run.notes.append(message)
 
 
 def _no_limit(name: str, run: SearchRun, message: str) -> None:

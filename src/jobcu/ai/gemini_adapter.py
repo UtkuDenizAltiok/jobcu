@@ -155,6 +155,11 @@ class GeminiAdapter(ProviderAdapter):
                 state.add(event.model_dump(mode="json", exclude_none=True))
                 if state.complete:
                     break
+            if not state.complete:
+                log.info("AI event stream ended without completion after %.1fs: "
+                         "headers_received=%s, events_received=%d, final_usage_received=%s",
+                         time.monotonic() - started, bool(self._stream_responses.current),
+                         events, state.final_usage)
             return state.reply()
         except Exception as exc:
             original = exc

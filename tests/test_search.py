@@ -108,6 +108,131 @@ def wait_until_done(manager, answer=None, timeout=60):
     return manager.current.snapshot()
 
 
+@pytest.mark.parametrize("profession", ["Power Electronics Engineer", "ICU Nurse", "Teacher"])
+@pytest.mark.parametrize("outcome", ["stopped", "failed"])
+def test_interrupted_initial_search_keeps_full_candidate_evidence(
+        ready, monkeypatch, profession, outcome):
+    from jobcu import pool, review_capture
+
+    class Source(FakeSource):
+        titles = [profession]
+
+        def load_details(self, job, ctx):
+            return replace(job, description=f"Full fictional {profession} requirements.",
+                           description_is_complete=True)
+
+    class Reader(FakeAI):
+        def complete_json(self, **request):
+            if request["schema_name"] == "Profile":
+                return RawReply(json.dumps({**PROFILE, "field": profession,
+                    "target_roles": [profession], "target_fields": [profession]}), Usage(10, 5))
+            if request["schema_name"] == "QuickPassAnswer":
+                return RawReply('{"clearly_unrelated": [], "places": []}', Usage(10, 5))
+            return super().complete_json(**request)
+
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [Source()])
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: Reader())
+
+    def interrupted(*args, **kwargs):
+        if outcome == "stopped":
+            raise search.SearchStopped
+        raise AIAuthError("Fictional provider failure after full ads were read.")
+
+    monkeypatch.setattr(search.scoring, "score_groups", interrupted)
+    review_capture.arm_next_search()
+    manager = search.SearchManager()
+    run = manager.start(SearchForm())
+    snapshot = wait_until_done(manager)
+    assert snapshot["status"] == outcome
+    kept = pool.load(run.id)
+    assert kept is not None and kept.search_id == run.id
+    assert len(kept.jobs) == 1
+    job = kept.jobs[0]
+    assert job.group.best_description_copy.description == (
+        f"Full fictional {profession} requirements.")
+    assert job.group.best_description_copy.description_is_complete
+    assert job.unrelated is False and job.scored is None
+    records = [json.loads(line) for line in
+               (run.capture.folder / "events.jsonl").read_text(encoding="utf-8").splitlines()]
+    checkpoint = next(record for record in records if record["kind"] == "pool_checkpoint")
+    assert checkpoint["interrupted"] is True
+    assert checkpoint["pool"]["search_id"] == run.id
+    assert checkpoint["pool"]["jobs"][0]["group"]["copies"][0]["description_is_complete"]
+    assert records[-1]["kind"] == "finished"
+
+
+def test_interrupted_pool_save_failure_keeps_original_error_and_private_evidence(
+        ready, monkeypatch):
+    from jobcu import pool, review_capture
+
+    def interrupted(*args, **kwargs):
+        raise AIAuthError("Original fictional provider failure.")
+
+    def failed_save(*args):
+        raise OSError("Fictional disk failure")
+
+    monkeypatch.setattr(search.scoring, "score_groups", interrupted)
+    monkeypatch.setattr(pool, "save", failed_save)
+    review_capture.arm_next_search()
+    manager = search.SearchManager()
+    run = manager.start(SearchForm())
+    snapshot = wait_until_done(manager)
+    assert snapshot["status"] == "failed"
+    assert snapshot["error"] == "Original fictional provider failure."
+    assert any("couldn't keep" in note for note in snapshot["notes"])
+    records = [json.loads(line) for line in
+               (run.capture.folder / "events.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert any(record["kind"] == "pool_checkpoint" for record in records)
+
+
+def test_completed_filtering_is_not_reopened_after_full_ads(ready, monkeypatch):
+    updates = []
+    update = search.SearchRun.update
+
+    def track(run, step_id, status, detail=""):
+        updates.append((step_id, status))
+        return update(run, step_id, status, detail)
+
+    monkeypatch.setattr(search.SearchRun, "update", track)
+    manager = search.SearchManager()
+    manager.start(SearchForm())
+    snapshot = wait_until_done(manager)
+    assert snapshot["status"] == "finished"
+    steps = {step["id"]: step for step in snapshot["steps"]}
+    assert steps["filtering"]["status"] == steps["eligibility"]["status"] == "done"
+    details_end = updates.index(("details", "done"))
+    assert ("eligibility", "running") in updates[details_end:]
+    assert ("filtering", "running") not in updates[details_end:]
+
+
+def test_stop_distinguishes_interrupted_work_from_steps_not_reached():
+    run = search.SearchRun(1, SearchForm(), datetime.now(UTC).isoformat())
+    run.update("filtering", "running")
+    run.update("filtering", "done", "Duplicates removed")
+    run.update("details", "running")
+    run.update("details", "done", "Full ads read")
+    run.update("eligibility", "running", "Checking workplaces")
+    search._mark_remaining(run, "skipped", stopped=True)
+    assert run.step("filtering").status == run.step("details").status == "done"
+    assert run.step("eligibility").status == "interrupted"
+    assert run.step("scoring").status == run.step("places").status == "skipped"
+
+
+def test_source_retry_notice_is_one_per_host_but_capture_keeps_each_wait():
+    from types import SimpleNamespace
+
+    run = search.SearchRun(1, SearchForm(), datetime.now(UTC).isoformat())
+    events = []
+    run.capture = SimpleNamespace(event=lambda kind, **values: events.append((kind, values)))
+    for seconds in (5, 10, 20):
+        search._source_wait_note(run, "employer.example.test", seconds)
+    search._source_wait_note(run, "other.example.test", 5)
+    assert len(run.notes) == 2
+    assert "20 seconds" in run.notes[0] and "5 seconds" in run.notes[1]
+    assert [event[1]["seconds"] for event in events] == [5, 10, 20, 5]
+    assert all(event[0] == "source_wait_requested" for event in events)
+
+
 @pytest.mark.parametrize("title", [
     "Power Supply Engineer", "Patient Care Nurse", "Early Years Teacher"])
 def test_unicode_duplicate_copies_are_assessed_once_before_cards_are_saved(ready, monkeypatch,
@@ -384,16 +509,41 @@ def test_completion_waits_for_saved_results_and_status(monkeypatch, outcome, wit
 
     snapshot = run.snapshot()
     assert snapshot["status"] == outcome
-    assert snapshot["steps"][0]["status"] == ("failed" if outcome == "failed" else "skipped")
+    assert snapshot["steps"][0]["status"] == {
+        "failed": "failed", "stopped": "interrupted", "finished": "skipped"}[outcome]
     with db.connect() as conn:
         row = conn.execute("SELECT status, finished_at FROM searches WHERE id = ?",
                            (run.id,)).fetchone()
     assert row["status"] == outcome and row["finished_at"] is not None
     saved = jobstore.latest_results()
-    if with_jobs:
-        assert json.loads(saved[1]) == snapshot
-    else:
-        assert saved is None
+    assert json.loads(saved[1]) == snapshot
+
+
+def test_failed_latest_attempt_without_cards_survives_app_restart(monkeypatch):
+    from jobcu import pool
+
+    with db.connect() as conn:
+        conn.execute("INSERT INTO searches (id,status,form_json) VALUES (1,'finished','{}')")
+        conn.execute("INSERT INTO search_results VALUES (1, ?)",
+                     (json.dumps({"id": 1, "result": {"jobs": {"cards": []}}}),))
+
+    def interrupted(run):
+        run.note("Fictional interrupted workplace research.")
+        raise AIAuthError("Fictional service failure before scoring.")
+
+    manager = search.SearchManager(runner=interrupted)
+    run = manager.start(SearchForm())
+    wait_until_done(manager)
+    # A new manager models reopening Jobcu: it has no current in-memory run.
+    monkeypatch.setattr(search, "manager", search.SearchManager())
+    monkeypatch.setattr(pool, "exists", lambda search_id: True)
+    with TestClient(create_app(), base_url="http://127.0.0.1") as client:
+        saved = client.get("/api/search/current").json()["search"]
+    assert saved["id"] == run.id and saved["status"] == "failed"
+    assert saved["error"] == "Fictional service failure before scoring."
+    assert not saved["can_edit_conditions"]
+    with db.connect() as conn:
+        assert conn.execute("SELECT 1 FROM search_results WHERE search_id=1").fetchone()
 
 
 @pytest.mark.parametrize("runner_fails", [False, True])
@@ -633,7 +783,8 @@ def test_step_timers_survive_progress_updates_and_waiting_and_finish(monkeypatch
     run.update("scoring", "running")
     ticks[0] = 12
     run.update("scoring", "running", "More progress")
-    assert run.snapshot()["steps"][8]["elapsed_seconds"] == 2
+    assert next(step for step in run.snapshot()["steps"] if step["id"] == "scoring")[
+        "elapsed_seconds"] == 2
 
     def wait(timeout):
         ticks[0] = 17
@@ -646,7 +797,8 @@ def test_step_timers_survive_progress_updates_and_waiting_and_finish(monkeypatch
     run.update("scoring", "done")
     ticks[0] = 30
     snapshot = run.snapshot()
-    assert snapshot["steps"][8]["elapsed_seconds"] == 10
+    assert next(step for step in snapshot["steps"] if step["id"] == "scoring")[
+        "elapsed_seconds"] == 10
     assert snapshot["waiting_seconds"] == 5
     assert snapshot["steps"][0]["elapsed_seconds"] == 0
 
@@ -944,7 +1096,11 @@ def test_only_one_search_at_a_time_and_it_can_be_stopped():
     with pytest.raises(RuntimeError):
         manager.start(SearchForm())
     assert manager.stop(run.id)
-    assert wait_until_done(manager)["status"] == "stopped"
+    snapshot = wait_until_done(manager)
+    assert snapshot["status"] == "stopped"
+    assert search.STOPPED_NOTE in snapshot["notes"]
+    assert search.STOPPING_NOTE not in snapshot["notes"]
+    assert search.STOPPED_NOTE in json.loads(jobstore.latest_results()[1])["notes"]
 
 
 def test_search_api_job_states_and_results_after_a_restart(ready, monkeypatch):

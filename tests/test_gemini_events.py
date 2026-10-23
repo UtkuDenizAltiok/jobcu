@@ -247,6 +247,22 @@ def test_silent_eof_stops_client_repetition_of_possibly_billed_work(
     assert requests[0]["body"]["generation_config"]["thinking_level"] == "medium"
 
 
+@pytest.mark.parametrize("profession", ["power electronics", "nursing", "teaching"])
+def test_silent_event_end_has_private_content_free_diagnostics(service, caplog, profession):
+    adapter, requests, streams = service([
+        start(0, "google_search_call", arguments={"queries": ["PRIVATE_MARKER"]}),
+        start(1), text(f"PRIVATE_MARKER fictional {profession} evidence", index=1),
+    ])
+    with caplog.at_level("INFO", logger="jobcu.ai.gemini_adapter"):
+        with pytest.raises(AIConnectionError):
+            research(adapter)
+    assert "AI event stream ended without completion" in caplog.text
+    assert "events_received=3" in caplog.text
+    assert "final_usage_received=False" in caplog.text
+    assert "PRIVATE_MARKER" not in caplog.text
+    assert len(requests) == 1 and streams[0].closed
+
+
 def test_missing_final_receipt_is_explicit_without_repeating_completed_work(service):
     adapter, requests, _ = service([start(), text('{"ok":true}'), done(usage=False)])
     reply = generate(adapter)

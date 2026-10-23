@@ -36,7 +36,7 @@ def number(value) -> float:
             and math.isfinite(value) and value > 0 else 0)
 
 
-def read_saved(folder: Path) -> tuple[dict | None, list[dict]]:
+def read_saved(folder: Path, *, search_id: int | None = None) -> tuple[dict | None, list[dict]]:
     """SQLite read-only mode also refuses to create a missing database or run migrations."""
     path = folder / DB_FILENAME
     if not path.is_file():
@@ -44,17 +44,30 @@ def read_saved(folder: Path) -> tuple[dict | None, list[dict]]:
     conn = sqlite3.connect(path.resolve().as_uri() + "?mode=ro", uri=True)
     try:
         conn.row_factory = sqlite3.Row
-        row = conn.execute("SELECT search_id, result_json FROM search_results "
-                           "ORDER BY search_id DESC LIMIT 1"
-                           ).fetchone()
+        if search_id is None:
+            row = conn.execute("SELECT search_id, result_json FROM search_results "
+                               "ORDER BY search_id DESC LIMIT 1").fetchone()
+        else:
+            row = conn.execute("SELECT search_id, result_json FROM search_results "
+                               "WHERE search_id = ?", (search_id,)).fetchone()
+        latest = conn.execute("SELECT id, status FROM searches ORDER BY id DESC LIMIT 1").fetchone()
         if row is None:
+            if search_id is not None:
+                attempt = conn.execute("SELECT id, status FROM searches WHERE id = ?",
+                                       (search_id,)).fetchone()
+                if attempt is not None:
+                    return {"id": attempt["id"], "status": attempt["status"], "result": {},
+                            "review_saved_results_available": False,
+                            "review_latest_attempt_status": latest["status"] if latest else None,
+                            "review_is_latest_attempt": bool(
+                                latest and latest["id"] == search_id)}, []
             return None, []
         columns = {column["name"] for column in conn.execute("PRAGMA table_info(quality_ads)")}
         complete = ", description_is_complete" if "description_is_complete" in columns else ""
         ads = [dict(row) for row in conn.execute("SELECT kind, url, rating" + complete +
                                                 " FROM quality_ads")]
         snapshot = json.loads(row["result_json"])
-        latest = conn.execute("SELECT id, status FROM searches ORDER BY id DESC LIMIT 1").fetchone()
+        snapshot["review_saved_results_available"] = True
         snapshot["review_latest_attempt_status"] = latest["status"] if latest else None
         snapshot["review_is_latest_attempt"] = bool(latest and latest["id"] == row["search_id"])
         return snapshot, ads
@@ -130,6 +143,7 @@ def review(snapshot: dict, ads: list[dict]) -> dict:
         "latest_attempt_status": (snapshot.get("review_latest_attempt_status")
                                   if snapshot.get("review_latest_attempt_status") in STATUSES
                                   else "unknown"),
+        "saved_results_available": snapshot.get("review_saved_results_available", True),
         "jobs": {"shown": len(visible), "scored": len(scored),
                  "not_scored": len(visible) - len(scored), "date_unknown": len(unknown),
                  "location_unchecked": len(pending_location),
@@ -142,7 +156,8 @@ def review(snapshot: dict, ads: list[dict]) -> dict:
                                              for check in c.get("location_checks", []))
                                          for c in visible),
                  "by_country": dict(sorted(countries.items()))},
-        "funnel": {k: int(number(jobs.get("counts", {}).get(k))) for k in
+        "funnel": {k: int(number(jobs.get("counts", {}).get(k)))
+                   if "jobs" in result else None for k in
                    ("ads_found", "different_jobs", "unrelated", "not_scored", "shown")},
         "conditions": {status: sum(c.get("status") == status for c in conditions)
                        for status in ("applied", "estimate", "not_checked")},
@@ -163,8 +178,12 @@ def review(snapshot: dict, ads: list[dict]) -> dict:
         "checks_needed": [],
     }
     checks = report["checks_needed"]
+    if not report["saved_results_available"]:
+        checks.append("This attempt has no saved result snapshot. Review its own capture/logs; "
+                      "older saved results were not substituted.")
     if snapshot.get("review_is_latest_attempt") is False:
-        checks.append("These are older saved results; the latest attempt has no saved results.")
+        checks.append("These are older saved results. The latest attempt is different; "
+                      "check the pinned identity before drawing conclusions.")
     if report["status"] != "finished":
         checks.append("This saved search did not finish; investigate before comparing quality.")
     if kind == "reapply":
@@ -187,8 +206,8 @@ def review(snapshot: dict, ads: list[dict]) -> dict:
     if len(scored) < len(visible):
         checks.append("Some visible jobs were not scored; compare the scoring limit with results.")
     if not timings:
-        checks.append("This older search has no step timings; measure the next search.")
-    if report["top_10_quality"]["precision_good"] is None:
+        checks.append("No saved step timings are available for this attempt.")
+    if top and report["top_10_quality"]["precision_good"] is None:
         checks.append("Independently rate every top-10 card before reporting precision.")
     checks.append("Coverage recall needs a date-verified independent list; "
                   "card counts cannot prove it.")
@@ -199,9 +218,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--data-dir", type=Path, default=None,
                         help="private scratch data folder (defaults to Jobcu's data folder)")
+    parser.add_argument("--search-id", type=int, default=None,
+                        help="review only this attempt; never substitute an older search")
     args = parser.parse_args(argv)
     try:
-        snapshot, ads = read_saved(args.data_dir or data_dir())
+        snapshot, ads = read_saved(args.data_dir or data_dir(), search_id=args.search_id)
         if snapshot is None:
             print("No saved search yet. Complete your personal setup "
                   "and run a search in Jobcu first.")

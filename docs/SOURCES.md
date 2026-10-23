@@ -419,6 +419,29 @@ unknown town, employer head office or first posting date. Fictional evidence and
 
 ## Identity and freshness evidence
 
+### Workday detail workplaces — 2026-10-23
+
+A bounded check through the existing Workday reader's terms, robots and polite-request gates
+confirmed `jobPostingInfo.location` and string-list `additionalLocations` alongside the full
+ad. The reader now consumes these fields in the response it already requests, without another
+endpoint, query, country or source allowance. Named locations remain source evidence; absent
+or malformed fields retain known metadata. This is an existing-response parser correction,
+not permission for new collection or evidence that every employer fills those fields.
+
+### Employer-board moves — 2026-10-23
+
+[Amplitude's careers page](https://amplitude.com/careers) now links to its
+[Ashby board](https://jobs.ashbyhq.com/amplitude). [Wayve's official join page](https://wayve.ai/careers/join-us/)
+redirects to its [Ashby board](https://jobs.ashbyhq.com/wayve). Move Amplitude's directory
+entry to Ashby and remove only Wayve's obsolete Greenhouse entry; its existing Ashby entry
+and country coverage remain. Do not remove an employer merely because an old board fails.
+
+Rechecked the [documented public posting API](https://developers.ashbyhq.com/docs/public-job-posting-api)
+and [customer terms](https://www.ashbyhq.com/resources/terms). Two bounded posting-API reads
+returned listed jobs with full descriptions. The API host's robots file returned 401 again;
+no HTML crawling permission is inferred. Existing documented posting-API use, access decisions
+and request budgets remain. This verifies board identity, not market coverage or fresh-job recall.
+
 ### Original-ad sections and access boundaries — 2026-10-15
 
 **Checked:** [Schema.org's JobPosting definition](https://schema.org/JobPosting) supplies

@@ -6,7 +6,7 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed history is 
 
 ## Right now
 
-*Updated 2026-10-22. Engineering checks use fictional data.*
+*Updated 2026-10-23. Engineering checks use fictional data.*
 
 ### State
 
@@ -75,9 +75,30 @@ before revealing scores; compare within finite reservations; implement only conf
 causes with fictional regressions and the required full-suite, review, exact-head CI and
 merge-commit publication. Keep the existing provider until all adoption gates pass. Detailed
 identity, observations, budget and next action remain in the private checkpoint indexed below.
-Current branch: `codex/pinned-provider-trial-review`; no production change or new paid
-comparison dispatch yet. Exact next action: follow the pinned current capture to completion
-or failure without substituting older results.
+Current branch: `codex/pinned-provider-trial-review`. The exact attempt is terminal and frozen
+privately. The owner expanded the task to repair confirmed faults, investigate its warnings and
+audit efficiency without reducing coverage or quality. The original extra allowance was increased
+in the canonical private ledger; prior spending and closed packets are preserved, separately
+from the ordinary monthly budget. New paid work remains paused by the incomplete-bill gate.
+
+Implemented and affected tests passing: separate later workplace checks from duplicate filtering;
+explicit interrupted/unreached states and terminal stop text; preserve enriched candidate pools
+and every terminal attempt; exact-attempt offline review; one source retry notice per host;
+content-free silent-stream diagnostics; tolerate HTML comments in SuccessFactors; repair two
+publicly verified employer-board entries. Workday now retains workplaces already received with
+full ads before considering paid missing-town research. Original source restrictions and all
+lookup/scoring allowances remain. The unchanged-code full-suite baseline passed before changes;
+the final offline suite, privacy/Ruff/docs/JS checks and fictional progress preview pass.
+
+Private timing/cost and independent-evidence audit are saved; no scores/top cards exist for the
+interrupted attempt, so ranking/stability are unavailable. The independent market benchmark and
+paired live comparison remain incomplete. Exact next action: verify this repair's publication
+at its actual heads, completing exact-head Mac/Windows/privacy CI and a merge commit if needed;
+otherwise recover the private billing checkpoint before any more paid comparison. Restore the
+exact terminal attempt safely if its saved snapshot is missing. Preserve receipts/failures; external
+availability, complete billing and provider parity remain unproved. No new broad search,
+closed preflight replay or recurring monitor. Paired live comparison and adoption stay pending
+complete-cost, quality, coverage and research evidence.
 
 The optional native provider, one-run evidence capture, dated choice, guide, start prompt
 and required startup version guard are implemented and locally verified as described above. The private

@@ -77,6 +77,9 @@ class WorkdaySource(CareerSystemSource):
     name = "Company career sites (Workday)"
     system = "workday"
     parallel = 4
+    details_supply_locations = True
+    # Earlier cached bodies discarded the workplaces supplied in the same response.
+    detail_cache_version = 2
 
     def list_jobs(self, employer: Employer, ctx: SourceContext, *, countries=None, start=None,
                   terms=None) -> Iterator[FoundJob]:
@@ -142,17 +145,22 @@ class WorkdaySource(CareerSystemSource):
                 "jobPostingInfo") or {}
         except (SourceError, BudgetExhausted, ValueError):
             return job
-        description = html_to_text(info.get("jobDescription"))
-        if not description:
+        if not info:
             return job
+        description = html_to_text(info.get("jobDescription"))
+        additional = info.get("additionalLocations")
+        locations = [info.get("location"), *(additional if isinstance(additional, list) else [])]
+        location = "; ".join(dict.fromkeys(
+            value.strip() for value in locations if isinstance(value, str) and value.strip()))
         try:
             posted = day_at_utc(date.fromisoformat(info.get("startDate") or ""))
         except ValueError:
             posted = job.posted_at
         return dataclasses.replace(
             job,
-            description=description,
-            description_is_complete=True,
+            description=description or job.description,
+            description_is_complete=bool(description) or job.description_is_complete,
+            location_text=location or job.location_text,
             posted_at=posted,
             job_types=job_types_from_text(info.get("timeType")) or job.job_types,
             work_mode=work_mode_from_text(info.get("remoteType")) or job.work_mode,

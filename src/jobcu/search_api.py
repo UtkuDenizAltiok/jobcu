@@ -52,6 +52,7 @@ def current_search() -> dict:
     # The conditions can be corrected afterwards only while Jobcu keeps that search's jobs.
     snapshot["can_edit_conditions"] = (
         snapshot["status"] != "running" and "location" in snapshot["result"]
+        and "jobs" in snapshot["result"]
         and search_pool.exists(snapshot["id"])
     )
     return {"search": snapshot}

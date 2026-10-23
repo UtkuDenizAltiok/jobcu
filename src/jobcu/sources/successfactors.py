@@ -171,7 +171,7 @@ def read_page(page: str) -> dict[str, str]:
 
     def is_job_scope(node) -> bool:
         return any(kind.rstrip('/').rsplit('/', 1)[-1] == 'JobPosting'
-                   for kind in node.get('itemtype', '').split())
+                   for kind in (node.get('itemtype') or '').split())
 
     scopes = [node for node in doc.iter() if is_job_scope(node)]
     scope = scopes[0] if scopes else doc
@@ -188,19 +188,20 @@ def read_page(page: str) -> dict[str, str]:
     fields: dict[str, list[str]] = {}
     wanted = {"description", "title", *(key for key, _ in AD_SECTIONS)}
     for node in scope.iter():
-        props = set(node.get('itemprop', '').split()) & wanted
+        # lxml comment nodes ignore the get() default and return None.
+        props = set((node.get('itemprop') or '').split()) & wanted
         if not props or not belongs(node):
             continue
         for prop in props:
             if prop == "description" and 'itemscope' in node.attrib and node is not scope:
                 continue
             if prop == "description" and any(
-                    prop in a.get('itemprop', '').split() for a in node.iterancestors()):
+                    prop in (a.get('itemprop') or '').split() for a in node.iterancestors()):
                 continue  # its outer description already includes this text
             clean = deepcopy(node)
             for nested in clean.xpath('.//*[@itemscope]'):
                 if (nested.getparent() is not None and (is_job_scope(nested)
-                        or 'hiringOrganization' in nested.get('itemprop', '').split())):
+                        or 'hiringOrganization' in (nested.get('itemprop') or '').split())):
                     nested.drop_tree()
             text = html_to_text(
                 node.get('content') or lxml_html.tostring(clean, encoding='unicode'))
@@ -209,11 +210,11 @@ def read_page(page: str) -> dict[str, str]:
 
     def first(prop: str) -> str:
         for node in scope.iter():
-            if prop not in node.get('itemprop', '').split():
+            if prop not in (node.get('itemprop') or '').split():
                 continue
             if any(is_job_scope(a) and a is not scope for a in node.iterancestors()):
                 continue
-            if content := node.get('content', '').strip():
+            if content := (node.get('content') or '').strip():
                 return content
         return ""
 
