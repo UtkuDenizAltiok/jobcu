@@ -1,4 +1,4 @@
-"""Checks that Jobcu works for people outside engineering (AGENTS.md: "Jobcu is universal").
+"""Checks that Jobcu works for people outside engineering.
 
 Five made-up people from other fields and countries go through what the person's AI does in a
 search: reading the CV into a profile, writing the hidden search words, the quick check that
