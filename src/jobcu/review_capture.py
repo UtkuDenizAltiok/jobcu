@@ -62,6 +62,39 @@ def _json(value):
     raise TypeError(type(value).__name__)
 
 
+def resume(search_id: int, notify) -> "Capture | None":
+    """Reopen only this search's already opted-in capture; never consume a new arm."""
+    base = ensure_data_dir()
+    root = base / "review-captures"
+    try:
+        if not root.exists():
+            return None
+        if not root.resolve().is_relative_to(base.resolve()):
+            raise ValueError("Capture must remain inside the private data folder")
+        folders = list(root.glob(f"search-{search_id}-*"))
+        if not folders:
+            return None
+        if len(folders) != 1:
+            raise ValueError("Ambiguous capture")
+        folder = folders[0]
+        if folder.is_symlink() or not folder.is_dir():
+            raise ValueError("Capture must be a local directory")
+        marker, events = folder / "armed.json", folder / "events.jsonl"
+        if marker.is_symlink() or events.is_symlink():
+            raise ValueError("Capture must use local regular files")
+        if json.loads(marker.read_text(encoding="utf-8")) != {"version": 1, "armed": True}:
+            raise ValueError("Invalid original capture request")
+        with events.open(encoding="utf-8") as stream:
+            first = json.loads(stream.readline())
+        if first.get("kind") != "search" or first.get("search_id") != search_id:
+            raise ValueError("Different search capture")
+        return Capture(folder, notify)
+    except (OSError, ValueError, AttributeError):
+        notify("Private comparison capture could not resume. Keep the original evidence; "
+               "missing continuation evidence must be checked before a comparison.")
+        return None
+
+
 class Capture:
     def __init__(self, folder, notify):
         self.folder = folder

@@ -72,6 +72,48 @@ def test_only_jobs_nothing_places_are_looked_up():
     assert not jobplace.needs_looking_up(groups[0])  # looked up already, never again
 
 
+def test_completed_batch_is_kept_when_a_later_batch_is_interrupted():
+    from jobcu.search import SearchStopped
+
+    groups = jobs(*[("Deutschland", "DE")] * 6)
+    researcher = Researcher(["Fictional complete notes", SearchStopped()],
+                            [[online(f"J{i}", ["Berlin"]) for i in range(5)]])
+    saved = {}
+    with pytest.raises(SearchStopped):
+        jobplace.find_online(researcher, groups, list(range(6)),
+                             on_evidence=lambda i, value: saved.__setitem__(i, value))
+    assert set(saved) == set(range(5))
+    assert all(group.place_from_web == ["Berlin"] for group in groups[:5])
+    assert groups[5].place_from_web is None
+    restored = jobplace.saved_lookups(groups, saved)
+    assert restored.asked == set(range(5))
+    assert len(restored.requirements) == 5
+
+
+def test_completed_online_evidence_survives_pool_storage_without_another_lookup():
+    from jobcu import db, pool
+
+    groups = jobs(("Deutschland", "DE"))
+    answer = {**online("J0", ["Berlin"]), "requirement_checks": [{
+        "requirement": "Registration", "ad_words": "Active registration required",
+        "profile_words": "Unsupported fictional quote", "status": "met"}]}
+    researcher = Researcher(["Active registration required"], [[answer]])
+    saved = {}
+    jobplace.find_online(researcher, groups, [0],
+                         on_evidence=lambda i, value: saved.__setitem__(i, value))
+    with db.connect() as conn:
+        conn.execute("INSERT INTO searches (id,status,form_json) VALUES(1,'stopped','{}')")
+    pool.save(pool.Pool(1, [pool.PoolJob(groups[0], online_evidence=saved[0])], {}))
+    loaded = pool.load(1)
+    restored = jobplace.saved_lookups([loaded.jobs[0].group], {0: loaded.jobs[0].online_evidence})
+    assert restored.asked == {0} and 0 in restored.requirements
+    check = restored.requirements[0].requirement_checks[0]
+    assert check["status"] == "unclear" and check["proposed_status"] == "met"
+    assert check["grounding_issues"] == ["profile_quote_unverified"]
+    assert len(researcher.prompts) == len(researcher.structure_prompts) == 1
+    assert loaded.jobs[0].group.place_from_web == ["Berlin"]
+
+
 def test_unavailable_online_checks_explain_missing_evidence_without_clearing_jobs():
     groups = jobs(*[("Deutschland", "DE")] * 6)
     researcher = Researcher([AIUnavailable("fictional outage", "private diagnostic")])

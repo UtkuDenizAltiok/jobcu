@@ -99,6 +99,7 @@
       <div class="card" id="progress-card" hidden>
         <div class="card-head">
           <h2 id="progress-title">Searching…</h2>
+          <button type="button" class="secondary" id="resume-search" hidden>Continue saved search</button>
           <button type="button" class="secondary" id="stop-search" hidden>Stop</button>
         </div>
         <ol class="steps" id="search-steps"></ol>
@@ -193,9 +194,9 @@
 
       <dialog id="retry-checks-dialog" aria-labelledby="retry-checks-title">
         <h2 id="retry-checks-title">Retry incomplete checks</h2>
-        <p>Use the saved jobs to retry missing location facts and uncertain requirements in full
+        <p id="retry-checks-explanation">Use the saved jobs to retry missing location facts and uncertain requirements in full
           ads. Completed evidence is kept when it is still valid. No new jobs are collected.</p>
-        <p>This uses AI within your existing limits. Missing originals or facts can remain
+        <p>This uses your current AI settings within your existing limits. Missing originals or facts can remain
           unchecked, and AI travel estimates still need verification.</p>
         <p id="retry-checks-summary" class="muted"></p>
         <p id="retry-checks-status" class="status" role="status" hidden></p>

@@ -9,6 +9,28 @@ Code/tests establish behavior; the latest current decision establishes intent.
 
 ## Current decisions
 
+### Continue an interrupted pre-result search — 2026-10-23
+
+An interrupted attempt with a saved pool/location plan can explicitly continue before it has
+cards. Continue retains search ID, original inputs/window and candidate identity, reuses finished
+work and runs the decision pipeline without source collection. Missing metadata/full ads may
+still be read within existing source budgets; remaining AI uses current settings and limits.
+The confirmation explains this and the possible charge from an interrupted request. Earlier
+warnings retain a historical prefix; original evidence and cumulative usage remain intact.
+Continuation timings cover the latest continuation, not the original complete search.
+An explicitly opted-in capture reopens only for that same search, including after a restart;
+it records the prior snapshot and new receipts without consuming a next-search arm. Searches
+without an original capture stay uncaptured. Frozen review copies remain immutable.
+
+Online batches commit returned evidence as they finish, including original grounded requirement
+checks and sponsorship confirmation. Pool JSON accepts the optional field without a migration;
+legacy pools retain their old defaults. Continue reuses completed checks, while explicit retry
+reopens incomplete checks. Original quote/workplace validation and location admission remain.
+Parallel failures cancel queued work but still deliver successful already-running results to
+their checkpoints before raising the original error. A raw research note without completed
+validation remains incomplete evidence. Fictional tests cover reopening before scoring across
+electronics/nursing/teaching, batch interruption, storage and parallel completion after failure.
+
 ### Interrupted attempts and source-reader recovery — 2026-10-23
 
 Duplicate/rule filtering finishes before full-ad loading. Subsequent workplace and location

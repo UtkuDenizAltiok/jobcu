@@ -119,6 +119,22 @@ def test_the_first_error_stops_the_items_not_started_yet():
     assert len(started) < 20
 
 
+def test_running_success_after_another_failure_still_reaches_its_checkpoint():
+    ai = client(Counting())
+    ai.parallel_requests = 2
+    entered = threading.Barrier(2)
+    kept = []
+    def work(item):
+        entered.wait(timeout=5)
+        if item == 0:
+            raise AIAuthError("Original fictional failure")
+        time.sleep(0.05)
+        return "Completed potentially billed evidence"
+    with pytest.raises(AIAuthError, match="Original fictional failure"):
+        in_parallel(ai, work, [0, 1], lambda i, value: kept.append((i, value)))
+    assert kept == [(1, "Completed potentially billed evidence")]
+
+
 def test_web_look_ups_sent_together_never_go_past_the_cap():
     adapter = Counting()
     ai = client(adapter, cap=10)

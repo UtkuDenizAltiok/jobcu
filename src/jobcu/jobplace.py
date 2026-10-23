@@ -208,7 +208,8 @@ _USED_UP = "used up"  # a batch not asked about because the web look-ups ran out
 
 def find_online(client: AIClient, groups: list[JobGroup], indexes: list[int],
                 profile: Profile | None = None,
-                on_progress: Callable[[int, int], None] = lambda done, total: None) -> LookedUp:
+                on_progress: Callable[[int, int], None] = lambda done, total: None,
+                *, on_evidence: Callable[[int, dict], None] | None = None) -> LookedUp:
     """Looks these jobs up on the web, a few per request and a few requests at a time, until
     the search's allowance of web look-ups is used. Jobs whose town nobody gave get
     `place_from_web` ([] when the ad wasn't found or names no town); the requirements of every
@@ -239,45 +240,71 @@ def find_online(client: AIClient, groups: list[JobGroup], indexes: list[int],
             return None
 
     done = 0
+    looked_up = LookedUp()
 
     def finished(batch: list[int], answers) -> None:
         nonlocal done
         if answers == _USED_UP:
+            looked_up.not_asked.extend(batch)
             return  # deferred work is still pending; count it when a later round attempts it
+        if isinstance(answers, dict):
+            for index in batch:
+                answer = answers.get(f"J{index}")
+                _keep_answer(groups[index], index, answer, looked_up)
+                if on_evidence is not None:
+                    on_evidence(index, {
+                        "answer": answer.model_dump() if answer else None,
+                        "grounded_checks": answer._grounded_checks if answer else None,
+                        "sponsorship_confirmed": bool(answer and answer._sponsorship_confirmed),
+                    })
         done += len(batch)
         on_progress(done, len(indexes))
 
     batches = [indexes[start : start + BATCH_SIZE]
                for start in range(0, len(indexes), BATCH_SIZE)]
+    in_parallel(client, look_up, batches, finished)
+    return looked_up
+
+
+def _keep_answer(group, index: int, answer: OnlineJob | None, looked_up: LookedUp) -> None:
+    looked_up.asked.add(index)
+    found = answer is not None and answer.found
+    if needs_looking_up(group):
+        towns = _real_towns(group, answer.towns) if found else []
+        group.place_from_web = towns
+        looked_up.towns_found += bool(towns)
+    if found:
+        looked_up.requirements[index] = Requirements(
+            answer.languages_asked, answer.years_required, blockers={
+                "doctorate": answer.doctorate,
+                "citizenship_or_clearance": answer.citizenship_or_clearance,
+                "citizenship_or_clearance_words": answer.citizenship_or_clearance_words,
+                "visa_sponsorship": answer.visa_sponsorship,
+                "visa_sponsorship_words": answer.visa_sponsorship_words,
+                "sponsorship_confirmed": answer._sponsorship_confirmed},
+            role_and_skills=answer.role_and_skills, role_words=answer.role_words,
+            requirement_checks=(answer._grounded_checks
+                                if answer._grounded_checks is not None
+                                else [c.model_dump() for c in answer.requirement_checks]
+                                if answer.requirement_checks is not None else None))
+
+
+def saved_lookups(groups: list[JobGroup], evidence: dict[int, dict]) -> LookedUp:
+    """Reuse completed evidence from this same search without buying its lookup again."""
     looked_up = LookedUp()
-    for batch, answers in zip(batches, in_parallel(client, look_up, batches, finished),
-                              strict=True):
-        if answers == _USED_UP:
-            looked_up.not_asked.extend(batch)
-        if not isinstance(answers, dict):
+    for index, stored in evidence.items():
+        if not isinstance(stored, dict) or "answer" not in stored:
             continue
-        for index in batch:
-            looked_up.asked.add(index)
-            answer = answers.get(f"J{index}")
-            found = answer is not None and answer.found
-            if needs_looking_up(groups[index]):
-                towns = _real_towns(groups[index], answer.towns) if found else []
-                groups[index].place_from_web = towns
-                looked_up.towns_found += bool(towns)
-            if found:
-                looked_up.requirements[index] = Requirements(
-                    answer.languages_asked, answer.years_required, blockers={
-                        "doctorate": answer.doctorate,
-                        "citizenship_or_clearance": answer.citizenship_or_clearance,
-                        "citizenship_or_clearance_words": answer.citizenship_or_clearance_words,
-                        "visa_sponsorship": answer.visa_sponsorship,
-                        "visa_sponsorship_words": answer.visa_sponsorship_words,
-                        "sponsorship_confirmed": answer._sponsorship_confirmed},
-                    role_and_skills=answer.role_and_skills, role_words=answer.role_words,
-                    requirement_checks=(answer._grounded_checks
-                                        if answer._grounded_checks is not None
-                                        else [c.model_dump() for c in answer.requirement_checks]
-                                        if answer.requirement_checks is not None else None))
+        try:
+            answer = OnlineJob.model_validate(stored["answer"]) if stored["answer"] else None
+        except (ValueError, TypeError):
+            continue
+        if answer is not None:
+            if answer.id != f"J{index}":
+                continue
+            answer._sponsorship_confirmed = stored.get("sponsorship_confirmed") is True
+            answer._grounded_checks = stored.get("grounded_checks")
+        _keep_answer(groups[index], index, answer, looked_up)
     return looked_up
 
 

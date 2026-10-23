@@ -215,6 +215,13 @@ means work was interrupted; **Not completed** means the search did not reach tha
 Stopping before scoring can leave no result cards. The stopped attempt and completed candidate
 evidence are kept locally, including when you reopen Jobcu; previous saved jobs and marks remain.
 
+If a search stopped before it produced cards and its candidates were saved, **Continue saved
+search** uses those candidates with the original search choices. Read the confirmation before
+continuing: remaining work uses your current AI settings and may cost more. Completed lookups
+are reused. No new jobs are collected; missing full ads may still be read. Check service and
+billing first after an interrupted AI request. If the saved candidates are unavailable, this
+button is not offered.
+
 To cancel a running search, click **Stop**. To try again, wait for it to stop, then click
 **Find matching jobs** again. A new search uses AI again and may incur further charges.
 

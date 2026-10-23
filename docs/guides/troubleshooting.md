@@ -145,6 +145,11 @@ After a stop, **Stopped before completion** identifies the interrupted row and *
 identifies steps that were never reached. A stop before scoring can produce no cards. The latest
 attempt still survives reopening; it does not become an older search's results.
 
+**Continue saved search** can finish an interrupted attempt that has saved candidates but no
+cards. It keeps that search's identity and does not collect new jobs. Its confirmation explains
+remaining AI use; after an interrupted request, check billing first. Completed online batches
+survive a later interruption and are reused. Missing or unvalidated evidence stays unchecked.
+
 The retry detail shows its number and limit, rather than an unnumbered repeating message.
 Reference-city facts are checked in groups of up to eight, with group progress. Every candidate
 remains represented: completed answers survive a later failed group, while unchecked cities

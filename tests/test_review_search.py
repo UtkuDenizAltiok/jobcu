@@ -94,6 +94,7 @@ def test_career_title_report_allows_counts_but_never_rejected_jobs_or_notes():
 @pytest.mark.parametrize("kind,timing_scope,usage_scope", [
     ("search", "original_search", "original_search"),
     ("reapply", "latest_correction", "search_and_all_corrections"),
+    ("resume", "latest_continuation", "search_and_all_continuations"),
     (None, "unknown", "unknown"),
     ("PRIVATE_MARKER", "unknown", "unknown"),
 ])
@@ -103,12 +104,14 @@ def test_performance_scopes_are_explicit_and_unknown_kinds_stay_private(
     if kind is not None:
         saved["kind"] = kind
     report = tool.review(saved, [])
-    assert report["kind"] == (kind if kind in {"search", "reapply"} else "unknown")
+    assert report["kind"] == (kind if kind in {"search", "reapply", "resume"} else "unknown")
     assert report["timing_scope"] == timing_scope
     assert report["usage_scope"] == usage_scope
     assert "PRIVATE_MARKER" not in json.dumps(report)
     if kind == "reapply":
         assert any("original search and all corrections" in c for c in report["checks_needed"])
+    elif kind == "resume":
+        assert any("original search and all continuations" in c for c in report["checks_needed"])
     elif timing_scope == "unknown":
         assert any("scopes are unknown" in c for c in report["checks_needed"])
     else:
