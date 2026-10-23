@@ -17,12 +17,6 @@ GitHub or a screenshot. After saving, Jobcu hides it and shows only its ending c
 you choose from that provider. Jobcu lets you choose both; it does not pick one for you.
 Use the provider's descriptions, current prices and your account's access to decide.
 
-When an assistant is helping, it should make the technical recommendation and prepare a
-focused comparison; you do not need to buy and test many APIs. The [dated recommendation](../ENGINEERING.md#quality-first-api-and-electronics-coverage-decision--2026-10-10)
-currently keeps the working setup and identifies one challenger to investigate. Published
-prices and general benchmarks do not establish equal Jobcu results. Keep your settings while
-that comparison is incomplete; do not purchase another subscription just for its model count.
-
 1. Open Jobcu and click **Settings** at the top of the page.
 2. Under **AI provider**, select your chosen service. The key and model boxes appear below it.
 3. If you do not have a key, click **Create one on the provider's website**. This opens its
@@ -97,112 +91,6 @@ reading and scoring. Existing one-provider setups continue to work without this 
    usage and share Jobcu's limits; their service charges/allowances remain separate. When
    research is refused, Jobcu labels uncertainty rather than silently switch to another API.
 
-### Recommended setup now
-
-**Checked 2026-10-22:** use direct **Xiaomi (MiMo) → `mimo-v2.6-pro`** as the first challenger,
-with the current Gemini setup as the baseline. MiMo's published token prices are lower, and
-its general reasoning/document evidence justifies testing it first. Its factual benchmark
-weaknesses mean equal Jobcu quality is **not yet established**. The earlier OpenAI trial proposal
-is superseded. See the [decision](../ENGINEERING.md#one-provider-search-trial--2026-10-22) and
-[primary evidence](../SOURCES.md#challenger-selection-recheck--2026-10-22).
-
-1. Open the [MiMo API platform](https://platform.xiaomimimo.com/). Choose ordinary pay-as-you-go
-   API access and create a dedicated key. Complete account/payment/terms steps yourself.
-   Do not buy Token Plan, a coding subscription, or the expensive Ultraspeed model.
-2. Enable the **Web Search** plugin in that console. Review current privacy terms: necessary
-   document/search text goes to Xiaomi when used, while Jobcu's files stay on this computer.
-   Overseas processing is not a promise of local-only or zero-retention processing.
-3. Keep funding inside the agreed comparison allocation, including tax/FX; disable automatic
-   replenishment. Check actual account stopping controls. A prepaid balance, alert or Jobcu
-   estimate alone is not a guaranteed exact invoice ceiling. If the minimum purchase or
-   enforcement terms exceed the allocation, stop before paying and tell the assistant.
-4. In Jobcu **Settings**, temporarily select **Xiaomi (MiMo)** to display its API-key row. Paste
-   the key there and click the key row's **Save**. Then reselect the existing Google provider.
-   Do not click **Test connection**, change the main model, or start a search yet. A saved key
-   does not require adopting its provider; never paste it in chat.
-5. Tell the assistant the key is saved and Web Search is enabled. The assistant checks the
-   shared budget/lower limits and runs one finite preflight through Jobcu on isolated data:
-   structured output, cited research, complete usage and a small independent quality packet.
-   Stop on a service failure or uncertain bill; do not keep clicking Test or replenish blindly.
-6. After preflight passes, use **Posted within → 72 hours**, preserve your documents/criteria
-   and start **one** baseline search with the agreed provider. This means ads from the previous
-   three days, not a search running for three days. Send the
-   [comparison start prompt](../PROMPTS.md#start-the-prepared-provider-comparison).
-7. The assistant reviews the exact run and compares MiMo on the same saved evidence. No second
-   broad search is needed. Switch only after the quality/research and full-cost gates pass;
-   otherwise keep Gemini and explain the specific failed gate.
-
-The normal monthly service budget stays in force. An expressly authorized one-off development
-allowance is tracked separately and does not recur. Existing job sources and Google Maps are
-retained; no new job-source or travel subscription is recommended without measured benefit.
-Capture is local and event-driven. There are no scheduled chat checks, repeated test calls or
-new searches started by the capture. Connection success alone cannot prove matching quality.
-
-For recurring Maps refusals:
-
-1. Open [Google Cloud's Routes quotas page](https://console.cloud.google.com/apis/api/routes.googleapis.com/quotas).
-   Select the existing project whose Maps key you saved in Jobcu.
-2. Find **Compute Route Matrix** quotas and current usage. Check the element-per-minute quota
-   and any daily restrictions. Check that this project's billing is enabled and **Routes API**
-   is enabled. Compute Routes is a different API operation; changing its quota may not help.
-3. Resolve the specific refused quota or access setting before raising Jobcu's monthly Maps
-   limit. Keep the existing key and saved settings unless the diagnosis requires a change.
-   Google's documented standard rate is 3,000 matrix elements per minute, but a project can
-   have different limits; this is not an instruction to request an arbitrary increase.
-4. Check **Billing → Reports** for the Routes SKU and **Billing → Credits** for any eligible
-   Cloud credit. AI Studio's Gemini balance cannot pay this bill. Keep spending within the
-   agreed total; a budget alert alone cannot enforce it.
-
-The assistant handles interpretation and application work. The owner handles required account
-and payment steps, and enters secrets only in Jobcu. Keep account details out of shared
-screenshots and GitHub. The [Maps troubleshooting guide](troubleshooting.md#google-maps-keeps-asking-jobcu-to-slow-down)
-explains quota messages and uncertainty. Changing billing alone cannot prove better scores.
-
-### Considering OpenCode Go
-
-Go offers model choice, not a separate full allowance for every model. Think of it as one
-shared battery: models use that battery at different rates. For example, usage worth USD1.50
-on a model with a USD15 monthly equivalent takes 10%; USD6 on a model with a USD60 equivalent
-takes another 10%. Together that is 20% of the monthly allowance. These values measure token
-work included in the subscription, not additional cash payments. Five-hour and weekly limits
-can stop work before the monthly allowance is exhausted. Switching models does not reset them.
-The [dated evidence](../SOURCES.md#opencode-go-and-ai-credit-eligibility) records the code,
-reset rules, prices and limits; advertised request counts assume coding conversations and do
-not predict full-ad job scoring. Keep **Use balance** off to avoid optional extra charges.
-
-A subscription can be good value for substantial permitted use of several models. For one
-chosen model, a direct API can cost less than a fixed subscription. Compare the complete bill,
-including hosted web-search calls and retrieved content; low generation prices alone do not
-settle it. Access to many models does not automatically improve scores: Jobcu uses the selected
-model, and each alternative must be
-compared on actual job understanding before adoption. The
-[complete assessment](../ENGINEERING.md#complete-catalogue-and-universal-api-decision--2026-10-09)
-keeps GPT-6 Luna, MiMo-V2.6-Pro, DeepSeek V4.1 Flash, Haiku 5.5 and GLM-5.3-Flash as comparison
-candidates. There is no measured winner or automatic model rotation.
-
-Current custom APIs in Jobcu need a separate native research provider for web checks. Positive
-reports of Go-hosted web search warrant investigating a one-provider integration; this guard
-does not mean Go's models cannot search. Verify current sources, citations and fees before
-replacing working research. Models use different published API formats. Jobcu's **Other**
-option now accepts these formats,
-with explicit thinking controls and a separate online-research option. Configure from the
-service's documented format; compatibility still needs verification. Keep the one-model working
-setup described above. Do not enter a Go key in Jobcu's native **OpenAI** or **Anthropic**
-key boxes: those connect to the named providers, not to Go. Never send a key
-through chat. No paid Go test or automatic provider switch was performed.
-
-After permitted use and quality are established, the documented Go base is
-`https://opencode.ai/zen/go/v1`, entered under **Other**. GPT-6 Luna uses **Responses**, Haiku
-5.5 **Messages**, and the MiMo/DeepSeek/GLM candidates **Chat Completions**. Model IDs and
-current allowances are in the linked service evidence. MiMo's enabled-thinking control differs
-from a literal medium effort; DeepSeek/GLM native mappings need host verification. This is
-configuration guidance, not permission to send private data or an instruction to buy Go.
-
-For Jobcu alone, also compare a model's direct API with the subscription: it may avoid a fixed
-fee and integration work. Include web-tool charges and your actual workload; a token-only price
-is not the full search bill. The dated decision above compares that option without changing
-your chosen provider or claiming that a different model has better matching accuracy.
-
 ## Control usage and cost
 
 AI services may charge when you test a connection, read documents, search or apply corrected
@@ -262,15 +150,7 @@ Zero known tokens then means the charge is unknown, not that the failed request 
 Older unreported charges cannot be reconstructed from the local ledger. Clearing search data
 keeps the monthly usage counters but removes run history/caches; it cannot reset a provider bill.
 The [current failure/billing evidence](../SOURCES.md#billing-refusals-and-processing-evidence--2026-10-12)
-explains these limits and discounted processing alternatives.
-
-Some providers offer discounted processing of the same model with longer waits or reduced
-availability. That is different from a cheaper model, whose matching quality needs independent
-comparison. Do not select a plan just from its model count or request estimate. The dated
-[processing/cost evidence](../SOURCES.md#processing-tiers-and-complete-cost-comparisons--2026-10-10)
-and [fictional comparison](../ENGINEERING.md#structured-employer-workplace-evidence--2026-10-10)
-explain the tradeoffs; they are not a bill or proof of equal quality. Keep a working setup
-while a replacement's complete cost, permitted use and quality are checked.
+explains the billing limits.
 
 You can now return to **Search** and follow [How to use Jobcu](first-search.md#2-add-your-cv-and-cover-letter).
 The extra keys below are optional and can be added later.
@@ -365,7 +245,7 @@ explains these outcomes.
 
 Maps charges depend on the number of journeys checked, the request features and your billing
 account's available allowance. Collected job-ad counts are not a bill. Read the dated
-[Maps price and cost-control evidence](../SOURCES.md#maps-spending-and-alternatives) before
+[Maps price and cost-control evidence](../SOURCES.md#routes-billing) before
 enabling paid use or increasing a limit. Jobcu's route limit counts attempts, including retries;
 it is not a euro spending cap. Google combines account usage across projects, and its billing
 month can differ from Jobcu's local counter. Do not rely on an alerts-only budget to stop charges.
@@ -377,8 +257,7 @@ the fastest district connection, accurate AI scores or complete job coverage.
 
 **AI Studio prepaid credit is for the Gemini API, not Google Maps.** Separately issued Cloud
 promotional credit can have different eligibility and an expiry date; check the actual credit
-grant. Do not assume that stopping Gemini moves its balance to Maps. The
-[credit evidence](../SOURCES.md#opencode-go-and-ai-credit-eligibility) was checked on 2026-10-09.
+grant. Do not assume that stopping Gemini moves its balance to Maps.
 
 These service references were checked on 2026-10-07. Prices and account access still depend
 on the services' current terms. Maps retry/quota handling was rechecked on 2026-10-09;

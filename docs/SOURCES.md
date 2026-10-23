@@ -4,94 +4,8 @@ This indexes the adapters in the current code and the dated access evidence behi
 It does **not** confirm today's availability, vacancies or recall. Read [AGENTS](../AGENTS.md)
 and recheck current terms/robots rules before adding or changing collection.
 
-Detailed formats, rate limits, site quirks and past measurements live in
-[dated source research](archive/SOURCE-RESEARCH.md). Its checks span 2026-09-17 to 2026-10-06;
-follow each section's date. Add newly verified facts here with a date and primary source link.
-
-## Challenger selection recheck — 2026-10-22
-
-Choose **direct MiMo-V2.6-Pro for evaluation**, retaining Gemini as the working baseline.
-This revises the immediate OpenAI proposal below; integration convenience alone does not
-establish equal quality. No live comparison or saving has yet been measured.
-
-| Candidate | Current primary evidence and implication |
-|---|---|
-| MiMo-V2.6-Pro | [Overseas pricing](https://mimo.mi.com/docs/en-US/price/pay-as-you-go), updated October 21: USD0.435 input / 0.87 output / 0.0036 cached input per million; web/search parsing USD5/1,000 uses, independently billed. Retrieved text and multiple operations matter; Ultraspeed is a different, much dearer tariff. |
-| Gemini 3.8 Flash | [Standard pricing](https://ai.google.dev/gemini-api/docs/pricing): USD0.75/3.75 input/output through December 31, including thinking. Search has a shared 5,000-query monthly allowance, then USD14/1,000 queries. A cheaper token tariff alone cannot beat unused free grounding or establish the complete bill. |
-| MiniMax M3.1 Flash | [Official prices](https://platform.minimax.io/docs/pricing/overview): USD0.15/0.60, cached input 0.015. A credible cheaper reserve, not dismissed for a smaller name. Its [publisher comparison against Gemini Medium](https://artificialanalysis.ai/models/comparisons/minimax-m3-1-flash-vs-gemini-3-8-flash-medium) reports composite 42/40, factual score 16/29 and long-context 80/84: mixed evidence, not demonstrated equal job research. |
-| DeepSeek V4 Pro | [Official pricing](https://api-docs.deepseek.com/quick_start/pricing/) varies by time/model; cheap off-peak tokens and standalone search do not establish matching parity. [Publisher comparison](https://artificialanalysis.ai/models/comparisons/mimo-v2-6-pro-vs-deepseek-v4-pro) reports MiMo/DeepSeek composite 46/36 and factual score 8/1. Native tool accounting/integration is a separate gate. |
-| Kimi K3 | [Official pricing](https://platform.kimi.com/docs/pricing/chat) and [publisher comparison](https://artificialanalysis.ai/models/comparisons/mimo-v2-6-pro-vs-kimi-k3): K3's USD3/15 input/output is above the Gemini tariff. It beats MiMo on factual and long-context scores in that comparison, but fails the requested cheaper-standard-tariff requirement. |
-| GLM-5.3 | [Official pricing](https://docs.z.ai/guides/overview/pricing): USD1.40/4.40 input/output. [Publisher comparison](https://artificialanalysis.ai/models/comparisons/mimo-v2-6-pro-vs-glm-5-3) reports composite 46/45 for MiMo/GLM, with GLM stronger on factual questions. It also costs more per token than the baseline. |
-
-**Why this first choice, with counterevidence:** the benchmark publisher's
-[MiMo/Gemini comparison](https://artificialanalysis.ai/models/comparisons/mimo-v2-6-pro-vs-gemini-3-8-flash)
-reports composite 46/41 and long-context 86/81, but factual score **8/30** and PDF reasoning
-19/21; Gemini there uses **High**, not Jobcu's Medium. MiMo is also slower on the published
-500-token latency measure. Its reasoning margin, document context and inexpensive output
-justify the first quality-focused trial, not a blanket superiority claim. MiniMax remains a
-reasonable reserve if MiMo fails, rather than another account to buy now. These are primary
-benchmark-publisher measurements, not a Jobcu-labelled experiment or evidence of recall.
-
-**Native contract:** the [Chat reference](https://mimo.mi.com/docs/en-US/api/chat/openai-api)
-documents `/v1/chat/completions`, `max_completion_tokens` including thinking, JSON-object
-output and enabled/disabled thinking. It does not promise strict JSON Schema or a literal
-medium scale. Web-search annotations are flat source URLs/titles, not passage mappings.
-`max_keyword` limits keywords, while **`limit` limits returned results, not search rounds**.
-Usage separately reports `web_search_usage.tool_usage` and `page_usage`. Count their sum
-conservatively for local estimates; do not assert an exact invoice unit equivalence.
-The [web-search guide](https://mimo.mi.com/docs/en-US/quick-start/usage-guide/text-generation/tool-calling/web-search)
-requires activating the plugin; multiple keywords/content retrieval can cost extra. Its
-thinking-disabled sample is not Jobcu's configuration. No documented hard currency or total
-round ceiling was found. Finite paid packets need account controls/headroom, not prompt caps.
-
-**Permitted path assessment:** the rendered
-[overseas agreement](https://mimo.mi.com/docs/quick-start/terms/user-agreement), July 7, describes
-an API platform and keys for API use in sections 1.1/2.3. Sections 3.2.8–3.2.9 restrict
-unauthorized third-party tools; they do not expressly ban all non-coding API applications.
-**Engineering inference:** using the documented API, normal key and supported SDK in the
-owner's local server is the documented integration path, distinct from accessing consumer
-services through unapproved tools. This is not individual vendor approval or an unrestricted
-right to redistribute source text. Respect existing source rights; do not expose keys to page
-code or reuse consumer login sessions. Owner account/terms acceptance remains the owner's step.
-The separate [Token Plan](https://mimo.mi.com/docs/en-US/tokenplan/Token%20Plan/subscription)
-restricts non-coding/custom-backend use and is unsuitable here. Use ordinary pay-as-you-go.
-See the [key FAQ](https://mimo.mi.com/docs/en-US/quick-start/faq/api-integration).
-Overseas data processing/storage and provider retention remain distinct from local app storage.
-
-**Funding controls checked the same day:** the [payment FAQ](https://mimo.mi.com/docs/en-US/quick-start/faq/payment)
-supports overseas USD top-ups and balance alerts. It explicitly permits a negative balance
-from delayed billing before service stops; the next top-up first pays that debt. It does not
-document an exact enforced spending ceiling. The [welcome offer](https://mimo.mi.com/docs/en-US/quick-start/promotions/Welcome%20Bonus)
-describes a first-top-up bonus with no qualifying minimum, but does not establish every
-checkout's payment minimum or entitlement. Do not enlarge a trial allowance because a bonus
-appears, or treat balance alerts/prepayment as a hard cap. Check actual account controls and
-leave financial headroom before paid tests.
-
-## One-provider trial evidence — 2026-10-22
-
-**Earlier proposal, superseded by the challenger recheck above.** Its protocol facts explain
-the proposal; they do not justify retaining OpenAI as the selected challenger.
-
-Primary documentation was rechecked for a cheaper single-provider trial, not a quality verdict.
-
-| Candidate | Current evidence and adoption limit |
-|---|---|
-| Direct GPT-6 Luna | The [model specification](https://developers.openai.com/api/docs/models/gpt-6-luna) documents native medium, structured output and Responses web search. [Standard short-context prices](https://developers.openai.com/api/docs/pricing) are USD0.10 input / 0.50 output per million tokens, with separately priced cache writes and search at USD10/1,000 calls plus retrieved tokens. Context, processing tier and regional premiums matter. Jobcu's existing native adapter supports this path; live quality/account access remains untested. |
-| Direct MiMo-V2.6-Pro | The [current rendered agreement](https://mimo.mi.com/docs/quick-start/terms/user-agreement), updated July 7, still contains third-party-software restrictions in 3.2.8–3.2.9. Their application to this local API client remains unresolved; published API functionality does not settle it. The page also confirms retirement of V2.5 IDs on October 21. No permission request or account action was sent. |
-| Direct DeepSeek | The [current table](https://api-docs.deepseek.com/quick_start/pricing/) identifies `deepseek-flash` as V4.1-Flash-1017, with time-dependent rates. [Standalone search/fetch](https://api-docs.deepseek.com/guides/search/) each cost USD0.75/1,000 successful requests. [Responses compatibility](https://api-docs.deepseek.com/guides/responses_api/) documents server search only for V4 Pro and explicitly ignores `max_tool_calls`. A new safely bounded integration is needed; compatibility is not proof of a spending bound. |
-| Kimi K3 | The [current flagship guide](https://platform.kimi.com/docs/guide/kimi-k3-quickstart) documents always-on thinking with low/high/max, default max, rather than literal medium. Its API capability is not a verified Jobcu hosted-research path or evidence of cheaper equal-quality results. |
-
-[OpenAI's current spending controls](https://developers.openai.com/api/docs/guides/spend-limits)
-distinguish alerts from enforced organization/project monthly limits. In project settings,
-Limits → Spend → Edit spend limit → Enforce a hard limit enables rejection after tracked spend
-reaches the cap. Propagation permits small overspend, so leave headroom. Do not confuse an
-alert, prepaid balance, local estimate or token-only tariff with an exact end-to-end ceiling.
-Jobcu's simple price table does not separately represent every context/cache-write charge.
-
-[API data controls](https://developers.openai.com/api/docs/guides/your-data) state no training on
-API content by default, with abuse-monitoring content retained up to 30 days by default, subject
-to stated exceptions. Jobcu's `store=False` does not itself establish zero retention. Necessary
-document/query text goes to the chosen provider; the app's files remain device-local.
+Dates below describe recorded checks, not current availability. Historical investigations are
+retained in Git. Adapter parsing and request details are in `src/jobcu/sources/`.
 
 ## Temporary provider recovery — 2026-10-23
 
@@ -138,29 +52,28 @@ Countries below describe the adapter's scope, not complete market coverage.
 
 | Source | Scope and method | Evidence and caveats |
 |---|---|---|
-| Adzuna | Ten supported countries; official API, app ID/key | [Record](archive/SOURCE-RESEARCH.md#adzuna). No Ireland; descriptions are summaries. Blocked ad pages are not fetched. |
-| Reed | UK; official API/key, job details | [Record](archive/SOURCE-RESEARCH.md#reed). List dates have day precision; full details are separate. |
-| Bundesagentur | Automated access paused | [Current terms hold](#bundesagentur-access-hold--2026-10-17) supersedes the archived public-endpoint assumption. Saved evidence remains readable. |
-| JobsIreland | Ireland; public list and job pages | [Record](archive/SOURCE-RESEARCH.md#jobsireland). Match titles locally; an empty first page may be a service failure. |
-| Arbeitnow | Germany/UK feeds; public API | [Record](archive/SOURCE-RESEARCH.md#arbeitnow). Free-text locations need interpretation. |
-| jobs.ac.uk | UK/Ireland; search pages and JobPosting data | [Record](archive/SOURCE-RESEARCH.md#jobsacuk). Academic/research/technical jobs; personal-use terms. |
-| EURAXESS | Supported countries; research-job pages | [Record](archive/SOURCE-RESEARCH.md#euraxess). Throttling and per-search request limits apply. |
-| JobTech | Sweden; public JobSearch API | [Record](archive/SOURCE-RESEARCH.md#jobtech). Full text; local timestamps and paging limits need handling. |
-| service.bund.de | Germany; RSS and job pages | [Record](archive/SOURCE-RESEARCH.md#servicebund). Feed has a bounded recent window. |
-| Teaching Vacancies | England; API and job pages | [Record](archive/SOURCE-RESEARCH.md#teachingvacancies). OGL attribution applies; page text adds requirements. |
-| NHS Jobs | England/Wales; XML search and job pages | [Record](archive/SOURCE-RESEARCH.md#nhsjobs). Full person specifications need page parsing. |
-| Le Forem | Belgium; open structured dataset | [Record](archive/SOURCE-RESEARCH.md#leforem). CC BY-SA attribution; summary evidence, blocked job pages. |
-| Werken voor Nederland | Netherlands; sitemap and job pages | [Record](archive/SOURCE-RESEARCH.md#werkenvoornederland). Sitemap lastmod is not a posting date. |
-| NAV | Norway; public experimental feed token | [Record](archive/SOURCE-RESEARCH.md#nav). Production-token permission is a separate owner/account decision. |
-| Employer career systems | Directory plus discovered employers; public lists, feeds or sitemaps | [System records](archive/SOURCE-RESEARCH.md#career-systems). Check each employer host's permission and full-ad evidence. |
+| Adzuna | Ten supported countries; official API, app ID/key | No Ireland; descriptions are summaries. Blocked ad pages are not fetched. |
+| Reed | UK; official API/key, job details | List dates have day precision; full details are separate. |
+| Bundesagentur | Automated access paused | [Current terms hold](#bundesagentur-access-hold--2026-10-17) supersedes the earlier public-endpoint assumption. Saved evidence remains readable. |
+| JobsIreland | Ireland; public list and job pages | Match titles locally; an empty first page may be a service failure. |
+| Arbeitnow | Germany/UK feeds; public API | Free-text locations need interpretation. |
+| jobs.ac.uk | UK/Ireland; search pages and JobPosting data | Academic/research/technical jobs; personal-use terms. |
+| EURAXESS | Supported countries; research-job pages | Throttling and per-search request limits apply. |
+| JobTech | Sweden; public JobSearch API | Full text; local timestamps and paging limits need handling. |
+| service.bund.de | Germany; RSS and job pages | Feed has a bounded recent window. |
+| Teaching Vacancies | England; API and job pages | OGL attribution applies; page text adds requirements. |
+| NHS Jobs | England/Wales; XML search and job pages | Full person specifications need page parsing. |
+| Le Forem | Belgium; open structured dataset | CC BY-SA attribution; summary evidence, blocked job pages. |
+| Werken voor Nederland | Netherlands; sitemap and job pages | Sitemap lastmod is not a posting date. |
+| NAV | Norway; public experimental feed token | Production-token permission is a separate owner/account decision. |
+| Employer career systems | Directory plus discovered employers; public lists, feeds or sitemaps | Check each employer host's permission and full-ad evidence. |
 
 Career adapters: Ashby, d.vinci, Eightfold, Greenhouse, Lever, Oracle, Personio, Prospective,
 Recruitee, generic job sitemaps, Softgarden, SuccessFactors, Teamtailor, Workable and Workday.
 `src/jobcu/data/employers.json` is the directory; `tools/check_employers.py` is its maintenance tool.
-The [2026-10-06 country matrix](archive/SOURCE-RESEARCH.md#engineering) measures listed employers
-only, not reachable vacancies or engineering recall. All seven priority countries are represented.
+Directory membership does not establish reachable vacancies or engineering recall.
 
-## Recorded restrictions and candidates
+## Access and protocol records
 
 ### JSearch assessment — 2026-10-18
 
@@ -253,29 +166,6 @@ before dispatch; release only reconciled unused capacity. Do not assume an empty
 error, timeout or same-query retry is free. The current published error-charging treatment is
 not sufficiently explicit to make that claim. Paid overages are not a spending ceiling.
 
-**Illustrative arithmetic, not observed demand:** seven countries × four localized queries ×
-three pages uses up to 84 search credits per run, returning at most 840 rows before duplicates
-and filtering. Thirty such runs use up to 2,520 credits: $12.60 at the direct usage rate, before
-details, retries, tax and any AI/Maps work. Twenty detail IDs per run add 600 credits/month,
-bringing that scenario to $15.60. It does not predict relevant jobs, recall or the owner's bill.
-The 200-credit tier is suitable for a bounded comparison, not that daily scenario. At these
-rates the $25 plan and usage pricing intersect at 5,000 ordinary units before other charges.
-Committing most of the total service allowance to a subscription needs measured justification.
-
-The [quota endpoint description](https://www.openwebninja.com/blog/check-api-quota-usage-programmatically)
-documents plan, billing period, remaining units, reset time and exceeded status. The adapter
-combines provider quota receipts with atomic local page/ID reservations and interleaved
-country/language queries. Shared account usage and in-flight work mean a
-quota read alone is not a hard cap; use a verified provider cap as well. Never auto-upgrade.
-
-There is also a newer [prepaid agent storefront](https://www.openwebninja.com/blog/zeroclick-agent-storefront)
-advertising most APIs at $0.003/request with a $0.50 minimum card credit purchase; the
-[x402 discovery manifest](https://x402.openwebninja.com/.well-known/x402) likewise advertises
-JSearch at 0.003 USDC. These are separate payment routes. The exact JSearch batch/page
-multipliers, balance/refund terms and ordinary-app suitability still need confirmation; do
-not apply the cheaper headline rate to the direct plan or create a wallet/payment account.
-The direct hard-limited free tier is the simpler proposed comparison route.
-
 #### Rights and privacy
 
 The provider's current [terms](https://www.openwebninja.com/terms), sections 2, 3 and 8, expressly
@@ -295,7 +185,7 @@ local, but enabling it adds another external recipient for those search terms. T
 not establish that query bodies are never retained. Provider log retention is not a licence
 for Jobcu to keep third-party ad text indefinitely.
 
-#### Implemented controls and remaining comparison
+#### Implemented controls
 
 `sources/jsearch.py` uses direct `x-api-key` authentication and `/search-v2` cursor pages.
 Saving a key does not enable collection, including when upgrading an existing installation.
@@ -323,32 +213,11 @@ Employer links require both the supplied direct flag and a matching employer/kno
 original board routes remain available. Jobcu makes no request to those destinations merely to
 resolve a redirect. Fictional tests cover hardware, nursing and teaching, failures and ceilings.
 
-Prefer a small direct free-tier comparison after account/test authority and the applicable
-content-use rights are established. Do not buy Pro, remove a source or activate a second AI
-on this evidence. A development comparison needs its own authorised packet, counting account
-checks, pages and detail IDs within the adapter's limits and remaining provider quota. The
-implementation request itself authorises no live comparison or additional job search.
-
-Use an independent 15–25-vacancy original-ad benchmark plus the existing-source union, following
-CONTRIBUTING's source-comparison procedure. Prioritize electronics/hardware/power electronics
-in the recorded country order; offline field/admission regressions also need fictional nursing
-and teaching profiles. Measure unique fresh relevant additions, recovered full requirements,
-original application links, correct workplace granularity, stale/closed jobs, cross-source
-duplicates, country gaps, page/ID credits, failures and latency. Keep benchmark/results private
-only under the relevant authorization. Do not need AI/Maps calls merely to measure source fields.
-
-Open questions are actual Irish/other-country yield; employer-original date and `today`
-semantics; city-centre versus workplace coordinates; complete descriptions; stable identity;
-expiry availability; enrichment fees/controls; error/retry metering; and applicable text reuse.
-Current marketplace latency badges and vendor-written comparisons are not independent
-measurements of Jobcu's countries, professions, coverage or speed. Keep these questions explicit
-when evaluating the optional source; publishing its adapter does not establish their answers.
-
 ### Bundesagentur access hold — 2026-10-17
 
 The current [portal terms](https://www.arbeitsagentur.de/nutzungsbedingungen), section 2a(3),
 prohibit robots/webspiders and automated data collection contrary to the intended interface use.
-This supersedes the archived assumption that the public website endpoint was sufficient
+This supersedes the earlier assumption that the public website endpoint was sufficient
 permission. Pause automated search/details and deny these destinations in the HTTP client,
 including redirects, until an explicitly permitted interface or permission is established.
 Keep the historical parser, source identifiers, saved ads and manual links; no login, alternate
@@ -361,16 +230,15 @@ needed to distinguish a fresh opening from a refreshed advertisement.
 
 These are retained decisions from dated checks; no new access was tested during this cleanup.
 
-- [Held boards](archive/SOURCE-RESEARCH.md#held-boards): StepStone, Totaljobs, IrishJobs and Jobs.ie
+- Held boards: StepStone, Totaljobs, IrishJobs and Jobs.ie
   lack established permission for direct automated collection. Do not infer permission from robots alone.
-- [Unused sources](archive/SOURCE-RESEARCH.md#unused-sources): EURES extraction requires a partner
+- Unused sources: EURES extraction requires a partner
   route; publicjobs.ie, UK Civil Service Jobs and DWP Find a Job blocked automated access.
-- [LinkedIn/StepStone](archive/SOURCE-RESEARCH.md#linkedin-stepstone): no established direct
+- LinkedIn/StepStone: no established direct
   vacancy-reading API for Jobcu. AI-found links need permitted original evidence and date checks.
-- Employer restrictions also apply: Hays/Rise Technical terms and SmartRecruiters API robots
-  restrictions are in the [research record](archive/SOURCE-RESEARCH.md).
-- [Country candidates](archive/SOURCE-RESEARCH.md#candidates) are research leads, not adapters.
-  The later [2026-10-06 update](archive/SOURCE-RESEARCH.md#engineering) takes precedence:
+- Employer restrictions also apply; see the [additional access boundaries](#additional-access-boundaries).
+- Country candidates are research leads, not adapters.
+  The later 2026-10-06 update takes precedence:
   Engineers Ireland is a manual benchmark candidate pending collection checks; VDAB requires a
   partnership; Job-Room's employer-management API is not a public vacancy-search feed.
 
@@ -432,7 +300,7 @@ The parser correction consumes fields in the existing documented list response, 
 free text and legacy nested secondary addresses. No endpoint, employer directory, scope,
 request budget, robots policy, page access or permission is expanded. It does not infer an
 unknown town, employer head office or first posting date. Fictional evidence and limits:
-[ENGINEERING](ENGINEERING.md#structured-employer-workplace-evidence--2026-10-10).
+[ENGINEERING](ENGINEERING.md#evidence-identity-and-scoring).
 
 ## Identity and freshness evidence
 
@@ -581,453 +449,6 @@ and robots/terms permissions are unchanged. No new vacancy collection permission
 
 ## AI and Maps
 
-### API market refresh — 2026-10-19
-
-This refresh supplements the [broader developer/host survey](#public-api-market-and-quality-evidence--2026-10-10).
-It is not a census of every regional deployment or preview. Rates below are USD per million
-uncached input/output tokens; actual reasoning demand, context tiers, caching, hosted tools,
-retrieved text and account fees determine the complete bill. No comparison request or account
-change was made for this research.
-
-| Focused candidate | Current price/contract evidence | Adoption limit |
-|---|---|---|
-| Direct MiMo-V2.6-Pro | [Specification](https://mimo.mi.com/models/en-US/mimo-v2.6-pro), [pricing](https://mimo.mi.com/docs/en-US/price/pay-as-you-go): 0.435 / 0.87. [Thinking](https://mimo.mi.com/docs/en-US/quick-start/usage-guide/text-generation/deep-thinking) is enabled/disabled, not literal medium. | Retain the first comparison hypothesis, subject to rights, native controls and paired quality checks below. |
-| Claude Haiku 5.5 | [Overview](https://platform.claude.com/docs/en/models/haiku-5-5/overview), [pricing](https://platform.claude.com/docs/en/about-claude/pricing): 0.10 / 0.50 through 100K prompt tokens; 0.50 / 2.50 above. Native medium/adaptive thinking; search adds tool and retrieved-input charges. | Lower token prices alone do not settle matching/factual quality; see the independent counterevidence below. |
-| GPT-6 Luna | [Model](https://developers.openai.com/api/docs/models/gpt-6-luna), [pricing](https://developers.openai.com/api/docs/pricing): 0.10 / 0.50 at the short-context Standard tier; native medium and Responses research. | A low unit price is not evidence of equal full-ad, eligibility or cited-research results. |
-| DeepSeek V4.1 Flash | [Current pricing](https://api-docs.deepseek.com/quick_start/pricing/) identifies `deepseek-flash` with the October 17 snapshot: 0.30 / 1.20 peak, 0.15 / 0.60 off-peak. | Do not transfer older snapshot benchmarks, peak/off-peak prices or hosted-tool entitlement. Native effort mapping still needs exact verification. |
-| Mistral Large 4 | [Current table](https://docs.mistral.ai/inference/pricing): promotional 0.68 / 2.09, standard 1.36 / 4.18. | A temporary price and a separately benchmarked Preview are not proof of stable-model quality or long-term savings. |
-| Grok 4.7 | [Current prices](https://docs.x.ai/developers/pricing): 2 / 6; search is separately metered. [Text guidance](https://docs.x.ai/developers/model-capabilities/text/best-practices) distinguishes visible output limits from reasoning. | Do not treat a visible-output ceiling as a complete billed-token ceiling or assume fewer tool calls without measurement. |
-
-Artificial Analysis' [same-medium Haiku/Flash comparison](https://artificialanalysis.ai/models/comparisons/claude-haiku-5-5-medium-vs-gemini-3-8-flash-medium)
-reports Intelligence Index 34/40 and AA-Omniscience 4/29, while Haiku leads its Briefcase measure
-1372/1182. This is mixed independent evidence, not a universal quality ranking. Its
-[methodology](https://artificialanalysis.ai/methodology/intelligence-benchmarking) and the earlier
-MiMo counterevidence still matter; none measures Jobcu recall or unsupported requirements.
-Use the [paired no-regression procedure](../CONTRIBUTING.md#compare-a-provider-without-lowering-quality).
-No cheaper quality-equivalent replacement is established by this survey.
-
-**MiMo rights/privacy follow-up:** the [service agreement](https://mimo.mi.com/docs/quick-start/terms/user-agreement)
-rendered in the browser, updated July 7, 2026. Sections 3.2.8/3.2.9 retain broad restrictions on
-unauthorised third-party tools/software. API examples establish integration capability but do
-not explicitly settle that wording for Jobcu; retain the clarification dependency. No agreement
-was accepted or message sent. The [June 25 privacy policy](https://privacy.mi.com/XiaomiMiMoPlatformos/en_GB/)
-says submitted API content is not used for model training, describes Netherlands/Singapore
-hosting and necessary-purpose retention rather than a fixed retention period, and says online
-search shares queries/IP addresses with Google. This resolves the earlier unreadable-page
-gap, not the rights, live quality or hosted-tool integration gates.
-
-Compare complete research bills: providers meter different units, and one model turn may use
-several searches. The [Responses tool ceiling](#native-streams-and-selected-reference-pages--2026-10-18)
-is enforceable for its documented built-in calls; a request to a model to keep searches short
-does not create a corresponding guarantee elsewhere. Preserve complete evidence and medium
-defaults while reducing proven repeated work.
-
-**Checked 2026-10-14:** Google's [Gemini troubleshooting guide](https://ai.google.dev/gemini-api/docs/troubleshooting)
-distinguishes transient network/service failures from client/billing refusals. It recommends
-bounded retries with increasing waits for transient failures and no retry for HTTP 402.
-This is generic recovery guidance, not evidence of a current outage or a particular account's
-balance. Jobcu owns its bounded retry loop and disables extra SDK retries; a disconnected
-connection without a provider response cannot establish credit exhaustion or actual charges.
-
-### OpenCode Go and AI credit eligibility
-
-**Rechecked 2026-10-10:** the [Go documentation](https://opencode.ai/docs/go/) still lists
-32 distinct models, USD10/month for Go, weighted shared windows and coding-agent client
-guidance. The [terms](https://opencode.ai/legal/terms-of-service) list `help@anoma.ly` for
-service/terms questions. The repository's [official support routing](https://github.com/anomalyco/opencode/blob/dev/.github/ISSUE_TEMPLATE/config.yml)
-directs support and how-to questions to Discord; a subscription compatibility question is
-not a reproducible software bug. No current provider clarification of this workload was found.
-
-An additional primary integration lead is the maintainer's
-[pi-web-search README](https://github.com/ttttmr/pi-web-search): it documents native hosted
-search through Go/Zen Responses, with Go model examples and client/session requirements.
-It distinguishes Chat Completions from Responses and marks Messages support unverified.
-This is evidence from another integration, not an official entitlement, fee guarantee or
-Jobcu quality measurement. No third-party extension was installed or run, and no disguised
-client identity was used.
-
-For a complete direct-versus-subscription comparison, [GPT-6 Luna's specification](https://developers.openai.com/api/docs/models/gpt-6-luna)
-lists USD0.10/0.50 per million fresh input/output tokens through 272K context, medium as the
-default and Responses tool support. [Native OpenAI tool pricing](https://developers.openai.com/api/docs/pricing)
-lists USD10 per 1,000 web-search calls plus retrieved-content tokens. These native charges
-do not establish Go's hosted-search charges. [Gemini pricing](https://ai.google.dev/gemini-api/docs/pricing)
-still lists Gemini 3.8 Flash at USD0.75/3.75 through 2026-12-31, then USD1.50/7.50;
-thinking is included in output. Google Search grounding has 5,000 free queries/month shared
-across Gemini 3 models, then USD14/1,000; one request can issue multiple queries. Rates are
-not a euro invoice or matching-quality comparison. Verify taxes, currency conversion, tool
-fees, long-context tiers and actual service allowance before purchasing or projecting savings.
-
-**Checked 2026-10-09:** [Go](https://opencode.ai/en/go) advertises USD10/month, not a verified EUR10
-checkout total. Its [service documentation](https://opencode.ai/docs/go/) describes coding-agent
-traffic, an honest client user agent and stable `x-opencode-session`; the
-[terms](https://opencode.ai/legal/terms-of-service) restrict unintended uses. Marketing says
-any agent, but permission for Jobcu's non-coding matching workload is unresolved. Seek service
-confirmation; do not disguise Jobcu as a coding client. No subscription/account action occurred.
-
-Go's complete documented catalogue, fresh input/output prices per million tokens and protocols:
-the landing page says **31**, while the checked documentation lists **32 distinct models**.
-Version/context/peak price rows are not additional models. Use the current documented IDs;
-extra IDs returned by the public models endpoint do not establish plan entitlement.
-
-| Model | Input / output, USD | Monthly usage value, USD | Protocol |
-|---|---:|---:|---|
-| GLM-5.3-Flash | 0.15 / 0.50 | 60 | Chat Completions |
-| GLM-5.3 | 1.40 / 4.40 | 15 | Chat Completions |
-| GLM-5.2 | 1.40 / 4.40 | 60 | Chat Completions |
-| Kimi K3 | 3.00 / 15.00 | 15 | Chat Completions |
-| Kimi K2.7 Code | 0.95 / 4.00 | 60 | Chat Completions |
-| Kimi K2.6 | 0.95 / 4.00 | 60 | Chat Completions |
-| LongCat-2.0 | 0.30 / 1.20 | 60 | Chat Completions |
-| LongCat 2.5 Preview Free | Free, temporary | Unlimited, temporary | Chat Completions |
-| Step 5 Preview Free | Free, temporary | Unlimited, temporary | Chat Completions |
-| MiMo-V2.6-Flash | 0.14 / 0.28 | 60 | Chat Completions |
-| MiMo-V2.6-Pro | 0.435 / 0.87 | 15 | Chat Completions |
-| MiMo-V2.5 | 0.14 / 0.28 | 60 | Chat Completions |
-| MiMo-V2.5-Pro | 0.435 / 0.87 | 15 | Chat Completions |
-| MiniMax M3 | 0.30 / 1.20 | 60 | Messages |
-| MiniMax M2.7 | 0.30 / 1.20 | 60 | Messages |
-| Muse Spark 1.3 Contributor | 0.10 / 0.20 | 60 | Responses |
-| Muse Spark 1.2 Contributor | 0.10 / 0.20 | 60 | Responses |
-| Qwen3.8 Max | 2.00 / 6.00 | 15 | Messages |
-| Qwen3.8 Flash | 0.15 / 0.47 | 30 | Messages |
-| Qwen3.7 Plus | 0.40 / 1.60 | 60 | Messages |
-| DeepSeek V4.1 Flash | 0.15 / 0.60 off-peak; double at peak | 60 | Chat Completions |
-| DeepSeek V4 Pro | 0.66 / 1.98 off-peak; double at peak | 15 | Chat Completions |
-| DeepSeek V4 Flash | 0.15 / 0.60 off-peak; double at peak | 30 | Chat Completions |
-| DeepSeek V4 Flash Vision Exp | 0.15 / 0.60 off-peak; double at peak | 15 | Chat Completions |
-| Hy4 preview | 0.834 / 2.501 | 30 | Chat Completions |
-| Hy3 | 0.14 / 0.58 | 60 | Chat Completions |
-| Space Bunny | 0.15 / 0.60 | 30 | Chat Completions |
-| Grok 4.7 | 2.00 / 6.00 | 15 | Responses |
-| Grok 4.6 | 2.00 / 6.00 | 15 | Responses |
-| GPT-6 Luna | 0.10 / 0.50 | 15 | Responses |
-| GPT-5.6 Luna | 0.20 / 1.20 | 15 | Responses |
-| Claude Haiku 5.5 | 0.10 / 0.50 | 15 | Messages |
-
-GPT/Haiku rates above assume prompts at most 272K/100K. Larger contexts respectively cost
-0.20/0.75 (GPT-6), 0.40/1.80 (GPT-5.6), and 0.50/2.50 (Haiku). Grok rates double above 200K;
-Qwen Plus rates triple above 256K. Cached read/write discounts are in the primary table; do
-not assume a fresh job-ad workload earns its cached-conversation discounts. Five-hour/weekly limits are
-20%/50% of the monthly equivalent. Advertised request counts assume cached coding conversations;
-they are estimates, not limits for full-ad scoring. Optional **Use balance** allows paid Zen
-overage. Native upstream tool support does not establish Go entitlement. Retention/training
-differences are recorded below; these are service claims, not independently audited guarantees.
-
-**Capability versus service recheck, 2026-10-09:** the upstream
-[GPT-6 Luna reference](https://developers.openai.com/api/docs/models/gpt-6-luna) lists structured
-output and Responses web search; [MiMo Pro's specification](https://mimo.mi.com/models/en-US/mimo-v2.6-pro)
-lists structured output, thinking and web search; [GLM-5.3-Flash's guide](https://docs.z.ai/guides/vlm/glm-5.3-flash)
-explicitly describes professional document/research work beyond coding. These models are not
-limited to generating code. Their Go-hosted controls/tool access and Jobcu matching accuracy
-are separate questions. No evidence supports saying that all 32 models cannot perform the AI
-work. An API supplies a transport/protocol; its host still chooses models, tools and allowance.
-
-Go's client guidance says clients should send typical coding-agent traffic. That describes the
-service's expected workload, not a technical model restriction. The landing page's any-agent
-wording does not settle this specific use, and the checked terms restrict unintended purposes.
-Neither establishes a precise all-non-coding-request ban. Confirm the intended-use fit rather
-than turn ambiguity into a model-capability verdict or disguise requests. The repository's
-[contact configuration](https://github.com/anomalyco/opencode/blob/dev/.github/ISSUE_TEMPLATE/config.yml)
-directs support/how-to questions to its Discord community; no message was sent.
-
-**Hosted research evidence, 2026-10-09:** an
-[original test report dated 2026-08-13](https://github.com/lidge-jun/opencodex/issues/1616)
-describes DeepSeek V4 Flash on Go's Responses endpoint performing hosted web searches and
-returning source URLs. This is a useful positive lead, not current official entitlement,
-quality or fee verification. Its reported zero cost is not a promise of free tool use.
-Go's [published native Responses helper](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/app/src/routes/zen/util/provider/openai.ts#L14)
-preserves the native body; its [request passthrough](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/app/src/routes/zen/util/requestBody.ts#L1)
-rewrites the model while preserving the rest. These support investigating native hosted tools,
-not assuming all models/formats share them. A separate
-[upstream conversion report](https://github.com/anomalyco/opencode/issues/42090) describes
-non-function tool rejection in converted Responses requests; native format and current model
-routing matter. No paid probe was made, and reports were not treated as provider permission.
-
-The current [OpenCode client search documentation](https://opencode.ai/v2/docs/websearch)
-lists separate search providers. That is another research path, not proof that hosted Go
-research is impossible or that external search fees are included in a Go subscription.
-Distinguish client tools, model-native tools, gateway passthrough and actual plan entitlement.
-
-**One-model capability recheck, 2026-10-09:** Google's
-[Gemini 3.8 Flash model reference](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash)
-lists medium thinking, structured output and Search grounding. Its
-[Search guide](https://ai.google.dev/gemini-api/docs/google-search) documents cited current
-information using that same model. These capabilities support a one-key/model setup; they do
-not establish independent matching superiority or success on every fact. The
-[billing guide](https://ai.google.dev/gemini-api/docs/billing#prepay) explicitly restricts prepaid
-credit to Gemini API usage; other Cloud services remain separately billed. No owner balance,
-account identifier or expiry is recorded here.
-
-**Maps-tool distinction, 2026-10-09:** Gemini also offers
-[Maps grounding](https://ai.google.dev/gemini-api/docs/maps-grounding), documented as a textual
-search tool for places, reviews, addresses and opening hours, returning cited model text.
-Its [Gemini pricing](https://ai.google.dev/gemini-api/docs/pricing#gemini-3.8-flash) lists 5,000
-free monthly Maps-grounding requests shared across Gemini 3/newer models, then USD14 per
-1,000 search queries, plus model tokens. This is Gemini API work, distinct from Cloud Routes
-billing. Jobcu currently uses Routes for structured origin/destination journey measurements,
-not Gemini Maps grounding. The checked grounding guide does not establish an equivalent
-transit-departure matrix contract. Inference: retain Routes for measured travel; do not replace
-it with generated location answers or promise the existing Gemini balance pays Routes.
-Maps grounding is a possible future place-evidence method, not an implemented feature or a
-permission/price comparison proving it is a better route source. No tool call was made.
-
-**Shared allowance and reset verification, 2026-10-09:** the published
-[billing handler](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/app/src/routes/zen/util/handler.ts#L1191)
-adds `round(cost * model.costMultiplier)` to the same subscriber/workspace monthly, weekly
-and five-hour counters. The row is not keyed by model. Switching models does not reset it.
-The [subscription checks](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/app/src/routes/zen/util/handler.ts#L897)
-check those counters before balance fallback. The
-[model configuration loader](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/core/src/model.ts#L85)
-and [limits loader](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/core/src/subscription.ts#L44)
-read deployed resource configuration; exact live multipliers/limits are not public in these
-files. Do not claim this code inspects the owner's account or guarantees deployed behavior.
-
-A normalized example derived from the published Go table: USD1.50 of GPT-6 Luna usage value
-out of its USD15 monthly equivalent is **10%**. USD6 of DeepSeek V4.1 Flash usage value out of
-USD60 is another **10%**. Mixed consumption is **20% of the shared monthly allowance**, and
-would consume the published five-hour allowance if performed in one window. The percentages
-also count toward the weekly 50% ceiling. These dollar usage values describe token work at
-the listed rates, not additional cash invoices on top of the subscription. A weekly dashboard
-percentage may use the weekly ceiling as its denominator, rather than the monthly equivalent.
-This arithmetic is a planning interpretation of the published table and shared-counter code,
-not a live capacity measurement. Model rotation cannot multiply the monthly allowance.
-
-The published [date helpers](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/core/src/util/date.ts#L1)
-anchor weeks at Monday 00:00 UTC and months to the subscription's UTC creation date/time,
-clamping the day for shorter months. The
-[five-hour check](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/core/src/subscription.ts#L53)
-uses the stored window-start timestamp; the handler preserves it within a window and starts
-another after expiry. It is not an automatic daily refresh or a new allowance for each model.
-Use the actual console's reset notice for an account-specific wait. **Use balance** must stay
-off to avoid optional pay-as-you-go fallback when a shared ceiling is reached.
-
-**Buying decision evidence, 2026-10-09:** repeated public searches did not find an official
-permission statement for this non-coding workload. Go's current client instructions explicitly
-request typical coding traffic; its API protocols do not override that guidance. The later
-capability recheck above supersedes interpreting this as blanket Go rejection.
-This leaves intended-use confirmation before paid adoption, without declaring its models
-inferior or claiming every non-coding request is forbidden. Written provider confirmation is
-the exact remaining permission dependency. No support message, payment or disguised request was made.
-
-**Second pass, 2026-10-09:** the public [Go model list](https://opencode.ai/zen/go/v1/models)
-responded without a key and includes the five candidates. Its IDs do not prove tool or effort
-support. The [published Responses helper](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/app/src/routes/zen/util/provider/openai.ts#L14)
-passes a native Responses body onward; cross-format conversion is a separate path. Inference:
-use the model's documented native format to preserve explicit reasoning/schema parameters,
-then verify behavior; source code alone does not prove the live service.
-
-The [coding client's web-search tool](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/opencode/src/tool/websearch.ts#L60)
-invokes a separate MCP search service, with Parallel/Exa paths. A web-search button in OpenCode
-does not establish standalone Go model API research, applicable entitlement or included fees
-for Jobcu. No such endpoint was called. Current client-use guidance still requests coding
-traffic; no primary permission for this non-coding app was found. This is unresolved permission,
-not proof that the models are poor or a claim that every non-coding request is explicitly banned.
-
-The [published handler at `388406238b`](https://github.com/anomalyco/opencode/blob/388406238bd5ca15564a762840a2362c3a45bd9c/packages/console/app/src/routes/zen/util/handler.ts#L1191)
-adds cost multiplied by a model factor into the same user's five-hour, weekly and monthly
-counters. Inference: model allowances are weighted equivalents, not additive pools; mixed
-models consume shared capacity. Published code is not proof of the owner's deployed account
-state. It also gates DeepSeek Go models on permitted processing regions; check actual region
-availability/consent before choosing them. No private account, usage endpoint or key was read.
-
-Primary capability evidence, not proof of Jobcu accuracy or proxy compatibility:
-
-- [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna) documents medium-default
-  reasoning, a 1,050,000-token context, structured output and Responses web search. Those are
-  upstream features; Go-hosted search access/pricing remains unverified. Its direct API lists
-  the same USD0.10/0.50 uncached input/output rates for requests at most 272K; no Go subscription
-  is required for direct API use. [OpenAI tool pricing](https://developers.openai.com/api/docs/pricing)
-  separately charges web-search calls/content; token-only comparisons omit that work.
-- [Claude effort](https://platform.claude.com/docs/en/build-with-claude/effort) documents Haiku
-  5.5's medium default; [structured output](https://platform.claude.com/docs/en/build-with-claude/structured-outputs)
-  lists Haiku 5.5 support and refusal/truncation exceptions.
-- [MiMo-V2.6-Pro](https://mimo.mi.com/models/en-US/mimo-v2.6-pro) lists thinking, structured output
-  and a 1M context. Its Go effort mapping and matching quality are unverified.
-- [Kimi K2.6's own model card](https://huggingface.co/moonshotai/Kimi-K2.6/raw/main/README.md)
-  reports reasoning/knowledge evaluations and thinking/instant modes. Differing effort/harness
-  settings prevent treating its benchmark comparisons as Jobcu ranking evidence.
-- [GLM-5.2](https://docs.z.ai/guides/llm/glm-5.2) documents thinking, JSON and a 1M context.
-  [GLM-5.3](https://docs.z.ai/guides/llm/glm-5.3) shares its base with coding-focused post-training,
-  supports low/high/max rather than medium, and defaults to max. Its stronger coding scores
-  do not establish a matching benefit or justify quietly changing Jobcu's effort.
-
-[Gemini 3.8 Flash guidance](https://ai.google.dev/gemini-api/docs/latest-model) documents
-medium thinking and built-in tools. Current prices and charge units live in
-[Gemini running costs](#gemini-running-costs). Different model tokenizers, reasoning and
-request patterns prevent inferring equal workload cost.
-[Gemini billing](https://ai.google.dev/gemini-api/docs/billing#prepay) explicitly limits AI Studio
-prepaid credit to Gemini API usage, not other Cloud services. It is not a Maps balance.
-Separately issued promotional Cloud credits have their own eligible SKUs/expiry; inspect the
-actual grant before relying on one. No balance type, amount, refund or transfer was verified.
-
-Go's privacy table reports training for both **Muse Contributor** models; exclude these from
-automatic private-document adoption. GPT, Grok and Haiku list 30-day retention; the others list
-zero days, with DeepSeek's renewable agreement valid only through **2026-10-31**. Recheck at
-adoption. These are provider declarations, not an independent audit.
-
-The [complete assessment and arithmetic](ENGINEERING.md#complete-catalogue-and-universal-api-decision--2026-10-09)
-preserve these uncertainties. No model calls, paid benchmark or private review were performed.
-
-### Requirement evidence and independent review
-
-**Checked 2026-10-09:** [Google's structured-output documentation](https://ai.google.dev/gemini-api/docs/structured-output)
-distinguishes schema-valid JSON from semantically correct values and recommends application
-validation. Inference for Jobcu: a numerical rubric part cannot substitute for evidence that
-a mandatory requirement is met, unmet or unknown. Check short quotes against the supplied
-ad/profile text, scope research quotes to the identified vacancy and keep unsupported
-comparisons unknown. Quote presence cannot prove the interpretation or the original ad's truth.
-
-[Zheng et al., 2023](https://arxiv.org/abs/2306.05685) study position, verbosity and
-self-enhancement bias in model evaluation. This is chatbot-evaluation research, not evidence
-of Jobcu accuracy. It supports blinded, independently recorded assessments as a useful
-precaution; saved scores and assistant labels are not ground truth or market recall.
-
-**UK vetting guidance rechecked 2026-10-16:** [UKSV's vetting explanation](https://www.gov.uk/government/publications/vetting-explained-and-our-vetting-charter/vetting-explained)
-describes nationality/residence as factors considered and notes that few posts are reserved
-to UK nationals. [Clearance-level guidance](https://www.gov.uk/government/publications/united-kingdom-security-vetting-clearance-levels/national-security-vetting-clearance-levels)
-says the departmental authority sets the vetting requirement for the post. Inference: a
-clearance acronym alone does not establish a particular applicant's ineligibility. Require
-explicit excluding rules and relevant stated facts; otherwise retain uncertainty. These
-pages do not prove eligibility for a particular vacancy; no personal vetting decision is made.
-
-### Additional reasoning-model candidates
-
-**Checked 2026-10-09:** [MiMo-V2.6-Pro's own specification](https://mimo.mi.com/models/en-US/mimo-v2.6-pro)
-lists deep thinking, tool calls, web search, structured output and a 1M context. Direct uncached
-input/output is USD0.435/0.87 per million. These advertised capabilities and benchmark claims
-are not Jobcu accuracy measurements; Go tool entitlement and effort mapping remain separate.
-
-[DeepSeek's model metadata guide](https://api-docs.deepseek.com/api/list-models/)
-illustrates V4.1 Flash as `deepseek-flash`, 1M context, native low/high/max efforts and high
-default. Its [original model card](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash/raw/main/README.md)
-describes a continuous 1–100 model-level reasoning control. Inference: serving interfaces can
-expose different controls; inspect the chosen host rather than transferring a parameter from
-another host or assuming a literal medium exists. Neither source proves job-fit quality.
-
-[GLM-5.3's specification](https://docs.z.ai/guides/llm/glm-5.3) documents always-on reasoning,
-low/high/max controls with max default, 1M context, and the same base as GLM-5.2 with coding/agent
-post-training improvements. A coding benchmark gain does not establish a job-matching gain.
-
-The [Go table](https://opencode.ai/docs/go/) currently gives MiMo Pro and GLM-5.3 USD15 monthly
-equivalents, versus USD60 for DeepSeek V4.1 Flash and GLM-5.2. MiMo rates match the direct rates
-above; GLM-5.3 is USD1.40/4.40 per million. DeepSeek is USD0.15/0.60 off-peak and USD0.30/1.20
-peak; peak is weekdays 01:00–04:00 and 06:00–10:00 UTC. Limits/regions and shared weighted
-capacity still apply. These are allowance units, not subscription surcharges or intelligence
-rankings. The [model assessment](ENGINEERING.md#additional-model-assessment--2026-10-09)
-keeps quality hypotheses separate from these facts. No model API request or paid comparison.
-
-**Further primary checks, 2026-10-09:** [MiMo's thinking guide](https://mimo.mi.com/docs/en-US/quick-start/usage-guide/other/deep-thinking)
-states that V2.6 Pro/Flash enable thinking by default and documents `thinking.type`. This is
-enabled reasoning, not a numeric medium guarantee; proxy behavior still needs verification.
-[GLM-5.3-Flash](https://docs.z.ai/guides/vlm/glm-5.3-flash) documents 1M context, JSON, document
-work and always-enabled thinking, recommending native max. Its claim of stronger intelligence
-than GLM-5.2 is vendor evidence, not measured job-fit superiority. Its separate Go allowance
-makes it a worthwhile new challenger. [Kimi K3's original card](https://huggingface.co/moonshotai/Kimi-K3/raw/main/README.md)
-documents always-enabled thinking, low/high/max (default max) and preserved thinking for
-multi-turn tool use. [MiniMax M3's research report](https://www.minimax.io/blog/minimax-m3)
-focuses on coding, agent and long-context tasks; its gains do not independently validate job
-matching. [Qwen's official catalogue](https://www.alibabacloud.com/help/en/model-studio/models)
-describes native multimodal models; that is not Go research entitlement. None of these checks
-called a model or established comparative matching accuracy.
-
-### Direct-provider challengers — 2026-10-10
-
-These are **direct pay-as-you-go APIs**, separate from coding subscriptions and Go proxy
-entitlements. Prices below are USD per million uncached input/output tokens; context tiers,
-reasoning output, retrieved text, tool fees, taxes and actual token demand still matter.
-No call, account change or comparative fit test was made.
-
-| Candidate | Input / output | Native reasoning and hosted research evidence |
-|---|---|---|
-| GPT-6 Luna | 0.10 / 0.50 through 272K context | Native medium and Responses web research; [current model/pricing check](#processing-tiers-and-complete-cost-comparisons--2026-10-10). Search USD0.01/call plus retrieved input. |
-| GLM-5.3-Flash | 0.15 / 0.50 | [Price/tool table](https://docs.z.ai/guides/overview/pricing): search USD0.01/use. [Native API reference](https://docs.z.ai/api-reference/llm/chat-completion) gives low/high/max, always-on thinking, max default. |
-| DeepSeek V4.1 Flash (`deepseek-flash`) | 0.15 / 0.60 off-peak; 0.30 / 1.20 peak | [Current pricing](https://api-docs.deepseek.com/quick_start/pricing/), [thinking guide](https://api-docs.deepseek.com/guides/thinking_mode/): enabled/high default; requested medium maps to high. JSON/tool calling/Responses support does not establish hosted search. |
-| MiMo-V2.6-Pro | 0.435 / 0.87 | [Original specification](https://mimo.mi.com/models/en-US/mimo-v2.6-pro) documents structured output and thinking. The [later native-contract check](#public-api-market-and-quality-evidence--2026-10-10) establishes published search/fee/citation fields; live behavior and Jobcu integration remain untested. |
-| MiniMax-M3 | 0.30 / 1.20 through 512K input | [Current standard pricing](https://platform.minimax.io/docs/pricing/overview) lists beta hosted search at USD0.01/request. [Server Tools](https://platform.minimax.io/docs/guides/server-tools) documents Messages/Responses search and result URLs/citations; this is not Chat Completions function calling. |
-
-For GLM, [search documentation](https://docs.z.ai/guides/tools/web-search) describes retrieval
-and web search in Chat, with returned source records. The API reference has inconsistent tool
-wording; exact GLM-5.3-Flash response/account support needs a bounded check before integration.
-The [model guide](https://docs.z.ai/guides/vlm/glm-5.3-flash) recommends max; that recommendation
-and coding/office claims are not Jobcu matching evidence. A deliberate high mapping for
-Jobcu's medium setting is a native configuration, not a claim of equivalent thinking depth.
-
-MiniMax's [invocation guide](https://platform.minimax.io/docs/guides/text-generation) now
-highlights **M3.1-Flash-Preview**, with native medium among its efforts; the price table and
-hosted-tool example above name **M3**. Do not transfer that control, price or availability
-between model versions without verification. No Jobcu adapter change was made.
-
-**Comparison rule:** a token-price scenario is `input × rate + output × rate`; a complete bill
-also includes each actual hosted tool and retrieved-content charge, any retained research
-provider, fixed subscription fees and Maps. For a USD0.01 tool, 10/30/50 uses per search over
-30 searches add USD3/9/15 before content tokens. Those are fictional sensitivities, not a
-prediction or transfer of Gemini query counts to another provider. Compare half/equal/double
-token demand, identical evidence and independent labels. Private demand arithmetic stays private.
-The earlier price-led candidate ordering is superseded; selection and acceptance gates:
-[ENGINEERING](ENGINEERING.md#quality-first-api-and-electronics-coverage-decision--2026-10-10).
-
-### Public API market and quality evidence — 2026-10-10
-
-Scope: current general-purpose text/reasoning families from eleven developers, plus hosting/
-research alternatives. This expands beyond Go's 32-model catalogue and the earlier inexpensive
-direct-API subset. It is not an exhaustive census of every legacy, specialist, regional or
-private-preview model. Model developers, API hosts and subscriptions are different choices;
-hosted tools, reasoning controls, prices and terms cannot be transferred between them.
-No model request, paid test, private-data processing or account change was made.
-
-| Developer / current families considered | Primary evidence relevant to Jobcu |
-|---|---|
-| Google: 3.8 Flash; catalogue's Pro/Flash/Lite variants | [Current catalogue](https://ai.google.dev/gemini-api/docs/models) distinguishes text models from image/audio and previews. [Prices](https://ai.google.dev/gemini-api/docs/pricing) include thinking; Google Search grounding content is not charged as input, unlike URL Context/File Search content. |
-| Anthropic: Fable 5.1, Opus/Sonnet/Haiku 5.5 | [Catalogue](https://platform.claude.com/docs/en/models/overview), [price table](https://platform.claude.com/docs/en/about-claude/pricing): input/output USD10/50, 4/20, 2/10, and Haiku 0.10/0.50 up to 100K prompt tokens (0.50/2.50 above). Search adds USD0.01/use and retrieved input. [Haiku overview](https://platform.claude.com/docs/en/models/haiku-5-5/overview) documents adaptive effort and a newer tokenizer; not equivalent demand or matching quality. |
-| OpenAI: Astra, Sol 6.1, Luna; current text catalogue | [Catalogue](https://developers.openai.com/api/docs/models), [Standard prices](https://developers.openai.com/api/docs/pricing): short-context input/output USD10/50, 2/10, 0.10/0.50; long-context/cache/tool charges differ. [Sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol) documents native medium and Responses tools. Stronger models are included; Luna's lower price is not a quality verdict. |
-| Xiaomi: MiMo-V2.6-Pro / Flash | [Model](https://mimo.mi.com/models/en-US/mimo-v2.6-pro), [overseas price table](https://mimo.mi.com/docs/pricing): Pro USD0.435/0.87; Flash USD0.14/0.28. [Thinking](https://mimo.mi.com/docs/en-US/quick-start/usage-guide/text-generation/deep-thinking) uses enabled/disabled, enabled by default; no literal medium control documented. |
-| Alibaba: Qwen3.8-Max / Max-0902, 3.7-Plus, 3.8-Flash | [Catalogue](https://www.alibabacloud.com/help/en/model-studio/models), [Max capabilities](https://www.alibabacloud.com/help/en/model-studio/qwen3-8-max), [prices](https://www.alibabacloud.com/help/en/model-studio/model-pricing). Global Max/0902 USD1.65/4.951 per million, including thinking output. Base Max lacks search in several regions where 0902 lists support; do not interchange snapshots/regions. Exact search controls/fees need checking for the selected deployment. |
-| Moonshot: Kimi K3 / K2.6; coding variants separately | [K3 guide](https://platform.kimi.ai/docs/guide/kimi-k3-quickstart): 1M context, strict JSON, always-on low/high/max reasoning. [Public platform](https://platform.kimi.ai/) lists USD3/15; [billing](https://platform.kimi.ai/docs/pricing/chat) is separate from subscriptions. The guide explicitly advises against production web-search use while it is updated; Formula needs a client tool loop. |
-| DeepSeek: V4.1 Flash / V4 Pro-0813 | [Current pricing](https://api-docs.deepseek.com/quick_start/pricing/), [release](https://api-docs.deepseek.com/news/news260813/): Pro USD0.66/1.98 off-peak, 1.32/3.96 peak; low/high/max reasoning and structured/tool support. Current Flash identity/rates are recorded above; no hosted-search entitlement inferred. |
-| Z AI: GLM-5.3 / 5.3-Flash | [Model](https://docs.z.ai/guides/llm/glm-5.3), [Flash](https://docs.z.ai/guides/vlm/glm-5.3-flash), [prices/tools](https://docs.z.ai/guides/overview/pricing). Native thinking/search evidence and reference inconsistencies are recorded above; neither small-model pricing nor coding gains establish job-fit quality. |
-| MiniMax: M3 / M3.1-Flash-Preview | [Invocation](https://platform.minimax.io/docs/guides/text-generation), [pricing](https://platform.minimax.io/docs/pricing/overview), [server tools](https://platform.minimax.io/docs/guides/server-tools). Version-specific pricing/effort and beta research remain distinct, as above. |
-| Mistral: Medium 3.5 / Large 3 / Small 4 | [Medium capabilities](https://docs.mistral.ai/models/mistral-medium-3-5-26-04), [prices](https://docs.mistral.ai/inference/pricing): USD1.50/7.50, 0.50/1.50, 0.15/0.60. [Hosted web search](https://docs.mistral.ai/studio/agents/agent-tools/websearch) belongs to Agents/Conversations, not ordinary compatible Chat. Model naming does not specify reasoning effort. |
-| SpaceXAI/xAI: Grok 4.7 / earlier 4.6 | [Current 4.7 guide](https://docs.x.ai/developers/grok-4-7) (updated 2026-10-05) documents USD2/6, native medium and Responses research. [Tool pricing](https://docs.x.ai/developers/pricing): web search USD0.005/use plus tokens. Older catalogue/price text still highlights 4.6; use the exact version's contract/account rates. Fast 4.7 is not public-API access. |
-
-Additional route: [Cohere Command A Reasoning](https://docs.cohere.com/docs/command-a-reasoning)
-has multilingual, structured/citation/tool capabilities, but its production Model Vault route
-is not an established small pay-as-you-go Jobcu plan. [Nova 2 Lite's guide](https://docs.aws.amazon.com/nova/latest/nova2-userguide/)
-and [reasoning documentation](https://docs.aws.amazon.com/nova/latest/nova2-userguide/reasoning-capabilities.html)
-describe multilingual/document reasoning with charged redacted thinking; native Bedrock
-integration and a complete deployment quote are separate dependencies. Neither is rejected
-as incapable; neither is ready as the simplest one-provider replacement here.
-
-**MiMo contract resolved from primary documentation:** [native web search](https://mimo.mi.com/docs/en-US/quick-start/usage-guide/text-generation/tool-calling/web-search)
-requires activating the plugin. Chat requests use `tools: [{type: "web_search", ...}]`,
-`force_search`, `max_keyword` and `limit`; other protocols are not supported for this tool.
-The response documents `message.annotations` URL citations and
-`usage.web_search_usage.tool_usage/page_usage`. Overseas search is USD5/1,000 uses plus
-retrieved input tokens. A search round can make several billable keyword uses. The general
-FAQ spells a force parameter differently; the dedicated contract is the integration reference,
-with actual behavior still to verify. Thinking remains enabled; do not copy the disabled
-thinking from the search example. This resolves the earlier missing published mechanism/price,
-not live search quality, account eligibility or current Jobcu hosted-tool support. The service
-agreement link did not expose readable text in this check; account/data terms must be inspected
-before transferring private records. Direct API documentation does not confer Go entitlement.
-
-[OpenRouter's server tool](https://openrouter.ai/tool/web-search/) documents native search or
-an external engine with standard model token charges. Its current product page lists Exa at
-USD0.007/use while the [beta guide](https://openrouter.ai/docs/guides/features/server-tools/web-search)
-still lists USD0.005 plus extra-result charges: verify the selected engine's actual tariff.
-[Credit fees](https://openrouter.ai/business) add 5.5% Standard purchase fees; model count does
-not prove quality or net savings. Gateways and hosts such as Together/Fireworks require their
-own routing, data-use, exact-model and tool checks; do not assume the native developer's terms.
-
-**Independent general evidence, not a Jobcu verdict:** Artificial Analysis' [original comparison](https://artificialanalysis.ai/models/comparisons/mimo-v2-6-pro-vs-gemini-3-8-flash)
-reports MiMo Pro 46 versus Gemini 3.8 Flash **High** 41 on its Intelligence Index, with
-long-context reasoning 86%/81%, but factual-reliability AA-Omniscience 8/30 and GDP.pdf 19%/21%.
-These counterexamples prevent treating a higher composite as universally better. Its
-[methodology](https://artificialanalysis.ai/methodology/intelligence-benchmarking) describes a
-primarily English suite, separate multilingual evaluation and model-judged components. High
-Gemini is not Jobcu's medium configuration. None measures fresh-job recall, electronics fit,
-unsupported requirements or route evidence. Selection remains a hypothesis until paired
-Jobcu evidence meets [the quality gates](../CONTRIBUTING.md#compare-a-provider-without-lowering-quality).
-
 ### Electronics employer and specialist coverage — 2026-10-10
 
 These primary references identify employer leads, **not collection licences, current jobs or
@@ -1052,7 +473,7 @@ directory entry does not prove a whole-search miss: an aggregator or discovered-
 record may cover it. No list was fetched through Jobcu, source added/removed or private result
 aggregate published. PULS/Agoria web research encountered robots restrictions; blocked pages
 were not retried through another route. Rechecked permissions and a date-verified independent
-sample are required before claiming additional recall. [Priority decision](ENGINEERING.md#quality-first-api-and-electronics-coverage-decision--2026-10-10).
+sample are required before claiming additional recall. [Priority decision](ENGINEERING.md#source-reliability).
 
 ### Gemini running costs
 
@@ -1076,7 +497,7 @@ older bill per grounded prompt. Repeated streaming metadata must not
 inflate that count; a separate request can incur the same query charge again. The
 [pricing table](https://ai.google.dev/gemini-api/docs/pricing) separately lists cached-input
 rates and grounding fees; thinking is already billed with output. Shared free allowances
-cannot be inferred from one app's ledger. Rates, models and dates remain in the section above.
+cannot be inferred from one app's ledger. The date of each price record limits its applicability.
 
 [Google's billing guide](https://ai.google.dev/gemini-api/docs/billing#spend-caps) documents
 experimental project spend caps in AI Studio's Spend page, with roughly ten minutes of possible
@@ -1090,34 +511,7 @@ and [Interactions generation configuration](https://ai.google.dev/api/interactio
 no documented hard query-count ceiling for built-in Google Search. Jobcu's request allowance
 cannot enforce one inside the provider; prompt instructions or earlier observed counts are
 not spending guarantees. Token maxima do not cap these query fees. Keep local estimates and
-provider controls distinct, and do not adopt a transport candidate as a cost reduction without
-complete comparative usage and quality evidence.
-
-### Processing tiers and complete cost comparisons — 2026-10-10
-
-[Gemini Flex](https://ai.google.dev/gemini-api/docs/flex-inference) offers a 50% token-price
-discount for supported models, including 3.8 Flash. It is preview, best-effort capacity with
-variable latency (a 1–15-minute target), shares general limits and can be evicted. It has no
-automatic Standard fallback; the guide shows Interactions API requests and recommends long
-timeouts. This is an integration/recovery lead, not a setting already supported by Jobcu's
-Generate Content adapter. Batch can take up to 24 hours. Neither is adopted for normal searches.
-
-The [Go price table](https://opencode.ai/docs/go/) was fetched in full: 32 distinct models,
-42 price rows including context/peak variants; prices/windows remain as recorded above.
-Compare normalized shared-window fractions at half, equal and twice the observed token volume;
-do not assume equal tokenization, thinking, cached usage or tool entitlement between models.
-
-[GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna) supports native medium
-reasoning, structured output and Responses web search. Direct Standard prices remain
-USD0.10/0.50 per million short-context input/output tokens. [Tool pricing](https://developers.openai.com/api/docs/pricing)
-adds USD10/1,000 search calls and retrieved-content tokens at model rates. A Gemini query count
-is not an OpenAI tool-call count; Go hosted-tool fees/allowances are a separate unresolved fact.
-
-[Chen et al., revised 2026-05-28](https://arxiv.org/abs/2603.23971) measure large differences
-in reasoning tokens and interaction turns across models. Their tasks do not establish Jobcu
-matching quality; the research supports measuring complete costs rather than ranking list prices.
-Private demand/estimates stay private. Public fictional comparisons and decisions:
-[ENGINEERING](ENGINEERING.md#structured-employer-workplace-evidence--2026-10-10).
+provider controls distinct, local token ceilings do not include every possible provider charge.
 
 ### Billing refusals and processing evidence — 2026-10-12
 
@@ -1140,111 +534,6 @@ discount with variable 1–15-minute target latency, sheddable capacity, shared 
 and client-managed retries; there is no automatic Standard fallback. It uses Interactions
 and is not implemented by Jobcu's Generate Content adapter. Batch can take up to 24 hours.
 Equal-token half-price arithmetic does not measure actual latency/recovery or full savings.
-
-MiMo's [rendered overseas prices](https://mimo.mi.com/docs/en-US/price/pay-as-you-go), updated
-2026-10-08 and read on 2026-10-12, confirm V2.6 Pro USD0.435/0.87, cached read USD0.0036,
-and overseas search USD5/1,000 uses separately. Retrieved input and multiple keyword uses
-still matter. V2.6 Pro Ultraspeed is USD4.35/8.70, so an advertised faster variant is not
-the same cheap API. The notice says native V2.5 aliases auto-route on October 14 and expire
-October 21; this is not verified Go-hosted alias behavior. Existing thinking/search contracts
-and quality counterevidence above remain; no private data was sent or plan purchased.
-
-The [service agreement](https://mimo.mi.com/docs/quick-start/terms/user-agreement), dated
-2026-07-07, is now readable. It describes an API platform and processor/controller roles,
-with overseas storage in Europe/Singapore. Clauses 3.2.8–3.2.9 restrict unauthorized third-party
-tools/systems; 5.2 requires rights to third-party copyrighted material. This resolves the
-previous unreadable-page gap, not Jobcu-specific authorization. **Inference/adoption gate:**
-reconcile those clauses with the documented API integration and source-content rights before
-transferring records. Do not silently assume permission or claim a universal non-coding ban.
-
-Go's current documentation could not be independently retrieved in this recheck; the complete
-catalogue/token-window table above remains explicitly dated 2026-10-10. Search-indexed official
-text is a lead, not proof that every current price, plan entitlement or hosted tool is unchanged.
-No blocked access was bypassed. The broader eleven-developer comparison and stronger-model
-counterevidence remain the comparison baseline; fresh rights/identity/fees and independent fit
-outcomes are required for adoption. [Selected implementation](ENGINEERING.md#ai-billing-refusals-stop-and-incomplete-usage--2026-10-12).
-
-### API market and reuse update — 2026-10-12
-
-The [eleven-developer survey](#public-api-market-and-quality-evidence--2026-10-10) and
-[complete 32-model Go table](#ai-and-maps) remain the baseline, including stronger models.
-Fresh native checks confirm [DeepSeek's exact model/prices](https://api-docs.deepseek.com/quick_start/pricing/)
-(browser read after the web reader timed out), [Z AI prices](https://docs.z.ai/guides/overview/pricing),
-[MiniMax Standard/Priority/tool bills](https://platform.minimax.io/docs/pricing/overview),
-[OpenAI Luna medium and prices](https://developers.openai.com/api/docs/models/gpt-6-luna),
-[Kimi K3 controls](https://platform.kimi.ai/docs/guide/kimi-k3-quickstart),
-[Mistral pricing](https://docs.mistral.ai/inference/pricing) and
-[Alibaba regional/context prices](https://www.alibabacloud.com/help/en/model-studio/model-pricing).
-DeepSeek Flash still has off-peak/peak token prices, not a native hosted-search entitlement.
-GLM-5.3/Flash accept low/high/max; the [reference](https://docs.z.ai/api-reference/llm/chat-completion)
-documents medium mapping for 5.2, not a verified literal-medium mapping for 5.3. MiniMax Priority
-is 1.5 times Standard; Kimi K3 has always-on reasoning and advises against production web search
-while its tool is updated. These distinctions do not rank matching quality.
-
-Additional primary routes considered: [LongCat's API](https://longcat.chat/platform/docs/APIDocs.html)
-and [current tariff](https://longcat.chat/platform/docs/zh/pricing/long-cat-2.0) offer Chat/Messages,
-with temporary LongCat-2.0 USD0.30/1.20 uncached input/output instead of USD0.75/2.95;
-[StepFun's public platform](https://platform.stepfun.ai/step-plan) lists Step 5 Preview and
-3.7/3.5 Flash, but its rendered pricing/permission/tool contract is incomplete here;
-[Tencent's Hy3 release](https://www.tencent.com/tencent-hunyuan-officially-releases-hy3-advancing-agent-capabilities-and-deeper-product-integration/)
-announces TokenHub availability; [ByteDance's Seed2 report](https://arxiv.org/abs/2607.00248)
-provides developer evaluations. Native regions, complete bills and Jobcu outcomes for these
-routes remain unverified. They are not rejected as incapable; free previews, coding gains
-or gateway availability cannot establish a sustainable equal-quality app replacement.
-
-**Subscription versus direct API:** MiMo's [complete individual plan](https://mimo.mi.com/docs/en-US/tokenplan/Token%20Plan/subscription)
-was read natively: Lite/Standard/Pro/Max cost USD6/16/50/100 monthly, with shared 4.1/11/38/82
-billion Credits. The six lasting models comprise Pro, Flash, ASR and three TTS variants;
-two old aliases expire October 21. Pro uses 300 Credits per uncached input token and 600 per
-output token, cached input 2.5; Flash uses 100/200, cached 2. Off-peak uses 0.8 times Credits.
-The package explicitly forbids non-coding automated scripts/custom application backends.
-Therefore this plan is not a permitted Jobcu recommendation; this is an intended-use restriction,
-not rejection from shared limits. Its distinct standard API remains a candidate.
-Go's complete dated table/windows above remain useful, but current permission/hosted-tool
-entitlement is unresolved; no new blocked-host attempt or purchase was made.
-
-Fictional 100K input plus 100K output per search (including thinking) costs USD0.45 on Gemini
-Standard, 0.225 on same-model Flex, 0.1305 on MiMo Pro, 0.065 on GLM Flash, 0.075–0.15 on
-DeepSeek Flash, 0.15 on MiniMax M3 or 0.06 on Luna at the stated short-context tariffs.
-Thirty identical searches multiply those token-only scenarios by 30; half/double demand
-halves/doubles them. They exclude taxes/FX, failed usage, retrieved tokens, tools and Maps.
-For 30 billable tool uses per search, MiMo adds USD4.50/month, GLM/MiniMax/OpenAI USD9/month
-plus any charged retrieved input; equal use counts are not equal research quality/demand.
-Gemini's query-based shared allowance is a different unit and may already be used elsewhere.
-MiMo Pro's fictional workload uses 2.7 billion monthly Credits, half/double 1.35/5.4 billion;
-its direct token bill is USD3.915 versus Lite USD6 or Standard USD16 before complete add-ons.
-Quota arithmetic does not override the package's use restriction. Private measured-demand
-daily/weekly/monthly sensitivity, retained-research scenarios and exact missing bills stay private.
-
-**Best judgement with counterevidence:** keep MiMo Pro as the single challenger, while retaining
-the working medium configuration until paired outcomes pass. Artificial Analysis' [current comparison](https://artificialanalysis.ai/models/comparisons/mimo-v2-6-pro-vs-gemini-3-8-flash)
-still reports composite 46/41 and long-context 86%/81%, but factual reliability 8/30,
-GDP.pdf 19%/21%, and longer end-to-end response time. Its v4.3.2 general suite compares Gemini
-High, not Jobcu medium; no benchmark establishes job-fit or fresh-coverage equivalence.
-[GLM Flash versus MiniMax](https://artificialanalysis.ai/models/comparisons/glm-5-3-flash-vs-minimax-m3)
-also shows different strengths across long-context and document/factual tasks. Cheapest output,
-integration ease and effort labels do not settle the choice.
-[DeepSeek Flash](https://artificialanalysis.ai/models/releases/deepseek-v4-1-flash) reaches 39
-at Max on that general index; its non-thinking result is not the required configuration.
-[Haiku medium](https://artificialanalysis.ai/models/claude-haiku-5-5-medium) scores 34, while
-[the publisher's release analysis](https://artificialanalysis.ai/articles/claude-haiku-5-5)
-reports 43 at Max with heavy output use and an over-refusal issue. [Kimi K3 analysis](https://artificialanalysis.ai/articles/kimi-k3-achieves-3-in-the-artificial-analysis-intelligence-index-comparable-to-opus-4-8-and-gpt-5-5)
-reports factual-reliability gains alongside higher direct rates. These are useful counterevidence
-to price/composite rankings, not independently measured Jobcu exclusions or matching quality.
-MiMo's [FAQ](https://mimo.mi.com/docs/en-US/quick-start/faq/api-integration) recommends disabling
-thinking for some unstable tool outputs; Jobcu must instead preserve enabled thinking and
-verify research separately. Its [agreement](https://mimo.mi.com/docs/quick-start/terms/user-agreement)
-and source-content rights still need reconciliation before private transfer. Do not buy a coding
-plan or switch private processing from this public evidence alone.
-
-**Maps reuse:** the [general no-caching clause](https://cloud.google.com/maps-platform/terms)
-permits only express exceptions. [Global Routes section 19.3](https://cloud.google.com/maps-platform/terms/maps-service-terms)
-and [EEA Routes section 20.2](https://cloud.google.com/terms/maps-platform/eea/maps-service-terms)
-allow latitude/longitude for up to 30 days; they do not authorize a cross-search journey-time
-database. [Routes policies](https://developers.google.com/maps/documentation/routes/policies)
-likewise distinguish place IDs and restricted content. Existing user history is preserved;
-new validated-element reuse stays within one search, with exact request identity and retryable
-unknowns. A different service needs both retention permission and verified transit coverage.
 
 ### Long AI answers and streaming
 
@@ -1321,7 +610,7 @@ A rejection of one value or combination does not mean the model lacks all effort
 These documents establish request distinctions, not every provider error's exact wording,
 quality equivalence or live account availability. Jobcu's narrow refusal classifier is checked
 with fictional SDK error payloads; unrecognized refusals preserve the requested setting.
-See [implementation and limits](ENGINEERING.md#reasoning-preserving-request-recovery--2026-10-15).
+See [implementation and limits](ENGINEERING.md#ai-providers-usage-and-recovery).
 
 ### Maps request limits and recovery
 
@@ -1370,7 +659,7 @@ content caching restrictions and Google Maps attribution; EEA terms depend on bi
 No cross-search duration cache or new access is introduced. Attempted elements are counted
 conservatively before every network attempt, including errors; this ledger is not a Google
 invoice and cannot track usage from other apps. No live call or account/billing change was
-made for this check. Measured fictional limits live in [ENGINEERING](ENGINEERING.md#maps-recovery).
+made for this check. Measured fictional limits live in [ENGINEERING](ENGINEERING.md#locations-and-travel).
 
 **Storage/reuse rechecked 2026-10-09:** the [Routes-specific contract, section 19.3](https://cloud.google.com/maps-platform/terms/maps-service-terms)
 permits temporary latitude/longitude caching for 30 days, not an unrestricted duration cache.
@@ -1378,141 +667,7 @@ The policy's indefinite exception is for place IDs. Do not transfer another API'
 to Routes durations, or claim that the coordinate exception authorizes stored travel decisions.
 Code inspection confirms Jobcu's independently sourced town coordinates and exact-request
 in-memory reuse; these differ from retaining yesterday's Google journey time. Current terms
-and time-sensitive timetables rule out the proposed indefinite location-only route reuse.
-
-#### Maps spending and alternatives
-
-**Checked 2026-10-09:** the [SKU definitions](https://developers.google.com/maps/billing-and-pricing/sku-details)
-list traffic-aware routing and location modifiers as Matrix Pro triggers, and two-wheel/toll
-features as Enterprise triggers. Ordinary TRANSIT plus departure time is not listed as either.
-Inference from the current `travel.GoogleMaps._matrix` request: Jobcu uses Matrix Essentials;
-this is a code/contract assessment, not verification of the owner's actual billing line item.
-The global Matrix prices above apply to that SKU, not a subscription or a price per collected ad.
-
-The [pricing overview](https://developers.google.com/maps/billing-and-pricing/overview) aggregates
-usage across projects linked to the billing account; free usage resets at midnight Pacific US
-time on the first day of the month. A separate project does not establish a separate allowance.
-[Cost controls](https://developers.google.com/maps/billing-and-pricing/manage-costs) distinguish
-quota metrics from billing, which can lag up to 48 hours. Alerts-only budgets do not cap spending;
-quotas can cap usage, but Google warns about quota/billing discrepancies. Inference: include
-other account usage, the reset boundary, currency/tax and a margin before enlarging Jobcu's
-attempt allowance. A local element counter cannot enforce an account-wide euro ceiling.
-
-[Transit documentation](https://developers.google.com/maps/documentation/routes/transit-route)
-supports arrival/departure times, station/line details and alternative routes in Compute Routes.
-Transit can include walking, waiting, buses and trains; forecasts depend on changing schedules.
-Inference: a higher billing tier is not evidence of better transit coverage; current sampling
-and timetable gaps need route-specific checks. Compute Routes and Matrix have separate billing
-events/allowances; adding detailed verification must account for both.
-
-Alternative leads, not adopted sources or owner account instructions:
-
-- [HERE Public Transit v8](https://docs.here.com/transit/reference/public-transit-api-v8-getroutes)
-  documents dated journeys, alternatives, transit-mode and walking controls. The official
-  pricing and limited-plan pages returned HTTP 403 in this research; current production price,
-  terms and relevant country/timetable coverage remain unverified. No blocked page was bypassed.
-- [TravelTime pricing](https://traveltime.com/pricing) offers development/evaluation access and
-  a quoted fixed annual production plan based on throughput/service level. Its page restricts
-  free access to development/evaluation, and says low-volume pay-as-you-go can be cheaper.
-  A production quote and applicable use rights are dependencies; no account or contact was made.
-- [OpenTripPlanner](https://www.opentripplanner.org/) describes routing built from GTFS and
-  OpenStreetMap data. Inference: local routing would need licensed current feeds and ongoing
-  coverage/maintenance across supported countries. It is not an established drop-in transit
-  replacement, a zero-maintenance saving or permission to host Jobcu.
-
-No private search evidence, live route call, paid test or account change was used for these
-comparisons. The bounded spending recommendation and illustrative arithmetic live in
-[ENGINEERING](ENGINEERING.md#maps-spending-proposal--2026-10-09).
-
-**Classification/error guidance checked 2026-10-08:**
-[Google's structured-output guide](https://ai.google.dev/gemini-api/docs/structured-output)
-distinguishes valid JSON from correct values and recommends application validation/error
-handling. This is capability guidance, not a provider recommendation or proof of classifier
-accuracy. Jobcu accepts unrelated-title decisions only for IDs in that batch; an unexamined
-title is never a rejection. [Python 3.13 futures](https://docs.python.org/3.13/library/concurrent.futures.html)
-raise a task's exception when its result is retrieved; cancelling cannot stop an already-running
-task. Jobcu handles recoverable title failures within that independent batch, while critical
-errors and Stop propagate through its existing cancellation helper.
-
-Provider support is in `src/jobcu/ai/`; users choose their provider and model. Research access
-varies by account/model/tier. A connection test checks generation, not web research. See the
-[2026-10-06 capability check](archive/SOURCE-RESEARCH.md#web-research) and [current key guide](guides/getting-your-keys.md).
-Archived price comparisons are historical; do not use them as current cost or model advice.
-
-**Application-link metadata checked 2026-10-07:** Adzuna's
-[API schema](https://developer.adzuna.com/swagger/spec/test2.json) supplies a `redirect_url`
-and describes it as the advertiser route required for API compliance. It does not supply the
-final application host. Existing blocked-site rules still prohibit probing Adzuna pages.
-Known CV-Library destinations are excluded by owner instruction; no CV-Library collection
-or application-form traffic was added. Opaque redirects remain an unverified destination.
-
-**Adzuna direct-destination request rechecked 2026-10-16:** the current
-[Job and Ad API schema](https://developer.adzuna.com/swagger/spec/test2.json) explicitly requires
-using its supplied `redirect_url` to send the user to the advertiser for API compliance.
-Neither response supplies a final-destination field. The
-[API terms](https://developer.adzuna.com/docs/terms_of_service) require queries through Adzuna
-and restrict third-party content-provider contact. Existing blocked-page rules also remain.
-Do not resolve and replace this advertiser route without explicit Adzuna permission and a
-permitted destination interface. Public documentation checks used no API key, ad request,
-private redirect or destination traffic. Independently collected originals of the same job
-can still be offered with their own provenance; an already saved employer link can be primary
-while the exact Adzuna advertiser route remains an alternative. Unknown redirects are not
-proof of a permitted direct link or an accessible application website.
-
-**Application restrictions rechecked 2026-10-14:** the indexed official
-[CV-Library FAQ](https://www.cv-library.co.uk/help/popular-questions) describes registration
-requiring a UK address and access restricted to users located in the UK; temporary UK addresses
-are accepted with a UK working visa. This describes address/location access, not a blanket
-British-citizenship rule. Direct public retrieval returned 403; no account, application form or
-bypass was used, so live eligibility was not tested. The existing owner-directed destination
-exclusion remains. A reported numeric Adzuna ad may match its known details/land URL variants
-with tracking-only query changes, while stored advertiser URLs stay intact. Other IDs/hosts or
-unknown request fields cannot establish the same route. This changes local report matching,
-not collection permission; no opaque advertiser redirect is fetched.
-
-**Rechecked 2026-10-07 for the guides:**
-
-- [Gemini API standard pricing](https://ai.google.dev/gemini-api/docs/pricing):
-  `gemini-3.8-flash` lists USD 0.75 input and USD 3.75 output per million tokens, including
-  thinking tokens, through 2026-12-31; USD 1.50/7.50 begins 2027-01-01. This is a dated
-  pricing fact, not a model recommendation. Jobcu's token estimate omits grounding fees and
-  cached-token discounts; provider billing remains the reference for actual charges.
-- [Gemini API keys](https://ai.google.dev/gemini-api/docs/api-key) are managed in AI Studio;
-  follow its current project/key instructions rather than assume a fixed key format.
-- [Google Cloud alerts-only budgets](https://docs.cloud.google.com/billing/docs/how-to/budgets)
-  notify about spending; they do not automatically cap it.
-- [Routes API quotas](https://developers.google.com/maps/documentation/routes/usage-and-billing)
-  limit request volume. Select limits against current billing terms; a quota is not a promise of
-  free use. Jobcu also has its configured monthly route limit.
-- [Maps storage constraints](archive/SOURCE-RESEARCH.md#maps) are retained dated evidence;
-  the app stores AI travel estimates, not Google route times.
-- [Transit routes](https://developers.google.com/maps/documentation/routes/transit-route)
-  can combine trains, buses, subways and walking. General TRANSIT is not train-only time.
-- [Route waypoints](https://developers.google.com/maps/documentation/routes/reference/rest/v2/Waypoint)
-  accept coordinates, place IDs or addresses; named public stations can be used for a key probe.
-- [Route-matrix durations](https://developers.google.com/maps/documentation/routes/reference/rest/v2/TopLevel/computeRouteMatrix)
-  are seconds and can be fractional; each element's status is independent of route-found condition.
-  [Billing counts origins times destinations](https://developers.google.com/maps/documentation/routes/usage-and-billing),
-  rather than HTTP requests; two sampled destinations use two elements for one origin.
-
-Source/data credits remain in [README](../README.md#ownership-and-data-credits).
-
-## Search-method research leads — 2026-10-09
-
-The official [Ashby posting API](https://developers.ashbyhq.com/docs/public-job-posting-api)
-returns full descriptions and secondary locations; its documented secondary address exposes
-country/locality directly, while the primary address has `postalAddress`. `publishedAt` means
-last publication, not proof of a new underlying requisition. Jobcu currently expects nested
-secondary country metadata: vague location names could therefore lose evidence. This is a
-code/contract research lead needing a reproduction, terms check and country/identity review,
-not a measured recall claim or new collection permission.
-
-[Lever's official posting API](https://github.com/lever/postings-api) already supplies public
-published-post lists and description data; it is an existing adapter, not a new coverage
-source. Structured employer APIs may improve evidence/reliability, but their value depends on
-employer coverage, original dates and unique jobs. No adapter was added/removed or vacancy
-queried for this comparison; existing restrictions and request budgets remain.
-
+and time-sensitive timetables do not authorize indefinite location-only route reuse.
 
 ## Native streams and selected reference pages — 2026-10-18
 
@@ -1595,3 +750,28 @@ server-tool loops and context-window exhaustion. Continuing a paused turn is an 
 operation; Jobcu does not silently buy it or switch models. Installed-SDK fictional fixtures
 verify parsing, receipts and retained controls. They do not establish another host's tariff,
 cache premium, access rights or real matching/grounding quality.
+
+## Additional access boundaries
+
+These retained access observations were recorded in September–October 2026. Adapter parsing
+and request budgets are defined in `src/jobcu/sources/`; public accessibility alone does not
+establish collection permission.
+
+Recorded access boundaries also cover SmartRecruiters' API and iCIMS hosts whose robots rules
+refused Jobcu, Hays/Rise Technical terms that restricted collection, EURES' partner route,
+and blocked publicjobs.ie, UK Civil Service Jobs and DWP Find a Job interfaces. These were not
+implemented as bypasses. Historical employer/board counts are not current vacancy coverage.
+
+## Native Xiaomi interface — recorded 2026-10-22
+
+The [Chat API](https://mimo.mi.com/docs/en-US/api/chat/openai-api) documents the native endpoint,
+enabled thinking, JSON-object output and completion tokens including thinking. It does not
+promise a literal medium control. The [Web Search guide](https://mimo.mi.com/docs/en-US/quick-start/usage-guide/text-generation/tool-calling/web-search)
+describes the separately activated plugin. Keyword/result limits do not bound total search
+rounds or cost. Returned flat annotations do not establish passage-level citation mappings.
+
+The [ordinary API agreement](https://mimo.mi.com/docs/quick-start/terms/user-agreement) and
+[Token Plan terms](https://mimo.mi.com/docs/en-US/tokenplan/Token%20Plan/subscription) describe
+different products/use restrictions. The [payment FAQ](https://mimo.mi.com/docs/en-US/quick-start/faq/payment)
+describes delayed billing and possible negative balances. Alerts/prepayment do not establish
+an exact currency ceiling. These are recorded interface/terms facts, not a provider recommendation.

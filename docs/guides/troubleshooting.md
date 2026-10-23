@@ -255,7 +255,7 @@ not solve every cause. Read the final Maps note in **Search details**:
 Choose any increase from actual usage and current prices, with a spending limit and margin.
 A Google budget alert is a notification, not a hard cap. Other projects on the same billing
 account can use the same allowance; Jobcu cannot see their use. The dated
-[service evidence](../SOURCES.md#maps-spending-and-alternatives) explains the limits.
+[service evidence](../SOURCES.md#routes-billing) explains the limits.
 After correcting the specific problem, test once in Jobcu within your allowance; that test
 may use paid credit. You do not need a new full search to test access.
 
@@ -286,8 +286,8 @@ the workplace. Do not change your key just because a duration is unexpected.
 ## I still need help
 
 Describe which step failed, the short error message, and whether you use Mac or Windows.
-If you work on Jobcu with Codex, use your local project chat. Otherwise contact the person
-who gave you Jobcu, or use the repository's **Issues** page for a public software problem.
+Contact the person who gave you Jobcu, or use the repository's **Issues** page for a public
+software problem.
 
 GitHub issues are public. Use fictional examples and do not include API keys, account details,
 CVs, cover letters, search text, job results or raw logs. Crop screenshots to the error itself

@@ -44,12 +44,9 @@ def test_links_between_documents_work(doc):
             )
 
 
-# The records stay usable after any interruption only if their structure holds (AGENTS.md,
-# "Information homes" and "Sessions").
-
 def _project_map() -> str:
     text = (ROOT / "docs" / "ENGINEERING.md").read_text(encoding="utf-8")
-    return text.split("## Project layout", 1)[1].split("## Evaluation data and timing", 1)[0]
+    return text.split("## Project layout", 1)[1]
 
 
 def test_the_project_map_lists_every_module_and_tool():
@@ -60,19 +57,3 @@ def test_the_project_map_lists_every_module_and_tool():
     names += [f"tools/{p.name}" for p in (ROOT / "tools").glob("*.py")]
     missing = [name for name in names if name not in listed]
     assert not missing, f"ENGINEERING.md's project map doesn't mention {missing}"
-
-
-def test_progress_keeps_the_sections_a_new_session_needs():
-    text = (ROOT / "docs" / "PROGRESS.md").read_text(encoding="utf-8")
-    right_now = text.split("## Right now", 1)[1].split("\n## ", 1)[0]
-    assert re.search(r"\*Updated \d{4}-\d{2}-\d{2}\.", right_now)
-    for section in ("State", "In progress", "Verify before relying on", "Waiting on the owner",
-                    "Next tasks", "Known limitations"):
-        assert f"### {section}" in right_now, f"'Right now' lost its '{section}' section"
-
-
-def test_the_prompts_for_ai_assistants_point_at_real_sections():
-    prompts = " ".join((ROOT / "docs" / "PROMPTS.md").read_text(encoding="utf-8").split())
-    rules = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
-    for section in ("Starting, or resuming after any interruption", "Ending a session"):
-        assert section in prompts and f"### {section}" in rules

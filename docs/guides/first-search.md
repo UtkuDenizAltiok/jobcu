@@ -527,9 +527,7 @@ new results. You only need to replace documents or change settings when somethin
 **Settings → Review results** is optional (formerly the **Score check** tab). It keeps a sample
 for you to rate as a good, okay or poor fit before showing Jobcu's score. This helps compare its judgement with
 yours. You can use Jobcu without filling it in; ratings remain private on your computer.
-Ratings do not automatically train the AI or change scores. Assistant development reviews use
-the [private review procedure](../../CONTRIBUTING.md#review-a-completed-search) within your
-existing authorization and limits, without requiring you to fill in this page.
+Ratings do not automatically train the AI or change scores.
 
 ## Clear data and start fresh
 

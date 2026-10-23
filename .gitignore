@@ -59,7 +59,7 @@ Thumbs.db
 desktop.ini
 
 # Editors and AI tools: personal settings and chat histories stay private.
-# AGENTS.md is the only shared assistant rulebook.
+# Local assistant settings and conversation histories are not project files.
 .vscode/
 .idea/
 .codex/
