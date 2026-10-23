@@ -59,7 +59,25 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed history is 
 
 ### In progress
 
-**Comparison software prepared; recover the current private trial checkpoint.**
+**Owner-started baseline and provider comparison are active.**
+
+Authorized scope: follow the exact newly captured baseline, then complete the private
+[search-review procedure](../CONTRIBUTING.md#review-a-completed-search) and independently
+compare Gemini and MiMo on frozen evidence, including rejected candidates and available full
+ads. Assess planning and sourced research separately; retain the completed preflight and
+unproved MiMo research parity. Use only the remaining original extra trial allowance in the
+canonical private ledger, separately from the ordinary monthly budget. No other broad search,
+closed paid packet replay or recurring monitor is authorized.
+
+Steps and verification: pin the captured identity privately; record progress, failures, actual
+retry/answer waits and complete-cost limits; freeze the final evidence; judge a balanced packet
+before revealing scores; compare within finite reservations; implement only confirmed general
+causes with fictional regressions and the required full-suite, review, exact-head CI and
+merge-commit publication. Keep the existing provider until all adoption gates pass. Detailed
+identity, observations, budget and next action remain in the private checkpoint indexed below.
+Current branch: `codex/pinned-provider-trial-review`; no production change or new paid
+comparison dispatch yet. Exact next action: follow the pinned current capture to completion
+or failure without substituting older results.
 
 The optional native provider, one-run evidence capture, dated choice, guide, start prompt
 and required startup version guard are implemented and locally verified as described above. The private
