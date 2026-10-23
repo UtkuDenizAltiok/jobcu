@@ -42,8 +42,8 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed history is 
   Publication and exact-head PR/main Mac/Windows/privacy receipts are indexed privately;
   verify actual Git/CI heads on recovery, rather than infer a merge from local tests.
 - Existing owner documents, queries, results, scores, marks, history, sources, Maps, provider,
-  models, effort and limits are preserved. No new job search or paid request occurred during
-  this preparation. Earlier trial-only adjustments were restored; the normal monthly budget
+  models and effort are preserved. No new job search or paid request occurred during
+  software preparation. Earlier trial-only adjustments were restored; the normal monthly budget
   is unchanged. All older paid packets remain closed; no allowance resets on continuation.
 
 ### Current behavior to preserve
@@ -59,7 +59,7 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed history is 
 
 ### In progress
 
-**Comparison software prepared; live preflight waits for owner setup.**
+**Comparison software prepared; recover the current private trial checkpoint.**
 
 The optional native provider, one-run evidence capture, dated choice, guide, start prompt
 and required startup version guard are implemented and locally verified as described above. The private
@@ -69,14 +69,16 @@ Its exact publication receipts distinguish tested, pushed and merged. If publica
 incomplete, finish the recorded branch/PR with exact-head Mac/Windows/privacy CI, a merge
 commit and synchronized main. Do not repeat valid checks or select unrelated backlog work.
 
-The next owner-dependent action is saving the selected direct key and confirming Web Search
-and billing controls. No paid request has occurred; do not reset the shared allowance or
-spend before access and a finite reservation are established. Preparation does not establish
-live quality, complete-cost savings or an adopted replacement.
+The private checkpoint records current setup, completed finite packets, the shared remaining
+allowance, trial-only settings and the exact next owner-dependent action. Recover that state
+before repeating setup or verification. Do not reopen a closed packet or reset the allowance.
+Software readiness and working credentials do not establish research quality, complete-cost
+savings or an adopted replacement.
 
-The later paid preflight needs the owner's direct pay-as-you-go key, activated Web Search and
-budget/account headroom. The owner starts one 72-hour search only after that gate passes.
-Use the [setup sequence](guides/getting-your-keys.md#recommended-setup-now) and
+Any paid preflight needs the owner's direct pay-as-you-go key, activated Web Search and
+budget/account headroom. Follow the recorded gate outcome; do not treat a connection pass as
+permission to replace required research. The owner starts one 72-hour baseline when its
+recorded setup gates are ready. Use the [setup sequence](guides/getting-your-keys.md#recommended-setup-now) and
 [start prompt](PROMPTS.md#start-the-prepared-provider-comparison). No recurring automation,
 extra broad search or provider switch is authorized by preparation. Preserve all owner data.
 
@@ -109,11 +111,12 @@ extra broad search or provider switch is authorized by preparation. Preserve all
 
 ### Waiting on the owner
 
-After publication, follow the linked setup sequence: create/save a direct MiMo pay-as-you-go
-key only in Jobcu, enable Web Search and report setup status, not the key. The assistant then
-checks the existing shared allowance, account and lower-limit gates before finite preflight.
-Do not start the actual search yet. No new account, payment or provider switch was made by
-the assistant. Missing access must not be mistaken for a failed quality comparison.
+Follow the private checkpoint's exact next action, rather than repeat the initial key/payment
+instructions. It distinguishes missing access, a completed preflight, research-quality gates
+and the owner's next baseline start. Enter any needed key only in Jobcu. Keep the working
+baseline while a challenger remains unadopted. No second broad search or recurring monitor is
+part of the prepared comparison. Restore recorded trial-only limits when the trial ends;
+never restore an older input snapshot over later owner edits.
 
 ### Verify before relying on
 
