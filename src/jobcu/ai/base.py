@@ -26,9 +26,11 @@ class Usage:
     output_tokens: int = 0
     cached_input_tokens: int = 0
     reasoning_tokens: int = 0
-    web_searches: int = 0
+    web_searches: int = 0  # search queries: the same allowance unit for every provider
     # Requests whose complete usage was not received; available counts are lower bounds.
     unreported_requests: int = 0
+    # Result pages a provider bills on top of its queries (MiMo); priced like a query.
+    web_results: int = 0
 
     def __add__(self, other: "Usage") -> "Usage":
         return Usage(
@@ -38,6 +40,7 @@ class Usage:
             self.reasoning_tokens + other.reasoning_tokens,
             self.web_searches + other.web_searches,
             self.unreported_requests + other.unreported_requests,
+            self.web_results + other.web_results,
         )
 
 

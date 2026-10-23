@@ -733,12 +733,14 @@ class AIClient:
         if allowance is not None or limits.monthly_cost_limit is not None:
             prices = {(p.provider, p.model): p for p in self.settings.prices}
             needed = {(u.provider, u.model) for u in month if (
-                u.usage.input_tokens or u.usage.output_tokens or u.usage.web_searches)}
+                u.usage.input_tokens or u.usage.output_tokens or u.usage.web_searches
+                or u.usage.web_results)}
             if provider is not None and model is not None:
                 needed.add((provider, model))
             currencies = {p.currency.strip().upper() for p in self.settings.prices}
             missing = needed - prices.keys()
-            web_unpriced = any(u.usage.web_searches and prices.get((u.provider, u.model))
+            web_unpriced = any((u.usage.web_searches or u.usage.web_results)
+                               and prices.get((u.provider, u.model))
                                is not None and prices[(u.provider, u.model)]
                                .web_search_per_thousand is None for u in month)
             if research and (provider, model) in prices:

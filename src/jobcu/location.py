@@ -532,7 +532,7 @@ def _plan_from_reading(client: AIClient, text: str,
     plan = plan_from(text, plain)
     plan.conditions = _check_sorted_conditions(
         client, reading.conditions_about_places + reading.conditions_about_the_job, plan.countries,
-        defer_reference_checks=defer_reference_checks,
+        defer_reference_checks=defer_reference_checks, request=text,
     )
     _narrow_countries(plan)
     plan.not_checked_yet = [
@@ -634,14 +634,24 @@ def _sort_conditions(
 
 def _check_sorted_conditions(
     client: AIClient, sorted_conditions: list[SortedCondition], countries: list[str], *,
-    defer_reference_checks: bool = False,
+    defer_reference_checks: bool = False, request: str | None = None,
 ) -> list[Condition]:
-    """Apply the same checks to initial interpretations and newly edited conditions."""
+    """Apply the same checks to initial interpretations and newly edited conditions.
+
+    `request` is the person's whole text for a first reading; edited conditions omit it.
+    """
     names = ", ".join(COUNTRIES[code].name for code in countries) or "the supported countries"
     # A fact about places, once per condition that names it in full. The travel condition's
     # reference places often depend on one of these, sometimes in fewer words ("the voting ratio
     # should be less than its country average"): then that condition's full wording is looked up.
     facts = [c.text for c in sorted_conditions if c.kind == "needs_the_web"]
+    # Reviewed references belong to an unchanged request's one looked-up reference fact,
+    # however this reading worded or split it (reference_sources.request_key).
+    reference_facts = {
+        normalise(_same_fact(c.anchor.look_up or c.anchor.description or c.text, facts))
+        for c in sorted_conditions if c.kind == "near" and c.anchor is not None
+        and c.anchor.needs_the_web and (c.max_minutes or c.max_km)}
+    reviewed_request = request if len(reference_facts) == 1 else None
     checked: list[Condition] = []
     researched = 0
     # The same fact is looked up once per search, even when two conditions ask about it (the
@@ -682,7 +692,7 @@ def _check_sorted_conditions(
             else:
                 looked_up[key] = (_research_condition(client, fact, names, countries)
                                  if candidates is None else reference_places.check(
-                                     client, fact, candidates))
+                                     client, fact, candidates, request=reviewed_request))
         found = looked_up[key]
         return found.model_copy(update={"text": fact})
 
@@ -1030,11 +1040,12 @@ def apply_edits(client: AIClient, plan: LocationPlan, edits: list[ConditionEdit]
         if needs_checking(edit, plan.conditions):
             if edit.check_again and edit.original is not None and normalise(edit.text) == (
                     normalise(plan.conditions[edit.original].text)):
-                from jobcu.reference_places import retry_missing
+                from jobcu.reference_places import retry_missing, single_fact_request
 
                 corrected = _corrected(plan.conditions[edit.original], edit, plan.countries)
                 resumed = retry_missing(client, corrected, plan.countries,
-                                        defer_reference_checks=defer_reference_checks)
+                                        defer_reference_checks=defer_reference_checks,
+                                        request=single_fact_request(plan))
                 if resumed is not None:
                     conditions.append(resumed)
                     continue

@@ -1,8 +1,11 @@
 """Direct pay-as-you-go Chat API, including its native research plugin.
 
-Keyword/result controls are not a currency or search-round cap. Count both reported search
-and page units conservatively; the provider invoice remains authoritative. Unknown receipts
-and responses outside the requested envelope stop automatic work on the affected path.
+A request gets the same number of search queries as with any provider (`max_keyword`), each
+returning a few result pages. Queries count towards the shared allowance; the result pages it
+also reports are recorded as separately billed units, so cost estimates stay conservative. The
+provider invoice remains authoritative. Unknown receipts and responses outside the requested
+envelope stop automatic work on the affected path. The plugin returns short result summaries,
+not whole pages (measured 2026-10-23), so its notes can leave requirements unconfirmed.
 """
 
 from urllib.parse import urlsplit
@@ -22,6 +25,11 @@ from jobcu.ai.base import (
 from jobcu.ai.compatible_adapter import CompatibleAdapter, _chat_reply, _chat_usage
 from jobcu.ai.openai_adapter import translate_openai_error
 from jobcu.settings import Effort
+
+# Measured accepted values (2026-10-23): ten keywords in one request, ten results per keyword;
+# twenty results returned no search. Five results keep each query comparable to a web search.
+MAX_KEYWORDS = 10
+RESULTS_PER_KEYWORD = 5
 
 
 class MiMoAdapter(CompatibleAdapter):
@@ -54,12 +62,11 @@ class MiMoAdapter(CompatibleAdapter):
         self, *, model: str, system: str, prompt: str, max_searches: int,
         max_output_tokens: int, effort: Effort | None = None,
     ) -> ResearchReply:
-        # Reserve search + returned-page units without silently increasing the shared limit.
-        if max_searches < 2:
-            raise AILimitReached("This research needs room for at least one search and page "
-                                 "unit within your existing web allowance.")
-        keywords = min(3, max(1, max_searches // 3))
-        results = min(5, max_searches // keywords - 1)
+        if max_searches < 1:
+            raise AILimitReached("This research needs room for at least one search within "
+                                 "your existing web allowance.")
+        keywords = min(MAX_KEYWORDS, max_searches)
+        results = RESULTS_PER_KEYWORD
         try:
             response = self._client().chat.completions.create(
                 model=model,
@@ -84,7 +91,7 @@ class MiMoAdapter(CompatibleAdapter):
         counts = getattr(response.usage, "web_search_usage", None)
         tool_units = _count(counts, "tool_usage")
         page_units = _count(counts, "page_usage")
-        usage.web_searches = (tool_units or 0) + (page_units or 0)
+        usage.web_searches, usage.web_results = tool_units or 0, page_units or 0
         if tool_units is None or page_units is None or not _valid_tokens(usage):
             raise _uncertain(usage)
         if tool_units > keywords or page_units > keywords * results:
@@ -115,9 +122,11 @@ class MiMoAdapter(CompatibleAdapter):
                 title = data.get("title")
                 sources.append(Source(url, title if isinstance(title, str) else ""))
         if not tool_units or not sources:
-            error = AIWebSearchUnavailable(
-                "The provider did not return a sourced web search. Its answer cannot verify "
-                "current conditions; check web-search access before retrying.")
+            # One question without usable results says nothing about the account's search
+            # access: only this check stays unverified, and other online checks continue.
+            error = AIInvalidOutput(
+                "The provider answered one online check without a sourced web search. Jobcu "
+                "left its facts unchecked rather than trust an answer from memory.")
             error.usage = usage
             raise error
         # The native annotations do not map generated passages to sources. Do not fabricate it.

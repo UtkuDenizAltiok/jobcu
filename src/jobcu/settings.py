@@ -144,6 +144,10 @@ class PlaceEvidencePage(BaseModel):
 
 class PlaceEvidenceSet(BaseModel):
     fact_key: str  # exact interpreted question's SHA-256; not a fuzzy political/keyword rule
+    # The whole request the set was reviewed for (reference_sources.request_key). While that
+    # request is unchanged and holds this one looked-up reference fact, the set still applies
+    # when another provider or a fresh reading words or splits the fact differently.
+    request_key: str | None = None
     sources: list[PlaceEvidencePage]
 
 

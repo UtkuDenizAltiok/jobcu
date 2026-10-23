@@ -580,3 +580,24 @@ def test_a_provider_link_on_only_a_city_heading_cannot_support_its_claim(cities)
     found = reference_places.check(client, 'City service', cities[:2])
     assert all(c.meets is None for c in found.reference_checks)
     assert len(client.calls) == 1
+
+
+def test_reviewed_request_matching_needs_one_unedited_reference_fact():
+    from jobcu.location import Anchor, Condition, LocationPlan
+
+    def near(fact):
+        return Condition(text="Within 30 minutes of a fictional kind of city", understood_as="",
+                         status="estimate", kind="near", max_minutes=30,
+                         anchor=Anchor(look_up=fact))
+
+    plan = LocationPlan(text="A fictional request", understood_as="", countries=["DE"],
+                        places=[], conditions=[near("A staffed weekend service"),
+                                               near("a staffed  weekend service")],
+                        not_checked_yet=[], outside_supported_area=[], broad=False)
+    assert reference_places.single_fact_request(plan) == "A fictional request"
+    second = plan.model_copy(update={"conditions": [*plan.conditions, near("A river port")]})
+    assert reference_places.single_fact_request(second) is None
+    assert reference_places.single_fact_request(plan.model_copy(update={"edited": True})) is None
+    off = second.model_copy(deep=True)
+    off.conditions[-1].switched_off = True
+    assert reference_places.single_fact_request(off) == "A fictional request"
