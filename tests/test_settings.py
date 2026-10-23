@@ -25,6 +25,7 @@ def test_defaults_when_nothing_saved():
     assert settings.ai.compatible_reasoning == "effort"
     assert settings.ai.compatible_medium == "medium"
     assert settings.ai.research_provider is None
+    assert settings.ai.recover_interrupted_requests is False
 
 
 def test_legacy_custom_api_keeps_its_unsent_effort_without_changing_medium_default():

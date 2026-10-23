@@ -392,6 +392,16 @@
             </div>
           </details>
 
+          <div class="field" id="request-recovery-field" hidden>
+            <label><input type="checkbox" id="request-recovery">
+              Recover interrupted AI connections using temporary provider storage</label>
+            <p class="muted">On supported native models, Jobcu retrieves the same request after
+              a connection failure instead of paying to generate it again. Necessary profile,
+              search and ad text, answers and usage are stored temporarily by that provider.
+              Jobcu cancels unfinished work and deletes the stored interaction after retrieval.
+              If deletion fails, the provider's retention can apply for up to 55 days.</p>
+          </div>
+
           <div class="actions">
             <button type="button" id="save-ai">Save</button>
             <button type="button" class="secondary" id="check-ai">Test connection</button>
@@ -544,7 +554,7 @@
       <div class="card">
         <h2>About</h2>
         <p><span id="about-version">Jobcu</span> · <span id="about-copyright"></span></p>
-        <p class="muted">Your data is kept only on this computer, in
+        <p class="muted">Your app files are stored on this computer, in
           <code id="about-data-folder"></code></p>
       </div>
     </section>

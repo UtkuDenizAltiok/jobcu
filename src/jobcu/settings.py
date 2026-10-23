@@ -40,6 +40,8 @@ class AISettings(BaseModel):
     # including extraction after research, continues to use the main configuration.
     research_provider: ResearchProviderId | None = None
     research_model: str = ""
+    # Explicit privacy choice: supported providers can retain one operation for reconnecting.
+    recover_interrupted_requests: bool = False
     # Reasoning effort per kind of step: medium everywhere, the owner's choice (2026-09-24).
     # `scoring_effort` is for the many small steps (quick check, scoring), `reasoning_effort` for
     # reading documents and places and for web look-ups. Custom controls are explicit and

@@ -135,6 +135,22 @@ The permanent retry note records what happened; it does not mean requests are st
 after **Search finished**. During a retry, the current step shows the wait. **Stop** cancels
 retry waits and queued AI work; a request already sent can finish first.
 
+For supported models, open **Settings → AI provider** and enable
+**Recover interrupted AI connections using temporary provider storage** to keep a long request
+running while Jobcu reconnects to the same request. It requires permission for
+temporary provider storage of necessary request text, answers and usage. Jobcu retrieves and
+deletes the record automatically; failed deletion can leave it stored for up to 55 days.
+A recovery progress message refers to retrieving the existing answer, so it does not mean a
+new paid generation was sent. Processing time and connection retry waits are recorded separately.
+**Stop** requests cancellation before deletion. If cleanup fails, Jobcu retains a local ID and
+tries again on subsequent requests or reopening. Closing the app abruptly can delay cleanup.
+This option cannot restore a request whose creation response never supplied an ID, overcome
+an account refusal or turn missing source evidence into verified facts.
+
+Completed preliminary checks, scores and sourced notes are preserved when a later batch fails.
+If formatting sourced notes fails, retrying that incomplete conversion can reuse the exact notes
+without buying the research again. Changed inputs invalidate that reuse.
+
 Job-site retry history appears once per host. A retry notice can remain after the site recovers;
 read the final source report for missing coverage. A quota stop, a site refusing automated
 access and a short feed history remain separate limitations. Repeated requests cannot repair

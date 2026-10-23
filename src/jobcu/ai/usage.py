@@ -21,17 +21,36 @@ class UsageLog:
         self.folder = folder
 
     def record(
-        self, *, step: str, provider: str, model: str, usage: Usage, search_id: int | None = None
+        self, *, step: str, provider: str, model: str, usage: Usage, search_id: int | None = None,
+        recovery_id: str | None = None, created_at: str | None = None,
     ) -> None:
         with db.connect(self.folder) as conn:
+            if recovery_id is not None:
+                conn.execute("BEGIN IMMEDIATE")
+                previous = conn.execute(
+                    "SELECT id FROM ai_usage WHERE provider=? AND recovery_id=?",
+                    (provider, recovery_id)).fetchone()
+                if previous is not None:
+                    conn.execute(
+                        """UPDATE ai_usage SET input_tokens=MAX(input_tokens,?),
+                        output_tokens=MAX(output_tokens,?),
+                        cached_input_tokens=MAX(cached_input_tokens,?),
+                        reasoning_tokens=MAX(reasoning_tokens,?),
+                        web_searches=MAX(web_searches,?),
+                        unreported_requests=MIN(unreported_requests,?) WHERE id=?""",
+                        (usage.input_tokens, usage.output_tokens, usage.cached_input_tokens,
+                         usage.reasoning_tokens, usage.web_searches, usage.unreported_requests,
+                         previous[0]))
+                    return
             conn.execute(
                 """INSERT INTO ai_usage (search_id, step, provider, model, input_tokens,
                    output_tokens, cached_input_tokens, reasoning_tokens, web_searches,
-                   unreported_requests)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                   unreported_requests, recovery_id, created_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                           COALESCE(?,strftime('%Y-%m-%dT%H:%M:%fZ','now')))""",
                 (search_id, step, provider, model, usage.input_tokens, usage.output_tokens,
                  usage.cached_input_tokens, usage.reasoning_tokens, usage.web_searches,
-                 usage.unreported_requests),
+                 usage.unreported_requests, recovery_id, created_at),
             )
 
     def this_month(self, now: datetime | None = None) -> list[ModelUsage]:

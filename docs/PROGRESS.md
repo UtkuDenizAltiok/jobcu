@@ -37,14 +37,13 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed history is 
   can no longer identify itself as a newer checkout merely because its first health request
   arrived after files changed. Three fictional before/after regressions cover Python, JS and
   HTML updates. [Reason](ENGINEERING.md#running-build-identity--2026-10-22).
-- Current local verification: **2,495 offline tests pass**, plus Ruff, privacy, documentation,
+- Current local verification: **2,532 offline tests pass**, plus Ruff, privacy, documentation,
   JavaScript syntax, whitespace, complete diff review and an isolated local startup self-test.
   Publication and exact-head PR/main Mac/Windows/privacy receipts are indexed privately;
   verify actual Git/CI heads on recovery, rather than infer a merge from local tests.
 - Existing owner documents, queries, results, scores, marks, history, sources, Maps, provider,
   models and effort are preserved. No new job search or paid request occurred during
-  software preparation. Earlier trial-only adjustments were restored; the normal monthly budget
-  is unchanged. All older paid packets remain closed; no allowance resets on continuation.
+  software preparation. Trial-only accounting remains separate; the normal monthly budget is unchanged. All older paid packets remain closed; no allowance resets on continuation.
 
 ### Current behavior to preserve
 
@@ -59,21 +58,25 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed history is 
 
 ### In progress
 
-**Owner-started baseline and provider comparison are active.**
+**Reliability publication/deployment and the checkpointed provider review.**
 
-Current coherent repair: explicitly continue an interrupted pre-result attempt from its saved
-pool, keeping the same identity/window and completed online evidence. Queued work is cancelled
-on failure, while successful already-running replies reach their checkpoints. An originally
-opted-in private capture also continues after reopening. The immutable original review evidence
-is retained. Fictional regressions cover electronics, nursing and teaching; no owner search,
-provider request or new collection was started during this repair.
+Current coherent task: remove avoidable interruptions from searches that start normally. The
+owner explicitly rejected saved-search continuation as the solution. Investigate connection and
+receipt handling, preserve every completed batch, and test the full original pipeline with
+recoverable failures. Do not start a broad search, resume the owner's stopped attempt, replay
+closed paid tests, change providers, reduce coverage/quality or reset the private trial ledger.
 
-The earlier UI, interrupted-pool, source-reader, workplace-metadata and directory repairs are
-merged in PR #173. The latest continuation repair is on `codex/resume-interrupted-search`.
-Local verification and exact-head publication receipts are indexed in the private checkpoint;
-on recovery verify its actual Git/CI status and finish any remaining publication before
-proceeding. The precise original candidate pool has been reconstructed privately using saved
-receipts only. Guarded restoration preserves existing history, ratings, settings and usage.
+Branch: `codex/search-completion-reliability`, from merged main `045453e`. The unchanged-code
+baseline is the recorded final 2,495-test pass and exact-head Mac/Windows/privacy CI. The owner
+explicitly approved temporary Google storage with automatic deletion on 2026-10-23; the narrow
+exception is in AGENTS and the private authorization. Default settings remain off. Same-ID
+background retrieval, durable cleanup IDs and cumulative billing are implemented locally, along
+with completed preliminary/scoring batches and sourced-note reuse after conversion failures.
+Final offline checks pass, including fresh searches across three fictional professions and
+an isolated UI/startup check. Publication/deployment receipts are indexed privately; on recovery
+verify their actual state and finish only a pending step. The approved deployment enables only
+the recovery setting. Preserve stopped owner data and
+all existing budgets; start no search or provider call. See private checkpoint for receipts.
 
 Authorized remaining scope: complete the private
 [search-review procedure](../CONTRIBUTING.md#review-a-completed-search) and independently
@@ -94,9 +97,9 @@ shared budget.json. These record the pinned identity, recovery receipts, publica
 unchanged setup, completed finite packets and trial-only settings. Recheck authorization and
 this checkpoint before private work; never repeat setup, reset the ledger or reopen closed tests.
 
-Exact next action: finish the continuation repair's publication/recovery if its private receipt
-is still pending. Once verified, recover complete charge attribution or a documented defensible
-finite unknown-charge bound before any paid continuation/comparison. More allowance does not
+After the reliability repair, recover complete charge attribution or a documented defensible
+finite unknown-charge bound before any paid comparison. Do not wait for stateless requests to
+appear in provider interaction logs; they were not stored there. More allowance does not
 resolve a missing receipt. Software readiness and working keys do not establish research parity,
 complete-cost savings or an adopted replacement.
 

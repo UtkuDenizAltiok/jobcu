@@ -104,7 +104,8 @@ def clear_data(scope: Scope) -> bool:
         tables = {row[0] for row in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
         )}
-        if tables != set(SEARCH_TABLES) | {"quality_ads", "ai_usage", "source_requests"}:
+        if tables != set(SEARCH_TABLES) | {
+                "quality_ads", "ai_usage", "source_requests", "ai_recovery_requests"}:
             raise OSError("Unrecognized data tables; preserve them rather than omit a reset.")
         # Jobcu normally uses DELETE mode. Refuse a busy mode change rather than leave a
         # persistent rollback journal or WAL containing earlier copies of deleted text.
@@ -116,6 +117,9 @@ def clear_data(scope: Scope) -> bool:
             # Spending is real even after its search is deleted. Remove the old association
             # so a reused SQLite search ID cannot inherit another search's usage.
             conn.execute("UPDATE ai_usage SET search_id = NULL")
+            # Outstanding IDs must survive local resets so remote work can be cancelled/
+            # deleted and its bill reconciled. They contain no prompt or answer text.
+            conn.execute("UPDATE ai_recovery_requests SET search_id = NULL")
             for table in SEARCH_TABLES:
                 conn.execute(f"DELETE FROM {table}")
             settings = load_settings(folder)

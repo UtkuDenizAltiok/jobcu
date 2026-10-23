@@ -10,11 +10,13 @@ the job (`JobGroup.place_from_web`) and requirements with its score (scoring.wit
 so Edit reuses the same evidence without another request.
 """
 
+import hashlib
+import json
 import logging
 import re
 import threading
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 
 from pydantic import BaseModel, PrivateAttr
 
@@ -26,6 +28,10 @@ from jobcu.ai.base import (
     AILimitReached,
     AIOutputTruncated,
     AIRefused,
+    Citation,
+    ResearchReply,
+    Source,
+    Usage,
 )
 from jobcu.ai.client import AIClient, in_parallel
 from jobcu.dedupe import JobGroup
@@ -209,7 +215,8 @@ _USED_UP = "used up"  # a batch not asked about because the web look-ups ran out
 def find_online(client: AIClient, groups: list[JobGroup], indexes: list[int],
                 profile: Profile | None = None,
                 on_progress: Callable[[int, int], None] = lambda done, total: None,
-                *, on_evidence: Callable[[int, dict], None] | None = None) -> LookedUp:
+                *, on_evidence: Callable[[int, dict], None] | None = None,
+                research_cache: dict[str, dict] | None = None) -> LookedUp:
     """Looks these jobs up on the web, a few per request and a few requests at a time, until
     the search's allowance of web look-ups is used. Jobs whose town nobody gave get
     `place_from_web` ([] when the ad wasn't found or names no town); the requirements of every
@@ -226,7 +233,7 @@ def find_online(client: AIClient, groups: list[JobGroup], indexes: list[int],
             lines.append(f"J{index} | {job.title} | {job.company or 'company unknown'} | "
                          f"{job_country(groups[index])} | {groups[index].main.url} | {text}")
         try:
-            return _look_up(client, lines, len(batch), profile)
+            return _look_up(client, lines, len(batch), profile, research_cache=research_cache)
         except AILimitReached:
             return _USED_UP
         except ONE_ANSWER_PROBLEMS as exc:
@@ -309,10 +316,28 @@ def saved_lookups(groups: list[JobGroup], evidence: dict[int, dict]) -> LookedUp
 
 
 def _look_up(client: AIClient, lines: list[str], jobs: int,
-             profile: Profile | None = None) -> dict[str, OnlineJob]:
+             profile: Profile | None = None, *,
+             research_cache: dict[str, dict] | None = None) -> dict[str, OnlineJob]:
     """What the ads found online say, by job ID. Nothing when the model answered twice without
     searching the web: an answer from memory is a guess (0 searches for 5 jobs, 2026-09-23)."""
+    settings = getattr(client, "settings", None)
+    identity = [RESEARCH_SYSTEM, lines, jobs,
+                profile.model_dump() if profile else None,
+                settings.ai.model_dump() if settings is not None else None]
+    cache_key = hashlib.sha256(json.dumps(identity, sort_keys=True).encode("utf-8")).hexdigest()
+    reply = None
+    if research_cache is not None and cache_key in research_cache:
+        try:
+            stored = research_cache[cache_key]
+            reply = ResearchReply(stored["text"], [Source(**s) for s in stored["sources"]],
+                                  Usage(**stored["usage"]),
+                                  [Citation(**c) for c in stored["citations"]]
+                                  if stored.get("citations") is not None else None)
+        except (KeyError, TypeError):
+            research_cache.pop(cache_key)
     for _ in range(2):
+        if reply is not None and reply.usage.web_searches:
+            break
         reply = client.research(
             step="job_places",
             system=RESEARCH_SYSTEM,
@@ -321,6 +346,8 @@ def _look_up(client: AIClient, lines: list[str], jobs: int,
             max_output_tokens=6000,
         )
         if reply.usage.web_searches:
+            if research_cache is not None:
+                research_cache[cache_key] = asdict(reply)
             break
     else:
         return {}
@@ -351,6 +378,8 @@ def _look_up(client: AIClient, lines: list[str], jobs: int,
         job._grounded_checks = grounded
         job.requirement_checks = ([requirements.RequirementCheck.model_validate(c)
                                   for c in grounded] if grounded is not None else None)
+    if research_cache is not None:
+        research_cache.pop(cache_key, None)
     return {job.id: job for job in answer.jobs}
 
 

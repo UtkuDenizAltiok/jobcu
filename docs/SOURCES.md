@@ -93,6 +93,23 @@ API content by default, with abuse-monitoring content retained up to 30 days by 
 to stated exceptions. Jobcu's `store=False` does not itself establish zero retention. Necessary
 document/query text goes to the chosen provider; the app's files remain device-local.
 
+## Temporary provider recovery — 2026-10-23
+
+Google's [background execution guide](https://ai.google.dev/gemini-api/docs/background-execution)
+documents asynchronous execution for standard models, including Gemini 3.8 Flash. Normal HTTP
+connections commonly close around 60 seconds; an immediately returned interaction ID supports
+retrieval after a dropped connection. This is consistent with a long-request failure mode,
+not proof of which component closed any particular connection. Background requests require
+`store=true`; they cannot provide stateless recovery.
+
+The [Interactions overview](https://ai.google.dev/gemini-api/docs/interactions-overview)
+documents paid-tier stored-interaction retention of up to 55 days and early deletion. Stateless
+`store=false` requests do not appear in interaction observability logs; waiting for a missing
+stateless request to appear there cannot recover its bill. Jobcu's optional recovery setting
+explicitly discloses temporary request/answer storage and automatic deletion, with retained local
+IDs for failed cleanup. No account retention/logging setting is changed. Provider data terms and
+billing attribution still apply; an operation ID does not itself prove complete usage or quality.
+
 ## Routes billing
 
 **Routes pricing rechecked 2026-10-16:** Google's [global price list](https://developers.google.com/maps/billing-and-pricing/pricing)

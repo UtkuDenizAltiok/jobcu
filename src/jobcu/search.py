@@ -682,7 +682,12 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     in_running = [i for i in range(len(groups)) if i not in excluded]
     unchecked = [i for i in in_running if job_pool.jobs[i].unrelated is None]
     if unchecked:
-        checked = quick_pass(client, profile, groups, unchecked)
+        def keep_preliminary(index, unrelated, towns):
+            job_pool.jobs[index].unrelated = unrelated
+            if towns is not None:
+                groups[index].place_from_text = towns
+
+        checked = quick_pass(client, profile, groups, unchecked, on_result=keep_preliminary)
         for index in unchecked:
             job_pool.jobs[index].unrelated = index in checked.unrelated
         for index, places in checked.places.items():
@@ -753,12 +758,13 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     if early_towns and not client.web_research_unavailable_reason():
         run.update("eligibility", "running", "Checking missing workplaces before scoring")
         early_lookup = early_lookup.add(jobplace.find_online(
-            client, groups, early_towns, profile, lambda *_: None, on_evidence=keep_online))
+            client, groups, early_towns, profile, lambda *_: None, on_evidence=keep_online,
+            research_cache=job_pool.research_notes))
         while early_lookup.not_asked and client.web_searches_left() > 0:
             waiting = len(early_lookup.not_asked)
             early_lookup = early_lookup.add(jobplace.find_online(
                 client, groups, early_lookup.not_asked, profile, lambda *_: None,
-                on_evidence=keep_online))
+                on_evidence=keep_online, research_cache=job_pool.research_notes))
             if len(early_lookup.not_asked) >= waiting:
                 break
         if early_lookup.not_asked:
@@ -801,6 +807,10 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     order = pipeline.newest_first(groups, to_score)
     cap = settings.limits.scoring_cap or len(order)  # None: no limit
     scored_now: dict[int, dict] = {}
+    def keep_score(index, result):
+        job_pool.jobs[index].scored = result
+        scored_now[index] = result
+
     position = 0
     while position < len(order):
         chunk = order[position : position + cap] if position == 0 else order[position:]
@@ -827,7 +837,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             run.update("scoring", "running", f"{base + done} of {len(order)} jobs")
 
         scored_now.update(scoring.score_groups(client, profile, plan, groups, chunk,
-                                                   on_progress=progress))
+                                              on_progress=progress, on_result=keep_score))
         position += len(chunk)
         checkpoint()
     for index, result in scored_now.items():
@@ -867,7 +877,8 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     looking_since = time.monotonic()
     unavailable = client.web_research_unavailable_reason()
     looked_up = early_lookup.add(
-        jobplace.find_online(client, groups, worth_it, profile, looking, on_evidence=keep_online)
+        jobplace.find_online(client, groups, worth_it, profile, looking, on_evidence=keep_online,
+                             research_cache=job_pool.research_notes)
         if worth_it and not unavailable else jobplace.LookedUp())
     # Look-ups sent together can find the allowance held by others still running; those jobs get
     # another turn while look-ups are left (a test search on 2026-10-01 skipped 100 of 115 jobs
@@ -877,7 +888,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         looked_before = len(worth_it) - waiting
         looked_up = looked_up.add(
             jobplace.find_online(client, groups, looked_up.not_asked, profile, looking,
-                                 on_evidence=keep_online))
+                                 on_evidence=keep_online, research_cache=job_pool.research_notes))
         if len(looked_up.not_asked) >= waiting:
             break
     if looked_up.not_asked:
@@ -906,7 +917,8 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             client.allow_more_web_searches(jobplace.SEARCHES_PER_JOB * waiting)
             looked_up = looked_up.add(
                 jobplace.find_online(client, groups, looked_up.not_asked, profile, looking,
-                                     on_evidence=keep_online))
+                                     on_evidence=keep_online,
+                                     research_cache=job_pool.research_notes))
             if len(looked_up.not_asked) >= waiting:
                 break  # no progress: stop rather than loop
     for index in looked_up.asked:

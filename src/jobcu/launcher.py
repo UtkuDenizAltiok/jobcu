@@ -7,6 +7,7 @@ This is what the "Start Jobcu" files run. Environment variables:
 """
 
 import json
+import logging
 import os
 import socket
 import sys
@@ -163,6 +164,13 @@ def main() -> int:
         _say()
         if open_browser:
             webbrowser.open(url)
+        # Recover only outstanding IDs from an earlier interrupted process: no generation.
+        try:
+            from jobcu.ai.request_recovery import cleanup_orphans
+
+            cleanup_orphans()
+        except Exception:
+            logging.getLogger(__name__).warning("Pending AI-provider cleanup could not finish")
 
     threading.Thread(target=after_start, daemon=True).start()
     _say(f"Starting Jobcu {__version__}...")
@@ -170,6 +178,12 @@ def main() -> int:
         server.run()
     except KeyboardInterrupt:
         pass
+    if not selftest:
+        from jobcu import search
+
+        run = search.manager.current
+        if run is not None and run.status == "running":
+            search.manager.stop(run.id)
     if not server.started:
         _say("Jobcu couldn't start. Please close this window and try again.")
         return 1

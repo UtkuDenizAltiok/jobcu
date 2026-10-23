@@ -114,6 +114,35 @@ def test_completed_online_evidence_survives_pool_storage_without_another_lookup(
     assert loaded.jobs[0].group.place_from_web == ["Berlin"]
 
 
+def test_completed_research_is_not_bought_again_after_structure_failure():
+    from jobcu import db, pool
+    from jobcu.ai.base import AIAuthError
+
+    class Interrupted(Researcher):
+        fail_once = True
+
+        def generate(self, output, **request):
+            if self.fail_once:
+                self.fail_once = False
+                raise AIAuthError("Fictional structure failure")
+            return super().generate(output, **request)
+
+    researcher = Interrupted(["Fictional completed research"], [[online("J0", ["Berlin"])]])
+    cache = {}
+    groups = jobs(("Deutschland", "DE"))
+    first = jobplace.find_online(researcher, groups, [0], research_cache=cache)
+    assert not first.asked and cache
+    with db.connect() as conn:
+        conn.execute("INSERT INTO searches (id,status,form_json) VALUES(1,'stopped','{}')")
+    pool.save(pool.Pool(1, [pool.PoolJob(groups[0])], {}, research_notes=cache))
+    loaded = pool.load(1)
+    # A later safe conversion uses the original completed notes, not another web operation.
+    second = jobplace.find_online(researcher, [loaded.jobs[0].group], [0],
+                                  research_cache=loaded.research_notes)
+    assert second.asked == {0} and loaded.jobs[0].group.place_from_web == ["Berlin"]
+    assert len(researcher.prompts) == 1 and not loaded.research_notes
+
+
 def test_unavailable_online_checks_explain_missing_evidence_without_clearing_jobs():
     groups = jobs(*[("Deutschland", "DE")] * 6)
     researcher = Researcher([AIUnavailable("fictional outage", "private diagnostic")])

@@ -8,10 +8,14 @@ import re
 import threading
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import httpx
 
 from jobcu.settings import Effort
+
+if TYPE_CHECKING:
+    from jobcu.ai.request_recovery import RecoveryContext
 
 
 @dataclass
@@ -41,6 +45,7 @@ class Usage:
 class RawReply:
     text: str
     usage: Usage
+    recovery_id: str | None = None
 
 
 @dataclass
@@ -68,6 +73,7 @@ class ResearchReply:
     usage: Usage
     # None: adapter has no passage mapping. Empty: mapping was available but no usable links.
     citations: list[Citation] | None = None
+    recovery_id: str | None = None
 
 
 class AIError(Exception):
@@ -83,6 +89,7 @@ class AIError(Exception):
         self.message = message
         self.detail = detail
         self.usage: Usage | None = None
+        self.recovery_id: str | None = None
 
 
 class AIAuthError(AIError):
@@ -221,6 +228,7 @@ class ProviderAdapter(ABC):
     can_search_the_web = False
     # Custom protocols must not silently remove a chosen reasoning control on a generic 400.
     strict_reasoning = False
+    can_recover_requests = False
 
     def __init__(self, api_key: str, base_url: str = "", timeout: float = 180.0) -> None:
         self.api_key = api_key
@@ -230,6 +238,10 @@ class ProviderAdapter(ABC):
         # together (AIClient.in_parallel), and a second client made alongside would be dropped
         # while its request is still loading.
         self._client_lock = threading.Lock()
+
+    def configure_request_recovery(self, context: "RecoveryContext") -> None:
+        """Optional provider capability; the default never enables remote storage."""
+        return None
 
     @abstractmethod
     def complete_json(

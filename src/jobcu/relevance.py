@@ -79,7 +79,8 @@ workplace. Do not infer a contradiction from these mentions.\
 
 
 def quick_pass(
-    client: AIClient, profile: Profile, groups: list[JobGroup], indexes: list[int]
+    client: AIClient, profile: Profile, groups: list[JobGroup], indexes: list[int], *,
+    on_result: Callable[[int, bool, list[str] | None], None] | None = None,
 ) -> QuickPass:
     """Which of these jobs are clearly unrelated, and where the ones lacking a town are."""
     person = profile.model_dump(
@@ -108,9 +109,7 @@ def quick_pass(
             max_output_tokens=3000,
         )
 
-    batches = [indexes[start : start + BATCH_SIZE]
-               for start in range(0, len(indexes), BATCH_SIZE)]
-    for batch, answer in zip(batches, in_parallel(client, check, batches), strict=True):
+    def finished(batch: list[int], answer: QuickPassAnswer) -> None:
         ids = {f"J{i}": i for i in batch}
         unrelated = {ids[job_id] for job_id in answer.clearly_unrelated if job_id in ids}
         result.unrelated.extend(sorted(unrelated))
@@ -130,6 +129,13 @@ def quick_pass(
                     named = [name for name in named if normalise(name) in quote]
                     if named:
                         result.places[index] = named
+        if on_result is not None:
+            for index in batch:
+                on_result(index, index in unrelated, result.places.get(index))
+
+    batches = [indexes[start : start + BATCH_SIZE]
+               for start in range(0, len(indexes), BATCH_SIZE)]
+    in_parallel(client, check, batches, finished)
     return result
 
 

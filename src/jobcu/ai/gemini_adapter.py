@@ -5,11 +5,13 @@ import re
 import threading
 import time
 from collections import Counter
+from dataclasses import replace
 
 import httpx
 from google import genai
 from google.genai import errors, types
 
+from jobcu.ai import request_recovery
 from jobcu.ai.base import (
     MSG_BAD_REQUEST,
     MSG_CONNECTION,
@@ -31,6 +33,7 @@ from jobcu.ai.base import (
     AIReasoningUnsupported,
     AIRefused,
     AIUnavailable,
+    AIUsageUncertain,
     AIWebSearchUnavailable,
     Citation,
     ProviderAdapter,
@@ -39,24 +42,34 @@ from jobcu.ai.base import (
     Source,
     Usage,
     connection_problem,
+    parse_retry_after,
     reasoning_control_refused,
     unique_sources,
 )
 from jobcu.ai.gemini_events import EVENT_MODELS, EventAnswer
+from jobcu.ai.request_recovery import RecoveryContext
+from jobcu.ai.usage import UsageLog
 from jobcu.settings import Effort
 
+_TERMINAL_INTERACTIONS = {
+    "completed", "cancelled", "failed", "incomplete", "budget_exceeded", "requires_action"}
 _REFUSAL_REASONS = {"SAFETY", "PROHIBITED_CONTENT", "BLOCKLIST", "SPII", "RECITATION"}
 log = logging.getLogger(__name__)
 
 
 class GeminiAdapter(ProviderAdapter):
     can_search_the_web = True
+    can_recover_requests = True
     _genai_client: genai.Client | None = None
 
     def __init__(self, api_key: str, base_url: str = "", timeout: float = 180.0) -> None:
         super().__init__(api_key, base_url, timeout)
         self._stream_responses = threading.local()
         self._interactions = None
+        self._recovery_context = threading.local()
+
+    def configure_request_recovery(self, context: RecoveryContext) -> None:
+        self._recovery_context.current = context
 
     def _capture_response(self, response: httpx.Response) -> None:
         responses = getattr(self._stream_responses, "current", None)
@@ -91,7 +104,7 @@ class GeminiAdapter(ProviderAdapter):
     ) -> RawReply:
         if model.removeprefix("models/") in EVENT_MODELS:
             reply = self._event_stream(model, system, prompt, effort, max_output_tokens, schema)
-            return RawReply(reply.text, reply.usage)
+            return RawReply(reply.text, reply.usage, reply.recovery_id)
         config = types.GenerateContentConfig(
             system_instruction=system,
             response_mime_type="application/json",
@@ -144,6 +157,12 @@ class GeminiAdapter(ProviderAdapter):
                 "type": "text", "mime_type": "application/json", "schema": schema}
         if web_search:
             request["tools"] = [{"type": "google_search"}]
+        context = getattr(self._recovery_context, "current", None)
+        if context is not None:
+            self.cleanup_pending(context)
+            if context.enabled:
+                request.update(store=True, background=True, stream=False)
+                return self._background_request(request, state, context)
         stream = None
         started = time.monotonic()
         events = 0
@@ -175,13 +194,7 @@ class GeminiAdapter(ProviderAdapter):
                          time.monotonic() - started, bool(self._stream_responses.current),
                          events, state.complete, type(original).__name__)
                 exc = original
-            status = getattr(exc, "status_code", None)
-            if isinstance(status, int) and 400 <= status <= 599:
-                body = getattr(exc, "body", None)
-                if not isinstance(body, dict):
-                    body = {"error": {"message": str(body or exc)}}
-                exc = errors.APIError(status, body)
-            translated = _translate(exc, web_search=web_search)
+            translated = self._recovery_error(exc, web_search=web_search)
             if (isinstance(translated, AIError)
                     and not (isinstance(translated, AIConnectionError)
                              and translated.request_sent is False)
@@ -200,6 +213,225 @@ class GeminiAdapter(ProviderAdapter):
                         resource.close()
                     except httpx.TransportError:
                         pass
+
+    @staticmethod
+    def _recovery_error(error, *, web_search=False):
+        original, seen = error, set()
+        while original.__cause__ is not None and id(original) not in seen:
+            status = getattr(original, "status_code", None)
+            if (isinstance(original, (httpx.TransportError, errors.APIError))
+                    or isinstance(status, int) and 400 <= status <= 599):
+                break
+            seen.add(id(original))
+            original = original.__cause__
+        status = getattr(original, "status_code", None)
+        if isinstance(status, int) and 400 <= status <= 599:
+            body = getattr(original, "body", None)
+            original = errors.APIError(status, body if isinstance(body, dict) else {
+                "error": {"message": str(body or original)}})
+        translated = _translate(original, web_search=web_search)
+        response = getattr(error, "response", None)
+        if isinstance(translated, AIRateLimited) and response is not None:
+            retry_after = parse_retry_after(response.headers.get("Retry-After"))
+            if retry_after is not None:
+                translated.retry_after = retry_after
+        return translated
+
+    @staticmethod
+    def _observe_interaction(state, interaction, interaction_id=None):
+        if interaction_id is not None and interaction.id != interaction_id:
+            raise AIBadRequest(MSG_BAD_REQUEST, "AI retrieval returned a different ID.")
+        payload = interaction.model_dump(mode="json", exclude_none=True)
+        state._usage(payload.get("usage"))
+        for index, step in enumerate(payload.get("steps") or []):
+            if step.get("type") == "google_search_call":
+                state._start(index, step)
+        return payload
+
+    def _cleanup_interaction(self, interaction_id, state, *, finished, context):
+        """Cancel unfinished work before deleting its recoverable remote record."""
+        resource = self._event_resource()
+        if not finished:
+            try:
+                response = resource.cancel(id=interaction_id, timeout=15)
+                payload = self._observe_interaction(state, response, interaction_id)
+                finished = payload.get("status") in _TERMINAL_INTERACTIONS
+                if finished:
+                    try:
+                        state.add({"event_type": "interaction.completed", "interaction": payload})
+                    except AIError:
+                        pass  # A cancelled answer is unusable; its final bill can be usable.
+            except Exception:
+                # The operation may have completed while cancellation was being sent.
+                try:
+                    response = resource.get(id=interaction_id, include_input=False, timeout=15)
+                    payload = self._observe_interaction(state, response, interaction_id)
+                    finished = payload.get("status") in _TERMINAL_INTERACTIONS
+                    if finished:
+                        try:
+                            state.add({"event_type": "interaction.completed",
+                                       "interaction": payload})
+                        except AIError:
+                            pass
+                except Exception:
+                    pass
+            if not finished:
+                context.notify("Jobcu could not confirm cancellation of an interrupted AI "
+                               "request. Its local recovery ID is kept for automatic cleanup; "
+                               "the provider may still be working and charging.")
+        deleted = False
+        try:
+            # Persist the last bill before deleting the provider's recoverable receipt.
+            context.account(state.usage(interrupted=not state.final_usage), interaction_id)
+        except Exception:
+            context.notify("Jobcu could not save a provider receipt. Its recovery ID is "
+                           "kept locally so cleanup can reconcile it later.")
+            request_recovery.release(context.provider, interaction_id, deleted=False)
+            return finished
+        if finished:
+            request_recovery.terminal(context.provider, interaction_id)
+            for _ in range(2):
+                try:
+                    resource.delete(id=interaction_id, timeout=15)
+                    deleted = True
+                    break
+                except Exception as error:
+                    if (getattr(error, "status_code", None) or getattr(error, "code", None)) == 404:
+                        deleted = True
+                        break
+            if not deleted:
+                context.notify("A temporary AI-provider record could not be deleted. Jobcu "
+                               "kept its ID and will retry cleanup; the provider's retention "
+                               "period can still apply until deletion succeeds.")
+        request_recovery.release(context.provider, interaction_id, deleted=deleted)
+        return finished
+
+    def cleanup_pending(self, context: RecoveryContext, *, force: bool = False) -> None:
+        """Reconcile abandoned work and delete remote records without buying generation."""
+        unresolved = False
+        for row in request_recovery.pending(context.provider, force=force):
+            interaction_id = row["interaction_id"]
+            if not request_recovery.claim(context.provider, interaction_id):
+                continue
+            state = EventAnswer(model=row["model"], web_search=True)
+            finished = bool(row["terminal"])
+            def account(usage, request_id, row=row):
+                UsageLog().record(step=row["step"], provider=row["provider"],
+                                  model=row["model"], search_id=row["search_id"],
+                                  recovery_id=request_id, created_at=row["created_at"], usage=usage)
+            cleanup_context = replace(context, account=account)
+            try:
+                try:
+                    response = self._event_resource().get(
+                        id=interaction_id, include_input=False, timeout=15)
+                    payload = self._observe_interaction(state, response, interaction_id)
+                    if payload.get("status") in _TERMINAL_INTERACTIONS:
+                        finished = True
+                        try:
+                            state.add({"event_type": "interaction.completed",
+                                       "interaction": payload})
+                        except AIError:
+                            pass
+                except Exception as error:
+                    if (getattr(error, "status_code", None) or getattr(error, "code", None)) == 404:
+                        finished = True
+                    # Cancellation below can recover the bill without another POST.
+                finished = self._cleanup_interaction(
+                    interaction_id, state, finished=finished, context=cleanup_context)
+                unresolved |= not finished
+            finally:
+                request_recovery.unclaim(context.provider, interaction_id)
+        if unresolved:
+            raise AIUsageUncertain("An earlier AI request could not be cancelled or "
+                                   "reconciled. Jobcu has not sent another generation.")
+
+    def _background_request(self, request, state, context):
+        """One paid creation, followed only by retrieval of that same operation."""
+        resource = self._event_resource()
+        interaction_id = None
+        finished = False
+        failure = None
+        try:
+            # An ambiguous create failure has no recoverable ID and must not be replayed.
+            try:
+                current = resource.create(**request, timeout=30)
+            except Exception as error:
+                raise self._recovery_error(error, web_search=state.web_search) from error
+            interaction_id = current.id
+            if not isinstance(interaction_id, str) or not interaction_id:
+                raise AIConnectionError(MSG_CONNECTION, "No recoverable AI operation ID.",
+                                        request_sent=True)
+            request_recovery.track(context, interaction_id, request["model"])
+            context.progress("The AI is processing this request; connection recovery is active")
+            deadline = time.monotonic() + max(self.timeout, 600)
+            retries = 0
+            poll_delay = 1.0
+            while True:
+                payload = self._observe_interaction(state, current)
+                if current.status not in {"in_progress", "queued"}:
+                    if current.status not in _TERMINAL_INTERACTIONS:
+                        raise AIConnectionError(MSG_CONNECTION,
+                                                "AI operation has no recognized final status.",
+                                                request_sent=True)
+                    finished = True
+                    request_recovery.terminal(context.provider, interaction_id)
+                    state.steps = {}  # only the final canonical output can be accepted
+                    state.add({"event_type": "interaction.completed", "interaction": payload})
+                    context.account(state.usage(), interaction_id)
+                    reply = state.reply()
+                    reply.recovery_id = interaction_id
+                    return reply
+                context.observe(state.usage(interrupted=True), interaction_id)
+                context.wait(poll_delay)
+                poll_delay = min(poll_delay * 2, 5.0)
+                if time.monotonic() >= deadline:
+                    raise AIConnectionError(MSG_CONNECTION,
+                                            "AI recovery reached its processing deadline.",
+                                            request_sent=True)
+                while True:
+                    context.checkpoint()
+                    try:
+                        current = resource.get(id=interaction_id, include_input=False, timeout=30)
+                        if current.id != interaction_id:
+                            raise AIBadRequest(MSG_BAD_REQUEST,
+                                               "AI retrieval returned a different ID.")
+                        retries = 0
+                        break
+                    except Exception as error:
+                        translated = self._recovery_error(error, web_search=state.web_search)
+                        if not isinstance(translated, (AIUnavailable, AIRateLimited)):
+                            raise translated from error
+                        retries += 1
+                        if retries > 4:
+                            raise AIConnectionError(MSG_CONNECTION,
+                                                    "AI result retrieval remained unavailable.",
+                                                    request_sent=True) from error
+                        delay = getattr(translated, "retry_after", None) or min(2 ** retries, 30)
+                        if time.monotonic() + delay >= deadline:
+                            raise AIConnectionError(MSG_CONNECTION,
+                                                    "AI result retrieval exceeded its deadline.",
+                                                    request_sent=True) from error
+                        context.progress("Recovering the same AI request after a connection "
+                                         "problem; no new generation is being sent")
+                        context.wait(delay, retry=True)
+        except BaseException as error:
+            failure = error
+            raise
+        finally:
+            if interaction_id:
+                try:
+                    self._cleanup_interaction(interaction_id, state, finished=finished,
+                                              context=context)
+                except Exception:
+                    log.exception("AI recovery cleanup could not finish")
+                    context.notify("Temporary AI-provider cleanup could not finish. "
+                                   "The original search outcome is preserved.")
+                finally:
+                    request_recovery.unclaim(context.provider, interaction_id)
+            if failure is not None and interaction_id:
+                # Cancellation may deliver the final bill even when Stop interrupted polling.
+                failure.usage = state.usage(interrupted=not state.final_usage)
+                failure.recovery_id = interaction_id
 
     def _stream(self, model: str, prompt: str, config: types.GenerateContentConfig,
                 *, web_search: bool = False) -> ResearchReply:

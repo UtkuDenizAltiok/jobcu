@@ -46,6 +46,7 @@ from jobcu.ai.base import (
     Usage,
 )
 from jobcu.ai.providers import PROVIDERS, configured_adapter
+from jobcu.ai.request_recovery import RecoveryContext
 from jobcu.ai.schema import extract_json, strict_json_schema
 from jobcu.ai.usage import UsageLog, estimate_cost, total_tokens
 from jobcu.keystore import KeyStore
@@ -278,13 +279,14 @@ class AIClient:
                         "this path. Check service and billing before explicitly retrying "
                         "incomplete checks.", exc.detail)
                     guard.usage = usage
+                    guard.recovery_id = exc.recovery_id
                     with self._gate:
                         first = endpoint not in self._uncertain_requests
                         self._uncertain_requests[endpoint] = guard
                     if first:
                         self.notify(guard.message)
                 if usage is not None:
-                    self._record(step, provider, model, usage)
+                    self._record(step, provider, model, usage, recovery_id=exc.recovery_id)
                     if research:
                         with self._gate:
                             self.web_searches_used += usage.web_searches
@@ -301,7 +303,15 @@ class AIClient:
                     raise guard from exc
                 raise
             except BaseException as exc:
+                # Stop can cancel a background request which already incurred a bill.
                 outcome = type(exc).__name__
+                usage = getattr(exc, "usage", None)
+                if isinstance(usage, Usage):
+                    self._record(step, provider, model, usage,
+                                 recovery_id=getattr(exc, "recovery_id", None))
+                    if research:
+                        with self._gate:
+                            self.web_searches_used += usage.web_searches
                 raise
             else:
                 with self._gate:
@@ -356,7 +366,8 @@ class AIClient:
                         effort=effort,
                         max_output_tokens=with_thinking_room(max_output_tokens, effort),
                     )
-                    self._record(step, provider, model, reply.usage)
+                    self._record(step, provider, model, reply.usage,
+                                 recovery_id=reply.recovery_id)
             except AIRateLimited as exc:
                 self._one_at_a_time()
                 rate_waits += 1
@@ -567,7 +578,8 @@ class AIClient:
                         effort=effort,
                     )
                     completed(reply.usage)
-                    self._record(step, provider, model, reply.usage)
+                    self._record(step, provider, model, reply.usage,
+                                 recovery_id=reply.recovery_id)
             except AIWebSearchUnavailable as exc:
                 with self._gate:
                     first = self._web_unavailable is None
@@ -644,14 +656,34 @@ class AIClient:
             self.on_progress(f"Retrying an AI request ({retry} of {maximum})")
 
     def _call_adapter(self, method, step: str, provider: str, **arguments):
+        adapter = getattr(method, "__self__", None)
+        if isinstance(adapter, ProviderAdapter):
+            def account(usage, request_id):
+                if self.usage_log is not None:
+                    self.usage_log.record(
+                        step=step, provider=provider, model=arguments["model"], usage=usage,
+                        search_id=self.search_id, recovery_id=request_id)
+
+            def observe(usage, request_id):
+                account(usage, request_id)
+                self._check_monthly_limit(provider=provider, model=arguments["model"],
+                                          research=method.__name__ == "research")
+
+            adapter.configure_request_recovery(RecoveryContext(
+                self.settings.ai.recover_interrupted_requests, provider, step,
+                search_id=self.search_id, checkpoint=self.checkpoint, sleep=self.sleep,
+                notify=self.notify, progress=self.on_progress, observe=observe,
+                account=account, capture=self.capture))
         if self.capture:
             return self.capture.call(method, step=step, provider=provider, **arguments)
         return method(**arguments)
 
-    def _record(self, step: str, provider: str, model: str, usage) -> None:
+    def _record(self, step: str, provider: str, model: str, usage, *, recovery_id=None) -> None:
         if self.usage_log is not None:
+            options = {"recovery_id": recovery_id} if recovery_id is not None else {}
             self.usage_log.record(
-                step=step, provider=provider, model=model, usage=usage, search_id=self.search_id
+                step=step, provider=provider, model=model, usage=usage, search_id=self.search_id,
+                **options,
             )
             if usage.unreported_requests:
                 self.notify("Some AI requests did not report complete usage. Jobcu's estimate "
