@@ -7,8 +7,9 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from jobcu import db, travel
+from jobcu.ai import budgets
 from jobcu.ai.base import AIError
-from jobcu.ai.client import check_research_setup, check_setup
+from jobcu.ai.client import AIClient, check_research_setup, check_setup
 from jobcu.ai.providers import PROVIDERS, configured_adapter
 from jobcu.ai.usage import ModelUsage, UsageLog, estimate_cost, total_tokens
 from jobcu.keystore import KeyStore, KeyStoreError, mask
@@ -276,14 +277,27 @@ def get_usage(now: datetime | None = None) -> dict:
     this_month = log.this_month(now)
     with db.connect() as conn:
         row = conn.execute(
-            "SELECT id, started_at FROM searches ORDER BY id DESC LIMIT 1"
+            "SELECT id, started_at, status FROM searches ORDER BY id DESC LIMIT 1"
         ).fetchone()
     last_search = None
     if row is not None:
         used = log.for_search_by_model(row["id"])
         last_search = {"started_at": row["started_at"], **_money(used, settings.prices)}
     today, month = _source_requests(now)
+    budget_problem = None
+    extra_allowances = []
+    try:
+        extra_allowances = budgets.load()
+        budget_id = budgets.for_setup(settings, settings.search_form)
+        AIClient(settings, usage_log=log, budget_id=budget_id).check_search_budget()
+        if row is None or row["status"] != "running":
+            budgets.check_preparation(budget_id)
+    except AIError as exc:
+        budget_problem = exc.message
     return {
+        "search_budget_problem": budget_problem,
+        "ordinary_this_month": _money(log.ordinary_this_month(now), settings.prices),
+        "extra_allowances": [budgets.summary(item, settings) for item in extra_allowances],
         "this_month": {
             **_money(this_month, settings.prices),
             "by_model": [

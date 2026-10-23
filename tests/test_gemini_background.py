@@ -356,3 +356,24 @@ def test_one_uncancellable_orphan_does_not_leave_other_abandoned_work_running(se
                for method, path, _ in calls)
     assert not any(method == "POST" and not path.endswith("/cancel")
                    for method, path, _ in calls)
+
+
+def test_same_request_recovery_bills_only_the_selected_extra_allowance(service, temporary_data_dir):
+    from test_extra_budgets import configure
+    settings, log, allowance = configure(temporary_data_dir)
+    settings.prices[0].model = 'gemini-3.8-flash'
+    ordinary = log.ordinary_this_month()
+    def handler(request, calls):
+        if request.method == 'DELETE':
+            return httpx.Response(200, json={})
+        if request.method == 'POST':
+            return httpx.Response(200, json={'id': 'fictional-extra', 'status': 'in_progress'})
+        return httpx.Response(200, json=operation('fictional-extra'))
+    client, _, _, _, _ = service(handler, settings=settings)
+    client.budget_id = allowance.id
+    assert ask(client).ok
+    assert log.ordinary_this_month() == ordinary
+    assert len(log.for_budget(allowance.id, after_id=2)) == 1
+    with db.connect() as conn:
+        assert conn.execute('SELECT budget_id FROM ai_usage WHERE recovery_id=?',
+                             ('fictional-extra',)).fetchone()[0] == allowance.id

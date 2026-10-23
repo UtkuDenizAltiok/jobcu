@@ -37,7 +37,7 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed history is 
   can no longer identify itself as a newer checkout merely because its first health request
   arrived after files changed. Three fictional before/after regressions cover Python, JS and
   HTML updates. [Reason](ENGINEERING.md#running-build-identity--2026-10-22).
-- Current local verification: **2,532 offline tests pass**, plus Ruff, privacy, documentation,
+- Current local verification: **2,552 offline tests pass**, plus Ruff, privacy, documentation,
   JavaScript syntax, whitespace, complete diff review and an isolated local startup self-test.
   Publication and exact-head PR/main Mac/Windows/privacy receipts are indexed privately;
   verify actual Git/CI heads on recovery, rather than infer a merge from local tests.
@@ -58,25 +58,30 @@ source permissions and dated facts: [SOURCES](SOURCES.md). Completed history is 
 
 ### In progress
 
-**Reliability publication/deployment and the checkpointed provider review.**
+**Review the exact new owner-started attempt and repair confirmed preparation failures.**
 
-Current coherent task: remove avoidable interruptions from searches that start normally. The
-owner explicitly rejected saved-search continuation as the solution. Investigate connection and
-receipt handling, preserve every completed batch, and test the full original pipeline with
-recoverable failures. Do not start a broad search, resume the owner's stopped attempt, replay
-closed paid tests, change providers, reduce coverage/quality or reset the private trial ledger.
+The previous reliability repair is merged in PR #175; final 2,532 offline tests and exact PR/main
+Mac/Windows/privacy CI passed. The narrow temporary-storage option is installed under explicit
+consent. Preserve those receipts; do not repeat its closed tests or assume live success.
 
-Branch: `codex/search-completion-reliability`, from merged main `045453e`. The unchanged-code
-baseline is the recorded final 2,495-test pass and exact-head Mac/Windows/privacy CI. The owner
-explicitly approved temporary Google storage with automatic deletion on 2026-10-23; the narrow
-exception is in AGENTS and the private authorization. Default settings remain off. Same-ID
-background retrieval, durable cleanup IDs and cumulative billing are implemented locally, along
-with completed preliminary/scoring batches and sourced-note reuse after conversion failures.
-Final offline checks pass, including fresh searches across three fictional professions and
-an isolated UI/startup check. Publication/deployment receipts are indexed privately; on recovery
-verify their actual state and finish only a pending step. The approved deployment enables only
-the recovery setting. Preserve stopped owner data and
-all existing budgets; start no search or provider call. See private checkpoint for receipts.
+A new owner-started attempt failed at an already-reached local monthly estimate before its first
+AI request. Cached setup bypassed earlier request checks, so collection ran before the refusal.
+The earlier one-shot capture had been consumed and was not rearmed; complete raw evidence for
+this new attempt is missing. Its exact identity and available snapshots are pinned privately.
+Do not substitute older results, resume it, start another search or claim uncaptured evidence.
+
+Current scope: freeze/review available exact-attempt evidence, reproduce late budget admission
+and candidate preservation failures offline, correct capture preparation and reconcile the
+existing separately authorized trial allowance with the unchanged ordinary budget. Explicit
+allowance tags now separate ordinary usage from evaluation spending; an opening balance and
+receipt cutoff preserve all prior trial charges. Capture-required trials refuse a missing arm. Preserve
+all prior spending, original receipts, source/quality gates and the unresolved historical bill.
+Baseline: unchanged final 2,532 tests and exact-head CI at main `280a22c`. The repair is on
+`codex/search-budget-admission`; final 2,552 offline tests pass, including a fresh separately funded
+search with exhausted
+ordinary limits. Ruff/privacy/docs/JS/whitespace/diff and isolated budget UI checks pass.
+Exact next action: publish/merge
+at exact passing heads, then guarded deployment and attribution of the existing trial. Private checkpoint holds identity, limits and missing evidence.
 
 Authorized remaining scope: complete the private
 [search-review procedure](../CONTRIBUTING.md#review-a-completed-search) and independently

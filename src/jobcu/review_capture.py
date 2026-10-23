@@ -27,6 +27,16 @@ def arm_next_search() -> None:
         (folder / ARM_FILE).chmod(0o600)
 
 
+def is_armed() -> bool:
+    """Read-only preparation check; never consume or recreate a missing one-shot arm."""
+    marker = ensure_data_dir() / ARM_FILE
+    try:
+        return (not marker.is_symlink()
+                and json.loads(marker.read_text(encoding="utf-8")) == {"version": 1, "armed": True})
+    except (OSError, ValueError):
+        return False
+
+
 def claim(search_id: int, notify) -> "Capture | None":
     base = ensure_data_dir()
     marker = base / ARM_FILE

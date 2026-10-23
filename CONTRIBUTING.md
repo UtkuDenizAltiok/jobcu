@@ -186,6 +186,15 @@ then preserves actual request/schema/effort, responses and receipts, errors, AI 
 document inputs, raw collected jobs before title filtering, rule decisions, enriched pool and
 the final run snapshot. Never copy this file into Git, a fixture or public output.
 
+Before reporting a comparison ready, verify the actual one-shot arm with
+`review_capture.is_armed()`, the exact input identity and separate allowance headroom. A consumed
+arm is not preparation for another owner start. Explicit local evaluation records live in
+`ai-extra-allowances.json`; retain the canonical ledger's opening spend, currency/multiplier,
+accounted-through receipt ID and historical uncertainty. Tag only authorized evaluation searches
+and receipts; never delete usage or increase the ordinary monthly allowance to hide trial charges.
+Capture-required allowances refuse an absent arm before job-source or AI requests. Setup/connection
+preflight packets remain closed unless separately reopened by the owner.
+
 Freeze this folder with the exact code/settings and private review ledger before later runs.
 Use it to choose a balanced packet and replay only authorized requests through `AIClient` on
 private scratch. A capture is evidence, not an executable paid replay. It does not store API

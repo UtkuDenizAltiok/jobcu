@@ -26,6 +26,7 @@ from uuid import uuid4
 
 from pydantic import BaseModel, ValidationError
 
+from jobcu.ai import budgets
 from jobcu.ai.base import (
     MSG_NO_WEB_SEARCH,
     MSG_RATE_LIMITED,
@@ -103,11 +104,14 @@ class AIClient:
         on_progress: Callable[[str], None] | None = None,
         reference_research_cache: dict | None = None,
         capture=None,
+        budget_id: str | None = None,
     ) -> None:
         self.settings = settings
         self.keys = keys or KeyStore()
         self.usage_log = usage_log
         self.search_id = search_id
+        self.budget_id = budget_id or (budgets.for_search(search_id)
+                                       if search_id is not None else None)
         self.notify = notify or (lambda message: None)
         self.patient = patient  # False for quick checks: report limits instead of waiting
         self.sleep = sleep
@@ -662,7 +666,7 @@ class AIClient:
                 if self.usage_log is not None:
                     self.usage_log.record(
                         step=step, provider=provider, model=arguments["model"], usage=usage,
-                        search_id=self.search_id, recovery_id=request_id)
+                        search_id=self.search_id, recovery_id=request_id, budget_id=self.budget_id)
 
             def observe(usage, request_id):
                 account(usage, request_id)
@@ -673,7 +677,7 @@ class AIClient:
                 self.settings.ai.recover_interrupted_requests, provider, step,
                 search_id=self.search_id, checkpoint=self.checkpoint, sleep=self.sleep,
                 notify=self.notify, progress=self.on_progress, observe=observe,
-                account=account, capture=self.capture))
+                account=account, capture=self.capture, budget_id=self.budget_id))
         if self.capture:
             return self.capture.call(method, step=step, provider=provider, **arguments)
         return method(**arguments)
@@ -681,6 +685,8 @@ class AIClient:
     def _record(self, step: str, provider: str, model: str, usage, *, recovery_id=None) -> None:
         if self.usage_log is not None:
             options = {"recovery_id": recovery_id} if recovery_id is not None else {}
+            if self.budget_id is not None:
+                options["budget_id"] = self.budget_id
             self.usage_log.record(
                 step=step, provider=provider, model=model, usage=usage, search_id=self.search_id,
                 **options,
@@ -689,22 +695,42 @@ class AIClient:
                 self.notify("Some AI requests did not report complete usage. Jobcu's estimate "
                             "may omit charges; check the provider's billing page.")
 
+    def check_search_budget(self) -> None:
+        """Check recorded limits before collection, even when setup answers are cached.
+
+        This reads local usage only. It never constructs a provider adapter or sends a probe.
+        Per-request checks still protect spending after a search starts.
+        """
+        ai = self.settings.ai
+        models = {model for model in (ai.model, ai.reasoning_model) if model.strip()}
+        if not models:
+            self._check_monthly_limit()
+        for model in models:
+            self._check_monthly_limit(provider=ai.provider, model=model)
+
     def _check_monthly_limit(self, *, provider: str | None = None, model: str | None = None,
                              research: bool = False) -> None:
         if self.usage_log is None:
             return
         limits = self.settings.limits
-        if limits.monthly_token_limit is None and limits.monthly_cost_limit is None:
+        allowance = budgets.get(self.budget_id) if self.budget_id is not None else None
+        if allowance is not None and not allowance.active:
+            raise AILimitReached("This separate AI allowance is closed. Its spending is kept; "
+                                 "Jobcu has not charged it to your ordinary monthly budget.")
+        if allowance is None and (limits.monthly_token_limit is None
+                                  and limits.monthly_cost_limit is None):
             return
-        month = self.usage_log.this_month()
-        if limits.monthly_token_limit is not None and total_tokens(month) >= (
+        month = (self.usage_log.for_budget(allowance.id,
+                    after_id=allowance.accounted_through_usage_id) if allowance else
+                 getattr(self.usage_log, "ordinary_this_month", self.usage_log.this_month)())
+        if allowance is None and limits.monthly_token_limit is not None and total_tokens(month) >= (
             limits.monthly_token_limit
         ):
             raise AILimitReached(
                 "Your monthly AI limit in Jobcu's settings is reached, so Jobcu stopped using "
                 "the AI. You can raise the limit in Settings."
             )
-        if limits.monthly_cost_limit is not None:
+        if allowance is not None or limits.monthly_cost_limit is not None:
             prices = {(p.provider, p.model): p for p in self.settings.prices}
             needed = {(u.provider, u.model) for u in month if (
                 u.usage.input_tokens or u.usage.output_tokens or u.usage.web_searches)}
@@ -717,14 +743,20 @@ class AIClient:
                                .web_search_per_thousand is None for u in month)
             if research and (provider, model) in prices:
                 web_unpriced |= prices[(provider, model)].web_search_per_thousand is None
-            if missing or web_unpriced or len(currencies) != 1:
+            if (missing or web_unpriced or len(currencies) != 1
+                    or allowance is not None and currencies != {allowance.price_currency}):
                 raise AILimitReached(
-                    "Jobcu cannot apply your monthly estimated spending limit until every "
+                    "Jobcu cannot apply this estimated spending limit until every "
                     "used model has input/output and applicable search prices in one currency. "
                     "Save current prices in Settings before continuing."
                 )
             cost, _ = estimate_cost(month, self.settings.prices)
-            if cost >= limits.monthly_cost_limit:
+            if allowance is not None:
+                if allowance.opening_spent + cost * allowance.cost_multiplier >= allowance.ceiling:
+                    raise AILimitReached("This search's separate extra AI allowance is reached. "
+                                         "Previous spending is retained and your ordinary "
+                                         "monthly budget is unchanged.")
+            elif cost >= limits.monthly_cost_limit:
                 raise AILimitReached(
                     "Your monthly AI spending limit in Jobcu's settings is reached, so Jobcu "
                     "stopped using the AI. You can raise the limit in Settings."

@@ -1586,3 +1586,91 @@ def test_grounded_eligibility_limit_reaches_visible_card_without_hiding_job(read
     assert card["limits"] == [{
         "at": 55, "why": "Current laboratory safety certificate: not met by the stated profile",
     }, {"at": 80, "why": "Some gaps in the main work or a neighbouring specialisation"}]
+
+
+@pytest.mark.parametrize('profession', ['Power Electronics Engineer', 'Community Nurse', 'Teacher'])
+def test_reached_limit_refuses_start_before_any_collection_or_cache_work(ready, monkeypatch,
+                                                                       profession):
+    from jobcu import review_capture
+    from jobcu.ai.base import AILimitReached
+    from jobcu.ai.usage import UsageLog
+
+    settings = load_settings()
+    settings.limits.monthly_token_limit = 1
+    save_settings(settings)
+    UsageLog().record(step='scoring', provider='gemini', model='model-a', usage=Usage(2))
+    review_capture.arm_next_search()
+    def forbidden(*args, **kwargs):
+        pytest.fail('A blocked attempt must not run preparation, collection or generation')
+    monkeypatch.setattr(search, 'read_profile_reusing', forbidden)
+    monkeypatch.setattr('jobcu.pipeline.collect', forbidden)
+    manager = search.SearchManager()
+    with pytest.raises(AILimitReached):
+        manager.start(SearchForm(about_you=profession))
+    assert manager.current is None
+    with db.connect() as conn:
+        assert conn.execute('SELECT COUNT(*) FROM searches').fetchone()[0] == 0
+    from jobcu.paths import data_dir
+    assert (data_dir()/review_capture.ARM_FILE).exists()
+
+
+def test_api_budget_refusal_does_not_replace_saved_query_or_start_work(ready, monkeypatch):
+    from jobcu.ai.usage import UsageLog
+
+    settings = load_settings()
+    settings.limits.monthly_token_limit = 1
+    save_settings(settings)
+    UsageLog().record(step='scoring', provider='gemini', model='model-a', usage=Usage(2))
+    monkeypatch.setattr(search, 'manager', search.SearchManager())
+    client = TestClient(create_app(), base_url='http://127.0.0.1')
+    result = client.post('/api/search', json=SearchForm(location_text='New place').model_dump(),
+                         headers=HEADERS)
+    assert result.status_code == 400 and 'monthly' in result.json()['detail']
+    assert load_settings().search_form == settings.search_form
+    assert client.get('/api/usage').json()['search_budget_problem']
+
+
+@pytest.mark.parametrize('profession', ['Hardware Engineer', 'Community Nurse', 'Teacher'])
+def test_title_stage_failure_retains_raw_collection_without_a_capture(ready, monkeypatch,
+                                                                    profession):
+    class Source(FakeSource):
+        titles = [profession]
+        def search(self, query, ctx):
+            for job in super().search(query, ctx):
+                job.title_unmatched = True
+                yield job
+    def failed(*args, **kwargs):
+        raise AIAuthError('Fictional title-stage refusal')
+    monkeypatch.setattr('jobcu.pipeline.all_sources', lambda: [Source()])
+    monkeypatch.setattr(search, 'screen_titles', failed)
+    manager = search.SearchManager()
+    run = manager.start(SearchForm())
+    snapshot = wait_until_done(manager)
+    assert snapshot['status'] == 'failed' and run.capture is None
+    evidence = snapshot['result']['collected_evidence']
+    assert evidence['stage'] == 'before_title_screening'
+    assert [job['title'] for job in evidence['jobs']] == [profession]
+    assert evidence['reports'][0]['requests'] == 1
+    assert evidence['jobs'][0]['posted_at']
+    with db.connect() as conn:
+        saved = json.loads(conn.execute('SELECT result_json FROM search_results WHERE search_id=?',
+                                        (run.id,)).fetchone()[0])
+    assert saved['result']['collected_evidence'] == evidence
+
+
+def test_fresh_search_uses_its_extra_allowance_when_ordinary_budget_is_exhausted(
+        ready, temporary_data_dir):
+    from test_extra_budgets import configure
+    settings, log, allowance = configure(temporary_data_dir)
+    log.record(step='scoring', provider='gemini', model='fictional-model', usage=Usage(200_000))
+    ordinary_before = log.ordinary_this_month()
+    manager = search.SearchManager()
+    run = manager.start(settings.search_form)
+    snapshot = wait_until_done(manager)
+    assert snapshot['status'] == 'finished'
+    assert log.ordinary_this_month() == ordinary_before
+    with db.connect() as conn:
+        rows = conn.execute('SELECT DISTINCT budget_id FROM ai_usage WHERE search_id=?',
+                             (run.id,)).fetchall()
+    assert [row[0] for row in rows] == [allowance.id]
+    assert load_settings().limits == settings.limits

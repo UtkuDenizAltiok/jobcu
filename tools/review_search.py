@@ -113,10 +113,12 @@ def review(snapshot: dict, ads: list[dict]) -> dict:
                  key=lambda c: -c["score"])[:10]
     countries = Counter(c.get("country") for c in visible if c.get("country") in COUNTRIES)
     known_sources = {source.id for source in all_sources()}
+    collected = result.get("collected_evidence", {})
+    source_reports = jobs.get("sources", collected.get("reports", []))
     sources = [{"id": s["source"],
                 "status": s.get("status") if s.get("status") in SOURCE_STATUSES else "unknown",
                 **{k: int(number(s.get(k))) for k in ("jobs_found", "unique", "requests")}}
-               for s in jobs.get("sources", []) if s.get("source") in known_sources]
+               for s in source_reports if s.get("source") in known_sources]
     known_steps = {step_id for step_id, _ in STEPS} | {"conditions"}
     timings = {s["id"]: round(number(s.get("elapsed_seconds")), 3)
                for s in snapshot.get("steps", [])
@@ -147,6 +149,8 @@ def review(snapshot: dict, ads: list[dict]) -> dict:
                                   if snapshot.get("review_latest_attempt_status") in STATUSES
                                   else "unknown"),
         "saved_results_available": snapshot.get("review_saved_results_available", True),
+        "job_results_available": "jobs" in result,
+        "raw_collection_available": bool(collected),
         "jobs": {"shown": len(visible), "scored": len(scored),
                  "not_scored": len(visible) - len(scored), "date_unknown": len(unknown),
                  "location_unchecked": len(pending_location),
@@ -171,7 +175,8 @@ def review(snapshot: dict, ads: list[dict]) -> dict:
         "waiting_seconds": (round(number(snapshot["waiting_seconds"]), 3)
                             if "waiting_seconds" in snapshot else None),
         "usage_by_step": usage,
-        "quality_sample": {"collected": len(sample), "rated": len(rated),
+        "quality_sample": {"scope": "stored_review_library", "collected": len(sample),
+                           "rated": len(rated),
                            "summary_only": sum(not a.get("description_is_complete", True)
                                                for a in sample),
                            "ratings": {r: sum(a.get("rating") == r for a in rated)
@@ -199,6 +204,9 @@ def review(snapshot: dict, ads: list[dict]) -> dict:
                       "for complete-search performance.")
     elif kind == "unknown":
         checks.append("This saved run has no recognized kind; timing and usage scopes are unknown.")
+    if "jobs" not in result:
+        checks.append("Job results are unavailable for this attempt; fit, ranking and precision "
+                      "cannot be inferred from an older review library or saved search.")
     if not visible:
         checks.append("No visible jobs: inspect source availability and filtering locally.")
     if summary_count:
