@@ -261,6 +261,13 @@ MIGRATIONS: list[str] = [
         PRIMARY KEY(provider, interaction_id)
     );
     """,
+    # 20: Preserve ordinary/extra attribution across history deletion and receipt recovery.
+    """
+    ALTER TABLE ai_usage ADD COLUMN budget_id TEXT;
+    ALTER TABLE searches ADD COLUMN budget_id TEXT;
+    ALTER TABLE ai_recovery_requests ADD COLUMN budget_id TEXT;
+    CREATE INDEX ai_usage_budget ON ai_usage (budget_id);
+    """,
 ]
 
 

@@ -30,6 +30,7 @@ class RecoveryContext:
     observe: Callable[[Usage, str], None] = lambda usage, request_id: None
     account: Callable[[Usage, str], None] = lambda usage, request_id: None
     capture: object = None
+    budget_id: str | None = None
 
     def wait(self, seconds: float, *, retry: bool = False) -> None:
         """Polling is provider processing time; failed retrieval waits are retry waits."""
@@ -57,8 +58,9 @@ def track(context: RecoveryContext, interaction_id: str, model: str) -> None:
     with _lock, db.connect() as conn:
         conn.execute(
             """INSERT INTO ai_recovery_requests
-            (provider,interaction_id,model,search_id,step) VALUES(?,?,?,?,?)""",
-            (context.provider, interaction_id, model, context.search_id, context.step))
+            (provider,interaction_id,model,search_id,step,budget_id) VALUES(?,?,?,?,?,?)""",
+            (context.provider, interaction_id, model, context.search_id, context.step,
+             context.budget_id))
         _active.add(_identity(context.provider, interaction_id))
 
 

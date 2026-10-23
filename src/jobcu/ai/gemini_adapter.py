@@ -318,7 +318,8 @@ class GeminiAdapter(ProviderAdapter):
             def account(usage, request_id, row=row):
                 UsageLog().record(step=row["step"], provider=row["provider"],
                                   model=row["model"], search_id=row["search_id"],
-                                  recovery_id=request_id, created_at=row["created_at"], usage=usage)
+                                  recovery_id=request_id, created_at=row["created_at"], usage=usage,
+                                  budget_id=row["budget_id"])
             cleanup_context = replace(context, account=account)
             try:
                 try:

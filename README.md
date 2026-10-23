@@ -89,6 +89,8 @@ for up to 55 days. Local recovery IDs allow cleanup after reopening.
 Provider charges depend on your model, account and search. Prices and limits in Jobcu are
 optional controls; new installs have no per-search scoring or AI web-check cap. Jobcu's usage
 estimate may omit web fees and discounts; it is not an invoice.
+An explicitly prepared extra evaluation allowance is shown separately from ordinary monthly use.
+Its previous spending remains counted across restarts, month changes and deleted search history.
 
 ## Project documents
 

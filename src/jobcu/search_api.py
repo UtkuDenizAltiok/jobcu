@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 from jobcu import applications, jobplace, jobstore, pipeline, recheck, search, vacancy_evidence
 from jobcu import pool as search_pool
+from jobcu.ai.base import AIError
 from jobcu.location import ConditionEdit, EditProblem, LocationPlan
 from jobcu.profile import Profile
 from jobcu.settings import SearchForm, load_settings, save_settings
@@ -25,11 +26,13 @@ def start_search(form: SearchForm) -> dict:
         raise HTTPException(status_code=400, detail="Please tick at least one job type.")
     settings = load_settings()
     settings.search_form = form
-    save_settings(settings)
     try:
         run = search.manager.start(form)
     except RuntimeError as exc:
         raise HTTPException(status_code=409, detail="A search is already running.") from exc
+    except AIError as exc:
+        raise HTTPException(status_code=400, detail=exc.message) from exc
+    save_settings(settings)
     return run.snapshot()
 
 

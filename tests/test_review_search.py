@@ -187,3 +187,16 @@ def test_sqlite_is_read_only_and_older_results_are_identified(temporary_data_dir
     assert path.read_bytes() == before
     assert report["is_latest_attempt"] is False and report["latest_attempt_status"] == "failed"
     assert any("older saved" in c for c in report["checks_needed"])
+
+
+def test_raw_collection_report_never_implies_ranked_results_or_new_library_labels():
+    report = tool.review({'status': 'failed', 'result': {'collected_evidence': {
+        'jobs': [{'title': 'PRIVATE_MARKER'}],
+        'reports': [{'source': 'adzuna', 'status': 'partial', 'jobs_found': 8,
+                     'requests': 3, 'message': 'PRIVATE_MARKER'}]}}},
+        [{'kind': 'scored', 'rating': 'good'}])
+    assert not report['job_results_available'] and report['raw_collection_available']
+    assert report['sources'][0]['jobs_found'] == 8
+    assert report['quality_sample']['scope'] == 'stored_review_library'
+    assert report['top_10_quality']['precision_good'] is None
+    assert 'PRIVATE_MARKER' not in json.dumps(report)

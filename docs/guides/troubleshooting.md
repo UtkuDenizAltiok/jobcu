@@ -101,6 +101,16 @@ before starting a new one.
 
 If clicking the button asks you to choose a job type, tick at least one box under **Job types**.
 
+A reached local AI limit is checked before a new search collects jobs. Cached document or
+location understanding does not bypass this check. Read the readiness message under the search
+button and the usage meters in Settings. This check uses saved usage and makes no paid test call.
+
+An explicitly prepared extra evaluation allowance has its own meter and retains earlier spending.
+It is separate from ordinary monthly use; deleting history or entering a new month does not reset
+it. Its opening balance can include tests performed outside this app data folder. Incomplete
+provider receipts remain visible, and the total provider usage list still includes every receipt.
+A comparison whose required evidence capture is missing stays unstarted until preparation is fixed.
+
 ## The search seems to have paused
 
 Look below the progress steps for a question about scoring more jobs or looking up more

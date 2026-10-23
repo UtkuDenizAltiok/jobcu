@@ -122,10 +122,12 @@ function renderChecklist() {
       ),
     ),
   );
-  $("start-search").disabled = !ready || state.search?.status === "running";
-  $("search-readiness").textContent = ready
+  const sameForm = !state.budgetForm || state.budgetForm === JSON.stringify(readSearchForm());
+  const budgetProblem = sameForm ? state.usage?.search_budget_problem : null;
+  $("start-search").disabled = !ready || Boolean(budgetProblem) || state.search?.status === "running";
+  $("search-readiness").textContent = budgetProblem || (ready
     ? "Your setup is ready. Test your AI connection in Settings before your first search."
-    : "Before searching: " + items.filter(([, done]) => !done).map(([label]) => label).join(", ") + ".";
+    : "Before searching: " + items.filter(([, done]) => !done).map(([label]) => label).join(", ") + ".");
 }
 
 // ---------------------------------------------------------------------------
@@ -881,8 +883,10 @@ async function loadSearchForm() {
       ),
     ),
   );
+  state.budgetForm = JSON.stringify(readSearchForm());
   const current = await api("/api/search/current");
   if (current.search) showSearch(current.search);
+  renderChecklist();
 }
 
 function readSearchForm() {
@@ -1564,6 +1568,8 @@ function renderDetails(search) {
 }
 
 function setUpSearchActions() {
+  $("search-form").addEventListener("input", renderChecklist);
+  $("search-form").addEventListener("change", renderChecklist);
   $("search-form").addEventListener("submit", async (event) => {
     event.preventDefault();
     if ($("start-search").disabled) return;
@@ -1579,6 +1585,7 @@ function setUpSearchActions() {
         showSearch(await api("/api/search", { method: "POST", body: form }));
       } catch (error) {
         setStatus($("search-form-status"), "problem", error.message);
+        await loadUsage();
       }
     });
     renderChecklist();
@@ -1861,6 +1868,7 @@ async function saveAiChoice() {
   // Only the AI part is replaced, so the key rows keep their live status objects.
   state.settings.ai = (await api("/api/settings/ai", { method: "PUT", body })).ai;
   renderAiWebHint();
+  await loadUsage();
   renderChecklist();
 }
 
@@ -2002,7 +2010,14 @@ async function loadUsage() {
 
 function renderUsage() {
   const usage = state.usage;
-  $("usage-month").textContent = `This month: ${tokens(usage.this_month.tokens)}, ${money(usage.this_month)}`;
+  renderChecklist();
+  const ordinary = usage.ordinary_this_month || usage.this_month;
+  $("usage-month").textContent = `Ordinary monthly AI use: ${tokens(ordinary.tokens)}, ${money(ordinary)}`;
+  $("usage-extra").replaceChildren(...(usage.extra_allowances || []).map((item) => el("p", {
+    text: `${item.label}: estimated ${item.spent.toFixed(2)} of ${item.ceiling.toFixed(2)} ${item.currency}`
+      + (item.cost_is_complete ? "" : " (incomplete usage; additional charges may be missing)")
+      + ". Separate from your ordinary monthly limit; previous spending is retained.",
+  })));
   $("usage-models").replaceChildren(
     ...usage.this_month.by_model.map((row) =>
       el(

@@ -33,7 +33,8 @@ from jobcu import (
     travel,
 )
 from jobcu import pool as search_pool
-from jobcu.ai.base import AIError, AIWebSearchUnavailable
+from jobcu.ai import budgets
+from jobcu.ai.base import AIBadRequest, AIError, AIWebSearchUnavailable
 from jobcu.ai.client import AIClient, in_parallel
 from jobcu.ai.usage import UsageLog, estimate_cost
 from jobcu.countries import COUNTRIES, LANGUAGE_NAMES, languages_for
@@ -130,6 +131,8 @@ class SearchRun:
     waiting_seconds: float = 0.0
     reference_research_cache: dict = field(default_factory=dict, repr=False)
     capture: review_capture.Capture | None = field(default=None, repr=False)
+
+    collected_evidence: dict | None = field(default=None, repr=False)
 
     def step(self, step_id: str) -> Step:
         return next(s for s in self.steps if s.id == step_id)
@@ -235,10 +238,14 @@ class SearchManager:
         with self._lock:
             if self._current is not None and self._current.status == "running":
                 raise RuntimeError("A search is already running.")
+            settings = load_settings()
+            budget_id = budgets.for_setup(settings, form)
+            AIClient(settings, usage_log=UsageLog(), budget_id=budget_id).check_search_budget()
+            budgets.check_preparation(budget_id)
             with db.connect() as conn:
                 cursor = conn.execute(
-                    "INSERT INTO searches (status, form_json) VALUES ('running', ?)",
-                    (form.model_dump_json(),),
+                    "INSERT INTO searches (status, form_json, budget_id) VALUES ('running', ?, ?)",
+                    (form.model_dump_json(), budget_id),
                 )
                 search_id = cursor.lastrowid
             run = SearchRun(
@@ -335,6 +342,8 @@ class SearchManager:
             status = "failed"
             error = "Something went wrong in Jobcu. Please try again."
 
+        if status in {"failed", "stopped"} and run.collected_evidence is not None:
+            run.set_result("collected_evidence", run.collected_evidence)
         _mark_remaining(run, "failed" if status == "failed" else "skipped",
                         stopped=status == "stopped")
         if status == "stopped":
@@ -393,6 +402,11 @@ def run_search(run: SearchRun) -> None:
     if run.capture:
         run.capture.event("inputs", form=run.form.model_dump(),
                           ai=settings.ai.model_dump(exclude={"base_url"}))
+    budget_id = budgets.for_search(run.id)
+    if (budget_id is not None and budgets.get(budget_id).capture_required
+            and run.capture is None):
+        raise AIBadRequest("Comparison capture could not start. No job-site or AI request "
+                           "has been sent; keep this attempt and repair its preparation.")
     client = AIClient(
         settings, KeyStore(), usage_log=UsageLog(), search_id=run.id, notify=run.note,
         checkpoint=lambda: _checkpoint(run),
@@ -568,17 +582,25 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
     collected = pipeline.collect(query, http, keys, disabled_sources(settings), run)
     if run.capture:
         run.capture.event("collected", jobs=collected.jobs, reports=collected.reports)
+    run.collected_evidence = {
+        "stage": "before_title_screening", "ads_found": collected.ads_found,
+        "jobs": [{**asdict(job),
+                  "posted_at": job.posted_at.isoformat() if job.posted_at else None,
+                  "closes_at": job.closes_at.isoformat() if job.closes_at else None}
+                 for job in collected.jobs],
+        "reports": [asdict(report) for report in collected.reports],
+    }
     ads_found = collected.ads_found  # source collection count, before the title filter
     names = {source_id: source.name for source_id, source in collected.sources.items()}
     working = [r for r in collected.reports if r.status in ("ok", "partial")]
-    checkpoint()
-    screened = _screen_career_titles(run, client, profile, collected)
-    run.update("sources", "done" if working else "failed",
-               f"{ads_found} ads collected before matching and duplicate removal" + screened)
     for report in collected.reports:
         if report.message and report.status in ("partial", "failed", "unavailable"):
             run.note(report.message if report.message.startswith(report.name)
                      else f"{report.name}: {report.message}")
+    checkpoint()
+    screened = _screen_career_titles(run, client, profile, collected)
+    run.update("sources", "done" if working else "failed",
+               f"{ads_found} ads collected before matching and duplicate removal" + screened)
     checkpoint()
 
     run.update("filtering", "running")

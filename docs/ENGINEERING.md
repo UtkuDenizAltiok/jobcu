@@ -479,6 +479,36 @@ ambiguous paid request: the provider may already have charged for it. Other requ
 completed evidence remain usable. This bounds duplicate attempts; it does not identify the
 external component that closed an earlier connection or prove invoice savings.
 
+## Separate extra allowances and search admission — 2026-10-23
+
+Explicit evaluation allowances are separate from ordinary monthly AI limits. Increasing one
+combined threshold failed to preserve that distinction and could block a prepared search against
+previous evaluation spending. That temporary approach is superseded. `ai/budgets.py` reads an
+explicit private allowance record; installations without one retain ordinary limits. New searches
+select an allowance only for the exact prepared form, documents and AI settings. An explicit
+client scope also supports an authorized isolated evaluation; no provider/model is preferred.
+
+Migration 20 tags searches, usage and outstanding recovery IDs with an allowance ID. Ordinary
+monthly cost/tokens exclude tagged receipts; the combined receipt view remains available.
+Each allowance retains its original opening spend and an accounted-through usage ID so historical
+receipts represented in that opening balance are not counted twice. Subsequent receipts increase
+that same allowance across month rollover, restart and search deletion. Missing opening usage stays
+incomplete. The explicit price currency and conservative multiplier are accounting controls, not
+a live exchange rate. Reconcile later historical bills into the same opening balance without
+resetting it. Local estimates and in-flight work still cannot guarantee an exact invoice ceiling.
+
+Budget admission happens before creating a search, consuming a capture arm or collecting jobs,
+even when every setup answer is cached. Per-request limits remain. Usage/readiness exposes the
+same local refusal and separate meters; no connection probe is sent. A capture-required trial
+also refuses an absent/consumed arm before collection and verifies successful claim before calls.
+Starting the app grants neither a new allowance nor a search.
+
+A later title-screening failure now saves original collected jobs and source reports with the
+failed attempt, even without opt-in AI capture. This evidence stays off progress snapshots while
+work is running; incomplete raw collection never becomes ranked results or verified requirements.
+Source warnings survive the following AI failure. Review metrics distinguish raw collection,
+ranked results and the older review library; older labels cannot stand in for a missing new sample.
+
 ## Same-request recovery and completed batches — 2026-10-23
 
 A foreground connection can end before a long model task finishes. Explicitly permitted

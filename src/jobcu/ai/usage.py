@@ -23,8 +23,13 @@ class UsageLog:
     def record(
         self, *, step: str, provider: str, model: str, usage: Usage, search_id: int | None = None,
         recovery_id: str | None = None, created_at: str | None = None,
+        budget_id: str | None = None,
     ) -> None:
         with db.connect(self.folder) as conn:
+            if budget_id is None and search_id is not None:
+                search = conn.execute("SELECT budget_id FROM searches WHERE id=?",
+                                      (search_id,)).fetchone()
+                budget_id = search[0] if search else None
             if recovery_id is not None:
                 conn.execute("BEGIN IMMEDIATE")
                 previous = conn.execute(
@@ -45,18 +50,26 @@ class UsageLog:
             conn.execute(
                 """INSERT INTO ai_usage (search_id, step, provider, model, input_tokens,
                    output_tokens, cached_input_tokens, reasoning_tokens, web_searches,
-                   unreported_requests, recovery_id, created_at)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                   unreported_requests, recovery_id, budget_id, created_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                            COALESCE(?,strftime('%Y-%m-%dT%H:%M:%fZ','now')))""",
                 (search_id, step, provider, model, usage.input_tokens, usage.output_tokens,
                  usage.cached_input_tokens, usage.reasoning_tokens, usage.web_searches,
-                 usage.unreported_requests, recovery_id, created_at),
+                 usage.unreported_requests, recovery_id, budget_id, created_at),
             )
 
     def this_month(self, now: datetime | None = None) -> list[ModelUsage]:
         now = now or datetime.now(UTC)
         month_start = now.strftime("%Y-%m-01T00:00:00")
         return self._by_model("created_at >= ?", (month_start,))
+
+    def ordinary_this_month(self, now: datetime | None = None) -> list[ModelUsage]:
+        now = now or datetime.now(UTC)
+        return self._by_model("created_at >= ? AND budget_id IS NULL",
+                              (now.strftime("%Y-%m-01T00:00:00"),))
+
+    def for_budget(self, budget_id: str, *, after_id: int = 0) -> list[ModelUsage]:
+        return self._by_model("budget_id = ? AND id > ?", (budget_id, after_id))
 
     def for_search(self, search_id: int) -> dict[str, Usage]:
         """Usage per step of one search, for "Search details"."""
