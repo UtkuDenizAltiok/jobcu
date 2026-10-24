@@ -313,6 +313,8 @@ def _reuse_key(client, text, check, selected, http, robots) -> str | None:
         if not content:
             return None
         evidence.append([page.model_dump(mode="json"), content])
+    if not evidence:
+        return None
     return preparation.key(client, reasoning=False, inputs=[
         REUSE_KIND, SYSTEM, strict_json_schema(Answers), ANSWER_TOKENS, _plain(text),
         [check.name, check.country, check.latitude, check.longitude], evidence])
