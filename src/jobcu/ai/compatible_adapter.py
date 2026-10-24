@@ -43,8 +43,21 @@ class _CustomEndpoint:
         super().__init__(*args, **kwargs)
         self._session_id = session_id or str(uuid4())
 
-    def _router_body(self) -> dict:
-        return dict(ROUTER_REQUIREMENTS.get(urlsplit(self.base_url).hostname or "", {}))
+    def _router_body(self, model: str = "") -> dict:
+        """Router requirements; "model@host" also pins one serving host, with no fallback, so
+        a test and later searches meet the same weights and quantization."""
+        body = ROUTER_REQUIREMENTS.get(urlsplit(self.base_url).hostname or "")
+        if body is None:
+            return {}
+        provider = dict(body["provider"])
+        host = model.rpartition("@")[2] if "@" in model else ""
+        if host:
+            provider.update(order=[host], allow_fallbacks=False)
+        return {**body, "provider": provider}
+
+    def _model_name(self, model: str) -> str:
+        """The router's own model name, without a pinned host."""
+        return model.rpartition("@")[0] if self._router_body() and "@" in model else model
 
     def _headers(self) -> dict[str, str]:
         headers = {"User-Agent": f"Jobcu/{__version__}"}
@@ -126,7 +139,7 @@ class CompatibleAdapter(_CustomEndpoint, ProviderAdapter):
     def _request(self, mode, model, system, prompt, schema, schema_name, max_output_tokens,
                  effort):
         extra: dict = {}
-        body = self._router_body()
+        body = self._router_body(model)
         if self.reasoning == "effort" and effort:
             extra["reasoning_effort"] = self.medium if effort == "medium" else effort
         elif self.reasoning == "thinking":
@@ -147,7 +160,7 @@ class CompatibleAdapter(_CustomEndpoint, ProviderAdapter):
             )
         try:
             response = self._client().chat.completions.create(
-                model=model,
+                model=self._model_name(model),
                 messages=[
                     {"role": "system", "content": system},
                     {"role": "user", "content": prompt},
