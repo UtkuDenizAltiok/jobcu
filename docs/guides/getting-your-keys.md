@@ -40,6 +40,7 @@ Use the provider's descriptions, current prices and your account's access to dec
 | Anthropic | [Claude Console](https://platform.claude.com/settings/keys) |
 | Google | [Google AI Studio](https://aistudio.google.com/apikey); [key instructions](https://ai.google.dev/gemini-api/docs/api-key) |
 | OpenAI | [OpenAI API keys](https://platform.openai.com/api-keys) |
+| OpenRouter | [OpenRouter keys](https://openrouter.ai/settings/keys) |
 | Xiaomi (MiMo) | [MiMo API platform](https://platform.xiaomimimo.com/) |
 | Other | Use the instructions from the service you chose. See below. |
 
@@ -47,6 +48,24 @@ A successful connection test means Jobcu can send an ordinary AI request. It doe
 that the model can research the web. Web research can need different account permissions
 and can cost extra. If it is unavailable during a search, Jobcu explains, continues the work
 it can do, and labels details it could not check. A later search tries research again.
+
+### If you choose OpenRouter
+
+**OpenRouter** gives one key and one balance for many AI companies' models. Jobcu already
+knows its address and format, so you only need a key and a model.
+
+1. Choose **OpenRouter**, paste your key and click **Save** beside it.
+2. Click **Load model list** and pick a model, or type its exact name from OpenRouter's
+   website, such as `deepseek/deepseek-v4.1-flash-1017`.
+3. Optional: add `@` and a host name to always use that host, for example
+   `deepseek/deepseek-v4.1-flash-1017@fireworks`. Otherwise OpenRouter may choose a different,
+   possibly compressed, copy of the model for each request.
+4. Click the **Save** button below the model settings, then **Test connection**.
+
+Jobcu asks OpenRouter only for hosts that keep no copy of your documents, don't train on them
+and honour Jobcu's answer format. If none of a model's hosts qualifies, the test says so;
+choose another model. Jobcu has no online research through OpenRouter: to keep online checks,
+choose a separate **Online research provider** (see below).
 
 ### If you choose Other
 
@@ -70,12 +89,7 @@ model ID, supported format and thinking controls from the service's current inst
    and controls rather than replace the key blindly. Some models lack required structured
    output even when their service supports this API format.
 
-**OpenRouter** (one key for many models): address `https://openrouter.ai/api/v1`, format
-**Chat Completions**, reasoning control **Send the selected effort**. Jobcu then asks OpenRouter
-only for hosts that keep no copy of your documents, don't train on them and honour Jobcu's
-answer format. Add `@` and a host name to the model to always use that host, for example
-`deepseek/deepseek-v4.1-flash-1017@fireworks`; otherwise OpenRouter may choose a different,
-possibly compressed, copy of the model for each request.
+For OpenRouter, choose **OpenRouter** instead; it needs no address or format.
 
 Custom API formats do not automatically include online research. Use the separate option
 below to preserve it. A connection test does not prove matching accuracy, research access,

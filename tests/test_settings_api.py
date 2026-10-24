@@ -86,6 +86,27 @@ def test_custom_model_list_uses_selected_protocol(client, monkeypatch):
     assert calls == [("openai_compatible", "", "messages", "https://provider.example/v1", 30)]
 
 
+def test_openrouter_is_offered_with_its_key_page_and_needs_no_address(client, monkeypatch):
+    from jobcu import settings_api
+    router = next(p for p in client.get("/api/settings").json()["providers"]
+                  if p["id"] == "openrouter")
+    assert router["key_page"] == "https://openrouter.ai/settings/keys"
+    assert not router["needs_base_url"] and not router["key_optional"]
+    assert not router["can_research"] and "@" in router["model_hint"]
+    calls = []
+    class Listed:
+        def list_models(self):
+            return ["fictional/model"]
+    def configured(provider, key, ai, *, timeout):
+        calls.append((provider, key))
+        return Listed()
+    monkeypatch.setattr(settings_api, "configured_adapter", configured)
+    client.put("/api/keys/ai_openrouter", json={"value": "fake-" + "r" * 20}, headers=HEADERS)
+    response = client.post("/api/ai/models", json={"provider": "openrouter"}, headers=HEADERS)
+    assert response.json() == {"models": ["fictional/model"], "error": None}
+    assert calls == [("openrouter", "fake-" + "r" * 20)]
+
+
 def test_research_probe_without_configuration_has_no_provider_calls(client):
     data = client.post("/api/ai/research-check", headers=HEADERS).json()
     assert not data["ok"] and "choose an online research provider and model" in data["message"]

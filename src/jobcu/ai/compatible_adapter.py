@@ -180,6 +180,17 @@ class CompatibleAdapter(_CustomEndpoint, ProviderAdapter):
         return list_openai_style_models(self._client())
 
 
+class OpenRouterAdapter(CompatibleAdapter):
+    """OpenRouter as its own choice: its documented address and format, the selected effort,
+    and the router requirements above, so a person only needs a key and a model."""
+
+    BASE_URL = "https://openrouter.ai/api/v1"
+
+    def __init__(self, api_key: str, timeout: float = 180.0, session_id: str = "") -> None:
+        super().__init__(api_key, base_url=self.BASE_URL, timeout=timeout,
+                         session_id=session_id)
+
+
 class CompatibleResponsesAdapter(_CustomEndpoint, OpenAIAdapter):
     """Native Responses format at the chosen address, without assuming hosted search rights."""
 

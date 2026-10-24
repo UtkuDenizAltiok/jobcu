@@ -21,6 +21,7 @@ from jobcu.ai.compatible_adapter import (
     CompatibleAdapter,
     CompatibleMessagesAdapter,
     CompatibleResponsesAdapter,
+    OpenRouterAdapter,
 )
 from jobcu.ai.providers import configured_adapter
 from jobcu.ai.usage import UsageLog
@@ -407,3 +408,30 @@ def test_at_signs_stay_part_of_model_names_on_other_hosts():
     sdk_transport(client._adapter, "chat_completions", handle)
     assert client.generate(Answer, step="scoring", system="Rules", prompt="Fictional cook").ok
     assert bodies[0]["model"] == "fictional-model@2026-10-17" and "provider" not in bodies[0]
+
+
+def test_openrouter_needs_only_a_key_and_model_and_keeps_the_router_rules():
+    # Other API's address and controls are left over on purpose: OpenRouter never uses them.
+    settings = Settings()
+    settings.ai = AISettings(provider="openrouter", model="fictional/model-1017@fictional-host",
+                             base_url="https://provider.example/v1",
+                             compatible_reasoning="provider_default")
+    keys = KeyStore()
+    keys.set("ai_openrouter", "fake-" + "r" * 20)
+    client = AIClient(settings, keys, usage_log=UsageLog())
+    adapter = client.adapter()
+    assert isinstance(adapter, OpenRouterAdapter)
+    requests = []
+
+    def handle(request):
+        requests.append(request)
+        return httpx.Response(200, json=reply_for("chat_completions"))
+
+    sdk_transport(adapter, "chat_completions", handle)
+    assert client.generate(Answer, step="scoring", system="Rules", prompt="Fictional baker").ok
+    assert str(requests[0].url) == "https://openrouter.ai/api/v1/chat/completions"
+    body = json.loads(requests[0].content)
+    assert body["model"] == "fictional/model-1017" and body["reasoning_effort"] == "medium"
+    assert body["provider"] == {"data_collection": "deny", "zdr": True,
+                                "require_parameters": True,
+                                "order": ["fictional-host"], "allow_fallbacks": False}
