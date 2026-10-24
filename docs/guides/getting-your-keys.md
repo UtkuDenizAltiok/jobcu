@@ -253,7 +253,9 @@ follows its own rules and the request may incur a charge under your account's te
 If Maps reports a daily/monthly quota or a zero allowance, check **Routes API → Quotas** in
 your Google Cloud project. Jobcu cannot change those account limits. Temporary throttling
 can be retried within the app's allowance; an unidentified quota is shown without guessing
-its reset time. **Settings → Usage and limits** controls Jobcu's own monthly attempt limit,
+its reset time. When one way of travelling is refused that way three requests in a row,
+Jobcu stops asking for it for the rest of the search, so refused attempts stop using your
+allowance; its journeys stay unchecked or use labelled AI estimates. **Settings → Usage and limits** controls Jobcu's own monthly attempt limit,
 which does not replace Google quotas or cover requests made by other apps.
 A configured **Compute Route Matrix daily** cap can stop one search even when Jobcu's monthly
 allowance remains. It differs from the per-minute rate and the **Compute Routes** operation.

@@ -84,6 +84,17 @@ _TIMEZONES = {"GB": "Europe/London", "IE": "Europe/Dublin", "PT": "Europe/Lisbon
 class MapsError(Exception):
     """Google Maps can't be used right now, in words for the person."""
 
+    def __init__(self, message: str, *, quota_scope: str | None = None) -> None:
+        super().__init__(message)
+        self.quota_scope = quota_scope
+
+
+# Google can refuse a travel mode with a bare "Quota exceeded." that names no limit (a daily
+# transit cap did, 2026-10-24: every transit request failed for hours while car trips worked).
+# After this many requests in a row fail that way, each already retried, that mode is not
+# asked again in this search; its journeys stay unchecked or estimated, as for any refusal.
+UNIDENTIFIED_QUOTA_STOP = 3
+
 
 @dataclass
 class TravelReading:
@@ -439,6 +450,8 @@ class GoogleMaps:
         # Only this search's validated elements. Missing/error cells stay retryable;
         # no Google durations enter the cross-search estimate memory.
         self._elements: dict[tuple[str, str, str, str | None], int | None] = {}
+        self._unidentified_refusals: dict[str, int] = {}
+        self._mode_unavailable: dict[str, str] = {}
 
     def _post(self, url: str, body: dict, fields: str):
         headers = {"X-Goog-Api-Key": self._key, "X-Goog-FieldMask": fields}
@@ -473,7 +486,7 @@ class GoogleMaps:
             message = _quota_message(scope)
             if scope in {"day", "month", "zero"}:
                 self._unavailable = message
-            raise MapsError(message)
+            raise MapsError(message, quota_scope=scope)
         if response.status_code != 200:
             log.warning("Google Maps refused a request (code %s)", response.status_code)
             raise MapsError(f"Google Maps answered with a problem (code {response.status_code}).")
@@ -531,16 +544,28 @@ class GoogleMaps:
         known = {i: self._elements[key] for i, key in enumerate(keys) if key in self._elements}
         if not pending:
             return known
+        if mode in self._mode_unavailable:
+            if known:
+                return known
+            raise MapsError(self._mode_unavailable[mode])
         body["destinations"] = [body["destinations"][keys.index(key)] for key in pending]
         try:
             elements = self._post(
                 ROUTES, body, "originIndex,destinationIndex,duration,condition,status")
             if not isinstance(elements, list):
                 raise MapsError("Google Maps answered in an unexpected way.")
-        except (MapsError, BudgetExhausted):
+        except (MapsError, BudgetExhausted) as exc:
+            if getattr(exc, "quota_scope", None) == "unknown":
+                refusals = self._unidentified_refusals.get(mode, 0) + 1
+                self._unidentified_refusals[mode] = refusals
+                if refusals >= UNIDENTIFIED_QUOTA_STOP:
+                    self._mode_unavailable[mode] = (
+                        f"{exc} Jobcu stopped asking for journeys {MODE_WORDS[mode]} for the "
+                        f"rest of this search after {refusals} refused requests in a row.")
             if known:
                 return known  # keep independently validated cells beside a later failure
             raise
+        self._unidentified_refusals.pop(mode, None)
         found: dict[int, int | None] = {}
         seen: set[int] = set()
         for element in elements:
