@@ -805,7 +805,9 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         from jobcu import reference_places
 
         run.update("eligibility", "running", "Checking reachable living cities")
-        reference_places.resolve_for_jobs(client, plan, [groups[i] for i in candidates])
+        # A retry or edit the person asked for looks up recently unknown cities again.
+        reference_places.resolve_for_jobs(client, plan, [groups[i] for i in candidates],
+                                          retry_unknown=run.kind == "reapply")
         run.set_result("location", plan.model_dump())
         for warning in condition_warnings(plan):
             run.note(warning)

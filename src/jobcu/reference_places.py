@@ -41,6 +41,12 @@ REFERENCE_RETRY_SECONDS = 3600
 RESEARCH_REUSE_KIND = "reference_research"
 RESEARCH_REUSE_DAYS = 7
 RESEARCH_REUSE_KEPT = 1000  # cities, across facts and countries
+# A city whose completed research found no verifiable answer is not bought again by ordinary
+# searches for this long: search 8 (2026-10-24) spent about 210 of its 335 city searches on
+# batches that settled 4 of 36 cities, and every later search would have repeated them. It is
+# not an answer: the city stays unknown, and an explicit retry or edit looks again at once.
+UNKNOWN_KIND = "reference_research_unknown"
+UNKNOWN_RETRY_DAYS = 7
 
 RESEARCH_SYSTEM = """\
 Check the stated condition for EACH listed reference city, using live web search and current
@@ -113,7 +119,7 @@ def deferred(text: str, towns: list[places.Town]) -> Condition:
                                         latitude=t.latitude, longitude=t.longitude) for t in towns])
 
 
-def resolve_for_jobs(client, plan, groups) -> None:
+def resolve_for_jobs(client, plan, groups, *, retry_unknown: bool = False) -> None:
     """Research each shared fact once, restricted to reachable population/name candidates.
 
     Geometry only narrows the research scope; it never proves a timed journey. Omitted
@@ -150,7 +156,8 @@ def resolve_for_jobs(client, plan, groups) -> None:
         selected = sorted((t for key, t in towns.items() if key not in supported),
                           key=lambda t: (plan.countries.index(t.country), -t.people, t.name))
         if selected:
-            found = check(client, fact, selected, request=single_fact_request(plan))
+            found = check(client, fact, selected, request=single_fact_request(plan),
+                          retry_unknown=retry_unknown)
         else:
             found = Condition(text=fact, understood_as=fact, kind="towns_that_fit",
                               status="applied", reference_checks=[],
@@ -288,7 +295,7 @@ def single_fact_request(plan) -> str | None:
 
 def check(client: AIClient, text: str, towns: list[places.Town], *,
           previous: list[ReferenceCheck] | None = None,
-          request: str | None = None) -> Condition:
+          request: str | None = None, retry_unknown: bool = False) -> Condition:
     supported = {_identity(c): c for c in previous or []
                  if c.meets is not None and c.evidence and c.sources and _fresh(c)}
     checks = [(supported[_identity(town)].model_copy(deep=True) if _identity(town) in supported
@@ -319,6 +326,16 @@ def check(client: AIClient, text: str, towns: list[places.Town], *,
             checks[i] = stored
             sources.extend(s for s in stored.sources if s.url not in {v.url for v in sources})
     pending = [i for i in pending if checks[i].meets is None]
+    resting = []
+    if not retry_unknown:
+        for i in pending:
+            tried = keys[i] and preparation.read(UNKNOWN_KIND, keys[i], ReferenceCheck,
+                                                 max_age_days=UNKNOWN_RETRY_DAYS)
+            if tried is not None:
+                checks[i].evidence = (f"Looked up on {tried.checked_at[:10]} without a "
+                                      f"verifiable answer: {tried.evidence}").strip()
+                resting.append(i)
+        pending = [i for i in pending if i not in resting]
     batches = (len(pending) + REFERENCE_BATCH_SIZE - 1) // REFERENCE_BATCH_SIZE
     for start in range(0, len(pending), REFERENCE_BATCH_SIZE):
         indexes = pending[start:start + REFERENCE_BATCH_SIZE]
@@ -345,6 +362,7 @@ def check(client: AIClient, text: str, towns: list[places.Town], *,
                 if links is not None and not any(_source_hints(reply.text, links).values()):
                     note = "No city-specific provider source links could support these claims."
                     _retire_research(client, reply)
+                    _rest_unknown(keys, indexes, checks, note)
                     continue  # no extraction answer could satisfy the source validator
                 answer = client.generate(
                     ReferenceAnswers, step="location", system=STRUCTURE_SYSTEM,
@@ -355,6 +373,8 @@ def check(client: AIClient, text: str, towns: list[places.Town], *,
                     if checks[i].meets is not None and keys[i]:
                         preparation.write(RESEARCH_REUSE_KIND, keys[i], checks[i],
                                           keep=RESEARCH_REUSE_KEPT)
+                _rest_unknown(keys, indexes, checks,
+                              "the sources found did not establish this city's figures.")
                 # Only a failed conversion owes a retry. A completed but genuinely unknown
                 # answer needs fresh research next time, not endless reconversion of it.
                 _retire_research(client, reply)
@@ -370,6 +390,10 @@ def check(client: AIClient, text: str, towns: list[places.Town], *,
                 note += " Remaining reference-city groups were not sent after these interruptions."
                 break
     known = sum(c.meets is not None for c in checks)
+    if resting:
+        note = (f"{len(resting)} cities were looked up within the last {UNKNOWN_RETRY_DAYS} "
+                "days without a verifiable answer and were not bought again; retrying "
+                "incomplete checks looks them up now. " + note)
     if known < len(checks):
         note = (f"Checked {known} of {len(checks)} candidate reference cities. "
                 "Missing cities remain unknown; supported cities can still qualify. " + note)
@@ -377,6 +401,15 @@ def check(client: AIClient, text: str, towns: list[places.Town], *,
                      status="applied" if known or not checks else "not_checked",
                      sources=sources, note=note, reference_checks=checks,
                      reference_notes="\n\n".join(notes))
+
+
+def _rest_unknown(keys, indexes, checks, reason: str) -> None:
+    """Remember completed research that left these cities unknown (see UNKNOWN_KIND)."""
+    for i in indexes:
+        if checks[i].meets is None and keys[i]:
+            tried = checks[i].model_copy(update={
+                "evidence": reason, "checked_at": datetime.now(UTC).isoformat()})
+            preparation.write(UNKNOWN_KIND, keys[i], tried, keep=RESEARCH_REUSE_KEPT)
 
 
 def retry_missing(client: AIClient, condition: Condition, countries: list[str], *,
@@ -400,7 +433,7 @@ def retry_missing(client: AIClient, condition: Condition, countries: list[str], 
         updated.status = "estimate"
         return updated
     found = check(client, anchor.look_up, towns, previous=anchor.reference_checks,
-                  request=request)
+                  request=request, retry_unknown=True)
     updated = condition.model_copy(deep=True)
     old_eligible = {_identity(c) for c in anchor.reference_checks if c.meets is True}
     new_eligible = {_identity(c) for c in found.reference_checks or [] if c.meets is True}

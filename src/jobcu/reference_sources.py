@@ -325,6 +325,29 @@ def _stopped(client) -> bool:
     return False
 
 
+def _under_label(content: str, label: str, words: str) -> bool:
+    """A table row printed under a geographic label belongs to it: a city with several
+    constituencies has one labelled row each, then an unlabelled city total (search 8 lost 12
+    verified German cities to web searches because their total rows did not repeat the name).
+    Every occurrence of the quote must lie inside one block that starts at a line carrying the
+    label and runs over the following more-indented lines, never elsewhere on the page."""
+    lines = content.splitlines()
+    blocks, inside = [], set()
+    for start, line in enumerate(lines):
+        if _plain(label) not in _plain(line):
+            continue
+        indent = len(line) - len(line.lstrip())
+        end = start + 1
+        while end < len(lines) and (not lines[end].strip()
+                                    or len(lines[end]) - len(lines[end].lstrip()) > indent):
+            end += 1
+        blocks.append(_plain("\n".join(lines[start:end])))
+        inside.update(range(start, end))
+    quote = _plain(words)
+    rest = _plain("\n".join(line for i, line in enumerate(lines) if i not in inside))
+    return bool(quote) and any(quote in block for block in blocks) and quote not in rest
+
+
 def _has_scope(page, city, content):
     label = page.required_labels_by_town.get(city)
     return city in page.towns and (not label or _plain(label) in _plain(content))
@@ -368,7 +391,8 @@ def _apply(checks, answer, pages, *, calculations=None):
             names = [label] if label else [
                 check.name, *page.aliases_by_town.get(check.name, [])]
             named = any(re.search(r"(?<!\w)" + re.escape(normalise(name)) + r"(?!\w)",
-                                  normalise(quote.words)) for name in names)
+                                  normalise(quote.words)) for name in names) or bool(
+                label and quote.kind == "source" and _under_label(found[1], label, quote.words))
             # A shared table's quote for a different city cannot establish this one.
             city_quote = (check.name in page.towns
                           and (named or len(page.towns) == 1 and not label))
