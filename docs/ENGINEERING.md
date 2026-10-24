@@ -112,6 +112,11 @@ share of the research provider's free searches left in its billing month (Pacifi
 Google), spread over the remaining days at the person's searches per day; past the share Jobcu
 asks before more look-ups, like the per-search limit, and the smaller of the two applies.
 
+Native Anthropic requests stream and use only the final message: a streamed answer starts at
+once, where a silent plain request was cut by a network idle limit at 60 s. A broken stream keeps
+its reported usage as a lower bound; an error event inside a started stream is classified by its
+error type, and an unreadable stream is invalid output, not a bad request.
+
 Structured answers require completion/refusal checks and schema validation. Research additionally
 retains provider source annotations and validates required evidence. Generated URLs are not
 provider citations. Missing passage mappings do not become invented quote provenance.

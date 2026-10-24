@@ -212,7 +212,7 @@ def test_anthropic_asks_to_keep_the_instructions_ready():
     sent = {}
 
     class FakeMessages:
-        def create(self, **request):
+        def stream(self, **request):
             sent.update(request)
             raise anthropic.APIStatusError("busy", response=_response(529), body=None)
 

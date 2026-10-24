@@ -20,6 +20,7 @@ from jobcu.ai.base import (
     MSG_REFUSED,
     MSG_TRUNCATED,
     MSG_UNAVAILABLE,
+    TRANSPORT_ERRORS,
     AIAuthError,
     AIBadRequest,
     AIError,
@@ -49,6 +50,8 @@ from jobcu.settings import Effort
 FETCH_CONTENT_TOKENS = 6_000
 # A server-side research turn may pause after its own step limit; continue it this many times.
 MAX_CONTINUATIONS = 4
+# Mid-stream error events carry the error type instead of an HTTP status.
+_RETRYABLE_ERRORS = {"overloaded_error", "api_error", "timeout_error"}
 
 
 def web_tools(model: str, max_searches: int, *, fetch: bool = True) -> list[dict]:
@@ -70,6 +73,10 @@ def web_tools(model: str, max_searches: int, *, fetch: bool = True) -> list[dict
 
 class AnthropicAdapter(ProviderAdapter):
     can_search_the_web = True
+    # Every request streams. A streamed answer starts at once and keeps the connection busy;
+    # a plain request can wait silently past a network's idle limit (cut at exactly 60.0 s on
+    # 2026-10-24, which stopped every later Claude research request in that search).
+    stream_requests = True
     _sdk_client: anthropic.Anthropic | None = None
 
     def _client(self) -> anthropic.Anthropic:
@@ -79,6 +86,30 @@ class AnthropicAdapter(ProviderAdapter):
                     api_key=self.api_key, max_retries=0, timeout=self.timeout
                 )
         return self._sdk_client
+
+    def _send(self, **request):
+        """The final message. A broken stream keeps the usage it reported as a lower bound."""
+        if not self.stream_requests:
+            return self._client().messages.create(**request)
+        stream = None
+        try:
+            with self._client().messages.stream(**request) as stream:
+                return stream.get_final_message()
+        except Exception as exc:
+            error = _translate(exc) if isinstance(
+                exc, (anthropic.APIError, AIError, *TRANSPORT_ERRORS)) else AIInvalidOutput(
+                "The AI provider sent an answer stream Jobcu could not read.", str(exc)[:300])
+            try:
+                started = stream.current_message_snapshot if stream is not None else None
+            except AssertionError:  # nothing arrived: the library has no message yet
+                started = None
+            if started is not None:
+                partial = _usage(getattr(started, "usage", None))
+                partial.unreported_requests = 1
+                error.usage = partial
+            elif isinstance(error, AIInvalidOutput):
+                error.usage = Usage(unreported_requests=1)  # an answer arrived: work was done
+            raise error from exc
 
     def complete_json(
         self,
@@ -100,7 +131,7 @@ class AnthropicAdapter(ProviderAdapter):
             # Anthropic has no "minimal" level; "low" is its lowest.
             output_config["effort"] = "low" if effort == "minimal" else effort
         try:
-            response = self._client().messages.create(
+            response = self._send(
                 model=model,
                 max_tokens=max_output_tokens,
                 system=system_blocks,
@@ -131,7 +162,7 @@ class AnthropicAdapter(ProviderAdapter):
                 messages.append({"role": "assistant", "content": [
                     block.to_dict() for block in blocks]})
             try:
-                response = self._client().messages.create(
+                response = self._send(
                     model=model, max_tokens=max_output_tokens, system=system,
                     messages=messages, tools=tools, **extra)
             except Exception as exc:
@@ -258,11 +289,17 @@ def _translate(exc: Exception) -> Exception:
             return AIUnavailable(MSG_UNAVAILABLE, detail)
         body = exc.body if isinstance(exc.body, dict) else {}
         error = body.get("error", body)
+        kind = error.get("type") if isinstance(error, dict) else None
+        if kind in _RETRYABLE_ERRORS:  # reported inside a stream that had already started
+            return AIUnavailable(MSG_UNAVAILABLE, detail)
+        if kind == "rate_limit_error":
+            return AIRateLimited(MSG_RATE_LIMITED, detail)
         if exc.status_code == 400 and isinstance(error, dict) and reasoning_control_refused(
                 error.get("message"), ("effort", "output_config.effort")):
             return AIReasoningUnsupported(MSG_BAD_REQUEST, detail)
         return AIBadRequest(MSG_BAD_REQUEST, detail)
-    if isinstance(exc, (anthropic.APIConnectionError, anthropic.APITimeoutError)):
+    if isinstance(exc, (anthropic.APIConnectionError, anthropic.APITimeoutError,
+                        *TRANSPORT_ERRORS)):
         return connection_problem(exc)
     if isinstance(exc, AIError):
         return exc
