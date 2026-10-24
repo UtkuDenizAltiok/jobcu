@@ -16,6 +16,9 @@ from uuid import uuid4
 from jobcu.paths import ensure_data_dir
 
 ARM_FILE = "review-capture-next-search.json"
+# Windows can let two threads rename the same arm file (seen in CI on 2026-10-25), so claims in
+# this process take turns; the rename still guards against another process.
+_claim_lock = threading.Lock()
 
 
 def arm_next_search() -> None:
@@ -38,6 +41,11 @@ def is_armed() -> bool:
 
 
 def claim(search_id: int, notify) -> "Capture | None":
+    with _claim_lock:
+        return _claim(search_id, notify)
+
+
+def _claim(search_id: int, notify) -> "Capture | None":
     base = ensure_data_dir()
     marker = base / ARM_FILE
     if not marker.exists():
