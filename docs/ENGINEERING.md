@@ -92,9 +92,12 @@ retries. Cached/earlier routes survive later failures; persistent quotas stop th
 
 `ai/client.py` is the sole AI entry point. Native adapters support Anthropic, Google, OpenAI
 and Xiaomi. Custom endpoints support Chat Completions, Responses and Messages with explicit
-reasoning controls; hosted research is separately configured. Defaults remain medium. A
-provider without a literal medium control exposes its mapping/uncertainty rather than silently
-disabling thinking. Native keys stay on their native host.
+reasoning controls; hosted research is separately configured. Requests through a router
+(OpenRouter) ask only for hosts that neither keep nor train on request data and that honour
+every requested parameter; without a schema-capable host they fall back to plain JSON, never
+to a looser data policy. Defaults remain medium. A provider without a literal medium control
+exposes its mapping/uncertainty rather than silently disabling thinking. Native keys stay on
+their native host.
 
 Structured answers require completion/refusal checks and schema validation. Research additionally
 retains provider source annotations and validates required evidence. Generated URLs are not

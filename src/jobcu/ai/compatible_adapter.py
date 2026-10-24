@@ -20,6 +20,7 @@ from jobcu.ai.base import (
     MSG_TRUNCATED,
     AIBadRequest,
     AIInvalidOutput,
+    AIModelNotFound,
     AIOutputTruncated,
     AIRefused,
     ProviderAdapter,
@@ -30,12 +31,20 @@ from jobcu.ai.openai_adapter import OpenAIAdapter, list_openai_style_models, tra
 from jobcu.settings import CompatibleReasoning, Effort
 
 MODES = ("json_schema", "json_object", "prompt_only")
+# A router picks the serving host per request. A CV and a job search may reach only hosts that
+# neither keep nor train on request data, and that honour every requested parameter (the JSON
+# schema and the reasoning effort), never a host that quietly ignores them.
+ROUTER_REQUIREMENTS = {"openrouter.ai": {"provider": {
+    "data_collection": "deny", "zdr": True, "require_parameters": True}}}
 
 
 class _CustomEndpoint:
     def __init__(self, *args, session_id: str = "", **kwargs):
         super().__init__(*args, **kwargs)
         self._session_id = session_id or str(uuid4())
+
+    def _router_body(self) -> dict:
+        return dict(ROUTER_REQUIREMENTS.get(urlsplit(self.base_url).hostname or "", {}))
 
     def _headers(self) -> dict[str, str]:
         headers = {"User-Agent": f"Jobcu/{__version__}"}
@@ -92,12 +101,20 @@ class CompatibleAdapter(_CustomEndpoint, ProviderAdapter):
             try:
                 reply = self._request(mode, model, system, prompt, schema, schema_name,
                                       max_output_tokens, effort)
-            except AIBadRequest as exc:
+            except (AIBadRequest, AIModelNotFound) as exc:
                 # Schema negotiation is not permission to retry an unrelated refusal or
-                # discard thinking. Only an explicit format rejection changes format.
+                # discard thinking. Only an explicit format rejection changes format; for a
+                # router, also "no host supports these parameters" (never its data policy).
                 detail = exc.detail.lower()
-                if not any(word in detail for word in (
-                        "response_format", "json_schema", "json_object")):
+                if self._router_body() and "data policy" in detail:
+                    raise AIModelNotFound(
+                        "No host for this model meets Jobcu's privacy requirements (no "
+                        "training on and no retention of your documents). Choose another "
+                        "model.", exc.detail) from exc
+                router = bool(self._router_body()) and "requested parameters" in detail
+                if not router and (isinstance(exc, AIModelNotFound) or not any(
+                        word in detail for word in (
+                            "response_format", "json_schema", "json_object"))):
                     raise
                 last_error = exc
                 continue
@@ -109,10 +126,13 @@ class CompatibleAdapter(_CustomEndpoint, ProviderAdapter):
     def _request(self, mode, model, system, prompt, schema, schema_name, max_output_tokens,
                  effort):
         extra: dict = {}
+        body = self._router_body()
         if self.reasoning == "effort" and effort:
             extra["reasoning_effort"] = self.medium if effort == "medium" else effort
         elif self.reasoning == "thinking":
-            extra["extra_body"] = {"thinking": {"type": "enabled"}}
+            body["thinking"] = {"type": "enabled"}
+        if body:
+            extra["extra_body"] = body
         if mode == "json_schema":
             extra["response_format"] = {
                 "type": "json_schema",
