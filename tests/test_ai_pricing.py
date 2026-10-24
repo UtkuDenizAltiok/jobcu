@@ -5,7 +5,7 @@ import pytest
 from jobcu.ai.base import AILimitReached, Usage
 from jobcu.ai.client import AIClient
 from jobcu.ai.usage import ModelUsage, UsageLog, estimate_cost
-from jobcu.settings import ModelPrice, Settings
+from jobcu.settings import ModelPrice, Settings, load_settings, save_settings
 
 
 def price(**changes):
@@ -80,7 +80,24 @@ def test_configured_spending_limit_refuses_an_unpriceable_dispatch(case):
                                           input_per_million=1, output_per_million=2,
                                           currency="EUR"))
     client = AIClient(settings, usage_log=UsageLog())
-    with pytest.raises(AILimitReached, match="Save current prices"):
+    named = {"missing_model": "no price for gemini · fictional-model",
+             "missing_search_price": "no search price for gemini · fictional-model",
+             "mixed_currencies": "more than one currency: EUR, USD"}[case]
+    with pytest.raises(AILimitReached, match="Save current prices") as refused:
         with client._request("location", "gemini", "fictional-model",
                              research=case == "missing_search_price"):
             pytest.fail("Unpriceable request was dispatched")
+    assert named in refused.value.message
+
+
+def test_a_price_saved_while_a_search_runs_applies_at_once():
+    settings = Settings()
+    settings.ai.provider, settings.ai.model = "gemini", "fictional-model"
+    settings.limits.monthly_cost_limit = 20
+    client = AIClient(settings, usage_log=UsageLog())  # started before the price existed
+    with pytest.raises(AILimitReached, match="no price for gemini · fictional-model"):
+        client._check_monthly_limit(provider="gemini", model="fictional-model")
+    saved = load_settings()
+    saved.prices = [price()]
+    save_settings(saved)
+    client._check_monthly_limit(provider="gemini", model="fictional-model")

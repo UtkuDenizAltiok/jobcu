@@ -151,7 +151,8 @@ Prices are optional for searching. For a money estimate, add your model's prices
 The **Monthly estimated cost limit** checks recorded usage against these prices before each
 request, including retries. Completed usage is recorded before another queued request checks
 the limit. With this limit set, Jobcu refuses requests whose model or applicable
-search prices are missing, or whose price table mixes currencies. A request already sent can
+search prices are missing, or whose price table mixes currencies, and names what is missing.
+A price you save while a search runs applies to its next request. A request already sent can
 finish before the limit takes effect; concurrent requests can cross the estimate together.
 
 Estimates include entered search fees and cache discounts, before shared free allowances, taxes

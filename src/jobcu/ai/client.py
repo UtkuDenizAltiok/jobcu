@@ -51,7 +51,7 @@ from jobcu.ai.request_recovery import RecoveryContext
 from jobcu.ai.schema import extract_json, strict_json_schema
 from jobcu.ai.usage import UsageLog, estimate_cost, total_tokens
 from jobcu.keystore import KeyStore
-from jobcu.settings import Effort, Settings
+from jobcu.settings import Effort, ModelPrice, Settings, settings_path
 
 log = logging.getLogger(__name__)
 
@@ -708,6 +708,13 @@ class AIClient:
         for model in models:
             self._check_monthly_limit(provider=ai.provider, model=model)
 
+    def _current_prices(self) -> list[ModelPrice]:
+        """Prices saved while a search runs apply at once (a price added after a refusal, or
+        for a model first used elsewhere); this search's copy covers anything not saved."""
+        table = {(p.provider, p.model): p for p in self.settings.prices}
+        table.update({(p.provider, p.model): p for p in _saved_prices()})
+        return list(table.values())
+
     def _check_monthly_limit(self, *, provider: str | None = None, model: str | None = None,
                              research: bool = False) -> None:
         if self.usage_log is None:
@@ -731,28 +738,39 @@ class AIClient:
                 "the AI. You can raise the limit in Settings."
             )
         if allowance is not None or limits.monthly_cost_limit is not None:
-            prices = {(p.provider, p.model): p for p in self.settings.prices}
+            table = self._current_prices()
+            prices = {(p.provider, p.model): p for p in table}
             needed = {(u.provider, u.model) for u in month if (
                 u.usage.input_tokens or u.usage.output_tokens or u.usage.web_searches
                 or u.usage.web_results)}
             if provider is not None and model is not None:
                 needed.add((provider, model))
-            currencies = {p.currency.strip().upper() for p in self.settings.prices}
+            currencies = {p.currency.strip().upper() for p in table}
             missing = needed - prices.keys()
-            web_unpriced = any((u.usage.web_searches or u.usage.web_results)
-                               and prices.get((u.provider, u.model))
-                               is not None and prices[(u.provider, u.model)]
-                               .web_search_per_thousand is None for u in month)
-            if research and (provider, model) in prices:
-                web_unpriced |= prices[(provider, model)].web_search_per_thousand is None
-            if (missing or web_unpriced or len(currencies) != 1
-                    or allowance is not None and currencies != {allowance.price_currency}):
+            web_unpriced = {(u.provider, u.model) for u in month
+                            if (u.usage.web_searches or u.usage.web_results)
+                            and prices.get((u.provider, u.model)) is not None
+                            and prices[(u.provider, u.model)].web_search_per_thousand is None}
+            if research and (provider, model) in prices and (
+                    prices[(provider, model)].web_search_per_thousand is None):
+                web_unpriced.add((provider, model))
+            wrong_currency = len(currencies) != 1 or (
+                allowance is not None and currencies != {allowance.price_currency})
+            if missing or web_unpriced or wrong_currency:
+                # Name what is missing: "save current prices" alone left the person guessing.
+                problems = [f"no price for {p} · {m}" for p, m in sorted(missing)]
+                problems += [f"no search price for {p} · {m}" for p, m in sorted(web_unpriced)]
+                if wrong_currency:
+                    problems.append("prices in more than one currency: " + ", ".join(
+                        sorted(currencies)) if len(currencies) > 1 else
+                        "prices in another currency than this allowance")
                 raise AILimitReached(
                     "Jobcu cannot apply this estimated spending limit until every "
                     "used model has input/output and applicable search prices in one currency. "
-                    "Save current prices in Settings before continuing."
+                    "Save current prices in Settings before continuing ("
+                    + "; ".join(problems) + ")."
                 )
-            cost, _ = estimate_cost(month, self.settings.prices)
+            cost, _ = estimate_cost(month, table)
             if allowance is not None:
                 if allowance.opening_spent + cost * allowance.cost_multiplier >= allowance.ceiling:
                     raise AILimitReached("This search's separate extra AI allowance is reached. "
@@ -763,6 +781,15 @@ class AIClient:
                     "Your monthly AI spending limit in Jobcu's settings is reached, so Jobcu "
                     "stopped using the AI. You can raise the limit in Settings."
                 )
+
+
+def _saved_prices() -> list[ModelPrice]:
+    """The price table as saved now, read without the settings loader's damaged-file repair."""
+    try:
+        return Settings.model_validate_json(
+            settings_path().read_text(encoding="utf-8")).prices
+    except (OSError, ValueError):
+        return []
 
 
 def in_parallel[Item, Result](
