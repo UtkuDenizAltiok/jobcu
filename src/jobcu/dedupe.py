@@ -7,6 +7,9 @@
   board copy that resembles both. Missing IDs never establish an exact match.
 - Ads from staffing agencies that hide the employer are tagged "possible duplicate"
   instead of being merged, because they may or may not be the same job.
+- One employer's complete ad posted under several titles (a recruiter's "Hardware Engineer",
+  "Hardwareentwickler" and "Elektronik-Ingenieur", search 8) is one job when the texts are
+  practically identical and the titles agree on level and reference numbers.
 - The main link prefers the employer's own page, then LinkedIn, then job boards, then
   aggregators. The other copies become "Also on".
 """
@@ -31,6 +34,9 @@ AGENCY_TEXT_MATCH = 0.5
 # Two summaries count as one job only when nearly the same, and long enough to tell.
 SUMMARY_TEXT_MATCH = 0.9
 SUMMARY_SHINGLES = 40
+# A complete ad under another title: practically the same text, and a whole ad, not a stub.
+RETITLED_TEXT_MATCH = 0.97
+RETITLED_SHINGLES = 200
 NEARBY_KM = 30
 
 SOURCE_KIND_RANK = {"employer": 0, "linkedin": 1, "job_board": 2, "aggregator": 3}
@@ -295,6 +301,8 @@ def group_duplicates(jobs: list[FoundJob], source_kinds: dict[str, str]) -> list
                     jobs[a], jobs[b], TEXT_MATCH, text_cache
                 ):
                     union(a, b)
+                elif _same_ad_retitled(jobs[a], jobs[b], titles[a], titles[b], text_cache):
+                    union(a, b)
 
     # A recruiter can publish the same vacancy under a parent name and a division label.
     # A shared name prefix alone proves nothing: require the same role/place and strong
@@ -388,6 +396,20 @@ def _both_full_and_similar(a: FoundJob, b: FoundJob, threshold: float,
     return (min(len(_prepared_shingles(a.description, cache)),
                 len(_prepared_shingles(b.description, cache))) >= SUMMARY_SHINGLES
             and _text_similarity(a.description, b.description, cache) >= SUMMARY_TEXT_MATCH)
+
+
+def _same_ad_retitled(a: FoundJob, b: FoundJob, title_a: str, title_b: str,
+                      cache: dict[str, set[str]] | None = None) -> bool:
+    """One complete ad under two titles. Level words and reference numbers must still agree,
+    and both texts must be whole ads: a shared template or a short stub proves nothing."""
+    if not (a.description_is_complete and b.description_is_complete):
+        return False
+    for words in (_LEVEL_WORDS, _REFERENCE_NUMBERS):
+        if set(words.findall(title_a)) != set(words.findall(title_b)):
+            return False
+    return (min(len(_prepared_shingles(a.description, cache)),
+                len(_prepared_shingles(b.description, cache))) >= RETITLED_SHINGLES
+            and _text_similarity(a.description, b.description, cache) >= RETITLED_TEXT_MATCH)
 
 
 def _tag_agency_repeats(groups: list[JobGroup], cache: dict[str, set[str]] | None = None) -> None:

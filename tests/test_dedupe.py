@@ -342,3 +342,38 @@ def test_comparison_text_is_prepared_once_per_distinct_ad(monkeypatch):
     groups = group_duplicates(jobs, KINDS)
     assert len(groups) == len(jobs)
     assert len(calls) == len(set(calls)) == len(jobs)
+
+
+WHOLE_AD = " ".join(f"Task {n} covers fictional converter design step {n} for the team."
+                    for n in range(60))
+
+
+def test_one_complete_ad_under_several_titles_is_one_job():
+    titles = ["Elektronik-Ingenieur", "Hardwareentwickler - Elektronik",
+              "Hardware Engineer - Electronics"]
+    jobs = [job("board", str(n), title=title, company="Fictional Works",
+                description=WHOLE_AD, description_is_complete=True)
+            for n, title in enumerate(titles)]
+    groups = group_duplicates(jobs, KINDS)
+    assert len(groups) == 1 and len(groups[0].copies) == 3
+
+
+@pytest.mark.parametrize("different", ["level", "agency", "summary", "text", "requisition"])
+def test_a_retitled_ad_needs_a_whole_matching_text_and_the_same_level(different):
+    a = job("board", "1", title="Elektronik-Ingenieur", company="Fictional Works",
+            description=WHOLE_AD, description_is_complete=True)
+    b = job("board", "2", title="Hardware Engineer - Electronics", company="Fictional Works",
+            description=WHOLE_AD, description_is_complete=True)
+    kinds = dict(KINDS)
+    if different == "level":
+        b.title = "Senior Hardware Engineer - Electronics"
+    elif different == "agency":
+        a.company = b.company = "Fictional Recruitment Ltd"
+    elif different == "summary":
+        b.description_is_complete = False
+    elif different == "text":
+        b.description = WHOLE_AD.replace("converter", "inverter", 6)
+    else:
+        a.source = b.source = "employer"
+        kinds["employer"] = "employer"
+    assert len(group_duplicates([a, b], kinds)) == 2
