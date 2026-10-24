@@ -105,6 +105,7 @@ class AIClient:
         reference_research_cache: dict | None = None,
         capture=None,
         budget_id: str | None = None,
+        free_web_search_share: int | None = None,
     ) -> None:
         self.settings = settings
         self.keys = keys or KeyStore()
@@ -133,6 +134,10 @@ class AIClient:
         self.web_searches_used = sum(u.web_searches for step, u in previous.items()
                                     if step != "employers")
         self._web_searches_reserved = 0
+        # This search's share of the month's free web searches (Settings), counted on top of
+        # what it used before being continued.
+        self.free_web_search_limit = (None if free_web_search_share is None
+                                      else self.web_searches_used + free_web_search_share)
         # How many requests may be waiting for an answer at the same time (see `_slot`).
         self.parallel_requests = PARALLEL_REQUESTS
         self._requests_running = 0
@@ -426,7 +431,17 @@ class AIClient:
 
     def _web_search_cap(self) -> int:
         cap = self.settings.limits.web_search_cap
-        return NO_LIMIT if cap is None else cap
+        cap = NO_LIMIT if cap is None else cap
+        if self.free_web_search_limit is None:
+            return cap
+        return min(cap, self.free_web_search_limit)
+
+    def free_share_reached(self) -> bool:
+        """True when this search's share of the free monthly searches, not the per-search
+        limit in Settings, is what stops more web look-ups."""
+        cap = self.settings.limits.web_search_cap
+        return self.free_web_search_limit is not None and (
+            cap is None or self.free_web_search_limit < cap)
 
     def web_searches_left(self) -> int:
         """What is left of this search's allowance of web look-ups (Settings)."""
@@ -479,6 +494,9 @@ class AIClient:
             allowed = min(max_searches, self.web_searches_left())
             if allowed <= 0:
                 raise AILimitReached(
+                    "This search has used its share of this month's free web searches. You "
+                    "can retry these checks later or change the free searches in Settings."
+                    if self.free_share_reached() else
                     "Jobcu has used this search's allowance of web look-ups. You can raise it "
                     "in Settings."
                 )

@@ -1,9 +1,11 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from jobcu.ai.base import Usage
+from jobcu.ai.usage import UsageLog
 from jobcu.app import create_app
 from jobcu.keystore import KeyStore
-from jobcu.settings import load_settings
+from jobcu.settings import load_settings, save_settings
 
 HEADERS = {"X-Jobcu": "1"}
 
@@ -191,6 +193,19 @@ def test_limits_and_source_switches_are_saved(client):
         "scoring_cap": None, "web_search_cap": None}).json()
     assert data["limits"]["scoring_cap"] is None and data["limits"]["web_search_cap"] is None
     assert load_settings().limits.scoring_cap is None
+
+    assert data["free_web_searches"] is None  # not set: nothing to count
+    settings = load_settings()
+    settings.ai.provider = "gemini"
+    save_settings(settings)
+    UsageLog().record(step="job_places", provider="gemini", model="fictional-model",
+                      usage=Usage(10, 5, web_searches=12))
+    data = client.put("/api/settings/limits", headers=HEADERS,
+                      json={"free_web_searches": 5000}).json()
+    assert data["limits"]["free_web_searches"] == 5000
+    assert data["free_web_searches"] == {"provider": "gemini", "allowance": 5000, "used": 12}
+    data = client.put("/api/settings/limits", headers=HEADERS, json={"scoring_cap": 40}).json()
+    assert data["limits"]["free_web_searches"] == 5000  # not sent: the saved choice is preserved
 
     data = client.put("/api/settings/sources", headers=HEADERS,
                       json={"disabled": ["workday", "not-a-source"]}).json()

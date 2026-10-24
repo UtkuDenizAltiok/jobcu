@@ -10,6 +10,7 @@ import copy
 import dataclasses
 import json
 import logging
+import math
 import threading
 import time
 from collections import Counter
@@ -36,7 +37,7 @@ from jobcu import pool as search_pool
 from jobcu.ai import budgets
 from jobcu.ai.base import AIBadRequest, AIError, AIWebSearchUnavailable
 from jobcu.ai.client import AIClient, in_parallel
-from jobcu.ai.usage import UsageLog, estimate_cost
+from jobcu.ai.usage import UsageLog, billing_days_left, estimate_cost
 from jobcu.countries import COUNTRIES, LANGUAGE_NAMES, languages_for
 from jobcu.documents import DocumentError
 from jobcu.filters import REASONS, apply_rules, fails_a_condition
@@ -57,6 +58,7 @@ from jobcu.relevance import quick_pass, screen_titles
 from jobcu.settings import SearchForm, load_settings, save_settings
 from jobcu.sources import disabled_sources
 from jobcu.sources.base import JobQuery
+from jobcu.sources.budget import searches_a_day
 from jobcu.sources.http import PoliteClient
 from jobcu.vacancy_evidence import group_reasons as original_reasons
 
@@ -414,6 +416,7 @@ def run_search(run: SearchRun) -> None:
         on_progress=lambda message: _ai_progress_note(run, message),
         reference_research_cache=run.reference_research_cache,
         capture=run.capture,
+        free_web_search_share=free_web_search_share(settings),
     )
 
     def checkpoint() -> None:
@@ -920,11 +923,15 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         # "yes" adding web look-ups for only about 25 of the jobs its button promised).
         left = len(looked_up.not_asked)
         jobs, their = ("job", "its") if left == 1 else ("jobs", "their")
+        free_share = client.free_share_reached()
+        used = (f"This search has used its share of this month's free web searches "
+                f"({_free_searches_left(settings)}). More look-ups are charged at your provider's "
+                "search price. " if free_share else
+                f"Jobcu has used this search's {settings.limits.web_search_cap} web look-ups. ")
         wants_more = run.ask({
             "kind": "web_search_cap",
             "message": (
-                f"Jobcu has used this search's {settings.limits.web_search_cap} web look-ups. "
-                f"{left} more {jobs} could be read online, for {their} town or full ad ("
+                used + f"{left} more {jobs} could be read online, for {their} town or full ad ("
                 + _look_up_estimate(client, settings, time.monotonic() - looking_since,
                                     len(looked_up.asked), left)
                 + "). Look them up too?"),
@@ -933,7 +940,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             "no": "Show results now",
         })
         if run.answered_always:
-            _no_limit("web_search_cap", run,
+            _no_limit("free_web_searches" if free_share else "web_search_cap", run,
                       "Jobcu looks up every job worth reading online in every search from now on")
         while wants_more and looked_up.not_asked:
             waiting = len(looked_up.not_asked)
@@ -1117,6 +1124,7 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
         on_progress=lambda message: _ai_progress_note(run, message),
         reference_research_cache=run.reference_research_cache,
         capture=run.capture,
+        free_web_search_share=free_web_search_share(settings),
     )
     http = PoliteClient(should_stop=lambda: run.stop_requested,
                         on_wait=lambda host, seconds: _source_wait_note(run, host, seconds))
@@ -1250,6 +1258,25 @@ def _source_wait_note(run: SearchRun, host: str, seconds: float) -> None:
     with run._lock:
         run.notes[:] = [note for note in run.notes if not note.startswith(prefix)]
         run.notes.append(message)
+
+
+def free_web_search_share(settings, now: datetime | None = None) -> int | None:
+    """This search's fair share of the research provider's free web searches left this month:
+    what is left, spread over the days to come at the person's usual searches a day."""
+    allowance = settings.limits.free_web_searches
+    provider = settings.ai.research_provider or settings.ai.provider
+    if allowance is None or provider is None:
+        return None
+    now = now or datetime.now(UTC)
+    left = max(0, allowance - UsageLog().web_searches_this_month(provider, now))
+    return min(left, math.ceil(left / billing_days_left(now) / searches_a_day(now)))
+
+
+def _free_searches_left(settings) -> str:
+    provider = settings.ai.research_provider or settings.ai.provider
+    allowance = settings.limits.free_web_searches or 0
+    left = max(0, allowance - UsageLog().web_searches_this_month(provider))
+    return f"{left:,} of {allowance:,} left this month"
 
 
 def _no_limit(name: str, run: SearchRun, message: str) -> None:

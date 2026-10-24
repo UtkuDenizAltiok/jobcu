@@ -1,12 +1,29 @@
 """Records the tokens every AI request uses, for the usage meter and monthly limits."""
 
+import calendar
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from jobcu import db
 from jobcu.ai.base import Usage
 from jobcu.settings import ModelPrice
+
+# Google counts its free monthly web searches in Pacific time (the free 5,000 renew on the 1st
+# at 00:00 in California, 10:00 in Turkey).
+BILLING_ZONE = ZoneInfo("America/Los_Angeles")
+
+
+def billing_month_start(now: datetime) -> datetime:
+    local = now.astimezone(BILLING_ZONE)
+    return local.replace(day=1, hour=0, minute=0, second=0, microsecond=0).astimezone(UTC)
+
+
+def billing_days_left(now: datetime) -> int:
+    """Days left in the billing month, today included."""
+    local = now.astimezone(BILLING_ZONE)
+    return calendar.monthrange(local.year, local.month)[1] - local.day + 1
 
 
 @dataclass
@@ -70,6 +87,15 @@ class UsageLog:
         now = now or datetime.now(UTC)
         return self._by_model("created_at >= ? AND budget_id IS NULL",
                               (now.strftime("%Y-%m-01T00:00:00"),))
+
+    def web_searches_this_month(self, provider: str, now: datetime | None = None) -> int:
+        """Billed web search units at one provider in its billing month, every step and
+        allowance included: they all come out of the provider's free monthly searches."""
+        start = billing_month_start(now or datetime.now(UTC)).strftime("%Y-%m-%dT%H:%M:%S")
+        with db.connect(self.folder) as conn:
+            return conn.execute(
+                "SELECT COALESCE(SUM(web_searches + web_results), 0) FROM ai_usage "
+                "WHERE provider = ? AND created_at >= ?", (provider, start)).fetchone()[0]
 
     def for_budget(self, budget_id: str, *, after_id: int = 0) -> list[ModelUsage]:
         return self._by_model("budget_id = ? AND id > ?", (budget_id, after_id))

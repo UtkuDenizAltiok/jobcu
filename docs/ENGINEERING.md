@@ -107,6 +107,11 @@ may have been billed is repeated automatically. Repeated Flex failures end Flex 
 Usage records the served tier as `<model> (flex)`, priced at half the normal row unless a Flex
 row exists. Connection tests use the normal tier.
 
+An optional monthly free-search allowance (`limits.free_web_searches`) gives each search a
+share of the research provider's free searches left in its billing month (Pacific time for
+Google), spread over the remaining days at the person's searches per day; past the share Jobcu
+asks before more look-ups, like the per-search limit, and the smaller of the two applies.
+
 Structured answers require completion/refusal checks and schema validation. Research additionally
 retains provider source annotations and validates required evidence. Generated URLs are not
 provider citations. Missing passage mappings do not become invented quote provenance.

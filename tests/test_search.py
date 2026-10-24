@@ -1521,6 +1521,37 @@ def test_answering_always_removes_the_limit_so_later_searches_don_t_ask(ready, m
     assert len(ai.looked_up) == 4  # both jobs in both searches, the second without asking
 
 
+def test_free_monthly_searches_are_shared_and_jobcu_asks_before_paying_for_more(ready,
+                                                                             monkeypatch):
+    ai = ResearchingAI()
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: ai)
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [SummarySource()])
+    monkeypatch.setattr("jobcu.jobplace.BATCH_SIZE", 1)
+    settings = load_settings()
+    settings.limits.free_web_searches = 1  # one free search left this month: this search's share
+    save_settings(settings)
+    manager = search.SearchManager()
+    questions, notes = [], []
+    for _ in range(2):
+        manager.start(SearchForm(location_text="Germany"))
+        deadline = time.monotonic() + 15
+        while manager.current.status == "running" and time.monotonic() < deadline:
+            if manager.current.question:
+                questions.append(manager.current.question)
+                manager.current.answer(True, always=True)
+            time.sleep(0.02)
+        result = manager.current.snapshot()
+        assert result["status"] == "finished", result["error"]
+        notes.append(result["notes"])
+    assert [q["kind"] for q in questions] == ["web_search_cap"]  # only the first search asked
+    assert ("used its share of this month's free web searches (0 of 1 left this month). "
+            "More look-ups are charged" in questions[0]["message"])
+    assert "1 more job could be read online" in questions[0]["message"]
+    assert load_settings().limits.free_web_searches is None
+    assert any("every search from now on, with no limit" in note for note in notes[0])
+    assert len(ai.looked_up) == 4
+
+
 def test_look_ups_that_lost_their_turn_to_others_running_are_done_before_asking(ready,
                                                                                monkeypatch):
     class SlowResearchingAI(ResearchingAI):

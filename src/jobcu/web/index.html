@@ -508,6 +508,16 @@
                  placeholder="No limit">
         </div>
         <div class="field">
+          <label for="free-web-searches">Free web searches a month at your research
+            provider</label>
+          <input id="free-web-searches" type="number" min="0" step="100" inputmode="numeric"
+                 placeholder="Not set">
+          <p class="muted">Google gives 5,000 free web searches a month with Gemini 3 and newer,
+            counted in Pacific time. With a number here, each search gets a fair share of what
+            is left this month, and Jobcu asks before it looks up more.</p>
+          <p class="muted" id="free-searches-used"></p>
+        </div>
+        <div class="field">
           <label for="token-limit">Monthly token limit</label>
           <input id="token-limit" type="number" min="1" step="10000" inputmode="numeric"
                  placeholder="No limit">

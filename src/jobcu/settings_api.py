@@ -195,6 +195,7 @@ class Limits(BaseModel):
     # Empty (None) means no limit; a cap not sent at all stays as it was.
     scoring_cap: int | None = Field(default=None, ge=1)
     web_search_cap: int | None = Field(default=None, ge=0)
+    free_web_searches: int | None = Field(default=None, ge=0)
     monthly_token_limit: int | None = None
     monthly_cost_limit: float | None = None
     maps_monthly_routes: int | None = None
@@ -209,6 +210,8 @@ def put_limits(limits: Limits) -> dict:
                      else settings.limits.scoring_cap),
         web_search_cap=(limits.web_search_cap if "web_search_cap" in sent
                         else settings.limits.web_search_cap),
+        free_web_searches=(limits.free_web_searches if "free_web_searches" in sent
+                           else settings.limits.free_web_searches),
         monthly_token_limit=limits.monthly_token_limit,
         monthly_cost_limit=limits.monthly_cost_limit,
         maps_monthly_routes=(limits.maps_monthly_routes if limits.maps_monthly_routes is not None
@@ -271,6 +274,15 @@ def _money(usages: list[ModelUsage], prices: list[ModelPrice]) -> dict:
             "unreported_requests": sum(item.usage.unreported_requests for item in usages)}
 
 
+def _free_web_searches(settings, log: UsageLog, now: datetime) -> dict | None:
+    """The research provider's free web searches used in its billing month (Pacific time)."""
+    provider = settings.ai.research_provider or settings.ai.provider
+    if settings.limits.free_web_searches is None or provider is None:
+        return None
+    return {"provider": provider, "allowance": settings.limits.free_web_searches,
+            "used": log.web_searches_this_month(provider, now)}
+
+
 @router.get("/usage")
 def get_usage(now: datetime | None = None) -> dict:
     """What has been used this month and in the last search, and the state of every source."""
@@ -310,6 +322,7 @@ def get_usage(now: datetime | None = None) -> dict:
             ],
         },
         "last_search": last_search,
+        "free_web_searches": _free_web_searches(settings, log, now),
         "travel": {"routes_this_month": month.get("google_maps_routes", 0)},
         "limits": settings.limits.model_dump(),
         "prices": [price.model_dump() for price in settings.prices],
