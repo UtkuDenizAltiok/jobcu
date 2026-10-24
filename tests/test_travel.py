@@ -206,6 +206,53 @@ def test_google_s_daily_limit_is_named_as_such(caplog):
     assert "quota scope: day" in caplog.text
 
 
+def _refusing_transit(minute_scope=False, succeed_after=None):
+    calls = {"transit": 0, "drive": 0}
+
+    def handle(request):
+        mode = json.loads(request.content)["travelMode"].lower()
+        calls[mode] += 1
+        if mode == "drive" or (succeed_after is not None and calls[mode] in succeed_after):
+            return httpx.Response(200, json=[{"originIndex": 0, "destinationIndex": 0,
+                                              "status": {}, "duration": "1500s",
+                                              "condition": "ROUTE_EXISTS"}])
+        message = ("Quota exceeded for quota metric 'Elements' and limit 'Elements per minute'."
+                   if minute_scope else "Quota exceeded.")
+        return httpx.Response(429, json=[{"error": {"code": 429, "message": message}}])
+
+    http = PoliteClient(min_intervals={}, sleep=lambda s: None,
+                        transport=httpx.MockTransport(handle))
+    return travel.GoogleMaps("fake-maps-key", http, now=lambda: NOW), calls
+
+
+def _ask(maps, mode, town="Freising"):
+    return maps.minutes(travel.job_point(group(town)), [places.find("Munich", "DE")], mode)
+
+
+def test_a_mode_refused_by_an_unidentified_quota_is_not_asked_again_this_search():
+    maps, calls = _refusing_transit()
+    for _ in range(travel.UNIDENTIFIED_QUOTA_STOP):
+        with pytest.raises(travel.MapsError, match="did not say"):
+            _ask(maps, "transit")
+    sent = calls["transit"]
+    with pytest.raises(travel.MapsError, match="stopped asking for journeys by public transport"):
+        _ask(maps, "transit", "Erding")
+    assert calls["transit"] == sent  # no further refused attempts count against the allowance
+    assert _ask(maps, "drive").minutes == {"Munich": 25}  # another mode keeps working
+
+
+@pytest.mark.parametrize("minute_scope,succeed_after", [(True, None), (False, {5})])
+def test_throttling_or_a_success_between_refusals_keeps_the_mode_available(
+        minute_scope, succeed_after):
+    maps, calls = _refusing_transit(minute_scope, succeed_after)
+    for town in ("Freising", "Erding", "Dachau", "Moosburg"):
+        try:
+            _ask(maps, "transit", town)
+        except travel.MapsError as exc:
+            assert "stopped asking" not in str(exc)
+    assert not maps._mode_unavailable
+
+
 def test_clear_cases_need_no_route_look_up():
     condition = near(minutes=10)
     in_munich = group("München", "1")
