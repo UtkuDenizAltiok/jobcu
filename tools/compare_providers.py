@@ -10,8 +10,9 @@ the app's format by that provider too. Settings, saved searches and the capture 
     ... --steps scoring,quick_pass --limit 10 --budget <allowance id> --out report.json
     ... --to gemini:gemini-3.8-flash       the same model again: how much answers vary anyway
     ... --setup                            fresh document/location readings and search words
-    uv run python tools/compare_providers.py --saved-ads --runs 2 --to deepseek:... \
-        --base-url https://example.provider/v1 --labels labels.json --out runs.json
+    uv run python tools/compare_providers.py --saved-ads --runs 2 \
+        --to openrouter:deepseek/deepseek-v4.1-flash-1017@fireworks --labels labels.json \
+        --out runs.json
 
 CAPTURE is a folder in the data folder's review-captures. Requests are paid: about as many as
 the captured search sent for the chosen steps, recorded in the usage log (with --budget, against
@@ -20,9 +21,9 @@ that separate allowance). The report and printed lists contain private job and p
 `--saved-ads` needs no capture: it scores the ads the Score check keeps (data folder), with the
 newest saved profile and each ad's recorded location plan, so every model gets the same test.
 `--labels` compares the scores with a private file of expected ranges ({"ranges": {id: [lo,
-hi]}}); `--against` with earlier runs. A provider other than the native ones is `--to
-openai_compatible:<model>` with `--base-url` (and the protocol/reasoning options Settings offers);
-it uses the key saved for "Other API".
+hi]}}); `--against` with earlier runs. OpenRouter is `--to openrouter:<model>[@host]` with its
+saved key. Any other service is `--to openai_compatible:<model>` with `--base-url` (and the
+protocol/reasoning options Settings offers); it uses the key saved for "Other API".
 """
 
 import argparse
@@ -617,6 +618,9 @@ def show_saved_ads(runs: list[dict], labels: dict | None, others: list[dict]) ->
         print("\nAgainst the expected ranges (within 5 points counts as in range):")
         for name, run in zip(names, every, strict=True):
             ids = [i for i in labels if i in run["ads"]]
+            if not ids:
+                print(f"  {name:45} no ads scored")
+                continue
             scores = [run["ads"][i]["score"] for i in ids]
             middle = [sum(labels[i]) / 2 for i in ids]
             near = sum(labels[i][0] - 5 <= s <= labels[i][1] + 5

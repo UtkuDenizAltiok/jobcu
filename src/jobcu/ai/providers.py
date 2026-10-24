@@ -8,6 +8,7 @@ from jobcu.ai.compatible_adapter import (
     CompatibleAdapter,
     CompatibleMessagesAdapter,
     CompatibleResponsesAdapter,
+    OpenRouterAdapter,
 )
 from jobcu.ai.gemini_adapter import GeminiAdapter
 from jobcu.ai.mimo_adapter import MiMoAdapter
@@ -23,6 +24,7 @@ class ProviderInfo:
     key_page: str  # where users create a key
     needs_base_url: bool = False
     key_optional: bool = False
+    model_hint: str = ""  # shown under the model box
 
     @property
     def key_name(self) -> str:
@@ -43,6 +45,13 @@ PROVIDERS: dict[str, ProviderInfo] = {
         ProviderInfo(
             "openai", "OpenAI", OpenAIAdapter,
             key_page="https://platform.openai.com/api-keys",
+        ),
+        ProviderInfo(
+            "openrouter", "OpenRouter", OpenRouterAdapter,
+            key_page="https://openrouter.ai/settings/keys",
+            model_hint="Add @ and a host to always use that host, for example "
+                       "deepseek/deepseek-v4.1-flash-1017@fireworks. Without one, OpenRouter "
+                       "can pick a different, possibly compressed, copy for each request.",
         ),
         ProviderInfo(
             "mimo", "Xiaomi (MiMo)", MiMoAdapter,

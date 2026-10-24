@@ -1706,6 +1706,8 @@ function renderProviderDetails() {
   $("ai-key-label").textContent = provider.key_optional
     ? "API key (only if the provider needs one)"
     : "API key";
+  $("model-hint").hidden = !provider.model_hint;
+  $("model-hint").textContent = provider.model_hint;
   renderKeyRow($("ai-key-row"), provider.key, $("ai-key-label").textContent);
   renderAiWebHint();
 }
@@ -1739,6 +1741,7 @@ function renderAiWebHint() {
   const research = state.settings.providers.find((p) => p.id === $("research-provider").value);
   $("request-recovery-field").hidden = !(currentProvider()?.can_recover_requests
     || research?.can_recover_requests);
+  const mainCannotResearch = currentProvider() && !currentProvider().can_research;
   const main = $("model").value.trim();
   const documentModel = $("reasoning-model").value.trim();
   const separateDocument = documentModel && documentModel !== main;
@@ -1747,7 +1750,7 @@ function renderAiWebHint() {
     : "Your main model reads your documents and matches jobs.";
   $("ai-setup-summary").textContent = tasks + (research
     ? ` Online research uses ${research.name} / ${$("research-model").value.trim() || "choose a model"}.`
-    : currentProvider()?.needs_base_url
+    : mainCannotResearch
       ? " Add an online research provider in advanced settings for web checks."
       : separateDocument
         ? ` Online research also uses ${documentModel}, where supported.`
@@ -1760,8 +1763,8 @@ function renderAiWebHint() {
     $("ai-web-hint").textContent = `Online research uses your separate ${research.name} model. `
       + "Access depends on that model and account allowance; unchecked conditions stay labelled.";
   } else {
-    $("ai-web-hint").textContent = currentProvider()?.needs_base_url
-      ? "Custom APIs have no supported online research in Jobcu. Choose a separate online research "
+    $("ai-web-hint").textContent = mainCannotResearch
+      ? "Jobcu has no online research through this provider. Choose a separate online research "
         + "provider to keep those checks. Otherwise conditions needing research stay ‘not checked’."
       : "Online checks use your chosen model and provider allowance. If unavailable, Jobcu "
         + "explains once and conditions needing research stay ‘not checked’.";
@@ -1985,6 +1988,7 @@ const PROVIDER_NAMES = {
   anthropic: "Anthropic",
   gemini: "Google",
   openai: "OpenAI",
+  openrouter: "OpenRouter",
   mimo: "Xiaomi",
   openai_compatible: "Other",
 };

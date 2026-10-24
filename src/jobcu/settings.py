@@ -16,7 +16,8 @@ from jobcu.paths import ensure_data_dir
 
 SETTINGS_FILENAME = "settings.json"
 
-ProviderId = Literal["anthropic", "gemini", "openai", "mimo", "openai_compatible"]
+ProviderId = Literal["anthropic", "gemini", "openai", "openrouter", "mimo",
+                     "openai_compatible"]
 Effort = Literal["minimal", "low", "medium", "high"]
 CompatibleProtocol = Literal["chat_completions", "responses", "messages"]
 CompatibleReasoning = Literal["effort", "thinking", "provider_default"]
