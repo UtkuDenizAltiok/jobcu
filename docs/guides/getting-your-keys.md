@@ -136,6 +136,16 @@ A web allowance controls whether further online checks can start. Some providers
 many searches to run inside one request, so that request can exceed the allowance before
 Jobcu can ask. It is not a guaranteed cap on provider search charges.
 
+**Free web searches a month at your research provider** keeps a free allowance free. Google
+gives 5,000 free web searches a month with Gemini 3 and newer, counted in Pacific time (they
+renew on the 1st at 10:00 in Turkey); later searches are charged per search. Enter 5000 to have
+each search use a fair share of what is left this month, spread over the remaining days at your
+usual number of searches a day. When a search's share is used, Jobcu asks before looking up
+more jobs online and says that further look-ups are charged. Conditions that needed a web check
+after the share was used stay **not checked** and can be retried later. Settings shows how many
+free searches are left. Jobcu counts only searches it made itself; other use of the same Google
+project also takes from the allowance.
+
 Prices are optional for searching. For a money estimate, add your model's prices:
 
 1. Under **Prices**, click **Add a model**.
