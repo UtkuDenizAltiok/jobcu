@@ -220,6 +220,8 @@ class CompatibleMessagesAdapter(_CustomEndpoint, AnthropicAdapter):
 
     can_search_the_web = False
     strict_reasoning = True
+    # Other Messages-format services are not assumed to stream in Anthropic's event format.
+    stream_requests = False
 
     def _messages_base(self) -> str:
         # The Messages SDK adds /v1 itself. Accept the same /v1 base people use with

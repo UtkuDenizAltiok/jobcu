@@ -7,7 +7,16 @@ import httpx2
 import pytest
 
 from jobcu.ai.anthropic_adapter import MAX_CONTINUATIONS, AnthropicAdapter, web_tools
-from jobcu.ai.base import AIInvalidOutput, AIOutputTruncated, AIRefused, Usage
+from jobcu.ai.base import (
+    AIBadRequest,
+    AIConnectionError,
+    AIInvalidOutput,
+    AIOutputTruncated,
+    AIRateLimited,
+    AIRefused,
+    AIUnavailable,
+    Usage,
+)
 from jobcu.ai.compatible_adapter import CompatibleMessagesAdapter
 
 
@@ -18,6 +27,44 @@ def response(*, stop="end_turn", searches=0):
         "usage": {"input_tokens": 7, "output_tokens": 5, "cache_read_input_tokens": 2,
                   "cache_creation_input_tokens": 1,
                   "server_tool_use": {"web_search_requests": searches}}}
+
+
+def events(value):
+    """The same fictional message as Anthropic streams it, for requests that ask to stream."""
+    message = {key: item for key, item in value.items() if key != "content"}
+    usage = value.get("usage")
+    message.update(content=[], stop_reason=None, stop_sequence=None)
+    if usage is not None:
+        message["usage"] = {key: item for key, item in usage.items()
+                            if key not in ("output_tokens", "server_tool_use")}
+        message["usage"]["output_tokens"] = 0
+    stream = [{"type": "message_start", "message": message}]
+    for index, block in enumerate(value.get("content") or []):
+        if block["type"] == "text":
+            stream.append({"type": "content_block_start", "index": index,
+                           "content_block": {"type": "text", "text": ""}})
+            stream.append({"type": "content_block_delta", "index": index,
+                           "delta": {"type": "text_delta", "text": block["text"]}})
+            for citation in block.get("citations") or []:
+                stream.append({"type": "content_block_delta", "index": index,
+                               "delta": {"type": "citations_delta", "citation": citation}})
+        else:
+            stream.append({"type": "content_block_start", "index": index, "content_block": block})
+        stream.append({"type": "content_block_stop", "index": index})
+    delta_usage = {key: item for key, item in (usage or {}).items()
+                   if key in ("output_tokens", "server_tool_use")}
+    stream.append({"type": "message_delta", "usage": delta_usage, "delta": {
+        "stop_reason": value.get("stop_reason"), "stop_sequence": value.get("stop_sequence")}})
+    stream.append({"type": "message_stop"})
+    text = "".join(f"event: {e['type']}\ndata: {json.dumps(e)}\n\n" for e in stream)
+    return httpx2.Response(200, headers={"content-type": "text/event-stream"}, text=text)
+
+
+def answer(request, value):
+    if isinstance(value, httpx2.Response):
+        return value
+    return events(value) if json.loads(request.content).get("stream") else httpx2.Response(
+        200, json=value)
 
 
 @pytest.fixture
@@ -31,7 +78,7 @@ def service():
 
         def handle(request):
             requests.append(json.loads(request.content))
-            return httpx2.Response(200, json=value)
+            return answer(request, value)
 
         sdk = anthropic.Anthropic(api_key="fictional-key", base_url=adapter.base_url,
             max_retries=0, http_client=httpx2.Client(transport=httpx2.MockTransport(handle)))
@@ -74,6 +121,8 @@ def test_unfinished_and_refused_messages_do_not_pass_as_facts_or_lose_their_rece
 @pytest.mark.parametrize("missing", ["usage", "input_tokens", "output_tokens"])
 def test_completed_message_with_missing_counts_keeps_the_answer_and_marks_unknown_usage(
         service, custom, research, missing):
+    if missing == "usage" and not custom:
+        pytest.skip("Anthropic's stream always starts with usage; see the unreadable stream test")
     value = response(searches=int(research))
     if missing == "usage":
         del value[missing]
@@ -119,7 +168,7 @@ def sequence(values):
     def handle(request):
         requests.append(json.loads(request.content))
         value = values[min(len(requests) - 1, len(values) - 1)]
-        return value if isinstance(value, httpx2.Response) else httpx2.Response(200, json=value)
+        return answer(request, value)
 
     adapter = AnthropicAdapter("fictional-key")
     adapter._sdk_client = anthropic.Anthropic(
@@ -192,3 +241,63 @@ def test_refused_fetch_tool_falls_back_to_basic_search_before_any_paid_work():
     assert reply.usage.web_searches == 1 and len(requests) == 2
     assert [t["name"] for t in requests[1]["tools"]] == ["web_search"]
     assert requests[1]["tools"][0]["max_uses"] == 3
+
+
+@pytest.mark.parametrize("research", [False, True])
+def test_an_unreadable_stream_is_not_a_bad_request_and_its_bill_stays_unknown(service, research):
+    value = response(searches=int(research))
+    del value["usage"]
+    adapter, requests = service(value)
+    with pytest.raises(AIInvalidOutput) as caught:
+        ask(adapter, research=research)
+    assert caught.value.usage.unreported_requests == 1 and len(requests) == 1
+
+
+def started(input_tokens):
+    """A stream's first event: the message has begun and its input is counted."""
+    return {"type": "message_start", "message": {
+        "id": "msg_fictional", "type": "message", "role": "assistant", "model": "fictional",
+        "content": [], "stop_reason": None, "stop_sequence": None,
+        "usage": {"input_tokens": input_tokens, "output_tokens": 1}}}
+
+
+@pytest.mark.parametrize("kind,expected", [
+    ("overloaded_error", AIUnavailable), ("api_error", AIUnavailable),
+    ("rate_limit_error", AIRateLimited), ("invalid_request_error", AIBadRequest)])
+def test_an_error_inside_a_started_stream_keeps_its_partial_bill(kind, expected):
+    start = started(40)
+    failure = {"type": "error", "error": {"type": kind, "message": "Fictional failure"}}
+    text = (f"event: message_start\ndata: {json.dumps(start)}\n\n"
+            f"event: error\ndata: {json.dumps(failure)}\n\n")
+    adapter, requests = sequence([httpx2.Response(
+        200, headers={"content-type": "text/event-stream"}, text=text)])
+    with pytest.raises(expected) as caught:
+        ask(adapter)
+    assert caught.value.usage == Usage(40, 1, unreported_requests=1)
+
+
+def test_a_connection_lost_mid_stream_may_have_been_charged():
+    class Broken(httpx2.SyncByteStream):
+        def __iter__(self):
+            yield f"event: message_start\ndata: {json.dumps(started(9))}\n\n".encode()
+            raise httpx2.ReadError("Fictional cut after 60 seconds")
+
+    adapter, _ = sequence([httpx2.Response(
+        200, headers={"content-type": "text/event-stream"}, stream=Broken())])
+    with pytest.raises(AIConnectionError) as caught:
+        ask(adapter)
+    assert caught.value.request_sent is True
+    assert caught.value.usage == Usage(9, 1, unreported_requests=1)
+
+
+def test_a_refused_connection_was_never_sent():
+    def refuse(request):
+        raise httpx2.ConnectError("Fictional refusal", request=request)
+
+    adapter = AnthropicAdapter("fictional-key")
+    adapter._sdk_client = anthropic.Anthropic(
+        api_key="fictional-key", max_retries=0,
+        http_client=httpx2.Client(transport=httpx2.MockTransport(refuse)))
+    with pytest.raises(AIConnectionError) as caught:
+        ask(adapter)
+    assert caught.value.request_sent is False

@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 import httpx
+import httpx2
 
 from jobcu.settings import Effort
 
@@ -135,15 +136,21 @@ class AIConnectionError(AIUnavailable):
         self.request_sent = request_sent
 
 
+# The Anthropic and OpenAI libraries send through httpx2, Google's through httpx.
+TRANSPORT_ERRORS = (httpx.TransportError, httpx2.TransportError)
+_UNSENT = (httpx.ConnectError, httpx.ConnectTimeout, httpx.PoolTimeout,
+           httpx2.ConnectError, httpx2.ConnectTimeout, httpx2.PoolTimeout)
+
+
 def connection_problem(exc: Exception) -> AIConnectionError:
     """A connect/pool failure precedes sending; read/write failures may have incurred charges."""
     current, seen = exc, set()
     while current.__cause__ is not None and id(current) not in seen:
-        if isinstance(current, httpx.TransportError):
+        if isinstance(current, TRANSPORT_ERRORS):
             break  # keep HTTPX's dispatch classification above its lower-level socket cause
         seen.add(id(current))
         current = current.__cause__
-    unsent = isinstance(current, (httpx.ConnectError, httpx.ConnectTimeout, httpx.PoolTimeout))
+    unsent = isinstance(current, _UNSENT)
     return AIConnectionError(MSG_CONNECTION, str(exc), request_sent=not unsent)
 
 
