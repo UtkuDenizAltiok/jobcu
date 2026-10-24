@@ -1,4 +1,5 @@
-"""Private reuse of successful setup answers, never jobs, research or journey readings."""
+"""Private reuse of successful setup answers and of verified reference-city facts (exact
+reference pages, or a week for web research); never jobs, scores or journey readings."""
 
 import hashlib
 import json
@@ -37,7 +38,8 @@ def key(client: AIClient, *, reasoning: bool, inputs: list) -> str:
     return hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
-def read[T: BaseModel](kind: str, request_key: str, output: type[T]) -> T | None:
+def read[T: BaseModel](kind: str, request_key: str, output: type[T], *,
+                       max_age_days: int = MAX_AGE_DAYS) -> T | None:
     with db.connect() as conn:
         row = conn.execute(
             "SELECT created_at, answer_json FROM preparation_cache WHERE kind = ? AND key = ?",
@@ -48,14 +50,14 @@ def read[T: BaseModel](kind: str, request_key: str, output: type[T]) -> T | None
     try:
         created = datetime.fromisoformat(row["created_at"].replace("Z", "+00:00"))
         age = datetime.now(UTC) - created
-        if not timedelta(0) <= age <= timedelta(days=MAX_AGE_DAYS):
+        if not timedelta(0) <= age <= timedelta(days=max_age_days):
             return None
         return output.model_validate_json(row["answer_json"])
     except (ValueError, TypeError):
         return None
 
 
-def write(kind: str, request_key: str, answer: BaseModel) -> None:
+def write(kind: str, request_key: str, answer: BaseModel, *, keep: int = KEPT_PER_KIND) -> None:
     with db.connect() as conn:
         conn.execute(
             "INSERT OR REPLACE INTO preparation_cache (kind, key, answer_json) VALUES (?, ?, ?)",
@@ -65,5 +67,5 @@ def write(kind: str, request_key: str, answer: BaseModel) -> None:
             "DELETE FROM preparation_cache WHERE kind = ? AND key NOT IN "
             "(SELECT key FROM preparation_cache WHERE kind = ? "
             "ORDER BY created_at DESC, key LIMIT ?)",
-            (kind, kind, KEPT_PER_KIND),
+            (kind, kind, keep),
         )

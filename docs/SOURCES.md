@@ -129,6 +129,13 @@ ISO formatting alone cannot prove time precision or the employer's original publ
 historical identity and permitted original dates. Do not widen the user's accepted age or
 translate a refreshed board/index date into a new vacancy. Test boundary behavior first.
 
+**Boundary check — 2026-10-24.** `3days` is looser than its name: two live queries returned
+ads stamped 40-88 hours old and, for one German query, 160 and 184 hours old, all at day
+precision. A 72-hour search that asked for `week` kept only 47 of 109 results; 62 were older
+than its window. Searches up to 72 hours therefore ask for `3days` and 168-hour searches for
+`week`: the tightest filter that covers the window, so no fresh ad is lost and more of each
+paid page is usable.
+
 JSearch does not provide the evidence needed to decide population shares, city-election
 comparisons, sampled journeys or personal fit. Its radius filter is not a travel-time filter.
 More structured full text could reduce some online-ad research, but additional unique jobs

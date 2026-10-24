@@ -466,6 +466,10 @@ class CachedClient(Client):
         self.settings = Settings()
         self.settings.ai.provider = 'gemini'
         self.settings.ai.model = 'fictional-model'
+        self.provider_id = 'gemini'
+
+    def model_for(self, reasoning):
+        return self.settings.ai.model
 
 
 def test_conversion_failure_keeps_complete_web_answer_for_same_search_recovery(cities):
@@ -526,6 +530,7 @@ def test_incomplete_usage_does_not_seed_reference_recovery(cities):
 
     client = Incomplete()
     reference_places.check(client, 'City service', cities[:2])
+    _forget_reused_facts()  # isolate same-search recovery from cross-search reuse
     reference_places.check(client, 'City service', cities[:2])
     assert not client.reference_research_cache
     assert [kind for kind, _ in client.calls].count('research') == 2
@@ -566,7 +571,8 @@ def test_completed_conversion_retires_web_answer_even_when_city_facts_remain_unk
     reference_places.check(client, 'City service', cities[:2])
     assert not client.reference_research_cache
     reference_places.check(client, 'City service', cities[:2])
-    assert [kind for kind, _ in client.calls].count('research') == 2
+    # Verified city facts are reused by the next check; unknown ones are researched again.
+    assert [kind for kind, _ in client.calls].count('research') == (2 if unknown else 1)
 
 
 def test_a_provider_link_on_only_a_city_heading_cannot_support_its_claim(cities):
@@ -601,3 +607,38 @@ def test_reviewed_request_matching_needs_one_unedited_reference_fact():
     off = second.model_copy(deep=True)
     off.conditions[-1].switched_off = True
     assert reference_places.single_fact_request(off) == "A fictional request"
+
+
+def _forget_reused_facts():
+    from jobcu import db
+    with db.connect() as conn:
+        conn.execute("DELETE FROM preparation_cache WHERE kind = ?",
+                     (reference_places.RESEARCH_REUSE_KIND,))
+
+
+def test_verified_city_facts_are_reused_for_a_week_by_the_same_route_only(cities):
+    from jobcu import db
+
+    first = CachedClient(search_id=1)
+    found = reference_places.check(first, 'City service', cities[:2])
+    assert [c.meets for c in found.reference_checks] == [True, False]
+    later = CachedClient(search_id=2)
+    again = reference_places.check(later, 'City service', cities[:2])
+    assert later.calls == []
+    assert [(c.meets, c.evidence, c.sources, c.checked_at) for c in again.reference_checks] == [
+        (c.meets, c.evidence, c.sources, c.checked_at) for c in found.reference_checks]
+    assert again.sources and again.status == 'applied'
+    # Another wording or model is another reading, never handed this one's facts.
+    reference_places.check(later, 'Another city service', cities[:2])
+    other = CachedClient(search_id=3)
+    other.settings.ai.model = 'another-fictional-model'
+    reference_places.check(other, 'City service', cities[:2])
+    assert [k for k, _ in later.calls].count('research') == 1
+    assert [k for k, _ in other.calls].count('research') == 1
+    # After a week the fact is researched again.
+    with db.connect() as conn:
+        conn.execute("UPDATE preparation_cache SET created_at = '2026-01-01T00:00:00.000Z' "
+                     "WHERE kind = ?", (reference_places.RESEARCH_REUSE_KIND,))
+    stale = CachedClient(search_id=4)
+    reference_places.check(stale, 'City service', cities[:2])
+    assert [k for k, _ in stale.calls].count('research') == 1

@@ -128,9 +128,13 @@ remain stateless. Failed deletion can leave normal provider retention in effect.
 
 Profiles are cached against document/prompt/model identity. `preparation.py` reuses successful
 location readings and search-word groups for up to 30 days only when exact inputs, prompts,
-schemas, provider/model/host and reasoning settings match. Plans, fresh research, journeys and
-new-search scores are not reused as setup. Full-ad caching has its own bounded age and parser
-versions. Changed inputs invalidate the relevant cache.
+schemas, provider/model/host and reasoning settings match. A city's verified comparison over
+reviewed reference pages (`reference_sources.py`) is reused the same way while that city's own
+evidence reads exactly the same; a verified, sourced web-research city fact
+(`reference_places.py`) for 7 days through the same fact wording and AI routes. Unknown
+verdicts are never kept. Plans, other web research, journeys and new-search scores are not
+reused as setup. Full-ad caching has its own bounded age and parser versions. Changed inputs
+invalidate the relevant cache.
 
 `review_capture.py` provides explicit one-search private capture, off by default. It records
 inputs, candidates, decisions, ad evidence, AI attempts, responses and usage outside Git,
@@ -160,7 +164,7 @@ The root keeps launchers, README, CONTRIBUTING, LICENSE and Python/tool configur
 | Startup/server | `launcher.py`, `__main__.py`, `app.py`; local server/browser and request safety. `build.py` fingerprints code to replace an older running version. |
 | Local persistence | `paths.py` locates private data; `keystore.py` stores masked keys; `settings.py`/`settings_api.py` handle settings; `db.py` owns SQLite migrations; `logs.py` masks keys in private logs; `reset.py` owns deliberate deletion and competing-write protection. |
 | Documents/profile | `documents.py`, `documents_api.py`, `profile.py`; uploads, text and cached structured profiles. |
-| Search preparation | `preparation.py`; bounded private reuse of exact-input location readings and search-word groups, excluding research, scores and journeys. |
+| Search preparation | `preparation.py`; bounded private reuse of exact-input location readings, search-word groups and verified reference-city facts, excluding other research, scores and journeys. |
 | Search coordination | `search.py`, `search_api.py`, `pipeline.py`, `pool.py`; progress, collection, decisions, cards and condition reapplication. |
 | Places/criteria | `countries.py`, `location.py`, `reference_places.py`, `reference_sources.py`, `reference_tables.py`, `places.py`, `placenames.py`, `travel.py`; supported geography, query interpretation, finite reference-city evidence, exact table calculations and measurements. |
 | Discovery | `keywords.py`, `employers.py`; multilingual words and periodically discovered employers. |
