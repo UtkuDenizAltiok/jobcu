@@ -36,8 +36,10 @@ EVENT_MODELS = frozenset({
 
 
 class EventAnswer:
-    def __init__(self, *, model: str, web_search: bool):
+    def __init__(self, *, model: str, web_search: bool, service_tier: str = ""):
         self.web_search = web_search
+        # The requested tier until the provider reports the tier that served the request.
+        self.service_tier = service_tier
         self.query_billed = not model.startswith("gemini-2.")
         self.steps: dict[int, dict] = {}
         self.queries: set[str] = set()
@@ -54,6 +56,11 @@ class EventAnswer:
         for item in usage.get("grounding_tool_count") or []:
             if item.get("type", "").lower() == "google_search":
                 self.search_count = max(self.search_count, item.get("count") or 0)
+
+    def tier(self, interaction):
+        tier = interaction.get("service_tier") if isinstance(interaction, dict) else None
+        if isinstance(tier, str) and tier.strip():
+            self.service_tier = tier.strip().lower()
 
     def _queries(self, arguments):
         if isinstance(arguments, dict):
@@ -79,6 +86,7 @@ class EventAnswer:
 
     def add(self, event: dict) -> None:
         kind = event.get("event_type")
+        self.tier(event.get("interaction"))
         if kind == "step.start":
             self._start(event["index"], event["step"])
         elif kind == "step.delta":
@@ -172,6 +180,7 @@ class EventAnswer:
             web_searches=(searches if self.query_billed else int(bool(searches)))
             if self.web_search else 0,
             unreported_requests=int(interrupted or not self.final_usage or unknown_search_count),
+            service_tier="flex" if self.service_tier == "flex" else "",
         )
 
     def reply(self) -> ResearchReply:

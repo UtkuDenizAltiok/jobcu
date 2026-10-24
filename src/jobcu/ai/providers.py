@@ -69,7 +69,10 @@ def configured_adapter(provider: str, key: str, ai: AISettings, *, timeout=180.0
                        ) -> ProviderAdapter:
     """Keep native keys on their native hosts; only Other uses the supplied address."""
     if provider != "openai_compatible":
-        return PROVIDERS[provider].adapter(key, timeout=timeout)
+        adapter = PROVIDERS[provider].adapter(key, timeout=timeout)
+        if getattr(adapter, "can_flex", False):
+            adapter.flex = ai.flex_processing
+        return adapter
     options = {"base_url": ai.base_url.strip(), "timeout": timeout, "session_id": session_id}
     if ai.compatible_protocol == "responses":
         return CompatibleResponsesAdapter(key, **options)

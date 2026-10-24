@@ -161,10 +161,14 @@ def research_reply(data: dict) -> ResearchReply:
 
 class Replayer:
     def __init__(self, provider: str, model: str, budget: str | None,
-                 endpoint: dict | None = None) -> None:
+                 endpoint: dict | None = None, effort: str | None = None) -> None:
         settings = load_settings().model_copy(deep=True)
         ai = settings.ai
         ai.provider, ai.model, ai.reasoning_model = provider, model, ""
+        # One effort for every request, instead of each captured request's own (or Settings').
+        self.effort = effort
+        if effort:
+            ai.scoring_effort = ai.reasoning_effort = effort
         for name, value in (endpoint or {}).items():
             setattr(ai, name, value)  # base_url and the compatible_* controls for Other API
         ai.research_provider, ai.research_model = None, ""
@@ -183,7 +187,7 @@ class Replayer:
         if strict_json_schema(output) != arguments["schema"]:
             print(f"  warning: {output.__name__} changed since the capture; replaying the "
                   "current format")
-        effort = arguments.get("effort")
+        effort = self.effort or arguments.get("effort")
         ai = self.client.settings.ai
         ai.scoring_effort = ai.reasoning_effort = effort
         started = time.monotonic()
@@ -199,7 +203,8 @@ class Replayer:
         reply = self.client.research(
             step=call.step, system=arguments["system"], prompt=arguments["prompt"],
             max_searches=arguments["max_searches"],
-            max_output_tokens=requested_tokens(arguments), effort=arguments.get("effort"))
+            max_output_tokens=requested_tokens(arguments),
+            effort=self.effort or arguments.get("effort"))
         return reply, time.monotonic() - started
 
 
@@ -670,6 +675,8 @@ def main() -> int:
     parser.add_argument("--reasoning", default="effort",
                         choices=["effort", "thinking", "provider_default"])
     parser.add_argument("--medium", default="medium", choices=["medium", "high", "max"])
+    parser.add_argument("--effort", choices=["minimal", "low", "medium", "high"],
+                        help="one reasoning effort for every replayed or saved-ad request")
     args = parser.parse_args()
     provider, _, model = args.to.partition(":")
     if not model:
@@ -680,7 +687,8 @@ def main() -> int:
     if provider == "openai_compatible" and not args.base_url:
         parser.error("Other API needs --base-url")
     if args.saved_ads:
-        runs = saved_ads_runs(Replayer(provider, model, args.budget, endpoint), args.runs)
+        runs = saved_ads_runs(Replayer(provider, model, args.budget, endpoint, args.effort),
+                              args.runs)
         labels = None
         if args.labels:
             labels = {key: value for key, value in
@@ -725,7 +733,7 @@ def main() -> int:
     items = [i for i in items if i not in skipped]
     print(f"Replaying {len(items)} requests on {provider}:{model} "
           f"(captured on {baseline[0]}:{baseline[1]})")
-    replayer = Replayer(provider, model, args.budget, endpoint)
+    replayer = Replayer(provider, model, args.budget, endpoint, args.effort)
     done = 0
 
     def progress(item: Item, result: dict) -> None:

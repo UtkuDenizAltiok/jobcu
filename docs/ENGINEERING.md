@@ -100,6 +100,13 @@ to a looser data policy. `model@host` pins one serving host without fallback. De
 exposes its mapping/uncertainty rather than silently disabling thinking. Native keys stay on
 their native host.
 
+Google Flex is an explicit choice for the same Gemini model at half the token price.
+A request Google refuses for capacity before accepting work is retried with backoff and then sent
+at the normal tier; accepted Flex work that fails follows the normal retry rules, so nothing that
+may have been billed is repeated automatically. Repeated Flex failures end Flex for that search.
+Usage records the served tier as `<model> (flex)`, priced at half the normal row unless a Flex
+row exists. Connection tests use the normal tier.
+
 Structured answers require completion/refusal checks and schema validation. Research additionally
 retains provider source annotations and validates required evidence. Generated URLs are not
 provider citations. Missing passage mappings do not become invented quote provenance.
