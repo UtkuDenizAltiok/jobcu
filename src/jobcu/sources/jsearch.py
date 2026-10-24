@@ -398,11 +398,11 @@ class JSearchSource(JobSource):
                     "country": current.country.lower(),
                     "language": current.language,
                     "num_pages": 1,
-                    "date_posted": "3days"
-                    if query.posted_within_hours <= 24
-                    else "week"
-                    if query.posted_within_hours <= 72
-                    else "month",
+                    # JSearch's relative filters are looser than their names (2026-10-24: "3days"
+                    # returned ads stamped 88-184 hours old), so the tightest filter covering the
+                    # window loses no fresh ad and leaves more of each page inside the window
+                    # ("week" left 62 of 109 results too old for a 72-hour search).
+                    "date_posted": "3days" if query.posted_within_hours <= 72 else "week",
                 }
                 if current.cursor:
                     params["cursor"] = current.cursor

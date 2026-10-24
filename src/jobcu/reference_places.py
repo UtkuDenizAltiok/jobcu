@@ -1,7 +1,10 @@
 """Check finite reference cities, after local population/name rules narrow the question.
 
-This is fresh research, not a cross-search fact cache. Supported cities survive omissions;
-an unchecked alternative prevents a negative travel decision when it could still qualify.
+A city's verified, sourced research answer is reused for a week by later searches asking the
+same fact through the same AI route; facts such as election results rarely change faster,
+and every search otherwise bought the same answers again (2026-10-24: 22 requests and 335
+web searches in one search). Supported cities survive omissions; an unchecked alternative
+prevents a negative travel decision when it could still qualify.
 """
 
 import hashlib
@@ -13,7 +16,7 @@ from datetime import UTC, datetime
 
 from pydantic import BaseModel
 
-from jobcu import places
+from jobcu import places, preparation
 from jobcu.ai.base import AIConnectionError, AIError
 from jobcu.ai.client import AIClient
 from jobcu.ai.instructions import CATEGORY_COMPARISON
@@ -35,6 +38,9 @@ log = logging.getLogger(__name__)
 # unchecked cities after a failure. Smaller requests also preserve earlier completed groups.
 REFERENCE_BATCH_SIZE = 8
 REFERENCE_RETRY_SECONDS = 3600
+RESEARCH_REUSE_KIND = "reference_research"
+RESEARCH_REUSE_DAYS = 7
+RESEARCH_REUSE_KEPT = 1000  # cities, across facts and countries
 
 RESEARCH_SYSTEM = """\
 Check the stated condition for EACH listed reference city, using live web search and current
@@ -177,6 +183,18 @@ def _fresh(check: ReferenceCheck) -> bool:
         return False  # legacy/invalid timestamps cannot establish fresh reuse
 
 
+def _reuse_key(client, text: str, town) -> str | None:
+    """A researched city fact's identity: the fact, the city, and both AI routes reading it."""
+    settings = getattr(client, "settings", None)
+    if settings is None:
+        return None
+    ai = settings.ai
+    return preparation.key(client, reasoning=False, inputs=[
+        RESEARCH_REUSE_KIND, RESEARCH_SYSTEM, STRUCTURE_SYSTEM, RESEARCH_TOKENS, normalise(text),
+        list(_identity(town)), ai.research_provider, ai.research_model,
+        client.model_for(True), ai.reasoning_effort])
+
+
 def _research(client, text, batch, lines):
     cache = getattr(client, "reference_research_cache", None)
     key = None
@@ -293,6 +311,14 @@ def check(client: AIClient, text: str, towns: list[places.Town], *,
                          note=f"Checked {known} of {len(checks)} reference cities. {exc.message}",
                          reference_checks=checks)
     pending = [i for i, c in enumerate(checks) if c.meets is None]
+    keys = {i: _reuse_key(client, text, towns[i]) for i in pending}
+    for i in pending:
+        stored = keys[i] and preparation.read(RESEARCH_REUSE_KIND, keys[i], ReferenceCheck,
+                                              max_age_days=RESEARCH_REUSE_DAYS)
+        if stored is not None and stored.meets is not None and stored.evidence and stored.sources:
+            checks[i] = stored
+            sources.extend(s for s in stored.sources if s.url not in {v.url for v in sources})
+    pending = [i for i in pending if checks[i].meets is None]
     batches = (len(pending) + REFERENCE_BATCH_SIZE - 1) // REFERENCE_BATCH_SIZE
     for start in range(0, len(pending), REFERENCE_BATCH_SIZE):
         indexes = pending[start:start + REFERENCE_BATCH_SIZE]
@@ -325,6 +351,10 @@ def check(client: AIClient, text: str, towns: list[places.Town], *,
                     prompt=_structure_prompt(text, lines, reply.text, source_ids, links),
                     max_output_tokens=RESEARCH_TOKENS)
                 _apply(batch_checks, answer, reply.text, source_ids, links)
+                for i in indexes:
+                    if checks[i].meets is not None and keys[i]:
+                        preparation.write(RESEARCH_REUSE_KIND, keys[i], checks[i],
+                                          keep=RESEARCH_REUSE_KEPT)
                 # Only a failed conversion owes a retry. A completed but genuinely unknown
                 # answer needs fresh research next time, not endless reconversion of it.
                 _retire_research(client, reply)

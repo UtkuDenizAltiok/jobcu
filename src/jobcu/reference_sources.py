@@ -1,7 +1,10 @@
 """Reread selected public references before buying another hosted research operation.
 
-Only source addresses/scopes are remembered. Pages and verdicts are fresh for this check;
-missing, oversized, blocked or unsupported evidence leaves normal research available.
+Only source addresses/scopes are remembered, and pages are read again for every check. A
+city's verified verdict is reused only while its own evidence reads exactly the same, for
+the same condition, instructions and AI route (preparation.py, at most 30 days); changed
+pages ask again. Missing, oversized, blocked or unsupported evidence leaves normal research
+available.
 """
 
 import csv
@@ -20,8 +23,10 @@ from pydantic import BaseModel
 from pypdf import PdfReader
 from pypdf.errors import PdfReadError
 
+from jobcu import preparation
 from jobcu.ai.base import AIError
 from jobcu.ai.instructions import CATEGORY_COMPARISON
+from jobcu.ai.schema import strict_json_schema
 from jobcu.location import ReferenceCheck, Source
 from jobcu.reference_tables import calculate
 from jobcu.settings import EvidenceCSV, PlaceEvidencePage
@@ -36,6 +41,8 @@ BATCH_SIZE = 8
 # Whole-city aggregation and explicit category bounds need room at medium effort. Keep
 # that effort; reserve a complete answer inside the shared client's 32k output ceiling.
 ANSWER_TOKENS = 20_000
+REUSE_KIND = "reference_comparison"
+REUSE_KEPT = 1000  # cities, across conditions and countries
 
 SYSTEM = """\
 Check the stated place condition for EACH requested city using ONLY the supplied public pages.
@@ -193,6 +200,15 @@ def check(client, text: str, checks: list[ReferenceCheck], *, http=None,
     robots = {}
     try:
         sources = []
+        keys = {id(c): _reuse_key(client, text, c, selected, http, robots) for c in pending}
+        for check in pending:
+            stored = keys[id(check)] and preparation.read(REUSE_KIND, keys[id(check)],
+                                                          ReferenceCheck)
+            if stored is not None and stored.meets is not None:
+                check.meets, check.evidence = stored.meets, stored.evidence
+                check.sources, check.checked_at = stored.sources, stored.checked_at
+                sources.extend(check.sources)
+        pending = [c for c in pending if c.meets is None]
         by_country = {country: [c for c in pending if c.country == country]
                       for country in dict.fromkeys(c.country for c in pending)}
         batches = [cities[start:start + BATCH_SIZE] for cities in by_country.values()
@@ -267,11 +283,41 @@ def check(client, text: str, checks: list[ReferenceCheck], *, http=None,
             except AIError:
                 raise  # no hidden hosted-search retry after a failed paid comparison
             _apply(batch, answer, country_pages, calculations=calculations)
+            for check in batch:
+                if check.meets is not None and keys[id(check)]:
+                    preparation.write(REUSE_KIND, keys[id(check)], check, keep=REUSE_KEPT)
             sources.extend(s for c in batch if c.meets is not None for s in c.sources)
         return list({s.url: s for s in sources}.values())
     finally:
         if owned:
             http.close()
+
+
+def _reuse_key(client, text, check, selected, http, robots) -> str | None:
+    """This city's comparison identity: its own evidence as read now, never another city's.
+
+    None when any of its pages cannot be read, so nothing incomplete is reused or kept.
+    """
+    evidence = []
+    for page in selected:
+        if page.country != check.country or page.towns and (
+                check.name not in page.towns and check.name not in page.must_cite_for_towns):
+            continue
+        client.checkpoint()
+        scoped = page.model_copy(update={"pages": list(dict.fromkeys(
+            [*page.pages, *page.pages_by_town.get(check.name, [])]))})
+        try:
+            content = _read(http, scoped, robots)
+        except (httpx.HTTPError, Blocked, ValueError, OSError, PdfReadError):
+            content = None
+        if not content:
+            return None
+        evidence.append([page.model_dump(mode="json"), content])
+    if not evidence:
+        return None
+    return preparation.key(client, reasoning=False, inputs=[
+        REUSE_KIND, SYSTEM, strict_json_schema(Answers), ANSWER_TOKENS, _plain(text),
+        [check.name, check.country, check.latitude, check.longitude], evidence])
 
 
 def _stopped(client) -> bool:

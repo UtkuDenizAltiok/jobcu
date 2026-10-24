@@ -282,7 +282,7 @@ def test_ambiguous_failures_are_not_repeated_or_spent_again(setup, failure):
 
 
 @pytest.mark.parametrize(
-    "hours,window", [(6, "3days"), (24, "3days"), (72, "week"), (168, "month")]
+    "hours,window", [(6, "3days"), (24, "3days"), (72, "3days"), (168, "week")]
 )
 def test_current_cursor_contract_and_conservative_date_window(setup, hours, window):
     def respond(request):

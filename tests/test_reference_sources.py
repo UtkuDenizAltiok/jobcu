@@ -36,14 +36,20 @@ def reply(*, explanation="The requested service is available in this city.", quo
 
 
 class Client:
-    def __init__(self, pages, rows=None, fact="Weekend service", failure=False):
+    provider_id = "gemini"
+
+    def __init__(self, pages, rows=None, fact="Weekend service", failure=False,
+                 model="fictional-model"):
         self.settings = Settings(place_evidence=[PlaceEvidenceSet(
             fact_key=reference_sources.fact_key(fact), sources=pages)])
         self.rows = [reply()] if rows is None else rows
-        self.calls, self.failure = [], failure
+        self.calls, self.failure, self.model = [], failure, model
 
     def checkpoint(self):
         pass
+
+    def model_for(self, reasoning):
+        return self.model
 
     def generate(self, output, **request):
         assert output is reference_sources.Answers
@@ -78,10 +84,10 @@ def test_exact_fact_uses_current_pages_and_selected_model_without_a_hosted_searc
     assert checks[0].sources == sources and sources[0].url == CITY_URL
     assert FACT in checks[0].evidence and len(client.calls) == 1
     assert FACT in client.calls[0]["prompt"]
-    # It reads the source again for a later check; no earlier facts/verdicts are cached here.
+    # It reads the source again for a later check; a changed page is compared again.
     later = [city()]
     reference_sources.check(client, condition, later, http=HTTP("The service has closed."))
-    assert later[0].meets is None  # the old quotation is no longer present
+    assert later[0].meets is None and len(client.calls) == 2  # the old quote is gone
 
 
 @pytest.mark.parametrize("rows", [[], [reply(id="C9")], [reply(), reply(meets=False)],
@@ -606,3 +612,39 @@ def test_calculating_a_required_source_cannot_drop_its_geographic_identity():
     reference_sources.check(client, "Weekend service", checks,
                             http=HTTP("City,Group,Member,Count\nSpringford,A,one,1\n"))
     assert not client.calls and checks[0].meets is None
+
+
+
+def test_identical_evidence_reuses_a_verified_city_verdict_without_another_comparison():
+    client = Client([page()])
+    first = [city()]
+    reference_sources.check(client, "Weekend service", first, http=HTTP())
+    again = [city()]
+    sources = reference_sources.check(client, "Weekend service", again, http=HTTP())
+    assert again[0].meets is True and len(client.calls) == 1
+    assert again[0].evidence == first[0].evidence and again[0].checked_at == first[0].checked_at
+    assert sources == first[0].sources
+    # Another model is another reading: it is asked, never handed this model's verdict.
+    other = Client([page()], model="another-fictional-model")
+    reference_sources.check(other, "Weekend service", [city()], http=HTTP())
+    assert len(other.calls) == 1
+
+
+def test_an_unknown_city_is_never_kept_and_is_compared_again():
+    client = Client([page()], rows=[reply(meets=None)])
+    for _ in range(2):
+        checks = [city()]
+        reference_sources.check(client, "Weekend service", checks, http=HTTP())
+        assert checks[0].meets is None
+    assert len(client.calls) == 2
+
+
+def test_a_reused_city_leaves_only_the_others_for_the_comparison():
+    lakeside = page("https://lakeside.example.test/services", towns=["Lakeside"])
+    client = Client([page(), lakeside])
+    reference_sources.check(client, "Weekend service", [city()], http=HTTP())
+    both = [city(), city("Lakeside")]
+    reference_sources.check(client, "Weekend service", both, http=HTTP())
+    assert [c.meets for c in both] == [True, True] and len(client.calls) == 2
+    asked = client.calls[1]["prompt"]
+    assert "C0 | Lakeside" in asked and "Springford" not in asked
