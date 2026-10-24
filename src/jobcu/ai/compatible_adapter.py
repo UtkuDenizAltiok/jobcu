@@ -134,6 +134,13 @@ class CompatibleAdapter(_CustomEndpoint, ProviderAdapter):
             self._mode_cache[cache_key] = mode
             return reply
         assert last_error is not None
+        if self._router_body() and "requested parameters" in last_error.detail.lower():
+            # Even plain JSON found no host: what is missing is a requested control, usually
+            # the reasoning effort of a model without one, not the model name.
+            raise AIModelNotFound(
+                "No host for this model accepts Jobcu's reasoning setting with a structured "
+                "answer. It may not be a reasoning model. Choose another model.",
+                last_error.detail) from last_error
         raise last_error
 
     def _request(self, mode, model, system, prompt, schema, schema_name, max_output_tokens,
