@@ -49,7 +49,7 @@ from jobcu.ai.base import (
 from jobcu.ai.providers import PROVIDERS, configured_adapter
 from jobcu.ai.request_recovery import RecoveryContext
 from jobcu.ai.schema import extract_json, strict_json_schema
-from jobcu.ai.usage import UsageLog, estimate_cost, total_tokens
+from jobcu.ai.usage import UsageLog, estimate_cost, price_for, total_tokens
 from jobcu.keystore import KeyStore
 from jobcu.settings import Effort, ModelPrice, Settings, settings_path
 
@@ -746,11 +746,11 @@ class AIClient:
             if provider is not None and model is not None:
                 needed.add((provider, model))
             currencies = {p.currency.strip().upper() for p in table}
-            missing = needed - prices.keys()
+            missing = {key for key in needed if price_for(prices, *key) is None}
             web_unpriced = {(u.provider, u.model) for u in month
                             if (u.usage.web_searches or u.usage.web_results)
-                            and prices.get((u.provider, u.model)) is not None
-                            and prices[(u.provider, u.model)].web_search_per_thousand is None}
+                            and (found := price_for(prices, u.provider, u.model)) is not None
+                            and found.web_search_per_thousand is None}
             if research and (provider, model) in prices and (
                     prices[(provider, model)].web_search_per_thousand is None):
                 web_unpriced.add((provider, model))
@@ -848,6 +848,9 @@ class CheckResult:
 
 
 def check_setup(settings: Settings, keys: KeyStore | None = None, **client_args) -> CheckResult:
+    # A connection test answers in seconds; Flex queueing would make it wait minutes.
+    settings = settings.model_copy(deep=True)
+    settings.ai.flex_processing = False
     client = AIClient(settings, keys, patient=False, **client_args)
     models = [client.model_for(False)] if settings.ai.model.strip() else []
     if settings.ai.reasoning_model.strip():

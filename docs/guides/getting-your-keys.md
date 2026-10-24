@@ -160,6 +160,14 @@ and other service fees. Unknown cached-input rates use regular input prices and 
 incomplete. Missing usage cannot be reconstructed. The local ceiling cannot guarantee the
 provider's final bill; use the provider's spending controls too and check their enforcement delay.
 
+With Google (Gemini), **Advanced AI settings** offers **Half price, slower: Google Flex
+processing**. Google then answers with the same model at half the token price when it has spare
+capacity, so one request can wait several minutes and a search takes longer. When Google is too
+busy, Jobcu tries again and then sends that request at the normal price; after repeated Flex
+failures, the rest of that search uses normal processing. Usage appears as the model name with
+**(flex)**. Without its own price row, Jobcu estimates it at half the model's normal token
+prices; web search fees are not reduced.
+
 Reducing cost should preserve full evidence and fresh matching. Jobcu already reuses unchanged
 document understanding, bounded-age full ads and identical Maps requests within a search;
 scores remain new. Thinking can be billed as output even when it is not shown. Failed requests

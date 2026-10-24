@@ -65,6 +65,7 @@ def get_settings() -> dict:
                 "model_hint": info.model_hint,
                 "can_research": info.adapter.can_search_the_web,
                 "can_recover_requests": getattr(info.adapter, "can_recover_requests", False),
+                "can_flex": getattr(info.adapter, "can_flex", False),
                 "reasoning_notice": getattr(info.adapter, "reasoning_notice", ""),
                 "key": _key_status(keys, info.key_name),
             }
@@ -92,6 +93,7 @@ class AIChoice(BaseModel):
     research_provider: ResearchProviderId | None = None
     research_model: str = ""
     recover_interrupted_requests: bool = False
+    flex_processing: bool = False
 
 
 @router.put("/settings/ai")

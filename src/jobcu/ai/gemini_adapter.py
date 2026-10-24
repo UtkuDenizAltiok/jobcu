@@ -53,13 +53,32 @@ from jobcu.settings import Effort
 
 _TERMINAL_INTERACTIONS = {
     "completed", "cancelled", "failed", "incomplete", "budget_exceeded", "requires_action"}
+# Flex (half price) queues requests for minutes when Google is busy (1-15 minutes is Google's
+# target; 435 s for one web-search request on 2026-10-24). Google refuses a request it has no
+# capacity for: try again a little later, then send it at the normal price. After this many
+# Flex failures in one search, the rest of the search uses normal processing.
+FLEX_ATTEMPTS = 3
+FLEX_RETRY_SECONDS = 5.0
+FLEX_SECONDS = 1200
+FLEX_FAILURES = 3
+FLEX_NOTICE = ("Google's half-price Flex processing was busy or failed several times, so the "
+               "rest of this search uses normal processing at the normal price.")
 _REFUSAL_REASONS = {"SAFETY", "PROHIBITED_CONTENT", "BLOCKLIST", "SPII", "RECITATION"}
 log = logging.getLogger(__name__)
+
+
+class _FlexRefused(Exception):
+    """Google refused a Flex request before accepting any work: nothing was generated."""
+
+    def __init__(self, error: AIError) -> None:
+        super().__init__(error.message)
+        self.error = error
 
 
 class GeminiAdapter(ProviderAdapter):
     can_search_the_web = True
     can_recover_requests = True
+    can_flex = True
     _genai_client: genai.Client | None = None
 
     def __init__(self, api_key: str, base_url: str = "", timeout: float = 180.0) -> None:
@@ -67,6 +86,7 @@ class GeminiAdapter(ProviderAdapter):
         self._stream_responses = threading.local()
         self._interactions = None
         self._recovery_context = threading.local()
+        self._flex_failures = 0
 
     def configure_request_recovery(self, context: RecoveryContext) -> None:
         self._recovery_context.current = context
@@ -146,7 +166,6 @@ class GeminiAdapter(ProviderAdapter):
     def _event_stream(self, model, system, prompt, effort, max_tokens, schema=None,
                       *, web_search=False):
         model = model.removeprefix("models/")
-        state = EventAnswer(model=model, web_search=web_search)
         generation = {"max_output_tokens": max_tokens, "thinking_summaries": "auto"}
         if effort:
             generation["thinking_level"] = effort
@@ -160,9 +179,47 @@ class GeminiAdapter(ProviderAdapter):
         context = getattr(self._recovery_context, "current", None)
         if context is not None:
             self.cleanup_pending(context)
-            if context.enabled:
-                request.update(store=True, background=True, stream=False)
-                return self._background_request(request, state, context)
+        with self._client_lock:
+            flex = self.flex and self._flex_failures < FLEX_FAILURES
+        if not flex:
+            return self._send_events(request, web_search, context)
+        for attempt in range(1, FLEX_ATTEMPTS + 1):
+            try:
+                return self._send_events({**request, "service_tier": "flex"}, web_search,
+                                         context)
+            except _FlexRefused as refused:
+                log.info("Flex request refused before any work (attempt %d of %d): %s",
+                         attempt, FLEX_ATTEMPTS, refused.error.detail or refused.error.message)
+                if attempt < FLEX_ATTEMPTS:
+                    delay = FLEX_RETRY_SECONDS * 2 ** (attempt - 1)
+                    (context.wait(delay, retry=True) if context is not None
+                     else time.sleep(delay))
+            except (AIUnavailable, AIRateLimited) as error:
+                # Accepted Flex work that failed is not repeated here: Jobcu's normal retry
+                # rules decide, so a request that may have been billed is never doubled.
+                if not isinstance(error, AIConnectionError):
+                    self._flex_failed(context)
+                raise
+        self._flex_failed(context)
+        return self._send_events(request, web_search, context)
+
+    def _flex_failed(self, context) -> None:
+        with self._client_lock:
+            self._flex_failures += 1
+            last = self._flex_failures == FLEX_FAILURES
+        if last and context is not None:
+            context.notify(FLEX_NOTICE)
+
+    def _send_events(self, request, web_search, context):
+        flex = request.get("service_tier") == "flex"
+        state = EventAnswer(model=request["model"], web_search=web_search,
+                            service_tier="flex" if flex else "")
+        if context is not None and context.enabled:
+            request = {**request, "store": True, "background": True, "stream": False}
+            return self._background_request(request, state, context)
+        if flex:
+            # The answer can wait in Google's queue for minutes before its first event.
+            request = {**request, "timeout": max(self.timeout, FLEX_SECONDS)}
         stream = None
         started = time.monotonic()
         events = 0
@@ -195,6 +252,9 @@ class GeminiAdapter(ProviderAdapter):
                          events, state.complete, type(original).__name__)
                 exc = original
             translated = self._recovery_error(exc, web_search=web_search)
+            if flex and _capacity_refusal(translated) and not (
+                    state.steps or state.counts or state.queries or state.search_seen):
+                raise _FlexRefused(translated) from exc
             if (isinstance(translated, AIError)
                     and not (isinstance(translated, AIConnectionError)
                              and translated.request_sent is False)
@@ -242,6 +302,7 @@ class GeminiAdapter(ProviderAdapter):
         if interaction_id is not None and interaction.id != interaction_id:
             raise AIBadRequest(MSG_BAD_REQUEST, "AI retrieval returned a different ID.")
         payload = interaction.model_dump(mode="json", exclude_none=True)
+        state.tier(payload)
         state._usage(payload.get("usage"))
         for index, step in enumerate(payload.get("steps") or []):
             if step.get("type") == "google_search_call":
@@ -357,14 +418,18 @@ class GeminiAdapter(ProviderAdapter):
             try:
                 current = resource.create(**request, timeout=30)
             except Exception as error:
-                raise self._recovery_error(error, web_search=state.web_search) from error
+                translated = self._recovery_error(error, web_search=state.web_search)
+                if request.get("service_tier") == "flex" and _capacity_refusal(translated):
+                    raise _FlexRefused(translated) from error
+                raise translated from error
             interaction_id = current.id
             if not isinstance(interaction_id, str) or not interaction_id:
                 raise AIConnectionError(MSG_CONNECTION, "No recoverable AI operation ID.",
                                         request_sent=True)
             request_recovery.track(context, interaction_id, request["model"])
             context.progress("The AI is processing this request; connection recovery is active")
-            deadline = time.monotonic() + max(self.timeout, 600)
+            deadline = time.monotonic() + max(
+                self.timeout, FLEX_SECONDS if request.get("service_tier") == "flex" else 600)
             retries = 0
             poll_delay = 1.0
             while True:
@@ -563,6 +628,12 @@ class GeminiAdapter(ProviderAdapter):
             for model in models
             if "generateContent" in (model.supported_actions or [])
         )
+
+
+def _capacity_refusal(error: Exception) -> bool:
+    """An answered refusal (busy or too many requests), not a broken connection."""
+    return (isinstance(error, (AIUnavailable, AIRateLimited))
+            and not isinstance(error, AIConnectionError))
 
 
 def _name(value) -> str:

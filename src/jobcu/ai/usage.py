@@ -25,6 +25,7 @@ class UsageLog:
         recovery_id: str | None = None, created_at: str | None = None,
         budget_id: str | None = None,
     ) -> None:
+        model = billed_model(model, usage)
         with db.connect(self.folder) as conn:
             if budget_id is None and search_id is not None:
                 search = conn.execute("SELECT budget_id FROM searches WHERE id=?",
@@ -103,6 +104,32 @@ class UsageLog:
         return [ModelUsage(row[0], row[1], Usage(*row[2:])) for row in rows]
 
 
+FLEX = " (flex)"
+# Google's Flex price is half of every standard token price; search fees are not reduced.
+FLEX_SHARE = 0.5
+
+
+def billed_model(model: str, usage: Usage) -> str:
+    """Flex usage is kept apart from the same model's normal-price usage."""
+    return model + FLEX if usage.service_tier == "flex" and not model.endswith(FLEX) else model
+
+
+def price_for(prices: dict[tuple[str, str], ModelPrice], provider: str,
+              model: str) -> ModelPrice | None:
+    """The saved price; Flex usage without its own row costs half the model's normal tokens."""
+    price = prices.get((provider, model))
+    if price is None and model.endswith(FLEX):
+        normal = prices.get((provider, model.removesuffix(FLEX)))
+        if normal is not None:
+            price = normal.model_copy(update={
+                "model": model,
+                "input_per_million": normal.input_per_million * FLEX_SHARE,
+                "output_per_million": normal.output_per_million * FLEX_SHARE,
+                "cached_input_per_million": None if normal.cached_input_per_million is None
+                else normal.cached_input_per_million * FLEX_SHARE})
+    return price
+
+
 def total_tokens(usages: list[ModelUsage]) -> int:
     return sum(u.usage.input_tokens + u.usage.output_tokens for u in usages)
 
@@ -120,7 +147,7 @@ def estimate_cost(usages: list[ModelUsage], prices: list[ModelPrice]) -> tuple[f
     currencies: set[str] = set()
     for item in usages:
         complete = complete and item.usage.unreported_requests == 0
-        price = table.get((item.provider, item.model))
+        price = price_for(table, item.provider, item.model)
         if price is None:
             complete = complete and not (
                 item.usage.input_tokens or item.usage.output_tokens or item.usage.web_searches

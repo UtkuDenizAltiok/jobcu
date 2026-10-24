@@ -403,6 +403,15 @@
               If deletion fails, the provider's retention can apply for up to 55 days.</p>
           </div>
 
+          <div class="field" id="flex-field" hidden>
+            <label><input type="checkbox" id="flex-processing">
+              Half price, slower: Google Flex processing</label>
+            <p class="muted">Google answers with the same model at half the token price when it
+              has spare capacity, so a request can wait several minutes. When Google is too busy,
+              Jobcu tries again and then sends that request at the normal price. Web search fees
+              are not reduced. Connection tests always use normal processing.</p>
+          </div>
+
           <div class="actions">
             <button type="button" id="save-ai">Save</button>
             <button type="button" class="secondary" id="check-ai">Test connection</button>

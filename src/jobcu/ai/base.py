@@ -31,6 +31,9 @@ class Usage:
     unreported_requests: int = 0
     # Result pages a provider bills on top of its queries (MiMo); priced like a query.
     web_results: int = 0
+    # "flex" when the provider served the request at its half-price Flex tier; usage is then
+    # recorded under "<model> (flex)" so its price differs from the normal tier's.
+    service_tier: str = ""
 
     def __add__(self, other: "Usage") -> "Usage":
         return Usage(
@@ -41,6 +44,7 @@ class Usage:
             self.web_searches + other.web_searches,
             self.unreported_requests + other.unreported_requests,
             self.web_results + other.web_results,
+            self.service_tier or other.service_tier,
         )
 
 
@@ -232,6 +236,9 @@ class ProviderAdapter(ABC):
     # Custom protocols must not silently remove a chosen reasoning control on a generic 400.
     strict_reasoning = False
     can_recover_requests = False
+    # True when the provider offers a slower half-price tier (`flex` asks for it).
+    can_flex = False
+    flex = False
 
     def __init__(self, api_key: str, base_url: str = "", timeout: float = 180.0) -> None:
         self.api_key = api_key
