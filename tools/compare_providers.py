@@ -10,10 +10,19 @@ the app's format by that provider too. Settings, saved searches and the capture 
     ... --steps scoring,quick_pass --limit 10 --budget <allowance id> --out report.json
     ... --to gemini:gemini-3.8-flash       the same model again: how much answers vary anyway
     ... --setup                            fresh document/location readings and search words
+    uv run python tools/compare_providers.py --saved-ads --runs 2 --to deepseek:... \
+        --base-url https://example.provider/v1 --labels labels.json --out runs.json
 
 CAPTURE is a folder in the data folder's review-captures. Requests are paid: about as many as
 the captured search sent for the chosen steps, recorded in the usage log (with --budget, against
 that separate allowance). The report and printed lists contain private job and profile details.
+
+`--saved-ads` needs no capture: it scores the ads the Score check keeps (data folder), with the
+newest saved profile and each ad's recorded location plan, so every model gets the same test.
+`--labels` compares the scores with a private file of expected ranges ({"ranges": {id: [lo,
+hi]}}); `--against` with earlier runs. A provider other than the native ones is `--to
+openai_compatible:<model>` with `--base-url` (and the protocol/reasoning options Settings offers);
+it uses the key saved for "Other API".
 """
 
 import argparse
@@ -48,9 +57,11 @@ from jobcu.ai.client import THINKING_ROOM, AIClient, in_parallel  # noqa: E402
 from jobcu.ai.schema import extract_json, strict_json_schema  # noqa: E402
 from jobcu.ai.usage import ModelUsage, UsageLog, estimate_cost  # noqa: E402
 from jobcu.countries import COUNTRIES, languages_for  # noqa: E402
+from jobcu.dedupe import group_duplicates  # noqa: E402
 from jobcu.keystore import KeyStore  # noqa: E402
 from jobcu.location import ReferenceCheck  # noqa: E402
 from jobcu.settings import load_settings  # noqa: E402
+from jobcu.sources.base import FoundJob  # noqa: E402
 
 OUTPUTS: dict[str, type[BaseModel]] = {model.__name__: model for model in (
     scoring.ScoringAnswer, relevance.QuickPassAnswer, relevance.TitleScreen,
@@ -148,10 +159,13 @@ def research_reply(data: dict) -> ResearchReply:
 
 
 class Replayer:
-    def __init__(self, provider: str, model: str, budget: str | None) -> None:
+    def __init__(self, provider: str, model: str, budget: str | None,
+                 endpoint: dict | None = None) -> None:
         settings = load_settings().model_copy(deep=True)
         ai = settings.ai
         ai.provider, ai.model, ai.reasoning_model = provider, model, ""
+        for name, value in (endpoint or {}).items():
+            setattr(ai, name, value)  # base_url and the compatible_* controls for Other API
         ai.research_provider, ai.research_model = None, ""
         # Stateless requests: replays never ask a provider to retain an operation.
         ai.recover_interrupted_requests = False
@@ -491,7 +505,8 @@ def capture_events(folder: Path, *kinds: str) -> dict[str, dict]:
     return found
 
 
-def compare_setup(folder: Path, providers: list[tuple[str, str]], budget: str | None) -> dict:
+def compare_setup(folder: Path, providers: list[tuple[str, str]], budget: str | None,
+                  endpoint: dict | None = None) -> dict:
     """Ask each provider to read the captured documents and location text freshly.
 
     Searches reuse these readings, so a capture rarely holds them. The location reading stops
@@ -501,7 +516,8 @@ def compare_setup(folder: Path, providers: list[tuple[str, str]], budget: str | 
     documents, form = found["documents"], found["inputs"]["form"]
     readings = {}
     for provider, model in providers:
-        client = Replayer(provider, model, budget).client
+        client = Replayer(provider, model, budget,
+                          endpoint if provider == "openai_compatible" else None).client
         started = time.monotonic()
         try:
             profile = profiles.read_profile(client, documents["cv"], documents["cover_letter"],
@@ -550,6 +566,75 @@ def compare_setup(folder: Path, providers: list[tuple[str, str]], budget: str | 
     return readings
 
 
+def saved_ads_runs(replayer: Replayer, runs: int) -> list[dict]:
+    """Score the Score check's saved ads `runs` times with one model; same inputs every time."""
+    from jobcu import db, quality
+
+    with db.connect() as conn:
+        row = conn.execute("SELECT profile_json FROM profile_cache ORDER BY created_at DESC "
+                           "LIMIT 1").fetchone()
+    if row is None:
+        raise SystemExit("No saved profile yet: run a search first.")
+    profile = profiles.Profile.model_validate_json(row["profile_json"])
+    ads = [ad for ad in quality.all_ads() if ad.kind == "scored"]
+    groups = [group_duplicates([FoundJob(
+        source=ad.kind, source_job_id=str(ad.id), url=ad.url, title=ad.title,
+        company=ad.company, location_text=ad.location, description=ad.text,
+        description_is_complete=ad.description_is_complete)], {ad.kind: "job_board"})[0]
+        for ad in ads]
+    anywhere = location.LocationPlan(text="", understood_as="Anywhere.", countries=[], places=[],
+                                     not_checked_yet=[], outside_supported_area=[], broad=True)
+    by_plan: dict[str, list[int]] = {}
+    for index, ad in enumerate(ads):
+        by_plan.setdefault(json.dumps(ad.location_plan, sort_keys=True), []).append(index)
+    results = []
+    for run in range(runs):
+        started, scored = time.monotonic(), {}
+        for indexes in by_plan.values():
+            recorded = ads[indexes[0]].location_plan
+            plan = location.LocationPlan.model_validate(recorded) if recorded else anywhere
+            try:
+                scored.update(scoring.score_groups(replayer.client, profile, plan, groups,
+                                                   indexes))
+            except AIError as exc:
+                print(f"  run {run + 1}: {type(exc).__name__}: {exc.message}")
+        results.append({"model": f"{replayer.provider}:{replayer.model}",
+                        "seconds": round(time.monotonic() - started),
+                        "ads": {str(ad.id): {
+                            "title": ad.title, "score": scored[i]["score"],
+                            "parts": scored[i]["parts"], "reasons": scored[i]["reasons"],
+                            "limits": [limit["why"] for limit in scored[i]["limits"]]}
+                            for i, ad in enumerate(ads) if i in scored}})
+        print(f"  run {run + 1}: {len(results[-1]['ads'])}/{len(ads)} ads scored in "
+              f"{results[-1]['seconds']}s")
+    return results
+
+
+def show_saved_ads(runs: list[dict], labels: dict | None, others: list[dict]) -> None:
+    every = [*others, *runs]
+    names = [f"{run['model']} #{i + 1}" for i, run in enumerate(every)]
+    if labels:
+        print("\nAgainst the expected ranges (within 5 points counts as in range):")
+        for name, run in zip(names, every, strict=True):
+            ids = [i for i in labels if i in run["ads"]]
+            scores = [run["ads"][i]["score"] for i in ids]
+            middle = [sum(labels[i]) / 2 for i in ids]
+            near = sum(labels[i][0] - 5 <= s <= labels[i][1] + 5
+                       for i, s in zip(ids, scores, strict=True))
+            off = statistics.fmean(max(0, labels[i][0] - s, s - labels[i][1])
+                                   for i, s in zip(ids, scores, strict=True))
+            agreement = spearman(list(zip(scores, middle, strict=True)))
+            print(f"  {name:45} rank agreement {agreement:.3f} | "
+                  f"in range {near}/{len(ids)} | average miss {off:.1f}")
+    print("\nBetween runs (average difference / rank agreement):")
+    for a in range(len(every)):
+        for b in range(a + 1, len(every)):
+            ids = [i for i in every[a]["ads"] if i in every[b]["ads"]]
+            pairs = [(every[a]["ads"][i]["score"], every[b]["ads"][i]["score"]) for i in ids]
+            print(f"  {names[a]} vs {names[b]}: "
+                  f"{statistics.fmean(abs(x - y) for x, y in pairs):.1f} / {spearman(pairs):.3f}")
+
+
 def last_usage_id() -> int:
     from jobcu import db
 
@@ -559,7 +644,7 @@ def last_usage_id() -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("capture", type=Path, help="a folder in review-captures")
+    parser.add_argument("capture", type=Path, nargs="?", help="a folder in review-captures")
     parser.add_argument("--to", required=True, help="provider:model to compare with")
     parser.add_argument("--steps", help="comma-separated steps, e.g. scoring,quick_pass")
     parser.add_argument("--kinds", help="comma-separated answer formats, e.g. ScoringAnswer")
@@ -569,14 +654,46 @@ def main() -> int:
     parser.add_argument("--setup", action="store_true",
                         help="compare fresh document and location readings and search words "
                              "instead of replaying requests")
+    parser.add_argument("--saved-ads", action="store_true",
+                        help="score the Score check's saved ads instead of a capture")
+    parser.add_argument("--runs", type=int, default=1, help="with --saved-ads: repetitions")
+    parser.add_argument("--labels", type=Path, help="with --saved-ads: expected score ranges")
+    parser.add_argument("--against", type=Path, nargs="*", default=[],
+                        help="with --saved-ads: earlier --out files to compare with")
+    parser.add_argument("--base-url", default="", help="Other API: the provider's address")
+    parser.add_argument("--protocol", default="chat_completions",
+                        choices=["chat_completions", "responses", "messages"])
+    parser.add_argument("--reasoning", default="effort",
+                        choices=["effort", "thinking", "provider_default"])
+    parser.add_argument("--medium", default="medium", choices=["medium", "high", "max"])
     args = parser.parse_args()
     provider, _, model = args.to.partition(":")
     if not model:
         parser.error("--to needs provider:model")
+    endpoint = ({"base_url": args.base_url, "compatible_protocol": args.protocol,
+                 "compatible_reasoning": args.reasoning, "compatible_medium": args.medium}
+                if provider == "openai_compatible" else None)
+    if provider == "openai_compatible" and not args.base_url:
+        parser.error("Other API needs --base-url")
+    if args.saved_ads:
+        runs = saved_ads_runs(Replayer(provider, model, args.budget, endpoint), args.runs)
+        labels = None
+        if args.labels:
+            labels = {key: value for key, value in
+                      json.loads(args.labels.read_text(encoding="utf-8"))["ranges"].items()}
+        others = [run for path in args.against
+                  for run in json.loads(path.read_text(encoding="utf-8"))]
+        show_saved_ads(runs, labels, others)
+        if args.out:
+            args.out.write_text(json.dumps(runs, ensure_ascii=False, indent=1),
+                                encoding="utf-8")
+        return 0
+    if args.capture is None:
+        parser.error("a capture folder is needed unless --saved-ads is given")
     captured = capture_events(args.capture, "inputs")["inputs"]["ai"]
     if args.setup:
         readings = compare_setup(args.capture, [(captured["provider"], captured["model"]),
-                                                (provider, model)], args.budget)
+                                                (provider, model)], args.budget, endpoint)
         if args.out:
             args.out.write_text(json.dumps(readings, ensure_ascii=False, indent=1),
                                 encoding="utf-8")
@@ -604,7 +721,7 @@ def main() -> int:
     items = [i for i in items if i not in skipped]
     print(f"Replaying {len(items)} requests on {provider}:{model} "
           f"(captured on {baseline[0]}:{baseline[1]})")
-    replayer = Replayer(provider, model, args.budget)
+    replayer = Replayer(provider, model, args.budget, endpoint)
     done = 0
 
     def progress(item: Item, result: dict) -> None:
