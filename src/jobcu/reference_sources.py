@@ -88,6 +88,11 @@ def fact_key(text: str) -> str:
     return hashlib.sha256(text.strip().encode("utf-8")).hexdigest()
 
 
+def request_key(text: str) -> str:
+    """The person's whole location request, whatever its spacing."""
+    return fact_key(" ".join(text.split()))
+
+
 def _plain(words: str) -> str:
     return " ".join(words.split())
 
@@ -169,12 +174,16 @@ def _read(http, page: PlaceEvidencePage, robots: dict) -> str | None:
     return text if shown and shown.strip() and len(shown) <= MAX_CONTEXT_CHARS else None
 
 
-def check(client, text: str, checks: list[ReferenceCheck], *, http=None) -> list[Source]:
+def check(client, text: str, checks: list[ReferenceCheck], *, http=None,
+          request: str | None = None) -> list[Source]:
+    """`request`: the person's request text, given only when this is its one reference fact."""
     settings = getattr(client, "settings", None)
     if settings is None or not settings.use_web_search:
         return []
     sets = getattr(settings, "place_evidence", [])
-    selected = [p for entry in sets if entry.fact_key == fact_key(text) for p in entry.sources]
+    selected = [p for entry in sets if entry.fact_key == fact_key(text) or (
+        request is not None and entry.request_key == request_key(request))
+        for p in entry.sources]
     pending = [c for c in checks if c.meets is None]
     selected = [p for p in selected if any(c.country == p.country for c in pending)]
     if not selected or not pending:

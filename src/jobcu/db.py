@@ -268,6 +268,10 @@ MIGRATIONS: list[str] = [
     ALTER TABLE ai_recovery_requests ADD COLUMN budget_id TEXT;
     CREATE INDEX ai_usage_budget ON ai_usage (budget_id);
     """,
+    # 21: Result pages billed apart from search queries, so allowances count queries alike.
+    """
+    ALTER TABLE ai_usage ADD COLUMN web_results INTEGER NOT NULL DEFAULT 0;
+    """,
 ]
 
 

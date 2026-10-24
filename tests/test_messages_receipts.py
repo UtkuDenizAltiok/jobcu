@@ -6,7 +6,7 @@ import anthropic
 import httpx2
 import pytest
 
-from jobcu.ai.anthropic_adapter import AnthropicAdapter
+from jobcu.ai.anthropic_adapter import MAX_CONTINUATIONS, AnthropicAdapter, web_tools
 from jobcu.ai.base import AIInvalidOutput, AIOutputTruncated, AIRefused, Usage
 from jobcu.ai.compatible_adapter import CompatibleMessagesAdapter
 
@@ -63,8 +63,11 @@ def test_unfinished_and_refused_messages_do_not_pass_as_facts_or_lose_their_rece
     adapter, requests = service(response(stop=stop, searches=int(research)), custom=custom)
     with pytest.raises(expected) as caught:
         ask(adapter, research=research)
-    assert caught.value.usage == Usage(10, 5, 2, web_searches=int(research))
-    assert len(requests) == 1
+    # A paused research turn is continued a bounded number of times, each receipt kept.
+    sent = MAX_CONTINUATIONS + 1 if research and stop == "pause_turn" else 1
+    assert caught.value.usage == Usage(10 * sent, 5 * sent, 2 * sent,
+                                       web_searches=int(research) * sent)
+    assert len(requests) == sent
 
 
 @pytest.mark.parametrize("custom,research", [(False, False), (True, False), (False, True)])
@@ -107,3 +110,85 @@ def test_completed_research_retains_sources_medium_and_the_web_use_ceiling(servi
     assert reply.sources[0].url == "https://city.example.test/capacity"
     assert requests[0]["output_config"] == {"effort": "medium"}
     assert requests[0]["tools"][0]["max_uses"] == 3
+
+
+def sequence(values):
+    """An adapter whose fictional service answers each request with the next value."""
+    requests = []
+
+    def handle(request):
+        requests.append(json.loads(request.content))
+        value = values[min(len(requests) - 1, len(values) - 1)]
+        return value if isinstance(value, httpx2.Response) else httpx2.Response(200, json=value)
+
+    adapter = AnthropicAdapter("fictional-key")
+    adapter._sdk_client = anthropic.Anthropic(
+        api_key="fictional-key", max_retries=0,
+        http_client=httpx2.Client(transport=httpx2.MockTransport(handle)))
+    return adapter, requests
+
+
+FETCHED = {"type": "web_fetch_tool_result", "tool_use_id": "srvtoolu_fictional",
+           "content": {"type": "web_fetch_result", "url": "https://jobs.example.test/ad/7",
+                       "retrieved_at": "2026-10-23T10:00:00Z",
+                       "content": {"type": "document", "title": "Fictional nurse vacancy",
+                                   "source": {"type": "text", "media_type": "text/plain",
+                                              "data": "NMBI registration is required."},
+                                   "citations": {"enabled": True}}}}
+FETCH_CALL = {"type": "server_tool_use", "id": "srvtoolu_fictional", "name": "web_fetch",
+              "input": {"url": "https://jobs.example.test/ad/7"}}
+
+
+def cited(text, **citation):
+    return {"type": "text", "text": text, "citations": [{
+        "type": "char_location", "document_index": 0, "start_char_index": 0,
+        "end_char_index": 30, "cited_text": "NMBI registration is required.", **citation}]}
+
+
+@pytest.mark.parametrize("model,dynamic", [
+    ("claude-haiku-5-5", False), ("claude-sonnet-5-5", True), ("claude-opus-4-6", True),
+    ("claude-sonnet-4-5-20250929", False), ("claude-fable-5-1", True), ("fictional", False)])
+def test_web_tools_use_each_models_newest_supported_versions_within_the_allowance(
+        model, dynamic):
+    search, fetch = web_tools(model, 6)
+    assert search == {"type": "web_search_20260209" if dynamic else "web_search_20250305",
+                      "name": "web_search", "max_uses": 6}
+    assert fetch["type"] == ("web_fetch_20260209" if dynamic else "web_fetch_20250910")
+    assert fetch["citations"] == {"enabled": True} and fetch["max_content_tokens"] > 0
+
+
+def test_paused_research_resumes_its_own_turn_and_links_fetched_passages():
+    paused = response(stop="pause_turn", searches=1)
+    paused["content"] = [FETCH_CALL, FETCHED]
+    done = response(searches=1)
+    done["content"] = [cited("The fictional ad requires NMBI registration.")]
+    adapter, requests = sequence([paused, done])
+    reply = ask(adapter, research=True)
+    assert len(requests) == 2 and requests[1]["messages"][0] == requests[0]["messages"][0]
+    resumed = requests[1]["messages"][1]
+    assert resumed["role"] == "assistant" and [b["type"] for b in resumed["content"]] == [
+        "server_tool_use", "web_fetch_tool_result"]
+    assert reply.usage == Usage(20, 10, 4, web_searches=2)
+    assert [s.url for s in reply.sources] == ["https://jobs.example.test/ad/7"]
+    assert [(c.text, c.url) for c in reply.citations] == [
+        ("The fictional ad requires NMBI registration.", "https://jobs.example.test/ad/7")]
+
+
+@pytest.mark.parametrize("change", [{"document_index": 3}, {"document_title": "Another ad"}])
+def test_a_citation_that_cannot_be_traced_to_a_fetched_page_is_not_linked(change):
+    done = response(searches=1)
+    done["content"] = [FETCH_CALL, FETCHED, cited("A fictional claim.", **change)]
+    adapter, _ = sequence([done])
+    reply = ask(adapter, research=True)
+    assert reply.citations == [] and [s.url for s in reply.sources] == [
+        "https://jobs.example.test/ad/7"]
+
+
+def test_refused_fetch_tool_falls_back_to_basic_search_before_any_paid_work():
+    refused = httpx2.Response(400, json={"type": "error", "error": {
+        "type": "invalid_request_error", "message": "web fetch is not enabled"}})
+    adapter, requests = sequence([refused, response(searches=1)])
+    reply = ask(adapter, research=True)
+    assert reply.usage.web_searches == 1 and len(requests) == 2
+    assert [t["name"] for t in requests[1]["tools"]] == ["web_search"]
+    assert requests[1]["tools"][0]["max_uses"] == 3

@@ -498,7 +498,8 @@ def _screen_career_titles(run, client, profile, collected) -> str:
                f"Your AI is looking at {len(unmatched)} more job titles from company career sites")
     # Each title of each company is looked at once, however many places list it.
     pairs = list(dict.fromkeys((job.title.strip(), job.company) for job in unmatched))
-    checked = screen_titles(client, profile, pairs, before_batch=lambda: _checkpoint(run))
+    checked = screen_titles(client, profile, pairs, before_batch=lambda: _checkpoint(run),
+                            job_types=run.form.job_types)
     picked = {pairs[index] for index in checked.kept}
     keep = {id(job) for job in unmatched if (job.title.strip(), job.company) in picked}
     rejected = [{"source": job.source, "source_job_id": job.source_job_id, "title": job.title,
@@ -709,7 +710,8 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             if towns is not None:
                 groups[index].place_from_text = towns
 
-        checked = quick_pass(client, profile, groups, unchecked, on_result=keep_preliminary)
+        checked = quick_pass(client, profile, groups, unchecked, on_result=keep_preliminary,
+                             job_types=form.job_types)
         for index in unchecked:
             job_pool.jobs[index].unrelated = index in checked.unrelated
         for index, places in checked.places.items():

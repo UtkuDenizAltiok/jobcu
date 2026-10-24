@@ -42,20 +42,22 @@ class UsageLog:
                         cached_input_tokens=MAX(cached_input_tokens,?),
                         reasoning_tokens=MAX(reasoning_tokens,?),
                         web_searches=MAX(web_searches,?),
-                        unreported_requests=MIN(unreported_requests,?) WHERE id=?""",
+                        unreported_requests=MIN(unreported_requests,?),
+                        web_results=MAX(web_results,?) WHERE id=?""",
                         (usage.input_tokens, usage.output_tokens, usage.cached_input_tokens,
                          usage.reasoning_tokens, usage.web_searches, usage.unreported_requests,
-                         previous[0]))
+                         usage.web_results, previous[0]))
                     return
             conn.execute(
                 """INSERT INTO ai_usage (search_id, step, provider, model, input_tokens,
                    output_tokens, cached_input_tokens, reasoning_tokens, web_searches,
-                   unreported_requests, recovery_id, budget_id, created_at)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                   unreported_requests, recovery_id, budget_id, web_results, created_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                            COALESCE(?,strftime('%Y-%m-%dT%H:%M:%fZ','now')))""",
                 (search_id, step, provider, model, usage.input_tokens, usage.output_tokens,
                  usage.cached_input_tokens, usage.reasoning_tokens, usage.web_searches,
-                 usage.unreported_requests, recovery_id, budget_id, created_at),
+                 usage.unreported_requests, recovery_id, budget_id, usage.web_results,
+                 created_at),
             )
 
     def this_month(self, now: datetime | None = None) -> list[ModelUsage]:
@@ -76,7 +78,8 @@ class UsageLog:
         with db.connect(self.folder) as conn:
             rows = conn.execute(
                 """SELECT step, SUM(input_tokens), SUM(output_tokens), SUM(cached_input_tokens),
-                   SUM(reasoning_tokens), SUM(web_searches), SUM(unreported_requests)
+                   SUM(reasoning_tokens), SUM(web_searches), SUM(unreported_requests),
+                   SUM(web_results)
                    FROM ai_usage WHERE search_id = ? GROUP BY step""",
                 (search_id,),
             ).fetchall()
@@ -93,7 +96,7 @@ class UsageLog:
             rows = conn.execute(
                 f"""SELECT provider, model, SUM(input_tokens), SUM(output_tokens),
                     SUM(cached_input_tokens), SUM(reasoning_tokens), SUM(web_searches),
-                    SUM(unreported_requests)
+                    SUM(unreported_requests), SUM(web_results)
                     FROM ai_usage WHERE {where} GROUP BY provider, model""",
                 params,
             ).fetchall()
@@ -120,7 +123,8 @@ def estimate_cost(usages: list[ModelUsage], prices: list[ModelPrice]) -> tuple[f
         price = table.get((item.provider, item.model))
         if price is None:
             complete = complete and not (
-                item.usage.input_tokens or item.usage.output_tokens or item.usage.web_searches)
+                item.usage.input_tokens or item.usage.output_tokens or item.usage.web_searches
+                or item.usage.web_results)
             continue
         currencies.add(price.currency.strip().upper())
         cached = min(max(item.usage.cached_input_tokens, 0), item.usage.input_tokens)
@@ -130,11 +134,12 @@ def estimate_cost(usages: list[ModelUsage], prices: list[ModelPrice]) -> tuple[f
         cost += (item.usage.input_tokens - cached) / 1e6 * price.input_per_million
         cost += cached / 1e6 * (price.input_per_million if cached_price is None else cached_price)
         cost += item.usage.output_tokens / 1e6 * price.output_per_million
-        if item.usage.web_searches:
+        billed = item.usage.web_searches + item.usage.web_results
+        if billed:
             if price.web_search_per_thousand is None:
                 complete = False
             else:
-                cost += item.usage.web_searches / 1000 * price.web_search_per_thousand
+                cost += billed / 1000 * price.web_search_per_thousand
     if len(currencies) > 1:
         # Adding EUR and USD has no meaningful monetary value without a chosen exchange rate.
         return 0.0, False

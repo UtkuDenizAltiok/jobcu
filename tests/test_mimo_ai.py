@@ -8,6 +8,7 @@ import openai
 import pytest
 from pydantic import BaseModel
 
+from jobcu.ai import mimo_adapter
 from jobcu.ai.base import (
     AIInvalidOutput,
     AILimitReached,
@@ -112,10 +113,10 @@ def test_native_host_is_fixed_and_other_api_stays_independent():
     assert adapter.base_url == "https://api.xiaomimimo.com/v1"
 
 
-@pytest.mark.parametrize("maximum,keywords,results", [(2, 1, 1), (3, 1, 2), (4, 1, 3),
-                                                     (6, 2, 2), (8, 2, 3), (9, 3, 2)])
-def test_research_keeps_keyword_result_envelope_and_conservative_receipts(
-        service, maximum, keywords, results):
+@pytest.mark.parametrize("maximum,keywords", [(1, 1), (4, 4), (10, 10), (25, 10)])
+def test_research_gets_the_shared_query_allowance_and_records_billed_pages(
+        service, maximum, keywords):
+    results = mimo_adapter.RESULTS_PER_KEYWORD
     adapter, calls = service(payload(research=True, tools=keywords, pages=keywords * results))
     answer = research(adapter, maximum)
     body = json.loads(calls[0].content)
@@ -123,14 +124,14 @@ def test_research_keeps_keyword_result_envelope_and_conservative_receipts(
                               "max_keyword": keywords, "limit": results}]
     assert body["thinking"] == {"type": "enabled"}
     assert body["max_completion_tokens"] == 16000
-    assert answer.usage == Usage(100, 20, 30, 5, keywords * (1 + results))
+    assert answer.usage == Usage(100, 20, 30, 5, keywords, web_results=keywords * results)
     assert answer.usage.web_searches <= maximum
     assert [(s.url, s.title) for s in answer.sources] == [
         ("https://official.example/table", "Table")]
     assert answer.citations is None  # URL annotations are not a generated-passage mapping
 
 
-@pytest.mark.parametrize("maximum", [0, 1])
+@pytest.mark.parametrize("maximum", [0, -1])
 def test_insufficient_shared_allowance_never_dispatches(service, maximum):
     adapter, calls = service(payload(research=True))
     with pytest.raises(AILimitReached):
@@ -177,7 +178,7 @@ def test_missing_tokens_stop_paid_paths_and_preserve_available_receipt(service, 
     assert UsageLog().this_month()[0].usage.unreported_requests == 1
 
 
-@pytest.mark.parametrize("tools,pages", [(2, 2), (1, 4)])
+@pytest.mark.parametrize("tools,pages", [(5, 5), (1, 21)])
 def test_provider_exceeding_requested_bounds_preserves_bill_and_stops(service, tools, pages):
     adapter, calls = service(payload(research=True, tools=tools, pages=pages))
     ai = client(adapter, usage_log=UsageLog())
@@ -185,7 +186,8 @@ def test_provider_exceeding_requested_bounds_preserves_bill_and_stops(service, t
         with pytest.raises(AIUsageUncertain, match="exceeded"):
             ai.research(step="location", system="Rules", prompt="Fictional city", max_searches=4)
     assert len(calls) == 1
-    assert UsageLog().this_month()[0].usage.web_searches == tools + pages
+    receipt = UsageLog().this_month()[0].usage
+    assert (receipt.web_searches, receipt.web_results) == (tools, pages)
 
 
 @pytest.mark.parametrize("finish,expected", [("length", AIOutputTruncated),
@@ -197,7 +199,7 @@ def test_partial_research_is_never_published_as_verified_evidence(service, finis
     adapter, calls = service(body)
     with pytest.raises(expected) as found:
         research(adapter)
-    assert found.value.usage == Usage(100, 20, 30, 5, 3)
+    assert found.value.usage == Usage(100, 20, 30, 5, 1, web_results=2)
     assert len(calls) == 1
 
 
@@ -208,9 +210,21 @@ def test_unsourced_memory_or_unsafe_links_cannot_verify_current_facts(service, a
     body["choices"][0]["message"]["annotations"] = annotations
     body["choices"][0]["message"]["content"] += " https://invented.example/table"
     adapter, _ = service(body)
-    with pytest.raises(AIWebSearchUnavailable) as found:
+    with pytest.raises(AIInvalidOutput) as found:
         research(adapter)
-    assert found.value.usage.web_searches == 3
+    assert (found.value.usage.web_searches, found.value.usage.web_results) == (1, 2)
+
+
+def test_one_unsourced_answer_leaves_later_online_checks_available(service):
+    unsourced = payload(research=True)
+    unsourced["choices"][0]["message"]["annotations"] = []
+    adapter, calls = service([unsourced, payload(research=True)])
+    ai = client(adapter, usage_log=UsageLog())
+    with pytest.raises(AIInvalidOutput):
+        ai.research(step="job_places", system="Rules", prompt="Fictional vacancy")
+    assert ai.web_research_unavailable_reason() is None
+    answer = ai.research(step="job_places", system="Rules", prompt="Another fictional vacancy")
+    assert answer.sources and len(calls) == 2
 
 
 def test_no_search_and_provider_plugin_failure_stay_specific(service):
@@ -243,14 +257,16 @@ def test_billing_refusal_stops_subsequent_requests_without_polling(service):
 def test_research_usage_reaches_shared_allowance_and_generation_stays_independent(service):
     adapter, calls = service([payload(research=True, tools=1, pages=3), payload()])
     ai = client(adapter, usage_log=UsageLog())
-    ai.settings.limits.web_search_cap = 4
+    ai.settings.limits.web_search_cap = 1
     answer = ai.research(step="location", system="Rules", prompt="Fictional city")
-    assert answer.usage.web_searches == 4 and ai.web_searches_left() == 0
+    # Queries use the shared allowance like any provider's; result pages are billed apart.
+    assert answer.usage.web_searches == 1 and answer.usage.web_results == 3
+    assert ai.web_searches_left() == 0
     with pytest.raises(AILimitReached):
         ai.research(step="location", system="Rules", prompt="Another fictional city")
     assert ai.generate(Answer, step="scoring", system="Rules", prompt="Fictional teacher").ok
     assert len(calls) == 2
-    assert UsageLog().this_month()[0].usage == Usage(200, 40, 60, 10, 4)
+    assert UsageLog().this_month()[0].usage == Usage(200, 40, 60, 10, 1, web_results=3)
 
 
 def test_unknown_bill_does_not_become_known_zero_after_truncation(service):

@@ -12,7 +12,7 @@ itself as a newly edited checkout. State-changing routes require `X-Jobcu: 1`; C
 binding constrain browser access.
 
 `paths.py` locates private data outside every checkout. SQLite migrations are additive and
-numbered; `db.py` currently includes migration 20. Keys, settings, uploaded documents, logs,
+numbered; `db.py` currently includes migration 21. Keys, settings, uploaded documents, logs,
 reviews and capture files stay private. Reset actions are explicit, scoped and protect usage
 counters, settings and keys. Secure deletion/compaction is app-file behavior, not a promise
 about SSD snapshots or external backups.
@@ -74,6 +74,13 @@ interchangeable. Job-specific workplace evidence can contain multiple alternativ
 Reference-place facts and journey confidence remain separate. Research requires relevant
 sources, supported quotes, the correct geographic scope and comparable units. Local CSV
 calculation preserves original rows/provenance. Missing or inconsistent facts stay unchecked.
+Reviewed reference sets match the exact interpreted fact, or the unchanged request they were
+reviewed for when it holds exactly one looked-up reference fact, so a different provider's
+wording keeps them; edited plans use exact matching only.
+
+Screening sees the person's education, seniority and unticked job types: clearly
+lower-qualification roles and titles that are only an unwanted job type are left out before
+scoring. Seniority differences within a profession still reach careful scoring.
 
 Travel can use Maps or labelled AI estimates. Unless a city centre is explicitly requested,
 Maps samples a calculated city-edge point and the centre, retaining the faster usable route;
@@ -175,6 +182,7 @@ Private-data boundaries are described in [CONTRIBUTING](../CONTRIBUTING.md#priva
 | `tools/benchmark_local_matching.py` | Fictional local identity/deduplication comparison against a Git baseline; no saved user data, network or provider calls. |
 | `tools/review_search.py` | Read-only, allowlisted aggregate review of saved results; no network/AI. |
 | `tools/score_check.py` | Compare scores with independent labels; focused authorized re-scoring and prompt variants. |
+| `tools/compare_providers.py` | Replay one private capture's AI requests on another provider/model and compare each step with Jobcu's own rules; `--setup` compares fresh profile, location and search-word readings. Paid. |
 | `tools/coverage_test.py` | Trace a private independent benchmark through collection/filtering/scoring. |
 | `tools/universality_check.py` | Fictional professions through profile, words, relevance and scoring; ESCO vocabulary checks. |
 | `tools/made_up_search.py` | A full fictional search in its own data folder. Live/paid runs still need authorization. |

@@ -27,6 +27,14 @@ def test_cache_and_search_fees_are_priced_without_counting_thinking_twice():
     assert complete
 
 
+def test_separately_billed_result_pages_are_priced_and_stay_out_of_the_query_count():
+    cost, complete = estimate_cost([used(web_searches=4, web_results=20)],
+                                   [price(web_search_per_thousand=5)])
+    assert cost == pytest.approx(24 * 5 / 1000) and complete
+    _, complete = estimate_cost([used(web_results=3)], [price()])
+    assert not complete  # a billed page without a search price is not a known zero
+
+
 @pytest.mark.parametrize("counts", [{"web_searches": 10},
                                    {"input_tokens": 100, "cached_input_tokens": 50},
                                    {"unreported_requests": 1}])

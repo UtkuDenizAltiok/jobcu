@@ -126,6 +126,28 @@ def test_unrelated_condition_and_web_disabled_preserve_existing_choices_without_
     assert not http.calls and not client.calls
 
 
+REQUEST = "Germany. Live in a fictional city that has a staffed weekend service."
+
+
+def test_reviewed_request_applies_to_its_single_fact_whatever_its_wording():
+    client = Client([page()], fact="Weekend service")
+    client.settings.place_evidence[0].request_key = reference_sources.request_key(REQUEST)
+    checks = [city()]
+    reference_sources.check(client, "The city must have a staffed weekend service", checks,
+                            http=HTTP(), request=f"  {REQUEST} ")
+    assert checks[0].meets is True and len(client.calls) == 1
+
+
+@pytest.mark.parametrize("request_text", [None, "Germany. Live in a fictional city."])
+def test_reworded_fact_without_the_same_single_fact_request_buys_nothing(request_text):
+    client, http = Client([page()], fact="Weekend service"), HTTP()
+    client.settings.place_evidence[0].request_key = reference_sources.request_key(REQUEST)
+    checks = [city()]
+    reference_sources.check(client, "The city must have a staffed weekend service", checks,
+                            http=http, request=request_text)
+    assert checks[0].meets is None and not client.calls and not http.calls
+
+
 def test_signed_comparisons_are_not_folded_into_the_opposite_fact():
     client = Client([page()], [reply(quotes=[reference_sources.Quote(
         source_id="S0", words="The index is < 20.")])])

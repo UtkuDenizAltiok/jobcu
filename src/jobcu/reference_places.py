@@ -27,6 +27,7 @@ from jobcu.location import (
     SortedAnchor,
     Source,
 )
+from jobcu.text import normalise
 
 log = logging.getLogger(__name__)
 
@@ -143,7 +144,7 @@ def resolve_for_jobs(client, plan, groups) -> None:
         selected = sorted((t for key, t in towns.items() if key not in supported),
                           key=lambda t: (plan.countries.index(t.country), -t.people, t.name))
         if selected:
-            found = check(client, fact, selected)
+            found = check(client, fact, selected, request=single_fact_request(plan))
         else:
             found = Condition(text=fact, understood_as=fact, kind="towns_that_fit",
                               status="applied", reference_checks=[],
@@ -256,8 +257,20 @@ def _structure_prompt(text, lines, notes, sources, links):
             + json.dumps(_source_hints(notes, links)))
 
 
+def single_fact_request(plan) -> str | None:
+    """The request text when it holds exactly one active looked-up reference fact.
+
+    Reviewed references for an unchanged request then apply however that fact was worded.
+    A corrected plan uses exact fact wording only: the person may have changed the fact.
+    """
+    facts = {normalise(c.anchor.look_up) for c in plan.conditions
+             if not c.switched_off and c.anchor is not None and c.anchor.look_up}
+    return plan.text if len(facts) == 1 and not plan.edited else None
+
+
 def check(client: AIClient, text: str, towns: list[places.Town], *,
-          previous: list[ReferenceCheck] | None = None) -> Condition:
+          previous: list[ReferenceCheck] | None = None,
+          request: str | None = None) -> Condition:
     supported = {_identity(c): c for c in previous or []
                  if c.meets is not None and c.evidence and c.sources and _fresh(c)}
     checks = [(supported[_identity(town)].model_copy(deep=True) if _identity(town) in supported
@@ -269,7 +282,7 @@ def check(client: AIClient, text: str, towns: list[places.Town], *,
     from jobcu import reference_sources
 
     try:
-        sources.extend(reference_sources.check(client, text, checks))
+        sources.extend(reference_sources.check(client, text, checks, request=request))
     except AIError as exc:
         # Keep completed source-backed cities; a failed paid comparison must not cause an
         # additional hosted-research operation in the same recovery attempt.
@@ -337,7 +350,8 @@ def check(client: AIClient, text: str, towns: list[places.Town], *,
 
 
 def retry_missing(client: AIClient, condition: Condition, countries: list[str], *,
-                  defer_reference_checks: bool = False) -> Condition | None:
+                  defer_reference_checks: bool = False,
+                  request: str | None = None) -> Condition | None:
     """Retry one unchanged interpreted fact within the same saved search, retaining proof.
 
     Reworded facts and explicit replacement places use the ordinary interpretation path.
@@ -355,7 +369,8 @@ def retry_missing(client: AIClient, condition: Condition, countries: list[str], 
         updated.anchor.reference_deferred = True
         updated.status = "estimate"
         return updated
-    found = check(client, anchor.look_up, towns, previous=anchor.reference_checks)
+    found = check(client, anchor.look_up, towns, previous=anchor.reference_checks,
+                  request=request)
     updated = condition.model_copy(deep=True)
     old_eligible = {_identity(c) for c in anchor.reference_checks if c.meets is True}
     new_eligible = {_identity(c) for c in found.reference_checks or [] if c.meets is True}
