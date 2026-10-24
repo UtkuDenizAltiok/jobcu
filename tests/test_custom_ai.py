@@ -362,6 +362,28 @@ def test_router_without_a_schema_host_keeps_privacy_and_uses_plain_json():
     assert all(b["provider"]["zdr"] is True for b in bodies)
 
 
+def test_a_router_model_no_host_serves_with_jobcu_s_controls_is_named_truthfully():
+    bodies = []
+
+    def handle(request):
+        bodies.append(json.loads(request.content))
+        return httpx.Response(404, json={"error": {
+            "message": "No endpoints found that can handle the requested parameters.",
+            "code": 404}})
+
+    settings = Settings()
+    settings.ai = AISettings(provider="openrouter", model="fictional/plain-model")
+    adapter = configured_adapter("openrouter", "fake-router-key", settings.ai)
+    sdk_transport(adapter, "chat_completions", handle)
+    client = AIClient(settings, adapter=adapter, usage_log=UsageLog())
+    with pytest.raises(AIModelNotFound, match="reasoning setting") as refused:
+        client.generate(Answer, step="scoring", system="Rules", prompt="Fictional welder")
+    assert "doesn't know this model" not in refused.value.message
+    assert [b.get("response_format", {}).get("type") for b in bodies] == [
+        "json_schema", "json_object", None]
+    assert all(b["reasoning_effort"] == "medium" for b in bodies)  # never quietly removed
+
+
 def test_router_data_policy_refusal_is_never_negotiated_away():
     bodies = []
 
