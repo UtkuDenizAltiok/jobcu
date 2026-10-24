@@ -285,6 +285,40 @@ def test_geographic_identity_is_required_in_the_citation_even_beside_a_same_name
     assert "07 1 02 Springford, City" in client.calls[0]["prompt"]
 
 
+TABLE = """\
+ 07 1 02 Springford, City          11     1.000     800     service available 61,0
+                                   12     2.000   1.600     service available 62,0
+                                          3.000   2.400     service available 61,7
+ 07 1 03 Otherford, City           13     5.000   4.000     service available 48,0
+                                          9.000   7.000     service available 47,5
+                   Region total           3.000   2.400     service available 61,7
+"""
+
+
+@pytest.mark.parametrize("quote,expected", [
+    # A city with several constituency rows prints its total row without repeating the label.
+    ("3.000 2.400 service available 61,7", None),  # also printed as the region's total
+    ("2.000 1.600 service available 62,0", True),
+    ("9.000 7.000 service available 47,5", None),  # under the next label: another place
+    ("1.000 800 service available 61,0 12 2.000", True)])
+def test_a_row_printed_under_the_citys_label_belongs_to_that_city(quote, expected):
+    client = Client([page(required_labels_by_town={"Springford": "07 1 02 Springford, City"})],
+                    [reply(quotes=[reference_sources.Quote(source_id="S0", words=quote)])])
+    checks = [city()]
+    reference_sources.check(client, "Weekend service", checks, http=HTTP(TABLE))
+    assert checks[0].meets is expected
+
+
+def test_the_unrepeated_total_row_of_a_city_is_its_own_when_printed_once():
+    table = TABLE.rsplit("                   Region total", 1)[0]
+    client = Client([page(required_labels_by_town={"Springford": "07 1 02 Springford, City"})],
+                    [reply(quotes=[reference_sources.Quote(
+                        source_id="S0", words="3.000 2.400 service available 61,7")])])
+    checks = [city()]
+    reference_sources.check(client, "Weekend service", checks, http=HTTP(table))
+    assert checks[0].meets is True
+
+
 def test_additional_context_pages_do_not_disable_a_complete_city_comparison():
     pages = [page(), *[page(url=f"https://context.example.test/{i}", towns=[])
                       for i in range(8)]]
