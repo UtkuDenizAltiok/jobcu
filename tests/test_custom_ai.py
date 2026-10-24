@@ -9,7 +9,13 @@ import openai
 import pytest
 from test_ai_client import GOOD, Answer, ScriptedAdapter, SearchingAdapter
 
-from jobcu.ai.base import AIAuthError, AIBadRequest, AILimitReached, AIWebSearchUnavailable
+from jobcu.ai.base import (
+    AIAuthError,
+    AIBadRequest,
+    AILimitReached,
+    AIModelNotFound,
+    AIWebSearchUnavailable,
+)
 from jobcu.ai.client import AIClient, check_research_setup
 from jobcu.ai.compatible_adapter import (
     CompatibleAdapter,
@@ -311,3 +317,59 @@ def test_research_connection_probe_has_correct_provider_and_preserves_settings()
     assert adapter.calls[0]["model"] == "research-example"
     assert usage.this_month()[0].provider == "gemini"
     assert settings.model_dump() == before
+
+
+def router_client(handle, base_url="https://openrouter.ai/api/v1"):
+    settings = Settings()
+    settings.ai = AISettings(provider="openai_compatible", model="fictional/model",
+                             base_url=base_url)
+    adapter = configured_adapter("openai_compatible", "fake-router-key", settings.ai)
+    sdk_transport(adapter, "chat_completions", handle)
+    return AIClient(settings, adapter=adapter, usage_log=UsageLog())
+
+
+@pytest.mark.parametrize("base_url,routed", [("https://openrouter.ai/api/v1", True),
+                                             ("https://provider.example/v1", False)])
+def test_router_requests_require_private_hosts_that_honour_every_parameter(base_url, routed):
+    bodies = []
+
+    def handle(request):
+        bodies.append(json.loads(request.content))
+        return httpx.Response(200, json=reply_for("chat_completions"))
+
+    assert router_client(handle, base_url).generate(
+        Answer, step="scoring", system="Rules", prompt="Fictional teacher").ok
+    expected = {"data_collection": "deny", "zdr": True, "require_parameters": True}
+    assert bodies[0].get("provider") == (expected if routed else None)
+    assert bodies[0]["response_format"]["type"] == "json_schema"
+
+
+def test_router_without_a_schema_host_keeps_privacy_and_uses_plain_json():
+    bodies = []
+
+    def handle(request):
+        bodies.append(json.loads(request.content))
+        if len(bodies) == 1:
+            return httpx.Response(404, json={"error": {
+                "message": "No endpoints found that can handle the requested parameters.",
+                "code": 404}})
+        return httpx.Response(200, json=reply_for("chat_completions"))
+
+    assert router_client(handle).generate(
+        Answer, step="scoring", system="Rules", prompt="Fictional chef").ok
+    assert [b["response_format"]["type"] for b in bodies] == ["json_schema", "json_object"]
+    assert all(b["provider"]["zdr"] is True for b in bodies)
+
+
+def test_router_data_policy_refusal_is_never_negotiated_away():
+    bodies = []
+
+    def handle(request):
+        bodies.append(json.loads(request.content))
+        return httpx.Response(404, json={"error": {
+            "message": "No endpoints found matching your data policy.", "code": 404}})
+
+    with pytest.raises(AIModelNotFound, match="privacy requirements"):
+        router_client(handle).generate(Answer, step="scoring", system="Rules",
+                                       prompt="Fictional driver")
+    assert len(bodies) == 1
