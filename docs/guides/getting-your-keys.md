@@ -70,6 +70,13 @@ model ID, supported format and thinking controls from the service's current inst
    and controls rather than replace the key blindly. Some models lack required structured
    output even when their service supports this API format.
 
+**OpenRouter** (one key for many models): address `https://openrouter.ai/api/v1`, format
+**Chat Completions**, reasoning control **Send the selected effort**. Jobcu then asks OpenRouter
+only for hosts that keep no copy of your documents, don't train on them and honour Jobcu's
+answer format. Add `@` and a host name to the model to always use that host, for example
+`deepseek/deepseek-v4.1-flash-1017@fireworks`; otherwise OpenRouter may choose a different,
+possibly compressed, copy of the model for each request.
+
 Custom API formats do not automatically include online research. Use the separate option
 below to preserve it. A connection test does not prove matching accuracy, research access,
 permission for this use or subscription capacity.

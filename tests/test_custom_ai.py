@@ -373,3 +373,37 @@ def test_router_data_policy_refusal_is_never_negotiated_away():
         router_client(handle).generate(Answer, step="scoring", system="Rules",
                                        prompt="Fictional driver")
     assert len(bodies) == 1
+
+
+def test_a_pinned_router_host_serves_every_request_without_fallback():
+    bodies = []
+
+    def handle(request):
+        bodies.append(json.loads(request.content))
+        return httpx.Response(200, json=reply_for("chat_completions"))
+
+    client = router_client(handle)
+    client.settings.ai.model = "fictional/model-1017@fictional-host"
+    client._adapter = configured_adapter("openai_compatible", "fake-router-key",
+                                         client.settings.ai)
+    sdk_transport(client._adapter, "chat_completions", handle)
+    assert client.generate(Answer, step="scoring", system="Rules", prompt="Fictional nurse").ok
+    assert bodies[0]["model"] == "fictional/model-1017"
+    assert bodies[0]["provider"] == {"data_collection": "deny", "zdr": True,
+                                     "require_parameters": True,
+                                     "order": ["fictional-host"], "allow_fallbacks": False}
+
+
+def test_at_signs_stay_part_of_model_names_on_other_hosts():
+    bodies = []
+
+    def handle(request):
+        bodies.append(json.loads(request.content))
+        return httpx.Response(200, json=reply_for("chat_completions"))
+
+    client = router_client(handle, "https://provider.example/v1")
+    client.settings.ai.model = "fictional-model@2026-10-17"
+    client._adapter = configured_adapter("openai_compatible", "fake-key", client.settings.ai)
+    sdk_transport(client._adapter, "chat_completions", handle)
+    assert client.generate(Answer, step="scoring", system="Rules", prompt="Fictional cook").ok
+    assert bodies[0]["model"] == "fictional-model@2026-10-17" and "provider" not in bodies[0]

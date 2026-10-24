@@ -95,7 +95,7 @@ and Xiaomi. Custom endpoints support Chat Completions, Responses and Messages wi
 reasoning controls; hosted research is separately configured. Requests through a router
 (OpenRouter) ask only for hosts that neither keep nor train on request data and that honour
 every requested parameter; without a schema-capable host they fall back to plain JSON, never
-to a looser data policy. Defaults remain medium. A provider without a literal medium control
+to a looser data policy. `model@host` pins one serving host without fallback. Defaults remain medium. A provider without a literal medium control
 exposes its mapping/uncertainty rather than silently disabling thinking. Native keys stay on
 their native host.
 
