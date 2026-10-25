@@ -241,14 +241,18 @@ THEN SCORE THESE PARTS (maximum points in brackets)
 
 {ROLE_RULES}
 
-seniority [20]: the level and years the job asks for, compared with the person. Full-time work \
-counts fully. Internships, working-student jobs and thesis work in a company count, but less \
-than full-time work. A title word like Senior or Lead asks for several years.
+seniority [20]: the level, years and responsibility the job asks for, compared with the \
+person. Full-time work counts fully. Internships, working-student jobs and thesis work in a \
+company count, but less than full-time work. A title word like Senior asks for several years. \
+A lead, head, principal, staff, chief or manager title, or leading people, a function or large \
+projects, also asks for proven experience in that responsibility.
   18-20 the level matches
   12-17 somewhat above or below (e.g. asks 2-3 years; the person is a graduate with strong \
 student experience)
-  6-11 clearly above (e.g. asks 5+ years from a graduate) or clearly below the person's level
-  0-5 very far off (e.g. head of department for a graduate)
+  6-11 clearly above (e.g. a senior role asking 5+ years from a graduate) or clearly below the \
+person's level
+  0-5 very far off: leading people, a function or a technical area the person has never led \
+(e.g. a lead, principal or head-of-department role for a graduate)
 
 hard_requirements [15]: work permit or visa sponsorship statements, citizenship, security \
 clearance, driving licence, a specific degree or certification, a professional registration or \
