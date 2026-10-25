@@ -122,7 +122,10 @@ asks before more look-ups, like the per-search limit, and the smaller of the two
 Native Anthropic requests stream and use only the final message: a streamed answer starts at
 once, where a silent plain request was cut by a network idle limit at 60 s. A broken stream keeps
 its reported usage as a lower bound; an error event inside a started stream is classified by its
-error type, and an unreadable stream is invalid output, not a bad request.
+error type, and an unreadable stream is invalid output, not a bad request. OpenAI (Responses)
+and OpenRouter (Chat Completions) requests stream the same way; their usage arrives with the
+final event, so a stream that breaks after it began is recorded as work with an unknown bill.
+Other API addresses keep plain requests: a service's streams are not assumed to report usage.
 
 Structured answers require completion/refusal checks and schema validation. Research additionally
 retains provider source annotations and validates required evidence. Generated URLs are not
