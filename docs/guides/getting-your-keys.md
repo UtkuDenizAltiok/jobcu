@@ -174,7 +174,9 @@ With Google (Gemini), **Advanced AI settings** offers **Half price, slower: Goog
 processing**. Google then answers with the same model at half the token price when it has spare
 capacity, so one request can wait several minutes and a search takes longer. When Google is too
 busy, Jobcu tries again and then sends that request at the normal price; after repeated Flex
-failures, the rest of that search uses normal processing. Usage appears as the model name with
+failures, the rest of that search uses normal processing. Flex is used only together with
+**Recover interrupted AI connections**: Google can stop a queued Flex request midway, and only a
+recoverable request can then be retried without paying twice. Usage appears as the model name with
 **(flex)**. Without its own price row, Jobcu estimates it at half the model's normal token
 prices; web search fees are not reduced.
 

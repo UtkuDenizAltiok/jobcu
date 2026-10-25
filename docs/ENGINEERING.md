@@ -107,7 +107,8 @@ A request Google refuses for capacity before accepting work is retried with back
 at the normal tier; accepted Flex work that fails follows the normal retry rules, so nothing that
 may have been billed is repeated automatically. Repeated Flex failures end Flex for that search.
 Usage records the served tier as `<model> (flex)`, priced at half the normal row unless a Flex
-row exists. Connection tests use the normal tier.
+row exists. Connection tests use the normal tier. Flex runs only with request recovery: a
+preempted Flex stream is otherwise an ambiguous dropped connection.
 
 An optional monthly free-search allowance (`limits.free_web_searches`) gives each search a
 share of the research provider's free searches left in its billing month (Pacific time for

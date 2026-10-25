@@ -409,7 +409,9 @@
             <p class="muted">Google answers with the same model at half the token price when it
               has spare capacity, so a request can wait several minutes. When Google is too busy,
               Jobcu tries again and then sends that request at the normal price. Web search fees
-              are not reduced. Connection tests always use normal processing.</p>
+              are not reduced. Connection tests always use normal processing. Flex needs
+              <strong>Recover interrupted AI connections</strong> above: Google can stop a queued
+              Flex request midway, and only a recoverable request can then be retried safely.</p>
           </div>
 
           <div class="actions">
