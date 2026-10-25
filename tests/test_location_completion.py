@@ -142,6 +142,7 @@ def deferred_plan(monkeypatch, *, copies=1):
 
     def check(client, text, towns, **kwargs):
         calls.append([t.name for t in towns])
+        retries.append(kwargs.get("retry_unknown"))
         found = reference_places.deferred(text, towns)
         found.status = "applied"
         for city in found.reference_checks:
@@ -149,7 +150,9 @@ def deferred_plan(monkeypatch, *, copies=1):
             city.evidence = "Fictional verified city service"
         return found
 
+    retries = []
     monkeypatch.setattr(reference_places, "check", check)
+    check.retries = retries
     return plan, groups, calls
 
 
@@ -165,6 +168,15 @@ def test_city_facts_wait_for_collected_jobs_and_share_reachable_scope(monkeypatc
     assert all(not c.anchor.reference_deferred for c in plan.conditions)
     reference_places.resolve_for_jobs(None, plan, groups)
     assert len(calls) == 1  # no automatic repetition after the scheduled phase
+
+
+def test_only_an_asked_for_retry_looks_up_recently_unknown_cities_again(monkeypatch):
+    from jobcu import reference_places
+
+    for retry in (False, True):
+        plan, groups, _ = deferred_plan(monkeypatch)
+        reference_places.resolve_for_jobs(None, plan, groups, retry_unknown=retry)
+        assert reference_places.check.retries == [retry]
 
 
 def test_empty_job_pool_buys_no_city_research(monkeypatch):

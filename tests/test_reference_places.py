@@ -570,9 +570,16 @@ def test_completed_conversion_retires_web_answer_even_when_city_facts_remain_unk
         client.rows = []
     reference_places.check(client, 'City service', cities[:2])
     assert not client.reference_research_cache
-    reference_places.check(client, 'City service', cities[:2])
-    # Verified city facts are reused by the next check; unknown ones are researched again.
-    assert [kind for kind, _ in client.calls].count('research') == (2 if unknown else 1)
+    later = reference_places.check(client, 'City service', cities[:2])
+    # Verified city facts are reused by the next check. Unknown ones rest for a week rather
+    # than buying the same failed research in every search; an explicit retry looks again.
+    assert [kind for kind, _ in client.calls].count('research') == 1
+    if unknown:
+        assert all(c.meets is None and c.evidence.startswith('Looked up on ')
+                   for c in later.reference_checks)
+        assert 'not bought again' in later.note
+        reference_places.check(client, 'City service', cities[:2], retry_unknown=True)
+        assert [kind for kind, _ in client.calls].count('research') == 2
 
 
 def test_a_provider_link_on_only_a_city_heading_cannot_support_its_claim(cities):

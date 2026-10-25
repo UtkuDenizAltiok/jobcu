@@ -76,7 +76,9 @@ sources, supported quotes, the correct geographic scope and comparable units. Lo
 calculation preserves original rows/provenance. Missing or inconsistent facts stay unchecked.
 Reviewed reference sets match the exact interpreted fact, or the unchanged request they were
 reviewed for when it holds exactly one looked-up reference fact, so a different provider's
-wording keeps them; edited plans use exact matching only.
+wording keeps them; edited plans use exact matching only. A table row printed in the indented
+block under a city's reviewed label (such as a city total after its constituency rows) counts as
+that city's only when the quoted row appears nowhere else on the page.
 
 Screening sees the person's education, seniority and unticked job types: clearly
 lower-qualification roles and titles that are only an unwanted job type are left out before
@@ -149,7 +151,8 @@ schemas, provider/model/host and reasoning settings match. A city's verified com
 reviewed reference pages (`reference_sources.py`) is reused the same way while that city's own
 evidence reads exactly the same; a verified, sourced web-research city fact
 (`reference_places.py`) for 7 days through the same fact wording and AI routes. Unknown
-verdicts are never kept. Plans, other web research, journeys and new-search scores are not
+verdicts are never kept; completed research that left a city unknown is not bought again by
+ordinary searches for 7 days, while an explicit retry or edit looks again at once. Plans, other web research, journeys and new-search scores are not
 reused as setup. Full-ad caching has its own bounded age and parser versions. Changed inputs
 invalidate the relevant cache.
 
