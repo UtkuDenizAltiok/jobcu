@@ -21,29 +21,34 @@ done. Implementation details belong in pull requests; current behavior is descri
 1. **Real-search measurement.** Record per-step web searches, tokens, served tier and wall
    time for the next searches and compare them with the provider's bill. Done when the
    expected savings are confirmed or any regression is fixed.
-2. **Larger evaluation set.** Grow the private labelled ad set to about 150 ads, covering
+2. **Provider-neutral answers and fair model comparisons.** Work out a person's work rights
+   per target country once, from their documents, so every scoring request compares an ad's
+   clause (for example "without sponsorship now or in the future") with stated facts instead
+   of re-deriving visa rules. Make sure every model really reasons when asked (some routes
+   ignored the request), then compare cheaper models again on equal terms.
+3. **Larger evaluation set.** Grow the private labelled ad set to about 150 ads, covering
    blockers, seniority, language requirements and visa wording, and report its metrics
    (pair ordering, top-10 overlap, blockers) directly from `tools/compare_providers.py`.
-3. **Seniority calibration.** Lead, head and principal roles are scored too high for early
-   career profiles. Test a rubric change on the evaluation set; ship it only if ordering
+4. **Seniority calibration.** Lead, head and principal roles are scored too high for early
+   career profiles; plain senior roles stay realistic. Test a rubric change on the evaluation set; ship it only if ordering
    improves without losing blockers or top results.
-4. **Stream the remaining AI formats.** Chat Completions and Responses requests (OpenRouter,
+5. **Stream the remaining AI formats.** Chat Completions and Responses requests (OpenRouter,
    OpenAI, Other API) should stream like Gemini and Claude do.
 
 ## Then: coverage
 
-5. **Federal Employment Agency (Bundesagentur).** The portal stays paused under its terms.
+6. **Federal Employment Agency (Bundesagentur).** The portal stays paused under its terms.
    Seek permission for respectful automated reading, and measure how many of its jobs other
    permitted sources already provide.
-6. **Free source allowances.** Make sure monthly free allowances, such as JSearch credits, are
+7. **Free source allowances.** Make sure monthly free allowances, such as JSearch credits, are
    fully used across searches without paid overruns.
-7. **Coverage benchmark.** Compare Jobcu with an independently collected sample of real
+8. **Coverage benchmark.** Compare Jobcu with an independently collected sample of real
    vacancies and fix the largest missing sources or over-strict filters.
 
 ## Later: simplicity
 
-8. **Recommended setup** in one step, in plain language.
-9. **Cost preview** before a search, from recent searches' measured usage.
-10. **Ads published in several versions:** keep the stricter requirement and say so.
-11. **Module size:** split `search.py` and `location.py` only along existing stage boundaries
+9. **Recommended setup** in one step, in plain language.
+10. **Cost preview** before a search, from recent searches' measured usage.
+11. **Ads published in several versions:** keep the stricter requirement and say so.
+12. **Module size:** split `search.py` and `location.py` only along existing stage boundaries
     when a change touches them.
