@@ -101,7 +101,7 @@ class LanguageAsked(BaseModel):
 EVIDENCE = ("ad_language", "languages_asked", "years_required", "doctorate",
             "citizenship_or_clearance", "citizenship_or_clearance_words", "requirement_checks",
             "visa_sponsorship", "visa_sponsorship_words", "right_to_work_required",
-            "right_to_work_words")
+            "right_to_work_words", "versions_differ")
 
 SPONSORSHIP_RULES = """\
 visa_sponsorship: available_for_this_job only when this vacancy explicitly offers employer \
@@ -437,6 +437,8 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
         "notes": ([note] if note else []) + (
             [f'{ROLE_REVIEW_NOTE}: "{evidence["role_words"]}"']
             if evidence.get("role_checked_online") and evidence.get("role_words") else []
+        ) + ([f"Found online in versions that differ ({_short(evidence['versions_differ'])}); "
+              "the stricter one is used"] if evidence.get("versions_differ") else []
         ) + language.notes + required.notes + work.notes + (
             ["Security or nationality eligibility is unconfirmed" + (
                 f": {score.citizenship_or_clearance_words.strip()}"
@@ -449,6 +451,11 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
             for asked in score.languages_asked if asked.level != "not_needed"
         ],
     }
+
+
+def _short(text: str, most: int = 80) -> str:
+    text = text.strip().rstrip(".")
+    return text if len(text) <= most else text[:most].rsplit(" ", 1)[0] + "…"
 
 
 def with_location_confidence(result: dict, profile: Profile, plan: LocationPlan,

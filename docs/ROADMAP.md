@@ -16,6 +16,7 @@ done. Implementation details belong in pull requests; current behavior is descri
   unless the person retries.
 - Claude, OpenAI and OpenRouter requests stream, so a silent long request is not cut by a
   network idle limit.
+- An ad found online in two versions keeps the stricter requirement and says so.
 - A larger private evaluation set (about 200 judged ads with blockers) whose decision metrics,
   pair ordering, top 10, bands, blockers and each model's reasoning share, come straight from
   `tools/compare_providers.py`.
@@ -50,6 +51,5 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 8. **Recommended setup** in one step, in plain language.
 9. **Cost preview** before a search, from recent searches' measured usage.
-10. **Ads published in several versions:** keep the stricter requirement and say so.
-11. **Module size:** split `search.py` and `location.py` only along existing stage boundaries
+10. **Module size:** split `search.py` and `location.py` only along existing stage boundaries
     when a change touches them.
