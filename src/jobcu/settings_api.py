@@ -1,6 +1,8 @@
 """Internal API behind the Settings screen: AI provider, model, keys, key checks, what has been
 used this month, the limits, the price table and which job sources are on."""
 
+import statistics
+from dataclasses import replace
 from datetime import UTC, datetime
 
 from fastapi import APIRouter, HTTPException
@@ -302,6 +304,45 @@ def _free_web_searches(settings, log: UsageLog, now: datetime) -> dict | None:
             "used": log.web_searches_this_month(provider, now)}
 
 
+# Recent finished searches with today's main AI that describe what the next search will use.
+TYPICAL_SEARCHES = 3
+
+
+def _typical_search(settings, log: UsageLog) -> dict | None:
+    """What a search like the recent ones used with today's main AI: the median of the last
+    finished searches that used it, so the cost of a search is known before it starts."""
+    provider, model = settings.ai.provider, settings.ai.model.strip()
+    if not provider or not model:
+        return None
+    with db.connect() as conn:
+        ids = [row[0] for row in conn.execute(
+            "SELECT id FROM searches WHERE status = 'finished' ORDER BY id DESC LIMIT 30")]
+    picked = []
+    for search_id in ids:
+        used = log.for_search_by_model(search_id)
+        if any(item.provider == provider and item.model in (model, f"{model} (flex)")
+               for item in used):
+            picked.append(used)
+        if len(picked) == TYPICAL_SEARCHES:
+            break
+    if not picked:
+        return None
+    # Tokens are priced here; web searches are counted, since free allowances may cover them.
+    tokens_only = [[replace(item, usage=replace(item.usage, web_searches=0, web_results=0))
+                    for item in used] for used in picked]
+    costs = [estimate_cost(used, settings.prices) for used in tokens_only]
+    currencies = {price.currency for price in settings.prices} or {"USD"}
+    return {
+        "searches": len(picked),
+        "tokens": round(statistics.median(total_tokens(used) for used in picked)),
+        "token_cost": round(statistics.median(cost for cost, _ in costs), 2),
+        "cost_is_complete": all(complete for _, complete in costs),
+        "currency": currencies.pop() if len(currencies) == 1 else "",
+        "web_searches": round(statistics.median(
+            sum(item.usage.web_searches for item in used) for used in picked)),
+    }
+
+
 @router.get("/usage")
 def get_usage(now: datetime | None = None) -> dict:
     """What has been used this month and in the last search, and the state of every source."""
@@ -341,6 +382,7 @@ def get_usage(now: datetime | None = None) -> dict:
             ],
         },
         "last_search": last_search,
+        "typical_search": _typical_search(settings, log),
         "free_web_searches": _free_web_searches(settings, log, now),
         "travel": {"routes_this_month": month.get("google_maps_routes", 0)},
         "limits": settings.limits.model_dump(),

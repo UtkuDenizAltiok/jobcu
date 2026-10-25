@@ -62,6 +62,11 @@ You can leave this box empty. It is not a general place to add more skills or se
 When all three checklist items are ready, **Find matching jobs** becomes available. You do
 not need Adzuna, Reed or Google Maps keys to get started.
 
+Below the button, Jobcu shows what a search like your recent ones used with the same AI:
+about how many tokens and what they cost from your price table, how many web searches, and
+how many of your free web searches are left this month. It is based on your last finished
+searches with that AI, so it appears after your first one.
+
 ## 3. Tell Jobcu what to search for
 
 In **Where do you want to work?**, write the places and conditions you want in ordinary words.
