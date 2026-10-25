@@ -123,6 +123,10 @@ when the ad asks for no language.
 and not_required.
 - {SPONSORSHIP_RULES}
 - {RIGHT_TO_WORK_RULES} When the ad wasn't found: not_stated.
+- versions_differ: when the notes quote versions of this vacancy that ask for different things \
+(for example on two sites), name what differs in at most 8 words (for example "German only in \
+one version"), and give every field from the stricter version: the higher language level, the \
+more years, the requirement rather than its absence. Empty when the notes quote one version.
 - {requirements.RULES} ad_words must be quoted from the research notes. When the notes do not \
 cover mandatory requirements, use null rather than claiming an empty checked list.
 - role_and_skills: reassess ONLY the role-and-skills part against the supplied person using \
@@ -147,6 +151,7 @@ class OnlineJob(BaseModel):
     visa_sponsorship_words: str = ""
     right_to_work_required: RightToWork = "not_stated"
     right_to_work_words: str = ""
+    versions_differ: str = ""
     _grounded_checks: list[dict] | None = PrivateAttr(default=None)
     _sponsorship_confirmed: bool = PrivateAttr(default=False)
     role_and_skills: int | None = None
@@ -299,6 +304,7 @@ def _keep_answer(group, index: int, answer: OnlineJob | None, looked_up: LookedU
                 "visa_sponsorship_words": answer.visa_sponsorship_words,
                 "right_to_work_required": answer.right_to_work_required,
                 "right_to_work_words": answer.right_to_work_words,
+                "versions_differ": answer.versions_differ.strip(),
                 "sponsorship_confirmed": answer._sponsorship_confirmed},
             role_and_skills=answer.role_and_skills, role_words=answer.role_words,
             requirement_checks=(answer._grounded_checks

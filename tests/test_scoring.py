@@ -9,7 +9,7 @@ from jobcu.dedupe import group_duplicates
 from jobcu.location import LocationPlan
 from jobcu.profile import LanguageSkill, Profile, WorkRight
 from jobcu.relevance import quick_pass
-from jobcu.scoring import JobScore, finish, score_groups
+from jobcu.scoring import JobScore, LanguageAsked, finish, score_groups
 from jobcu.settings import Settings
 from jobcu.sources.base import FoundJob
 
@@ -615,3 +615,16 @@ def test_a_requirement_check_that_restates_the_right_to_work_clause_is_not_judge
     # Without the dedicated field, the check stays the only evidence, as before.
     assert ad("not_stated")["limits"][0]["why"] == (
         "Right to work in UK without sponsorship: not met by the stated profile")
+
+
+def test_an_ad_found_online_in_two_versions_says_the_stricter_one_is_used():
+    from jobcu.scoring import with_ad_read_online
+
+    result = placed("DE", "not_stated")
+    again = with_ad_read_online(result, RIGHTS, [LanguageAsked(**asked("German", "B2"))], 3,
+                                versions_differ="German only in one version")
+    assert ("Found online in versions that differ (German only in one version); the stricter "
+            "one is used") in again["notes"]
+    assert again["limits"][0]["why"] == "German B2 required, you have A2"
+    long = with_ad_read_online(result, RIGHTS, [], None, versions_differ="word " * 40)
+    assert len(next(n for n in long["notes"] if n.startswith("Found online"))) <= 150
