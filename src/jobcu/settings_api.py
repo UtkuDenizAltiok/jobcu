@@ -96,6 +96,25 @@ class AIChoice(BaseModel):
     flex_processing: bool = False
 
 
+# Jobcu's measured recommendation (docs/SOURCES.md, Gemini running costs): one Gemini model for
+# every step at Google's half-price Flex tier, which needs request recovery, and Google's free
+# monthly web searches shared across searches. Other settings, keys and prices stay as they are.
+RECOMMENDED_AI = {"provider": "gemini", "model": "gemini-3.8-flash", "reasoning_model": "",
+                  "research_provider": None, "research_model": "", "flex_processing": True,
+                  "recover_interrupted_requests": True, "scoring_effort": "medium",
+                  "reasoning_effort": "medium"}
+RECOMMENDED_FREE_WEB_SEARCHES = 5000
+
+
+@router.post("/settings/recommended")
+def use_recommended_setup() -> dict:
+    settings = load_settings()
+    settings.ai = AISettings.model_validate({**settings.ai.model_dump(), **RECOMMENDED_AI})
+    settings.limits.free_web_searches = RECOMMENDED_FREE_WEB_SEARCHES
+    save_settings(settings)
+    return get_settings()
+
+
 @router.put("/settings/ai")
 def put_ai_settings(choice: AIChoice) -> dict:
     settings = load_settings()

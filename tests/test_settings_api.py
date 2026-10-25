@@ -261,3 +261,22 @@ def test_recovery_requires_explicit_choice_and_survives_older_settings_clients(c
     client.put('/api/settings/ai', json={'provider': 'gemini',
                'recover_interrupted_requests': False}, headers=HEADERS)
     assert load_settings().ai.recover_interrupted_requests is False
+
+
+def test_the_recommended_setup_is_one_step_and_keeps_everything_else(client):
+    settings = load_settings()
+    settings.ai.provider, settings.ai.model = "openrouter", "fictional/model"
+    settings.ai.reasoning_model = "fictional/thinker"
+    settings.ai.research_provider, settings.ai.research_model = "anthropic", "fictional-claude"
+    settings.limits.monthly_cost_limit = 40
+    save_settings(settings)
+    data = client.post("/api/settings/recommended", headers=HEADERS).json()
+    ai = data["ai"]
+    assert (ai["provider"], ai["model"], ai["reasoning_model"]) == (
+        "gemini", "gemini-3.8-flash", "")
+    assert ai["research_provider"] is None and ai["research_model"] == ""
+    assert ai["flex_processing"] and ai["recover_interrupted_requests"]
+    assert (ai["scoring_effort"], ai["reasoning_effort"]) == ("medium", "medium")
+    saved = load_settings()
+    assert saved.limits.free_web_searches == 5000 and saved.limits.monthly_cost_limit == 40
+    assert client.post("/api/settings/recommended").status_code in (400, 403)  # needs X-Jobcu
