@@ -211,7 +211,7 @@ Private-data boundaries are described in [CONTRIBUTING](../CONTRIBUTING.md#priva
 | `tools/benchmark_local_matching.py` | Fictional local identity/deduplication comparison against a Git baseline; no saved user data, network or provider calls. |
 | `tools/review_search.py` | Read-only, allowlisted aggregate review of saved results; no network/AI. |
 | `tools/score_check.py` | Compare scores with independent labels; focused authorized re-scoring and prompt variants. |
-| `tools/compare_providers.py` | Replay one private capture's AI requests on another provider/model and compare each step with Jobcu's own rules; `--setup` compares fresh profile, location and search-word readings. Paid. |
+| `tools/compare_providers.py` | Replay one private capture's AI requests on another provider/model and compare each step with Jobcu's own rules; `--setup` compares fresh profile, location and search-word readings; `--saved-ads` scores the Score check's or a frozen private ad set against judged ranges and blockers, with each run's reasoning tokens. Paid. |
 | `tools/coverage_test.py` | Trace a private independent benchmark through collection/filtering/scoring. |
 | `tools/universality_check.py` | Fictional professions through profile, words, relevance and scoring; ESCO vocabulary checks. |
 | `tools/made_up_search.py` | A full fictional search in its own data folder. Live/paid runs still need authorization. |

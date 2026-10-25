@@ -73,30 +73,40 @@ def exists(search_id: int) -> bool:
         ).fetchone() is not None
 
 
+def group_to_dict(group: JobGroup) -> dict:
+    """One job group as plain JSON data; `group_from_dict` reads it back."""
+    data = dataclasses.asdict(group)
+    for copy, stored in zip(group.copies, data["copies"], strict=True):
+        for name in ("posted_at", "closes_at"):
+            when = getattr(copy, name)
+            stored[name] = when.isoformat() if when else None
+    return data
+
+
+def group_from_dict(group: dict) -> JobGroup:
+    copies = [
+        FoundJob(**{**copy, "posted_at": parse_iso(copy["posted_at"]),
+                    "closes_at": parse_iso(copy.get("closes_at"))})
+        for copy in group["copies"]
+    ]
+    return JobGroup(copies=copies, possible_duplicate_of=group["possible_duplicate_of"],
+                    source_kinds=group["source_kinds"],
+                    place_from_text=group.get("place_from_text"),
+                    place_from_web=group.get("place_from_web"))
+
+
 def _to_dict(pool: Pool) -> dict:
     data = dataclasses.asdict(pool)
     for job, stored in zip(pool.jobs, data["jobs"], strict=True):
-        for copy, stored_copy in zip(job.group.copies, stored["group"]["copies"], strict=True):
-            for name in ("posted_at", "closes_at"):
-                when = getattr(copy, name)
-                stored_copy[name] = when.isoformat() if when else None
+        stored["group"] = group_to_dict(job.group)
     return data
 
 
 def _from_dict(data: dict) -> Pool:
     jobs = []
     for stored in data.pop("jobs"):
-        group = stored["group"]
-        copies = [
-            FoundJob(**{**copy, "posted_at": parse_iso(copy["posted_at"]),
-                        "closes_at": parse_iso(copy.get("closes_at"))})
-            for copy in group["copies"]
-        ]
         jobs.append(PoolJob(
-            group=JobGroup(copies=copies, possible_duplicate_of=group["possible_duplicate_of"],
-                           source_kinds=group["source_kinds"],
-                           place_from_text=group.get("place_from_text"),
-                           place_from_web=group.get("place_from_web")),
+            group=group_from_dict(stored["group"]),
             unrelated=stored["unrelated"],
             scored=stored["scored"],
             online_evidence=stored.get("online_evidence"),
