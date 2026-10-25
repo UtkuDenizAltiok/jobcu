@@ -58,7 +58,9 @@ log = logging.getLogger(__name__)
 MIN_SCORE = 50
 # Jobs per request: few enough for the model to look each one up properly.
 BATCH_SIZE = 5
-# Web look-ups each job may take (the model is told to search for every job).
+# Web look-ups each job may take (the model is told to search for every job). Gemini does not
+# enforce it; telling it how to search (title and company once, then only if needed) took search
+# 8's look-ups from 135 to 101 Google searches with every ad still found (2026-10-25).
 SEARCHES_PER_JOB = 2
 MAX_PLACES = 3
 TEXT_CHARS = 300
@@ -76,11 +78,13 @@ INCOMPLETE_CHECKS = (
 RESEARCH_SYSTEM = """\
 You look job ads up on the web for a personal job search app. For EACH job below (ID | title | \
 company | country | original URL | start of the ad), use the original URL to identify the exact \
-vacancy. Search by that URL and, if necessary, its title and company. Read the same requisition \
-on the employer's career site or a job board; never substitute a different vacancy with the \
-same title. Respect blocked pages and do not log in or bypass restrictions. Search for every job \
-before answering: an answer from memory is a guess. Then, for each job, write down what the \
-ad itself says about:
+vacancy. Search once for its title together with its company (add a requisition number when one \
+is given) and read the best matching result. Search again only when that result is not the same \
+requisition, for example on the employer's career site; two searches per job are normally \
+enough, and facts the found ad already states need no further search. Never substitute a \
+different vacancy with the same title. Respect blocked pages and do not log in or bypass \
+restrictions. Search for every job before answering: an answer from memory is a guess. Then, \
+for each job, write down what the ad itself says about:
 - the town or city where the work is. For a staffing agency or recruiter, that is the client's \
 site the ad names, never the agency's own office;
 - the languages it asks for, in the ad's own words, and whether each is required or a plus;

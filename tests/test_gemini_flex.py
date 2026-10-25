@@ -39,7 +39,7 @@ def finished(tier):
 def service():
     sdks = []
 
-    def make(answers, *, flex=True, failures=0, patient=True):
+    def make(answers, *, flex=True, failures=0, patient=True, recover=True):
         """`answers` gives each POST a response: "busy", "accepted" or "failed"."""
         posts, notices, waits = [], [], []
         adapter = GeminiAdapter("fictional-key")
@@ -73,7 +73,7 @@ def service():
         sdks.append(sdk)
         settings = Settings()
         settings.ai.provider, settings.ai.model = "gemini", "gemini-3.8-flash"
-        settings.ai.recover_interrupted_requests = True
+        settings.ai.recover_interrupted_requests = recover
         client = AIClient(settings, adapter=adapter, usage_log=UsageLog(), search_id=1,
                           sleep=waits.append, notify=notices.append, patient=patient)
         return client, posts, notices, waits
@@ -137,6 +137,23 @@ def test_flex_is_off_unless_chosen(service):
     assert ask(client).ok
     assert [post.get("service_tier") for post in posts] == [None]
     assert recorded_models() == ["gemini-3.8-flash"]
+
+
+def test_flex_waits_for_recovery_so_a_preempted_request_is_never_an_ambiguous_drop(service):
+    # Without recovery the request streams; the fictional service answers it plainly.
+    sdk_posts = []
+    client, posts, _, _ = service(["accepted"], recover=False)
+    adapter = client.adapter()
+
+    def stream(**request):
+        sdk_posts.append(request)
+        raise gemini_adapter.AIUnavailable("Fictional stop", "")
+
+    adapter._event_resource().create = stream
+    with pytest.raises(AIUnavailable):
+        client.generate(Answer, step="scoring", system="Use only fictional evidence",
+                        prompt="Fictional electronics graduate")
+    assert sdk_posts and all("service_tier" not in request for request in sdk_posts)
 
 
 def test_a_saved_flex_price_is_used_as_saved():

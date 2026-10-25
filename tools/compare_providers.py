@@ -639,6 +639,9 @@ def show_saved_ads(runs: list[dict], labels: dict | None, others: list[dict]) ->
     for a in range(len(every)):
         for b in range(a + 1, len(every)):
             ids = [i for i in every[a]["ads"] if i in every[b]["ads"]]
+            if not ids:
+                print(f"  {names[a]} vs {names[b]}: no ads scored by both")
+                continue
             pairs = [(every[a]["ads"][i]["score"], every[b]["ads"][i]["score"]) for i in ids]
             print(f"  {names[a]} vs {names[b]}: "
                   f"{statistics.fmean(abs(x - y) for x, y in pairs):.1f} / {spearman(pairs):.3f}")

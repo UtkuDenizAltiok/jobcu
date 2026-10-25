@@ -180,7 +180,12 @@ class GeminiAdapter(ProviderAdapter):
         if context is not None:
             self.cleanup_pending(context)
         with self._client_lock:
-            flex = self.flex and self._flex_failures < FLEX_FAILURES
+            # Google can stop a queued Flex request midway. With recovery that is a clean
+            # failed operation; over a plain stream it is a dropped connection that may have
+            # been billed, which stops research for the rest of the search (search 8 replay,
+            # 2026-10-25: 2 of 5 web look-ups dropped after 81-171 s). Flex needs recovery.
+            flex = (self.flex and self._flex_failures < FLEX_FAILURES
+                    and context is not None and context.enabled)
         if not flex:
             return self._send_events(request, web_search, context)
         for attempt in range(1, FLEX_ATTEMPTS + 1):
