@@ -280,3 +280,33 @@ def test_the_recommended_setup_is_one_step_and_keeps_everything_else(client):
     saved = load_settings()
     assert saved.limits.free_web_searches == 5000 and saved.limits.monthly_cost_limit == 40
     assert client.post("/api/settings/recommended").status_code in (400, 403)  # needs X-Jobcu
+
+
+def test_a_search_like_the_recent_ones_is_estimated_before_it_starts(client):
+    from jobcu import db
+
+    settings = load_settings()
+    settings.ai.provider, settings.ai.model = "gemini", "fictional-model"
+    settings.limits.free_web_searches = 5000
+    save_settings(settings)
+    client.put("/api/settings/prices", headers=HEADERS, json={"prices": [
+        {"provider": "gemini", "model": "fictional-model", "input_per_million": 1,
+         "output_per_million": 10, "web_search_per_thousand": 14}]})
+    log = UsageLog()
+    with db.connect() as conn:
+        for search_id, status in ((1, "finished"), (2, "finished"), (3, "failed"), (4, "finished")):
+            conn.execute("INSERT INTO searches (id, status, form_json) VALUES (?, ?, '{}')",
+                         (search_id, status))
+    for search_id, output, searches in ((1, 100_000, 50), (2, 200_000, 80), (3, 900_000, 0),
+                                        (4, 300_000, 120)):
+        log.record(step="scoring", provider="gemini", model="fictional-model",
+                   usage=Usage(input_tokens=100_000, output_tokens=output,
+                               web_searches=searches), search_id=search_id)
+    typical = client.get("/api/usage").json()["typical_search"]
+    # The median of the finished searches; web searches are counted, not priced.
+    assert typical["searches"] == 3 and typical["tokens"] == 300_000
+    assert typical["token_cost"] == 2.1 and typical["web_searches"] == 80
+    settings = load_settings()
+    settings.ai.model = "another-model"
+    save_settings(settings)
+    assert client.get("/api/usage").json()["typical_search"] is None

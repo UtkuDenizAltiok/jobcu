@@ -2006,6 +2006,28 @@ function money(part) {
   return part.cost_is_complete ? `about ${amount}` : `estimated ${amount} (incomplete)`;
 }
 
+/** What a search like the recent ones with this AI used, shown before starting one. */
+function renderCostPreview(usage) {
+  const typical = usage.typical_search;
+  const preview = $("search-cost-preview");
+  preview.hidden = !typical;
+  if (!typical) return;
+  const last = typical.searches === 1 ? "your last search" : `your last ${typical.searches} searches`;
+  const amount = `${typical.token_cost.toFixed(2)} ${typical.currency || ""}`.trim();
+  let text = `A search like ${last} with this AI uses about ${tokens(typical.tokens)} `
+    + `(${typical.cost_is_complete ? "about" : "at least"} ${amount})`;
+  if (typical.web_searches) {
+    text += ` and about ${typical.web_searches.toLocaleString()} web searches`;
+    const free = usage.free_web_searches;
+    if (free) {
+      const left = Math.max(0, free.allowance - free.used);
+      text += `; ${left.toLocaleString()} of your ${free.allowance.toLocaleString()} free web `
+        + "searches are left this month";
+    }
+  }
+  preview.textContent = `${text}.`;
+}
+
 function tokens(count) {
   return `${count.toLocaleString()} tokens`;
 }
@@ -2038,6 +2060,7 @@ function renderUsage() {
   $("usage-last").textContent = usage.last_search
     ? `Last search: ${tokens(usage.last_search.tokens)}, ${money(usage.last_search)}.`
     : "No search yet.";
+  renderCostPreview(usage);
 
   $("travel-usage").textContent =
     `This month: ${usage.travel.routes_this_month.toLocaleString()} of ` +

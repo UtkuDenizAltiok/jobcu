@@ -21,6 +21,7 @@ done. Implementation details belong in pull requests; current behavior is descri
   pair ordering, top 10, bands, blockers and each model's reasoning share, come straight from
   `tools/compare_providers.py`.
 - A one-step recommended AI setup in Settings, in plain language.
+- A cost preview before each search, from the recent searches' measured usage.
 - Provider-neutral scoring: work rights are read once per country and compared with an ad's
   clause in code, every OpenRouter model is checked to really reason, and cheaper models
   were compared again on equal terms (none matched Gemini's ordering).
@@ -55,6 +56,5 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Later: simplicity
 
-9. **Cost preview** before a search, from recent searches' measured usage.
-10. **Module size:** split `search.py` and `location.py` only along existing stage boundaries
-    when a change touches them.
+9. **Module size:** split `search.py` and `location.py` only along existing stage boundaries
+   when a change touches them.
