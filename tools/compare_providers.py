@@ -20,14 +20,21 @@ that separate allowance). The report and printed lists contain private job and p
 
 `--saved-ads` needs no capture: it scores the ads the Score check keeps (data folder), with the
 newest saved profile and each ad's recorded location plan, so every model gets the same test.
-`--labels` compares the scores with a private file of expected ranges ({"ranges": {id: [lo,
-hi]}}); `--against` with earlier runs. OpenRouter is `--to openrouter:<model>[@host]` with its
+`--ads FILE` scores a private, frozen ad set instead: {"profile": {...} (optional; else the
+newest saved one), "ads": [{"id": "...", "plan": {...} or null, "group": {...}}]}, where a group
+is a search pool's job group (`pool.group_to_dict`); `--export-ads FILE` writes the Score check's
+ads in that format to start one. `--labels` compares the scores with a private file of expected
+ranges, {"ranges": {id: [lo, hi]}, "blockers": {id: highest acceptable score}}: the order of
+clearly different ads, the top 10, the apply/maybe/skip bands and the blockers. Each run also
+reports its tokens, and warns when a model reported no reasoning tokens (thinking may be off).
+`--against` compares with earlier runs. OpenRouter is `--to openrouter:<model>[@host]` with its
 saved key. Any other service is `--to openai_compatible:<model>` with `--base-url` (and the
 protocol/reasoning options Settings offers); it uses the key saved for "Other API".
 """
 
 import argparse
 import ast
+import itertools
 import json
 import re
 import statistics
@@ -45,6 +52,7 @@ from jobcu import (  # noqa: E402
     jobplace,
     keywords,
     location,
+    pool,
     recheck,
     reference_places,
     reference_sources,
@@ -74,6 +82,12 @@ OUTPUTS: dict[str, type[BaseModel]] = {model.__name__: model for model in (
 # Structuring steps that read research notes: replayed together with their research.
 NOTES_MARK = "Research notes:\n"
 BANDS = ((70, "good"), (50, "fair"), (0, "low"))
+# Saved-ad labels: what a person would do with a card at this score.
+LABEL_BANDS = ((75, "apply"), (55, "maybe"), (0, "skip"))
+CLEAR_PAIR = 10  # label midpoints at least this far apart: one ad clearly fits better
+NEAR_RANGE = 5  # a score this close to its label range still counts as in range
+BIG_MISS = 15
+SHOWN_MISSES = 12  # the farthest ones; the --out file has every score
 
 
 @dataclass
@@ -572,32 +586,61 @@ def compare_setup(folder: Path, providers: list[tuple[str, str]], budget: str | 
     return readings
 
 
-def saved_ads_runs(replayer: Replayer, runs: int) -> list[dict]:
-    """Score the Score check's saved ads `runs` times with one model; same inputs every time."""
-    from jobcu import db, quality
+def score_check_ads() -> list[dict]:
+    """The Score check's scored ads, in the --ads file format."""
+    from jobcu import quality
+
+    return [{"id": str(ad.id), "plan": ad.location_plan,
+             "group": pool.group_to_dict(group_duplicates([FoundJob(
+                 source=ad.kind, source_job_id=str(ad.id), url=ad.url, title=ad.title,
+                 company=ad.company, location_text=ad.location, description=ad.text,
+                 description_is_complete=ad.description_is_complete)],
+                 {ad.kind: "job_board"})[0])}
+            for ad in quality.all_ads() if ad.kind == "scored"]
+
+
+def newest_profile() -> profiles.Profile:
+    from jobcu import db
 
     with db.connect() as conn:
         row = conn.execute("SELECT profile_json FROM profile_cache ORDER BY created_at DESC "
                            "LIMIT 1").fetchone()
     if row is None:
         raise SystemExit("No saved profile yet: run a search first.")
-    profile = profiles.Profile.model_validate_json(row["profile_json"])
-    ads = [ad for ad in quality.all_ads() if ad.kind == "scored"]
-    groups = [group_duplicates([FoundJob(
-        source=ad.kind, source_job_id=str(ad.id), url=ad.url, title=ad.title,
-        company=ad.company, location_text=ad.location, description=ad.text,
-        description_is_complete=ad.description_is_complete)], {ad.kind: "job_board"})[0]
-        for ad in ads]
+    return profiles.Profile.model_validate_json(row["profile_json"])
+
+
+def run_usage(after_id: int, provider: str, model: str) -> dict:
+    """Tokens one run used: the usage log's rows for this model since `after_id`."""
+    from jobcu import db
+
+    with db.connect() as conn:
+        row = conn.execute(
+            """SELECT COUNT(*), SUM(input_tokens), SUM(output_tokens), SUM(reasoning_tokens)
+               FROM ai_usage WHERE id > ? AND provider = ? AND model IN (?, ?)""",
+            (after_id, provider, model, f"{model} (flex)")).fetchone()
+    return dict(zip(("rows", "input_tokens", "output_tokens", "reasoning_tokens"),
+                    (v or 0 for v in row), strict=True))
+
+
+def saved_ads_runs(replayer: Replayer, runs: int, ad_file: Path | None = None) -> list[dict]:
+    """Score a fixed ad set `runs` times with one model; same inputs every time."""
+    data = (json.loads(ad_file.read_text(encoding="utf-8")) if ad_file
+            else {"ads": score_check_ads()})
+    profile = (profiles.Profile.model_validate(data["profile"]) if data.get("profile")
+               else newest_profile())
+    ads = data["ads"]
+    groups = [pool.group_from_dict(ad["group"]) for ad in ads]
     anywhere = location.LocationPlan(text="", understood_as="Anywhere.", countries=[], places=[],
                                      not_checked_yet=[], outside_supported_area=[], broad=True)
     by_plan: dict[str, list[int]] = {}
     for index, ad in enumerate(ads):
-        by_plan.setdefault(json.dumps(ad.location_plan, sort_keys=True), []).append(index)
+        by_plan.setdefault(json.dumps(ad.get("plan"), sort_keys=True), []).append(index)
     results = []
     for run in range(runs):
-        started, scored = time.monotonic(), {}
+        started, scored, first_usage = time.monotonic(), {}, last_usage_id()
         for indexes in by_plan.values():
-            recorded = ads[indexes[0]].location_plan
+            recorded = ads[indexes[0]].get("plan")
             plan = location.LocationPlan.model_validate(recorded) if recorded else anywhere
             try:
                 scored.update(scoring.score_groups(replayer.client, profile, plan, groups,
@@ -605,9 +648,11 @@ def saved_ads_runs(replayer: Replayer, runs: int) -> list[dict]:
             except AIError as exc:
                 print(f"  run {run + 1}: {type(exc).__name__}: {exc.message}")
         results.append({"model": f"{replayer.provider}:{replayer.model}",
+                        "effort": replayer.effort,
                         "seconds": round(time.monotonic() - started),
-                        "ads": {str(ad.id): {
-                            "title": ad.title, "score": scored[i]["score"],
+                        "usage": run_usage(first_usage, replayer.provider, replayer.model),
+                        "ads": {ad["id"]: {
+                            "title": groups[i].main.title, "score": scored[i]["score"],
                             "parts": scored[i]["parts"], "reasons": scored[i]["reasons"],
                             "limits": [limit["why"] for limit in scored[i]["limits"]]}
                             for i, ad in enumerate(ads) if i in scored}})
@@ -616,25 +661,85 @@ def saved_ads_runs(replayer: Replayer, runs: int) -> list[dict]:
     return results
 
 
+def label_band(score: float) -> str:
+    return next(name for low, name in LABEL_BANDS if score >= low)
+
+
+def label_metrics(run: dict, labels: dict) -> dict | None:
+    """How a run's scores compare with judged ranges: the decision metrics for a model."""
+    ranges, caps = labels["ranges"], labels.get("blockers", {})
+    ids = [i for i in ranges if i in run["ads"]]
+    if not ids:
+        return None
+    score = {i: run["ads"][i]["score"] for i in ids}
+    middle = {i: sum(ranges[i]) / 2 for i in ids}
+    right = pairs = 0.0
+    for a, b in itertools.combinations(ids, 2):
+        if abs(middle[a] - middle[b]) < CLEAR_PAIR:
+            continue
+        pairs += 1
+        better, worse = (a, b) if middle[a] > middle[b] else (b, a)
+        right += 1 if score[better] > score[worse] else 0.5 if score[better] == score[worse] else 0
+    top = min(10, len(ids))
+    picked = set(sorted(ids, key=lambda i: (-score[i], i))[:top])
+    wanted = set(sorted(ids, key=lambda i: (-middle[i], i))[:top])
+    miss = {i: max(0, ranges[i][0] - score[i], score[i] - ranges[i][1]) for i in ids}
+    capped = [i for i in caps if i in score]
+    return {
+        "ads": len(ids),
+        "clear_pairs": right / pairs if pairs else None,
+        "top": (len(picked & wanted), top),
+        "bands": sum(label_band(score[i]) == label_band(middle[i]) for i in ids),
+        "in_range": sum(miss[i] <= NEAR_RANGE for i in ids),
+        "average_miss": statistics.fmean(miss.values()),
+        "big_misses": [(i, score[i]) for i in sorted(ids, key=lambda i: -miss[i])
+                       if miss[i] > BIG_MISS],
+        "blockers_held": [i for i in capped if score[i] <= caps[i]],
+        "blockers_missed": [(i, score[i]) for i in capped if score[i] > caps[i]],
+    }
+
+
+def thinking(run: dict) -> str:
+    usage = run.get("usage")
+    if not usage or not usage["output_tokens"]:
+        return "-"
+    if not usage["reasoning_tokens"]:
+        return "none!"
+    return f"{usage['reasoning_tokens'] / usage['output_tokens']:.0%}"
+
+
 def show_saved_ads(runs: list[dict], labels: dict | None, others: list[dict]) -> None:
     every = [*others, *runs]
     names = [f"{run['model']} #{i + 1}" for i, run in enumerate(every)]
     if labels:
-        print("\nAgainst the expected ranges (within 5 points counts as in range):")
+        print(f"\nAgainst the labels (pairs: share of clearly different ads, midpoints "
+              f"{CLEAR_PAIR}+ apart, in the right order; in range: within {NEAR_RANGE} "
+              "points; thinking: reasoning share of output tokens):")
+        print(f"  {'run':48} pairs  top    bands   in range  miss  blockers  thinking")
         for name, run in zip(names, every, strict=True):
-            ids = [i for i in labels if i in run["ads"]]
-            if not ids:
-                print(f"  {name:45} no ads scored")
+            found = label_metrics(run, labels)
+            if found is None:
+                print(f"  {name:48} no labelled ads scored")
                 continue
-            scores = [run["ads"][i]["score"] for i in ids]
-            middle = [sum(labels[i]) / 2 for i in ids]
-            near = sum(labels[i][0] - 5 <= s <= labels[i][1] + 5
-                       for i, s in zip(ids, scores, strict=True))
-            off = statistics.fmean(max(0, labels[i][0] - s, s - labels[i][1])
-                                   for i, s in zip(ids, scores, strict=True))
-            agreement = spearman(list(zip(scores, middle, strict=True)))
-            print(f"  {name:45} rank agreement {agreement:.3f} | "
-                  f"in range {near}/{len(ids)} | average miss {off:.1f}")
+            n = found["ads"]
+            pairs = "  -  " if found["clear_pairs"] is None else f"{found['clear_pairs']:.3f}"
+            held = len(found["blockers_held"])
+            blockers = f"{held}/{held + len(found['blockers_missed'])}"
+            print(f"  {name:48} {pairs}  {found['top'][0]}/{found['top'][1]:<3}  "
+                  f"{found['bands']:>3}/{n:<3} {found['in_range']:>3}/{n:<3}  "
+                  f"{found['average_miss']:4.1f}  {blockers:8}  {thinking(run)}")
+            if found["big_misses"]:
+                more = len(found["big_misses"]) - SHOWN_MISSES
+                print("      far off: " + ", ".join(
+                    f"{i} {s} ({labels['ranges'][i][0]}-{labels['ranges'][i][1]})"
+                    for i, s in found["big_misses"][:SHOWN_MISSES])
+                    + (f" and {more} more" if more > 0 else ""))
+            if found["blockers_missed"]:
+                print("      blocker missed: " + ", ".join(
+                    f"{i} {s} (at most {labels['blockers'][i]})"
+                    for i, s in found["blockers_missed"]))
+    elif any(thinking(run) == "none!" for run in every):
+        print("\nSome runs reported no reasoning tokens: thinking may have been off.")
     print("\nBetween runs (average difference / rank agreement):")
     for a in range(len(every)):
         for b in range(a + 1, len(every)):
@@ -657,7 +762,7 @@ def last_usage_id() -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("capture", type=Path, nargs="?", help="a folder in review-captures")
-    parser.add_argument("--to", required=True, help="provider:model to compare with")
+    parser.add_argument("--to", help="provider:model to compare with")
     parser.add_argument("--steps", help="comma-separated steps, e.g. scoring,quick_pass")
     parser.add_argument("--kinds", help="comma-separated answer formats, e.g. ScoringAnswer")
     parser.add_argument("--limit", type=int, help="at most this many requests per format")
@@ -669,6 +774,10 @@ def main() -> int:
     parser.add_argument("--saved-ads", action="store_true",
                         help="score the Score check's saved ads instead of a capture")
     parser.add_argument("--runs", type=int, default=1, help="with --saved-ads: repetitions")
+    parser.add_argument("--ads", type=Path,
+                        help="with --saved-ads: a private ad set file instead of the Score check")
+    parser.add_argument("--export-ads", type=Path,
+                        help="write the Score check's ads as an --ads file, then stop")
     parser.add_argument("--labels", type=Path, help="with --saved-ads: expected score ranges")
     parser.add_argument("--against", type=Path, nargs="*", default=[],
                         help="with --saved-ads: earlier --out files to compare with")
@@ -681,6 +790,12 @@ def main() -> int:
     parser.add_argument("--effort", choices=["minimal", "low", "medium", "high"],
                         help="one reasoning effort for every replayed or saved-ad request")
     args = parser.parse_args()
+    if args.export_ads:
+        args.export_ads.write_text(json.dumps({"ads": score_check_ads()}, ensure_ascii=False,
+                                              indent=1), encoding="utf-8")
+        return 0
+    if not args.to:
+        parser.error("--to is needed")
     provider, _, model = args.to.partition(":")
     if not model:
         parser.error("--to needs provider:model")
@@ -691,11 +806,8 @@ def main() -> int:
         parser.error("Other API needs --base-url")
     if args.saved_ads:
         runs = saved_ads_runs(Replayer(provider, model, args.budget, endpoint, args.effort),
-                              args.runs)
-        labels = None
-        if args.labels:
-            labels = {key: value for key, value in
-                      json.loads(args.labels.read_text(encoding="utf-8"))["ranges"].items()}
+                              args.runs, args.ads)
+        labels = json.loads(args.labels.read_text(encoding="utf-8")) if args.labels else None
         others = [run for path in args.against
                   for run in json.loads(path.read_text(encoding="utf-8"))]
         show_saved_ads(runs, labels, others)
