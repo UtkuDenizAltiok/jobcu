@@ -11,7 +11,7 @@ profile. Necessary profile text is sent to the chosen provider for matching.
 
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from jobcu import db, preparation
 from jobcu.ai.client import AIClient
@@ -42,6 +42,24 @@ class LanguageSkill(BaseModel):
     cefr_is_estimate: bool = Field(
         description="True if the CEFR level was estimated from words like 'fluent' or 'basic'"
     )
+
+
+RightAnswer = Literal["yes", "no", "unclear"]
+
+
+class WorkRight(BaseModel):
+    country: str = Field(description="ISO 3166-1 alpha-2 code, e.g. 'GB', 'DE'")
+    now: RightAnswer = Field(
+        description="Can work there now without an employer sponsoring a visa")
+    later: RightAnswer = Field(
+        description="That right lasts: no sponsorship needed in the future either")
+    basis: str = Field(description="The stated fact it rests on, in a few words")
+
+    @field_validator("country")
+    @classmethod
+    def _iso_code(cls, value: str) -> str:
+        code = value.strip().upper()
+        return "GB" if code == "UK" else code
 
 
 class Profile(BaseModel):
@@ -82,6 +100,14 @@ class Profile(BaseModel):
         description="Citizenship, work permits or visa needs, only if the documents or the "
         "person's note state them, otherwise null"
     )
+    # Worked out once from the stated facts, so scoring compares an ad's right-to-work clause
+    # with them instead of re-deriving visa rules for every job (scoring.work_right).
+    work_rights: list[WorkRight] = Field(default_factory=list, description=(
+        "One entry per country for which the documents or note state a citizenship, residence, "
+        "work permit, visa or visa eligibility"))
+    free_movement_in_eu_eea: bool = Field(default=False, description=(
+        "True only when the documents or note state a citizenship of an EU or EEA country or "
+        "Switzerland"))
     ignored_as_application_specific: list[str] = Field(
         description="Things left out because they only concern one specific application"
     )
@@ -99,7 +125,15 @@ Rules:
 ethnicity, gender, age, religion, health or family situation, whether from names, universities, \
 places of study or work, languages, or anything else.
 2. work_authorisation: fill it only when the documents or the note explicitly state a \
-citizenship, a work permit or a need for visa sponsorship, in their words. Otherwise use null.
+citizenship, a work permit or a need for visa sponsorship, in their words. Otherwise use null. \
+work_rights: one entry for each country those stated facts concern, and no other country. now: \
+yes when a stated citizenship, residence or permit lets the person work there without an \
+employer sponsoring a visa; no when the documents say they need sponsorship there; unclear \
+otherwise, also for eligibility for a visa not yet granted (it is not yet held). later: yes \
+only when that right lasts (citizenship, permanent residence, an unlimited permit); no when it, \
+or the visa it would rest on, is time-limited and can't continue without sponsorship, such as a \
+two-year visa; unclear when its duration isn't stated. basis: the stated fact in a few words. \
+free_movement_in_eu_eea: true only for a stated EU, EEA or Swiss citizenship.
 The note is the person's own, newer word: where it differs from the documents (for example a \
 newer language level), follow the note.
 3. The cover letter may have been written for one particular job application. Leave out \

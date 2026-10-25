@@ -7,7 +7,7 @@ from jobcu.ai.base import ProviderAdapter, RawReply, Usage
 from jobcu.ai.client import AIClient
 from jobcu.dedupe import group_duplicates
 from jobcu.location import LocationPlan
-from jobcu.profile import LanguageSkill, Profile
+from jobcu.profile import LanguageSkill, Profile, WorkRight
 from jobcu.relevance import quick_pass
 from jobcu.scoring import JobScore, finish, score_groups
 from jobcu.settings import Settings
@@ -534,3 +534,84 @@ def test_full_time_schedule_does_not_contradict_a_student_role():
     job.job_types = ["full_time_permanent"]
     assert job_types_of(group, {"job_type": "internship_or_working_student"}) == [
         "full_time_permanent"]
+
+
+RIGHTS = SPEAKER.model_copy(update={"work_rights": [
+    WorkRight(country="UK", now="unclear", later="no", basis="Eligible for a two-year visa"),
+    WorkRight(country="DE", now="yes", later="unclear", basis="Stated right to work"),
+    WorkRight(country="FR", now="no", later="no", basis="Would need sponsorship"),
+]})
+
+
+def placed(country, asked, profile=RIGHTS):
+    raw = score_json("J1", role=39, right_to_work_required=asked,
+                     right_to_work_words="" if asked == "not_stated" else "Fictional clause")
+    raw.update({"seniority": 18, "hard_requirements": 15, "location_and_preferences": 9})
+    return finish(JobScore.model_validate(raw), profile, ad_text="Fictional complete ad",
+                  complete=True, country=country)
+
+
+def test_a_lasting_right_to_work_clause_is_compared_with_the_stated_work_rights():
+    lasting = placed("GB", "now_and_later")  # "no sponsorship now or in the future"
+    assert lasting["limits"] == [{"at": 55, "why": (
+        "Needs a lasting right to work in the United Kingdom without sponsorship; yours is "
+        "time-limited")}]
+    assert lasting["parts"]["hard_requirements"] <= 10 and lasting["score"] == 55 - 5
+    # Asked only for now: an eligibility not yet granted stays unclear, not a blocker.
+    now = placed("GB", "now")
+    assert now["limits"] == [] and now["parts"]["hard_requirements"] == 14
+    assert "Asks for the right to work in the United Kingdom; whether yours meets it is unclear" \
+        in now["notes"]
+    assert placed("FR", "now")["limits"][0]["why"] == (
+        "Needs the right to work in France without visa sponsorship; your documents say you "
+        "would need it")
+
+
+def test_a_right_to_work_that_is_held_or_not_asked_for_costs_nothing():
+    assert placed("DE", "now")["parts"]["hard_requirements"] == 15
+    assert placed("GB", "not_stated")["parts"]["hard_requirements"] == 15
+    # A lasting right that isn't stated as lasting, or a country without any stated facts.
+    assert placed("DE", "now_and_later")["parts"]["hard_requirements"] == 14
+    unknown = placed("IE", "now")
+    assert unknown["parts"]["hard_requirements"] == 14 and unknown["limits"] == []
+    assert "Asks for the right to work in Ireland; yours there is not stated" in unknown["notes"]
+    citizen = SPEAKER.model_copy(update={"free_movement_in_eu_eea": True})
+    assert placed("FR", "now_and_later", citizen)["parts"]["hard_requirements"] == 15
+    assert placed("GB", "now", citizen)["parts"]["hard_requirements"] == 14
+
+
+def test_online_notes_that_omit_a_right_to_work_clause_keep_the_one_in_the_ad():
+    from jobcu.scoring import with_ad_read_online
+
+    result = placed("GB", "now_and_later")
+    again = with_ad_read_online(result, RIGHTS, [], None, right_to_work_required="not_stated",
+                                right_to_work_words="")
+    assert again["evidence"]["right_to_work_required"] == "now_and_later"
+    assert again["limits"][0]["at"] == 55
+
+
+def test_a_requirement_check_that_restates_the_right_to_work_clause_is_not_judged_twice():
+    clause = "Must have the right to work in the UK without sponsorship now or in the future"
+    restated = {"requirement": "Right to work in UK without sponsorship", "ad_words": clause,
+                "profile_words": "Eligible for a two-year visa", "status": "not_met",
+                "central_to_role": False}
+    other = {"requirement": "Fictional licence", "ad_words": "A fictional licence",
+             "profile_words": "", "status": "unclear", "central_to_role": False}
+
+    def ad(asked):
+        raw = score_json("J1", role=39, right_to_work_required=asked, right_to_work_words=clause
+                         if asked != "not_stated" else "", requirement_checks=[restated, other])
+        raw.update({"seniority": 18, "hard_requirements": 15, "location_and_preferences": 9})
+        return finish(JobScore.model_validate(raw), RIGHTS,
+                      ad_text=f"{clause}. A fictional licence.", complete=True, country="GB")
+
+    lasting = ad("now_and_later")
+    assert [limit["why"] for limit in lasting["limits"]] == [
+        "Needs a lasting right to work in the United Kingdom without sponsorship; yours is "
+        "time-limited"]
+    assert "Fictional licence: could not be confirmed" in lasting["notes"]
+    # Asked only for now, an eligibility is unclear: the model's own "not met" doesn't decide it.
+    assert ad("now")["limits"] == []
+    # Without the dedicated field, the check stays the only evidence, as before.
+    assert ad("not_stated")["limits"][0]["why"] == (
+        "Right to work in UK without sponsorship: not met by the stated profile")
