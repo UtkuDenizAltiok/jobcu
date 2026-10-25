@@ -32,8 +32,10 @@ from jobcu.settings import AISettings, Settings
 @pytest.fixture(autouse=True)
 def forget_custom_formats():
     CompatibleAdapter._mode_cache.clear()
+    CompatibleAdapter._reasons_only_by_choice.clear()
     yield
     CompatibleAdapter._mode_cache.clear()
+    CompatibleAdapter._reasons_only_by_choice.clear()
 
 
 def reply_for(protocol):
@@ -381,7 +383,8 @@ def test_a_router_model_no_host_serves_with_jobcu_s_controls_is_named_truthfully
     assert "doesn't know this model" not in refused.value.message
     assert [b.get("response_format", {}).get("type") for b in bodies] == [
         "json_schema", "json_object", None]
-    assert all(b["reasoning_effort"] == "medium" for b in bodies)  # never quietly removed
+    assert all(b["reasoning"] == {"effort": "medium"} for b in bodies)  # never quietly removed
+    assert all("reasoning_effort" not in b for b in bodies)
 
 
 def test_router_data_policy_refusal_is_never_negotiated_away():
@@ -453,7 +456,88 @@ def test_openrouter_needs_only_a_key_and_model_and_keeps_the_router_rules():
     assert client.generate(Answer, step="scoring", system="Rules", prompt="Fictional baker").ok
     assert str(requests[0].url) == "https://openrouter.ai/api/v1/chat/completions"
     body = json.loads(requests[0].content)
-    assert body["model"] == "fictional/model-1017" and body["reasoning_effort"] == "medium"
+    assert body["model"] == "fictional/model-1017"
+    assert body["reasoning"] == {"effort": "medium"} and "reasoning_effort" not in body
     assert body["provider"] == {"data_collection": "deny", "zdr": True,
                                 "require_parameters": True,
                                 "order": ["fictional-host"], "allow_fallbacks": False}
+
+
+def openrouter_client(handle):
+    settings = Settings()
+    settings.ai = AISettings(provider="openrouter", model="fictional/model@fictional-host")
+    adapter = configured_adapter("openrouter", "fake-router-key", settings.ai)
+    sdk_transport(adapter, "chat_completions", handle)
+    return AIClient(settings, adapter=adapter, usage_log=UsageLog())
+
+
+def router_reply(reasoning_tokens, completion_tokens=40):
+    reply = reply_for("chat_completions")
+    reply["usage"] = {**reply["usage"], "completion_tokens": completion_tokens,
+                      "completion_tokens_details": {"reasoning_tokens": reasoning_tokens}}
+    return reply
+
+
+@pytest.mark.parametrize("loose_reasons", [True, False])
+def test_a_router_host_that_drops_reasoning_with_a_json_format_is_asked_in_the_prompt(
+        loose_reasons):
+    bodies = []
+
+    def handle(request):
+        body = json.loads(request.content)
+        bodies.append(body)
+        constrained = "response_format" in body
+        return httpx.Response(200, json=router_reply(
+            0 if constrained or not loose_reasons else 30, 20 if constrained else 60))
+
+    client = openrouter_client(handle)
+    for _ in range(2):
+        assert client.generate(Answer, step="scoring", system="Rules",
+                               prompt="Fictional electrician").ok
+    formats = [b.get("response_format", {}).get("type") for b in bodies]
+    # The format that reasoned stays; a model that reasons in neither is not asked twice again.
+    assert formats == (["json_schema", None, None] if loose_reasons
+                       else ["json_schema", None, "json_schema"])
+    assert "JSON schema" in bodies[1]["messages"][1]["content"]
+    assert all(b["reasoning"] == {"effort": "medium"} for b in bodies)
+    # Both requests of the check are paid and recorded.
+    assert sum(u.usage.output_tokens for u in UsageLog().this_month()) == (
+        20 + 60 + (60 if loose_reasons else 20))
+
+
+def test_reasoning_is_not_rechecked_where_it_was_not_requested_or_is_not_reported():
+    bodies = []
+
+    def handle(request):
+        bodies.append(json.loads(request.content))
+        return httpx.Response(200, json=router_reply(0))
+
+    # Another address asked for an effort: its reasoning report isn't known to be reliable.
+    settings = Settings()
+    settings.ai = AISettings(provider="openai_compatible", model="fictional-model",
+                             base_url="https://provider.example/v1", compatible_reasoning="effort")
+    adapter = configured_adapter("openai_compatible", "fake-key", settings.ai)
+    sdk_transport(adapter, "chat_completions", handle)
+    client = AIClient(settings, adapter=adapter, usage_log=UsageLog())
+    assert client.generate(Answer, step="scoring", system="Rules", prompt="Fictional welder").ok
+    assert bodies[-1]["reasoning_effort"] == "medium"
+    # OpenRouter left to the provider's own reasoning default: nothing was asked for.
+    client = router_client(handle)
+    assert client.generate(Answer, step="scoring", system="Rules", prompt="Fictional welder").ok
+    assert [b["response_format"]["type"] for b in bodies] == ["json_schema", "json_schema"]
+
+
+def test_a_model_that_skips_reasoning_now_and_then_is_asked_again_each_time():
+    bodies, schema_replies = [], iter([30, 0])
+
+    def handle(request):
+        body = json.loads(request.content)
+        bodies.append(body)
+        return httpx.Response(200, json=router_reply(
+            next(schema_replies) if "response_format" in body else 25))
+
+    client = openrouter_client(handle)
+    for _ in range(3):
+        assert client.generate(Answer, step="scoring", system="Rules", prompt="Fictional cook").ok
+    assert [b.get("response_format", {}).get("type") for b in bodies] == [
+        "json_schema", "json_schema", None, None]

@@ -48,6 +48,8 @@ def test_saved_ad_runs_are_compared_with_ranges_and_each_other(capsys):
                           if "fictional:candidate #2" in line)
     assert candidate_line.split()[2:8] == ["1.000", "3/3", "3/3", "3/3", "0.0", "1/1"]
     assert candidate_line.split()[-1] == "40%"
+    assert tool.thinking({"usage": {"rows": 4, "output_tokens": 10, "reasoning_tokens": 4,
+                                    "rows_without_reasoning": 1}}) == "40% (1/4 requests none!)"
     assert "blocker missed: 2 45 (at most 30)" in printed
     assert "fictional:baseline #1 vs fictional:candidate #2" in printed
 

@@ -95,10 +95,12 @@ retries. Cached/earlier routes survive later failures; persistent quotas stop th
 `ai/client.py` is the sole AI entry point. Native adapters support Anthropic, Google, OpenAI
 and Xiaomi. Custom endpoints support Chat Completions, Responses and Messages with explicit
 reasoning controls; hosted research is separately configured. OpenRouter is its own choice: the
-Chat Completions adapter at OpenRouter's address with the selected effort, so it needs only a
-key and model. Requests through a router (OpenRouter) ask only for hosts that neither keep nor train on request data and that honour
+Chat Completions adapter at OpenRouter's address with the selected effort, sent as its documented
+`reasoning` object, so it needs only a key and model. Requests through a router (OpenRouter) ask only for hosts that neither keep nor train on request data and that honour
 every requested parameter; without a schema-capable host they fall back to plain JSON, never
-to a looser data policy. `model@host` pins one serving host without fallback. Defaults remain medium. A provider without a literal medium control
+to a looser data policy. Some hosts serve a JSON format with reasoning off while accepting the
+request: a router answer that reports no reasoning is asked again with the format in the prompt
+only, which is kept for that model if it reasons there. `model@host` pins one serving host without fallback. Defaults remain medium. A provider without a literal medium control
 exposes its mapping/uncertainty rather than silently disabling thinking. Native keys stay on
 their native host.
 
