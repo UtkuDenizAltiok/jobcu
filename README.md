@@ -99,6 +99,7 @@ Its previous spending remains counted across restarts, month changes and deleted
 | Develop and test Jobcu | [CONTRIBUTING](CONTRIBUTING.md) |
 | Understand the implementation and tools | [ENGINEERING](docs/ENGINEERING.md) |
 | Check source methods, restrictions and evidence | [SOURCES](docs/SOURCES.md) |
+| See what is planned next | [ROADMAP](docs/ROADMAP.md) |
 
 Completed changes and historical discussions are in Git commits and pull requests.
 

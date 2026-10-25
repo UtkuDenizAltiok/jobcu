@@ -197,7 +197,7 @@ The root keeps launchers, README, CONTRIBUTING, LICENSE and Python/tool configur
 | `data/` | Public reference assets: `employers.json`, `places.csv.gz`, `regions.csv.gz`, `postcodes.csv.gz`. User data never belongs here. |
 | `web/` | `index.html`, `app.js`, `style.css`, `favicon.svg`; plain UI, system fonts, no external scripts. |
 | `tests/` | Scripted providers and mocked HTTP; `conftest.py` gives disposable fictional data. `test_imports.py` checks import order; `test_docs.py` checks documentation links and the module/tool map. |
-| `docs/` | ENGINEERING and SOURCES; `guides/` for users. |
+| `docs/` | ENGINEERING, SOURCES and ROADMAP; `guides/` for users. |
 | `.githooks/`, `.github/` | Commit privacy guard, issue/PR templates, Mac/Windows/privacy CI. |
 
 ## Tools
