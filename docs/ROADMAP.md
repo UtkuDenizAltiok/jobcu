@@ -14,7 +14,8 @@ done. Implementation details belong in pull requests; current behavior is descri
 - Reviewed official tables: a city's unlabelled total row counts when it is unambiguous.
 - Reference-city facts reused for 30 days; unknown cities are not bought again until then
   unless the person retries.
-- Claude requests stream, so a silent long request is not cut by a network idle limit.
+- Claude, OpenAI and OpenRouter requests stream, so a silent long request is not cut by a
+  network idle limit.
 - A larger private evaluation set (about 200 judged ads with blockers) whose decision metrics,
   pair ordering, top 10, bands, blockers and each model's reasoning share, come straight from
   `tools/compare_providers.py`.
@@ -32,8 +33,8 @@ done. Implementation details belong in pull requests; current behavior is descri
 3. **Seniority calibration.** Lead, head and principal roles are scored too high for early
    career profiles; plain senior roles stay realistic. Test a rubric change on the evaluation set; ship it only if ordering
    improves without losing blockers or top results.
-4. **Stream the remaining AI formats.** Chat Completions and Responses requests (OpenRouter,
-   OpenAI, Other API) should stream like Gemini and Claude do.
+4. **Stream Other API requests** where a service's streams are shown to report usage, as
+   OpenAI and OpenRouter requests now do.
 
 ## Then: coverage
 

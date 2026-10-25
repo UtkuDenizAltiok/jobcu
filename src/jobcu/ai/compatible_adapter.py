@@ -6,6 +6,7 @@ schema support. Every answer is validated and chosen reasoning controls are pres
 """
 
 import json
+from types import SimpleNamespace
 from typing import ClassVar
 from urllib.parse import urlsplit
 from uuid import uuid4
@@ -209,16 +210,16 @@ class CompatibleAdapter(_CustomEndpoint, ProviderAdapter):
                 f"{prompt}\n\nReply with only a JSON object that follows this JSON schema, "
                 f"with no other text:\n{json.dumps(schema)}"
             )
+        request = dict(model=self._model_name(model), messages=[
+            {"role": "system", "content": system},
+            {"role": "user", "content": prompt},
+        ], **self._token_limit(max_output_tokens), **extra)
+        if self._router_body():
+            # A router documents usage in its streams' last chunk; other services are not
+            # assumed to, so they keep plain requests.
+            return _streamed_chat(self._client(), request)
         try:
-            response = self._client().chat.completions.create(
-                model=self._model_name(model),
-                messages=[
-                    {"role": "system", "content": system},
-                    {"role": "user", "content": prompt},
-                ],
-                **self._token_limit(max_output_tokens),
-                **extra,
-            )
+            response = self._client().chat.completions.create(**request)
         except Exception as exc:
             raise translate_openai_error(exc) from exc
 
@@ -247,6 +248,8 @@ class CompatibleResponsesAdapter(_CustomEndpoint, OpenAIAdapter):
 
     can_search_the_web = False
     strict_reasoning = True
+    # Other Responses-format services are not assumed to report usage in OpenAI's stream events.
+    stream_requests = False
 
     def _client(self) -> openai.OpenAI:
         with self._client_lock:
@@ -281,6 +284,37 @@ class CompatibleMessagesAdapter(_CustomEndpoint, AnthropicAdapter):
                     max_retries=0, timeout=self.timeout,
                 )
         return self._sdk_client
+
+
+def _streamed_chat(client: openai.OpenAI, request: dict) -> RawReply:
+    """A streamed answer, rebuilt into the reply _chat_reply checks. Usage comes in the last
+    chunk; a stream that broke after it began did paid work and is marked unknown."""
+    text: list[str] = []
+    refusal: list[str] = []
+    finish = usage = None
+    began = calls_tool = False
+    try:
+        for chunk in client.chat.completions.create(
+                **request, stream=True, stream_options={"include_usage": True}):
+            began = True
+            usage = getattr(chunk, "usage", None) or usage
+            for choice in [c for c in chunk.choices or [] if c.index == 0]:
+                delta = choice.delta
+                if delta is not None:
+                    text.append(delta.content or "")
+                    refusal.append(getattr(delta, "refusal", None) or "")
+                    calls_tool = calls_tool or bool(
+                        getattr(delta, "tool_calls", None) or getattr(delta, "function_call", None))
+                finish = choice.finish_reason or finish
+    except Exception as exc:
+        error = translate_openai_error(exc)
+        if began and error.usage is None:
+            error.usage = Usage(unreported_requests=1)
+        raise error from exc
+    message = SimpleNamespace(content="".join(text), refusal="".join(refusal) or None,
+                              tool_calls=[True] if calls_tool else None, function_call=None)
+    choices = [SimpleNamespace(finish_reason=finish, message=message)] if finish else []
+    return _chat_reply(SimpleNamespace(choices=choices), _chat_usage(usage))
 
 
 def _chat_usage(usage) -> Usage:

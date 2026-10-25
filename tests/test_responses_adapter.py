@@ -6,6 +6,7 @@ import httpx
 import openai
 import pytest
 from pydantic import BaseModel
+from streams import as_stream
 
 from jobcu.ai.base import (
     AIError,
@@ -59,7 +60,7 @@ def service():
         def handle(request):
             requests.append(json.loads(request.content))
             payload = value[len(requests) - 1] if isinstance(value, list) else value
-            return httpx.Response(200, json=payload)
+            return as_stream(request, httpx.Response(200, json=payload))
 
         sdk = openai.OpenAI(api_key="fictional-key", base_url=adapter.base_url,
                             max_retries=0,
@@ -167,3 +168,11 @@ def test_structured_truncation_repair_accounts_for_both_bills_once(service, cust
     assert requests[0]["max_output_tokens"] == 16000
     assert requests[1]["max_output_tokens"] == 20000
     assert ledger.this_month()[0].usage == Usage(20, 10, 4, 6)
+
+
+@pytest.mark.parametrize("custom", [False, True])
+def test_native_responses_stream_and_other_addresses_stay_plain(service, custom):
+    adapter, requests = service(response(), custom=custom)
+    reply = ask(adapter)
+    assert reply.usage.output_tokens == 5 and not reply.usage.unreported_requests
+    assert requests[0].get("stream") is (None if custom else True)

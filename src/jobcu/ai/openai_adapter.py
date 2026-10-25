@@ -13,6 +13,7 @@ from jobcu.ai.base import (
     MSG_REFUSED,
     MSG_TRUNCATED,
     MSG_UNAVAILABLE,
+    TRANSPORT_ERRORS,
     AIAuthError,
     AIBadRequest,
     AIError,
@@ -56,6 +57,9 @@ _NON_TEXT_MODEL_WORDS = (
 
 class OpenAIAdapter(ProviderAdapter):
     can_search_the_web = True
+    # Requests stream: a streamed answer keeps the connection busy, while a plain request can
+    # wait silently past a network's idle limit (cut at 60.0 s on 2026-10-24, see Claude's).
+    stream_requests = True
     _sdk_client: openai.OpenAI | None = None
 
     def _client(self) -> openai.OpenAI:
@@ -81,7 +85,7 @@ class OpenAIAdapter(ProviderAdapter):
         if effort:
             extra["reasoning"] = {"effort": effort}
         try:
-            response = self._client().responses.create(
+            response = self._create(
                 model=model,
                 instructions=system,
                 input=prompt,
@@ -113,7 +117,7 @@ class OpenAIAdapter(ProviderAdapter):
             # Web search needs at least "low" reasoning where a model has reasoning at all.
             extra["reasoning"] = {"effort": "low" if effort == "minimal" else effort}
         try:
-            response = self._client().responses.create(
+            response = self._create(
                 model=model,
                 instructions=system,
                 input=prompt,
@@ -144,6 +148,29 @@ class OpenAIAdapter(ProviderAdapter):
 
     def list_models(self) -> list[str]:
         return list_openai_style_models(self._client())
+
+    def _create(self, **request):
+        """The final response. A stream that broke after it began did paid work: its usage is
+        marked unknown rather than left out."""
+        if not self.stream_requests:
+            return self._client().responses.create(**request)
+        began = False
+        try:
+            for event in self._client().responses.create(**request, stream=True):
+                began = True
+                kind = getattr(event, "type", "")
+                if kind in ("response.completed", "response.incomplete", "response.failed"):
+                    return event.response
+                if kind == "error":
+                    raise AIUnavailable(MSG_UNAVAILABLE, str(getattr(event, "message", "")))
+        except Exception as exc:
+            error = translate_openai_error(exc)
+            if began and error.usage is None:
+                error.usage = Usage(unreported_requests=1)
+            raise error from exc
+        error = AIInvalidOutput("The AI provider's answer stream ended without a final answer.")
+        error.usage = Usage(unreported_requests=int(began))
+        raise error
 
 
 def _response_usage(response, *, searches: int = 0) -> Usage:
@@ -221,8 +248,18 @@ def translate_openai_error(exc: Exception) -> Exception:
                     and reasoning_control_refused(error.get("message"), controls)):
                 return AIReasoningUnsupported(MSG_BAD_REQUEST, detail)
         return AIBadRequest(MSG_BAD_REQUEST, detail)
-    if isinstance(exc, (openai.APIConnectionError, openai.APITimeoutError)):
+    if isinstance(exc, (openai.APIConnectionError, openai.APITimeoutError, *TRANSPORT_ERRORS)):
         return connection_problem(exc)
+    if isinstance(exc, openai.APIError):
+        # An error event inside a stream that had already started: the service failed after
+        # accepting the request, so it carries no HTTP status of its own.
+        body = exc.body if isinstance(exc.body, dict) else {}
+        code = str(body.get("code") or body.get("type") or "").lower()
+        if code == "429" or "rate" in code:
+            return AIRateLimited(MSG_RATE_LIMITED, detail)
+        if code == "402" or "quota" in code:
+            return AIQuotaExhausted(MSG_QUOTA, detail)
+        return AIUnavailable(MSG_UNAVAILABLE, detail)
     if isinstance(exc, AIError):
         return exc
     return AIBadRequest(MSG_BAD_REQUEST, detail)

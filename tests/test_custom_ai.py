@@ -7,6 +7,7 @@ import httpx
 import httpx2
 import openai
 import pytest
+from streams import as_stream
 from test_ai_client import GOOD, Answer, ScriptedAdapter, SearchingAdapter
 
 from jobcu.ai.base import (
@@ -14,6 +15,8 @@ from jobcu.ai.base import (
     AIBadRequest,
     AILimitReached,
     AIModelNotFound,
+    AIRateLimited,
+    AIUnavailable,
     AIWebSearchUnavailable,
 )
 from jobcu.ai.client import AIClient, check_research_setup
@@ -70,7 +73,7 @@ def reply_for(protocol):
 
 
 def sdk_transport(adapter, protocol, handler):
-    transport = httpx.MockTransport(handler)
+    transport = httpx.MockTransport(lambda request: as_stream(request, handler(request)))
     if protocol == "messages":
         def handle_messages(request):
             response = handler(request)
@@ -541,3 +544,53 @@ def test_a_model_that_skips_reasoning_now_and_then_is_asked_again_each_time():
         assert client.generate(Answer, step="scoring", system="Rules", prompt="Fictional cook").ok
     assert [b.get("response_format", {}).get("type") for b in bodies] == [
         "json_schema", "json_schema", None, None]
+
+
+def test_router_answers_stream_with_usage_and_other_addresses_stay_plain():
+    bodies = []
+
+    def handle(request):
+        bodies.append(json.loads(request.content))
+        return httpx.Response(200, json=reply_for("chat_completions"))
+
+    assert openrouter_client(handle).generate(Answer, step="scoring", system="Rules",
+                                              prompt="Fictional nurse").ok
+    assert router_client(handle, "https://provider.example/v1").generate(
+        Answer, step="scoring", system="Rules", prompt="Fictional nurse").ok
+    assert bodies[0]["stream"] is True and bodies[0]["stream_options"] == {"include_usage": True}
+    assert "stream" not in bodies[1]
+    usage = [u.usage for u in UsageLog().this_month()]
+    assert usage[0].output_tokens == 5 and usage[0].reasoning_tokens == 3
+    assert not usage[0].unreported_requests
+
+
+def broken_stream(*events, then=None):
+    def content():
+        for event in events:
+            yield f"data: {json.dumps(event)}\n\n".encode()
+        if then is not None:
+            raise then
+    return httpx.Response(200, headers={"content-type": "text/event-stream"},
+                          content=content())
+
+
+@pytest.mark.parametrize(("ending", "error"), [
+    ({"error": {"code": 502, "message": "Fictional provider failure"}}, AIUnavailable),
+    ({"error": {"code": 429, "message": "Fictional rate limit"}}, AIRateLimited),
+    (httpx.RemoteProtocolError("Fictional disconnect"), AIUnavailable),
+])
+def test_a_router_stream_that_breaks_keeps_its_unknown_bill(ending, error):
+    first = {"id": "c", "object": "chat.completion.chunk", "created": 1, "model": "m",
+             "choices": [{"index": 0, "delta": {"content": '{"ok": '}, "finish_reason": None}]}
+    adapter = configured_adapter("openrouter", "fake-router-key",
+                                 AISettings(provider="openrouter", model="fictional/model"))
+    adapter._sdk_client = openai.OpenAI(
+        api_key="fake", base_url=adapter.base_url, max_retries=0,
+        http_client=httpx.Client(transport=httpx.MockTransport(lambda request: (
+            broken_stream(first, ending) if isinstance(ending, dict)
+            else broken_stream(first, then=ending)))))
+    with pytest.raises(error) as caught:
+        adapter.complete_json(model="fictional/model", system="Rules", prompt="Fictional chef",
+                              schema={"type": "object"}, schema_name="Answer", effort=None,
+                              max_output_tokens=1000)
+    assert caught.value.usage.unreported_requests == 1  # work was done; its bill is unknown
