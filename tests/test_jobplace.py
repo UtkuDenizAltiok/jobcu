@@ -289,7 +289,8 @@ def test_the_full_ad_found_online_gives_its_languages_and_years():
                                  "citizenship_or_clearance": "no_such_requirement",
                                  "citizenship_or_clearance_words": "",
                                  "visa_sponsorship": "unclear", "visa_sponsorship_words": "",
-                                 "sponsorship_confirmed": False}
+                                 "right_to_work_required": "not_stated",
+                                 "right_to_work_words": "", "sponsorship_confirmed": False}
     # Only the job without a town gets one from the answer; the others keep theirs.
     assert groups[0].place_from_web == ["Radeberg"]
     assert all(g.place_from_web is None for g in groups[1:])

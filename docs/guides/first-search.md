@@ -382,12 +382,19 @@ When totals tie, **Best match** compares the weakest scoring part, then posting 
 **Newest** continues to sort by date.
 
 For mandatory requirements such as technical/domain knowledge, practical skills, current
-student enrolment, a professional licence or work
-permission, Jobcu compares the stated requirement with the facts in your profile. A supported
-mismatch limits the score and names the requirement. Missing information is shown as
-**could not be confirmed**; it does not prove that you are ineligible. A summary or excerpt
-may omit other requirements even when its visible duties match well. Open the original ad
-before applying. Eligibility for a visa is not the same as already holding it.
+student enrolment or a professional licence, Jobcu compares the stated requirement with the
+facts in your profile. A supported mismatch limits the score and names the requirement. Missing
+information is shown as **could not be confirmed**; it does not prove that you are ineligible.
+A summary or excerpt may omit other requirements even when its visible duties match well. Open
+the original ad before applying.
+
+Work permission is read once from your documents for each country they mention: whether you
+can work there now without an employer sponsoring a visa, and whether that right lasts. An ad
+that needs the right to work without sponsorship is compared with that. When your documents say
+you would need sponsorship, or the ad wants no sponsorship "now or in the future" and your right
+is time-limited (for example a two-year visa), the score is limited to **55**. Eligibility for a
+visa is not the same as already holding it, and a country your documents don't mention stays
+**unclear** rather than a mismatch.
 
 If a requested location fact or journey remains uncertain, location/preferences points are
 limited to **8 of 10**. The job stays available with an explanation. Resolving or disabling that

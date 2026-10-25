@@ -29,15 +29,15 @@ RULES = """\
 requirement_checks: list every mandatory requirement except language level, overall seniority \
 and number of years, which have separate fields. Include specific technical/domain knowledge \
 and practical skill prerequisites, also when written as "experience with" a technology, plus \
-current student enrolment, qualifications, professional registration/licences and work permission. \
-Doctorates and citizenship/security clearance use their separate evidence fields: don't repeat \
-them here. Each check has a short English requirement name and an exact short ad_words quote \
-(at most 20 words) from the supplied evidence. profile_words quotes the relevant fact in the \
-profile, not an invented explanation. status is met, not_met or unclear. Use not_met only when \
-the requirement and a conflicting profile fact are explicit; missing information is unclear. \
-A completed qualification is not current student enrolment. Visa eligibility is not a granted \
-visa or an already-held right to work. A desirable qualification is not mandatory; either/or \
-qualifications need only one qualifying alternative. Empty list only when no ordinary mandatory \
+current student enrolment, qualifications and professional registration/licences. Doctorates, \
+citizenship/security clearance and the right to work or visa sponsorship use their separate \
+evidence fields: don't repeat them here. Each check has a short English requirement name and an \
+exact short ad_words quote (at most 20 words) from the supplied evidence. profile_words quotes \
+the relevant fact in the profile, not an invented explanation. status is met, not_met or \
+unclear. Use not_met only when the requirement and a conflicting profile fact are explicit; \
+missing information is unclear. A completed qualification is not current student enrolment. A \
+desirable qualification is not mandatory; either/or qualifications need only one qualifying \
+alternative. Empty list only when no ordinary mandatory \
 requirements are stated. If the ad is incomplete, unseen requirements remain unknown.\
  Do not reduce a required-skills section to its degree alone. A matching tool name or basic \
 familiarity does not establish the required depth; use unclear unless the profile supports it.\

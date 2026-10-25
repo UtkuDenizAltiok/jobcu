@@ -20,7 +20,7 @@ from pydantic import BaseModel, Field
 
 from jobcu import requirements
 from jobcu.ai.client import AIClient, in_parallel
-from jobcu.countries import language_code
+from jobcu.countries import COUNTRIES, language_code
 from jobcu.dedupe import JobGroup
 from jobcu.location import LocationPlan
 from jobcu.profile import Profile
@@ -100,7 +100,8 @@ class LanguageAsked(BaseModel):
 # ad is found online (jobplace.py).
 EVIDENCE = ("ad_language", "languages_asked", "years_required", "doctorate",
             "citizenship_or_clearance", "citizenship_or_clearance_words", "requirement_checks",
-            "visa_sponsorship", "visa_sponsorship_words")
+            "visa_sponsorship", "visa_sponsorship_words", "right_to_work_required",
+            "right_to_work_words")
 
 SPONSORSHIP_RULES = """\
 visa_sponsorship: available_for_this_job only when this vacancy explicitly offers employer \
@@ -110,9 +111,22 @@ company policy is not an offer for this vacancy. Conditional eligibility (e.g. s
 subject to approval, may be considered) is unclear. visa_sponsorship_words: quote the complete \
 relevant clause exactly, including any negation or condition; empty when unstated.\
 """
+RIGHT_TO_WORK_RULES = """\
+right_to_work_required: what the ad requires of the candidate's own right to work in the job's \
+country without employer visa sponsorship. now_and_later when no sponsorship may be needed now \
+or in the future, or a permanent or unrestricted right to work is required; now when the right \
+to work is required, or visa sponsorship is said to be unavailable, without mention of the \
+future; not_stated otherwise. Only read the ad: whether the person has that right is decided \
+separately from their stated work rights. A specific citizenship or a security clearance belongs \
+in citizenship_or_clearance. right_to_work_words: quote the complete clause exactly; empty when \
+not_stated.\
+"""
 UK_SPONSORSHIP_DEDUCTION = 5
 UK_SPONSORSHIP_REASON = "UK visa sponsorship is not explicitly confirmed for this job"
 VisaSponsorship = Literal["available_for_this_job", "not_available", "unclear"]
+RightToWork = Literal["not_stated", "now", "now_and_later"]
+# Every country Jobcu searches except the United Kingdom has free movement for EU/EEA citizens.
+FREE_MOVEMENT_EXCLUDES = {"GB"}
 
 
 class JobScore(BaseModel):
@@ -126,6 +140,8 @@ class JobScore(BaseModel):
     requirement_checks: list[requirements.RequirementCheck] | None = None
     visa_sponsorship: VisaSponsorship = "unclear"
     visa_sponsorship_words: str = ""
+    right_to_work_required: RightToWork = "not_stated"
+    right_to_work_words: str = ""
     role_and_skills: int
     seniority: int
     hard_requirements: int
@@ -209,6 +225,7 @@ ad is written in it.
 - doctorate: {DOCTORATE_RULES}
 - citizenship_or_clearance: {CITIZENSHIP_RULES}
 - {SPONSORSHIP_RULES}
+- {RIGHT_TO_WORK_RULES}
 - {requirements.RULES}
 Judge the main work before counting shared skills: a common industry, employer, degree, \
 graduate level or tool does not establish the same occupation or specialisation. Compare the \
@@ -358,10 +375,16 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
     score = JobScore.model_construct(**_full_evidence(result["evidence"]))
     language = judge_languages(score, profile)
     required = requirements.judge(
-        result["evidence"], result["evidence"].get(
+        without_work_right_checks(result["evidence"]), result["evidence"].get(
             "requirement_points_proposed", result["parts"]["hard_requirements"]))
+    work = work_right(result["evidence"], profile)
+    hard_points = required.points
+    if work.limits:
+        hard_points = min(hard_points, LIMIT_REQUIREMENT_POINTS)
+    elif work.unclear:
+        hard_points = min(hard_points, PARTS["hard_requirements"] - 1)
     parts = {**result["parts"], "languages": language.points,
-             "hard_requirements": required.points}
+             "hard_requirements": hard_points}
     proposed_role = result["evidence"].get("role_points_proposed", parts["role_and_skills"])
     central_unknown = any(c.get("central_to_role") and c["status"] != "met"
                           and "grounding_issues" in c
@@ -376,14 +399,14 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
             result["evidence"]["location_preferences_proposed"], 8 if uncertain_location else 10,
         )
     rubric_limits = fit_limits(parts)
-    if required.limits or (
+    if required.limits or work.limits or (
         "requirements_complete" in result["evidence"]
         and requirements.special_blocker(result["evidence"])
     ):
         rubric_limits = [limit for limit in rubric_limits
                          if limit["why"] != "A requirement you clearly don't meet"]
     limits = sorted([*language.limits, *other_limits(score, profile), *rubric_limits,
-                     *required.limits],
+                     *required.limits, *work.limits],
                     key=lambda x: x["at"])
     deductions = ([{"points": UK_SPONSORSHIP_DEDUCTION, "why": UK_SPONSORSHIP_REASON}]
                   if result["evidence"].get("job_country") == "GB"
@@ -414,7 +437,7 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
         "notes": ([note] if note else []) + (
             [f'{ROLE_REVIEW_NOTE}: "{evidence["role_words"]}"']
             if evidence.get("role_checked_online") and evidence.get("role_words") else []
-        ) + language.notes + required.notes + (
+        ) + language.notes + required.notes + work.notes + (
             ["Security or nationality eligibility is unconfirmed" + (
                 f": {score.citizenship_or_clearance_words.strip()}"
                 if score.citizenship_or_clearance_words.strip() else "")]
@@ -512,6 +535,11 @@ def with_ad_read_online(result: dict, profile: Profile, languages: list[Language
     evidence = {**result["evidence"], "languages_asked": [a.model_dump() for a in languages],
                 "years_required": years_required}
     evidence.update({key: value for key, value in blockers.items() if key in EVIDENCE})
+    if (evidence.get("right_to_work_required") == "not_stated"
+            and result["evidence"].get("right_to_work_required", "not_stated") != "not_stated"):
+        # A clause read in the ad's own text is not undone by notes that don't mention it.
+        for key in ("right_to_work_required", "right_to_work_words"):
+            evidence[key] = result["evidence"][key]
     if sponsorship_confirmed is not None:
         evidence["sponsorship_confirmed"] = sponsorship_confirmed
     parts = dict(result["parts"])
@@ -603,6 +631,61 @@ def other_limits(score: JobScore, profile: Profile) -> list[dict]:
                     f"{full_time}")})
                 break
     return limits
+
+
+WORK_RIGHT_CHECK = re.compile(r"right to work|work (?:authori[sz]ation|permit|permission)|"
+                              r"\bvisa\b|sponsor", re.I)
+
+
+def without_work_right_checks(evidence: dict) -> dict:
+    """Requirement checks that restate the ad's right-to-work clause are left to work_right."""
+    words = requirements._plain(evidence.get("right_to_work_words", ""))
+    checks = evidence.get("requirement_checks")
+    if evidence.get("right_to_work_required", "not_stated") == "not_stated" or not checks:
+        return evidence
+
+    def restates(check: dict) -> bool:
+        quote = requirements._plain(check.get("ad_words", ""))
+        return bool(WORK_RIGHT_CHECK.search(check.get("requirement", ""))) or bool(
+            quote and words and (quote in words or words in quote))
+
+    return {**evidence, "requirement_checks": [c for c in checks if not restates(c)]}
+
+
+@dataclass
+class WorkRightJudgement:
+    limits: list[dict] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)
+    unclear: bool = False
+
+
+def work_right(evidence: dict, profile: Profile) -> WorkRightJudgement:
+    """The ad's right-to-work clause against the person's stated work rights in its country."""
+    asked, country = evidence.get("right_to_work_required", "not_stated"), evidence.get(
+        "job_country")
+    if asked == "not_stated" or not country:
+        return WorkRightJudgement()
+    name = COUNTRIES[country].name if country in COUNTRIES else country
+    name = f"the {name}" if name in ("United Kingdom", "Netherlands") else name
+    if profile.free_movement_in_eu_eea and country not in FREE_MOVEMENT_EXCLUDES:
+        return WorkRightJudgement()
+    right = next((r for r in profile.work_rights if r.country == country), None)
+    if right is not None and right.now == "no":
+        return WorkRightJudgement([{"at": LIMIT_REQUIREMENT, "why": (
+            f"Needs the right to work in {name} without visa sponsorship; your documents say "
+            "you would need it")}])
+    if right is not None and asked == "now_and_later" and right.later == "no":
+        return WorkRightJudgement([{"at": LIMIT_REQUIREMENT, "why": (
+            f"Needs a lasting right to work in {name} without sponsorship; yours is "
+            "time-limited")}])
+    if right is None or right.now == "unclear" or (
+            asked == "now_and_later" and right.later == "unclear"):
+        return WorkRightJudgement(notes=[
+            f"Asks for the right to work in {name}; yours there is not stated"
+            if right is None else
+            f"Asks for the right to work in {name}; whether yours meets it is unclear"],
+            unclear=True)
+    return WorkRightJudgement()
 
 
 def fit_limits(parts: dict[str, int]) -> list[dict]:

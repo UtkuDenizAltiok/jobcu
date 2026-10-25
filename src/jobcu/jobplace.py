@@ -40,12 +40,14 @@ from jobcu.scoring import (
     CITIZENSHIP_RULES,
     DOCTORATE_RULES,
     LEVEL_RULES,
+    RIGHT_TO_WORK_RULES,
     ROLE_RULES,
     SPONSORSHIP_RULES,
     YEARS_RULES,
     CitizenshipOrClearance,
     Doctorate,
     LanguageAsked,
+    RightToWork,
     VisaSponsorship,
     evidence_priority,
     sponsorship_confirmed,
@@ -120,6 +122,7 @@ when the ad asks for no language.
 - citizenship_or_clearance: {CITIZENSHIP_RULES} When the ad wasn't found: no_such_requirement \
 and not_required.
 - {SPONSORSHIP_RULES}
+- {RIGHT_TO_WORK_RULES} When the ad wasn't found: not_stated.
 - {requirements.RULES} ad_words must be quoted from the research notes. When the notes do not \
 cover mandatory requirements, use null rather than claiming an empty checked list.
 - role_and_skills: reassess ONLY the role-and-skills part against the supplied person using \
@@ -142,6 +145,8 @@ class OnlineJob(BaseModel):
     requirement_checks: list[requirements.RequirementCheck] | None = None
     visa_sponsorship: VisaSponsorship = "unclear"
     visa_sponsorship_words: str = ""
+    right_to_work_required: RightToWork = "not_stated"
+    right_to_work_words: str = ""
     _grounded_checks: list[dict] | None = PrivateAttr(default=None)
     _sponsorship_confirmed: bool = PrivateAttr(default=False)
     role_and_skills: int | None = None
@@ -292,6 +297,8 @@ def _keep_answer(group, index: int, answer: OnlineJob | None, looked_up: LookedU
                 "citizenship_or_clearance_words": answer.citizenship_or_clearance_words,
                 "visa_sponsorship": answer.visa_sponsorship,
                 "visa_sponsorship_words": answer.visa_sponsorship_words,
+                "right_to_work_required": answer.right_to_work_required,
+                "right_to_work_words": answer.right_to_work_words,
                 "sponsorship_confirmed": answer._sponsorship_confirmed},
             role_and_skills=answer.role_and_skills, role_words=answer.role_words,
             requirement_checks=(answer._grounded_checks

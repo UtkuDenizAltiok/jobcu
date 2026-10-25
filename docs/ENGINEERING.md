@@ -32,6 +32,8 @@ happens before a new search is created or source collection begins, including wi
    richer summaries after failed/incomplete reads. Recheck newly revealed objective facts.
 4. Check fit, workplaces, requirements and travel; use sourced research where supported.
    `requirements.py` validates ad/profile evidence; `scoring.py` applies deterministic limits.
+   The profile states work rights per country once (now, and whether they last); scoring only
+   reads an ad's right-to-work clause and code compares the two (`scoring.work_right`).
    Validated batch outcomes survive failures in later batches.
 5. Build ranked cards and job memory. `jobstore.finish_search` commits status and the final
    snapshot together. Failed/stopped attempts retain available raw candidates and reports even
