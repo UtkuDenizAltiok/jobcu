@@ -36,6 +36,15 @@ MODES = ("json_schema", "json_object", "prompt_only")
 # schema and the reasoning effort), never a host that quietly ignores them.
 ROUTER_REQUIREMENTS = {"openrouter.ai": {"provider": {
     "data_collection": "deny", "zdr": True, "require_parameters": True}}}
+# A router host can accept a reasoning request and still serve a constrained JSON format with
+# its reasoning off, which "require_parameters" does not catch (checked 2026-10-25: two models
+# on one host answered a calculation in about 20 tokens, wrongly, with any response_format, and
+# reasoned to the right answer without one; another did so now and then). The router reports
+# reasoning tokens, so an answer without any is asked again with the JSON format in the prompt
+# only, and that format is kept if the model reasoned there. A model that does not reason there
+# either chose not to (adaptive thinking) and is not asked twice again. Every answer is still
+# validated against the schema.
+LOOSEST = MODES[-1]
 
 
 class _CustomEndpoint:
@@ -71,8 +80,10 @@ class _CustomEndpoint:
 class CompatibleAdapter(_CustomEndpoint, ProviderAdapter):
     strict_reasoning = True
     formats = MODES
-    # Remembers which mode worked for each (address, model) while Jobcu runs.
+    # Remembers which mode worked for each (address, model) while Jobcu runs, and the models
+    # that did not reason in the loosest format either.
     _mode_cache: ClassVar[dict[tuple[str, str], str]] = {}
+    _reasons_only_by_choice: ClassVar[set[tuple[str, str]]] = set()
 
     _sdk_client: openai.OpenAI | None = None
 
@@ -114,6 +125,13 @@ class CompatibleAdapter(_CustomEndpoint, ProviderAdapter):
             try:
                 reply = self._request(mode, model, system, prompt, schema, schema_name,
                                       max_output_tokens, effort)
+                if (mode != LOOSEST and cache_key not in self._reasons_only_by_choice
+                        and self._router_body() and self._wants_reasoning(effort)
+                        and not reply.usage.reasoning_tokens
+                        and not reply.usage.unreported_requests):
+                    return self._reasoning_format(reply, mode, cache_key, model, system,
+                                                  prompt, schema, schema_name,
+                                                  max_output_tokens, effort)
             except (AIBadRequest, AIModelNotFound) as exc:
                 # Schema negotiation is not permission to retry an unrelated refusal or
                 # discard thinking. Only an explicit format rejection changes format; for a
@@ -143,12 +161,38 @@ class CompatibleAdapter(_CustomEndpoint, ProviderAdapter):
                 last_error.detail) from last_error
         raise last_error
 
+    def _wants_reasoning(self, effort: Effort | None) -> bool:
+        return bool(effort) if self.reasoning == "effort" else self.reasoning == "thinking"
+
+    def _reasoning_format(self, unreasoned: RawReply, mode: str, cache_key, model, system,
+                          prompt, schema, schema_name, max_output_tokens, effort) -> RawReply:
+        """The answer from the format in which this model reasons; see LOOSEST above."""
+        try:
+            loose = self._request(LOOSEST, model, system, prompt, schema, schema_name,
+                                  max_output_tokens, effort)
+        except (AIBadRequest, AIModelNotFound):
+            loose = None
+        if loose is None or not loose.usage.reasoning_tokens:
+            self._mode_cache[cache_key] = mode
+            self._reasons_only_by_choice.add(cache_key)
+            if loose is not None:
+                unreasoned.usage = unreasoned.usage + loose.usage  # both requests are paid
+            return unreasoned
+        self._mode_cache[cache_key] = LOOSEST
+        loose.usage = unreasoned.usage + loose.usage
+        return loose
+
     def _request(self, mode, model, system, prompt, schema, schema_name, max_output_tokens,
                  effort):
         extra: dict = {}
         body = self._router_body(model)
         if self.reasoning == "effort" and effort:
-            extra["reasoning_effort"] = self.medium if effort == "medium" else effort
+            level = self.medium if effort == "medium" else effort
+            # OpenRouter documents the unified reasoning object; some models reason only so.
+            if body:
+                body["reasoning"] = {"effort": level}
+            else:
+                extra["reasoning_effort"] = level
         elif self.reasoning == "thinking":
             body["thinking"] = {"type": "enabled"}
         if body:

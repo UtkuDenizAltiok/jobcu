@@ -616,11 +616,12 @@ def run_usage(after_id: int, provider: str, model: str) -> dict:
 
     with db.connect() as conn:
         row = conn.execute(
-            """SELECT COUNT(*), SUM(input_tokens), SUM(output_tokens), SUM(reasoning_tokens)
-               FROM ai_usage WHERE id > ? AND provider = ? AND model IN (?, ?)""",
+            """SELECT COUNT(*), SUM(input_tokens), SUM(output_tokens), SUM(reasoning_tokens),
+               SUM(reasoning_tokens = 0) FROM ai_usage
+               WHERE id > ? AND provider = ? AND model IN (?, ?)""",
             (after_id, provider, model, f"{model} (flex)")).fetchone()
-    return dict(zip(("rows", "input_tokens", "output_tokens", "reasoning_tokens"),
-                    (v or 0 for v in row), strict=True))
+    return dict(zip(("rows", "input_tokens", "output_tokens", "reasoning_tokens",
+                     "rows_without_reasoning"), (v or 0 for v in row), strict=True))
 
 
 def saved_ads_runs(replayer: Replayer, runs: int, ad_file: Path | None = None) -> list[dict]:
@@ -705,7 +706,9 @@ def thinking(run: dict) -> str:
         return "-"
     if not usage["reasoning_tokens"]:
         return "none!"
-    return f"{usage['reasoning_tokens'] / usage['output_tokens']:.0%}"
+    share = f"{usage['reasoning_tokens'] / usage['output_tokens']:.0%}"
+    missing = usage.get("rows_without_reasoning", 0)
+    return f"{share} ({missing}/{usage['rows']} requests none!)" if missing else share
 
 
 def show_saved_ads(runs: list[dict], labels: dict | None, others: list[dict]) -> None:

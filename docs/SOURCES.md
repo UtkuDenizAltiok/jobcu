@@ -618,6 +618,20 @@ quality equivalence or live account availability. Jobcu's narrow refusal classif
 with fictional SDK error payloads; unrecognized refusals preserve the requested setting.
 See [implementation and limits](ENGINEERING.md#ai-providers-usage-and-recovery).
 
+### Router reasoning and JSON formats — 2026-10-25
+
+**Checked 2026-10-25.** OpenRouter's [reasoning tokens guide](https://openrouter.ai/docs/use-cases/reasoning-tokens)
+documents the unified `reasoning` object (`effort` or `max_tokens`) and says Anthropic models
+are enabled only through it; a top-level `reasoning_effort` is not documented there, although
+its model list still accepts it. Small paid probes on zero-retention hosts with the same
+calculation: two models on one host reasoned and answered correctly without a
+`response_format`, but with a JSON schema or JSON object answered in about 20 tokens with no
+reasoning and wrong values; `require_parameters` did not refuse those requests. Other tested
+models reasoned with a JSON schema; one of them occasionally did not. Claude Sonnet 5.5 used
+no reasoning on the probe with either control, also directly on Anthropic's API at medium and
+high effort: its adaptive thinking decides per request, so zero reasoning there is the model's
+choice, not a dropped control.
+
 ### Maps request limits and recovery
 
 **Per-route outcomes rechecked 2026-10-09:** Google's [matrix reference](https://developers.google.com/maps/documentation/routes/reference/rest/v2/TopLevel/computeRouteMatrix)
