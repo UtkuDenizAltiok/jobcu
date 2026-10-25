@@ -474,6 +474,17 @@ legend {
   font-size: 0.9rem;
 }
 
+.recommended {
+  margin: 12px 0 16px;
+  padding: 12px 14px;
+  border-radius: var(--radius-small);
+  background: var(--accent-soft);
+}
+
+.recommended h3 {
+  margin-top: 0;
+}
+
 .advanced {
   margin-top: 8px;
   padding: 12px 14px;

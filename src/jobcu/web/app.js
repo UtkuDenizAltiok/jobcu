@@ -2212,6 +2212,22 @@ function setUpSettingsActions() {
       }
     }),
   );
+  $("use-recommended").addEventListener("click", (event) =>
+    busy(event.target, async () => {
+      try {
+        await api("/api/settings/recommended", { method: "POST" });
+        await loadSettings();
+        await loadUsage();
+        const key = currentProvider()?.key;
+        setStatus($("recommended-status"), "ok", key?.saved
+          ? "Done. Test the connection below to check your Google key."
+          : "Done. Now save your Google AI Studio key below and test the connection.");
+      } catch (error) {
+        setStatus($("recommended-status"), "problem", error.message);
+      }
+    }),
+  );
+
   $("save-ai").addEventListener("click", (event) =>
     busy(event.target, async () => {
       try {

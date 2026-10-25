@@ -14,8 +14,15 @@ GitHub or a screenshot. After saving, Jobcu hides it and shows only its ending c
 ## Connect your AI service
 
 **Provider** means the company or service supplying the AI. **Model** means the AI version
-you choose from that provider. Jobcu lets you choose both; it does not pick one for you.
+you choose from that provider. Jobcu lets you choose both; it picks one only when you ask.
 Use the provider's descriptions, current prices and your account's access to decide.
+
+**Use the recommended setup**, at the top of **AI provider**, chooses in one step what Jobcu
+measured as the best value for quality and cost: Google's Gemini 3.8 Flash for every step, the
+half-price Flex processing with recovery of interrupted connections, and Google's free web
+searches shared across the month (see [Control usage and cost](#control-usage-and-cost)). Your
+other keys, limits and prices stay as they are. You still need a Google AI Studio key: save it
+as in step 4 below and test the connection.
 
 1. Open Jobcu and click **Settings** at the top of the page.
 2. Under **AI provider**, select your chosen service. The key and model boxes appear below it.
