@@ -1,10 +1,11 @@
 """Check finite reference cities, after local population/name rules narrow the question.
 
-A city's verified, sourced research answer is reused for a week by later searches asking the
-same fact through the same AI route; facts such as election results rarely change faster,
-and every search otherwise bought the same answers again (2026-10-24: 22 requests and 335
-web searches in one search). Supported cities survive omissions; an unchecked alternative
-prevents a negative travel decision when it could still qualify.
+A city's verified, sourced research answer is reused for 30 days by later searches asking the
+same fact through the same AI route, like reviewed comparisons and other prepared answers:
+facts such as election results change only with the next event, and every search otherwise
+bought the same answers again (2026-10-24: 22 requests and 335 web searches in one search).
+Supported cities survive omissions; an unchecked alternative prevents a negative travel
+decision when it could still qualify.
 """
 
 import hashlib
@@ -39,14 +40,14 @@ log = logging.getLogger(__name__)
 REFERENCE_BATCH_SIZE = 8
 REFERENCE_RETRY_SECONDS = 3600
 RESEARCH_REUSE_KIND = "reference_research"
-RESEARCH_REUSE_DAYS = 7
+RESEARCH_REUSE_DAYS = 30
 RESEARCH_REUSE_KEPT = 1000  # cities, across facts and countries
 # A city whose completed research found no verifiable answer is not bought again by ordinary
 # searches for this long: search 8 (2026-10-24) spent about 210 of its 335 city searches on
 # batches that settled 4 of 36 cities, and every later search would have repeated them. It is
 # not an answer: the city stays unknown, and an explicit retry or edit looks again at once.
 UNKNOWN_KIND = "reference_research_unknown"
-UNKNOWN_RETRY_DAYS = 7
+UNKNOWN_RETRY_DAYS = 30
 
 RESEARCH_SYSTEM = """\
 Check the stated condition for EACH listed reference city, using live web search and current

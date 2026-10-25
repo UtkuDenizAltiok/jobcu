@@ -151,11 +151,11 @@ location readings and search-word groups for up to 30 days only when exact input
 schemas, provider/model/host and reasoning settings match. A city's verified comparison over
 reviewed reference pages (`reference_sources.py`) is reused the same way while that city's own
 evidence reads exactly the same; a verified, sourced web-research city fact
-(`reference_places.py`) for 7 days through the same fact wording and AI routes. Unknown
+(`reference_places.py`) for 30 days through the same fact wording and AI routes. Unknown
 verdicts are never kept; completed research that left a city unknown is not bought again by
-ordinary searches for 7 days, while an explicit retry or edit looks again at once. Plans, other web research, journeys and new-search scores are not
-reused as setup. Full-ad caching has its own bounded age and parser versions. Changed inputs
-invalidate the relevant cache.
+ordinary searches for 30 days, while an explicit retry or edit looks again at once. Plans, other
+web research, journeys and new-search scores are not reused as setup. Full-ad caching has its
+own bounded age and parser versions. Changed inputs invalidate the relevant cache.
 
 `review_capture.py` provides explicit one-search private capture, off by default. It records
 inputs, candidates, decisions, ad evidence, AI attempts, responses and usage outside Git,
