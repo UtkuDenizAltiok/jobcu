@@ -194,10 +194,11 @@ def parse_lines(text: str, default_country: str) -> list[tuple[str, str, str]]:
     """The "name | country | address" lines of the AI's answer."""
     rows = []
     for line in (text or "").splitlines():
-        parts = [part.strip(" *`-•\t") for part in line.split("|")]
+        # A Markdown table row starts and ends with a bar: its name came first and was empty.
+        parts = [part.strip(" *`-•\t") for part in line.strip().strip("|").split("|")]
         if len(parts) < 3:
             continue
-        name, code = parts[0], parts[1].upper()
+        name, code = re.sub(r"^\d+[.)]\s*", "", parts[0]), parts[1].upper()  # "1. Name"
         address = next((p for p in reversed(parts[2:]) if "." in p and " " not in p), "")
         if not name or not address:
             continue

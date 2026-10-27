@@ -72,11 +72,17 @@ def test_the_ai_s_lines_are_read_whatever_their_decoration():
             "Beacon Hospital | IE | https://beacon.teamtailor.com\n"
             "* **Mater Private** | ie | [careers](https://www.materprivate.ie/careers) |\n"
             "St. Vincent's | Dublin | careers.svuh.ie\n"
-            "no address here | IE |\n")
+            "no address here | IE |\n"
+            "| Name | Country | Address |\n"
+            "|---|---|---|\n"
+            "| Bon Secours | IE | https://bonsecours.wd3.myworkdayjobs.com/Careers |\n"
+            "12. Hermitage Clinic | IE | hermitageclinic.ie/careers\n")
     assert employers.parse_lines(text, "IE") == [
         ("Beacon Hospital", "IE", "https://beacon.teamtailor.com"),
         ("Mater Private", "IE", "https://www.materprivate.ie/careers"),
         ("St. Vincent's", "IE", "careers.svuh.ie"),
+        ("Bon Secours", "IE", "https://bonsecours.wd3.myworkdayjobs.com/Careers"),
+        ("Hermitage Clinic", "IE", "hermitageclinic.ie/careers"),
     ]
 
 
