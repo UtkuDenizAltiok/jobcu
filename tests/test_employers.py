@@ -212,7 +212,7 @@ def test_a_careers_page_without_a_system_leads_to_its_job_list_or_job_host():
     assert "jobs.hensoldt.net" not in employers._job_hosts("https://jobs.hensoldt.net/")
 
 
-def test_a_site_that_never_answers_costs_one_request_not_a_round_of_retries():
+def test_a_site_that_never_answers_costs_two_short_tries_and_a_hiccup_loses_nothing():
     import threading
 
     asked = Counter()
@@ -221,13 +221,32 @@ def test_a_site_that_never_answers_costs_one_request_not_a_round_of_retries():
         asked[request.url.host] += 1
         if request.url.host == "www.silent.test":
             raise httpx.ReadTimeout("no answer", request=request)
+        if request.url.host == "www.shaky.test":
+            if asked["www.shaky.test"] == 1:  # one passing hiccup
+                raise httpx.ReadTimeout("slow once", request=request)
+            if request.url.path == "/robots.txt":
+                return httpx.Response(404)
+            return httpx.Response(
+                200, text='<a href="https://shaky.wd3.myworkdayjobs.com/Careers">Jobs</a>')
+        if request.url.host == "careers.redirect.test":
+            # A job host that sends tools on to a main site that never answers.
+            if request.url.path == "/robots.txt":
+                return httpx.Response(404)
+            return httpx.Response(302, headers={"location": "https://www.redirect.test/careers"})
+        if request.url.host == "www.redirect.test":
+            raise httpx.ReadTimeout("no answer", request=request)
         raise httpx.ConnectError("no such host", request=request)
 
     http = PoliteClient(min_intervals={}, sleep=lambda s: None,
                         transport=httpx.MockTransport(handler), resolve=lambda host: [])
+    robots, lock = {}, threading.Lock()
     assert employers._board_from_page(
-        http, "https://www.silent.test/careers", {}, threading.Lock()) == (None, None)
-    assert asked["www.silent.test"] == 1
+        http, "https://www.silent.test/careers", robots, lock) == (None, None)
+    assert asked["www.silent.test"] == 2  # robots.txt twice, then the site counts as closed
+    assert employers._board_from_page(http, "https://www.shaky.test/careers", robots, lock) == (
+        ("workday", "https://shaky.wd3.myworkdayjobs.com/Careers"), None)
+    assert employers._look(http, "https://careers.redirect.test/", robots, lock) is None
+    assert not robots["www.redirect.test"].allows("https://www.redirect.test/jobs")
 
 
 def test_employers_found_are_read_with_the_directory_s_and_forgotten_when_gone(monkeypatch):
