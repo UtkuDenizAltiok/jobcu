@@ -178,8 +178,11 @@ def resolve_for_jobs(client, plan, groups, *, retry_unknown: bool = False) -> No
             anchor.research_status = status
             condition.sources = list({s.url: s for c in results.values()
                                       for s in c.sources}.values())
+            # check() counts only the cities it was given; this count includes those kept.
             condition.note = (f"Checked {known} of {len(towns)} reference cities relevant to "
-                              "the collected workplaces. " + found.note)
+                              "the collected workplaces. " + re.sub(
+                                  r"^Checked \d+ of \d+ candidate reference cities\. ", "",
+                                  found.note))
             condition.status = "estimate" if condition.max_minutes else status
 
 
