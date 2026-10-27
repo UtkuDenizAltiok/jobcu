@@ -226,7 +226,7 @@ def test_incomplete_or_paid_account_stops_before_vacancies_and_cannot_be_bypasse
         list(source.search(query(), ctx))
     with pytest.raises(SourceError, match="earlier"):
         source.load_details(jsearch.to_found_job(item()), ctx)
-    assert len(requests) == ctx.report.requests == reserved() == 1
+    assert len(requests) == 1 and ctx.report.requests == reserved() == 0  # checks are free
 
 
 def test_empty_provider_allowance_is_not_replaced_by_local_allowance(setup):
@@ -240,12 +240,12 @@ def test_monthly_exhaustion_does_not_send_account_or_details_requests(setup):
     source, ctx, requests = setup()
     with db.connect() as conn:
         conn.execute(
-            "INSERT INTO source_requests VALUES (?, 'jsearch', 199)", (NOW.strftime("%Y-%m-%d"),)
+            "INSERT INTO source_requests VALUES (?, 'jsearch', 200)", (NOW.strftime("%Y-%m-%d"),)
         )
     list(source.search(query(), ctx))
     with pytest.raises(BudgetExhausted):
         source.load_details(jsearch.to_found_job(item()), ctx)
-    assert requests == [] and reserved() == 199
+    assert requests == [] and reserved() == 200
 
 
 @pytest.mark.parametrize("code", [301, 401, 402, 403, 429, 500, 503])
@@ -260,7 +260,7 @@ def test_service_errors_are_specific_single_attempts_and_never_follow_redirects(
     with pytest.raises(SourceError, match="earlier"):
         source.load_details(jsearch.to_found_job(item()), ctx)
     assert [r.url.path for r in requests] == ["/usage", "/jsearch/search-v2"]
-    assert ctx.report.requests == reserved() == 2
+    assert ctx.report.requests == reserved() == 1
 
 
 @pytest.mark.parametrize("failure", ["read", "connect", "json", "shape"])
@@ -282,7 +282,7 @@ def test_ambiguous_failures_are_not_repeated_or_spent_again(setup, failure):
         list(source.search(two_queries, ctx))
     # A broken connection skips its own query; only a second one in a row stops the source.
     searches = 2 if failure in {"read", "connect"} else 1
-    assert len(requests) == ctx.report.requests == reserved() == 1 + searches
+    assert len(requests) == 1 + searches and ctx.report.requests == reserved() == searches
     assert len({str(r.url) for r in requests}) == len(requests)  # nothing sent twice
 
 
@@ -316,7 +316,7 @@ def test_current_cursor_contract_and_conservative_date_window(setup, hours, wind
 
     source, ctx, requests = setup(respond)
     assert len(list(source.search(query(hours=hours), ctx))) == 2
-    assert len(requests) == reserved() == 3
+    assert len(requests) == 3 and reserved() == 2
 
 
 def test_repeated_cursor_is_stopped_and_received_jobs_are_kept(setup):
@@ -348,7 +348,7 @@ def test_credits_are_spread_until_the_account_renews_not_to_the_month_s_end(setu
     monkeypatch.setattr(jsearch, "share_until", budget.share_until)
     source, ctx, requests = setup(lambda r: page([item()], "next"), account=receipt(60))
     list(source.search(query(["DE", "IE", "GB"]), ctx))
-    assert len(requests) == 3  # one search a day: 60 / 20 days = 3, the account check included
+    assert len(requests) == 4  # the free account check + 60 / 20 days = 3 at one search a day
     assert budget.share_until(60, NOW + timedelta(days=20), fewest=2, most=40,
                               now=lambda: NOW) == 3
     assert budget.share_until(500, NOW + timedelta(hours=5), fewest=2, most=40,
@@ -371,7 +371,7 @@ def test_query_allowance_is_shared_with_selected_details(setup, monkeypatch):
     source.load_details(jobs[0], ctx)
     with pytest.raises(BudgetExhausted):
         source.load_details(jobs[0], ctx)
-    assert len(requests) == ctx.report.requests == reserved() == 6
+    assert len(requests) == 7 and ctx.report.requests == reserved() == 6  # + the free check
 
 
 def test_stop_never_reserves_or_sends_an_extra_request(setup):
@@ -749,7 +749,7 @@ def test_account_button_checks_only_usage_and_does_not_enable_source(setup, monk
     monkeypatch.setattr(jsearch, "PoliteClient", lambda: ctx.http)
     result = jsearch.check_keys(ctx.keys)
     assert result.ok and "No job query" in result.message
-    assert [r.url.path for r in requests] == ["/usage"] and reserved() == 1
+    assert [r.url.path for r in requests] == ["/usage"] and reserved() == 0
     assert "jsearch" in disabled_sources(Settings())
 
 

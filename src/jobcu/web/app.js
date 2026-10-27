@@ -2068,6 +2068,7 @@ function renderUsage() {
   $("scoring-cap").value = usage.limits.scoring_cap ?? "";
   $("web-search-cap").value = usage.limits.web_search_cap ?? "";
   $("free-web-searches").value = usage.limits.free_web_searches ?? "";
+  $("searches-per-month").value = usage.limits.searches_per_month ?? "";
   const free = usage.free_web_searches;
   $("free-searches-used").textContent = free
     ? `This month: ${free.used.toLocaleString()} of ${free.allowance.toLocaleString()} used ` +
@@ -2181,6 +2182,7 @@ function setUpUsageActions() {
             scoring_cap: value("scoring-cap"),
             web_search_cap: value("web-search-cap"),
             free_web_searches: value("free-web-searches"),
+            searches_per_month: value("searches-per-month"),
             monthly_token_limit: value("token-limit"),
             monthly_cost_limit: value("cost-limit"),
           },

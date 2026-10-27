@@ -217,6 +217,7 @@ class Limits(BaseModel):
     scoring_cap: int | None = Field(default=None, ge=1)
     web_search_cap: int | None = Field(default=None, ge=0)
     free_web_searches: int | None = Field(default=None, ge=0)
+    searches_per_month: int | None = Field(default=None, ge=1, le=300)
     monthly_token_limit: int | None = None
     monthly_cost_limit: float | None = None
     maps_monthly_routes: int | None = None
@@ -233,6 +234,8 @@ def put_limits(limits: Limits) -> dict:
                         else settings.limits.web_search_cap),
         free_web_searches=(limits.free_web_searches if "free_web_searches" in sent
                            else settings.limits.free_web_searches),
+        searches_per_month=(limits.searches_per_month if "searches_per_month" in sent
+                            else settings.limits.searches_per_month),
         monthly_token_limit=limits.monthly_token_limit,
         monthly_cost_limit=limits.monthly_cost_limit,
         maps_monthly_routes=(limits.maps_monthly_routes if limits.maps_monthly_routes is not None

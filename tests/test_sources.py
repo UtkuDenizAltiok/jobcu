@@ -432,3 +432,23 @@ def test_the_share_follows_how_often_this_person_really_searches():
                          ((now - timedelta(hours=hours)).strftime("%Y-%m-%dT%H:%M:%S.000Z"),))
     assert searches_a_day(now) == 6.0
     assert share_of_month("adzuna", limits, now=lambda: now).per_search == 25
+
+
+def test_a_planned_number_of_searches_a_month_shares_free_allowances_equally():
+    from datetime import datetime, timedelta
+
+    from jobcu.settings import Settings, save_settings
+    from jobcu.sources.budget import searches_a_day, share_until
+
+    now = datetime(2026, 10, 18, 20, tzinfo=UTC)
+    settings = Settings()
+    settings.limits.searches_per_month = 24
+    save_settings(settings)
+    # The owner's plan wins over the habit; JSearch's 200 free credits from its renewal day
+    # to the next: 8 for each of the 24 searches (8 left over for the last ones).
+    assert searches_a_day(now) == 24 / (365.25 / 12)
+    renews = now + timedelta(days=365.25 / 12)
+    assert share_until(200, renews, fewest=2, most=40, now=lambda: now) == 8
+    # Searching less than planned leaves more for the searches still to come, never less.
+    assert share_until(131, renews - timedelta(days=20), fewest=2, most=40,
+                       now=lambda: now) == 15
