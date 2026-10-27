@@ -67,6 +67,18 @@ log = logging.getLogger(__name__)
 STOPPING_NOTE = ("Stopping… retry waits and queued AI work are cancelled. "
                  "A request already sent may finish first.")
 STOPPED_NOTE = "Search stopped. Retry waits and queued AI work were cancelled."
+CONTINUATION_NOTE = "Before continuation: "
+
+
+def continuation_notes(notes: list[str]) -> list[str]:
+    """The earlier attempts' notes, marked once and each said once, however often the search
+    was continued (search 8 showed "Before continuation: Before continuation: …" and repeats)."""
+    plain = []
+    for note in notes:
+        while note.startswith(CONTINUATION_NOTE):
+            note = note.removeprefix(CONTINUATION_NOTE)
+        plain.append(note)
+    return [CONTINUATION_NOTE + note for note in dict.fromkeys(plain)]
 
 StepStatus = Literal["waiting", "running", "done", "failed", "skipped", "interrupted"]
 RunStatus = Literal["running", "finished", "failed", "stopped"]
@@ -302,8 +314,7 @@ class SearchManager:
                 form=SearchForm.model_validate(snapshot["form"]),
                 started_at=snapshot["started_at"],
                 kind="resume" if resume_only else "reapply",
-                notes=([f"Before continuation: {note}" for note in earlier_notes]
-                       if resume_only else []),
+                notes=continuation_notes(earlier_notes) if resume_only else [],
                 steps=[Step(i, label) for i, label in (
                     [*REAPPLY_STEPS[:4], ("requirements", "Rechecking uncertain requirements"),
                      *REAPPLY_STEPS[4:]] if recheck_requirements else REAPPLY_STEPS)],

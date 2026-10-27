@@ -397,6 +397,20 @@ def test_completed_filtering_is_not_reopened_after_full_ads(ready, monkeypatch):
     assert ("filtering", "running") not in updates[details_end:]
 
 
+def test_notes_from_earlier_attempts_are_marked_once_and_said_once():
+    assert search.continuation_notes([
+        "Before continuation: JSearch stopped at its allowance.",
+        "Before continuation: Before continuation: Maps delayed requests.",
+        "JSearch stopped at its allowance.",
+        "Maps delayed requests.",
+        "The provider refused the request.",
+    ]) == [
+        "Before continuation: JSearch stopped at its allowance.",
+        "Before continuation: Maps delayed requests.",
+        "Before continuation: The provider refused the request.",
+    ]
+
+
 @pytest.mark.parametrize("title", ["Hardware Engineer", "Community Nurse", "Primary Teacher"])
 @pytest.mark.parametrize("outcome", ["stopped", "failed"])
 def test_resume_before_cards_keeps_identity_and_never_collects_again(
