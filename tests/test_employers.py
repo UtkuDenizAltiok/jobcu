@@ -206,6 +206,24 @@ def test_a_careers_page_without_a_system_leads_to_its_job_list_or_job_host():
     assert "jobs.hensoldt.net" not in employers._job_hosts("https://jobs.hensoldt.net/")
 
 
+def test_a_site_that_never_answers_costs_one_request_not_a_round_of_retries():
+    import threading
+
+    asked = Counter()
+
+    def handler(request):
+        asked[request.url.host] += 1
+        if request.url.host == "www.silent.test":
+            raise httpx.ReadTimeout("no answer", request=request)
+        raise httpx.ConnectError("no such host", request=request)
+
+    http = PoliteClient(min_intervals={}, sleep=lambda s: None,
+                        transport=httpx.MockTransport(handler), resolve=lambda host: [])
+    assert employers._board_from_page(
+        http, "https://www.silent.test/careers", {}, threading.Lock()) == (None, None)
+    assert asked["www.silent.test"] == 1
+
+
 def test_employers_found_are_read_with_the_directory_s_and_forgotten_when_gone(monkeypatch):
     from jobcu.sources.careers import forget_found_employer, save_found_employer
 
