@@ -1,12 +1,14 @@
 """Optional direct JSearch Free account; provider pages/IDs, not HTTP batches, are units.
 
 No enrichment, salary estimates, redirect probing or AI calls. Supplied text enters the same
-freshness, duplicate and location gates as other sources. Ambiguously charged failures stop
-this source; other feeds continue. Account checks are conservatively reserved as one unit too.
+freshness, duplicate and location gates as other sources. Ambiguously charged requests are
+never repeated: an unreadable reply or a second broken connection in a row stops this source;
+other feeds continue. Account checks are conservatively reserved as one unit too.
 """
 
 import dataclasses
 import ipaddress
+import logging
 from collections import deque
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -32,6 +34,8 @@ from jobcu.sources.careers import job_types_from_text
 from jobcu.sources.http import KeyCheck, PoliteClient, RequestStopped
 from jobcu.text import html_to_text
 
+log = logging.getLogger(__name__)
+
 API = "https://api.openwebninja.com/jsearch"
 USAGE = "https://api.openwebninja.com/usage"
 KEY_API_KEY = "jsearch_api_key"
@@ -39,6 +43,7 @@ KEY_PAGE = "https://www.openwebninja.com/api/jsearch"
 MONTHLY_CREDITS = 200
 MAX_SEARCH_CREDITS = 40
 MAX_PAGES_PER_QUERY = 3
+MAX_INTERRUPTIONS = 2  # broken connections in a row before JSearch stops
 PRIORITY = ("DE", "IE", "GB", "CH", "NL", "BE", "IT")
 _BOARDS = {
     "adzuna",
@@ -217,6 +222,10 @@ def _free_remaining(body: dict) -> int:
     return numbers[2] if status == "active" else 0
 
 
+class Interrupted(SourceError):
+    """One request's connection broke; the request is not repeated but other queries go on."""
+
+
 @dataclass
 class Query:
     country: str
@@ -275,6 +284,7 @@ class JSearchSource(JobSource):
         self._halted = False
         self._ready = False
         self._key = ""
+        self._interrupted_in_a_row = 0
 
     def unavailable_reason(self, keys: KeyStore) -> str | None:
         return None if keys.get(KEY_API_KEY) else "JSearch: add a direct Free key in Settings."
@@ -332,7 +342,22 @@ class JSearchSource(JobSource):
             body = response.json()
             if not isinstance(body, dict) or body.get("status") != "OK":
                 raise SourceError("JSearch did not return a complete successful response.")
+            self._interrupted_in_a_row = 0
             return body
+        except httpx.TransportError as exc:
+            # One broken connection lost all of JSearch's jobs in search 9 although the next
+            # request worked. The request is never sent again (it may have been charged), but
+            # the other queries go on; a second interruption in a row means the service is down.
+            log.info("JSearch request interrupted (%s)", type(exc).__name__)
+            self._interrupted_in_a_row += 1
+            if url == USAGE or self._interrupted_in_a_row >= MAX_INTERRUPTIONS:
+                self._halted = True
+                raise SourceError(
+                    "JSearch's reply was interrupted or unreadable; it was not repeated."
+                ) from exc
+            raise Interrupted(
+                "A JSearch request was interrupted and not repeated; the other queries continued."
+            ) from exc
         except (httpx.HTTPError, ValueError) as exc:
             self._halted = True
             raise SourceError(
@@ -406,7 +431,11 @@ class JSearchSource(JobSource):
                 }
                 if current.cursor:
                     params["cursor"] = current.cursor
-                data = self._request(f"{API}/search-v2", params, ctx).get("data")
+                try:
+                    data = self._request(f"{API}/search-v2", params, ctx).get("data")
+                except Interrupted as exc:
+                    ctx.report.status, ctx.report.message = "partial", str(exc)
+                    continue
                 if not isinstance(data, dict) or not isinstance(data.get("jobs"), list):
                     self._halted = True
                     raise SourceError("JSearch's results were incomplete; this source stopped.")

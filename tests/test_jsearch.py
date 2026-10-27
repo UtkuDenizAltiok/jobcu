@@ -276,9 +276,27 @@ def test_ambiguous_failures_are_not_repeated_or_spent_again(setup, failure):
         )
 
     source, ctx, requests = setup(fail)
+    two_queries = query(terms=[term("Hardware Engineer"), term("Circuit Designer")])
     with pytest.raises(SourceError):
-        list(source.search(query(), ctx))
-    assert len(requests) == ctx.report.requests == reserved() == 2
+        list(source.search(two_queries, ctx))
+    # A broken connection skips its own query; only a second one in a row stops the source.
+    searches = 2 if failure in {"read", "connect"} else 1
+    assert len(requests) == ctx.report.requests == reserved() == 1 + searches
+    assert len({str(r.url) for r in requests}) == len(requests)  # nothing sent twice
+
+
+def test_after_one_broken_connection_the_other_queries_still_bring_their_jobs(setup):
+    def respond(request):
+        if "Hardware" in request.url.params["query"]:
+            raise httpx.ReadTimeout("Fictional stall", request=request)
+        return page([item(job_title="Circuit Designer")])
+
+    source, ctx, requests = setup(respond)
+    jobs = list(source.search(
+        query(terms=[term("Hardware Engineer"), term("Circuit Designer")]), ctx))
+    assert [job.title for job in jobs] == ["Circuit Designer"]
+    assert ctx.report.status == "partial" and "interrupted" in ctx.report.message
+    assert [r.url.path for r in requests] == ["/usage", "/jsearch/search-v2", "/jsearch/search-v2"]
 
 
 @pytest.mark.parametrize(
