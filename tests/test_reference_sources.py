@@ -682,3 +682,38 @@ def test_a_reused_city_leaves_only_the_others_for_the_comparison():
     assert [c.meets for c in both] == [True, True] and len(client.calls) == 2
     asked = client.calls[1]["prompt"]
     assert "C0 | Lakeside" in asked and "Springford" not in asked
+
+
+def test_a_city_whose_quotes_slipped_in_a_batch_is_asked_once_more_on_its_own():
+    names = ["Springford", "Otherford"]
+    body = "\n".join(f"{name}: {FACT}" for name in names)
+    good = [reply(id=f"C{i}", quotes=[reference_sources.Quote(
+        source_id="S0", words=f"{name}: {FACT}")]) for i, name in enumerate(names)]
+    garbled = reply(id="C1", quotes=[reference_sources.Quote(
+        source_id="S0", words="Otherford: A staffed weekend servce")])
+    client = Client([page(towns=names)], [good[0], garbled])
+    original = client.generate
+
+    def generate(output, **request):
+        if client.calls:  # the second request: the one city alone, read correctly this time
+            client.rows = [reply(quotes=[reference_sources.Quote(
+                source_id="S0", words=f"Otherford: {FACT}")])]
+        return original(output, **request)
+
+    client.generate = generate
+    checks = [city("Springford"), city("Otherford")]
+    reference_sources.check(client, "Weekend service", checks, http=HTTP(body))
+    assert [c.meets for c in checks] == [True, True] and len(client.calls) == 2
+    assert "C1 |" not in client.calls[1]["prompt"] and "Otherford" in client.calls[1]["prompt"]
+
+
+def test_a_city_left_unknown_on_the_evidence_is_not_asked_again():
+    names = ["Springford", "Otherford"]
+    body = "\n".join(f"{name}: {FACT}" for name in names)
+    rows = [reply(id="C0", quotes=[reference_sources.Quote(
+        source_id="S0", words=f"Springford: {FACT}")]),
+        reply(id="C1", meets=None, explanation="The page gives no figure for this city.")]
+    client = Client([page(towns=names)], rows)
+    checks = [city("Springford"), city("Otherford")]
+    reference_sources.check(client, "Weekend service", checks, http=HTTP(body))
+    assert [c.meets for c in checks] == [True, None] and len(client.calls) == 1

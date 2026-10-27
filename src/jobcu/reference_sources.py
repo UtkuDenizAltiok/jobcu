@@ -38,6 +38,9 @@ MAX_DOCUMENT_BYTES = 8_000_000
 MAX_CONTEXT_CHARS = 400_000
 MAX_SOURCES = 16
 BATCH_SIZE = 8
+UNVERIFIED_QUOTES = ("The comparison could not be verified: supporting quotes were missing, did "
+                     "not match the current pages, or did not identify this city in its country.")
+OMITTED = "The comparison omitted this city or returned conflicting city IDs."
 # Whole-city aggregation and explicit category bounds need room at medium effort. Keep
 # that effort; reserve a complete answer inside the shared client's 32k output ceiling.
 ANSWER_TOKENS = 20_000
@@ -213,7 +216,9 @@ def check(client, text: str, checks: list[ReferenceCheck], *, http=None,
                       for country in dict.fromkeys(c.country for c in pending)}
         batches = [cities[start:start + BATCH_SIZE] for cities in by_country.values()
                    for start in range(0, len(cities), BATCH_SIZE)]
-        for batch in batches:
+        retried = set()
+        while batches:
+            batch = batches.pop(0)
             pages = [p for p in selected if p.country == batch[0].country
                      and (not p.towns or any(c.name in p.towns
                                             or c.name in p.must_cite_for_towns for c in batch))]
@@ -283,6 +288,14 @@ def check(client, text: str, checks: list[ReferenceCheck], *, http=None,
             except AIError:
                 raise  # no hidden hosted-search retry after a failed paid comparison
             _apply(batch, answer, country_pages, calculations=calculations)
+            # In a batch a model sometimes garbles one city's quotes or leaves it out (search 9:
+            # Stuttgart, among eight cities; alone it was read and verified at once). Such a city
+            # is asked once more on its own; an answer that is unknown on the evidence stays so.
+            if len(batch) > 1:
+                again = [c for c in batch if c.meets is None and id(c) not in retried
+                         and c.evidence in (UNVERIFIED_QUOTES, OMITTED)]
+                retried.update(id(c) for c in again)
+                batches[:0] = [[c] for c in again]
             for check in batch:
                 if check.meets is not None and keys[id(check)]:
                     preparation.write(REUSE_KIND, keys[id(check)], check, keep=REUSE_KEPT)
@@ -358,7 +371,7 @@ def _apply(checks, answer, pages, *, calculations=None):
     for i, check in enumerate(checks):
         rows = [r for r in answer.cities if r.id == f"C{i}"]
         if len(rows) != 1:
-            check.evidence = "The comparison omitted this city or returned conflicting city IDs."
+            check.evidence = OMITTED
             continue
         row = rows[0]
         if row.meets is None:
@@ -409,6 +422,4 @@ def _apply(checks, answer, pages, *, calculations=None):
             check.sources = list({s.url: s for s in cited}.values())
             check.checked_at = datetime.now(UTC).isoformat()
         else:
-            check.evidence = ("The comparison could not be verified: supporting quotes were "
-                              "missing, did not match the current pages, or did not identify "
-                              "this city in its country.")
+            check.evidence = UNVERIFIED_QUOTES
