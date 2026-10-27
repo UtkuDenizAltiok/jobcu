@@ -482,7 +482,8 @@ class GoogleMaps:
         if response.status_code == 429:
             scope = _quota_scope(response)
             # Raw error messages/metadata can name the owner's project or account.
-            log.warning("Google Maps refused a request (code 429; quota scope: %s)", scope)
+            log.warning("Google Maps refused a request (code 429; quota scope: %s%s)", scope,
+                        _quota_clues(response))
             message = _quota_message(scope)
             if scope in {"day", "month", "zero"}:
                 self._unavailable = message
@@ -635,6 +636,32 @@ def _quota_scope(response: httpx.Response) -> str:
         return _quota_scope_error(error)
     except (ValueError, AttributeError, IndexError, TypeError):
         return "unknown"
+
+
+_CLUE_KEYS = ("quota_limit", "quota_limit_name", "quota_metric", "quota_unit")
+_CLUE = re.compile(r"[A-Za-z0-9_./{}-]{1,100}")
+
+
+def _quota_clues(response: httpx.Response) -> str:
+    """Google's generic names for a refusal, so an unclassified 429 can be understood from the
+    log (search 8 had five "unknown" ones): status, reason and quota names only, never the
+    message or the consumer, which can name the owner's project."""
+    clues = []
+    try:
+        errors = response.json()
+        error = (errors[0] if isinstance(errors, list) else errors).get("error") or {}
+        clues.append(("status", error.get("status")))
+        for detail in error.get("details") or []:
+            if isinstance(detail, dict) and str(detail.get("@type", "")).endswith(
+                    "/google.rpc.ErrorInfo"):
+                metadata = detail.get("metadata") or {}
+                clues += [("reason", detail.get("reason")),
+                          *((key, metadata.get(key)) for key in _CLUE_KEYS)]
+    except (ValueError, AttributeError, IndexError, TypeError):
+        clues.append(("body", "not_json"))
+    clues.append(("retry-after", response.headers.get("Retry-After") or "none"))
+    return "".join(f"; {name} {value}" for name, value in clues
+                   if isinstance(value, str) and _CLUE.fullmatch(value))
 
 
 def _quota_scope_error(error: dict) -> str:
