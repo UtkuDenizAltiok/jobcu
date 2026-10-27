@@ -341,8 +341,8 @@ def unchecked_location_conditions(group: JobGroup, plan: LocationPlan) -> list[s
 def location_gate_view(snapshot: dict) -> None:
     """Apply today's admission rule to a response copy, without rewriting saved history.
 
-    Older searches paid for scores despite explicitly unchecked hard location conditions.
-    Those assessments must not appear as qualifying matches under the new admission rule.
+    A saved card whose hard location condition is unchecked must not appear as a qualifying
+    match: it moves to the cards waiting for location evidence, with its score kept for order.
     The recorded checks, not a guessed journey or a fresh provider request, decide this view.
     """
     result = snapshot.get("result") or {}
@@ -362,8 +362,8 @@ def location_gate_view(snapshot: dict) -> None:
             unknown = unread or any(c.get("status") == "unclear"
                                     for c in card.get("location_checks", []))
             if unknown:
-                pending.append({**card, "location_pending": True, "score": None, "parts": None,
-                                "limits": [], "deductions": [], "reasons": []})
+                # Its score still shows the job's own fit; the section says it isn't a match.
+                pending.append({**card, "location_pending": True})
             else:
                 kept.append(card)
         jobs[section] = kept
@@ -545,8 +545,7 @@ def build_card(
     # An old ad posted again looks fresh; Jobcu's memory knows when it first showed this job.
     earliest = earliest_possible(group.posted_at, group.date_precision)
     reposted = bool(first_seen_at and earliest and first_seen_at < earliest - timedelta(days=1))
-    if location_pending:
-        scored = None  # retained legacy assessments are not current qualifying matches
+    # A pending card keeps its score for order: its section says it isn't a match yet.
     return {
         "job_id": job_id,
         "is_new": is_new,

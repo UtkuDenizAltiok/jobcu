@@ -800,11 +800,16 @@ def test_new_source_never_bypasses_failed_or_pending_location_gate(
     monkeypatch.setattr(travel, "answer", lambda *a: location_answer)
     monkeypatch.setattr(travel, "workplace_conflict", lambda *a: False)
     assert filters.condition_fit(condition, JobGroup([job])) == location_answer
-    monkeypatch.setattr(
-        search.scoring,
-        "score_groups",
-        lambda *a, **k: pytest.fail("Location-ineligible vacancies must not be scored"),
-    )
+    scored = []
+
+    def score(client, profile, location, groups, indexes, **kwargs):
+        if location_answer == "no":
+            pytest.fail("Location-ineligible vacancies must not be scored")
+        scored.extend(indexes)  # an unknown one: its own fit, shown while it waits
+        return {i: {"score": 70, "parts": {}, "required_languages": [], "reasons": []}
+                for i in indexes}
+
+    monkeypatch.setattr(search.scoring, "score_groups", score)
     with db.connect() as conn:
         run_id = conn.execute(
             "INSERT INTO searches (status, form_json) VALUES ('running', '{}')"
@@ -826,5 +831,6 @@ def test_new_source_never_bypasses_failed_or_pending_location_gate(
         [],
         lambda: None,
     )
-    assert not run.result["jobs"]["cards"] and saved.jobs[0].scored is None
+    assert not run.result["jobs"]["cards"]  # never a match without the location evidence
+    assert scored == ([0] if location_answer == "unknown" else [])
     assert not requests

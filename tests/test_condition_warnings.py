@@ -37,7 +37,8 @@ def test_completed_search_explains_failed_reference_fact_without_losing_jobs(
     assert "details are unchecked" in detail
     assert "condition checked" not in detail
     for card in pending:
-        assert card["score"] is None and card["parts"] is None
+        # Scored for its own fit when its workplace is known, but never a match meanwhile.
+        assert card["location_pending"] and card not in result["result"]["jobs"]["cards"]
         assert any(check["status"] == "unclear" for check in card["location_checks"])
 
 

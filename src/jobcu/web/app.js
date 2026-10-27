@@ -1269,7 +1269,9 @@ function renderCard(card) {
       "div",
       { class: `score ${band}`, title: scoreTooltip(card) },
       document.createTextNode(card.score === null ? "–" : String(card.score)),
-      el("small", { text: card.score === null ? "not scored" : "match" }),
+      el("small", {
+        text: card.score === null ? "not scored" : card.location_pending ? "job fit" : "match",
+      }),
     ),
     el(
       "div",
@@ -1483,7 +1485,7 @@ function renderDetails(search) {
       ...c.left_out.map((item) => `${item.count} left out: ${item.reason}`),
       `${c.unrelated} left out as clearly unrelated to what you're looking for`,
       c.not_scored ? `${c.not_scored} not scored (scoring limit)` : null,
-      c.location_unchecked ? `${c.location_unchecked} not scored (location not verified)` : null,
+      c.location_unchecked ? `${c.location_unchecked} waiting for location evidence` : null,
       `${c.shown} shown`,
     ].filter(Boolean);
     const unrelated = el(
