@@ -55,6 +55,16 @@ def share_of_month(
     return replace(limits, per_search=per_search)
 
 
+def share_until(left: int, renews: datetime, *, fewest: int, most: int,
+                now=lambda: datetime.now(UTC)) -> int:
+    """Like share_of_month, for an allowance that renews on its own date rather than on the
+    1st: JSearch's runs from the day the account was opened (2026-10-27: 132 credits left
+    until 18 November, where the calendar month would have spent them by 31 October)."""
+    today = now()
+    days_left = max(1.0, (renews - today).total_seconds() / 86400)
+    return max(fewest, min(most, int(left / days_left / searches_a_day(today))))
+
+
 def searches_a_day(now: datetime) -> float:
     """How many searches a day this person ran in the last two weeks: at least one."""
     since = (now - timedelta(days=HABIT_DAYS)).strftime("%Y-%m-%dT%H:%M:%S")

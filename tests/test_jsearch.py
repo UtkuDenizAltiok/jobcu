@@ -89,6 +89,7 @@ def setup(monkeypatch):
     monkeypatch.setattr(
         jsearch, "share_of_month", lambda *a, **k: Limits(per_search=12, per_month=200)
     )
+    monkeypatch.setattr(jsearch, "share_until", lambda *a, **k: 12)
     clients = []
 
     def create(handler=None, account=None):
@@ -337,6 +338,21 @@ def test_infinite_pagination_is_bounded_and_later_countries_get_a_turn(setup):
     assert [r.url.params["country"] for r in requests[1:4]] == ["de", "ie", "gb"]
     assert len(requests) == 10  # account + 3 pages each; two units reserved for full ads
     assert ctx.report.status == "partial"
+
+
+def test_credits_are_spread_until_the_account_renews_not_to_the_month_s_end(setup, monkeypatch):
+    from jobcu.sources import budget
+
+    # The calendar month would allow 40 now; 60 credits must last the 20 days to renewal.
+    monkeypatch.setattr(jsearch, "share_of_month", lambda *a, **k: Limits(per_search=40))
+    monkeypatch.setattr(jsearch, "share_until", budget.share_until)
+    source, ctx, requests = setup(lambda r: page([item()], "next"), account=receipt(60))
+    list(source.search(query(["DE", "IE", "GB"]), ctx))
+    assert len(requests) == 3  # one search a day: 60 / 20 days = 3, the account check included
+    assert budget.share_until(60, NOW + timedelta(days=20), fewest=2, most=40,
+                              now=lambda: NOW) == 3
+    assert budget.share_until(500, NOW + timedelta(hours=5), fewest=2, most=40,
+                              now=lambda: NOW) == 40
 
 
 def test_query_allowance_is_shared_with_selected_details(setup, monkeypatch):

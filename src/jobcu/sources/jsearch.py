@@ -10,7 +10,7 @@ import dataclasses
 import ipaddress
 import logging
 from collections import deque
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from urllib.parse import urlsplit
 
@@ -29,7 +29,13 @@ from jobcu.sources.base import (
     SourceError,
     SourceReport,
 )
-from jobcu.sources.budget import BudgetExhausted, Limits, RequestBudget, share_of_month
+from jobcu.sources.budget import (
+    BudgetExhausted,
+    Limits,
+    RequestBudget,
+    share_of_month,
+    share_until,
+)
 from jobcu.sources.careers import job_types_from_text
 from jobcu.sources.http import KeyCheck, PoliteClient, RequestStopped
 from jobcu.text import html_to_text
@@ -191,6 +197,11 @@ def to_found_job(item: dict) -> FoundJob | None:
 
 
 def _free_remaining(body: dict) -> int:
+    return _free_allowance(body)[0]
+
+
+def _free_allowance(body: dict) -> tuple[int, datetime]:
+    """The Free credits left and when they renew, from a usage receipt."""
     data = body.get("data")
     if not isinstance(data, dict) or data.get("api_id") != "jsearch":
         raise SourceError("JSearch's account check did not identify the expected service.")
@@ -219,7 +230,7 @@ def _free_remaining(body: dict) -> int:
     reset = parse_iso(_text(quota.get("reset_at")))
     if reset is None or reset <= datetime.now(UTC):
         raise SourceError("JSearch did not report a current allowance period; no jobs requested.")
-    return numbers[2] if status == "active" else 0
+    return (numbers[2] if status == "active" else 0), reset
 
 
 class Interrupted(SourceError):
@@ -386,7 +397,13 @@ class JSearchSource(JobSource):
         # Avoid spending the last local unit just to learn that no job request can fit.
         self._budget.check(2)
         try:
-            self._remaining = _free_remaining(self._request(USAGE, {"api_id": self.id}, ctx))
+            self._remaining, renews = _free_allowance(
+                self._request(USAGE, {"api_id": self.id}, ctx))
+            # The calendar-month share above is only an upper bound: the credits renew on
+            # the account's own date, so they are spread until then.
+            paced = share_until(self._remaining, renews, fewest=2, most=MAX_SEARCH_CREDITS)
+            self._budget.limits = replace(
+                limits, per_search=min(limits.per_search or paced, paced))
             self._ready = True
         except SourceError:
             self._halted = True
