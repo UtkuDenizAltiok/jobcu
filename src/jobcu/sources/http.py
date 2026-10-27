@@ -30,6 +30,7 @@ DEFAULT_MIN_INTERVAL = 1.0  # seconds between requests to the same site
 MAX_RETRIES = 3
 MAX_BACKOFF_SECONDS = 120.0
 STOP_POLL_SECONDS = 0.2
+LOGGED_WAIT_SECONDS = 2.0
 
 
 def client(**kwargs) -> httpx.Client:
@@ -341,8 +342,12 @@ class PoliteClient:
                     self._check_request(host)
             self._check_request(host)
         finally:
-            log.info("Source wait finished: host=%s elapsed=%.3fs requested=%.3fs",
-                     host, max(0, time.monotonic() - started), requested)
+            # Only waits longer than the polite interval, or that overran: one line for every
+            # request filled 150 kB of the log in search 9's first 13 minutes.
+            elapsed = max(0, time.monotonic() - started)
+            if requested >= LOGGED_WAIT_SECONDS or elapsed - requested >= 1.0:
+                log.info("Source wait finished: host=%s elapsed=%.3fs requested=%.3fs",
+                         host, elapsed, requested)
 
 
 def _retry_after(response: httpx.Response, *, now: float | None = None) -> float | None:

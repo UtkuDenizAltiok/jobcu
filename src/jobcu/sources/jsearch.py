@@ -1,14 +1,16 @@
 """Optional direct JSearch Free account; provider pages/IDs, not HTTP batches, are units.
 
 No enrichment, salary estimates, redirect probing or AI calls. Supplied text enters the same
-freshness, duplicate and location gates as other sources. Ambiguously charged failures stop
-this source; other feeds continue. Account checks are conservatively reserved as one unit too.
+freshness, duplicate and location gates as other sources. Ambiguously charged requests are
+never repeated: an unreadable reply or a second broken connection in a row stops this source;
+other feeds continue. Account checks are conservatively reserved as one unit too.
 """
 
 import dataclasses
 import ipaddress
+import logging
 from collections import deque
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from urllib.parse import urlsplit
 
@@ -27,10 +29,18 @@ from jobcu.sources.base import (
     SourceError,
     SourceReport,
 )
-from jobcu.sources.budget import BudgetExhausted, Limits, RequestBudget, share_of_month
+from jobcu.sources.budget import (
+    BudgetExhausted,
+    Limits,
+    RequestBudget,
+    share_of_month,
+    share_until,
+)
 from jobcu.sources.careers import job_types_from_text
 from jobcu.sources.http import KeyCheck, PoliteClient, RequestStopped
 from jobcu.text import html_to_text
+
+log = logging.getLogger(__name__)
 
 API = "https://api.openwebninja.com/jsearch"
 USAGE = "https://api.openwebninja.com/usage"
@@ -39,6 +49,7 @@ KEY_PAGE = "https://www.openwebninja.com/api/jsearch"
 MONTHLY_CREDITS = 200
 MAX_SEARCH_CREDITS = 40
 MAX_PAGES_PER_QUERY = 3
+MAX_INTERRUPTIONS = 2  # broken connections in a row before JSearch stops
 PRIORITY = ("DE", "IE", "GB", "CH", "NL", "BE", "IT")
 _BOARDS = {
     "adzuna",
@@ -186,6 +197,11 @@ def to_found_job(item: dict) -> FoundJob | None:
 
 
 def _free_remaining(body: dict) -> int:
+    return _free_allowance(body)[0]
+
+
+def _free_allowance(body: dict) -> tuple[int, datetime]:
+    """The Free credits left and when they renew, from a usage receipt."""
     data = body.get("data")
     if not isinstance(data, dict) or data.get("api_id") != "jsearch":
         raise SourceError("JSearch's account check did not identify the expected service.")
@@ -214,7 +230,11 @@ def _free_remaining(body: dict) -> int:
     reset = parse_iso(_text(quota.get("reset_at")))
     if reset is None or reset <= datetime.now(UTC):
         raise SourceError("JSearch did not report a current allowance period; no jobs requested.")
-    return numbers[2] if status == "active" else 0
+    return (numbers[2] if status == "active" else 0), reset
+
+
+class Interrupted(SourceError):
+    """One request's connection broke; the request is not repeated but other queries go on."""
 
 
 @dataclass
@@ -275,6 +295,7 @@ class JSearchSource(JobSource):
         self._halted = False
         self._ready = False
         self._key = ""
+        self._interrupted_in_a_row = 0
 
     def unavailable_reason(self, keys: KeyStore) -> str | None:
         return None if keys.get(KEY_API_KEY) else "JSearch: add a direct Free key in Settings."
@@ -332,7 +353,22 @@ class JSearchSource(JobSource):
             body = response.json()
             if not isinstance(body, dict) or body.get("status") != "OK":
                 raise SourceError("JSearch did not return a complete successful response.")
+            self._interrupted_in_a_row = 0
             return body
+        except httpx.TransportError as exc:
+            # One broken connection lost all of JSearch's jobs in search 9 although the next
+            # request worked. The request is never sent again (it may have been charged), but
+            # the other queries go on; a second interruption in a row means the service is down.
+            log.info("JSearch request interrupted (%s)", type(exc).__name__)
+            self._interrupted_in_a_row += 1
+            if url == USAGE or self._interrupted_in_a_row >= MAX_INTERRUPTIONS:
+                self._halted = True
+                raise SourceError(
+                    "JSearch's reply was interrupted or unreadable; it was not repeated."
+                ) from exc
+            raise Interrupted(
+                "A JSearch request was interrupted and not repeated; the other queries continued."
+            ) from exc
         except (httpx.HTTPError, ValueError) as exc:
             self._halted = True
             raise SourceError(
@@ -361,7 +397,13 @@ class JSearchSource(JobSource):
         # Avoid spending the last local unit just to learn that no job request can fit.
         self._budget.check(2)
         try:
-            self._remaining = _free_remaining(self._request(USAGE, {"api_id": self.id}, ctx))
+            self._remaining, renews = _free_allowance(
+                self._request(USAGE, {"api_id": self.id}, ctx))
+            # The calendar-month share above is only an upper bound: the credits renew on
+            # the account's own date, so they are spread until then.
+            paced = share_until(self._remaining, renews, fewest=2, most=MAX_SEARCH_CREDITS)
+            self._budget.limits = replace(
+                limits, per_search=min(limits.per_search or paced, paced))
             self._ready = True
         except SourceError:
             self._halted = True
@@ -406,7 +448,11 @@ class JSearchSource(JobSource):
                 }
                 if current.cursor:
                     params["cursor"] = current.cursor
-                data = self._request(f"{API}/search-v2", params, ctx).get("data")
+                try:
+                    data = self._request(f"{API}/search-v2", params, ctx).get("data")
+                except Interrupted as exc:
+                    ctx.report.status, ctx.report.message = "partial", str(exc)
+                    continue
                 if not isinstance(data, dict) or not isinstance(data.get("jobs"), list):
                     self._halted = True
                     raise SourceError("JSearch's results were incomplete; this source stopped.")

@@ -89,6 +89,7 @@ def setup(monkeypatch):
     monkeypatch.setattr(
         jsearch, "share_of_month", lambda *a, **k: Limits(per_search=12, per_month=200)
     )
+    monkeypatch.setattr(jsearch, "share_until", lambda *a, **k: 12)
     clients = []
 
     def create(handler=None, account=None):
@@ -276,9 +277,27 @@ def test_ambiguous_failures_are_not_repeated_or_spent_again(setup, failure):
         )
 
     source, ctx, requests = setup(fail)
+    two_queries = query(terms=[term("Hardware Engineer"), term("Circuit Designer")])
     with pytest.raises(SourceError):
-        list(source.search(query(), ctx))
-    assert len(requests) == ctx.report.requests == reserved() == 2
+        list(source.search(two_queries, ctx))
+    # A broken connection skips its own query; only a second one in a row stops the source.
+    searches = 2 if failure in {"read", "connect"} else 1
+    assert len(requests) == ctx.report.requests == reserved() == 1 + searches
+    assert len({str(r.url) for r in requests}) == len(requests)  # nothing sent twice
+
+
+def test_after_one_broken_connection_the_other_queries_still_bring_their_jobs(setup):
+    def respond(request):
+        if "Hardware" in request.url.params["query"]:
+            raise httpx.ReadTimeout("Fictional stall", request=request)
+        return page([item(job_title="Circuit Designer")])
+
+    source, ctx, requests = setup(respond)
+    jobs = list(source.search(
+        query(terms=[term("Hardware Engineer"), term("Circuit Designer")]), ctx))
+    assert [job.title for job in jobs] == ["Circuit Designer"]
+    assert ctx.report.status == "partial" and "interrupted" in ctx.report.message
+    assert [r.url.path for r in requests] == ["/usage", "/jsearch/search-v2", "/jsearch/search-v2"]
 
 
 @pytest.mark.parametrize(
@@ -319,6 +338,21 @@ def test_infinite_pagination_is_bounded_and_later_countries_get_a_turn(setup):
     assert [r.url.params["country"] for r in requests[1:4]] == ["de", "ie", "gb"]
     assert len(requests) == 10  # account + 3 pages each; two units reserved for full ads
     assert ctx.report.status == "partial"
+
+
+def test_credits_are_spread_until_the_account_renews_not_to_the_month_s_end(setup, monkeypatch):
+    from jobcu.sources import budget
+
+    # The calendar month would allow 40 now; 60 credits must last the 20 days to renewal.
+    monkeypatch.setattr(jsearch, "share_of_month", lambda *a, **k: Limits(per_search=40))
+    monkeypatch.setattr(jsearch, "share_until", budget.share_until)
+    source, ctx, requests = setup(lambda r: page([item()], "next"), account=receipt(60))
+    list(source.search(query(["DE", "IE", "GB"]), ctx))
+    assert len(requests) == 3  # one search a day: 60 / 20 days = 3, the account check included
+    assert budget.share_until(60, NOW + timedelta(days=20), fewest=2, most=40,
+                              now=lambda: NOW) == 3
+    assert budget.share_until(500, NOW + timedelta(hours=5), fewest=2, most=40,
+                              now=lambda: NOW) == 40
 
 
 def test_query_allowance_is_shared_with_selected_details(setup, monkeypatch):

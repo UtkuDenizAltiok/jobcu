@@ -206,6 +206,26 @@ def test_google_s_daily_limit_is_named_as_such(caplog):
     assert "quota scope: day" in caplog.text
 
 
+def test_an_unclassified_refusal_logs_google_s_generic_names_but_not_the_account(caplog):
+    def refuse(request):
+        return httpx.Response(429, json={"error": {
+            "code": 429, "status": "RESOURCE_EXHAUSTED",
+            "message": "Resource exhausted for projects/fictional-account.",
+            "details": [{"@type": "type.googleapis.com/google.rpc.ErrorInfo",
+                         "reason": "RATE_LIMIT_EXCEEDED", "metadata": {
+                             "consumer": "projects/fictional-account",
+                             "quota_limit": "FictionalElementsPerProject"}}]}})
+
+    http = PoliteClient(min_intervals={}, sleep=lambda s: None,
+                        transport=httpx.MockTransport(refuse))
+    with caplog.at_level("WARNING"), pytest.raises(travel.MapsError):
+        travel.GoogleMaps("fake-maps-key", http, now=lambda: NOW).minutes(
+            travel.job_point(group("Freising")), [places.find("Munich", "DE")], "transit")
+    assert ("quota scope: unknown; status RESOURCE_EXHAUSTED; reason RATE_LIMIT_EXCEEDED; "
+            "quota_limit FictionalElementsPerProject; retry-after none)") in caplog.text
+    assert "fictional-account" not in caplog.text
+
+
 def _refusing_transit(minute_scope=False, succeed_after=None):
     calls = {"transit": 0, "drive": 0}
 

@@ -72,11 +72,17 @@ def test_the_ai_s_lines_are_read_whatever_their_decoration():
             "Beacon Hospital | IE | https://beacon.teamtailor.com\n"
             "* **Mater Private** | ie | [careers](https://www.materprivate.ie/careers) |\n"
             "St. Vincent's | Dublin | careers.svuh.ie\n"
-            "no address here | IE |\n")
+            "no address here | IE |\n"
+            "| Name | Country | Address |\n"
+            "|---|---|---|\n"
+            "| Bon Secours | IE | https://bonsecours.wd3.myworkdayjobs.com/Careers |\n"
+            "12. Hermitage Clinic | IE | hermitageclinic.ie/careers\n")
     assert employers.parse_lines(text, "IE") == [
         ("Beacon Hospital", "IE", "https://beacon.teamtailor.com"),
         ("Mater Private", "IE", "https://www.materprivate.ie/careers"),
         ("St. Vincent's", "IE", "careers.svuh.ie"),
+        ("Bon Secours", "IE", "https://bonsecours.wd3.myworkdayjobs.com/Careers"),
+        ("Hermitage Clinic", "IE", "hermitageclinic.ie/careers"),
     ]
 
 
@@ -204,6 +210,24 @@ def test_a_careers_page_without_a_system_leads_to_its_job_list_or_job_host():
     assert employers._job_hosts("https://www.ward.co.uk/x") == [
         "jobs.ward.co.uk", "careers.ward.co.uk", "job.ward.co.uk"]
     assert "jobs.hensoldt.net" not in employers._job_hosts("https://jobs.hensoldt.net/")
+
+
+def test_a_site_that_never_answers_costs_one_request_not_a_round_of_retries():
+    import threading
+
+    asked = Counter()
+
+    def handler(request):
+        asked[request.url.host] += 1
+        if request.url.host == "www.silent.test":
+            raise httpx.ReadTimeout("no answer", request=request)
+        raise httpx.ConnectError("no such host", request=request)
+
+    http = PoliteClient(min_intervals={}, sleep=lambda s: None,
+                        transport=httpx.MockTransport(handler), resolve=lambda host: [])
+    assert employers._board_from_page(
+        http, "https://www.silent.test/careers", {}, threading.Lock()) == (None, None)
+    assert asked["www.silent.test"] == 1
 
 
 def test_employers_found_are_read_with_the_directory_s_and_forgotten_when_gone(monkeypatch):

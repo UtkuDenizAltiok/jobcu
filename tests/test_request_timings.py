@@ -58,7 +58,9 @@ def test_source_pause_records_actual_wait_without_an_external_request(monkeypatc
     try:
         with caplog.at_level(logging.INFO, logger='jobcu.sources.http'):
             http._pause(3, 'fictional.example.test')
+            http._pause(0.8, 'routine.example.test')  # the polite interval: not worth a line
         assert 'elapsed=3.000s requested=3.000s' in caplog.text
+        assert 'routine.example.test' not in caplog.text
         assert http.request_count == {}
     finally:
         http.close()

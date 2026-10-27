@@ -20,6 +20,8 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from urllib.parse import urljoin, urlsplit, urlunsplit
 
+import httpx
+
 from jobcu import db
 from jobcu.ai.base import (
     AIError,
@@ -192,10 +194,11 @@ def parse_lines(text: str, default_country: str) -> list[tuple[str, str, str]]:
     """The "name | country | address" lines of the AI's answer."""
     rows = []
     for line in (text or "").splitlines():
-        parts = [part.strip(" *`-•\t") for part in line.split("|")]
+        # A Markdown table row starts and ends with a bar: its name came first and was empty.
+        parts = [part.strip(" *`-•\t") for part in line.strip().strip("|").split("|")]
         if len(parts) < 3:
             continue
-        name, code = parts[0], parts[1].upper()
+        name, code = re.sub(r"^\d+[.)]\s*", "", parts[0]), parts[1].upper()  # "1. Name"
         address = next((p for p in reversed(parts[2:]) if "." in p and " " not in p), "")
         if not name or not address:
             continue
@@ -399,11 +402,15 @@ def _allowed(http: PoliteClient, url: str, robots: dict[str, RobotsRules],
         rules = robots.get(host)
     if rules is None:
         try:
-            response = http.get(f"https://{host}/robots.txt", cache=False)
+            # One try: a site that holds a tool's requests open until they time out (search 9:
+            # www.analog.com) cost four 30-second attempts per address with retries.
+            response = http.get(f"https://{host}/robots.txt", cache=False, retry_transport=False)
             status = response.status_code
+        except httpx.TimeoutException:
+            response, status = None, None  # no answer at all: its pages won't answer either
         except Exception:  # noqa: BLE001 - no robots.txt to be had: nothing is closed
             response, status = None, 0
-        if status in (401, 403):
+        if status is None or status in (401, 403):
             rules = RobotsRules(disallow_all=True)
         elif status == 200 and response is not None:
             rules = RobotsRules(response.text)

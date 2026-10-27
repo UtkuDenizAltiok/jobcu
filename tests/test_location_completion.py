@@ -179,6 +179,23 @@ def test_only_an_asked_for_retry_looks_up_recently_unknown_cities_again(monkeypa
         assert reference_places.check.retries == [retry]
 
 
+def test_the_city_count_is_said_once(monkeypatch):
+    from jobcu import reference_places
+
+    plan, groups, _ = deferred_plan(monkeypatch)
+
+    def unknown(client, text, towns, **kwargs):
+        found = reference_places.deferred(text, towns)
+        found.note = (f"Checked 0 of {len(towns)} candidate reference cities. Missing cities "
+                      "remain unknown; supported cities can still qualify.")
+        return found
+
+    monkeypatch.setattr(reference_places, "check", unknown)
+    reference_places.resolve_for_jobs(None, plan, groups)
+    note = plan.conditions[0].note
+    assert note.count("Checked ") == 1 and note.startswith("Checked 0 of 1 reference cities")
+
+
 def test_empty_job_pool_buys_no_city_research(monkeypatch):
     from jobcu import reference_places
 
