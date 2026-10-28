@@ -426,10 +426,10 @@ def test_a_search_defers_scoring_uncertain_routes_and_excludes_confirmed_no_rout
     result = wait_until_done(manager)
     assert result['status'] == 'finished', result['error']
     jobs = result['result']['jobs']
-    assert not scored
+    assert len(scored) == 1  # the uncertain journey's own fit; never the confirmed no-route
     assert not jobs['cards']
     assert [card['location'] for card in jobs['location_unchecked']] == ['Freising']
     assert [card['location'] for card in jobs['ruled_out_by_conditions']] == ['Dachau']
-    assert jobs['location_unchecked'][0]['score'] is None
+    assert jobs['location_unchecked'][0]['score'] is not None
     assert jobs['location_unchecked'][0]['location_checks'][-1]['status'] == 'unclear'
     assert result['result']['profile']['field'] == field

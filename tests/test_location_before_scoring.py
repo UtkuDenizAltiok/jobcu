@@ -63,17 +63,18 @@ def test_custom_city_rules_gate_scoring_without_dropping_unresolved_jobs(monkeyp
     client = SimpleNamespace(web_research_unavailable_reason=lambda: "Offline test")
     search._decide(run, client, {}, None, Settings(), plan, saved_pool,
                    pipeline.Collected([], [], {}), [], lambda: None)
-    assert scored == [0]  # neither the proven failure nor the unknown used scoring
+    # The proven failure is not scored; the unknown is scored for its own fit but stays pending.
+    assert scored == [0, 2]
     result = run.result["jobs"]
     assert len(result["cards"]) == len(result["location_unchecked"]) == 1
     pending = result["location_unchecked"][0]
-    assert pending["score"] is None and pending["parts"] is None
+    assert pending["score"] == 75 and pending["location_pending"]
     assert any(check["status"] == "unclear" for check in pending["location_checks"])
     assert result["counts"]["location_unchecked"] == 1
     assert len(result["ruled_out_by_conditions"]) == 1
     assert len(pool.load(run_id).jobs) == 3  # retry/edit can still recover every candidate
 
-    # Resolving evidence on the same retained pool scores only the formerly pending job.
+    # Resolving evidence on the same retained pool makes it a match without scoring it again.
     saved_pool.jobs[2].group.copies[0].longitude = 8.91
     old_measure = Meter.measure
 
@@ -115,7 +116,7 @@ def test_saved_score_with_unknown_location_is_only_reclassified_in_the_response(
     pipeline.location_gate_view(shown)  # polling must be idempotent
     assert not shown["result"]["jobs"]["cards"]
     pending = shown["result"]["jobs"]["location_unchecked"]
-    assert len(pending) == 1 and pending[0]["score"] is None
+    assert len(pending) == 1 and pending[0]["score"] == 88 and pending[0]["location_pending"]
     assert saved["result"]["jobs"]["cards"][0]["score"] == 88
 
 

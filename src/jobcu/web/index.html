@@ -145,12 +145,13 @@
         </div>
         <div id="job-list" class="job-list"></div>
         <section id="location-unchecked-section" hidden>
-          <h3>Location not verified — not scored</h3>
-          <p>These jobs are waiting for evidence that they meet your location conditions.
-            Jobcu waits for that evidence before sending them for scoring. Earlier saved
-            assessments are not used as qualifying matches. Their cards explain what is missing.
-            Use <strong>Retry incomplete checks</strong> when the required service or
-            evidence is available, or edit a condition if it was misunderstood.</p>
+          <h3>Location not verified yet</h3>
+          <p>These jobs are waiting for evidence that they meet your location conditions, so
+            they don't count as matches yet. Their scores show how well the job itself fits you,
+            best first, so you can check the most promising places yourself; a job without a
+            known workplace is not scored. Each card says what is missing. Use
+            <strong>Retry incomplete checks</strong> when the required service or evidence is
+            available, or edit a condition if it was misunderstood.</p>
           <div id="location-unchecked-list" class="job-list"></div>
         </section>
         <div id="date-unknown-section" hidden>
@@ -531,6 +532,14 @@
             counted in Pacific time. With a number here, each search gets a fair share of what
             is left this month, and Jobcu asks before it looks up more.</p>
           <p class="muted" id="free-searches-used"></p>
+        </div>
+        <div class="field">
+          <label for="searches-per-month">Searches you plan a month</label>
+          <input id="searches-per-month" type="number" min="1" max="300" step="1"
+                 inputmode="numeric" placeholder="As in the last two weeks">
+          <p class="muted">Free monthly allowances, such as JSearch's free credits and the free
+            web searches above, are shared equally over this many searches. Empty: Jobcu goes by
+            how often you searched in the last two weeks.</p>
         </div>
         <div class="field">
           <label for="token-limit">Monthly token limit</label>

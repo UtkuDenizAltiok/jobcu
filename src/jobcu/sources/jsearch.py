@@ -3,7 +3,8 @@
 No enrichment, salary estimates, redirect probing or AI calls. Supplied text enters the same
 freshness, duplicate and location gates as other sources. Ambiguously charged requests are
 never repeated: an unreadable reply or a second broken connection in a row stops this source;
-other feeds continue. Account checks are conservatively reserved as one unit too.
+other feeds continue. Account checks cost no credit (2026-10-28: three in a row left the used
+count unchanged) and are not counted.
 """
 
 import dataclasses
@@ -309,9 +310,13 @@ class JSearchSource(JobSource):
         if url != USAGE and not self._ready:
             raise SourceError("JSearch's Free account allowance has not been checked.")
 
+        free = url == USAGE
+
         def check():
             if ctx.should_stop():
                 raise RequestStopped("Stopped before a JSearch request.")
+            if free:
+                return
             if self._remaining is not None and self._remaining < 1:
                 raise BudgetExhausted(
                     "JSearch's Free allowance is used up; other sources continue."
@@ -321,6 +326,8 @@ class JSearchSource(JobSource):
         def spend():
             if ctx.should_stop():
                 raise RequestStopped("Stopped before a JSearch request.")
+            if free:
+                return
             self._budget.spend()
             ctx.report.requests += 1
             if self._remaining is not None:
@@ -394,8 +401,8 @@ class JSearchSource(JobSource):
         )
         self._budget = RequestBudget(self.id, self.name, limits)
         self._budget.used_this_search = ctx.report.requests
-        # Avoid spending the last local unit just to learn that no job request can fit.
-        self._budget.check(2)
+        # No account check when not even one job request could fit.
+        self._budget.check(1)
         try:
             self._remaining, renews = _free_allowance(
                 self._request(USAGE, {"api_id": self.id}, ctx))

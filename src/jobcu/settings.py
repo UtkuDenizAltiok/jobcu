@@ -74,6 +74,9 @@ class LimitSettings(BaseModel):
     # in Pacific time). Each search gets a fair share of what is left this month; Jobcu asks
     # before using more, so free searches are never silently followed by paid ones.
     free_web_searches: int | None = Field(default=None, ge=0)
+    # The searches the person plans a month. Free monthly allowances (JSearch, Adzuna, the free
+    # web searches above) are shared equally over them; empty: the last two weeks' habit.
+    searches_per_month: int | None = Field(default=None, ge=1, le=300)
     # Optional monthly limits. AI work stops when one is reached.
     monthly_token_limit: int | None = Field(default=None, ge=1)
     monthly_cost_limit: float | None = Field(default=None, gt=0)

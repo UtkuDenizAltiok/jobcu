@@ -1269,7 +1269,9 @@ function renderCard(card) {
       "div",
       { class: `score ${band}`, title: scoreTooltip(card) },
       document.createTextNode(card.score === null ? "–" : String(card.score)),
-      el("small", { text: card.score === null ? "not scored" : "match" }),
+      el("small", {
+        text: card.score === null ? "not scored" : card.location_pending ? "job fit" : "match",
+      }),
     ),
     el(
       "div",
@@ -1483,7 +1485,7 @@ function renderDetails(search) {
       ...c.left_out.map((item) => `${item.count} left out: ${item.reason}`),
       `${c.unrelated} left out as clearly unrelated to what you're looking for`,
       c.not_scored ? `${c.not_scored} not scored (scoring limit)` : null,
-      c.location_unchecked ? `${c.location_unchecked} not scored (location not verified)` : null,
+      c.location_unchecked ? `${c.location_unchecked} waiting for location evidence` : null,
       `${c.shown} shown`,
     ].filter(Boolean);
     const unrelated = el(
@@ -2068,6 +2070,7 @@ function renderUsage() {
   $("scoring-cap").value = usage.limits.scoring_cap ?? "";
   $("web-search-cap").value = usage.limits.web_search_cap ?? "";
   $("free-web-searches").value = usage.limits.free_web_searches ?? "";
+  $("searches-per-month").value = usage.limits.searches_per_month ?? "";
   const free = usage.free_web_searches;
   $("free-searches-used").textContent = free
     ? `This month: ${free.used.toLocaleString()} of ${free.allowance.toLocaleString()} used ` +
@@ -2181,6 +2184,7 @@ function setUpUsageActions() {
             scoring_cap: value("scoring-cap"),
             web_search_cap: value("web-search-cap"),
             free_web_searches: value("free-web-searches"),
+            searches_per_month: value("searches-per-month"),
             monthly_token_limit: value("token-limit"),
             monthly_cost_limit: value("cost-limit"),
           },

@@ -833,7 +833,14 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     candidates = [i for i in candidates if i not in detail_location_failures]
     location_pending = {i for i in candidates
                         if pipeline.unchecked_location_conditions(groups[i], plan)}
-    to_score = [i for i in to_score if i in candidates and i not in location_pending]
+    # A job at a known workplace whose location condition still lacks evidence is scored too,
+    # so its own fit can be judged meanwhile (search 9: 125 of 179 jobs, mostly UK cities whose
+    # election results exist only per constituency, were listed without any order). It stays
+    # out of the matches until the evidence arrives, and the online checks still wait for it.
+    # Without a known workplace (none given, or ad and feed disagree) nothing is scored from a
+    # guessed place.
+    to_score = [i for i in to_score if i in candidates and (
+        i not in location_pending or travel.job_point(groups[i]) is not None)]
     run.update("eligibility", "done", (
         f"{len(location_pending)} jobs still need location evidence" if location_pending
         else "Location conditions checked for the remaining jobs"))

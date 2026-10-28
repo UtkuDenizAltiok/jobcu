@@ -279,9 +279,10 @@ meet the city's population rule. Your own percentage, named cities or ranking ru
 which cities count.
 
 Jobs that fail are left out. Jobs awaiting city facts, a workplace or a journey appear under
-**Location not verified — not scored**, with the missing evidence shown. They remain available
-for a later check or condition edit. Earlier saved scores do not turn an unchecked location
-into a qualifying match; the saved history is preserved. Research and travel checks can still
+**Location not verified yet**, with the missing evidence shown. They remain available for a
+later check or condition edit and never count as matches before the evidence arrives. When the
+workplace itself is known, the job is scored, so you can see which ones are worth checking
+yourself; a job without a known workplace is not scored from a guessed place. Research and travel checks can still
 use their normal service allowances, so this rule is not a provider spending cap.
 
 Confirmed duplicate copies share one card, assessment and set of marks. If historical copies

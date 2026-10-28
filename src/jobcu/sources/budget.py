@@ -22,6 +22,7 @@ class Limits:
 
 # How far back Jobcu looks to see how many searches a person runs a day.
 HABIT_DAYS = 14
+AVERAGE_MONTH_DAYS = 365.25 / 12
 
 
 def share_of_month(
@@ -66,7 +67,13 @@ def share_until(left: int, renews: datetime, *, fewest: int, most: int,
 
 
 def searches_a_day(now: datetime) -> float:
-    """How many searches a day this person ran in the last two weeks: at least one."""
+    """The searches a day the person plans (Settings: searches a month), or else ran in the
+    last two weeks: at least one."""
+    from jobcu.settings import load_settings
+
+    planned = load_settings().limits.searches_per_month
+    if planned:
+        return planned / AVERAGE_MONTH_DAYS
     since = (now - timedelta(days=HABIT_DAYS)).strftime("%Y-%m-%dT%H:%M:%S")
     with db.connect() as conn:
         searches = conn.execute(
