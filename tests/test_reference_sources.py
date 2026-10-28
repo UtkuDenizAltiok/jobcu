@@ -717,3 +717,30 @@ def test_a_city_left_unknown_on_the_evidence_is_not_asked_again():
     checks = [city("Springford"), city("Otherford")]
     reference_sources.check(client, "Weekend service", checks, http=HTTP(body))
     assert [c.meets for c in checks] == [True, None] and len(client.calls) == 1
+
+
+def test_a_reviewed_country_decision_settles_its_cities_without_a_read_or_an_ai():
+    from jobcu.settings import CountryDecision, EvidenceLink
+
+    client = Client([page()])
+    client.settings.place_evidence[0].country_decisions = [CountryDecision(
+        country="IE", meets=True, reason="No party in the category; about 1% for small ones.",
+        sources=[EvidenceLink(url="https://classification.example.test/list.csv",
+                              title="Fictional classification")],
+        reviewed="2026-10-28: owner's decision, reviewed with the classification")]
+    http = HTTP()
+    checks = [city("Lakeford", "IE"), city("Springford", "DE")]
+    reference_sources.check(client, "Weekend service", checks, http=http)
+    irish = checks[0]
+    assert irish.meets is True and "No party in the category" in irish.evidence
+    assert [s.url for s in irish.sources] == ["https://classification.example.test/list.csv"]
+    assert irish.checked_at and all("C1 |" not in c["prompt"] for c in client.calls)
+    assert checks[1].meets is True and len(client.calls) == 1  # Germany still compared
+    # Without web look-ups the decision still applies; nothing else is read.
+    offline = Client([page()])
+    offline.settings.place_evidence[0].country_decisions = (
+        client.settings.place_evidence[0].country_decisions)
+    offline.settings.use_web_search = False
+    checks = [city("Lakeford", "IE")]
+    reference_sources.check(offline, "Weekend service", checks, http=HTTP())
+    assert checks[0].meets is True and not offline.calls

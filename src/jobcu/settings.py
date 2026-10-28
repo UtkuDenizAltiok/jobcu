@@ -153,6 +153,23 @@ class PlaceEvidencePage(BaseModel):
     permission: str  # dated source/permission review, retained privately with the selection
 
 
+class EvidenceLink(BaseModel):
+    url: str
+    title: str = ""
+
+
+class CountryDecision(BaseModel):
+    """A reviewed answer for every city of one country, given with its reason and sources, so
+    no city there is looked up one by one (Ireland for the owner's far-right rule: no party
+    PopuList 4.0 classifies as far right, about 1.3% for the small ones in 2024)."""
+
+    country: str
+    meets: bool
+    reason: str
+    sources: list[EvidenceLink]
+    reviewed: str  # who decided it and when, from which review
+
+
 class PlaceEvidenceSet(BaseModel):
     fact_key: str  # exact interpreted question's SHA-256; not a fuzzy political/keyword rule
     # The whole request the set was reviewed for (reference_sources.request_key). While that
@@ -160,6 +177,7 @@ class PlaceEvidenceSet(BaseModel):
     # when another provider or a fresh reading words or splits the fact differently.
     request_key: str | None = None
     sources: list[PlaceEvidencePage]
+    country_decisions: list[CountryDecision] = []
 
 
 JobType = Literal[

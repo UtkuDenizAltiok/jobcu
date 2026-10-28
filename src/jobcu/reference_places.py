@@ -13,7 +13,7 @@ import json
 import logging
 import re
 from collections import defaultdict
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from pydantic import BaseModel
 
@@ -48,6 +48,15 @@ RESEARCH_REUSE_KEPT = 1000  # cities, across facts and countries
 # not an answer: the city stays unknown, and an explicit retry or edit looks again at once.
 UNKNOWN_KIND = "reference_research_unknown"
 UNKNOWN_RETRY_DAYS = 30
+# A verified city fact is used again for this long without another look-up, whichever AI and
+# wording established it: the facts are about published results that don't change, and every
+# repeated check was another chance for a flaky answer to lose a verified city (search 9 lost
+# Stuttgart and 12 UK cities that search 8 had verified). Up to a year it still stands in when
+# a later check can't establish the city again.
+VERIFIED_KIND = "reference_verified"
+VERIFIED_DAYS = 90
+VERIFIED_KEPT_DAYS = 365
+VERIFIED_KEPT = 2000  # cities, across requests and countries
 
 RESEARCH_SYSTEM = """\
 Check the stated condition for EACH listed reference city, using live web search and current
@@ -194,6 +203,45 @@ def _fresh(check: ReferenceCheck) -> bool:
         return False  # legacy/invalid timestamps cannot establish fresh reuse
 
 
+def _lasting_key(text: str, request: str | None, town) -> str:
+    """The person's request (or, after an edit, the fact itself) and the city: not the AI route
+    or the wording a reading gave the fact."""
+    identity = [VERIFIED_KIND, normalise(request or text), list(_identity(town))]
+    return hashlib.sha256(json.dumps(identity, ensure_ascii=False).encode("utf-8")).hexdigest()
+
+
+def _lasting(text: str, request: str | None, town) -> ReferenceCheck | None:
+    stored = preparation.read(VERIFIED_KIND, _lasting_key(text, request, town), ReferenceCheck,
+                              max_age_days=VERIFIED_KEPT_DAYS)
+    if stored is None or stored.meets is None or not stored.evidence or not stored.sources:
+        return None
+    age = _age(stored)
+    return stored if age is not None and age <= timedelta(days=VERIFIED_KEPT_DAYS) else None
+
+
+def _age(check: ReferenceCheck) -> timedelta | None:
+    try:
+        age = datetime.now(UTC) - datetime.fromisoformat(check.checked_at or "")
+    except (ValueError, TypeError):
+        return None
+    return age if age >= timedelta(0) else None
+
+
+def _recent(check: ReferenceCheck | None) -> bool:
+    age = _age(check) if check is not None else None
+    return age is not None and age <= timedelta(days=VERIFIED_DAYS)
+
+
+def _keep_lasting(text, request, towns, checks, newly, lasting) -> None:
+    """Remember the cities established now; an older verified answer beats a new unknown."""
+    for i in newly:
+        if checks[i].meets is not None and checks[i].evidence and checks[i].sources:
+            preparation.write(VERIFIED_KIND, _lasting_key(text, request, towns[i]), checks[i],
+                              keep=VERIFIED_KEPT)
+        elif lasting[i] is not None:
+            checks[i] = lasting[i].model_copy(deep=True)
+
+
 def _reuse_key(client, text: str, town) -> str | None:
     """A researched city fact's identity: the fact, the city, and both AI routes reading it."""
     settings = getattr(client, "settings", None)
@@ -302,9 +350,12 @@ def check(client: AIClient, text: str, towns: list[places.Town], *,
           request: str | None = None, retry_unknown: bool = False) -> Condition:
     supported = {_identity(c): c for c in previous or []
                  if c.meets is not None and c.evidence and c.sources and _fresh(c)}
+    lasting = [_lasting(text, request, town) for town in towns]
     checks = [(supported[_identity(town)].model_copy(deep=True) if _identity(town) in supported
+               else lasting[i].model_copy(deep=True) if _recent(lasting[i])
                else ReferenceCheck(name=town.name, country=town.country, latitude=town.latitude,
-                                   longitude=town.longitude)) for town in towns]
+                                   longitude=town.longitude)) for i, town in enumerate(towns)]
+    newly = [i for i, c in enumerate(checks) if c.meets is None]
     sources = list({s.url: s for c in checks for s in c.sources}.values())
     notes: list[str] = []
     note = "Reference cities selected from the local population and named-place rules."
@@ -315,6 +366,7 @@ def check(client: AIClient, text: str, towns: list[places.Town], *,
     except AIError as exc:
         # Keep completed source-backed cities; a failed paid comparison must not cause an
         # additional hosted-research operation in the same recovery attempt.
+        _keep_lasting(text, request, towns, checks, newly, lasting)
         known = sum(c.meets is not None for c in checks)
         return Condition(text=text, understood_as=text, kind="towns_that_fit",
                          status="applied" if known else "not_checked",
@@ -393,6 +445,7 @@ def check(client: AIClient, text: str, towns: list[places.Town], *,
                 # the same outage into a fresh retry budget for every remaining group.
                 note += " Remaining reference-city groups were not sent after these interruptions."
                 break
+    _keep_lasting(text, request, towns, checks, newly, lasting)
     known = sum(c.meets is not None for c in checks)
     if resting:
         note = (f"{len(resting)} cities were looked up within the last {UNKNOWN_RETRY_DAYS} "

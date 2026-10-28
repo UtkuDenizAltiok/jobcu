@@ -1,6 +1,7 @@
 """Fictional city services, professions and evidence; no network/provider traffic."""
 
 from dataclasses import replace
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -11,6 +12,7 @@ from jobcu.dedupe import JobGroup
 from jobcu.location import (
     Condition,
     ConditionEdit,
+    ReferenceCheck,
     SortedAnchor,
     SortedCondition,
     TownRef,
@@ -311,6 +313,7 @@ def test_check_again_uses_the_saved_interpretation_and_keeps_size_and_time_edits
                                    "2026-10-01T00:00:00", "2999-01-01T00:00:00+00:00"])
 def test_retry_does_not_reuse_legacy_expired_or_future_dated_proof(cities, stamp):
     condition = interpreted(Client())
+    _forget_reused_facts()  # only the condition's own stamps are under test here
     for city in condition.anchor.reference_checks:
         city.checked_at = stamp
     client = Client()
@@ -619,33 +622,48 @@ def test_reviewed_request_matching_needs_one_unedited_reference_fact():
 def _forget_reused_facts():
     from jobcu import db
     with db.connect() as conn:
+        conn.execute("DELETE FROM preparation_cache WHERE kind IN (?, ?)",
+                     (reference_places.RESEARCH_REUSE_KIND, reference_places.VERIFIED_KIND))
+
+
+def _forget_route_reuse():
+    from jobcu import db
+    with db.connect() as conn:
         conn.execute("DELETE FROM preparation_cache WHERE kind = ?",
                      (reference_places.RESEARCH_REUSE_KIND,))
 
 
-def test_verified_city_facts_are_reused_for_a_week_by_the_same_route_only(cities):
+def test_verified_city_facts_last_90_days_whichever_ai_or_wording_found_them(cities):
     from jobcu import db
 
+    request = "Fictional request: near a city with a staffed public service"
     first = CachedClient(search_id=1)
-    found = reference_places.check(first, 'City service', cities[:2])
+    found = reference_places.check(first, 'City service', cities[:2], request=request)
     assert [c.meets for c in found.reference_checks] == [True, False]
-    later = CachedClient(search_id=2)
-    again = reference_places.check(later, 'City service', cities[:2])
-    assert later.calls == []
+    # Another search, another model, another wording of the same request: no look-up.
+    other = CachedClient(search_id=2)
+    other.settings.ai.model = 'another-fictional-model'
+    again = reference_places.check(other, 'A reworded city service', cities[:2],
+                                   request=request)
+    assert other.calls == []
     assert [(c.meets, c.evidence, c.sources, c.checked_at) for c in again.reference_checks] == [
         (c.meets, c.evidence, c.sources, c.checked_at) for c in found.reference_checks]
     assert again.sources and again.status == 'applied'
-    # Another wording or model is another reading, never handed this one's facts.
-    reference_places.check(later, 'Another city service', cities[:2])
-    other = CachedClient(search_id=3)
-    other.settings.ai.model = 'another-fictional-model'
-    reference_places.check(other, 'City service', cities[:2])
-    assert [k for k, _ in later.calls].count('research') == 1
+    # Another request (or an edited fact, which has none) is another question.
+    reference_places.check(other, 'Another city service', cities[:2])
     assert [k for k, _ in other.calls].count('research') == 1
-    # After a week the fact is researched again.
+    # After 90 days the fact is checked again; an unknown answer keeps the older verified one.
+    old = (datetime.now(UTC) - timedelta(days=100)).isoformat()
     with db.connect() as conn:
-        conn.execute("UPDATE preparation_cache SET created_at = '2026-01-01T00:00:00.000Z' "
-                     "WHERE kind = ?", (reference_places.RESEARCH_REUSE_KIND,))
-    stale = CachedClient(search_id=4)
-    reference_places.check(stale, 'City service', cities[:2])
-    assert [k for k, _ in stale.calls].count('research') == 1
+        for row in conn.execute("SELECT key, answer_json FROM preparation_cache WHERE kind = ?",
+                                (reference_places.VERIFIED_KIND,)).fetchall():
+            fact = ReferenceCheck.model_validate_json(row["answer_json"])
+            conn.execute("UPDATE preparation_cache SET answer_json = ? WHERE kind = ? AND key = ?",
+                         (fact.model_copy(update={"checked_at": old}).model_dump_json(),
+                          reference_places.VERIFIED_KIND, row["key"]))
+    _forget_route_reuse()
+    unsure = CachedClient(search_id=3)
+    unsure.rows = []  # the new look-up establishes nothing
+    kept = reference_places.check(unsure, 'City service', cities[:2], request=request)
+    assert [k for k, _ in unsure.calls].count('research') == 1
+    assert [(c.meets, c.checked_at) for c in kept.reference_checks] == [(True, old), (False, old)]
