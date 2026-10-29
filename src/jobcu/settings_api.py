@@ -27,7 +27,15 @@ from jobcu.settings import (
     load_settings,
     save_settings,
 )
-from jobcu.sources import OPT_IN_SOURCES, adzuna, all_sources, disabled_sources, jsearch, reed
+from jobcu.sources import (
+    OPT_IN_SOURCES,
+    TERMS_NOTES,
+    adzuna,
+    all_sources,
+    disabled_sources,
+    jsearch,
+    reed,
+)
 from jobcu.sources.http import PoliteClient
 
 router = APIRouter(prefix="/api")
@@ -399,6 +407,7 @@ def get_usage(now: datetime | None = None) -> dict:
                 "requests_this_month": month.get(source.id, 0),
                 "needs_key": bool(source.unavailable_reason(KeyStore())),
                 "unit": "credits reserved" if source.id == "jsearch" else "requests",
+                "note": TERMS_NOTES.get(source.id, ""),
             }
             for source in all_sources()
         ],

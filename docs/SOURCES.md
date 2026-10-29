@@ -53,7 +53,7 @@ Countries below describe the adapter's scope, not complete market coverage.
 |---|---|---|
 | Adzuna | Ten supported countries; official API, app ID/key | No Ireland; descriptions are summaries. Blocked ad pages are not fetched. |
 | Reed | UK; official API/key, job details | List dates have day precision; full details are separate. |
-| Bundesagentur | Automated access paused | [Current terms hold](#bundesagentur-access-hold--2026-10-17) supersedes the earlier public-endpoint assumption. Saved evidence remains readable. |
+| Bundesagentur | Opt-in: off unless the person accepts its terms | [Access hold](#bundesagentur-access-hold--2026-10-17) and [owner's decision](#bundesagentur-opt-in--2026-10-30). |
 | JobsIreland | Ireland; public list and job pages | Match titles locally; an empty first page may be a service failure. |
 | Arbeitnow | Germany/UK feeds; public API | Free-text locations need interpretation. |
 | jobs.ac.uk | UK/Ireland; search pages and JobPosting data | Academic/research/technical jobs; personal-use terms. |
@@ -245,6 +245,21 @@ Identity, earlier matching copies and permitted original posting/closing metadat
 needed to distinguish a fresh opening from a refreshed advertisement.
 
 These are retained decisions from dated checks; no new access was tested during this cleanup.
+
+### Bundesagentur opt-in — 2026-10-30
+
+The owner asked the agency for permission on 2026-10-25. On 2026-10-29 its technical support
+replied only that the owner should call their local Agentur für Arbeit; it neither gave nor
+refused permission. The terms (Stand 08.07.2026, section 2a(3)) still say robots, web spiders
+and using existing interfaces contrary to the agency's intended purpose are not allowed. The
+owner decided to read it again for their own job search and accepts that. The source is
+therefore an opt-in like JSearch: off for everyone until switched on in Settings, which shows
+the terms note; only then does the HTTP client let requests reach arbeitsagentur.de hosts
+(`sources.accepted_terms`, `http.terms_denial`). Nothing works around a block, the agency's
+own public client ID is used as before, and requests keep their pause (0.7 s) and per-search
+ceiling. Evidence for the decision: searches 1-5 (before the hold) had 11-47 German cards
+each from it, almost all found by no other source; on 2026-10-29 one query found six
+hardware-developer ads of the last day, five of which Jobcu had not found elsewhere.
 
 - Held boards: StepStone, Totaljobs, IrishJobs and Jobs.ie
   lack established permission for direct automated collection. Do not infer permission from robots alone.

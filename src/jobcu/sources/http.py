@@ -91,20 +91,22 @@ class SourceTermsDenied(httpx.RequestError):
     """An explicitly restricted destination must not be requested, including on redirect."""
 
 
-def terms_denial(url: str) -> str | None:
-    # SAP-owned websites, not every employer using SuccessFactors; checked 2026-10-15.
-    # Primary terms and scope are recorded in SOURCES.
+def terms_denial(url: str, accepted: frozenset[str] = frozenset()) -> str | None:
+    """Why a site's terms rule out reading it automatically, unless the person accepted them for
+    that source in Settings. Primary terms and scope are recorded in SOURCES."""
     host = (urlsplit(url).hostname or "").lower().rstrip(".")
+    # SAP-owned websites, not every employer using SuccessFactors; checked 2026-10-15.
     if host == "sap.com" or host.endswith(".sap.com"):
         return "SAP's website terms do not permit Jobcu to read this site automatically."
-    if host == "arbeitsagentur.de" or host.endswith(".arbeitsagentur.de"):
-        return ("Bundesagentur für Arbeit's current portal terms prohibit automated collection. "
-                "This source is paused pending a permitted interface or explicit permission.")
+    if (host == "arbeitsagentur.de" or host.endswith(".arbeitsagentur.de")) and (
+            "bundesagentur" not in accepted):
+        return ("Bundesagentur für Arbeit's portal terms don't allow automated reading, so it is "
+                "read only for people who accept that in Settings.")
     return None
 
 
-def _check_destination(request: httpx.Request) -> None:
-    if reason := terms_denial(str(request.url)):
+def _check_destination(request: httpx.Request, accepted: frozenset[str] = frozenset()) -> None:
+    if reason := terms_denial(str(request.url), accepted):
         raise SourceTermsDenied(reason)
 
 
@@ -178,14 +180,17 @@ class PoliteClient:
         clock: Callable[[], float] = time.monotonic,
         wall_clock: Callable[[], float] = time.time,
         on_wait: Callable[[str, float], None] | None = None,
+        accepted_terms: frozenset[str] = frozenset(),
     ) -> None:
+        # Sources whose site terms the person accepted in Settings (sources.accepted_terms).
+        self.accepted_terms = accepted_terms
         self._client = httpx.Client(
             headers={"User-Agent": USER_AGENT},
             timeout=TIMEOUT,
             follow_redirects=True,
             trust_env=False,
             transport=transport,
-            event_hooks={"request": [_check_destination]},
+            event_hooks={"request": [lambda request: _check_destination(request, accepted_terms)]},
         )
         self._min_intervals = SITE_INTERVALS if min_intervals is None else min_intervals
         self._last_request: dict[str, float] = {}

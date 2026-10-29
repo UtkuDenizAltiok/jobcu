@@ -210,8 +210,28 @@ def test_limits_and_source_switches_are_saved(client):
     data = client.put("/api/settings/sources", headers=HEADERS,
                       json={"disabled": ["workday", "not-a-source"]}).json()
     switched_off = {s["id"] for s in data["sources"] if not s["enabled"]}
-    assert switched_off == {"workday", "jsearch"}  # optional sources need positive opt-in
+    # Optional sources need a positive opt-in.
+    assert switched_off == {"workday", "jsearch", "bundesagentur"}
     assert load_settings().sources_disabled == ["workday"]
+
+
+def test_a_source_with_restrictive_terms_says_so_and_runs_only_when_switched_on(client):
+    from jobcu.settings import save_settings
+    from jobcu.sources import accepted_terms
+
+    data = client.get("/api/usage", headers=HEADERS).json()
+    source = next(s for s in data["sources"] if s["id"] == "bundesagentur")
+    assert not source["enabled"] and "terms" in source["note"] and not source["needs_key"]
+    assert accepted_terms(load_settings()) == frozenset()
+
+    data = client.put("/api/settings/sources", headers=HEADERS,
+                      json={"disabled": [], "enabled": ["bundesagentur"]}).json()
+    assert next(s for s in data["sources"] if s["id"] == "bundesagentur")["enabled"]
+    assert accepted_terms(load_settings()) == {"bundesagentur"}
+    settings = load_settings()
+    settings.sources_disabled = ["bundesagentur"]  # switched off again: no longer accepted
+    save_settings(settings)
+    assert accepted_terms(load_settings()) == frozenset()
 
 
 def test_jsearch_key_and_legacy_source_choice_do_not_enable_optional_source(client):

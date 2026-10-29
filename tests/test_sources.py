@@ -263,14 +263,14 @@ def test_bundesagentur_names_a_state_given_only_as_a_code():
     assert bundesagentur.state_name(None) is None
 
 
-def test_bundesagentur_terms_hold_prevents_requests_even_when_called_directly():
+def test_bundesagentur_terms_hold_prevents_requests_unless_accepted_even_when_called_directly():
     def unexpected(request):
         pytest.fail("A restricted source must not receive a request")
     ctx = context(unexpected, "bundesagentur")
     query = JobQuery(["DE"], [], [term("Hardwareentwickler", "de")], 24, NOW)
     source = bundesagentur.BundesagenturSource()
-    assert "prohibit automated" in source.unavailable_reason(None)
-    with pytest.raises(SourceError, match="prohibit automated"):
+    assert source.unavailable_reason(None) is None  # an opt-in now: off until switched on
+    with pytest.raises(SourceError, match="don't allow automated"):
         list(source.search(query, ctx))
     assert ctx.report.requests == 0
 
@@ -286,7 +286,7 @@ def test_terms_held_agency_hosts_cannot_be_requested_directly_or_through_redirec
                 if request.url.path == "/redirect" else httpx.Response(200, text="Allowed ad"))
     ctx = context(handler)
     try:
-        with pytest.raises(SourceTermsDenied, match="prohibit automated"):
+        with pytest.raises(SourceTermsDenied, match="don't allow automated"):
             ctx.http.get("https://jobs.example.test/redirect" if redirect else held)
         assert seen == (["https://jobs.example.test/redirect"] if redirect else [])
         assert ctx.http.get("https://jobs.example.test/allowed").status_code == 200
@@ -480,3 +480,20 @@ def test_a_planned_number_of_searches_a_month_shares_free_allowances_equally():
     # Searching less than planned leaves more for the searches still to come, never less.
     assert share_until(131, renews - timedelta(days=20), fewest=2, most=40,
                        now=lambda: now) == 15
+
+
+def test_restrictive_terms_hold_until_the_person_accepts_them_for_that_source():
+    ba = "https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v6/jobs"
+    assert terms_denial(ba) and terms_denial(ba, frozenset({"jsearch"}))
+    assert terms_denial(ba, frozenset({"bundesagentur"})) is None
+    assert terms_denial("https://jobs.sap.com/x", frozenset({"bundesagentur"}))  # never accepted
+
+    def answer(request):
+        return httpx.Response(200, json={"ergebnisliste": []})
+
+    refused = PoliteClient(transport=httpx.MockTransport(answer), min_intervals={})
+    with pytest.raises(SourceTermsDenied):
+        refused.get(ba)
+    accepted = PoliteClient(transport=httpx.MockTransport(answer), min_intervals={},
+                            accepted_terms=frozenset({"bundesagentur"}))
+    assert accepted.get(ba).status_code == 200
