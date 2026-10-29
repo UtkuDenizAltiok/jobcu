@@ -161,6 +161,55 @@ def test_languages_and_countries_are_interleaved_before_pagination():
     assert jsearch.plan_queries(query(["GB", "DE"]), offset=1)[0].country == "GB"
 
 
+def test_own_language_and_broad_titles_come_first_and_reworded_ones_once():
+    plans = jsearch.plan_queries(query(["DE"], [
+        term("Power Electronics Engineer"),
+        term("Leistungselektronik Ingenieur", "de"),
+        term("Ingenieur Leistungselektronik", "de"),  # the same words: one query
+        term("Hardwareentwickler", "de"),
+        term("Leistungselektronik", "de", kind="field_or_skill"),
+    ]))
+    assert [(p.language, p.text) for p in plans] == [
+        ("de", "Hardwareentwickler in Germany"),
+        ("de", "Leistungselektronik Ingenieur in Germany"),
+        ("de", "Leistungselektronik in Germany"),
+        ("en", "Power Electronics Engineer in Germany"),
+    ]
+
+
+def test_queries_that_came_back_empty_twice_wait_and_productive_ones_go_first():
+    plans = jsearch.plan_queries(query(["DE", "GB"], [
+        term("Hardwareentwickler", "de"), term("Elektronikentwickler", "de"),
+        term("Hardware Engineer"), term("Electronics Engineer")]))
+    by_text = {p.text: p for p in plans}
+    for _ in range(2):
+        jsearch.remember_yield(by_text["Hardwareentwickler in Germany"], 0)
+    jsearch.remember_yield(by_text["Electronics Engineer in United Kingdom"], 7)
+    jsearch.remember_yield(by_text["Hardware Engineer in Germany"], 0)  # once: still worth one
+    ordered = [(p.country, p.text) for p in jsearch.by_yield(plans)]
+    assert ordered[:2] == [("DE", "Elektronikentwickler in Germany"),
+                           ("GB", "Electronics Engineer in United Kingdom")]
+    assert ordered[-1] == ("DE", "Hardwareentwickler in Germany")
+    assert [c for c, _ in ordered] == ["DE", "GB", "DE", "GB", "DE", "DE"]  # turns kept
+
+
+def test_a_search_remembers_what_each_query_s_first_page_brought(setup):
+    def respond(request):
+        if request.url.params.get("cursor"):
+            return page([item("second-page")])
+        empty = "Circuit" in request.url.params["query"]
+        return page([] if empty else [item()], None if empty else "next")
+
+    source, ctx, _ = setup(respond)
+    two = query(terms=[term("Hardware Engineer"), term("Circuit Designer")])
+    list(source.search(two, ctx))
+    remembered = {p.text: jsearch.preparation.read(
+        jsearch.YIELD_KIND, jsearch._yield_key(p), jsearch.QueryYield)
+        for p in jsearch.plan_queries(two)}
+    assert remembered["Hardware Engineer in Germany"].jobs == 1  # the first page only
+    assert remembered["Circuit Designer in Germany"].empty_in_a_row == 1
+
+
 def test_disabled_or_unconfigured_sources_never_make_account_calls(setup):
     source, ctx, requests = setup()
     save_settings(Settings())
