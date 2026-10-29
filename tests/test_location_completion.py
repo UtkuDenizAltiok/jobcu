@@ -335,3 +335,19 @@ def test_a_batch_exceeding_remaining_routes_does_not_block_a_smaller_batch():
     assert found[places[1][0].key].minutes == {"City 2": 25}
     assert found[places[0][0].key].unchecked == {"City 0", "City 1"}
     assert sent == [2] and len(notes) == 1
+
+
+def test_checking_again_is_not_an_edit_so_the_request_s_facts_still_apply(monkeypatch):
+    from jobcu.location import ConditionEdit, apply_edits
+    from jobcu.reference_places import single_fact_request
+
+    plan, _, _ = deferred_plan(monkeypatch)
+    text = plan.conditions[0].text
+    again = apply_edits(None, plan, [ConditionEdit(original=0, text=text, check_again=True)],
+                        defer_reference_checks=True)
+    assert not again.edited and single_fact_request(again) == plan.text
+    # A real change by the person is an edit: the request's facts no longer stand for it.
+    for edit in (ConditionEdit(original=0, text=text, check_again=True, max_km=25),
+                 ConditionEdit(original=0, text=text, use=False)):
+        changed = apply_edits(None, plan, [edit], defer_reference_checks=True)
+        assert changed.edited and single_fact_request(changed) is None
