@@ -161,9 +161,14 @@ evidence reads exactly the same. Any verified, sourced city fact (`reference_pla
 also kept by the person's request (or, after an edit, the fact itself) and the city, whichever
 AI and wording established it: used for 90 days without another look-up, and after that still
 used for up to a year when a new check can't establish the city. A reviewed place-evidence set
-can decide a fact for all cities of a country (`country_decisions`). Unknown verdicts are never
+can decide a fact for all cities of a country (`country_decisions`) or for one city
+(`city_decisions`, computed from official data); a decided city comes before any remembered or
+researched answer and is never looked up again. Unknown verdicts are never
 kept; completed research that left a city unknown is not bought again by ordinary searches for
-30 days through the same AI route, while an explicit retry or edit looks again at once. Plans, other
+30 days through the same AI route, while an explicit retry or edit looks again at once. The AI's
+travel estimates are remembered for 60 days per place, destination and way of travelling;
+Google's travel times are never stored (Routes API terms allow caching only coordinates), and
+each search gets its share of the monthly route allowance, nearest workplaces first. Plans, other
 web research, journeys and new-search scores are not reused as setup. Full-ad caching has its
 own bounded age and parser versions. Changed inputs invalidate the relevant cache.
 
