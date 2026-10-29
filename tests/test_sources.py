@@ -83,8 +83,8 @@ def test_adzuna_reads_by_relevance_and_keeps_only_jobs_inside_the_window():
 
 
 def test_a_broad_adzuna_search_gets_a_fair_part_and_can_t_crowd_out_the_rest(monkeypatch):
-    monkeypatch.setattr(adzuna, "share_of_month",
-                        lambda source, limits: Limits(per_search=6, per_day=240, per_month=2400))
+    monkeypatch.setattr(adzuna, "share_of_month", lambda source, limits, **kw: Limits(
+        per_search=6, per_day=240, per_month=2400))
     fresh = (NOW - timedelta(hours=2)).isoformat()
     asked = []
 
@@ -101,8 +101,8 @@ def test_a_broad_adzuna_search_gets_a_fair_part_and_can_t_crowd_out_the_rest(mon
 
 
 def test_what_one_country_doesn_t_need_goes_to_the_next(monkeypatch):
-    monkeypatch.setattr(adzuna, "share_of_month",
-                        lambda source, limits: Limits(per_search=8, per_day=240, per_month=2400))
+    monkeypatch.setattr(adzuna, "share_of_month", lambda source, limits, **kw: Limits(
+        per_search=8, per_day=240, per_month=2400))
     fresh = (NOW - timedelta(hours=2)).isoformat()
     asked = []
 
@@ -116,6 +116,34 @@ def test_what_one_country_doesn_t_need_goes_to_the_next(monkeypatch):
     query = JobQuery(["DE", "GB"], [], [term("Hardware Engineer")], 24, NOW)
     list(adzuna.AdzunaSource().search(query, context(handler, "adzuna")))
     assert asked == ["de"] + ["gb"] * 7
+
+
+def test_a_country_with_more_search_words_gets_a_bigger_share():
+    asked = []
+
+    def handler(request):  # every search matches endless ads
+        asked.append(request.url.path.split("/")[-3])
+        return httpx.Response(200, json={"results": [
+            adzuna_item(f"{len(asked)}-{i}", (NOW - timedelta(hours=2)).isoformat())
+            for i in range(50)]})
+
+    # Germany: two titles in German and English; the UK: the English one only.
+    terms = [term("Hardware Engineer"), term("Hardwareentwickler", "de")]
+    assert len(adzuna.plan_searches(terms, "DE")) == 2
+    assert len(adzuna.plan_searches(terms, "GB")) == 1
+    query = JobQuery(["DE", "GB"], [], terms, 24, NOW)
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(adzuna, "share_of_month", lambda source, limits, **kw: Limits(
+            per_search=9, per_day=240, per_month=2400))
+        list(adzuna.AdzunaSource().search(query, context(handler, "adzuna")))
+    assert asked.count("de") == 6 and asked.count("gb") == 3  # 2:1, not 4:5
+
+
+def test_adzuna_may_use_up_to_100_requests_when_the_month_allows():
+    from jobcu.sources.budget import share_of_month
+
+    limits = share_of_month("adzuna", adzuna.LIMITS, most=adzuna.MOST_PER_SEARCH)
+    assert limits.per_search == 100  # nothing used yet this month in this fictional database
 
 
 def test_adzuna_passes_place_and_distance():

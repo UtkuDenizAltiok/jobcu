@@ -44,6 +44,10 @@ MAX_FAILED_SEARCHES = 3
 # A little below Adzuna's limits (250 a day, 2,500 a month), as a safety margin. How many one
 # search may use is worked out from what is left this month (see budget.share_of_month).
 LIMITS = Limits(per_day=240, per_month=2400)
+# The most one search may use: the month's allowance over the owner's 24 searches a month
+# (Settings: searches you plan a month). At 60, search 9 left search words out while October
+# used 399 of the 2,400.
+MOST_PER_SEARCH = 100
 # Salaries come in the country's own money.
 _CURRENCIES = {"GB": "£", "CH": "CHF ", "PL": "PLN "}
 
@@ -64,7 +68,7 @@ class AdzunaSource(JobSource):
         return None
 
     def search(self, query: JobQuery, ctx: SourceContext) -> Iterator[FoundJob]:
-        limits = share_of_month(self.id, LIMITS)
+        limits = share_of_month(self.id, LIMITS, most=MOST_PER_SEARCH)
         budget = RequestBudget(self.id, self.name, limits)
         credentials = {"app_id": ctx.keys.get(KEY_APP_ID), "app_key": ctx.keys.get(KEY_APP_KEY)}
         start = window_start(query.started_at, query.posted_within_hours)
@@ -78,14 +82,18 @@ class AdzunaSource(JobSource):
             return
         seen: set[str] = set()
         skipped = failed = 0
+        plans = [plan_searches(query.terms, country) for country, _ in locations]
         try:
             for number_done, (country, place) in enumerate(locations):
-                # Each country or place gets a fair share of what is left, so the first can't use
-                # up everything and what one doesn't need goes to the next.
+                # Each country or place gets a share of what is left in proportion to its search
+                # words (Germany's two languages need more than Ireland's one: search 9 left
+                # German words out while Ireland's share went unused), so the first can't use up
+                # everything and what one doesn't need goes to the next.
+                searches = plans[number_done]
+                still_needed = sum(len(plan) for plan in plans[number_done:]) or 1
                 share = max(3, ((limits.per_search or 40) - budget.used_this_search)
-                            // (len(locations) - number_done))
+                            * max(1, len(searches)) // still_needed)
                 used_before = budget.used_this_search
-                searches = plan_searches(query.terms, country)
                 for number, search in enumerate(searches):
                     if ctx.should_stop():
                         return
@@ -111,8 +119,8 @@ class AdzunaSource(JobSource):
             return
         if skipped:
             ctx.report.message = (
-                f"Adzuna: {skipped} less important search words were left out to stay within its "
-                "free daily limit."
+                f"Adzuna: {skipped} less important search words were left out to stay within "
+                "this search's share of its free allowance."
             )
 
     def _run(self, search, country, place, credentials, start, query, budget, ctx, seen, pages):
