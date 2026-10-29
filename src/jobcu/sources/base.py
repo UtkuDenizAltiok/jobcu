@@ -99,6 +99,9 @@ class JobSource(ABC):
     details_supply_posted_date = False
     # Some list responses omit workplace fields which the same source's details can supply.
     details_supply_locations = False
+    # Hours by which this source lists ads after their date. Its ads dated that much before
+    # "Posted within" began still count while Jobcu never showed the job (filters.py).
+    date_lag_hours = 0
     countries: frozenset[str] | None = None  # None means every supported country
 
     def covers(self, query: JobQuery) -> bool:

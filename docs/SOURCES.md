@@ -136,6 +136,16 @@ than its window. Searches up to 72 hours therefore ask for `3days` and 168-hour 
 `week`: the tightest filter that covers the window, so no fresh ad is lost and more of each
 paid page is usable.
 
+**Lag check — 2026-10-29.** Two 24-hour searches counted no JSearch ad for 10 credits; in the
+second, all 23 ads returned were dated before the window. A direct check of "Hardwareentwickler in Germany"
+returned nothing for `today` and ten ads dated 68-92 hours earlier for `3days`. Jobcu had shown
+three of them in earlier searches (one 15 days before its JSearch date: the date is the
+index's, not the vacancy's); seven were jobs Jobcu had never shown. So JSearch lists ads about
+two to three days late, and a 24-hour search could never count a job only JSearch found. Its
+ads therefore count up to 72 hours before the window (`date_lag_hours`) when no other copy
+dates the job earlier and Jobcu never showed it before the window began. A job already shown
+stays a repost, and the card keeps the date JSearch gives.
+
 JSearch does not provide the evidence needed to decide population shares, city-election
 comparisons, sampled journeys or personal fit. Its radius filter is not a travel-time filter.
 More structured full text could reduce some online-ad research, but additional unique jobs

@@ -75,3 +75,24 @@ def test_a_job_is_kept_when_one_copy_states_a_ticked_type():
             found("b", title="Title a", company="Company a", job_types=["full_time_permanent"])]
     _, outcome = run(jobs, job_types=["full_time_permanent"])
     assert len(outcome.kept) == 1
+
+
+def test_a_job_only_a_late_listing_source_dates_early_counts_until_jobcu_shows_it():
+    # JSearch lists ads days after their date (2026-10-29: 68-92 hours), so a 24-hour search
+    # could never count a job only JSearch found.
+    def late(job_id, hours, source="jsearch", **extra):
+        return found(job_id, source=source, posted_at=NOW - timedelta(hours=hours),
+                     date_precision="day", **extra)
+
+    jobs = [late("lag", 60), late("beyond", 24 + 72 + 30), late("board", 60, source="s"),
+            late("both", 60), late("x", 60, source="s", title="Title both",
+                                   company="Company both")]
+    groups, outcome = run(jobs)
+    kept = {groups[i].main.source_job_id for i in outcome.kept}
+    assert kept == {"lag"}
+    assert outcome.left_out["too_old"] == 3  # beyond the lag, or another source's date
+
+    groups, outcome = run([late("lag", 60)], first_shown=[NOW - timedelta(hours=40)])
+    assert outcome.kept == [] and outcome.left_out["repost"] == 1
+    groups, outcome = run([late("lag", 60)], first_shown=[NOW - timedelta(hours=2)])
+    assert outcome.kept == [0]  # shown earlier in this window, like any other job

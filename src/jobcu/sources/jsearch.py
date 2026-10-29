@@ -15,7 +15,7 @@ import logging
 import re
 from collections import deque
 from dataclasses import dataclass, replace
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from urllib.parse import urlsplit
 
 import httpx
@@ -357,6 +357,11 @@ class JSearchSource(JobSource):
     id, name, kind = "jsearch", "JSearch", "aggregator"
     details_supply_locations = True
     details_supply_posted_date = True
+    # Google for Jobs lists ads days after their date: on 2026-10-29 the newest "Hardware-
+    # entwickler in Germany" ads were 68-92 hours old and "today" returned none, so searches
+    # 10 and 11 (24 hours) counted no ad for 10 credits (11: 0 of 23). Of ten such ads, seven
+    # were jobs Jobcu had never shown; it had shown the others days before (repost, filters.py).
+    date_lag_hours = 72
 
     def __init__(self):
         self._budget: RequestBudget | None = None
@@ -562,7 +567,8 @@ class JSearchSource(JobSource):
                         freshness(
                             job.posted_at,
                             job.date_precision,
-                            window_start(query.started_at, query.posted_within_hours),
+                            window_start(query.started_at, query.posted_within_hours)
+                            - timedelta(hours=self.date_lag_hours),
                         )
                         == "too_old"
                     )
