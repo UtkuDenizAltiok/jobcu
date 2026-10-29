@@ -50,6 +50,10 @@ def test_saved_ad_runs_are_compared_with_ranges_and_each_other(capsys):
     assert candidate_line.split()[-1] == "40%"
     assert tool.thinking({"usage": {"rows": 4, "output_tokens": 10, "reasoning_tokens": 4,
                                     "rows_without_reasoning": 1}}) == "40% (1/4 requests none!)"
+    silent = {"rows": 2, "output_tokens": 10, "reasoning_tokens": 0}
+    assert tool.thinking({"model": "anthropic:claude-haiku-5-5", "usage": silent}) == (
+        "not reported")
+    assert tool.thinking({"model": "openrouter:fictional", "usage": silent}) == "none!"
     assert "blocker missed: 2 45 (at most 30)" in printed
     assert "fictional:baseline #1 vs fictional:candidate #2" in printed
 
