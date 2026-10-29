@@ -348,10 +348,15 @@ def single_fact_request(plan) -> str | None:
 def check(client: AIClient, text: str, towns: list[places.Town], *,
           previous: list[ReferenceCheck] | None = None,
           request: str | None = None, retry_unknown: bool = False) -> Condition:
+    from jobcu import reference_sources
+
     supported = {_identity(c): c for c in previous or []
                  if c.meets is not None and c.evidence and c.sources and _fresh(c)}
+    decided = [reference_sources.decided_city(client, text, town, request) for town in towns]
     lasting = [_lasting(text, request, town) for town in towns]
-    checks = [(supported[_identity(town)].model_copy(deep=True) if _identity(town) in supported
+    checks = [(decided[i] if decided[i] is not None
+               else supported[_identity(town)].model_copy(deep=True)
+               if _identity(town) in supported
                else lasting[i].model_copy(deep=True) if _recent(lasting[i])
                else ReferenceCheck(name=town.name, country=town.country, latitude=town.latitude,
                                    longitude=town.longitude)) for i, town in enumerate(towns)]
@@ -359,7 +364,6 @@ def check(client: AIClient, text: str, towns: list[places.Town], *,
     sources = list({s.url: s for c in checks for s in c.sources}.values())
     notes: list[str] = []
     note = "Reference cities selected from the local population and named-place rules."
-    from jobcu import reference_sources
 
     try:
         sources.extend(reference_sources.check(client, text, checks, request=request))

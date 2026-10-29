@@ -163,6 +163,22 @@ def test_fuerstenfeldbruck_fits_through_munich():
     assert check["detail"] == "Munich, 17 min by public transport"
 
 
+def test_a_searchs_share_of_routes_goes_to_the_workplaces_nearest_a_city_first(monkeypatch):
+    # 24 searches a month of 600-770 routes each used up 9,000 by about the 13th search; each
+    # search now gets its share, and the nearest workplaces are measured first.
+    monkeypatch.setattr(travel, "MAPS_FEWEST_PER_SEARCH", 4)
+    monkeypatch.setattr(travel, "MAPS_MOST_PER_SEARCH", 4)  # one round: 2 cities, 2 samples
+    fake = FakeMaps({"Munich": 17, "Augsburg": 55})
+    condition = near()
+    farther, nearer = group("Landsberg am Lech", "1"), group("Fürstenfeldbruck", "2")
+    meter(fake).measure([condition], [farther, nearer], [0, 1])
+    origins = {b["origins"][0]["waypoint"]["location"]["latLng"]["latitude"]
+               for _, b, _ in fake.requests}
+    assert origins == {48.179}  # Fürstenfeldbruck, although listed second
+    assert condition_fit(condition, nearer) == "yes"
+    assert condition_fit(condition, farther) == "unknown"  # no AI here to estimate it
+
+
 def test_car_trips_are_measured_without_a_departure_time():
     fake = FakeMaps({"Munich": 25})
     condition = near(minutes=30)
@@ -649,7 +665,7 @@ def test_a_search_keeps_jobs_near_a_big_city_and_leaves_out_far_ones(
     assert any("Google Maps key" in note for note in result["notes"])
 
 
-# --- Remembered for 30 days ---------------------------------------------------------------
+# --- Remembered for 60 days ---------------------------------------------------------------
 
 
 def test_googles_travel_times_are_never_kept_beyond_the_search():
@@ -663,7 +679,7 @@ def test_googles_travel_times_are_never_kept_beyond_the_search():
         assert conn.execute("SELECT COUNT(*) FROM travel_memory").fetchone()[0] == 0
 
 
-def test_ai_estimates_are_remembered_for_30_days_from_the_same_town():
+def test_ai_estimates_are_remembered_for_60_days_from_the_same_town():
     class GuessingClient:
         calls = 0
 
@@ -676,8 +692,12 @@ def test_ai_estimates_are_remembered_for_30_days_from_the_same_town():
     job = group("Fürstenfeldbruck", "2", company="Other GmbH")
     meter(key=False, client=GuessingClient()).measure([later], [job], [0])
     assert GuessingClient.calls == 1 and condition_fit(later, job) == "yes"
+    month = TravelMeter(GuessingClient(), KeyStore(), None, Settings(),
+                        now=lambda: NOW + timedelta(days=45))
+    month.measure([near()], [job], [0])
+    assert GuessingClient.calls == 1  # still remembered after a month and a half
     stale = TravelMeter(GuessingClient(), KeyStore(), None, Settings(),
-                        now=lambda: NOW + timedelta(days=31))
+                        now=lambda: NOW + timedelta(days=61))
     stale.measure([near()], [job], [0])
     assert GuessingClient.calls == 2
 

@@ -667,3 +667,41 @@ def test_verified_city_facts_last_90_days_whichever_ai_or_wording_found_them(cit
     kept = reference_places.check(unsure, 'City service', cities[:2], request=request)
     assert [k for k, _ in unsure.calls].count('research') == 1
     assert [(c.meets, c.checked_at) for c in kept.reference_checks] == [(True, old), (False, old)]
+
+
+def test_a_reviewed_city_decision_stands_before_any_remembered_or_researched_answer(cities):
+    from jobcu.reference_sources import request_key
+    from jobcu.settings import CityDecision, EvidenceLink, PlaceEvidenceSet
+
+    request = "Fictional request: near a city with a staffed public service"
+    first = CachedClient(search_id=1)
+    found = reference_places.check(first, 'City service', cities[:2], request=request)
+    assert [c.meets for c in found.reference_checks] == [True, False]  # remembered 90 days
+
+    # A reviewed answer computed from official figures: Birch meets after all, and Atlas fails.
+    reviewed = CachedClient(search_id=2)
+    reviewed.settings.place_evidence = [PlaceEvidenceSet(
+        fact_key="0" * 64, request_key=request_key(request), sources=[], city_decisions=[
+            CityDecision(country="DE", name=name, meets=meets,
+                         reason=f"{name}: official register, 3 of 4 districts.",
+                         sources=[EvidenceLink(url="https://register.example.test/data.csv",
+                                               title="Fictional official register")],
+                         reviewed="2026-10-30: computed from the official register")
+            for name, meets in (("Atlas", False), ("Birch", True))])]
+    again = reference_places.check(reviewed, 'A reworded city service', cities[:3],
+                                   request=request)
+    atlas, birch, cedar = again.reference_checks
+    assert (atlas.meets, birch.meets) == (False, True)
+    assert birch.evidence.startswith("Reviewed decision: Birch: official register")
+    assert [s.url for s in birch.sources] == ["https://register.example.test/data.csv"]
+    # Only the city without a decision was looked up; the decided ones never are.
+    research = [r for kind, r in reviewed.calls if kind == 'research']
+    assert len(research) == 1 and 'Cedar' in research[0]['prompt']
+    assert 'Atlas' not in research[0]['prompt'] and 'Birch' not in research[0]['prompt']
+    assert cedar.meets is True  # the fake researcher's answer for its first city
+    # Even after the remembered answers would be rechecked, the decisions still stand.
+    _forget_reused_facts()
+    later = CachedClient(search_id=3)
+    later.settings.place_evidence = reviewed.settings.place_evidence
+    final = reference_places.check(later, 'City service', cities[:2], request=request)
+    assert [c.meets for c in final.reference_checks] == [False, True] and not later.calls

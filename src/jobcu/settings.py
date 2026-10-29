@@ -170,6 +170,20 @@ class CountryDecision(BaseModel):
     reviewed: str  # who decided it and when, from which review
 
 
+class CityDecision(BaseModel):
+    """A reviewed answer for one city, computed from official data and given with its reason and
+    sources. It stands until the reviewer changes it: no AI looks the city up again or overrides
+    it, because published results only change with the next election (the owner's UK cities
+    from the 2024 general election; AI rechecks had mixed in 2026 local elections)."""
+
+    country: str
+    name: str  # as Jobcu's town list names it
+    meets: bool
+    reason: str
+    sources: list[EvidenceLink]
+    reviewed: str  # who decided it and when, from which review
+
+
 class PlaceEvidenceSet(BaseModel):
     fact_key: str  # exact interpreted question's SHA-256; not a fuzzy political/keyword rule
     # The whole request the set was reviewed for (reference_sources.request_key). While that
@@ -178,6 +192,7 @@ class PlaceEvidenceSet(BaseModel):
     request_key: str | None = None
     sources: list[PlaceEvidencePage]
     country_decisions: list[CountryDecision] = []
+    city_decisions: list[CityDecision] = []
 
 
 JobType = Literal[
