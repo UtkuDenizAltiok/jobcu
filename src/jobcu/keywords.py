@@ -30,7 +30,17 @@ class SearchTerm(BaseModel):
     kind: Literal["job_title", "field_or_skill"]
 
 
+class BroadTitle(BaseModel):
+    text: str
+    language: LanguageCode = Field(description="Two-letter language code")
+
+
 class SearchWordsAnswer(BaseModel):
+    # Its own field, so every AI has to name them: in the owner's searches 9-11 another model's
+    # list lacked "Hardware Engineer", "Electronics Engineer" and "Entwicklungsingenieur
+    # Hardware", and Adzuna found about 15% fewer German ads with twice the requests.
+    broad_titles: list[BroadTitle] = Field(
+        default=[], description="2 to 4 most general job titles per language; see the rules")
     terms: list[SearchTerm]
 
 
@@ -40,6 +50,12 @@ them with short text queries. Missing a relevant job is worse than finding a few
 queries must still point at the right kind of work.
 
 For EACH requested language, write:
+- broad_titles: the 2 to 4 most general job titles employers put in ad titles for this kind of \
+work, as short as they really are ("Hardware Engineer", "Electronics Engineer"; \
+"Hardwareentwickler", "Entwicklungsingenieur Elektronik"; "Staff Nurse"; "Primary Teacher"). Job \
+sites search titles word by word, so a broad title also finds every longer title containing its \
+words ("Hardware Engineer" finds "Embedded Hardware Engineer"); without it the most common ads \
+are missed. Still never so general that unrelated jobs share it ("Engineer" alone).
 - job_title: 10 to 16 job titles someone would type or an employer would use in a job ad for \
 the work this person wants and can do. Include common variants and spellings of the same role \
 (for example "Staff Nurse", "Registered Nurse", "ICU Nurse"; "Primary Teacher", "Class Teacher"; \
@@ -109,7 +125,7 @@ def _search_words(client: AIClient, profile: Profile, languages: list[str], *, r
         if reuse:
             client.checkpoint()
             request_key = preparation.key(client, reasoning=False, inputs=[
-                "search-words-2", setup_identity, SYSTEM_PROMPT, prompt,
+                "search-words-3", setup_identity, SYSTEM_PROMPT, prompt,
                 strict_json_schema(SearchWordsAnswer),
                 6000,
                 MAX_TITLES_PER_LANGUAGE, MAX_FIELD_WORDS_PER_LANGUAGE, LANGUAGES_PER_REQUEST,
@@ -123,12 +139,20 @@ def _search_words(client: AIClient, profile: Profile, languages: list[str], *, r
                 SearchWordsAnswer, step="search_words", system=SYSTEM_PROMPT, prompt=prompt,
                 max_output_tokens=6000,
             )
+            answer = SearchWordsAnswer(terms=_with_broad_titles(answer))
             if reuse:
                 usable = tidy_terms(answer.terms, group)
                 if _covers_languages(usable, group):
                     preparation.write("search_words", request_key, SearchWordsAnswer(terms=usable))
         terms.extend(term for term in answer.terms if term.language in group)
     return tidy_terms(terms, languages), all_reused
+
+
+def _with_broad_titles(answer: SearchWordsAnswer) -> list[SearchTerm]:
+    """The broad titles first, so the per-language cap never drops them."""
+    broad = [SearchTerm(text=title.text, language=title.language, kind="job_title")
+             for title in answer.broad_titles]
+    return [*broad, *answer.terms]
 
 
 def _covers_languages(terms: list[SearchTerm], languages: list[str]) -> bool:

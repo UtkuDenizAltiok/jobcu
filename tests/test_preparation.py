@@ -342,3 +342,38 @@ def test_setup_history_is_bounded_per_kind():
                             ).fetchone()[0] == preparation.KEPT_PER_KIND
         assert conn.execute("SELECT COUNT(*) FROM preparation_cache WHERE kind='other'"
                             ).fetchone()[0] == 1
+
+
+class BroadTitlesAI(SetupAI):
+    def complete_json(self, **request):
+        self.calls.append(request)
+        assert request["schema_name"] == "SearchWordsAnswer"
+        assert "broad_titles" in json.dumps(request["schema"])
+        answer = {
+            "broad_titles": [{"text": "Fictional Engineer", "language": "en"},
+                             {"text": "Fiktiver Entwickler", "language": "de"}],
+            "terms": [*({"text": f"Narrow Fictional Title {i}", "language": "en",
+                         "kind": "job_title"} for i in range(16)),
+                      {"text": "Fiktive Spezialisierung", "language": "de", "kind": "job_title"},
+                      {"text": "fictional specialism", "language": "en", "kind": "field_or_skill"},
+                      {"text": "fiktives Fachgebiet", "language": "de", "kind": "field_or_skill"}],
+        }
+        return RawReply(json.dumps(answer), Usage(100, 50))
+
+
+@pytest.mark.parametrize("reuse", [False, True])
+def test_broad_titles_come_first_and_survive_the_title_cap(reuse):
+    # Searches 9-11 lost "Hardware Engineer" and "Electronics Engineer" when another model wrote
+    # only narrow titles; every model now names the broad ones in a field of their own.
+    ai = BroadTitlesAI()
+    person = Profile.model_validate(PROFILE)
+    if reuse:
+        terms, _ = generate_search_words_reusing(client(ai), person, ["en", "de"])
+        again, reused = generate_search_words_reusing(client(ai), person, ["en", "de"])
+        assert reused and again == terms and len(ai.calls) == 1
+    else:
+        terms = generate_search_words(client(ai), person, ["en", "de"])
+    titles = {code: [t.text for t in terms if t.language == code and t.kind == "job_title"]
+              for code in ("en", "de")}
+    assert titles["en"][0] == "Fictional Engineer" and len(titles["en"]) == 16
+    assert titles["de"] == ["Fiktiver Entwickler", "Fiktive Spezialisierung"]
