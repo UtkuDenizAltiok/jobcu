@@ -700,12 +700,18 @@ def label_metrics(run: dict, labels: dict) -> dict | None:
     }
 
 
+# Anthropic's API counts thinking inside the output tokens without a separate number, so a zero
+# there means "not reported", not "thinking was off" (native Claude Haiku thinks: 2026-10-25).
+REASONING_NOT_REPORTED = ("anthropic:",)
+
+
 def thinking(run: dict) -> str:
     usage = run.get("usage")
     if not usage or not usage["output_tokens"]:
         return "-"
     if not usage["reasoning_tokens"]:
-        return "none!"
+        return ("not reported" if run.get("model", "").startswith(REASONING_NOT_REPORTED)
+                else "none!")
     share = f"{usage['reasoning_tokens'] / usage['output_tokens']:.0%}"
     missing = usage.get("rows_without_reasoning", 0)
     return f"{share} ({missing}/{usage['rows']} requests none!)" if missing else share
