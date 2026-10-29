@@ -1059,8 +1059,20 @@ def apply_edits(client: AIClient, plan: LocationPlan, edits: list[ConditionEdit]
         "conditions": conditions,
         "not_checked_yet": [c.text for c in conditions
                             if c.status == "not_checked" and not c.switched_off],
-        "edited": True,
+        # Checking an unchanged condition again ("Retry incomplete checks") is not a change by
+        # the person: the plan still answers their request, so the facts and reviewed sources
+        # kept for that request still apply (on 2026-10-29 a retry looked all 64 unknown
+        # cities up again, ignoring the verified ones and the decision for Ireland).
+        "edited": plan.edited or not all(_only_checks_again(edit, plan) for edit in edits),
     })
+
+
+def _only_checks_again(edit: ConditionEdit, plan: LocationPlan) -> bool:
+    return (edit.check_again and edit.use and edit.original is not None
+            and normalise(edit.text) == normalise(plan.conditions[edit.original].text)
+            and all(getattr(edit, name) is None for name in (
+                "towns", "min_people", "min_share_of_country", "max_minutes", "travel_mode",
+                "max_km", "avoided")))
 
 
 def _corrected(condition: Condition, edit: ConditionEdit, countries: list[str]) -> Condition:
