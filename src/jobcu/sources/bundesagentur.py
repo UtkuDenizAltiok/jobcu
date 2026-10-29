@@ -1,9 +1,12 @@
-"""Bundesagentur für Arbeit (Jobsuche): automated access paused, 2026-10-17.
+"""Bundesagentur für Arbeit (Jobsuche): read only for people who accept its terms.
 
-Current portal terms prohibit robots and automated collection; SOURCES records the primary
-evidence. The old public-endpoint adapter and parser remain for saved evidence, but no request
-is sent without a permitted interface or explicit permission. A board's first-publication date
-does not establish the employer vacancy's original age.
+Its portal terms (8 July 2026, section 2a(3)) don't allow robots or using its interfaces other
+than as intended; SOURCES records the evidence. Jobcu paused it on 2026-10-17 and asked for
+permission; the agency's support desk neither gave nor refused it. It is now a source a person
+switches on in Settings, accepting the terms for their own job search (the owner, 2026-10-30);
+otherwise no request is sent. It was the largest source of German jobs no other source had
+(searches 1-5: 11-47 cards each). A board's first-publication date does not establish the
+employer vacancy's original age.
 """
 
 import base64
@@ -36,9 +39,6 @@ class BundesagenturSource(JobSource):
     name = "Bundesagentur für Arbeit"
     kind = "job_board"
     countries = frozenset({"DE"})
-
-    def unavailable_reason(self, keys) -> str | None:
-        return terms_denial(API)
 
     def search(self, query: JobQuery, ctx: SourceContext) -> Iterator[FoundJob]:
         self._budget = RequestBudget(self.id, self.name, LIMITS)
@@ -91,7 +91,7 @@ class BundesagenturSource(JobSource):
                 return
 
     def _get(self, url, params, budget, ctx) -> dict:
-        if reason := terms_denial(url):
+        if reason := terms_denial(url, ctx.http.accepted_terms):
             raise SourceError(reason)
         budget.spend()
         ctx.report.requests += 1

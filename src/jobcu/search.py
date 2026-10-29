@@ -56,7 +56,7 @@ from jobcu.location import (
 from jobcu.profile import Profile, progress_detail, read_profile_reusing
 from jobcu.relevance import quick_pass, screen_titles
 from jobcu.settings import SearchForm, load_settings, save_settings
-from jobcu.sources import disabled_sources
+from jobcu.sources import accepted_terms, disabled_sources
 from jobcu.sources.base import JobQuery
 from jobcu.sources.budget import searches_a_day
 from jobcu.sources.http import PoliteClient
@@ -493,7 +493,8 @@ def run_search(run: SearchRun) -> None:
         started_at=started_at,
     )
     http = PoliteClient(should_stop=lambda: run.stop_requested,
-                        on_wait=lambda host, seconds: _source_wait_note(run, host, seconds))
+                        on_wait=lambda host, seconds: _source_wait_note(run, host, seconds),
+                        accepted_terms=accepted_terms(settings))
     try:
         _find_and_score(run, settings, client, keys, http, profile, plan, query, checkpoint)
     finally:
@@ -1147,7 +1148,8 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
         free_web_search_share=free_web_search_share(settings),
     )
     http = PoliteClient(should_stop=lambda: run.stop_requested,
-                        on_wait=lambda host, seconds: _source_wait_note(run, host, seconds))
+                        on_wait=lambda host, seconds: _source_wait_note(run, host, seconds),
+                        accepted_terms=accepted_terms(settings))
     try:
         run.update("conditions", "running")
         plan = LocationPlan.model_validate(run.result["location"])

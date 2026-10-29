@@ -1142,6 +1142,10 @@ dialog::backdrop {
   font-size: 0.9rem;
 }
 
+.usage-list .source-note {
+  flex-basis: 100%;
+}
+
 .price-row {
   display: flex;
   flex-wrap: wrap;

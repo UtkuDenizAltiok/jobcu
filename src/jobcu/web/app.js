@@ -2153,6 +2153,7 @@ function renderSources(sources) {
         {},
         el("label", { class: "check" }, box, el("span", { text: source.name })),
         el("span", { class: "used", text: used }),
+        ...(source.note ? [el("p", { class: "field-hint source-note", text: source.note })] : []),
       );
     }),
   );

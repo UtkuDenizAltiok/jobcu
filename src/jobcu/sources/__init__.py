@@ -36,11 +36,23 @@ from jobcu.sources.werkenvoornederland import WerkenVoorNederlandSource
 from jobcu.sources.workable import WorkableSource
 from jobcu.sources.workday import WorkdaySource
 
-OPT_IN_SOURCES = frozenset({"jsearch"})
+# Sources whose site terms don't allow automated reading: read only for a person who switches
+# them on and so accepts that (the owner's choice for the Bundesagentur, 2026-10-30, after its
+# support desk neither gave nor refused permission). Settings shows each one's note.
+TERMS_NOTES = {
+    "bundesagentur": "Its portal terms (8 July 2026) don't allow automated reading. Switch it "
+                     "on only if you accept that for your own job search.",
+}
+OPT_IN_SOURCES = frozenset({"jsearch", *TERMS_NOTES})
 
 
 def disabled_sources(settings: Settings) -> list[str]:
     return sorted(set(settings.sources_disabled) | (OPT_IN_SOURCES - set(settings.source_opt_ins)))
+
+
+def accepted_terms(settings: Settings) -> frozenset[str]:
+    """The sources with restrictive terms that this person switched on."""
+    return frozenset(TERMS_NOTES) - set(disabled_sources(settings))
 
 
 def career_sources() -> list[CareerSystemSource]:
