@@ -12,8 +12,9 @@ done. Implementation details belong in pull requests; current behavior is descri
 - A fair monthly share of the research provider's free web searches, asking before more.
 - Fewer web searches per online job look-up, with the same ads found.
 - Reviewed official tables: a city's unlabelled total row counts when it is unambiguous.
-- Reference-city facts reused for 30 days; unknown cities are not bought again until then
-  unless the person retries.
+- Verified reference-city facts kept for 90 days whichever AI found them (and kept beyond that
+  when a new check can't establish the city); a reviewed decision can settle a whole country;
+  unknown cities are not bought again for 30 days unless the person retries.
 - Claude, OpenAI and OpenRouter requests stream, so a silent long request is not cut by a
   network idle limit.
 - An ad found online in two versions keeps the stricter requirement and says so.

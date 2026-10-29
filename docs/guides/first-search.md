@@ -339,8 +339,11 @@ not change your population threshold, journey limit or chosen AI effort.
 
 For conditions about living near a particular kind of city, Jobcu first collects the jobs and
 reads fuller ads where available. It then checks city facts for the workplaces those ads name,
-sharing the work when several jobs need the same city. A saved recovery keeps already verified
-city facts and checks the remaining relevant ones. A new search checks fresh facts.
+sharing the work when several jobs need the same city. A city fact verified with sources is
+kept for 90 days for the same request, also when you change the AI, so later searches don't
+look it up again; after that it is checked again, and the earlier answer stays if the new check
+can't settle it. A saved recovery keeps already verified city facts and checks the remaining
+relevant ones.
 
 If the nearest cities take too long to reach, Jobcu continues to other candidate cities. It
 stops when one fits, all reachable candidates have been checked, or an existing limit/service

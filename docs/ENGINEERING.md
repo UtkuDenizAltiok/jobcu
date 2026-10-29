@@ -157,10 +157,13 @@ Profiles are cached against document/prompt/model identity. `preparation.py` reu
 location readings and search-word groups for up to 30 days only when exact inputs, prompts,
 schemas, provider/model/host and reasoning settings match. A city's verified comparison over
 reviewed reference pages (`reference_sources.py`) is reused the same way while that city's own
-evidence reads exactly the same; a verified, sourced web-research city fact
-(`reference_places.py`) for 30 days through the same fact wording and AI routes. Unknown
-verdicts are never kept; completed research that left a city unknown is not bought again by
-ordinary searches for 30 days, while an explicit retry or edit looks again at once. Plans, other
+evidence reads exactly the same. Any verified, sourced city fact (`reference_places.py`) is
+also kept by the person's request (or, after an edit, the fact itself) and the city, whichever
+AI and wording established it: used for 90 days without another look-up, and after that still
+used for up to a year when a new check can't establish the city. A reviewed place-evidence set
+can decide a fact for all cities of a country (`country_decisions`). Unknown verdicts are never
+kept; completed research that left a city unknown is not bought again by ordinary searches for
+30 days through the same AI route, while an explicit retry or edit looks again at once. Plans, other
 web research, journeys and new-search scores are not reused as setup. Full-ad caching has its
 own bounded age and parser versions. Changed inputs invalidate the relevant cache.
 

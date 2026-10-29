@@ -188,16 +188,19 @@ def check(client, text: str, checks: list[ReferenceCheck], *, http=None,
           request: str | None = None) -> list[Source]:
     """`request`: the person's request text, given only when this is its one reference fact."""
     settings = getattr(client, "settings", None)
-    if settings is None or not settings.use_web_search:
+    if settings is None:
         return []
-    sets = getattr(settings, "place_evidence", [])
-    selected = [p for entry in sets if entry.fact_key == fact_key(text) or (
-        request is not None and entry.request_key == request_key(request))
-        for p in entry.sources]
+    sets = [entry for entry in getattr(settings, "place_evidence", [])
+            if entry.fact_key == fact_key(text) or (
+                request is not None and entry.request_key == request_key(request))]
+    decided = _decide_countries(checks, [d for entry in sets for d in entry.country_decisions])
+    if not settings.use_web_search:
+        return decided
+    selected = [p for entry in sets for p in entry.sources]
     pending = [c for c in checks if c.meets is None]
     selected = [p for p in selected if any(c.country == p.country for c in pending)]
     if not selected or not pending:
-        return []
+        return decided
     owned = http is None
     http = http or PoliteClient(should_stop=lambda: _stopped(client))
     robots = {}
@@ -300,10 +303,25 @@ def check(client, text: str, checks: list[ReferenceCheck], *, http=None,
                 if check.meets is not None and keys[id(check)]:
                     preparation.write(REUSE_KIND, keys[id(check)], check, keep=REUSE_KEPT)
             sources.extend(s for c in batch if c.meets is not None for s in c.sources)
-        return list({s.url: s for s in sources}.values())
+        return list({s.url: s for s in [*decided, *sources]}.values())
     finally:
         if owned:
             http.close()
+
+
+def _decide_countries(checks: list[ReferenceCheck], decisions) -> list[Source]:
+    """Cities of a country with a reviewed decision take it, without a page read or an AI."""
+    by_country = {d.country: d for d in decisions}
+    used = []
+    for check in checks:
+        decision = by_country.get(check.country)
+        if check.meets is None and decision is not None:
+            check.meets = decision.meets
+            check.evidence = f"Decided for all of {check.country}: {decision.reason}"
+            check.sources = [Source(url=link.url, title=link.title) for link in decision.sources]
+            check.checked_at = datetime.now(UTC).isoformat()
+            used.extend(check.sources)
+    return used
 
 
 def _reuse_key(client, text, check, selected, http, robots) -> str | None:
