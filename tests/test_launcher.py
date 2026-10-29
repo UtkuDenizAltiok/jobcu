@@ -1,4 +1,5 @@
 import os
+import signal
 import socket
 import subprocess
 import sys
@@ -135,3 +136,27 @@ def test_zip_update_reminder_runs_without_network_and_preserves_startup(
         assert result.stdout.index(reminder) < result.stdout.index("Preparing Jobcu.")
     else:
         assert reminder not in result.stdout
+
+
+@pytest.mark.skipif(not hasattr(signal, "SIGHUP"), reason="no hang-up signal on this system")
+def test_closing_the_window_stops_jobcu_cleanly_and_says_so_in_the_log(tmp_path):
+    port = launcher.find_free_port()
+    env = {**os.environ, "JOBCU_DATA_DIR": str(tmp_path), "JOBCU_NO_BROWSER": "1"}
+    env.pop("JOBCU_SELFTEST", None)
+    # Its own port: never the person's running Jobcu, which it would otherwise replace.
+    code = f"import sys, jobcu.launcher as l; l.PREFERRED_PORT = {port}; sys.exit(l.main())"
+    process = subprocess.Popen([sys.executable, "-c", code], env=env,
+                               stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+    try:
+        deadline = time.monotonic() + 60
+        while launcher.running_jobcu(port) is None:
+            assert process.poll() is None and time.monotonic() < deadline, process.stderr.read()
+            time.sleep(0.2)
+        process.send_signal(signal.SIGHUP)  # what the terminal sends when its window closes
+        assert process.wait(timeout=30) == 0
+    finally:
+        if process.poll() is None:
+            process.kill()
+    log = (tmp_path / "logs" / "jobcu.log").read_text(encoding="utf-8")
+    assert f"running on port {port}" in log
+    assert "Jobcu stopped: its window was closed" in log

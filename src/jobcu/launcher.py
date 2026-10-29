@@ -9,6 +9,7 @@ This is what the "Start Jobcu" files run. Environment variables:
 import json
 import logging
 import os
+import signal
 import socket
 import sys
 import threading
@@ -27,6 +28,10 @@ from jobcu.paths import ensure_data_dir
 HOST = "127.0.0.1"
 PREFERRED_PORT = 8765
 STARTUP_TIMEOUT_SECONDS = 60
+# How long a running search may take to save itself as stopped before Jobcu exits.
+STOP_WAIT_SECONDS = 20
+
+log = logging.getLogger(__name__)
 
 # Talk to 127.0.0.1 directly, never through a proxy configured on the computer.
 _local_opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
@@ -90,7 +95,10 @@ def stop_running_jobcu(port: int, wait_seconds: float = 20.0) -> bool:
 
 
 def _say(text: str = "") -> None:
-    print(text, flush=True)
+    try:
+        print(text, flush=True)
+    except OSError:
+        pass  # the window was closed: there is nobody to read it
 
 
 def main() -> int:
@@ -140,6 +148,16 @@ def main() -> int:
 
     server.config.app.state.request_shutdown = replaced_by_newer_version
 
+    def window_closed(signum, frame) -> None:
+        # Closing the window is how people stop Jobcu (the text below says so). The terminal then
+        # sends a hang-up, which ended Python at once: a running search was never stopped and
+        # saved, and the log never said why Jobcu had ended (2026-10-28).
+        outcome["reason"] = "its window was closed"
+        server.should_exit = True
+
+    if not selftest and hasattr(signal, "SIGHUP"):
+        signal.signal(signal.SIGHUP, window_closed)
+
     def after_start() -> None:
         deadline = time.monotonic() + STARTUP_TIMEOUT_SECONDS
         while not server.started:
@@ -148,6 +166,7 @@ def main() -> int:
                 return
             time.sleep(0.05)
         url = url_for(port)
+        log.info("Jobcu %s (build %s) running on port %s", __version__, build_id(), port)
         if selftest:
             outcome["ok"] = running_jobcu_version(port, timeout=10) == __version__
             _say("Self-test passed." if outcome["ok"] else "Self-test FAILED.")
@@ -177,13 +196,25 @@ def main() -> int:
     try:
         server.run()
     except KeyboardInterrupt:
-        pass
+        outcome.setdefault("reason", "Ctrl+C")
+    except Exception:
+        log.exception("Jobcu stopped because of an unexpected error")
+        raise
     if not selftest:
         from jobcu import search
 
         run = search.manager.current
         if run is not None and run.status == "running":
+            # Let it save itself as stopped, so it can be continued later.
             search.manager.stop(run.id)
+            deadline = time.monotonic() + STOP_WAIT_SECONDS
+            while run.status == "running" and time.monotonic() < deadline:
+                time.sleep(0.2)
+            log.info("Search %s %s when Jobcu stopped", run.id,
+                     "was still running" if run.status == "running" else f"was {run.status}")
+    if server.started:
+        log.info("Jobcu stopped: %s", outcome.get("reason") or (
+            "a newer version took over" if outcome["replaced"] else "it was asked to stop"))
     if not server.started:
         _say("Jobcu couldn't start. Please close this window and try again.")
         return 1
