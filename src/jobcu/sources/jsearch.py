@@ -8,16 +8,20 @@ count unchanged) and are not counted.
 """
 
 import dataclasses
+import hashlib
 import ipaddress
+import json
 import logging
+import re
 from collections import deque
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from urllib.parse import urlsplit
 
 import httpx
+from pydantic import BaseModel
 
-from jobcu import db
+from jobcu import db, preparation
 from jobcu.countries import COUNTRIES
 from jobcu.freshness import earliest_possible, freshness, parse_iso, window_start
 from jobcu.keystore import KeyStore
@@ -51,6 +55,11 @@ MONTHLY_CREDITS = 200
 MAX_SEARCH_CREDITS = 40
 MAX_PAGES_PER_QUERY = 3
 MAX_INTERRUPTIONS = 2  # broken connections in a row before JSearch stops
+# What each query brought, so the few free credits a search has go where the ads are.
+YIELD_KIND = "jsearch_yield"
+YIELD_DAYS = 30
+YIELD_KEPT = 500
+EMPTY_TRIES_TO_SKIP = 2
 PRIORITY = ("DE", "IE", "GB", "CH", "NL", "BE", "IT")
 _BOARDS = {
     "adzuna",
@@ -249,6 +258,11 @@ class Query:
 
 
 def plan_queries(query: JobQuery, *, offset: int = 0) -> list[Query]:
+    """The queries in the order they are worth a credit. Within a country: its own languages
+    before English, job titles before skills, and the broadest title first: search 10 spent all
+    five credits on narrow titles ("Leistungselektronik Ingenieur", English titles in Germany)
+    and found nothing, while "Hardwareentwickler in Germany" alone brought 8 fresh ads. A broad
+    query finds the narrow ones too; Jobcu judges relevance itself. Countries take turns."""
     countries = sorted(
         set(query.countries) & COUNTRIES.keys(),
         key=lambda c: (PRIORITY.index(c) if c in PRIORITY else len(PRIORITY), c),
@@ -256,33 +270,87 @@ def plan_queries(query: JobQuery, *, offset: int = 0) -> list[Query]:
     if countries:
         offset %= len(countries)
         countries = countries[offset:] + countries[:offset]
-    queues = []
-    for country in countries:
-        languages = [*COUNTRIES[country].ad_languages, "en"]
-        seen, terms = set(), []
-        by_language = []
-        for language in languages:
-            choices = deque()
-            for term in sorted(query.terms, key=lambda t: t.kind != "job_title"):
-                key = (" ".join(term.text.split()).casefold(), term.language)
-                if term.language != language or not key[0] or key in seen:
-                    continue
-                seen.add(key)
-                choices.append(
-                    Query(country, f"{term.text.strip()} in {COUNTRIES[country].name}", language)
-                )
-            by_language.append(choices)
-        while any(by_language):
-            for choices in by_language:
-                if choices:
-                    terms.append(choices.popleft())
-        queues.append(deque(terms))
+    queues = [deque(_country_queries(query, country)) for country in countries]
     planned = []
     while any(queues):
         for queue in queues:
             if queue:
                 planned.append(queue.popleft())
     return planned
+
+
+def _country_queries(query: JobQuery, country: str) -> list[Query]:
+    seen: set[frozenset[str]] = set()
+
+    def choices(language: str) -> deque[Query]:
+        ordered = sorted((t for t in query.terms if t.language == language),
+                         key=lambda t: (t.kind != "job_title", len(_words(t.text))))
+        found = deque()
+        for term in ordered:
+            words = frozenset(_words(term.text))
+            if not words or words in seen:  # "Ingenieur Leistungselektronik" == reversed
+                continue
+            seen.add(words)
+            found.append(Query(country, f"{' '.join(term.text.split())} in "
+                                        f"{COUNTRIES[country].name}", language))
+        return found
+
+    own = [choices(language) for language in COUNTRIES[country].ad_languages]
+    queries = []
+    while any(own):
+        for choice in own:
+            if choice:
+                queries.append(choice.popleft())
+    return [*queries, *choices("en")]
+
+
+def _words(text: str) -> list[str]:
+    return [w for w in re.split(r"[\s\-/]+", text.casefold()) if w]
+
+
+class QueryYield(BaseModel):
+    """What one query's first page brought lately (no job data, only counts)."""
+
+    tries: int = 0
+    jobs: int = 0
+    empty_in_a_row: int = 0
+
+
+def _yield_key(q: Query) -> str:
+    identity = [YIELD_KIND, q.country, q.language, " ".join(_words(q.text))]
+    return hashlib.sha256(json.dumps(identity, ensure_ascii=False).encode("utf-8")).hexdigest()
+
+
+def by_yield(planned: list[Query]) -> list[Query]:
+    """Each country's queries reordered by what they brought in the last YIELD_DAYS: productive
+    ones first, then untried ones in planned order, and last those that came back empty twice
+    in a row. Countries keep taking turns."""
+    def rank(q: Query) -> tuple:
+        seen = preparation.read(YIELD_KIND, _yield_key(q), QueryYield, max_age_days=YIELD_DAYS)
+        if seen is None or seen.tries == 0:
+            return (1, 0.0)
+        if seen.empty_in_a_row >= EMPTY_TRIES_TO_SKIP:
+            return (2, 0.0)
+        return (0, -seen.jobs / seen.tries) if seen.jobs else (1, 0.0)
+
+    by_country: dict[str, list[Query]] = {}
+    for q in planned:
+        by_country.setdefault(q.country, []).append(q)
+    queues = [deque(sorted(qs, key=rank)) for qs in by_country.values()]
+    ordered = []
+    while any(queues):
+        for queue in queues:
+            if queue:
+                ordered.append(queue.popleft())
+    return ordered
+
+
+def remember_yield(q: Query, jobs: int) -> None:
+    key = _yield_key(q)
+    seen = preparation.read(YIELD_KIND, key, QueryYield, max_age_days=YIELD_DAYS) or QueryYield()
+    preparation.write(YIELD_KIND, key, QueryYield(
+        tries=seen.tries + 1, jobs=seen.jobs + jobs,
+        empty_in_a_row=0 if jobs else seen.empty_in_a_row + 1), keep=YIELD_KEPT)
 
 
 class JSearchSource(JobSource):
@@ -428,7 +496,8 @@ class JSearchSource(JobSource):
             # uses the owner's normal order. Plans within a country are also interleaved.
             with db.connect() as conn:
                 sequence = conn.execute("SELECT COUNT(*) FROM searches").fetchone()[0]
-            planned = plan_queries(query, offset=sequence if left < len(query.countries) else 0)
+            planned = by_yield(
+                plan_queries(query, offset=sequence if left < len(query.countries) else 0))
             queue = deque(planned)
             seen = set()
             reserve = 2 if left >= 4 else 0  # selective full-ad recovery shares the same cap
@@ -463,6 +532,8 @@ class JSearchSource(JobSource):
                 if not isinstance(data, dict) or not isinstance(data.get("jobs"), list):
                     self._halted = True
                     raise SourceError("JSearch's results were incomplete; this source stopped.")
+                if current.pages == 0:
+                    remember_yield(current, len(data["jobs"]))
                 for item in data["jobs"]:
                     if not isinstance(item, dict) or not (job := to_found_job(item)):
                         ctx.report.status = "partial"
