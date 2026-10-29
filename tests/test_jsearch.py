@@ -883,3 +883,13 @@ def test_new_source_never_bypasses_failed_or_pending_location_gate(
     assert not run.result["jobs"]["cards"]  # never a match without the location evidence
     assert scored == ([0] if location_answer == "unknown" else [])
     assert not requests
+
+
+def test_ads_listed_within_the_lag_are_found_not_older_copies(setup):
+    # Google for Jobs lists ads days after their date: a 24-hour search would never count one.
+    source, ctx, _ = setup(lambda _: page([
+        item("late", job_posted_at_datetime_utc=(NOW - timedelta(hours=60)).isoformat()),
+        item("old", job_posted_at_datetime_utc=(NOW - timedelta(hours=24 + 72 + 1)).isoformat()),
+    ]))
+    late, old = list(source.search(query(hours=24), ctx))
+    assert not late.older_copy and old.older_copy

@@ -25,6 +25,7 @@ from lxml.etree import ParserError
 from jobcu.freshness import end_of_day, window_start
 from jobcu.sources.base import FoundJob, JobQuery, JobSource, SourceContext, SourceError
 from jobcu.sources.budget import BudgetExhausted, Limits, RequestBudget
+from jobcu.sources.http import Blocked
 from jobcu.sources.matching import matches_places, matches_terms
 from jobcu.text import tidy
 
@@ -105,6 +106,10 @@ class JobsIrelandSource(JobSource):
             raise SourceError("JobsIreland.ie couldn't be reached.") from exc
         if response.status_code == 429:
             raise BudgetExhausted("JobsIreland.ie: asked Jobcu to slow down for now.")
+        if response.status_code in (401, 403):
+            # A refusal, not a changed page: on 2026-10-29 the site's load balancer answered 403
+            # to every address, robots.txt included, and to an ordinary browser too.
+            raise Blocked(SITE)
         if response.status_code != 200:
             raise SourceError(
                 f"JobsIreland.ie answered with a problem (code {response.status_code}). "

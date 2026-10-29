@@ -11,7 +11,7 @@ from jobcu.keywords import SearchTerm
 from jobcu.location import Place
 from jobcu.sources import jobsireland
 from jobcu.sources.base import JobQuery, SourceContext, SourceReport
-from jobcu.sources.http import PoliteClient
+from jobcu.sources.http import Blocked, PoliteClient
 
 NOW = datetime.now(UTC)
 IRISH = ZoneInfo("Europe/Dublin")
@@ -175,4 +175,12 @@ def test_an_empty_list_for_the_whole_country_is_reported_as_a_site_problem():
     ctx = context(lambda request: httpx.Response(200, text=list_page([])))
     query = JobQuery(["IE"], [], [term("Hardware Engineer")], 24, NOW)
     with pytest.raises(jobsireland.SourceError, match="listed no jobs at all"):
+        list(jobsireland.JobsIrelandSource().search(query, ctx))
+
+
+def test_a_refusal_is_reported_as_one_not_as_a_changed_site():
+    # 2026-10-29: the site's load balancer answered 403 to every address and to browsers too.
+    ctx = context(lambda request: httpx.Response(403, text="<h1>403 Forbidden</h1>"))
+    query = JobQuery(["IE"], [], [term("Hardware Engineer")], 24, NOW)
+    with pytest.raises(Blocked):
         list(jobsireland.JobsIrelandSource().search(query, ctx))
