@@ -68,7 +68,8 @@ class AdzunaSource(JobSource):
         return None
 
     def search(self, query: JobQuery, ctx: SourceContext) -> Iterator[FoundJob]:
-        limits = share_of_month(self.id, LIMITS, most=MOST_PER_SEARCH)
+        limits = share_of_month(self.id, LIMITS, hours=query.posted_within_hours,
+                                most=MOST_PER_SEARCH)
         budget = RequestBudget(self.id, self.name, limits)
         credentials = {"app_id": ctx.keys.get(KEY_APP_ID), "app_key": ctx.keys.get(KEY_APP_KEY)}
         start = window_start(query.started_at, query.posted_within_hours)

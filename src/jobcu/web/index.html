@@ -542,6 +542,15 @@
             how often you searched in the last two weeks.</p>
         </div>
         <div class="field">
+          <label for="maps-memory-days">Remember Google Maps travel times (days)</label>
+          <input id="maps-memory-days" type="number" min="0" max="365" step="1"
+                 inputmode="numeric" placeholder="Never">
+          <p class="muted">A travel time Google Maps measured from exactly the same place to
+            the same city is used again for this many days instead of asking Google again; any
+            other place is always measured. Google's terms allow keeping only coordinates, so
+            this is your choice. Empty or 0: never kept.</p>
+        </div>
+        <div class="field">
           <label for="token-limit">Monthly token limit</label>
           <input id="token-limit" type="number" min="1" step="10000" inputmode="numeric"
                  placeholder="No limit">
@@ -550,6 +559,13 @@
           <label for="cost-limit">Monthly estimated cost limit</label>
           <input id="cost-limit" type="number" min="0" step="1" inputmode="decimal"
                  placeholder="No limit">
+        </div>
+        <div class="field">
+          <label class="check"><input id="paid-limits-stop" type="checkbox">
+            <span>Stop paid AI, web searches and Google Maps at these limits</span></label>
+          <p class="muted">Off: when a month passes a limit, Jobcu tells you in the search's
+            notes and goes on, and keep your own spending controls at the providers. Free-only
+            allowances, such as Adzuna's and JSearch's, always stop.</p>
         </div>
         <p class="muted">These controls check whether more AI work can start. One request
           can run several provider searches and exceed an allowance before Jobcu receives

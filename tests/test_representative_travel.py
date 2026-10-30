@@ -65,7 +65,7 @@ def test_old_morning_ai_memory_is_retained_but_not_reused_for_new_timing():
     travel.remember(point, {"Munich": 25}, "transit", now=NOW)
     assert travel.recall(point, [town], "transit", now=NOW + timedelta(days=1)) == {"Munich": 25}
     assert travel.recall(point, [town], "transit", now=NOW + timedelta(days=45)) == {"Munich": 25}
-    assert travel.recall(point, [town], "transit", now=NOW + timedelta(days=61)) == {}
+    assert travel.recall(point, [town], "transit", now=NOW + timedelta(days=91)) == {}
     with db.connect() as conn:
         assert conn.execute("SELECT COUNT(*) FROM travel_memory").fetchone()[0] == 2
 

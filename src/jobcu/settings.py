@@ -83,6 +83,16 @@ class LimitSettings(BaseModel):
     # Local cap on Google Maps route-matrix elements, including sampled destinations.
     # Billing allowances depend on Google's current terms; this is not a guarantee of free use.
     maps_monthly_routes: int = Field(default=9000, ge=0)
+    # Days a travel time Google Maps measured is used again for exactly the same place and
+    # destination instead of asking again (0: never). Google's Routes terms allow keeping only
+    # coordinates, so this is the person's own choice (the owner's: 90 days, 2026-10-30).
+    maps_memory_days: int = Field(default=0, ge=0, le=365)
+    # What a reached limit on something paid does: "stop" that work (the default), or only "tell"
+    # in the search's notes and go on (the owner's choice, 2026-10-30: they keep their own
+    # spending controls at the providers). Covers the monthly AI token and cost limits, the free
+    # web searches and the Google Maps route limit. Free-only allowances (Adzuna, JSearch) always
+    # stop, and the per-search caps above stay caps.
+    paid_limits: Literal["stop", "tell"] = "stop"
 
 
 class ModelPrice(BaseModel):
@@ -170,20 +180,6 @@ class CountryDecision(BaseModel):
     reviewed: str  # who decided it and when, from which review
 
 
-class CityDecision(BaseModel):
-    """A reviewed answer for one city, computed from official data and given with its reason and
-    sources. It stands until the reviewer changes it: no AI looks the city up again or overrides
-    it, because published results only change with the next election (the owner's UK cities
-    from the 2024 general election; AI rechecks had mixed in 2026 local elections)."""
-
-    country: str
-    name: str  # as Jobcu's town list names it
-    meets: bool
-    reason: str
-    sources: list[EvidenceLink]
-    reviewed: str  # who decided it and when, from which review
-
-
 class PlaceEvidenceSet(BaseModel):
     fact_key: str  # exact interpreted question's SHA-256; not a fuzzy political/keyword rule
     # The whole request the set was reviewed for (reference_sources.request_key). While that
@@ -192,7 +188,6 @@ class PlaceEvidenceSet(BaseModel):
     request_key: str | None = None
     sources: list[PlaceEvidencePage]
     country_decisions: list[CountryDecision] = []
-    city_decisions: list[CityDecision] = []
 
 
 JobType = Literal[

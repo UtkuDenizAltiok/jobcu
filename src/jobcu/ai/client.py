@@ -114,6 +114,7 @@ class AIClient:
         self.budget_id = budget_id or (budgets.for_search(search_id)
                                        if search_id is not None else None)
         self.notify = notify or (lambda message: None)
+        self._told: set[str] = set()  # limit notes already given in this search
         self.patient = patient  # False for quick checks: report limits instead of waiting
         self.sleep = sleep
         self.checkpoint = checkpoint or (lambda: None)
@@ -751,10 +752,11 @@ class AIClient:
         if allowance is None and limits.monthly_token_limit is not None and total_tokens(month) >= (
             limits.monthly_token_limit
         ):
-            raise AILimitReached(
+            self._over_limit(
                 "Your monthly AI limit in Jobcu's settings is reached, so Jobcu stopped using "
-                "the AI. You can raise the limit in Settings."
-            )
+                "the AI. You can raise the limit in Settings.",
+                "This month's AI use has passed your monthly token limit in Settings; Jobcu "
+                "goes on, as you chose (paid limits only tell).")
         if allowance is not None or limits.monthly_cost_limit is not None:
             table = self._current_prices()
             prices = {(p.provider, p.model): p for p in table}
@@ -782,12 +784,16 @@ class AIClient:
                     problems.append("prices in more than one currency: " + ", ".join(
                         sorted(currencies)) if len(currencies) > 1 else
                         "prices in another currency than this allowance")
-                raise AILimitReached(
-                    "Jobcu cannot apply this estimated spending limit until every "
-                    "used model has input/output and applicable search prices in one currency. "
-                    "Save current prices in Settings before continuing ("
-                    + "; ".join(problems) + ")."
-                )
+                message = ("Jobcu cannot apply this estimated spending limit until every "
+                           "used model has input/output and applicable search prices in one "
+                           "currency. Save current prices in Settings before continuing ("
+                           + "; ".join(problems) + ").")
+                if allowance is not None:
+                    raise AILimitReached(message)
+                self._over_limit(message, "Jobcu can't estimate this month's AI cost against "
+                                 "your limit (" + "; ".join(problems) + "); it goes on, as you "
+                                 "chose. Save current prices in Settings to see the cost.")
+                return
             cost, _ = estimate_cost(month, table)
             if allowance is not None:
                 if allowance.opening_spent + cost * allowance.cost_multiplier >= allowance.ceiling:
@@ -795,10 +801,21 @@ class AIClient:
                                          "Previous spending is retained and your ordinary "
                                          "monthly budget is unchanged.")
             elif cost >= limits.monthly_cost_limit:
-                raise AILimitReached(
+                self._over_limit(
                     "Your monthly AI spending limit in Jobcu's settings is reached, so Jobcu "
-                    "stopped using the AI. You can raise the limit in Settings."
-                )
+                    "stopped using the AI. You can raise the limit in Settings.",
+                    f"This month's estimated AI cost ({cost:.2f}) has passed your limit of "
+                    f"{limits.monthly_cost_limit:g} in Settings; Jobcu goes on, as you chose "
+                    "(paid limits only tell).")
+
+    def _over_limit(self, stop: str, tell: str) -> None:
+        """A monthly limit is reached: stop the AI work, or only tell once per search when the
+        person chose so (Settings: paid limits)."""
+        if self.settings.limits.paid_limits != "tell":
+            raise AILimitReached(stop)
+        if tell not in self._told:
+            self._told.add(tell)
+            self.notify(tell)
 
 
 def _saved_prices() -> list[ModelPrice]:

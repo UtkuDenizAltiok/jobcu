@@ -69,6 +69,31 @@ def test_search_only_charges_reach_the_monthly_spending_limit_before_dispatch():
         client._check_monthly_limit()
 
 
+def test_when_paid_limits_only_tell_the_ai_goes_on_with_one_note_a_search():
+    # The owner (2026-10-30): never cap a paid service; say when a monthly limit is passed.
+    settings = Settings()
+    settings.ai.provider, settings.ai.model = "gemini", "fictional-model"
+    settings.prices = [price(web_search_per_thousand=10)]
+    settings.limits.monthly_cost_limit = 1
+    settings.limits.monthly_token_limit = 10
+    settings.limits.paid_limits = "tell"
+    log = UsageLog()
+    log.record(step="location", provider="gemini", model="fictional-model",
+               usage=Usage(input_tokens=50, web_searches=100))
+    notes = []
+    client = AIClient(settings, usage_log=log, notify=notes.append)
+    client._check_monthly_limit()
+    client._check_monthly_limit()
+    assert len(notes) == 2  # the token limit and the cost limit, each said once
+    assert "passed your monthly token limit" in notes[0] and "passed your limit of 1" in notes[1]
+    # Missing prices only mean the cost can't be estimated; nothing stops either.
+    settings.prices = []
+    unpriced = AIClient(settings, usage_log=log, notify=notes.append)
+    with unpriced._request("location", "gemini", "fictional-model"):
+        pass
+    assert "can't estimate this month's AI cost" in notes[-1]
+
+
 @pytest.mark.parametrize("case", ["missing_model", "missing_search_price", "mixed_currencies"])
 def test_configured_spending_limit_refuses_an_unpriceable_dispatch(case):
     settings = Settings()

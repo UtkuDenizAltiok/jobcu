@@ -4,6 +4,7 @@ used this month, the limits, the price table and which job sources are on."""
 import statistics
 from dataclasses import replace
 from datetime import UTC, datetime
+from typing import Literal
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -229,6 +230,8 @@ class Limits(BaseModel):
     monthly_token_limit: int | None = None
     monthly_cost_limit: float | None = None
     maps_monthly_routes: int | None = None
+    maps_memory_days: int | None = Field(default=None, ge=0, le=365)
+    paid_limits: Literal["stop", "tell"] | None = None
 
 
 @router.put("/settings/limits")
@@ -248,6 +251,9 @@ def put_limits(limits: Limits) -> dict:
         monthly_cost_limit=limits.monthly_cost_limit,
         maps_monthly_routes=(limits.maps_monthly_routes if limits.maps_monthly_routes is not None
                              else settings.limits.maps_monthly_routes),
+        maps_memory_days=((limits.maps_memory_days or 0) if "maps_memory_days" in sent
+                          else settings.limits.maps_memory_days),
+        paid_limits=limits.paid_limits or settings.limits.paid_limits,
     )
     save_settings(settings)
     return get_usage()

@@ -13,11 +13,11 @@ done. Implementation details belong in pull requests; current behavior is descri
 - Fewer web searches per online job look-up, with the same ads found.
 - Reviewed official tables: a city's unlabelled total row counts when it is unambiguous.
 - Verified reference-city facts kept for 90 days whichever AI found them (and kept beyond that
-  when a new check can't establish the city); a reviewed decision can settle a whole country
-  or one city for good (official results); unknown cities are not bought again for 30 days
-  unless the person retries.
-- AI travel estimates remembered for 60 days; Google's monthly route allowance shared over the
-  month's searches, nearest workplaces first.
+  when a new check can't establish the city); a reviewed decision can settle a whole country;
+  unknown cities are not bought again for 30 days unless the person retries.
+- Free allowances divided equally over the planned searches (a 72-hour search takes three
+  parts); paid limits can only tell instead of stopping; Google's travel times can be kept
+  for the same place (the person's choice), AI estimates for 90 days.
 - Claude, OpenAI and OpenRouter requests stream, so a silent long request is not cut by a
   network idle limit.
 - An ad found online in two versions keeps the stricter requirement and says so.

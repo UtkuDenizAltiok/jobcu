@@ -400,13 +400,19 @@ def test_adzuna_budget_shares_what_is_left_of_the_month():
     from datetime import datetime
 
     from jobcu import db
+    from jobcu.settings import Settings, save_settings
     from jobcu.sources.budget import Limits, share_of_month
 
+    settings = Settings()
+    settings.limits.searches_per_month = 24  # the owner's plan
+    save_settings(settings)
     limits = Limits(per_day=240, per_month=2400)
 
-    def on(day: str, used_this_month: int = 0, used_today: int = 0) -> int:
+    def on(day: str, used_this_month: int = 0, used_today: int = 0, done: int = 0,
+           hours: int = 24) -> int:
         with db.connect() as conn:
             conn.execute("DELETE FROM source_requests")
+            conn.execute("DELETE FROM searches")
             if used_this_month:
                 conn.execute(
                     "INSERT INTO source_requests (day, source, count) VALUES (?, 'adzuna', ?)",
@@ -417,16 +423,21 @@ def test_adzuna_budget_shares_what_is_left_of_the_month():
                     "INSERT INTO source_requests (day, source, count) VALUES (?, 'adzuna', ?)",
                     (day, used_today),
                 )
+            conn.executemany(
+                "INSERT INTO searches (started_at, status, form_json) VALUES (?, 'finished', ?)",
+                [(day[:8] + "01T19:00:00.000Z", '{"posted_within_hours": 24}')] * done)
         when = datetime.fromisoformat(day + "T12:00:00+00:00")
-        return share_of_month("adzuna", limits, searches_per_day=3,
+        return share_of_month("adzuna", limits, hours=hours, most=100,
                               now=lambda: when).per_search
 
-    # 2,400 requests over 30 days at 3 searches a day is around 25 per search.
-    assert on("2026-09-01") == 26
-    # Nothing used by the middle of the month: more per search, but never more than 60.
-    assert on("2026-09-20", used_this_month=200) == 60
-    # Almost everything used: down to the smallest useful number, not zero.
-    assert on("2026-09-20", used_this_month=2350) == 25
+    # 2,400 requests over the 24 planned searches: 100 each, and three parts for 72 hours
+    # (within today's own allowance of 240).
+    assert on("2026-09-01") == 100
+    assert on("2026-09-01", hours=72) == 240
+    # Ten searches done with 1,400 used: the 1,000 left over the 14 still planned.
+    assert on("2026-09-20", used_this_month=1400, done=10) == 71
+    # Ahead of plan (22 done by the 20th): the rest must last the month, at least 25.
+    assert on("2026-09-20", used_this_month=2200, done=22) == 25
     # Never more than today's own allowance has left.
     assert on("2026-09-20", used_this_month=1000, used_today=230) == 10
     assert on("2026-09-20", used_this_month=1000, used_today=240) == 0
@@ -465,6 +476,7 @@ def test_the_share_follows_how_often_this_person_really_searches():
 def test_a_planned_number_of_searches_a_month_shares_free_allowances_equally():
     from datetime import datetime, timedelta
 
+    from jobcu import db
     from jobcu.settings import Settings, save_settings
     from jobcu.sources.budget import searches_a_day, share_until
 
@@ -477,9 +489,23 @@ def test_a_planned_number_of_searches_a_month_shares_free_allowances_equally():
     assert searches_a_day(now) == 24 / (365.25 / 12)
     renews = now + timedelta(days=365.25 / 12)
     assert share_until(200, renews, fewest=2, most=40, now=lambda: now) == 8
-    # Searching less than planned leaves more for the searches still to come, never less.
-    assert share_until(131, renews - timedelta(days=20), fewest=2, most=40,
-                       now=lambda: now) == 15
+    # 12 daily searches done since the renewal (behind the plan) with 69 credits used: the 131
+    # left are divided over the 12 still planned, three parts for a 72-hour search.
+    with db.connect() as conn:
+        conn.executemany(
+            "INSERT INTO searches (started_at, status, form_json) VALUES (?, 'finished', ?)",
+            [((now - timedelta(days=d)).strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+              '{"posted_within_hours": 24}') for d in range(1, 13)])
+    later_renewal = now + timedelta(days=12)
+    assert share_until(131, later_renewal, fewest=2, most=40, now=lambda: now) == 10
+    assert share_until(131, later_renewal, hours=72, fewest=2, most=40, now=lambda: now) == 32
+    # Ahead of the plan, the planned pace over the days left decides, so the credits last.
+    with db.connect() as conn:
+        conn.executemany(
+            "INSERT INTO searches (started_at, status, form_json) VALUES (?, 'finished', ?)",
+            [((now - timedelta(days=d, hours=1)).strftime("%Y-%m-%dT%H:%M:%S.000Z"),
+              '{"posted_within_hours": 24}') for d in range(1, 9)])
+    assert share_until(131, later_renewal, fewest=2, most=40, now=lambda: now) == 13
 
 
 def test_restrictive_terms_hold_until_the_person_accepts_them_for_that_source():

@@ -190,7 +190,9 @@ def check(client, text: str, checks: list[ReferenceCheck], *, http=None,
     settings = getattr(client, "settings", None)
     if settings is None:
         return []
-    sets = _sets(settings, text, request)
+    sets = [entry for entry in getattr(settings, "place_evidence", [])
+            if entry.fact_key == fact_key(text) or (
+                request is not None and entry.request_key == request_key(request))]
     decided = _decide_countries(checks, [d for entry in sets for d in entry.country_decisions])
     if not settings.use_web_search:
         return decided
@@ -305,29 +307,6 @@ def check(client, text: str, checks: list[ReferenceCheck], *, http=None,
     finally:
         if owned:
             http.close()
-
-
-def _sets(settings, text: str, request: str | None):
-    return [entry for entry in getattr(settings, "place_evidence", [])
-            if entry.fact_key == fact_key(text) or (
-                request is not None and entry.request_key == request_key(request))]
-
-
-def decided_city(client, text: str, town, request: str | None = None) -> ReferenceCheck | None:
-    """The reviewed decision for this city, if there is one: it comes before any remembered or
-    researched answer and is never looked up again."""
-    settings = getattr(client, "settings", None)
-    if settings is None:
-        return None
-    decision = next((d for entry in _sets(settings, text, request) for d in entry.city_decisions
-                     if d.country == town.country and d.name == town.name), None)
-    if decision is None:
-        return None
-    return ReferenceCheck(
-        name=town.name, country=town.country, latitude=town.latitude, longitude=town.longitude,
-        meets=decision.meets, evidence=f"Reviewed decision: {decision.reason}",
-        sources=[Source(url=link.url, title=link.title) for link in decision.sources],
-        checked_at=datetime.now(UTC).isoformat())
 
 
 def _decide_countries(checks: list[ReferenceCheck], decisions) -> list[Source]:

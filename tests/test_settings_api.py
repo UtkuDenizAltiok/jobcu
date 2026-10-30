@@ -330,3 +330,16 @@ def test_a_search_like_the_recent_ones_is_estimated_before_it_starts(client):
     settings.ai.model = "another-model"
     save_settings(settings)
     assert client.get("/api/usage").json()["typical_search"] is None
+
+
+def test_travel_memory_and_paid_limit_choices_are_saved_and_kept(client):
+    data = client.get("/api/usage", headers=HEADERS).json()
+    assert data["limits"]["maps_memory_days"] == 0 and data["limits"]["paid_limits"] == "stop"
+    data = client.put("/api/settings/limits", headers=HEADERS,
+                      json={"maps_memory_days": 90, "paid_limits": "tell"}).json()
+    assert data["limits"]["maps_memory_days"] == 90 and data["limits"]["paid_limits"] == "tell"
+    data = client.put("/api/settings/limits", headers=HEADERS, json={"scoring_cap": 40}).json()
+    assert data["limits"]["maps_memory_days"] == 90 and data["limits"]["paid_limits"] == "tell"
+    data = client.put("/api/settings/limits", headers=HEADERS,
+                      json={"maps_memory_days": None}).json()
+    assert data["limits"]["maps_memory_days"] == 0  # emptied: never kept
