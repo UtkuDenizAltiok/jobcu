@@ -163,6 +163,24 @@ def test_fuerstenfeldbruck_fits_through_munich():
     assert check["detail"] == "Munich, 17 min by public transport"
 
 
+def test_farther_cities_are_not_asked_when_the_nearest_are_far_over_the_limit():
+    # Search 12: only 56 of 1,970 routes fitted, and none after the nearest two took this long.
+    far = FakeMaps({"Munich": 101, "Augsburg": 130, "Nuremberg": 40})
+    condition = near()
+    job = group("Fürstenfeldbruck")
+    meter(far).measure([condition], [job], [0])
+    assert len(far.requests) == 1  # one round: the two nearest cities
+    assert condition_fit(condition, job) == "no"
+    assert travel.detail(condition, job)[0] == "Munich, 101 min by public transport"
+
+    # At twice the limit the next cities are still asked, and one can fit.
+    closer = FakeMaps({"Munich": 100, "Augsburg": 130, "Nuremberg": 40})
+    condition = near()
+    meter(closer).measure([condition], [job], [0])
+    assert len(closer.requests) > 1
+    assert condition_fit(condition, job) == "yes"
+
+
 def test_a_searchs_share_of_routes_goes_to_the_workplaces_nearest_a_city_first(monkeypatch):
     # 24 searches a month of 600-770 routes each used up 9,000 by about the 13th search; each
     # search now gets its share, and the nearest workplaces are measured first.
