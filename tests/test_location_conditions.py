@@ -71,6 +71,13 @@ def job(title="Hardware Engineer", location="Garching bei München", country="DE
 # --- Conditions about how big a town is (computed from Jobcu's own figures) -------------
 
 
+def test_a_place_with_no_population_figure_is_not_a_small_town():
+    condition = Condition(text="a town of 5,000", understood_as="a town of 5,000",
+                          status="applied", kind="town_size", min_people=5_000)
+    assert fits(condition, "GB", "Whiteley, Hampshire") == "unknown"  # GeoNames has no figure
+    assert fits(condition, "DE", "Stutensee") == "yes"
+
+
 def test_a_town_size_condition_is_computed_per_country():
     condition = Condition(text="at least 0.3% of the country's people",
                           understood_as="Towns with at least 0.3% of the country's people",
