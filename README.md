@@ -108,7 +108,7 @@ Completed changes and historical discussions are in Git commits and pull request
 The code is publicly readable under the proprietary [LICENSE](LICENSE).
 © 2026 Utku Deniz Altiok. All rights reserved.
 
-Town, region and postcode data: © [GeoNames](https://www.geonames.org/),
+Town, region, postcode and railway station data: © [GeoNames](https://www.geonames.org/),
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 Belgian job offers: © Le Forem, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 School jobs in England contain public sector information licensed under the

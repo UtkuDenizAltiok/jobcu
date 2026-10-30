@@ -89,9 +89,13 @@ lower-qualification roles and titles that are only an unwanted job type are left
 scoring. Seniority differences within a profession still reach careful scoring.
 
 Travel can use Maps or labelled AI estimates. Unless a city centre is explicitly requested,
-Maps samples a calculated city-edge point and the centre, retaining the faster usable route;
-this is not the fastest possible journey from every district. Failed/incomplete samples are
-not proven no-route results. Attempted matrix elements count before each request, including
+public transport asks for the main station nearest the job (`data/stations.csv`; the centre where
+none is listed), then, within twice the limit, the calculated edge and next main station, then,
+within 1.5 times the limit, the best two of those at two later departures. Other modes sample the
+edge and centre. The fastest usable route counts; this is not the fastest possible journey from
+every district. Google's transit duration holds no wait for the first vehicle, but it is the
+journey arriving first after the time asked, so a slow one can hide a fast one. Failed/incomplete
+samples are not proven no-route results. Attempted matrix elements count before each request, including
 retries. Cached/earlier routes survive later failures; persistent quotas stop the affected path.
 
 ## AI providers, usage and recovery
@@ -214,7 +218,7 @@ The root keeps launchers, README, CONTRIBUTING, LICENSE and Python/tool configur
 | Private comparison capture | `review_capture.py`; explicitly armed one-run document/candidate/request/response evidence outside Git, without searches, timers or paid replay. |
 | `ai/` | `client.py` is the sole AI entry point; provider adapters, schemas, errors and token/web usage. |
 | `sources/` | Isolated adapters and the registry. `base.py` defines `JobSource`; `http.py` applies polite requests/robots; `budget.py` tracks limits; `matching.py` matches lists; `careers.py` uses the directory; `careerlinks.py` recognizes career hosts. See [SOURCES](SOURCES.md). |
-| `data/` | Public reference assets: `employers.json`, `places.csv.gz`, `villages.csv.gz`, `regions.csv.gz`, `postcodes.csv.gz`. User data never belongs here. |
+| `data/` | Public reference assets: `employers.json`, `places.csv.gz`, `villages.csv.gz`, `regions.csv.gz`, `postcodes.csv.gz`, `stations.csv`. User data never belongs here. |
 | `web/` | `index.html`, `app.js`, `style.css`, `favicon.svg`; plain UI, system fonts, no external scripts. |
 | `tests/` | Scripted providers and mocked HTTP; `conftest.py` gives disposable fictional data. `test_imports.py` checks import order; `test_docs.py` checks documentation links and the module/tool map. |
 | `docs/` | ENGINEERING, SOURCES and ROADMAP; `guides/` for users. |
@@ -237,3 +241,4 @@ Private-data boundaries are described in [CONTRIBUTING](../CONTRIBUTING.md#priva
 | `tools/made_up_search.py` | A full fictional search in its own data folder. Live/paid runs still need authorization. |
 | `tools/check_employers.py` | Inspect directory entries and candidate career systems; live source checks need current terms. |
 | `tools/update_places.py` | Rebuild public GeoNames town/village/region/postcode assets. |
+| `tools/update_stations.py` | Rebuild the main railway stations of the biggest towns from GeoNames. |

@@ -32,6 +32,15 @@ describes matrix elements as origins multiplied by destinations and feature-depe
 Free allowances and account-specific charges are separate; a conservative development estimate
 does not establish an invoice. Count attempted elements and keep existing monthly controls.
 
+**Transit timing measured 2026-10-30 (real requests, next Wednesday):** a route matrix `duration`
+stays the same for departures 10:30-10:45 when the journey is the same, so it holds no wait for the
+first vehicle, and `staticDuration` equals it. It can still hold waits between vehicles, overnight
+in the worst case. It is the journey arriving first after the time asked, which can be slower than
+the next one, so one departure can overstate by up to 25 minutes. An `arrivalTime` gave the same
+kind of answer. The destination matters more: up to about 35 minutes between a city's centre and a
+main station. Jobcu's `data/stations.csv` holds GeoNames points; Google's own geocoded points are
+not stored.
+
 ## Local deletion evidence
 
 **Checked 2026-10-09.** SQLite's [secure_delete documentation](https://www.sqlite.org/pragma.html#pragma_secure_delete)

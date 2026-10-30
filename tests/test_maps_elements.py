@@ -30,11 +30,31 @@ def absent(index):
     return {"destinationIndex": index, "status": {}, "condition": "ROUTE_NOT_FOUND"}
 
 
+def by_sample(elements, body, seen):
+    """The canned elements answer each destination in the order Jobcu first asks for it, whichever
+    request or departure asks; a destination beyond them has no route."""
+    if not elements or not isinstance(elements, list):
+        return elements
+    numbers = [seen.setdefault(json.dumps(destination, sort_keys=True), len(seen))
+               for destination in body["destinations"]]
+    reply, last = [], 0
+    for element in elements:
+        sample = element.get("destinationIndex", 0) if isinstance(element, dict) else None
+        if type(sample) is not int or sample < 0:
+            reply.append(element)
+            continue
+        last = max(last, sample)
+        if sample in numbers:
+            reply.append({**element, "destinationIndex": numbers.index(sample)})
+    reply += [absent(index) for index, number in enumerate(numbers) if number > last]
+    return reply
+
+
 def run_case(elements, *, client=None):
-    notes, requests = [], []
+    notes, requests, seen = [], [], {}
     def handler(request):
         requests.append(json.loads(request.content))
-        return httpx.Response(200, json=elements)
+        return httpx.Response(200, json=by_sample(elements, requests[-1], seen))
     meter, http, _, _ = setup(handler)
     meter._note = notes.append
     meter._client = client
@@ -55,7 +75,8 @@ def test_service_errors_retain_uncertain_jobs_and_explain_them(title, caplog):
         assert check["status"] == "unclear" and "checked" in check["detail"]
         assert check["source"] == 'Not checked'
         assert "private-id" not in str(notes) + caplog.text
-        assert len(requests) == 1 and meter._routes.used_this_search == 2
+        # The main station, then the edge and the next main station.
+        assert len(requests) == 2 and meter._routes.used_this_search == 3
     finally:
         http.close()
 
@@ -241,7 +262,11 @@ def test_mixed_town_readings_preserve_maps_and_label_only_the_needed_estimate(ma
         assert entry['minutes']['Munich'] == mapped_minutes
         assert entry['by_town']['Munich'] == travel.MAPS
         assert condition_fit(condition, job) == 'yes'
-        assert len(requests) == 1 and meter._routes.used_this_search == 4
+        # A fit stops at the first step; 60 minutes also asks Munich's other samples and
+        # Landshut's edge.
+        assert len(requests) == (1 if mapped_minutes == 19 else 2)
+        assert meter._routes.used_this_search == (2 if mapped_minutes == 19 else 5)
+        sent = len(requests)
         with db.connect() as conn:
             rows = conn.execute('SELECT minutes, measured_by FROM travel_memory').fetchall()
             saved = [(row['minutes'], row['measured_by']) for row in rows]
@@ -256,7 +281,7 @@ def test_mixed_town_readings_preserve_maps_and_label_only_the_needed_estimate(ma
             assert travel.detail(condition, job)[1] == travel.ESTIMATE
             assert card_check(condition, job)['status'] == 'estimate'
         meter.measure([condition], [job], [0])
-        assert len(requests) == 1 and len(client.calls) == (mapped_minutes != 19)
+        assert len(requests) == sent and len(client.calls) == (mapped_minutes != 19)
     finally:
         http.close()
 
@@ -270,8 +295,8 @@ def test_persistent_element_quota_preserves_partial_time_and_stops_later_request
     requests = []
     def handler(request):
         requests.append(request)
-        return httpx.Response(200, json=[measured(0, 19),
-                                         {'destinationIndex': 1, 'status': error}])
+        return httpx.Response(200, json=[measured(0, 19) if len(requests) == 1 else
+                                         {'destinationIndex': 0, 'status': error}])
     meter, http, clock, _ = setup(handler)
     notes = []
     meter._note = notes.append
@@ -281,7 +306,7 @@ def test_persistent_element_quota_preserves_partial_time_and_stops_later_request
         meter.measure([condition], jobs, [0, 1])
         assert condition_fit(condition, jobs[0]) == 'yes'
         assert condition_fit(condition, jobs[1]) == 'unknown'
-        assert len(requests) == 1 and meter._routes.used_this_search == 2
+        assert len(requests) == 2 and meter._routes.used_this_search == 2
         assert not clock.sleeps
         assert 'fictional-project' not in str(notes) + caplog.text
     finally:
@@ -294,18 +319,19 @@ def test_limit_edits_reuse_partial_passes_but_do_not_reuse_an_old_reference_city
     meter, http, condition, job, _, requests = run_case([failed(), measured(1, 19)])
     try:
         assert condition_fit(condition, job) == 'yes'
+        assert len(requests) == 2  # the failed station, then the edge and the next station
         condition.max_minutes = 20
         meter.measure([condition], [job], [0])
-        assert len(requests) == 1 and condition_fit(condition, job) == 'yes'
+        assert len(requests) == 2 and condition_fit(condition, job) == 'yes'
         condition.max_minutes = 15
         meter.measure([condition], [job], [0])
         assert condition_fit(condition, job) == 'unknown'
-        assert len(requests) == 2  # retry the failed edge, keeping the measured centre
-        assert len(requests[1]['destinations']) == 1
-        assert requests[1]['destinations'][0] == requests[0]['destinations'][0]
+        assert len(requests) == 3  # retry the failed station, keeping the measured edge
+        assert len(requests[2]['destinations']) == 1
+        assert requests[2]['destinations'][0] == requests[0]['destinations'][0]
         condition.anchor.named = [TownRef(name='Landshut', country='DE')]
         meter.measure([condition], [job], [0])
-        assert len(requests) == 3
+        assert len(requests) == 5  # Landshut's centre, then its edge
         assert 'Munich' not in condition.travel[travel.job_key(job)]['minutes']
     finally:
         http.close()
@@ -327,7 +353,8 @@ def test_route_errors_retain_jobs_in_every_supported_country(country, title):
         meter.measure([condition], [job], [0])
         assert condition_fit(condition, job) == 'unknown'
         assert not fails_a_condition(job, [condition])
-        assert meter._routes.used_this_search == 2
+        assert meter._routes.used_this_search == len(
+            travel.transit_samples(travel.job_point(job), town))
     finally:
         http.close()
 
@@ -337,7 +364,8 @@ def test_element_access_refusal_keeps_valid_data_and_stops_later_network_reads(c
     requests = []
     def handler(request):
         requests.append(request)
-        return httpx.Response(200, json=[measured(0, 19), failed(1, code)])
+        return httpx.Response(200, json=[measured(0, 19) if len(requests) == 1
+                                         else failed(0, code)])
     meter, http, _, _ = setup(handler)
     # Dachau first: the nearest workplace to a reference city is measured first.
     condition, jobs = near(), [group('Dachau', '1'), group('Freising', '2')]
@@ -345,7 +373,7 @@ def test_element_access_refusal_keeps_valid_data_and_stops_later_network_reads(c
         meter.measure([condition], jobs, [0, 1])
         assert condition_fit(condition, jobs[0]) == 'yes'
         assert condition_fit(condition, jobs[1]) == 'unknown'
-        assert len(requests) == 1
+        assert len(requests) == 2
     finally:
         http.close()
 
@@ -412,7 +440,7 @@ def test_a_search_defers_scoring_uncertain_routes_and_excludes_confirmed_no_rout
                                description=f'Full fictional {role} duties and requirements.',
                                description_is_complete=True)
 
-    def fake_reading(self, origin, towns, mode, to_centre=False):
+    def fake_reading(self, origin, towns, mode, to_centre=False, max_minutes=None):
         if origin.town == 'Freising':
             return travel.TravelReading({}, {town.name for town in towns})
         return travel.TravelReading({town.name: None for town in towns})
