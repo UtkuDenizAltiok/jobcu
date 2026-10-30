@@ -6,13 +6,15 @@ Google Maps is always a fake here; nothing contacts the real service."""
 
 import json
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import httpx
 import pytest
 from test_location_conditions import ScriptedClient
 from test_search import ready  # noqa: F401
 
-from jobcu import places, travel
+from jobcu import db, places, travel
 from jobcu.dedupe import JobGroup
 from jobcu.filters import condition_fit
 from jobcu.keystore import KeyStore
@@ -184,8 +186,8 @@ def test_farther_cities_are_not_asked_when_the_nearest_are_far_over_the_limit():
 def test_a_searchs_share_of_routes_goes_to_the_workplaces_nearest_a_city_first(monkeypatch):
     # 24 searches a month of 600-770 routes each used up 9,000 by about the 13th search; each
     # search now gets its share, and the nearest workplaces are measured first.
-    monkeypatch.setattr(travel, "MAPS_FEWEST_PER_SEARCH", 4)
-    monkeypatch.setattr(travel, "MAPS_MOST_PER_SEARCH", 4)  # one round: 2 cities, 2 samples
+    monkeypatch.setattr(travel, "MAPS_FEWEST_PER_SEARCH", 2)
+    monkeypatch.setattr(travel, "MAPS_MOST_PER_SEARCH", 2)  # one step: 2 cities, 1 sample each
     fake = FakeMaps({"Munich": 17, "Augsburg": 55})
     condition = near()
     farther, nearer = group("Landsberg am Lech", "1"), group("Fürstenfeldbruck", "2")
@@ -539,20 +541,204 @@ def test_key_test_counts_one_element_and_respects_the_route_limit():
     assert not ok and "monthly route limit" in message
 
 
-def test_a_slow_edge_point_does_not_hide_a_reachable_city_centre():
+class Sampled:
+    """Made-up minutes by the destination's point and the local departure time: `first` for the
+    main station asked first, `edge`, and `next_station`, each `{"10:30": minutes, ...}` or one
+    number for every departure. None answers "no route"."""
+
+    def __init__(self, origin, *, first, edge=None, next_station=None, town="Munich"):
+        city = places.find(town, "DE")
+        point = travel.job_point(group(origin))
+        samples = travel.transit_samples(point, city)
+        self.answers = dict(zip(samples, [first, edge, next_station], strict=False))
+        self.samples = samples
+        self.requests = []
+
+    def __call__(self, request):
+        body = json.loads(request.content)
+        self.requests.append(body)
+        when = datetime.fromisoformat(body["departureTime"].replace("Z", "+00:00")).astimezone(
+            ZoneInfo("Europe/Berlin")).strftime("%H:%M")
+        elements = []
+        for index, destination in enumerate(body["destinations"]):
+            point = destination["waypoint"]["location"]["latLng"]
+            answer = self.answers[point["latitude"], point["longitude"]]
+            minutes = answer.get(when) if isinstance(answer, dict) else answer
+            elements.append({"destinationIndex": index, "condition": "ROUTE_NOT_FOUND"}
+                            if minutes is None else
+                            {"destinationIndex": index, "condition": "ROUTE_EXISTS",
+                             "duration": f"{minutes * 60}s"})
+        return httpx.Response(200, json=elements)
+
+    def asked(self, number):
+        return [(d["waypoint"]["location"]["latLng"]["latitude"],
+                 d["waypoint"]["location"]["latLng"]["longitude"])
+                for d in self.requests[number]["destinations"]]
+
+
+def measured_by(reply, origin, minutes=50, settings=None):
+    condition = near(minutes=minutes)
+    condition.anchor = Anchor(named=[TownRef(name="Munich", country="DE")])
+    job = group(origin)
+    keys = KeyStore()
+    keys.set(travel.KEY_NAME, "fake-maps-key")
+    http = PoliteClient(min_intervals={}, sleep=lambda s: None,
+                        transport=httpx.MockTransport(reply))
+    tested = TravelMeter(None, keys, http, settings or Settings(), now=lambda: NOW)
+    tested.measure([condition], [job], [0])
+    return tested, condition, job
+
+
+def test_a_good_main_station_settles_the_journey_with_one_route():
+    sampled = Sampled("Rosenheim", first=40, edge=129, next_station=60)
+    tested, condition, job = measured_by(sampled, "Rosenheim")
+    assert condition_fit(condition, job) == "yes"
+    assert sampled.asked(0) == [sampled.samples[0]] and len(sampled.requests) == 1
+    assert tested._routes.used_this_search == 1
+    # The station nearest the job: München Ost is on Rosenheim's side of Munich.
+    assert sampled.samples[0] == (48.12778, 11.60444)
+
+
+def test_a_slow_main_station_does_not_hide_a_reachable_edge():
+    sampled = Sampled("Rosenheim", first=70, edge=45, next_station=90)
+    tested, condition, job = measured_by(sampled, "Rosenheim")
+    assert condition_fit(condition, job) == "yes"
+    assert travel.detail(condition, job) == ("Munich, 45 min by public transport", "Google Maps")
+    assert sampled.asked(1) == sampled.samples[1:] and len(sampled.requests) == 2
+    assert tested._routes.used_this_search == 3
+
+
+def test_a_city_far_over_the_limit_is_not_asked_again():
+    # Of 1,083 stored city journeys, 888 were over twice the limit, and no edge fitted them.
+    sampled = Sampled("Rosenheim", first=101, edge=20, next_station=20)
+    tested, condition, job = measured_by(sampled, "Rosenheim")
+    assert condition_fit(condition, job) == "no"
+    assert len(sampled.requests) == 1 and tested._routes.used_this_search == 1
+
+
+def test_no_route_to_the_main_station_still_tries_the_edge():
+    sampled = Sampled("Rosenheim", first=None, edge=45, next_station=None)
+    _, condition, job = measured_by(sampled, "Rosenheim")
+    assert condition_fit(condition, job) == "yes"
+    assert len(sampled.requests) == 2
+
+
+def test_a_near_miss_is_asked_again_at_later_departures():
+    # Measured for real: the journey after 10:30 can be a slow one, a commuter takes the good train.
+    sampled = Sampled("Rosenheim", first={"10:30": 68, "10:50": 68, "11:10": 48}, edge=129,
+                      next_station=54)
+    tested, condition, job = measured_by(sampled, "Rosenheim")
+    assert condition_fit(condition, job) == "yes"
+    assert travel.detail(condition, job)[0] == "Munich, 48 min by public transport"
+    times = [body["departureTime"] for body in sampled.requests]
+    assert times == ["2026-09-23T08:30:00Z", "2026-09-23T08:30:00Z", "2026-09-23T08:50:00Z",
+                     "2026-09-23T09:10:00Z"]
+    # Later departures ask only the two best samples, never the slow edge.
+    assert sampled.asked(2) == [sampled.samples[2], sampled.samples[0]]
+    assert tested._routes.used_this_search == 1 + 2 + 2 + 2
+
+
+def test_a_later_departure_that_fits_needs_no_further_one():
+    sampled = Sampled("Rosenheim", first={"10:30": 68, "10:50": 48, "11:10": 40}, edge=129,
+                      next_station=90)
+    _, condition, job = measured_by(sampled, "Rosenheim")
+    assert condition_fit(condition, job) == "yes"
+    assert len(sampled.requests) == 3
+
+
+def test_beyond_a_near_miss_no_later_departure_is_asked():
+    sampled = Sampled("Rosenheim", first=76, edge=129, next_station=90)
+    tested, condition, job = measured_by(sampled, "Rosenheim")
+    assert condition_fit(condition, job) == "no"
+    assert len(sampled.requests) == 2 and tested._routes.used_this_search == 3
+
+
+def test_a_failed_later_step_leaves_the_job_unknown_not_ruled_out():
+    def reply(request):
+        body = json.loads(request.content)
+        if body["departureTime"].endswith("08:30:00Z"):
+            return httpx.Response(200, json=[
+                {"destinationIndex": index, "condition": "ROUTE_EXISTS", "duration": "3600s"}
+                for index in range(len(body["destinations"]))])
+        return httpx.Response(400, json={"error": {"status": "INVALID_ARGUMENT"}})
+
+    _, condition, job = measured_by(reply, "Rosenheim")
+    assert condition_fit(condition, job) == "unknown"
+    assert travel.detail(condition, job)[0].startswith("Munich, 60 min")
+
+
+def test_later_departures_are_remembered_apart_and_not_asked_again():
+    sampled = Sampled("Rosenheim", first={"10:30": 68, "10:50": 60, "11:10": 55}, edge=129,
+                      next_station=90)
+    settings = Settings()
+    settings.limits.maps_memory_days = 90
+    _, condition, job = measured_by(sampled, "Rosenheim", settings=settings)
+    assert condition_fit(condition, job) == "no"
+    sent = len(sampled.requests)
+    assert sent == 4
+    _, again, job = measured_by(sampled, "Rosenheim", settings=settings)
+    assert len(sampled.requests) == sent
+    assert travel.detail(again, job)[0] == "Munich, 55 min by public transport"
+    with db.connect() as conn:
+        kept = {row["destination"].split("|")[1] for row in conn.execute(
+            "SELECT destination FROM travel_memory")}
+    assert kept == {"wednesday-1030", "wednesday-1030+20", "wednesday-1030+40"}
+
+
+def test_a_later_departure_can_cross_the_hour():
+    assert travel.departure("DE", NOW, 40) == "2026-09-23T09:10:00Z"
+
+
+def test_a_person_who_asks_for_the_centre_gets_only_the_centre():
+    munich = places.find("Munich", "DE")
+    assert travel.transit_samples(travel.job_point(group("Rosenheim")), munich, True) == [
+        (munich.latitude, munich.longitude)]
+
+
+def test_a_town_with_no_listed_station_starts_at_its_centre():
+    town = places.Town("Example City", "DE", 50, 8, 400_000)
+    point = travel.Point(50.5, 8, "DE", "town", "Example Town")
+    assert places.main_stations(town) == ()
+    assert travel.transit_samples(point, town) == [(50, 8), travel.edge_point(point, town)]
+
+
+def test_a_village_named_like_a_listed_city_has_no_main_station():
+    assert places.main_stations(places.Town("Luton", "GB", 50.59, -3.51, 1_000)) == ()
+
+
+def test_every_listed_station_is_in_its_town():
+    file = Path(places.__file__).parent / "data" / "stations.csv"
+    rows = [line.split(",") for line in file.read_text(encoding="utf-8").splitlines()
+            if not line.startswith("#")]
+    assert rows
+    for country, name, station, *_ in rows:
+        town = places.find(name, country)
+        assert town is not None and town.name == name, station
+    towns = {(country, name) for country, name, *_ in rows}
+    listed = sum(len(places.main_stations(places.find(name, country))) for country, name in towns)
+    assert listed == len(rows)
+
+
+def test_car_journeys_still_compare_the_edge_and_the_centre_at_once():
+    fake = FakeMaps({"Munich": 25})
+    condition = near()
+    condition.travel_mode = "drive"
+    job = group("Freising")
+    meter(fake).measure([condition], [job], [0])
+    assert len(fake.requests) == 1
+    assert len(fake.requests[0][1]["destinations"]) == 2 * len(
+        travel.anchor_towns(condition.anchor, "DE")[:travel.NEAREST])
+
+
+def test_a_journey_asks_one_destination_at_first():
     requests = []
 
     def reply(request):
         body = json.loads(request.content)
         requests.append(body)
-        munich = places.find("Munich", "DE")
-        elements = []
-        for index, destination in enumerate(body["destinations"]):
-            point = destination["waypoint"]["location"]["latLng"]
-            centre = (point["latitude"], point["longitude"]) == (munich.latitude, munich.longitude)
-            elements.append({"destinationIndex": index, "condition": "ROUTE_EXISTS",
-                             "duration": "2100s" if centre else "5400s"})
-        return httpx.Response(200, json=elements)
+        return httpx.Response(200, json=[
+            {"destinationIndex": index, "condition": "ROUTE_EXISTS", "duration": "2100s"}
+            for index in range(len(body["destinations"]))])
 
     condition = near(minutes=50)
     condition.anchor = Anchor(named=[TownRef(name="Munich", country="DE")])
@@ -565,8 +751,8 @@ def test_a_slow_edge_point_does_not_hide_a_reachable_city_centre():
     tested.measure([condition], [job], [0])
     assert condition_fit(condition, job) == "yes"
     assert travel.detail(condition, job) == ("Munich, 35 min by public transport", "Google Maps")
-    assert len(requests) == 1 and len(requests[0]["destinations"]) == 2
-    assert tested._routes.used_this_search == 2
+    assert len(requests) == 1 and len(requests[0]["destinations"]) == 1
+    assert tested._routes.used_this_search == 1
 
 
 @pytest.mark.parametrize(("edge", "centre", "expected"), [
@@ -616,11 +802,11 @@ def test_a_matrix_element_error_is_not_used_as_a_successful_journey():
     assert found.unchecked == {"Example City"}
 
 
-def test_both_destination_samples_must_fit_within_the_existing_maps_limit():
+def test_no_journey_is_asked_past_the_maps_limit():
     condition = near()
     condition.anchor = Anchor(named=[TownRef(name="Munich", country="DE")])
     settings = Settings()
-    settings.limits.maps_monthly_routes = 1
+    settings.limits.maps_monthly_routes = 0
     notes = []
     tested = meter(client=None, settings=settings, notes=notes)
     job = group("Freising")
@@ -979,17 +1165,13 @@ def test_trips_go_to_the_nearest_edge_of_a_city_not_its_centre():
     # Search 9: Google gave Weichs to Munich's centre 53 minutes, so three PCB jobs there were
     # left out at "50 min"; the owner's search in the cloud left out four jobs in Weßling at
     # "Munich, 45 min". A reference place is where the person would live: any part of it.
-    fake = FakeMaps({"Munich": 22})
-    condition = near(minutes=40)
-    job = group("Weßling, Oberbayern")
-    meter(fake).measure([condition], [job], [0])
+    sampled = Sampled("Weßling, Oberbayern", first=45, edge=22, next_station=45)
+    _, condition, job = measured_by(sampled, "Weßling, Oberbayern", minutes=40)
     assert condition_fit(condition, job) == "yes"
-    (_, body, _), = fake.requests
-    sent = body["destinations"][0]["waypoint"]["location"]["latLng"]
+    latitude, longitude = sampled.asked(1)[0]
     wessling, munich = places.find("Weßling", "DE"), places.find("Munich", "DE")
     to_centre = places.distance_km(wessling, munich)
-    to_sent = places.km(wessling.latitude, wessling.longitude, sent["latitude"],
-                        sent["longitude"])
+    to_sent = places.km(wessling.latitude, wessling.longitude, latitude, longitude)
     assert to_sent == pytest.approx(to_centre - places.reach_km(munich), abs=0.1)
 
 

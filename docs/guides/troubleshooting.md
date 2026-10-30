@@ -268,19 +268,20 @@ not indefinitely reuse yesterday's Google travel time; timetables change and sto
 restrict that cache. This preserves current evidence rather than promise an unverified saving.
 
 Jobs without checked travel evidence need further checking. Current AI fallback times are
-labelled estimates, and a long estimate can still exclude a job; city-edge/centre samples
+labelled estimates, and a long estimate can still exclude a job; sampled destinations
 are also approximate. Extra paid usage alone does not establish that good jobs were retained
 or that their scores are accurate.
 
 ## The Google Maps test gives an unexpected travel time
 
 **Google Maps works** confirms access to the service. The sample is a public-transport journey
-between named stations at the stated departure time; it can include walking and waiting.
-It is not a promise about the time spent on a particular train.
+between named stations after the stated departure time; it can include walking and changing
+trains, but not the wait for the first one. It is not a promise about a particular train.
 
 For a job's travel condition, check the actual workplace address, destination and departure
-time. Jobcu compares a calculated city-edge point and city centre unless you ask for the centre
-alone. Other districts can have faster connections; a town-centre origin can also differ from
+time. By public transport Jobcu tries the main station, a calculated city-edge point and later
+trains, unless you ask for the centre alone; other travel compares the edge and the centre. Other
+districts can have faster connections; a town-centre origin can also differ from
 the workplace. Do not change your key just because a duration is unexpected.
 
 ## I still need help

@@ -26,6 +26,7 @@ from jobcu.text import normalise
 DATA = Path(__file__).resolve().parent / "data" / "places.csv.gz"
 REGIONS = Path(__file__).resolve().parent / "data" / "regions.csv.gz"
 POSTCODES = Path(__file__).resolve().parent / "data" / "postcodes.csv.gz"
+STATIONS = Path(__file__).resolve().parent / "data" / "stations.csv"
 MAX_NAME_WORDS = 4  # "Frankfurt am Main", "'s-Hertogenbosch"
 EARTH_RADIUS_KM = 6371.0
 
@@ -289,6 +290,23 @@ def reach_km(town: Town) -> float:
     """How far a town's built-up area reaches from its centre, roughly, from its population:
     about 1.5 km for a village, 6 km for Augsburg, 11 km for Munich, 23 km for London."""
     return max(1.5, 0.6 * (town.people / 1000) ** 0.4)
+
+
+@cache
+def _main_stations() -> dict[tuple[str, str], tuple[tuple[float, float], ...]]:
+    stations: dict[tuple[str, str], list[tuple[float, float]]] = {}
+    with STATIONS.open(encoding="utf-8", newline="") as file:
+        for country, town, _, latitude, longitude in csv.reader(
+                line for line in file if not line.startswith("#")):
+            stations.setdefault((country, town), []).append((float(latitude), float(longitude)))
+    return {key: tuple(points) for key, points in stations.items()}
+
+
+def main_stations(town: Town) -> tuple[tuple[float, float], ...]:
+    """The points of a town's main railway stations, where `data/stations.csv` lists them. A
+    village with a listed city's name has none: a station must lie within the town's reach."""
+    return tuple(point for point in _main_stations().get((town.country, town.name), ())
+                 if km(town.latitude, town.longitude, *point) <= reach_km(town))
 
 
 @cache

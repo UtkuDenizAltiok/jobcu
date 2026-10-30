@@ -1,0 +1,74 @@
+# Main railway stations. Coordinates from GeoNames (geonames.org), CC BY 4.0. Built by tools/update_stations.py.
+DE,Berlin,Berlin Hauptbahnhof,52.5249,13.3685
+DE,Berlin,Berlin Südkreuz,52.47567,13.36401
+DE,Berlin,Berlin Gesundbrunnen (S),52.54896,13.38851
+DE,Berlin,Berlin Ostbahnhof,52.51128,13.43542
+DE,Berlin,Bahnhof Berlin Ostkreuz,52.50304,13.46945
+DE,Hamburg,Hamburg Central Station,53.5528,10.0064
+DE,Hamburg,Bahnhof Hamburg-Altona,53.55275,9.93517
+DE,Hamburg,Hamburg-Harburg,53.45528,9.99139
+DE,Munich,München Hauptbahnhof,48.14049,11.55783
+DE,Munich,München-Ostbahnhof,48.12778,11.60444
+DE,Munich,Bahnhof München-Pasing,48.15026,11.4616
+DE,Köln,Köln Hauptbahnhof,50.9429,6.95801
+DE,Köln,Köln Messe/Deutz station,50.9408,6.975
+DE,Frankfurt am Main,Frankfurt Hauptbahnhof,50.10679,8.66317
+DE,Frankfurt am Main,Frankfurt South Station,50.09987,8.68618
+DE,Düsseldorf,Düsseldorf Hauptbahnhof,51.21968,6.79419
+DE,Stuttgart,Stuttgart Hauptbahnhof,48.78363,9.18131
+DE,Essen,Essen Hauptbahnhof,51.45097,7.01365
+DE,Dortmund,Dortmund Hauptbahnhof,51.51683,7.45774
+DE,Bremen,Hauptbahnhof Bremen,53.08319,8.81358
+DE,Nuremberg,Nuremberg Central Station,49.44607,11.08184
+DE,Hannover,Hannover Hauptbahnhof,52.37658,9.74105
+DE,Duisburg,Duisburg Hauptbahnhof,51.42953,6.77505
+DE,Bochum,Bochum Hbf,51.47915,7.22403
+DE,Wuppertal,Wuppertal Hauptbahnhof,51.2547,7.15002
+DE,Bielefeld,Bielefeld Railway Station,52.02917,8.53316
+DE,Bonn,Bonn Central Station,50.7322,7.0961
+DE,Münster,Münster (Westfalen) Hbf,51.95712,7.63591
+DE,Mannheim,Mannheim Hauptbahnhof,49.47979,8.46951
+DE,Augsburg,Augsburg Hauptbahnhof,48.36556,10.88639
+DE,Wiesbaden,Wiesbaden Central Station,50.06944,8.24333
+DE,Karlsruhe,Karlsruhe Hauptbahnhof,48.99368,8.40113
+DE,Aachen,Aachen Hauptbahnhof,50.76811,6.0909
+DE,Mönchengladbach,Mönchengladbach Hbf,51.19658,6.44611
+DE,Kiel,Hauptbahnhof Kiel,54.3145,10.13166
+GB,London,London Kings Cross,51.5321,-0.1233
+GB,London,St Pancras International Railway Station,51.53045,-0.12548
+GB,London,Euston railway station,51.52872,-0.13433
+GB,London,Marylebone Railway Station,51.52264,-0.16268
+GB,London,London Paddington station,51.5174,-0.17748
+GB,London,Waterloo Railway Station,51.50257,-0.11309
+GB,London,London Victoria station,51.49571,-0.14437
+GB,London,London Bridge Railway Station,51.505,-0.086
+GB,London,Liverpool Street Railway Station,51.5186,-0.0813
+GB,London,Fenchurch Street Railway Station,51.51167,-0.07881
+GB,London,Stratford Mainline Station,51.5417,-0.00436
+GB,London,Clapham Junction Station,51.4646,-0.1705
+GB,Birmingham,Birmingham New Street Railway Station,52.47777,-1.89885
+GB,Birmingham,Birmingham Moor Street Railway Station,52.479,-1.893
+GB,Glasgow,Glasgow Central Station,55.8585,-4.2579
+GB,Glasgow,Glasgow Queen Street Railway Station,55.8622,-4.2512
+GB,Manchester,Manchester Piccadilly Railway Station,53.47709,-2.22973
+GB,Manchester,Manchester Victoria,53.48769,-2.24345
+GB,Sheffield,Sheffield Victoria,53.378,-1.462
+GB,Leeds,Leeds Railway Station,53.79418,-1.54759
+GB,Edinburgh,Edinburgh Waverley Railway Station,55.952,-3.189
+GB,Edinburgh,Haymarket Railway Station,55.94545,-3.21796
+GB,Liverpool,Liverpool Lime Street Railway Station,53.4073,-2.977
+GB,Bristol,Bristol Temple Meads Railway Station,51.449,-2.58
+GB,Cardiff,Cardiff Central Railway Station,51.4755,-3.178
+GB,Leicester,Leicester Railway Station,52.632,-1.124
+GB,Bradford,Bradford Interchange,53.791,-1.75
+GB,Bradford,Bradford Forster Square Railway Station,53.797,-1.753
+GB,Belfast,Great Victoria Street Railway Station,54.59418,-5.9362
+GB,Belfast,Belfast Central railway station,54.59522,-5.91719
+GB,Reading,Reading Railway Station,51.459,-0.9722
+GB,Brighton,Brighton Railway Station,50.82917,-0.14118
+GB,Milton Keynes,Milton Keynes Central Railway Station,52.03459,-0.77428
+GB,Luton,Luton Railway Station,51.88227,-0.41432
+GB,Luton,Luton Airport Parkway Railway Station,51.873,-0.396
+IE,Dublin,Bahnhof Dublin Heuston,53.3465,-6.29266
+IE,Dublin,Dublin Connolly railway station,53.3517,-6.24917
+IE,Galway,Galway Ceannt,53.27357,-9.04703

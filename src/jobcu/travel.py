@@ -16,10 +16,15 @@ is small. `location.py` reads the condition; this module measures it for each jo
    the town list (Hamburg's Wandsbek) are part of the city, not reference places of their own.
 3. **How long it takes:** Google Maps (the person's own key, the travel mode the person meant;
    public transport on a weekday morning, car without live traffic), within the configured monthly
-   route limit. Sample the calculated edge and the centre, keeping the faster available journey:
-   an arbitrary edge point may have a much slower connection than the centre. These samples do
-   not establish the fastest journey to every part of a city. Without a key or beyond the limit,
-   the AI estimates the times and the card says so.
+   route limit. By public transport, ask first for the city's main station nearest the job (or its
+   centre, if the list has none), the part of a city a train from outside reaches first; then, only
+   if that is close, for the calculated edge and the next main station; then, only for a near miss,
+   for the best of those at later departures, because a person would take the good train. Google's
+   time starts when the journey does, so it holds no wait for the first vehicle, but it is the
+   journey that arrives first after the time asked, which can be a slow one (measured 2026-10-30).
+   These samples do not establish the fastest journey to every part of a city. By car and the rest,
+   sample the edge and the centre. Without a key or beyond the limit, the AI estimates the times
+   and the card says so.
 
 Each job's answer is kept in the condition (minutes per reference place), so a corrected limit
 is applied again without asking anyone. The AI's estimates are also remembered for 90 days (the
@@ -84,13 +89,17 @@ NEAREST = 2
 # Of those 1,970 journeys only 56 fitted, and none after the nearest two were this far over; asking
 # on made up a quarter of a search's routes, which are paid past Google's free allowance.
 TOO_FAR_TIMES = 2
+# A city whose best time is at most this many times the limit is asked again at later departures:
+# on search 12's places the best time at one departure was up to 25 minutes over the best of three.
+NEAR_MISS_TIMES = 1.5
+LATER_DEPARTURES = (20, 40)  # minutes after the usual departure, within one hourly timetable
 ESTIMATE_BATCH = 30
 MEMORY_DAYS = 90
 # One search's share of the monthly route allowance stays within these bounds (route elements).
 MAPS_FEWEST_PER_SEARCH = 100
 MAPS_MOST_PER_SEARCH = 1500
 MAPS, ESTIMATE = "Google Maps", "AI estimate"
-MAPS_ROUTING_VERSION = 3
+MAPS_ROUTING_VERSION = 4
 TRAVEL_TIMING = "wednesday-1030"
 
 _TIMEZONES = {"GB": "Europe/London", "IE": "Europe/Dublin", "PT": "Europe/Lisbon",
@@ -257,6 +266,19 @@ def route_targets(point: Point, towns: list[place_list.Town],
         if edge != centre:
             targets.append((town.name, centre))
     return targets
+
+
+def transit_samples(point: Point, town: place_list.Town,
+                    to_centre: bool = False) -> list[tuple[float, float]]:
+    """Where in a town a public-transport journey may end, the likeliest first: the main station
+    nearest the job or else the centre, then the edge and the next main station."""
+    centre = (town.latitude, town.longitude)
+    if to_centre:
+        return [centre]
+    stations = sorted(place_list.main_stations(town),
+                      key=lambda station: place_list.km(point.latitude, point.longitude, *station))
+    return list(dict.fromkeys([*(stations[:1] or [centre]), edge_point(point, town),
+                               *stations[1:2]]))
 
 
 def anchor_towns(anchor: Anchor | None, country: str) -> list[place_list.Town]:
@@ -460,11 +482,13 @@ def detail(condition: Condition, group: JobGroup) -> tuple[str, str] | None:
     return text, by
 
 
-def departure(country: str, now: datetime) -> str:
-    """Next Wednesday at 10:30 local time, outside the usual commuter peak."""
+def departure(country: str, now: datetime, later: int = 0) -> str:
+    """Next Wednesday at 10:30 local time, outside the usual commuter peak, or `later` minutes
+    after it."""
     local = now.astimezone(ZoneInfo(_TIMEZONES.get(country, "Europe/Paris")))
     days = (2 - local.weekday()) % 7 or 7
     when = (local + timedelta(days=days)).replace(hour=10, minute=30, second=0, microsecond=0)
+    when += timedelta(minutes=later)
     return when.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
@@ -485,7 +509,7 @@ class GoogleMaps:
         self._departure_reference: datetime | None = None
         # This search's validated elements (and remembered ones, when the person keeps them).
         # Missing/error cells stay retryable and are never remembered.
-        self._elements: dict[tuple[str, str, str, str | None], int | None] = {}
+        self._elements: dict[tuple[str, str, str, str | None, str], int | None] = {}
         self._unidentified_refusals: dict[str, int] = {}
         self._mode_unavailable: dict[str, str] = {}
 
@@ -533,24 +557,60 @@ class GoogleMaps:
             raise MapsError("Google Maps answered in an unexpected way.") from exc
 
     def minutes(self, origin: Point, towns: list[place_list.Town], mode: str,
-                to_centre: bool = False) -> TravelReading:
-        """The faster sampled journey into each town; centre only when explicitly requested."""
-        targets = route_targets(origin, towns, to_centre)
-        minutes = self._matrix(
-            {"location": {"latLng": {"latitude": origin.latitude,
-                                     "longitude": origin.longitude}}},
-            [{"location": {"latLng": {"latitude": latitude, "longitude": longitude}}}
-             for _, (latitude, longitude) in targets], mode, origin.country)
+                to_centre: bool = False, max_minutes: int | None = None) -> TravelReading:
+        """The fastest sampled journey into each town; centre only when explicitly requested.
+        Given a limit, a public-transport journey is asked step by step (the module's point 3),
+        until one fits: of 1,083 city journeys stored on 2026-10-30, 888 were over twice the limit
+        at the centre or had no route, and no edge fitted any of them."""
         found: dict[str, int | None] = {}
         unchecked: set[str] = set()
-        for index, (name, _) in enumerate(targets):
-            if index not in minutes:
-                unchecked.add(name)
-                continue
-            value = minutes[index]
-            if name not in found or value is not None and (
-                    found[name] is None or value < found[name]):
-                found[name] = value
+        times: dict[tuple[str, tuple[float, float]], int] = {}
+
+        def ask(targets: list[tuple[str, tuple[float, float]]], later: int = 0) -> None:
+            minutes = self._matrix(
+                {"location": {"latLng": {"latitude": origin.latitude,
+                                         "longitude": origin.longitude}}},
+                [{"location": {"latLng": {"latitude": latitude, "longitude": longitude}}}
+                 for _, (latitude, longitude) in targets], mode, origin.country, later)
+            for index, (name, target) in enumerate(targets):
+                if index not in minutes:
+                    unchecked.add(name)
+                    continue
+                value = minutes[index]
+                if value is not None:
+                    times[name, target] = value
+                if name not in found or value is not None and (
+                        found[name] is None or value < found[name]):
+                    found[name] = value
+
+        def ask_more(targets: list[tuple[str, tuple[float, float]]], later: int = 0) -> None:
+            """A later step that fails leaves its alternatives unchecked, not disproved."""
+            try:
+                ask(targets, later)
+            except (MapsError, BudgetExhausted):
+                unchecked.update(name for name, _ in targets)
+
+        def fits() -> bool:
+            return any(value is not None and value <= max_minutes for value in found.values())
+
+        if mode != "transit" or max_minutes is None:
+            ask(route_targets(origin, towns, to_centre))
+        else:
+            samples = {town.name: transit_samples(origin, town, to_centre) for town in towns}
+            ask([(name, points[0]) for name, points in samples.items()])
+            too_far = TOO_FAR_TIMES * max_minutes
+            more = [(name, point) for name, points in samples.items() for point in points[1:]
+                    if found.get(name) is None or found[name] <= too_far]
+            if more and not fits():
+                ask_more(more)
+            near: list[tuple[str, tuple[float, float]]] = []  # each near city's two best samples
+            for name, target in sorted(times, key=times.get):
+                if found[name] <= NEAR_MISS_TIMES * max_minutes and (
+                        sum(other == name for other, _ in near) < 2):
+                    near.append((name, target))
+            for later in LATER_DEPARTURES:
+                if near and not unchecked and not fits():
+                    ask_more(near, later)
         return TravelReading(found, unchecked, dict.fromkeys(found, MAPS))
 
     def between_addresses(self, origin: str, destination: str, mode: str,
@@ -562,7 +622,7 @@ class GoogleMaps:
         return found[0]
 
     def _matrix(self, origin: dict, destinations: list[dict], mode: str,
-                country: str) -> dict[int, int | None]:
+                country: str, later: int = 0) -> dict[int, int | None]:
         body = {
             "origins": [{"waypoint": origin}],
             "destinations": [{"waypoint": destination} for destination in destinations],
@@ -573,10 +633,11 @@ class GoogleMaps:
         if mode == "transit":
             if self._departure_reference is None:
                 self._departure_reference = self._now()
-            body["departureTime"] = departure(country, self._departure_reference)
+            body["departureTime"] = departure(country, self._departure_reference, later)
         origin_key = json.dumps(origin, sort_keys=True)
+        timing = f"{TRAVEL_TIMING}+{later}" if later else TRAVEL_TIMING
         keys = [(origin_key, json.dumps(destination, sort_keys=True), mode,
-                 body.get("departureTime")) for destination in destinations]
+                 body.get("departureTime"), timing) for destination in destinations]
         if self._memory_days:
             self._elements.update(_recall_maps(
                 [key for key in keys if key not in self._elements], self._memory_days,
@@ -853,7 +914,10 @@ class TravelMeter:
         wanted = dict(sorted(wanted.items(), key=lambda item: min(
             edge_distance(item[1][0], town, centre) for town in item[1][1])))
         if self._maps and not centre:
-            self._note("Google Maps compares sampled city-edge and city-centre destinations; "
+            self._note("Google Maps measures to each city's main station, its nearest edge and, "
+                       "for near misses, later departures; other districts may have faster "
+                       "connections." if mode == "transit" else
+                       "Google Maps compares sampled city-edge and city-centre destinations; "
                        "other districts may have faster connections.")
         readings = {point.key: TravelReading({}) for point, _, _ in wanted.values()}
         for point, towns, keys in wanted.values():
@@ -941,7 +1005,7 @@ class TravelMeter:
                  ) -> dict[str, TravelReading]:
         """Minutes to each town for each place, with who measured them: Google Maps when there
         is a key, otherwise the AI (its estimates from the last 60 days first)."""
-        found = self._with_maps(places, mode, centre) if self._maps else {}
+        found = self._with_maps(places, mode, centre, max_minutes) if self._maps else {}
         missing = []
         for point, towns, keys in places:
             reading = found.setdefault(point.key, TravelReading(
@@ -983,13 +1047,13 @@ class TravelMeter:
                 reading.by = ESTIMATE
         return found
 
-    def _with_maps(self, places, mode, centre=False) -> dict[str, TravelReading]:
+    def _with_maps(self, places, mode, centre=False, max_minutes=None) -> dict[str, TravelReading]:
         measured: dict[str, TravelReading] = {}
         reported = False
         limit_reported = False
         for point, towns, _ in places:
             try:
-                measured[point.key] = self._maps.minutes(point, towns, mode, centre)
+                measured[point.key] = self._maps.minutes(point, towns, mode, centre, max_minutes)
                 if measured[point.key].unchecked and not reported:
                     self._note("Google Maps couldn't check some sampled journeys. Unchecked "
                                "journeys use labelled AI estimates where available; otherwise "
@@ -1104,7 +1168,7 @@ def remember(point: Point, minutes: dict[str, int | None], mode: str, *, now: da
 def _maps_destination(key) -> str:
     # The exact point, the timetable profile (not the date of next Wednesday) and the routing
     # version: a changed sample point or method is measured again.
-    return f"{key[1]}|{TRAVEL_TIMING}|v{MAPS_ROUTING_VERSION}"
+    return f"{key[1]}|{key[4]}|v{MAPS_ROUTING_VERSION}"
 
 
 def _recall_maps(keys: list, days: int, now: datetime) -> dict:

@@ -113,8 +113,10 @@ jobs. Read **Understood as** and the explanations; use **Edit** to correct them 
 
 Be clear about any distance, travel method or place that matters to you. For travel conditions,
 Jobcu tries to find a journey into the reference place unless you ask specifically for its centre.
-With Google Maps, it compares a calculated city-edge point and the city centre and keeps the
-faster available journey. Those two samples can miss faster connections to other districts.
+With Google Maps, a public-transport journey goes to the city's main station nearest the job (its
+centre if Jobcu has no station for it). If that is close, Jobcu also tries a calculated city-edge
+point and, for a near miss, later trains, and keeps the fastest. These samples can miss faster
+connections to other districts.
 If an ad gives no address, the journey starts at its town's centre. Check the actual workplace
 and route before relying on a time. Travel estimates are labelled. Leaving the box empty
 searches all supported countries, which can take longer and use more AI.

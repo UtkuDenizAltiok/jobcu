@@ -322,7 +322,7 @@ def test_a_batch_exceeding_remaining_routes_does_not_block_a_smaller_batch():
     notes, sent = [], []
 
     class Maps:
-        def minutes(self, point, towns, mode, centre):
+        def minutes(self, point, towns, mode, centre, max_minutes=None):
             elements = len(travel.route_targets(point, towns, centre))
             if elements > 2 - sum(sent):
                 raise BudgetExhausted("Remaining allowance cannot cover this batch.")
