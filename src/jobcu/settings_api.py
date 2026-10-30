@@ -45,7 +45,7 @@ JOB_SITE_KEYS = {
     adzuna.KEY_APP_ID: "Adzuna Application ID",
     adzuna.KEY_APP_KEY: "Adzuna Application Key",
     reed.KEY_API_KEY: "Reed API key",
-    jsearch.KEY_API_KEY: "JSearch direct Free key",
+    jsearch.KEY_API_KEY: "JSearch direct key",
 }
 TRAVEL_KEYS = {travel.KEY_NAME: "Google Maps API key"}
 ALLOWED_KEYS = ({info.key_name for info in PROVIDERS.values()} | set(JOB_SITE_KEYS)

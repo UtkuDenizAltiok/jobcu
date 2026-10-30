@@ -414,3 +414,40 @@ def test_simultaneous_saves_allocate_one_identity_for_the_same_vacancy():
     with db.connect() as conn:
         assert conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0] == 1
         assert conn.execute("SELECT COUNT(*) FROM job_keys").fetchone()[0] == 1
+
+
+def located(vacancy, title, town, *, source="board", company="Example Power GmbH"):
+    return JobGroup([FoundJob(source, vacancy, f"https://jobs.example.test/{vacancy}", title,
+                             company=company, location_text=town, country="DE",
+                             posted_at=datetime.now(UTC), date_precision="day")],
+                    source_kinds={source: "job_board"})
+
+
+def test_a_specific_title_saved_without_a_town_is_the_same_job_at_a_named_town():
+    # Terepco (2026-10-30): saved as "Deutschland", then JSearch's late copy named a town and
+    # came back as a new job two weeks after Jobcu first showed it.
+    title = "Hardwareentwickler - Leistungselektronik / Schaltnetzteile (m/w/d)"
+    (saved,), _ = jobstore.remember([located("a-1", title, "Deutschland")], new_search())
+    jobstore.set_state(saved, dismissed=True)
+    late = located("jsearch-1", title, "Radeberg", source="jsearch")
+    assert jobstore.find_job_ids([late]) == [saved]
+    assert jobstore.states([saved])[saved].dismissed  # the earlier mark still applies
+    # And the other way round: a town-less copy of a job saved at a town.
+    (at_town,), _ = jobstore.remember(
+        [located("b-1", "Embedded Hardware Engineer Power Systems", "Dresden")], new_search())
+    assert jobstore.find_job_ids([located(
+        "b-2", "Embedded Hardware Engineer Power Systems", "Germany", source="other")]) == [
+        at_town]
+
+
+def test_generic_titles_different_towns_and_two_candidates_stay_separate_jobs():
+    jobstore.remember([located("g-1", "Hardwareentwickler (m/w/d)", "Deutschland")], new_search())
+    # A generic title is used for many vacancies: no match without the same town.
+    assert jobstore.find_job_ids([located("g-2", "Hardwareentwickler (m/w/d)", "Ulm")]) == [None]
+    # Two different named towns are two vacancies.
+    title = "Senior Power Electronics Design Engineer"
+    jobstore.remember([located("t-1", title, "Munich")], new_search())
+    assert jobstore.find_job_ids([located("t-2", title, "Hamburg", source="x")]) == [None]
+    # A town-less copy cannot choose between two known jobs with that title.
+    jobstore.remember([located("t-3", title, "Hamburg", source="y")], new_search())
+    assert jobstore.find_job_ids([located("t-4", title, "Deutschland", source="z")]) == [None]

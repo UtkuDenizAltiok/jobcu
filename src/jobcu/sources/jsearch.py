@@ -1,4 +1,5 @@
-"""Optional direct JSearch Free account; provider pages/IDs, not HTTP batches, are units.
+"""Optional direct JSearch account (Free, or a paid plan the person chose); provider pages/IDs,
+not HTTP batches, are units.
 
 No enrichment, salary estimates, redirect probing or AI calls. Supplied text enters the same
 freshness, duplicate and location gates as other sources. Ambiguously charged requests are
@@ -38,6 +39,7 @@ from jobcu.sources.budget import (
     BudgetExhausted,
     Limits,
     RequestBudget,
+    search_days,
     share_of_month,
     share_until,
 )
@@ -206,19 +208,21 @@ def to_found_job(item: dict) -> FoundJob | None:
     )
 
 
-def _free_remaining(body: dict) -> int:
-    return _free_allowance(body)[0]
-
-
-def _free_allowance(body: dict) -> tuple[int, datetime]:
-    """The Free credits left and when they renew, from a usage receipt."""
+def _allowance(body: dict) -> tuple[int | None, datetime | None, bool]:
+    """From a usage receipt: the Free credits left and when they renew, or (None, None, True)
+    for a paid plan, which Jobcu uses without a monthly cap (the owner's pay-as-you-go,
+    2026-10-30: $0.005 a request; their own spending controls are at the provider)."""
     data = body.get("data")
     if not isinstance(data, dict) or data.get("api_id") != "jsearch":
         raise SourceError("JSearch's account check did not identify the expected service.")
     plan = data.get("plan")
-    if not isinstance(plan, dict) or plan.get("is_free") is not True:
-        raise SourceError("JSearch needs a direct Free account. Jobcu does not use paid plans.")
+    if not isinstance(plan, dict) or not isinstance(plan.get("is_free"), bool):
+        raise SourceError("JSearch's account check did not say which plan this key has.")
     status = _text(data.get("status"))
+    if plan["is_free"] is False:
+        if status not in {"active", "trialing", "exceeded"}:
+            raise SourceError("JSearch's paid plan is not active. Check its account page.")
+        return None, None, True
     if status not in {"active", "exceeded"}:
         raise SourceError("JSearch's Free service is not active. Check its account page.")
     quotas = data.get("quotas")
@@ -240,7 +244,7 @@ def _free_allowance(body: dict) -> tuple[int, datetime]:
     reset = parse_iso(_text(quota.get("reset_at")))
     if reset is None or reset <= datetime.now(UTC):
         raise SourceError("JSearch did not report a current allowance period; no jobs requested.")
-    return (numbers[2] if status == "active" else 0), reset
+    return (numbers[2] if status == "active" else 0), reset, False
 
 
 class Interrupted(SourceError):
@@ -373,7 +377,7 @@ class JSearchSource(JobSource):
         self._hours = 24  # the search window: a 72-hour search gets three days' share
 
     def unavailable_reason(self, keys: KeyStore) -> str | None:
-        return None if keys.get(KEY_API_KEY) else "JSearch: add a direct Free key in Settings."
+        return None if keys.get(KEY_API_KEY) else "JSearch: add a direct key in Settings."
 
     def _request(self, url: str, params: dict, ctx: SourceContext) -> dict:
         if self._halted:
@@ -382,7 +386,7 @@ class JSearchSource(JobSource):
         if url not in {USAGE, f"{API}/search-v2", f"{API}/job-details"}:
             raise SourceError("JSearch refused an unexpected service address.")
         if url != USAGE and not self._ready:
-            raise SourceError("JSearch's Free account allowance has not been checked.")
+            raise SourceError("JSearch's account has not been checked.")
 
         free = url == USAGE
 
@@ -420,7 +424,7 @@ class JSearchSource(JobSource):
                 before_attempt=spend,
             )
             if response.status_code in {401, 403}:
-                raise SourceError("JSearch did not accept this direct key. Check its Free account.")
+                raise SourceError("JSearch did not accept this direct key. Check its account.")
             if response.status_code == 429:
                 raise SourceError("JSearch reached its service limit. No automatic retry was sent.")
             if response.status_code == 402:
@@ -469,24 +473,31 @@ class JSearchSource(JobSource):
             return
         self._key = ctx.keys.get(KEY_API_KEY) or ""
         if not self._key:
-            raise SourceError("JSearch needs a direct Free key in Settings.")
-        limits = share_of_month(
-            self.id, Limits(per_month=MONTHLY_CREDITS), hours=self._hours, fewest=2,
-            most=MAX_SEARCH_CREDITS
-        )
-        self._budget = RequestBudget(self.id, self.name, limits)
+            raise SourceError("JSearch needs a direct key in Settings.")
+        # The account check is free: it is always sent, because only it says whether a paid plan
+        # continues after the Free credits Jobcu counted are gone.
+        self._budget = RequestBudget(self.id, self.name, Limits())
         self._budget.used_this_search = ctx.report.requests
-        # No account check when not even one job request could fit.
-        self._budget.check(1)
         try:
-            self._remaining, renews = _free_allowance(
-                self._request(USAGE, {"api_id": self.id}, ctx))
-            # The calendar-month share above is only an upper bound: the credits renew on
-            # the account's own date, so they are spread until then.
-            paced = share_until(self._remaining, renews, hours=self._hours, fewest=2,
-                                most=MAX_SEARCH_CREDITS)
-            self._budget.limits = replace(
-                limits, per_search=min(limits.per_search or paced, paced))
+            remaining, renews, paid = _allowance(self._request(USAGE, {"api_id": self.id}, ctx))
+            if paid:
+                # Paid: a fixed number for each day the search covers, never a monthly cap
+                # (search 8: 16 requests found 9 good jobs no other source had).
+                self._remaining = None
+                self._budget.limits = Limits(
+                    per_search=round(MAX_SEARCH_CREDITS * search_days(self._hours)))
+            else:
+                limits = share_of_month(
+                    self.id, Limits(per_month=MONTHLY_CREDITS), hours=self._hours, fewest=2,
+                    most=MAX_SEARCH_CREDITS
+                )
+                # The calendar-month share is only an upper bound: the credits renew on the
+                # account's own date, so they are divided until then.
+                paced = share_until(remaining, renews, hours=self._hours, fewest=2,
+                                    most=MAX_SEARCH_CREDITS)
+                self._budget.limits = replace(
+                    limits, per_search=min(limits.per_search or paced, paced))
+                self._remaining = remaining
             self._ready = True
         except SourceError:
             self._halted = True
@@ -498,9 +509,9 @@ class JSearchSource(JobSource):
         self._hours = query.posted_within_hours
         try:
             self._start(ctx)
-            left = min(
-                self._remaining or 0, self._budget.limits.per_search - self._budget.used_this_search
-            )
+            left = self._budget.limits.per_search - self._budget.used_this_search
+            if self._remaining is not None:  # Free credits; a paid plan has no such count
+                left = min(self._remaining, left)
             # A small allowance rotates the first countries between searches; a large one
             # uses the owner's normal order. Plans within a country are also interleaved.
             with db.connect() as conn:
@@ -648,7 +659,7 @@ class JSearchSource(JobSource):
 def check_keys(keys: KeyStore) -> KeyCheck:
     key = keys.get(KEY_API_KEY)
     if not key:
-        return KeyCheck(False, "Save your direct JSearch Free key first.")
+        return KeyCheck(False, "Save your direct JSearch key first.")
     source = JSearchSource()
     source._key = key
     source._budget = RequestBudget(
@@ -659,7 +670,11 @@ def check_keys(keys: KeyStore) -> KeyCheck:
         http, keys, SourceReport(source.id, source.name), lambda: False, lambda message: None
     )
     try:
-        remaining = _free_remaining(source._request(USAGE, {"api_id": source.id}, ctx))
+        remaining, _, paid = _allowance(source._request(USAGE, {"api_id": source.id}, ctx))
+        if paid:
+            return KeyCheck(True, "JSearch paid plan checked. No job query was sent. Jobcu uses "
+                            f"up to {MAX_SEARCH_CREDITS} requests for each day a search covers; "
+                            "your plan bills them.")
         return KeyCheck(
             bool(remaining),
             f"JSearch Free account checked: {remaining} credits remain. "

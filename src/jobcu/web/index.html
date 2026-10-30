@@ -469,13 +469,15 @@
 
         <h3>JSearch</h3>
         <p class="field-hint">Use a direct <a data-key-page="jsearch_api_key"
-          target="_blank" rel="noopener noreferrer">JSearch Free account</a>. Jobcu accepts
-          only the Free plan and reserves at most 200 credits a month, including account
-          checks, pages and individual job details. Your provider allowance may be lower.</p>
+          target="_blank" rel="noopener noreferrer">JSearch account</a>. On the Free plan Jobcu
+          divides its 200 credits a month equally between your planned searches, including
+          pages and individual job details. On a paid plan, such as pay as you go, Jobcu uses
+          up to 40 requests for each day a search covers, with no monthly cap: your plan bills
+          them.</p>
         <p class="field-hint">Only role/skill search words and the search country go to JSearch.
           Saving a key keeps this source off; enable it under Job sources when you are ready.</p>
         <div class="field">
-          <span class="label">Direct Free API key</span>
+          <span class="label">Direct API key</span>
           <div class="key-row" data-key-row data-key-name="jsearch_api_key"></div>
         </div>
         <div class="actions">
@@ -529,8 +531,9 @@
           <input id="free-web-searches" type="number" min="0" step="100" inputmode="numeric"
                  placeholder="Not set">
           <p class="muted">Google gives 5,000 free web searches a month with Gemini 3 and newer,
-            counted in Pacific time. With a number here, each search gets a fair share of what
-            is left this month, and Jobcu asks before it looks up more.</p>
+            counted in Pacific time. With a number here, each search gets an equal share of what
+            is left this month, and Jobcu asks before it looks up more; when paid limits only
+            tell (below), it goes on and tells you once the free ones are used up.</p>
           <p class="muted" id="free-searches-used"></p>
         </div>
         <div class="field">
