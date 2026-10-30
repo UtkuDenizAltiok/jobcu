@@ -52,6 +52,51 @@ def test_states_and_nations_are_never_read_as_a_town():
     assert places.locate("Berlin", "DE").name == "Berlin"  # a city state is a town too
 
 
+def test_a_region_is_no_town_only_in_its_own_country():
+    # Munster is a province of Ireland and a town in Germany, France and Austria, and Thüringen a
+    # German state and a town in Austria.
+    assert places.locate("Munster", "IE") is None
+    assert places.locate("Cork, Munster", "IE").name == "Cork"
+    assert places.locate("Munster", "DE") is not None
+    assert places.locate("Munster", "FR").name == "Munster"
+    assert places.locate("Munster", "AT").name == "Münster"
+    assert places.locate("Thüringen", "AT").name == "Thüringen"
+    assert places.locate("Thüringen", "DE") is None
+    assert places.locate("Erfurt, Thüringen", "DE").name == "Erfurt"
+    # Ulster lies in two countries.
+    assert places.locate("Ulster", "GB") is None
+    assert places.locate("Ulster", "IE") is None
+    # Abroad a region's name is a town only if a town has that whole name: no Baden or Hölstein
+    # is read out of a German state.
+    for text, country in [("Baden-Württemberg", "AT"), ("Baden-Württemberg", "CH"),
+                          ("Baden-Württemberg", "FR"), ("Schleswig-Holstein", "CH"),
+                          ("Munster", "GB"), ("Northern Ireland", "IE"), ("Sachsen", "GB")]:
+        assert places.locate(text, country) is None, (text, country)
+    # With no country there's no telling the province from the town.
+    assert places.locate("Munster") is None
+    assert places.locate("Sachsen") is None
+
+
+def test_a_location_that_spells_a_name_out_means_that_town():
+    # Names are compared without accents, so these towns share one and the bigger stands for it.
+    lower_saxony = places.find_region("Lower Saxony", "DE").code
+    for text in ("Munster, Örtze", "Munster", "Munster, Germany", "MUNSTER"):  # a real job's place
+        town = places.locate(text, "DE")
+        assert town.name == "Munster" and town.lies_in(lower_saxony), text
+    for text in ("Münster", "Münster, Nordrhein-Westfalen", "MÜNSTER", "Muenster"):
+        assert places.locate(text, "DE").people > 300_000, text
+    assert places.find("Munster", "DE").people > 300_000
+    assert places.locate("Lohne", "DE").name == "Lohne"
+    assert places.locate("Löhne", "DE").name == "Löhne"
+    assert places.locate("Pöcking", "DE").name == "Pöcking"
+    assert places.locate("Pocking", "DE").name == "Pocking"
+    assert places.locate("Roßbach", "DE") == places.locate("Rossbach", "DE")  # one spelling
+    # Elsewhere the bigger town still stands for the name: Bistrița and Perama are also villages.
+    assert places.locate("Bistrița", "RO").people > 50_000
+    assert places.locate("Perama", "GR").people > 20_000
+    assert places.locate("St. Helens", "GB").people > 100_000
+
+
 def test_a_district_after_its_town_is_that_town():
     assert places.locate("Wietmarschen-Lohne", "DE").name == "Wietmarschen"  # not Löhne
     assert places.locate("Hamburg-Wandsbek", "DE").name == "Hamburg"
