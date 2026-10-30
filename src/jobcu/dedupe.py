@@ -149,7 +149,8 @@ def _title_context(job: FoundJob) -> tuple[str, place_list.Town | None]:
             title = " - ".join(parts[:-1])
         elif job.country:
             named = re.sub(r"\s*\([^)]*\)\s*$", "", suffix)
-            town = place_list.locate(named, job.country)
+            # What follows a dash in a title is often no place ("Engineer - Bank").
+            town = place_list.locate(named, job.country, villages=False)
             listed = place_list.locate(job.location_text, job.country)
             if town and (listed is None or place_list.distance_km(town, listed) <= NEARBY_KM):
                 inferred, title = town, " - ".join(parts[:-1])

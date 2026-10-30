@@ -71,7 +71,9 @@ cover that continuation, while usage is cumulative.
 
 `location.py` interprets geography and classifies conditions. `places.py`, `placenames.py` and
 public GeoNames assets resolve places/postcodes. Districts and similarly named towns are not
-interchangeable. Job-specific workplace evidence can contain multiple alternatives.
+interchangeable. Villages (`villages.csv.gz`) count only when a piece of a job's location is their
+whole name, are never reference places, and a name several far-apart places share is left out.
+Job-specific workplace evidence can contain multiple alternatives.
 
 Reference-place facts and journey confidence remain separate. Research requires relevant
 sources, supported quotes, the correct geographic scope and comparable units. Local CSV
@@ -212,7 +214,7 @@ The root keeps launchers, README, CONTRIBUTING, LICENSE and Python/tool configur
 | Private comparison capture | `review_capture.py`; explicitly armed one-run document/candidate/request/response evidence outside Git, without searches, timers or paid replay. |
 | `ai/` | `client.py` is the sole AI entry point; provider adapters, schemas, errors and token/web usage. |
 | `sources/` | Isolated adapters and the registry. `base.py` defines `JobSource`; `http.py` applies polite requests/robots; `budget.py` tracks limits; `matching.py` matches lists; `careers.py` uses the directory; `careerlinks.py` recognizes career hosts. See [SOURCES](SOURCES.md). |
-| `data/` | Public reference assets: `employers.json`, `places.csv.gz`, `regions.csv.gz`, `postcodes.csv.gz`. User data never belongs here. |
+| `data/` | Public reference assets: `employers.json`, `places.csv.gz`, `villages.csv.gz`, `regions.csv.gz`, `postcodes.csv.gz`. User data never belongs here. |
 | `web/` | `index.html`, `app.js`, `style.css`, `favicon.svg`; plain UI, system fonts, no external scripts. |
 | `tests/` | Scripted providers and mocked HTTP; `conftest.py` gives disposable fictional data. `test_imports.py` checks import order; `test_docs.py` checks documentation links and the module/tool map. |
 | `docs/` | ENGINEERING, SOURCES and ROADMAP; `guides/` for users. |
@@ -234,4 +236,4 @@ Private-data boundaries are described in [CONTRIBUTING](../CONTRIBUTING.md#priva
 | `tools/universality_check.py` | Fictional professions through profile, words, relevance and scoring; ESCO vocabulary checks. |
 | `tools/made_up_search.py` | A full fictional search in its own data folder. Live/paid runs still need authorization. |
 | `tools/check_employers.py` | Inspect directory entries and candidate career systems; live source checks need current terms. |
-| `tools/update_places.py` | Rebuild public GeoNames town/region/postcode assets. |
+| `tools/update_places.py` | Rebuild public GeoNames town/village/region/postcode assets. |
