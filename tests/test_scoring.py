@@ -9,7 +9,7 @@ from jobcu.dedupe import group_duplicates
 from jobcu.location import LocationPlan
 from jobcu.profile import LanguageSkill, Profile, WorkRight
 from jobcu.relevance import quick_pass
-from jobcu.scoring import JobScore, LanguageAsked, finish, score_groups
+from jobcu.scoring import JobScore, LanguageAsked, finish, score_groups, sponsorship_deductions
 from jobcu.settings import Settings
 from jobcu.sources.base import FoundJob
 
@@ -567,13 +567,30 @@ def test_a_lasting_right_to_work_clause_is_compared_with_the_stated_work_rights(
         "would need it")
 
 
+def test_only_uk_jobs_lose_points_over_sponsorship():
+    def points(country, profile=RIGHTS, **evidence):
+        return sum(d["points"] for d in sponsorship_deductions(
+            {"job_country": country, **evidence}, profile))
+
+    assert points("GB") == 5  # only eligible for a visa
+    assert points("GB", sponsorship_confirmed=True) == 0  # the ad offers it
+    assert points("GB", SPEAKER) == 5  # nothing stated
+    # The owner's rule (2026-10-30): no penalty for EU countries or Türkiye, rights stated or not.
+    for country in ("DE", "IE", "FR", "TR", None):
+        assert points(country) == 0 and points(country, SPEAKER) == 0
+    british = SPEAKER.model_copy(update={"work_rights": [
+        WorkRight(country="GB", now="yes", later="yes", basis="British citizen")]})
+    assert points("GB", british) == 0
+
+
 def test_a_right_to_work_that_is_held_or_not_asked_for_costs_nothing():
     assert placed("DE", "now")["parts"]["hard_requirements"] == 15
     assert placed("GB", "not_stated")["parts"]["hard_requirements"] == 15
-    # A lasting right that isn't stated as lasting, or a country without any stated facts.
-    assert placed("DE", "now_and_later")["parts"]["hard_requirements"] == 14
+    # A lasting right that isn't stated as lasting, or a country without any stated facts: it's
+    # worth a note, and only the UK costs a point (the owner's rule, 2026-10-30).
+    assert placed("DE", "now_and_later")["parts"]["hard_requirements"] == 15
     unknown = placed("IE", "now")
-    assert unknown["parts"]["hard_requirements"] == 14 and unknown["limits"] == []
+    assert unknown["parts"]["hard_requirements"] == 15 and unknown["limits"] == []
     assert "Asks for the right to work in Ireland; yours there is not stated" in unknown["notes"]
     citizen = SPEAKER.model_copy(update={"free_movement_in_eu_eea": True})
     assert placed("FR", "now_and_later", citizen)["parts"]["hard_requirements"] == 15

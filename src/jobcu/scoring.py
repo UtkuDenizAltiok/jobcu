@@ -408,9 +408,7 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
     limits = sorted([*language.limits, *other_limits(score, profile), *rubric_limits,
                      *required.limits, *work.limits],
                     key=lambda x: x["at"])
-    deductions = ([{"points": UK_SPONSORSHIP_DEDUCTION, "why": UK_SPONSORSHIP_REASON}]
-                  if result["evidence"].get("job_country") == "GB"
-                  and not result["evidence"].get("sponsorship_confirmed") else [])
+    deductions = sponsorship_deductions(result["evidence"], profile)
     before = min([sum(parts.values()), *(limit["at"] for limit in limits)])
     screening = score.citizenship_or_clearance == "required_possible_or_unclear"
     reasons = result.get("reasons", [])
@@ -666,6 +664,18 @@ class WorkRightJudgement:
     unclear: bool = False
 
 
+def sponsorship_deductions(evidence: dict, profile: Profile) -> list[dict]:
+    """Points off a UK job whose ad doesn't confirm sponsorship, unless the person has a stated
+    right to work there. Only the UK costs points: the owner's rule (2026-10-30), no penalty
+    for EU countries or Türkiye."""
+    if evidence.get("job_country") != "GB" or evidence.get("sponsorship_confirmed"):
+        return []
+    right = next((r for r in profile.work_rights if r.country == "GB"), None)
+    if right is not None and right.now == "yes":
+        return []
+    return [{"points": UK_SPONSORSHIP_DEDUCTION, "why": UK_SPONSORSHIP_REASON}]
+
+
 def work_right(evidence: dict, profile: Profile) -> WorkRightJudgement:
     """The ad's right-to-work clause against the person's stated work rights in its country."""
     asked, country = evidence.get("right_to_work_required", "not_stated"), evidence.get(
@@ -691,7 +701,7 @@ def work_right(evidence: dict, profile: Profile) -> WorkRightJudgement:
             f"Asks for the right to work in {name}; yours there is not stated"
             if right is None else
             f"Asks for the right to work in {name}; whether yours meets it is unclear"],
-            unclear=True)
+            unclear=country == "GB")  # worth knowing everywhere, costs a point only in the UK
     return WorkRightJudgement()
 
 
