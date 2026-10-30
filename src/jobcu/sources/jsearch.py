@@ -55,6 +55,11 @@ KEY_API_KEY = "jsearch_api_key"
 KEY_PAGE = "https://www.openwebninja.com/api/jsearch"
 MONTHLY_CREDITS = 200
 MAX_SEARCH_CREDITS = 40
+# On a paid plan, requests for each day a search covers. Measured 2026-10-30 on the owner's
+# pay-as-you-go plan (24-hour window, their search words): 37 paid requests brought 74 jobs
+# that would count, all new to Jobcu, about 2 a request to the last one, with queries left
+# unasked; the empty queries move to the back (by_yield). At $0.005 a request: ~$7 a month.
+PAID_REQUESTS_PER_DAY = 60
 MAX_PAGES_PER_QUERY = 3
 MAX_INTERRUPTIONS = 2  # broken connections in a row before JSearch stops
 # What each query brought, so the few free credits a search has go where the ads are.
@@ -485,7 +490,7 @@ class JSearchSource(JobSource):
                 # (search 8: 16 requests found 9 good jobs no other source had).
                 self._remaining = None
                 self._budget.limits = Limits(
-                    per_search=round(MAX_SEARCH_CREDITS * search_days(self._hours)))
+                    per_search=round(PAID_REQUESTS_PER_DAY * search_days(self._hours)))
             else:
                 limits = share_of_month(
                     self.id, Limits(per_month=MONTHLY_CREDITS), hours=self._hours, fewest=2,
@@ -673,7 +678,7 @@ def check_keys(keys: KeyStore) -> KeyCheck:
         remaining, _, paid = _allowance(source._request(USAGE, {"api_id": source.id}, ctx))
         if paid:
             return KeyCheck(True, "JSearch paid plan checked. No job query was sent. Jobcu uses "
-                            f"up to {MAX_SEARCH_CREDITS} requests for each day a search covers; "
+                            f"up to {PAID_REQUESTS_PER_DAY} requests for each day a search covers; "
                             "your plan bills them.")
         return KeyCheck(
             bool(remaining),

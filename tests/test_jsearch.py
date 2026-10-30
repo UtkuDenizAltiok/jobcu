@@ -299,7 +299,7 @@ def test_monthly_exhaustion_sends_only_the_free_account_check(setup):
 
 
 def test_a_paid_plan_goes_on_past_the_free_credits_with_a_share_per_search_day(setup):
-    # The owner's pay-as-you-go plan (2026-10-30): no monthly cap, 40 requests a search day.
+    # The owner's pay-as-you-go plan (2026-10-30): no monthly cap, 60 requests a search day.
     account = receipt()
     account["data"]["plan"]["is_free"] = False
     account["data"].pop("quotas")
@@ -309,7 +309,7 @@ def test_a_paid_plan_goes_on_past_the_free_credits_with_a_share_per_search_day(s
             "INSERT INTO source_requests VALUES (?, 'jsearch', 900)", (NOW.strftime("%Y-%m-%d"),)
         )
     jobs = list(source.search(query(["DE", "IE", "GB"], hours=72), ctx))
-    assert source._remaining is None and source._budget.limits.per_search == 120  # 3 days x 40
+    assert source._remaining is None and source._budget.limits.per_search == 180  # 3 days x 60
     # Every query until its repeated continuation ends it, despite 900 used this month.
     assert jobs and len(requests) == 1 + 6
 
