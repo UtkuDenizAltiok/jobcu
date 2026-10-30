@@ -53,20 +53,27 @@ _DISTRICT = re.compile(
     re.IGNORECASE,
 )
 
-# States, nations and provinces a location may name on its own ("Sachsen", "Wales"). Some share a
-# name with a town ("Sachsen bei Ansbach", Brandenburg an der Havel, a village called Wales), so
-# they never count as that town: a job in "Sachsen" could be anywhere in Saxony. City states
-# (Berlin, Hamburg, Bremen) and Salzburg are towns as well and aren't listed.
-_REGIONS = frozenset(normalise(name) for name in (
-    "Baden-Württemberg", "Bayern", "Bavaria", "Brandenburg", "Hessen", "Hesse",
-    "Mecklenburg-Vorpommern", "Niedersachsen", "Lower Saxony", "Nordrhein-Westfalen",
-    "North Rhine-Westphalia", "NRW", "Rheinland-Pfalz", "Rhineland-Palatinate", "Saarland",
-    "Sachsen", "Saxony", "Sachsen-Anhalt", "Saxony-Anhalt", "Schleswig-Holstein", "Thüringen",
-    "Thuringia", "England", "Scotland", "Wales", "Cymru", "Northern Ireland", "Great Britain",
-    "United Kingdom", "Leinster", "Munster", "Connacht", "Ulster", "Tirol", "Tyrol",
-    "Vorarlberg", "Kärnten", "Carinthia", "Steiermark", "Styria", "Niederösterreich",
-    "Oberösterreich", "Burgenland", "Česká republika", "Česko", "Czechia", "Czech Republic",
-))
+# States, nations and provinces a location may name on its own ("Sachsen", "Wales"), by the country
+# they lie in (Ulster spans two). Some share a name with a town there ("Sachsen bei Ansbach",
+# Brandenburg an der Havel, a village called Wales), so they never count as that town: a job in
+# "Sachsen" could be anywhere in Saxony. City states (Berlin, Hamburg, Bremen) and Salzburg are
+# towns as well and aren't listed.
+_REGION_NAMES = {
+    "DE": ("Baden-Württemberg", "Bayern", "Bavaria", "Brandenburg", "Hessen", "Hesse",
+           "Mecklenburg-Vorpommern", "Niedersachsen", "Lower Saxony", "Nordrhein-Westfalen",
+           "North Rhine-Westphalia", "NRW", "Rheinland-Pfalz", "Rhineland-Palatinate", "Saarland",
+           "Sachsen", "Saxony", "Sachsen-Anhalt", "Saxony-Anhalt", "Schleswig-Holstein",
+           "Thüringen", "Thuringia"),
+    "GB": ("England", "Scotland", "Wales", "Cymru", "Northern Ireland", "Great Britain",
+           "United Kingdom", "Ulster"),
+    "IE": ("Leinster", "Munster", "Connacht", "Ulster"),
+    "AT": ("Tirol", "Tyrol", "Vorarlberg", "Kärnten", "Carinthia", "Steiermark", "Styria",
+           "Niederösterreich", "Oberösterreich", "Burgenland"),
+    "CZ": ("Česká republika", "Česko", "Czechia", "Czech Republic"),
+}
+_REGIONS = {normalise(name): frozenset(code for code, names in _REGION_NAMES.items()
+                                       if name in names)
+            for names in _REGION_NAMES.values() for name in names}
 
 
 # England's nine regions (the Office for National Statistics' ITL1 regions, with their codes),
@@ -244,19 +251,30 @@ def without_more_places(text: str | None) -> str:
     return _MORE_PLACES.sub("", text or "").strip()
 
 
+def _is_region(part: str, country: str | None) -> bool:
+    """Whether a piece of a location names only a state, nation or province, so no town. In the
+    region's own country it always does. Elsewhere a town of that name is that town ("Munster" is
+    a province of Ireland and a town in Germany), but no other town is read out of it
+    ("Baden-Württemberg" isn't Baden in Switzerland). With no country it counts as the region."""
+    countries = _REGIONS.get(normalise(part))
+    return countries is not None and (
+        country is None or country in countries or find(part, country) is None)
+
+
 def locate(text: str | None, country: str | None = None, *, villages: bool = True) -> Town | None:
     """The town a free-text location names ("Ireland, Limerick" → Limerick).
 
-    Longer names win ("Frankfurt am Main" over "Frankfurt"), then the bigger town. A district
-    or county counts only when no town is named besides it ("Unterhaching, München (Kreis)" is
-    Unterhaching), and a state or nation never counts ("Sachsen" is no town). When no town is
-    named, a village of the given country counts if a piece of the location is its whole name
-    ("Parsdorf, Bavaria, Germany"; `villages=False` for text that isn't surely a place). A location
-    with neither but a UK postcode or an Eircode is the town that postcode lies in.
+    Longer names win ("Frankfurt am Main" over "Frankfurt"), then the bigger town, unless the
+    location spells a smaller one's name out ("Munster" over "Münster"). A district or county
+    counts only when no town is named besides it ("Unterhaching, München (Kreis)" is
+    Unterhaching), and a state or nation of the country never counts ("Sachsen" is no town). When
+    no town is named, a village of the given country counts if a piece of the location is its
+    whole name ("Parsdorf, Bavaria, Germany"; `villages=False` for text that isn't surely a place).
+    A location with neither but a UK postcode or an Eircode is the town that postcode lies in.
     """
     text = without_more_places(text)
     parts = [_town_of_district(part) for part in re.split(r"[,;|]", text)
-             if normalise(part) not in _REGIONS]
+             if not _is_region(part, country)]
     if not any(part.strip() for part in parts):
         return None
 
@@ -375,7 +393,7 @@ def _town_of_district(text: str) -> str:
     return _HYPHENATED.sub(first_part, text)
 
 
-def _locate(text: str | None, country: str | None) -> Town | None:
+def _locate(text: str, country: str | None) -> Town | None:
     words = normalise(text).split()
     best: Town | None = None
     best_words = 0
@@ -387,7 +405,25 @@ def _locate(text: str | None, country: str | None) -> Town | None:
             if town is not None and (length > best_words or
                                      (best is not None and town.people > best.people)):
                 best, best_words = town, length
-    return best
+    return best if best is None else _as_written(best, text)
+
+
+def _spelling(text: str) -> str:
+    """The words of a text with their accents, ready to look for a name among them."""
+    return " " + " ".join(re.findall(r"\w+", text.casefold())) + " "
+
+
+def _as_written(town: Town, text: str) -> Town:
+    """Names are compared without accents, so "Munster" (on the Örtze) and "Münster" (in
+    Westphalia) are one name, and the bigger town stands for both. In Germany an umlaut makes
+    another name and ads keep it, so a location that spells one of them out means that one;
+    "Muenster", spelled like neither, stays the bigger. Elsewhere accents say less: GeoNames has
+    both Bistriţa and Bistrița in Romania, the second a village, and they are one spelling."""
+    if town.country != "DE":
+        return town
+    written = _spelling(text)
+    return next((other for other in named(town.name) if other.country == town.country
+                 and _spelling(other.name) in written), town)
 
 
 @cache
