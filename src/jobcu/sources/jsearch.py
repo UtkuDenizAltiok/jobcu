@@ -220,7 +220,7 @@ def _allowance(body: dict) -> tuple[int | None, datetime | None, bool]:
         raise SourceError("JSearch's account check did not say which plan this key has.")
     status = _text(data.get("status"))
     if plan["is_free"] is False:
-        if status not in {"active", "exceeded"}:
+        if status not in {"active", "trialing", "exceeded"}:
             raise SourceError("JSearch's paid plan is not active. Check its account page.")
         return None, None, True
     if status not in {"active", "exceeded"}:

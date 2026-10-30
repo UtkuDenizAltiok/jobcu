@@ -28,6 +28,29 @@ def fingerprints(group: JobGroup) -> list[tuple[str, str]]:
     return list(dict.fromkeys(entries))
 
 
+# Locations that name no town. A job saved under one of them ("Deutschland") and the same
+# employer's same specific title at a town are one vacancy when nothing else could be: Terepco's
+# power-electronics ad was saved as "Großerkmannsdorf", then "Deutschland", and JSearch's late
+# copy (dated 2026-10-28) came back as a third, "new" job two weeks after Jobcu first showed it.
+PLACEHOLDER_TOWNS = frozenset({
+    "", "deutschland", "germany", "uk", "united kingdom", "great britain", "england",
+    "scotland", "wales", "northern ireland", "ireland", "remote", "home based", "hybrid",
+    "europe", "europa", "bundesweit", "nationwide", "multiple locations", "various locations"})
+# Fewer words than this ("Hardwareentwickler (m/w/d)") are titles one employer or agency uses
+# for many different vacancies, so a town-less copy cannot pick one of them.
+SPECIFIC_TITLE_WORDS = 3
+
+
+def _relaxed_prefixes(group: JobGroup) -> list[tuple[str, str]]:
+    """Each copy's specific employer-and-title key prefix and its own town."""
+    found = []
+    for copy in group.copies:
+        company, title = normal_company(copy.company), normal_title(copy.title)
+        if company and len(title.split()) >= SPECIFIC_TITLE_WORDS:
+            found.append((f"job:{company}|{title}|", normal_city(copy.location_text)))
+    return list(dict.fromkeys(found))
+
+
 def identity_keys(group: JobGroup) -> list[str]:
     copies = [copy_key(c.source, c.source_job_id) for c in group.copies if c.source_job_id]
     return list(dict.fromkeys([*copies, *(key for key, _ in fingerprints(group))]))
@@ -98,6 +121,12 @@ class IdentityIndex:
         for row in rows(conn, "SELECT key, job_id, country FROM job_fingerprints "
                              "WHERE key IN ({})", names):
             index._add_name(row["key"], row["job_id"], row["country"])
+        for prefix in {prefix for group in uncertain for prefix, _ in _relaxed_prefixes(group)}:
+            for row in conn.execute(  # a key range, so the primary-key index serves it
+                    "SELECT key, job_id, country FROM job_fingerprints WHERE key >= ? AND key < ?",
+                    (prefix, prefix + "\U0010ffff")):
+                index._add_name(row["key"], row["job_id"], row["country"])
+                names.append(row["key"])
         candidates = {index.copies[key] for group in uncertain for copy in group.copies
                       if copy.source_job_id and (key := copy_key(copy.source, copy.source_job_id))
                       in index.copies}
@@ -174,6 +203,21 @@ class IdentityIndex:
                       if key not in self.ambiguous_names[id(group)] for job_id in self.names[key]
                       if self._compatible(group, job_id, names_only=True)}
         # A title/employer/town match is insufficient when several vacancies share it.
+        if candidates:
+            return next(iter(candidates)) if len(candidates) == 1 else None
+        return self._placeholder_town_match(group)
+
+    def _placeholder_town_match(self, group: JobGroup) -> int | None:
+        """The one known job with this employer and specific title where one side names no
+        town (PLACEHOLDER_TOWNS); two different towns stay two vacancies."""
+        candidates = set()
+        for prefix, town in _relaxed_prefixes(group):
+            for key, job_ids in self.names.items():
+                if not key.startswith(prefix) or key in self.ambiguous_names[id(group)]:
+                    continue
+                if town in PLACEHOLDER_TOWNS or key[len(prefix):] in PLACEHOLDER_TOWNS:
+                    candidates.update(job_id for job_id in job_ids
+                                      if self._compatible(group, job_id, names_only=True))
         return next(iter(candidates)) if len(candidates) == 1 else None
 
     def register(self, group: JobGroup, job_id: int) -> None:
