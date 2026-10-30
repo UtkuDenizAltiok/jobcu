@@ -210,6 +210,32 @@ def test_a_search_remembers_what_each_query_s_first_page_brought(setup):
     assert remembered["Circuit Designer in Germany"].empty_in_a_row == 1
 
 
+def test_a_record_without_a_country_gets_the_one_asked_for_and_google_s_wording_goes(setup):
+    # Search 12: 50 of 198 records came like this, and none of them got scored.
+    def place(identity, location):
+        return item(identity, job_country=None, job_city=None, job_location=location)
+
+    source, ctx, _ = setup(lambda _: page([
+        place("a", "Ulm     •  über Jobs Berlin"),
+        place("b", "Berlin  (+\xa01 weiterer Standort)      •  über Talent.com"),
+        place("c", "Deutschland     •  über LinkedIn"),
+        place("d", "Kleinhausen     •  über XING"),
+        place("e", "Wien     •  über XING"),
+        place("f", "Österreich     •  über XING"),
+        item("g", job_country="GB", job_city=None, job_location="Leeds"),
+    ]))
+    jobs = list(source.search(query(["DE"], [term("Hardwareentwickler", "de")]), ctx))
+    assert {j.source_job_id: (j.location_text, j.country) for j in jobs} == {
+        "a": ("Ulm", "DE"),
+        "b": ("Berlin (+ 1 weiterer Standort)", "DE"),
+        "c": ("Deutschland", "DE"),
+        "d": ("Kleinhausen", "DE"),
+        "e": ("Wien", "AT"),
+        "f": ("Österreich", "AT"),
+        "g": ("Leeds", "GB"),
+    }
+
+
 def test_disabled_or_unconfigured_sources_never_make_account_calls(setup):
     source, ctx, requests = setup()
     save_settings(Settings())
@@ -468,7 +494,7 @@ def test_source_failure_preserves_completed_pages_and_does_not_stop_other_feeds(
     assert len(requests) == 3
 
 
-def test_older_copy_and_lookup_country_are_evidence_not_new_publication_or_workplace(setup):
+def test_older_copy_is_evidence_not_new_publication(setup):
     source, ctx, _ = setup(
         lambda _: page(
             [
@@ -480,7 +506,7 @@ def test_older_copy_and_lookup_country_are_evidence_not_new_publication_or_workp
         )
     )
     (job,) = list(source.search(query(), ctx))
-    assert job.older_copy and job.country is None
+    assert job.older_copy and job.country == "DE"  # the country asked for
     assert job.source_context == {"country": "de", "language": "en"}
     assert pipeline.make_groups(pipeline.Collected([job], [], {"jsearch": source})) == []
 

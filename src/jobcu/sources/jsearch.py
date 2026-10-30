@@ -23,9 +23,11 @@ import httpx
 from pydantic import BaseModel
 
 from jobcu import db, preparation
+from jobcu import places as place_list
 from jobcu.countries import COUNTRIES
 from jobcu.freshness import earliest_possible, freshness, parse_iso, window_start
 from jobcu.keystore import KeyStore
+from jobcu.placenames import countries_in
 from jobcu.settings import load_settings
 from jobcu.sources.base import (
     FoundJob,
@@ -145,6 +147,26 @@ def _direct(url: str, website: str) -> bool:
     )
 
 
+def _place(text: str) -> str:
+    """The place in Google's wording: "Ulm     •  über XING" names the site it saw the ad on,
+    and that name can look like a town ("über Jobs Berlin"). "(+1 other)" stays: it's true."""
+    return " ".join(text.split("•")[0].split())
+
+
+def _country_of(job: FoundJob, asked: str) -> str | None:
+    """A record's country when JSearch left it empty (search 12: 50 of 198 records, all with a
+    place like "Berlin" or "Bristol", so they stayed unscored): the country the query asked for,
+    unless the place itself says otherwise."""
+    named = countries_in(job.location_text)
+    if named:
+        return asked if asked in named else next((c for c in sorted(named) if c in COUNTRIES), None)
+    if place_list.locate(job.location_text, asked) is None:
+        town = place_list.locate(job.location_text)
+        if town is not None:
+            return town.country
+    return asked
+
+
 def to_found_job(item: dict) -> FoundJob | None:
     identity, title = _text(item.get("job_id")), _text(item.get("job_title"))
     website = _url(item.get("employer_website"))
@@ -185,7 +207,7 @@ def to_found_job(item: dict) -> FoundJob | None:
         )
     )
     city, state = _text(item.get("job_city")), _text(item.get("job_state"))
-    location = _text(item.get("job_location")) or ", ".join(x for x in (city, state) if x)
+    location = _place(_text(item.get("job_location"))) or ", ".join(x for x in (city, state) if x)
     country = _text(item.get("job_country")).upper()
     country = "GB" if country == "UK" else country
     types = item.get("job_employment_types")
@@ -531,8 +553,8 @@ class JSearchSource(JobSource):
                 if self._budget.used_this_search >= maximum:
                     ctx.report.status = "partial"
                     ctx.report.message = (
-                        "JSearch stopped at its discovery allowance; some queries/pages remain. "
-                        "Other sources continue and full ads share the same credit ceiling."
+                        "JSearch's allowance for this search is used up; some of its queries "
+                        "weren't asked. Other sources go on."
                     )
                     break
                 current = queue.popleft()
@@ -570,6 +592,7 @@ class JSearchSource(JobSource):
                         "country": current.country.lower(),
                         "language": current.language,
                     }
+                    job.country = job.country or _country_of(job, current.country)
                     fingerprint = (
                         job.source_job_id,
                         job.url,

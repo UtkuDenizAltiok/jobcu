@@ -129,7 +129,8 @@ def normal_title(title: str | None, *, legacy_dashes: bool = False) -> str:
 
 
 def normal_city(location: str | None, *, legacy_dashes: bool = False) -> str:
-    first = fold((location or "").split(",")[0], legacy_dashes=legacy_dashes)
+    first = fold(place_list.without_more_places(location).split(",")[0],
+                 legacy_dashes=legacy_dashes)
     return _CITY_ALIASES.get(first, first)
 
 
