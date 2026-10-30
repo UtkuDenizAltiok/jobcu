@@ -70,14 +70,20 @@ MODES = {"transit": "TRANSIT", "drive": "DRIVE", "walk": "WALK", "bicycle": "BIC
 MODE_WORDS = {"transit": "by public transport", "drive": "by car", "walk": "on foot",
               "bicycle": "by bike"}
 # The fastest straight-line speed each way of travelling can reach, door to door, so places
-# farther away can't be in reach (an ICE covers about 180 km in 50 minutes).
-FASTEST_KMH = {"transit": 220, "drive": 120, "bicycle": 25, "walk": 7}
+# farther away can't be in reach. One of the fastest trains takes about an hour for the 150 km
+# from Cologne to Frankfurt; of 1,970 journeys Google measured (search 12) the farthest within
+# 50 minutes was 58 km away.
+FASTEST_KMH = {"transit": 170, "drive": 120, "bicycle": 25, "walk": 7}
 # A job whose ad names a reference town is in it, wherever in the town its address is ("Moosach,
 # München" is Munich), unless the address is this far away: then it's another town of that name.
 HOME_TOWN_KM = 30.0
 # Destinations per round. Continue with further candidates only when no tested city fits;
 # this is a request batch size, never a limit on which living cities can qualify.
 NEAREST = 2
+# The nearest cities, asked first, take over this many times the limit: farther ones aren't asked.
+# Of those 1,970 journeys only 56 fitted, and none after the nearest two were this far over; asking
+# on made up a quarter of a search's routes, which are paid past Google's free allowance.
+TOO_FAR_TIMES = 2
 ESTIMATE_BATCH = 30
 MEMORY_DAYS = 90
 # One search's share of the monthly route allowance stays within these bounds (route elements).
@@ -320,8 +326,20 @@ def _unchecked_reference_in_reach(condition: Condition, group: JobGroup) -> bool
                for town in unchecked_reference_towns(condition.anchor, point.country))
 
 
+def _nearest_too_far(condition: Condition, point: Point, minutes: dict) -> bool:
+    """True when the nearest cities were measured and take over TOO_FAR_TIMES the limit."""
+    centre = condition.anchor is not None and condition.anchor.to_centre
+    nearest = sorted(anchor_towns(condition.anchor, point.country),
+                     key=lambda town: edge_distance(point, town, centre))[:NEAREST]
+    too_far = TOO_FAR_TIMES * (condition.max_minutes or 0)
+    return len(nearest) == NEAREST and all(
+        town.name in minutes and (minutes[town.name] is None or minutes[town.name] > too_far)
+        for town in nearest)
+
+
 def _unmeasured_in_reach(condition: Condition, group: JobGroup, entry: dict) -> bool:
-    """Testing the nearest few cities cannot establish that every other city fails."""
+    """Testing the nearest few cities cannot establish that every other city fails, unless even
+    those are far over the limit."""
     point = job_point(group)
     if point is None:
         return True
@@ -329,6 +347,8 @@ def _unmeasured_in_reach(condition: Condition, group: JobGroup, entry: dict) -> 
         condition.travel_mode or "transit"]
     centre = condition.anchor is not None and condition.anchor.to_centre
     minutes = _eligible_minutes(condition, group, entry)
+    if _nearest_too_far(condition, point, minutes):
+        return False
     return any(town.name not in minutes and edge_distance(point, town, centre) <= limit
                for town in anchor_towns(condition.anchor, point.country))
 
@@ -887,6 +907,8 @@ class TravelMeter:
                 if point.key in stopped or any(
                         value is not None and value <= condition.max_minutes
                         for value in reading.minutes.values()):
+                    continue
+                if not reading.unchecked and _nearest_too_far(condition, point, reading.minutes):
                     continue
                 remaining = [t for t in towns if t.name not in reading.minutes
                              or t.name in reading.unchecked]
