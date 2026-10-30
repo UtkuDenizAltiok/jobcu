@@ -5,11 +5,13 @@ work themselves. Company career sites and some job boards only say "Garching" or
 Limerick", so Jobcu looks the town up in the list it ships (`data/places.csv.gz`, from GeoNames)
 and measures the distance itself.
 
-The list holds every town with at least 1,000 inhabitants in the supported countries, so small
-villages and company sites are missed; those jobs are kept only when their text names the place
-(see `sources/matching.py`). Some job sites give only a postcode ("CB22 4QR", "T12 X70A"), so the
-UK's postcode districts and Ireland's Eircode areas are shipped too (`data/postcodes.csv.gz`),
-each with a point, and a postcode stands for the town it lies in.
+The list holds the towns with at least 1,000 inhabitants in the supported countries. Germany, the
+UK and Ireland also have a list of smaller and unmeasured places (`data/villages.csv.gz`: Parsdorf,
+Whiteley), which `locate` reads only when a location names one outright: it never finds a village
+inside other words, and a village is never a reference place for a journey. Some job sites give
+only a postcode ("CB22 4QR", "T12 X70A"), so the UK's postcode districts and Ireland's Eircode
+areas are shipped too (`data/postcodes.csv.gz`), each with a point, and a postcode stands for the
+town it lies in.
 """
 
 import csv
@@ -24,6 +26,7 @@ from pathlib import Path
 from jobcu.text import normalise
 
 DATA = Path(__file__).resolve().parent / "data" / "places.csv.gz"
+VILLAGES = Path(__file__).resolve().parent / "data" / "villages.csv.gz"
 REGIONS = Path(__file__).resolve().parent / "data" / "regions.csv.gz"
 POSTCODES = Path(__file__).resolve().parent / "data" / "postcodes.csv.gz"
 MAX_NAME_WORDS = 4  # "Frankfurt am Main", "'s-Hertogenbosch"
@@ -110,7 +113,7 @@ class Town:
     country: str
     latitude: float
     longitude: float
-    people: int
+    people: int  # 0 when GeoNames has no figure, as for most British villages
     # The state, province or nation, the county or district, and (in England) the council
     # district inside a county, as codes in `regions.csv.gz` ("DE.13" is Saxony, "DE.K.14625"
     # Landkreis Bautzen, "GB.ENG.G5.2636057" Thanet in Kent).
@@ -133,6 +136,16 @@ class Region:
     name: str
 
 
+def lookup_names(spellings) -> set[str]:
+    """What a town is filed under: each spelling, whole and without its qualifier, with "Sankt"
+    and "St." the same word (GeoNames has Sankt Wendel, ads say St. Wendel)."""
+    written = {normalise(name) for name in spellings}
+    short = {normalise(_QUALIFIERS.sub("", name)) for name in spellings}
+    names = (written | short) - {""}
+    return names | {re.sub(r"\bsankt\b", "st", name) for name in names} | {
+        re.sub(r"\bst\b", "sankt", name) for name in names}
+
+
 @cache
 def _towns(path: Path = DATA) -> dict[str, tuple[Town, ...]]:
     """Every town by its normalised name, biggest first ("Berlin" is the German capital)."""
@@ -143,9 +156,7 @@ def _towns(path: Path = DATA) -> dict[str, tuple[Town, ...]]:
             spellings = names.split("|")
             town = Town(spellings[0], country, float(latitude), float(longitude), int(people),
                         *codes)
-            written = {normalise(name) for name in spellings}
-            short = {normalise(_QUALIFIERS.sub("", name)) for name in spellings}
-            for spelling in (written | short) - {""}:
+            for spelling in lookup_names(spellings):
                 index.setdefault(spelling, []).append(town)
     return {name: tuple(sorted(towns, key=lambda t: -t.people))
             for name, towns in index.items()}
@@ -232,26 +243,31 @@ def without_more_places(text: str | None) -> str:
     return _MORE_PLACES.sub("", text or "").strip()
 
 
-def locate(text: str | None, country: str | None = None) -> Town | None:
+def locate(text: str | None, country: str | None = None, *, villages: bool = True) -> Town | None:
     """The town a free-text location names ("Ireland, Limerick" → Limerick).
 
     Longer names win ("Frankfurt am Main" over "Frankfurt"), then the bigger town. A district
     or county counts only when no town is named besides it ("Unterhaching, München (Kreis)" is
-    Unterhaching), and a state or nation never counts ("Sachsen" is no town). A location with
-    no town name but a UK postcode or an Eircode is the town that postcode lies in.
+    Unterhaching), and a state or nation never counts ("Sachsen" is no town). When no town is
+    named, a village of the given country counts if a piece of the location is its whole name
+    ("Parsdorf, Bavaria, Germany"; `villages=False` for text that isn't surely a place). A location
+    with neither but a UK postcode or an Eircode is the town that postcode lies in.
     """
     text = without_more_places(text)
     parts = [_town_of_district(part) for part in re.split(r"[,;|]", text)
              if normalise(part) not in _REGIONS]
     if not any(part.strip() for part in parts):
         return None
-    joined = ", ".join(parts)
+
+    def named_in(words: str) -> Town | None:
+        return _locate(words, country) or (_village(words, country) if villages else None)
+
     precise = [part for part in parts if not _DISTRICT.search(part)]
     if precise and len(precise) < len(parts):
-        town = _locate(", ".join(precise), country)
+        town = named_in(", ".join(precise))
         if town is not None:
             return town
-    return _locate(joined, country) or postcode_town(text, country)
+    return named_in(", ".join(parts)) or postcode_town(text, country)
 
 
 # A full UK postcode ("CB22 4QR", "S336RR") or one standing alone ("CB22"), and a full Eircode
@@ -354,6 +370,36 @@ def _locate(text: str | None, country: str | None) -> Town | None:
                                      (best is not None and town.people > best.people)):
                 best, best_words = town, length
     return best
+
+
+@cache
+def _villages(path: Path = VILLAGES) -> dict[tuple[str, str], Town]:
+    """Every village by its country and normalised name. No two far apart share a name."""
+    with gzip.open(path, "rt", encoding="utf-8") as file:
+        return {(country, normalise(name)): Town(name, country, float(latitude), float(longitude),
+                                                 int(people), *codes)
+                for name, country, latitude, longitude, people, *codes
+                in csv.reader(line for line in file if not line.startswith("#"))}
+
+
+# What separates the pieces of a location ("Parsdorf - DE", "Whiteley  United Kingdom", "Ulm •
+# über XING").
+_PIECES = re.compile(r"[,;|/()•]|\s{2,}|\s[-–—]\s")
+_NUMBERS = re.compile(r"\b\d+\b")  # "85599 Parsdorf"
+
+
+def _village(text: str, country: str | None) -> Town | None:
+    """The village a piece of the location is the whole name of, or names first with hyphens
+    ("Kesselsdorf-Saxony-Germany"), in a known country: a name alone is too little to tell a
+    village's country."""
+    if not country:
+        return None
+    for piece in _PIECES.split(text):
+        for words in (piece, piece.split("-")[0]):
+            town = _villages().get((country, " ".join(_NUMBERS.sub(" ", normalise(words)).split())))
+            if town is not None:
+                return town
+    return None
 
 
 def distance_km(a: Town, b: Town) -> float:

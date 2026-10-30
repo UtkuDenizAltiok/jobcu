@@ -4,6 +4,7 @@ from jobcu import places
 from jobcu.countries import COUNTRIES
 from jobcu.location import Place
 from jobcu.sources.matching import matches_places
+from jobcu.text import normalise
 
 
 def test_towns_are_found_by_their_english_and_local_names():
@@ -59,6 +60,110 @@ def test_a_district_after_its_town_is_that_town():
         assert places.locate(town, "DE").name == town
 
 
+def test_merged_municipalities_are_towns():
+    # GeoNames keeps them only as administrative records, so `cities1000` left them out: search
+    # 12's jobs in them stayed pending with "Jobcu doesn't know where X is".
+    for name, people, latitude, longitude in [("Stutensee", 25_000, 49.09, 8.48),
+                                              ("Waldbronn", 13_000, 48.93, 8.48),
+                                              ("Pfinztal", 18_000, 48.99, 8.54),
+                                              ("Ohrdruf", 9_000, 50.82, 10.73)]:
+        town = places.locate(f"{name}, Germany", "DE")
+        assert town.name == name and town.people >= people, name
+        assert abs(town.latitude - latitude) < 0.1 and abs(town.longitude - longitude) < 0.1
+        assert places.find(name, "DE") == town
+        assert town in places.towns_in("DE")
+    assert places.locate("Germany-Waldbronn", "DE").name == "Waldbronn"
+    assert places.locate("Stutensee, Karlsruhe (Kreis)", "DE").name == "Stutensee"
+    # It's found inside other words, and has its region like any town.
+    assert places.locate("Werk Stutensee", "DE").name == "Stutensee"
+    assert places.find("Stutensee", "DE").lies_in("DE.01")
+
+
+def test_a_town_keeps_its_row_when_people_shorten_its_name():
+    assert places.locate("Schwandorf, Germany", "DE").name == "Schwandorf in Bayern"
+    assert places.locate("Weinstadt", "DE").name == "Weinstadt-Endersbach"
+    assert sum(town.name.startswith("Schwandorf") for town in places.towns_in("DE")) == 1
+
+
+def test_st_and_sankt_are_the_same_word():
+    for name in ("St. Wendel", "Sankt Wendel"):
+        assert places.locate(f"{name}, Germany", "DE").name == "Sankt Wendel"
+    assert places.locate("St. Augustin", "DE") == places.locate("Sankt Augustin", "DE")
+    assert places.locate("St Albans", "GB").name == "St Albans"
+
+
+def test_towns_that_were_listed_stand_for_what_they_did():
+    assert places.find("Munich", "DE").people > 1_000_000
+    assert places.locate("Frankfurt", "DE").name == "Frankfurt am Main"
+    assert places.locate("Frankfurt am Main, Germany", "DE").name == "Frankfurt am Main"
+    weingarten = [town for town in places.named("Weingarten") if town.country == "DE"]
+    assert [town.district for town in weingarten] == ["DE.K.08436", "DE.K.08215", "DE.K.07334"]
+    assert places.locate("Weingarten", "DE") == weingarten[0]
+    assert places.locate("Unterhaching, München (Kreis)", "DE").name == "Unterhaching"
+    assert places.locate("Neuried", "DE").district == "DE.K.09184"  # not the bigger one in Baden
+    assert places.locate("Büchen", "DE").district == "DE.K.01053"  # not Buchen in the Odenwald
+
+
+def test_a_much_bigger_municipality_takes_a_name_over():
+    assert places.locate("Schenefeld", "DE").district == "DE.K.01056"  # by Hamburg, 20,000 people
+
+
+def test_villages_count_when_a_location_names_one_outright():
+    for text, country, name in [("Parsdorf", "DE", "Parsdorf"),
+                                ("Parsdorf, Bavaria, Germany", "DE", "Parsdorf"),
+                                ("85599 Parsdorf", "DE", "Parsdorf"),
+                                ("Parsdorf, Ebersberg (Kreis)", "DE", "Parsdorf"),
+                                ("Parsdorf  Germany", "DE", "Parsdorf"),
+                                ("Heimstetten,DEU", "DE", "Heimstetten"),
+                                ("Kesselsdorf-Saxony-Germany", "DE", "Kesselsdorf"),
+                                ("Whiteley", "GB", "Whiteley"),
+                                ("Whiteley, Hampshire, UK", "GB", "Whiteley"),
+                                ("Woodchester, UK", "GB", "Woodchester"),
+                                ("Effingham", "GB", "Effingham"),
+                                ("Burnfoot, Ireland", "IE", "Burnfoot")]:
+        assert places.locate(text, country).name == name, text
+    # A town named besides it is what the journey is measured to, as before.
+    assert places.locate("Parsdorf bei München", "DE").name == "Munich"
+    assert places.locate("Whiteley, Fareham", "GB").name == "Fareham"
+    whiteley = places.locate("Whiteley", "GB")
+    assert 50.8 < whiteley.latitude < 51
+    assert whiteley.lies_in(places.find_region("Hampshire", "GB").code)
+
+
+def test_a_village_is_never_found_where_it_is_not_named():
+    assert places.locate("Field Service Parsdorf", "DE") is None  # not a whole piece
+    assert places.locate("Whiteley", "DE") is None
+    assert places.locate("Parsdorf") is None  # no country: a name alone doesn't tell it
+    assert places.locate("Parsdorf", "DE", villages=False) is None
+    # Nothing but a location goes through here: villages are no reference towns, and don't take
+    # a county's or a place abroad's place.
+    assert places.find("Parsdorf", "DE") is None
+    assert all(town.name != "Parsdorf" for town in places.towns_in("DE"))
+    assert places.locate("Sachsen, St.-Parsdorf-Str 38", "DE") is None  # a street
+
+
+def test_names_that_do_not_say_which_village_are_left_out():
+    # Several villages far apart: an open question beats a wrong journey.
+    for text, country in [("Broad Oak", "GB"), ("Farringdon", "GB"), ("Wallau", "DE")]:
+        assert places.locate(text, country) is None, text
+    # A region, a landscape, a word or a place abroad, each also the name of a village somewhere.
+    for text, country in [("Ashfield", "GB"), ("Surrey", "GB"), ("Bodensee", "DE"), ("Field", "GB"),
+                          ("Germany-Field", "DE"), ("Warsaw, Poland, More...", "GB"),
+                          ("Moscow", "GB"), ("Remote", "GB"), ("Home-Based - GBR", "GB")]:
+        assert places.locate(text, country) is None, text
+    # Each stays what it was for a person's own condition: "Ashfield" is a council district.
+    assert places.find_region("Ashfield", "GB").level == "area"
+
+
+def test_every_village_is_in_a_country_with_its_own_export():
+    villages = places._villages()
+    assert {country for country, _ in villages} == {"DE", "GB", "IE"}
+    assert len(villages) > 50_000
+    towns = {(town.country, normalise(town.name)) for entries in places._towns().values()
+             for town in entries}
+    assert not towns & set(villages)  # a listed town's name needs no village
+
+
 def test_distances_are_about_right():
     munich = places.find("Munich", "DE")
     garching = places.locate("Garching", "DE")
@@ -86,6 +191,9 @@ def test_nearby_towns_count_as_the_place_someone_asked_for():
                     radius_km=None)
     assert matches_places([bavaria], "DE", "Ingolstadt, Bayern")
     assert not matches_places([bavaria], "DE", "Hamburg")
+    # A village is measured like a town.
+    assert matches_places([munich], "DE", "Parsdorf, Bavaria, Germany")
+    assert not matches_places([close], "DE", "Parsdorf")
 
 
 def test_the_shipped_list_covers_every_supported_country():

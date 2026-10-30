@@ -1251,7 +1251,8 @@ def fits(condition: Condition, country: str | None, location_text: str | None) -
         if not country:
             return "unknown"
         town = place_list.locate(location_text, country)
-        if town is None:
+        # GeoNames has no population figure for many British villages: 0 means not known.
+        if town is None or not town.people:
             return "unknown"
         return "yes" if town.people >= smallest_town(condition, country) else "no"
     wanted = {normalise(town.name) for town in condition.towns
