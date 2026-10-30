@@ -246,6 +246,24 @@ needed to distinguish a fresh opening from a refreshed advertisement.
 
 These are retained decisions from dated checks; no new access was tested during this cleanup.
 
+### Source checks — 2026-10-30
+
+- **EURES** has a public search interface (`POST
+  https://europa.eu/eures/api/jv-searchengine/public/jv-search/search`, the portal's own; JSON
+  body with keywords, `publicationPeriod` such as `LAST_DAY`, `locationCodes` such as `de`). It
+  returns full descriptions, first-publication time, employer, NUTS regions and contract codes.
+  The [legal notice](https://eures.europa.eu/legal-notice_en) authorises re-use with the
+  European Labour Authority credited and says nothing against automated access; robots.txt
+  does not exclude the search, and europa.eu asks for `Crawl-delay: 10`. For Germany it carries
+  the Bundesagentur's vacancies (same titles and wording); for Ireland it held 5 jobs of the
+  last day, all German-posted. A candidate for the other EU countries' public employment
+  services and for people who keep the Bundesagentur off; not built yet.
+- **JobsIreland.ie** answered 403 to every address (robots.txt included) from the owner's
+  connection, to an ordinary browser there and to an outside fetcher, from 2026-10-29 evening.
+  Jobcu sends it 1-4 requests a day, so this is the site's refusal, now reported as one.
+- **SmartRecruiters** (Bosch, ETAS, Delta Electronics): `api.smartrecruiters.com/robots.txt`
+  allows only LinkedInBot; Jobcu stays out (see the access boundaries below).
+
 ### Bundesagentur opt-in — 2026-10-30
 
 The owner asked the agency for permission on 2026-10-25. On 2026-10-29 its technical support
@@ -263,8 +281,8 @@ hardware-developer ads of the last day, five of which Jobcu had not found elsewh
 
 - Held boards: StepStone, Totaljobs, IrishJobs and Jobs.ie
   lack established permission for direct automated collection. Do not infer permission from robots alone.
-- Unused sources: EURES extraction requires a partner
-  route; publicjobs.ie, UK Civil Service Jobs and DWP Find a Job blocked automated access.
+- Unused sources: EURES (see the 2026-10-30 check below); publicjobs.ie, UK Civil Service Jobs
+  and DWP Find a Job blocked automated access.
 - LinkedIn/StepStone: no established direct
   vacancy-reading API for Jobcu. AI-found links need permitted original evidence and date checks.
 - Employer restrictions also apply; see the [additional access boundaries](#additional-access-boundaries).
