@@ -133,6 +133,24 @@
    }
   },
   {
+   "name": "Amplitude",
+   "system": "ashby",
+   "board": "amplitude",
+   "countries": [
+    "GB",
+    "NL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "London"
+    ],
+    "NL": [
+     "Amsterdam"
+    ]
+   }
+  },
+  {
    "name": "Ankorstore",
    "system": "ashby",
    "board": "ankorstore",
@@ -1435,6 +1453,27 @@
    }
   },
   {
+   "name": "Phoenix Contact",
+   "system": "dvinci",
+   "board": "jobboerse.phoenixcontact.com",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Bad Pyrmont",
+     "Blomberg",
+     "Herrenberg",
+     "Lüdenscheid",
+     "Paderborn",
+     "Schieder-Schwalenberg",
+     "Velbert"
+    ]
+   },
+   "checked": "2026-10-30"
+  },
+  {
    "name": "Eaton",
    "system": "eightfold",
    "board": "app.eightfold.ai/eaton.com",
@@ -1611,6 +1650,83 @@
    }
   },
   {
+   "name": "FORVIA (Faurecia)",
+   "system": "eightfold",
+   "board": "jobs.faurecia.com/faurecia.com",
+   "countries": [
+    "CZ",
+    "DE",
+    "ES",
+    "FR",
+    "HU",
+    "PL",
+    "PT",
+    "RO",
+    "SE",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "CZ": [
+     "Bakov nad Jizerou",
+     "Mladá Boleslav",
+     "Pilsen",
+     "Písek"
+    ],
+    "DE": [
+     "Augsburg",
+     "Hannover",
+     "Munich",
+     "Neuburg an der Donau",
+     "Peine"
+    ],
+    "ES": [
+     "Gasteiz / Vitoria",
+     "Valencia",
+     "Vigo"
+    ],
+    "FR": [
+     "Bavans",
+     "Flers-en-Escrebieux",
+     "Lyon",
+     "Magny-Vernois",
+     "Méru",
+     "Nanterre",
+     "Nogent-sur-Vernisson",
+     "Paris",
+     "Sales",
+     "Villers-la-Montagne"
+    ],
+    "HU": [
+     "Nagykáta"
+    ],
+    "PL": [
+     "Legnica",
+     "Wałbrzych"
+    ],
+    "PT": [
+     "Bragança",
+     "Espargo",
+     "Feira",
+     "Nelas",
+     "Palmela",
+     "São João da Madeira"
+    ],
+    "RO": [
+     "Craiova"
+    ],
+    "SE": [
+     "Gothenburg"
+    ],
+    "SK": [
+     "Hlohovec",
+     "Košice",
+     "Trnava"
+    ]
+   },
+   "checked": "2026-10-30"
+  },
+  {
    "name": "Infineon",
    "system": "eightfold",
    "board": "jobs.infineon.com/infineon.com",
@@ -1735,6 +1851,74 @@
      "Malmö"
     ]
    }
+  },
+  {
+   "name": "STMicroelectronics",
+   "system": "eightfold",
+   "board": "stmicroelectronics.eightfold.ai/stmicroelectronics.com",
+   "countries": [
+    "AT",
+    "BE",
+    "CH",
+    "CZ",
+    "DE",
+    "FR",
+    "GB",
+    "IT",
+    "MT",
+    "NL",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Graz"
+    ],
+    "BE": [
+     "Zaventem"
+    ],
+    "CZ": [
+     "Prague"
+    ],
+    "DE": [
+     "Munich"
+    ],
+    "FR": [
+     "Chargé",
+     "Crolles",
+     "Grenoble",
+     "Le Bourget-du-Lac",
+     "Le Mans",
+     "Paris",
+     "Rennes",
+     "Rousset",
+     "Sophia Antipolis",
+     "Toulouse",
+     "Tours"
+    ],
+    "GB": [
+     "Edinburgh"
+    ],
+    "IT": [
+     "Agrate Brianza",
+     "Catania",
+     "Cornaredo",
+     "Marcianise",
+     "Naples",
+     "Pavia",
+     "Pisa"
+    ],
+    "MT": [
+     "Kirkop"
+    ],
+    "NL": [
+     "Amsterdam"
+    ],
+    "SE": [
+     "Jönköping"
+    ]
+   },
+   "checked": "2026-10-30"
   },
   {
    "name": "Tektronix (Ralliant)",
@@ -2030,24 +2214,6 @@
      "Aschheim",
      "Karlsruhe",
      "Munich"
-    ]
-   }
-  },
-  {
-   "name": "Amplitude",
-   "system": "ashby",
-   "board": "amplitude",
-   "countries": [
-    "GB",
-    "NL"
-   ],
-   "elsewhere": true,
-   "towns": {
-    "GB": [
-     "London"
-    ],
-    "NL": [
-     "Amsterdam"
     ]
    }
   },
@@ -5407,6 +5573,114 @@
    }
   },
   {
+   "name": "Honeywell",
+   "system": "oracle",
+   "board": "ibqbjb.fa.ocs.oraclecloud.com/CX_1",
+   "countries": [
+    "AT",
+    "BE",
+    "CH",
+    "CZ",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "GR",
+    "IE",
+    "IT",
+    "NL",
+    "NO",
+    "PL",
+    "RO",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Vienna"
+    ],
+    "CH": [
+     "Uster"
+    ],
+    "CZ": [
+     "Brno",
+     "Prague"
+    ],
+    "DE": [
+     "Albstadt",
+     "Berlin",
+     "Böblingen",
+     "Emmerich",
+     "Kassel",
+     "Koblenz",
+     "Lotte",
+     "Mainz",
+     "Munich",
+     "Offenbach",
+     "Ratingen",
+     "Wuppertal"
+    ],
+    "ES": [
+     "Madrid",
+     "Toledo"
+    ],
+    "FR": [
+     "Dijon",
+     "Guyancourt",
+     "Lognes",
+     "Saint-Germain-en-Laye"
+    ],
+    "GB": [
+     "Bracknell",
+     "Eastbourne",
+     "Horsham",
+     "Leicester",
+     "Manchester",
+     "Poole",
+     "Portsmouth",
+     "Southend-on-Sea"
+    ],
+    "GR": [
+     "Athens"
+    ],
+    "IE": [
+     "Dublin"
+    ],
+    "IT": [
+     "Milan",
+     "Monza",
+     "Padua",
+     "Rome",
+     "Trieste"
+    ],
+    "NL": [
+     "Amsterdam",
+     "Apeldoorn",
+     "Delft",
+     "Den Helder",
+     "Leiden",
+     "Weert"
+    ],
+    "NO": [
+     "Asker",
+     "Tromsø"
+    ],
+    "PL": [
+     "Gdańsk",
+     "Katowice",
+     "Warsaw"
+    ],
+    "RO": [
+     "Bucharest",
+     "Lugoj"
+    ],
+    "SK": [
+     "Nové Mesto nad Váhom"
+    ]
+   },
+   "checked": "2026-10-30"
+  },
+  {
    "name": "Nokia",
    "system": "oracle",
    "board": "fa-evmr-saasfaprod1.fa.ocs.oraclecloud.com/CX_1",
@@ -5512,6 +5786,55 @@
      "Stockholm"
     ]
    }
+  },
+  {
+   "name": "SEW-EURODRIVE",
+   "system": "oracle",
+   "board": "fa-erav-saasfaprod1.fa.ocs.oraclecloud.com/CX_3001",
+   "countries": [
+    "AT",
+    "DE",
+    "FR",
+    "IT",
+    "NL",
+    "PL"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "AT": [
+     "Lustenau",
+     "Vienna"
+    ],
+    "DE": [
+     "Bad Homburg vor der Höhe",
+     "Berlin",
+     "Bruchsal",
+     "Graben-Neudorf",
+     "Güstrow",
+     "Hannover",
+     "Herford",
+     "Koblenz",
+     "Munich",
+     "Zwickau"
+    ],
+    "FR": [
+     "Brumath",
+     "Haguenau",
+     "Paris"
+    ],
+    "IT": [
+     "Solaro"
+    ],
+    "NL": [
+     "Noord",
+     "Rotterdam",
+     "Venlo"
+    ],
+    "PL": [
+     "Łódź"
+    ]
+   },
+   "checked": "2026-10-30"
   },
   {
    "name": "Texas Instruments",
@@ -6175,6 +6498,23 @@
      "Rochester"
     ]
    }
+  },
+  {
+   "name": "Elmos",
+   "system": "softgarden",
+   "board": "elmos",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Dortmund",
+     "Düsseldorf",
+     "Frankfurt (Oder)"
+    ]
+   },
+   "checked": "2026-10-30"
   },
   {
    "name": "PULS",
@@ -7150,6 +7490,55 @@
    }
   },
   {
+   "name": "Jenoptik",
+   "system": "successfactors",
+   "board": "careers.jenoptik.com",
+   "countries": [
+    "DE",
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Berlin",
+     "Dresden",
+     "Jena",
+     "Monheim am Rhein",
+     "Triptis",
+     "Wedel"
+    ],
+    "GB": [
+     "Farnborough",
+     "Rochester"
+    ]
+   },
+   "checked": "2026-10-30"
+  },
+  {
+   "name": "KNDS Deutschland",
+   "system": "successfactors",
+   "board": "jobs.knds.de",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Freisen",
+     "Görlitz",
+     "Hamburg",
+     "Kassel",
+     "Konstanz",
+     "Kölleda",
+     "Mainz",
+     "Munich",
+     "Mülheim",
+     "Remscheid"
+    ]
+   },
+   "checked": "2026-10-30"
+  },
+  {
    "name": "Knorr-Bremse",
    "system": "successfactors",
    "board": "careers.knorr-bremse.com",
@@ -8039,6 +8428,65 @@
    }
   },
   {
+   "name": "SICK",
+   "system": "successfactors",
+   "board": "jobs.sick.com",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Donaueschingen",
+     "Düsseldorf",
+     "Rahlstedt",
+     "Waldkirch"
+    ]
+   },
+   "checked": "2026-10-30"
+  },
+  {
+   "name": "SMA Solar",
+   "system": "successfactors",
+   "board": "sma.jobs",
+   "countries": [
+    "BE",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "IT",
+    "PL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "BE": [
+     "Mechelen"
+    ],
+    "DE": [
+     "Kassel"
+    ],
+    "ES": [
+     "Madrid"
+    ],
+    "FR": [
+     "Lyon",
+     "Saint-Priest"
+    ],
+    "GB": [
+     "Milton Keynes"
+    ],
+    "IT": [
+     "Milan"
+    ],
+    "PL": [
+     "Kraków",
+     "Modlniczka"
+    ]
+   },
+   "checked": "2026-10-30"
+  },
+  {
    "name": "sonnen",
    "system": "successfactors",
    "board": "jobs.sonnen.de",
@@ -8254,6 +8702,221 @@
    }
   },
   {
+   "name": "Vector Informatik",
+   "system": "successfactors",
+   "board": "join.vector.com",
+   "countries": [
+    "AT",
+    "DE",
+    "ES"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Vienna"
+    ],
+    "DE": [
+     "Karlsruhe",
+     "Munich",
+     "Regensburg",
+     "Stuttgart"
+    ],
+    "ES": [
+     "Barcelona"
+    ]
+   },
+   "checked": "2026-10-30"
+  },
+  {
+   "name": "Vestas",
+   "system": "successfactors",
+   "board": "careers.vestas.com",
+   "countries": [
+    "AT",
+    "BE",
+    "DE",
+    "DK",
+    "EE",
+    "ES",
+    "FI",
+    "FR",
+    "GB",
+    "GR",
+    "IT",
+    "NL",
+    "PL",
+    "PT",
+    "RO",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Parndorf",
+     "Vienna",
+     "Zistersdorf"
+    ],
+    "BE": [
+     "Houthalen",
+     "Maldegem",
+     "Ostend"
+    ],
+    "DE": [
+     "Berlin",
+     "Dresden",
+     "Düsseldorf",
+     "Erfurt",
+     "Gotha",
+     "Hamburg",
+     "Hannover",
+     "Husum",
+     "Lübeck",
+     "Magdeburg",
+     "Munich",
+     "Potsdam",
+     "Schwerin",
+     "Stuttgart",
+     "Travemünde",
+     "Wiesbaden"
+    ],
+    "DK": [
+     "Copenhagen",
+     "Esbjerg",
+     "Munkebo",
+     "Nakskov",
+     "Ringkøbing",
+     "Videbæk",
+     "Århus"
+    ],
+    "EE": [
+     "Kohtla-Järve"
+    ],
+    "ES": [
+     "Albacete",
+     "Albolote",
+     "Arbo",
+     "Burgos",
+     "Daimiel",
+     "Flix",
+     "La Muela",
+     "Madrid",
+     "Melilla",
+     "Port de Pollença",
+     "Santo Domingo de la Calzada",
+     "Valladolid",
+     "Viveiro"
+    ],
+    "FI": [
+     "Kannus",
+     "Seinäjoki",
+     "Simo",
+     "Vaasa"
+    ],
+    "FR": [
+     "Alissas",
+     "Amiens",
+     "Auxerre",
+     "Cambrai",
+     "Châteauroux",
+     "Courtenay",
+     "Fruges",
+     "Langres",
+     "Lay-Saint-Christophe",
+     "Lussac-les-Châteaux",
+     "Niort",
+     "Pérols",
+     "Rennes",
+     "Rivière",
+     "Ruffec",
+     "Saint-Mathieu",
+     "Torcy",
+     "Trémuson",
+     "Vendres"
+    ],
+    "GB": [
+     "Aberdeen",
+     "Brighton",
+     "Chetwynd",
+     "Dundee",
+     "Edinburgh",
+     "Glasgow",
+     "Greenfield",
+     "Hebron",
+     "Houston",
+     "Lincoln",
+     "London",
+     "Melbourne",
+     "Newport",
+     "Portland",
+     "Sheffield",
+     "Sunderland",
+     "Tiverton",
+     "Warrington",
+     "Windsor",
+     "Winslow"
+    ],
+    "GR": [
+     "Archaía Olympía",
+     "Drosiá",
+     "Drépanon",
+     "Kárystos",
+     "Livadeiá",
+     "Maroúsi"
+    ],
+    "IT": [
+     "Altamura",
+     "Bisaccia",
+     "Campo di Marte",
+     "Castellina Marittima",
+     "Palazzo San Gervasio",
+     "Pietramontecorvino",
+     "Rome",
+     "San Marco",
+     "Taranto",
+     "Tuscania"
+    ],
+    "NL": [
+     "Arnhem",
+     "Den Helder",
+     "Groningen",
+     "IJmuiden",
+     "Noord-Scharwoude"
+    ],
+    "PL": [
+     "Bartoszyce",
+     "Błaszki",
+     "Goleniów",
+     "Iłża",
+     "Lubin",
+     "Szczecin",
+     "Toruń",
+     "Łeba"
+    ],
+    "PT": [
+     "Lajes",
+     "Lisbon",
+     "Maia",
+     "Pampilhosa da Serra",
+     "Rio Maior",
+     "Rio de Mouro",
+     "São Paulo de Frades"
+    ],
+    "RO": [
+     "Bucharest",
+     "Buzău",
+     "Bârlad",
+     "Galaţi",
+     "Victoria"
+    ],
+    "SE": [
+     "Laholm",
+     "Malmö",
+     "Åseda"
+    ]
+   },
+   "checked": "2026-10-30"
+  },
+  {
    "name": "Vitesco Technologies",
    "system": "successfactors",
    "board": "jobs.vitesco-technologies.com",
@@ -8451,6 +9114,54 @@
      "Bratislava"
     ]
    }
+  },
+  {
+   "name": "Webasto",
+   "system": "successfactors",
+   "board": "jobs.webasto.com",
+   "countries": [
+    "DE",
+    "ES",
+    "GB",
+    "IT",
+    "LU",
+    "PT",
+    "RO",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Augsburg",
+     "Hengersberg",
+     "Neubrandenburg",
+     "Schierling",
+     "Utting am Ammersee"
+    ],
+    "ES": [
+     "Madrid"
+    ],
+    "GB": [
+     "Doncaster",
+     "Plymouth"
+    ],
+    "IT": [
+     "Molinella"
+    ],
+    "LU": [
+     "Grevenmacher"
+    ],
+    "PT": [
+     "Lisbon"
+    ],
+    "RO": [
+     "Arad"
+    ],
+    "SK": [
+     "Košice"
+    ]
+   },
+   "checked": "2026-10-30"
   },
   {
    "name": "ZF",
@@ -8952,6 +9663,21 @@
      "Dublin"
     ]
    }
+  },
+  {
+   "name": "KNDS UK",
+   "system": "teamtailor",
+   "board": "kndsuk",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Stockport"
+    ]
+   },
+   "checked": "2026-10-30"
   },
   {
    "name": "Lotus",
@@ -11487,6 +12213,32 @@
    }
   },
   {
+   "name": "Curtiss-Wright",
+   "system": "workday",
+   "board": "https://curtisswright.wd1.myworkdayjobs.com/CW_External_Career_Site",
+   "countries": [
+    "DE",
+    "GB",
+    "IE",
+    "NL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Garching"
+    ],
+    "GB": [
+     "Christchurch",
+     "Corby",
+     "Letchworth Garden City"
+    ],
+    "IE": [
+     "Galway"
+    ]
+   },
+   "checked": "2026-10-30"
+  },
+  {
    "name": "Danaher",
    "system": "workday",
    "board": "https://danaher.wd1.myworkdayjobs.com/DanaherJobs",
@@ -12379,6 +13131,60 @@
      "Trnava"
     ]
    }
+  },
+  {
+   "name": "Fronius",
+   "system": "workday",
+   "board": "https://fronius.wd3.myworkdayjobs.com/Job_Board",
+   "countries": [
+    "AT",
+    "CH",
+    "CZ",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "PL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Graz",
+     "Innsbruck",
+     "Thalheim bei Wels",
+     "Vienna",
+     "Wels"
+    ],
+    "CZ": [
+     "Brno",
+     "Hradec Králové",
+     "Olomouc",
+     "Ostrava",
+     "Pilsen",
+     "Prague",
+     "Zlín"
+    ],
+    "DE": [
+     "Berlin",
+     "Kaiserslautern",
+     "Munich",
+     "Oberhausen",
+     "Stuttgart"
+    ],
+    "ES": [
+     "Valencia"
+    ],
+    "FR": [
+     "Roissy-en-France"
+    ],
+    "GB": [
+     "Sheffield"
+    ],
+    "PL": [
+     "Gliwice"
+    ]
+   },
+   "checked": "2026-10-30"
   },
   {
    "name": "GE Aerospace",
@@ -14478,6 +15284,115 @@
    }
   },
   {
+   "name": "Leonardo",
+   "system": "workday",
+   "board": "https://leonardocompany.wd3.myworkdayjobs.com/LeonardoCareerSite",
+   "countries": [
+    "CZ",
+    "DE",
+    "ES",
+    "GB",
+    "IT",
+    "NL",
+    "PL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "CZ": [
+     "Prague"
+    ],
+    "DE": [
+     "Darmstadt",
+     "Weilheim"
+    ],
+    "ES": [
+     "Madrid"
+    ],
+    "GB": [
+     "Bristol",
+     "Edinburgh",
+     "Gloucester",
+     "Lincoln",
+     "London",
+     "Luton",
+     "Newcastle upon Tyne",
+     "Reading",
+     "Southampton",
+     "Yeovil"
+    ],
+    "IT": [
+     "Campi Bisenzio",
+     "Catania",
+     "Genoa",
+     "Milan",
+     "Naples",
+     "Pisa",
+     "Rome",
+     "Turin",
+     "Venice"
+    ]
+   },
+   "checked": "2026-10-30"
+  },
+  {
+   "name": "Littelfuse",
+   "system": "workday",
+   "board": "https://littelfuse.wd1.myworkdayjobs.com/Littelfuse-Careers",
+   "countries": [
+    "AT",
+    "CH",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "IT",
+    "LT",
+    "NL",
+    "PL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Bremerhaven"
+    ],
+    "ES": [
+     "Donostia / San Sebastián"
+    ],
+    "GB": [
+     "Chippenham"
+    ],
+    "IT": [
+     "Verona"
+    ],
+    "LT": [
+     "Kaunas"
+    ],
+    "NL": [
+     "Hoofddorp"
+    ]
+   },
+   "checked": "2026-10-30"
+  },
+  {
+   "name": "Littelfuse (Littelfuse-University-Relations)",
+   "system": "workday",
+   "board": "https://littelfuse.wd1.myworkdayjobs.com/Littelfuse-University-Relations",
+   "countries": [
+    "DE",
+    "FR"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Bremerhaven"
+    ],
+    "FR": [
+     "Dole"
+    ]
+   },
+   "checked": "2026-10-30"
+  },
+  {
    "name": "LSEG",
    "system": "workday",
    "board": "https://lseg.wd3.myworkdayjobs.com/Careers",
@@ -16299,6 +17214,42 @@
    }
   },
   {
+   "name": "Renishaw",
+   "system": "workday",
+   "board": "https://renishaw.wd3.myworkdayjobs.com/Renishaw",
+   "countries": [
+    "CH",
+    "DE",
+    "ES",
+    "GB",
+    "IE",
+    "NL",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Pliezhausen"
+    ],
+    "ES": [
+     "Barcelona"
+    ],
+    "GB": [
+     "Castle Donington",
+     "Charfield",
+     "Stonehouse",
+     "Wotton-under-Edge"
+    ],
+    "IE": [
+     "Swords"
+    ],
+    "NL": [
+     "Breda"
+    ]
+   },
+   "checked": "2026-10-30"
+  },
+  {
    "name": "Roche (mysugr-ext)",
    "system": "workday",
    "board": "https://roche.wd3.myworkdayjobs.com/mysugr-ext",
@@ -17376,6 +18327,80 @@
    }
   },
   {
+   "name": "Teledyne",
+   "system": "workday",
+   "board": "https://flir.wd1.myworkdayjobs.com/flircareers",
+   "countries": [
+    "BE",
+    "CY",
+    "DE",
+    "DK",
+    "ES",
+    "FR",
+    "GB",
+    "IS",
+    "IT",
+    "NL",
+    "NO",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "BE": [
+     "Marke"
+    ],
+    "CY": [
+     "Limassol"
+    ],
+    "DE": [
+     "Hamburg",
+     "Heidelberg",
+     "Krailling"
+    ],
+    "DK": [
+     "Kongens Lyngby"
+    ],
+    "ES": [
+     "Sevilla"
+    ],
+    "FR": [
+     "Arras",
+     "Grenoble"
+    ],
+    "GB": [
+     "Bromborough",
+     "Chelmsford",
+     "Cumbernauld",
+     "Fareham",
+     "Lincoln",
+     "Presteigne",
+     "Renfrew",
+     "Saint Asaph",
+     "Shipley",
+     "Totnes",
+     "Uxbridge",
+     "West Malling"
+    ],
+    "IS": [
+     "Kópavogur"
+    ],
+    "IT": [
+     "Milan"
+    ],
+    "NL": [
+     "Eindhoven"
+    ],
+    "NO": [
+     "Hønefoss"
+    ],
+    "SE": [
+     "Linköping",
+     "Täby"
+    ]
+   },
+   "checked": "2026-10-30"
+  },
+  {
    "name": "Thales",
    "system": "workday",
    "board": "https://thales.wd3.myworkdayjobs.com/Careers",
@@ -18165,6 +19190,29 @@
      "Nuremberg"
     ]
    }
+  },
+  {
+   "name": "Wolfspeed",
+   "system": "workday",
+   "board": "https://cree.wd108.myworkdayjobs.com/EXT",
+   "countries": [
+    "DE",
+    "FR",
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Unterschleißheim"
+    ],
+    "FR": [
+     "Paris"
+    ],
+    "GB": [
+     "Belfast"
+    ]
+   },
+   "checked": "2026-10-30"
   },
   {
    "name": "Workday",

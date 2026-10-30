@@ -11,6 +11,7 @@ Usage:
     uv run python tools/check_employers.py new.json --only-new --write
                                     check only candidates not in the directory yet; the
                                     directory's entries are kept as they are (much faster)
+                                    and each new entry carries its own 'checked' date
 
 A candidates file has the same shape as the directory:
     {"employers": [{"name": "Acme", "system": "greenhouse", "board": "acme"}]}
@@ -60,10 +61,16 @@ def main() -> int:
                         help="check only candidates that aren't in the directory yet")
     args = parser.parse_args()
 
+    today = datetime.now(UTC).date().isoformat()
+    checked = today
     entries: dict[tuple[str, str], dict] = {}
     existing = set()
     if DIRECTORY.exists():
         existing = {(e["system"], e["board"].strip().lower()) for e in read_entries(DIRECTORY)}
+        if args.only_new:
+            # Only the new entries are checked today: each carries its own date, and the
+            # directory keeps the date of its last full check.
+            checked = json.loads(DIRECTORY.read_text(encoding="utf-8")).get("checked", today)
     for path in [DIRECTORY, *args.candidates]:
         if not path.exists():
             continue
@@ -116,7 +123,8 @@ def main() -> int:
                                  "board": entry["board"], "countries": countries,
                                  "elsewhere": bool(counts[OTHER]),
                                  "towns": {code: sorted(survey.towns.get(code, ()))[:MAX_TOWNS]
-                                           for code in countries if survey.towns.get(code)}})
+                                           for code in countries if survey.towns.get(code)},
+                                 **({"checked": today} if checked != today else {})})
                     print(line, flush=True)
                 else:
                     dropped.append(f"{system:10} {entry['name']}: no jobs in supported countries "
@@ -132,8 +140,7 @@ def main() -> int:
         print(f"  {line}")
     if args.write:
         kept.sort(key=lambda e: (e["system"], e["name"].casefold()))
-        data = {"about": ABOUT, "checked": datetime.now(UTC).date().isoformat(),
-                "employers": kept}
+        data = {"about": ABOUT, "checked": checked, "employers": kept}
         DIRECTORY.parent.mkdir(parents=True, exist_ok=True)
         DIRECTORY.write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n",
                              encoding="utf-8")
