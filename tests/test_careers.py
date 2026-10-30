@@ -784,6 +784,17 @@ def test_workday_missing_workplace_metadata_cannot_erase_a_known_location(locati
     assert full.location_text == job.location_text and full.description_is_complete
 
 
+def test_workday_record_without_a_title_or_link_is_no_job():
+    # Search 12: MSD's list held one, which became a blank card in the results.
+    page = [posting("Analog Design Engineer", "Posted Today", "/job/Cork/A_1"),
+            {"title": "", "postedOn": "Posted Today"},
+            {"title": "Analog Designer", "postedOn": "Posted Today"}]
+    board = employer("workday", "https://fakeco.wd1.myworkdayjobs.com/External")
+    jobs = list(wd.WorkdaySource().list_jobs(board, context(workday_handler([page])),
+                                             countries=["IE"], start=NOW - timedelta(hours=24)))
+    assert [job.title for job in jobs] == ["Analog Design Engineer"]
+
+
 def test_workday_stops_when_a_site_answers_every_page_with_the_same_jobs():
     # 2026-09-24 night: some sites return the first page for every offset, so the same titles
     # came 25 times (the page limit) and cost hundreds of requests.
