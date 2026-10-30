@@ -219,6 +219,19 @@ def find(name: str | None, country: str | None = None) -> Town | None:
     return towns[0]
 
 
+# "London (+1 other)", "München (+ 1 weiterer Standort)": Google's listing of several workplaces.
+_MORE_PLACES = re.compile(r"\(\s*\+\s*\d+[^)]*\)")
+
+
+def names_more_places(text: str | None) -> bool:
+    """True when a location says the job has more workplaces than the one it names."""
+    return _MORE_PLACES.search(text or "") is not None
+
+
+def without_more_places(text: str | None) -> str:
+    return _MORE_PLACES.sub("", text or "").strip()
+
+
 def locate(text: str | None, country: str | None = None) -> Town | None:
     """The town a free-text location names ("Ireland, Limerick" → Limerick).
 
@@ -227,7 +240,8 @@ def locate(text: str | None, country: str | None = None) -> Town | None:
     Unterhaching), and a state or nation never counts ("Sachsen" is no town). A location with
     no town name but a UK postcode or an Eircode is the town that postcode lies in.
     """
-    parts = [_town_of_district(part) for part in re.split(r"[,;|]", text or "")
+    text = without_more_places(text)
+    parts = [_town_of_district(part) for part in re.split(r"[,;|]", text)
              if normalise(part) not in _REGIONS]
     if not any(part.strip() for part in parts):
         return None

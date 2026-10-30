@@ -1049,6 +1049,18 @@ def test_a_trip_to_the_city_centre_ends_at_the_centre_when_the_person_says_so():
 
 
 
+def test_a_town_the_ad_names_goes_before_a_listing_of_several_workplaces():
+    # Google's "Berlin (+1 other)" with an ad about Munich: no conflict, the job is in Munich.
+    job = group("Berlin  (+\xa01 other)")
+    assert travel.job_point(job).town == places.find("Berlin", "DE").name
+    job.place_from_text = ["Munich"]
+    assert not travel.workplace_conflict(job)
+    assert travel.job_point(job).town == places.find("Munich", "DE").name
+    # A listing of one workplace elsewhere stays a conflict to confirm.
+    job.copies[0].location_text = "Berlin"
+    assert travel.workplace_conflict(job)
+
+
 def test_conflicting_ad_workplace_does_not_reuse_feed_point_or_old_journey():
     job = group("Berlin", latitude=52.52, longitude=13.405)
     job.place_from_text = ["Munich"]

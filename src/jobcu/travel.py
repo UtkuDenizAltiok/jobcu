@@ -160,7 +160,10 @@ def job_point(group: JobGroup) -> Point | None:
             town = place_list.locate(copy.location_text, country)
             return Point(copy.latitude, copy.longitude, country, "address",
                          town.name if town else copy.location_text)
-    for text in [copy.location_text for copy in group.copies] + found_places(group):
+    # "London (+1 other)" may not be this ad's workplace: a town the ad names goes first.
+    stated = [copy.location_text for copy in group.copies]
+    for text in ([t for t in stated if not place_list.names_more_places(t)] + found_places(group)
+                 + [t for t in stated if place_list.names_more_places(t)]):
         town = place_list.locate(text, country)
         if town is not None:
             return Point(town.latitude, town.longitude, country, "town", town.name)
@@ -178,8 +181,8 @@ def workplace_conflict(group: JobGroup) -> bool:
              if (town := place_list.locate(name, country)) is not None]
     if not named:
         return False
-    stated = [town for copy in group.copies
-              if (town := place_list.locate(copy.location_text, country)) is not None]
+    stated = [town for copy in group.copies if not place_list.names_more_places(copy.location_text)
+              and (town := place_list.locate(copy.location_text, country)) is not None]
     points = [(c.latitude, c.longitude) for c in group.copies
               if c.latitude is not None and c.longitude is not None]
     return any(place_list.km(a.latitude, a.longitude, b.latitude, b.longitude) > HOME_TOWN_KM
