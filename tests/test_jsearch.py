@@ -221,7 +221,7 @@ def test_disabled_or_unconfigured_sources_never_make_account_calls(setup):
         list(source.search(query(), ctx))
     save_settings(Settings(source_opt_ins=["jsearch"]))
     ctx.keys.delete(jsearch.KEY_API_KEY)
-    with pytest.raises(SourceError, match="Free key"):
+    with pytest.raises(SourceError, match="direct key"):
         list(source.search(query(), ctx))
     assert requests == [] and reserved() == 0
 
@@ -235,7 +235,7 @@ def test_no_usable_terms_does_not_consume_an_account_check(setup):
 @pytest.mark.parametrize(
     "broken",
     [
-        "paid",
+        "unknown_plan",
         "wrong_service",
         "inactive",
         "quotas_missing",
@@ -247,11 +247,11 @@ def test_no_usable_terms_does_not_consume_an_account_check(setup):
         "missing_period",
     ],
 )
-def test_incomplete_or_paid_account_stops_before_vacancies_and_cannot_be_bypassed(setup, broken):
+def test_incomplete_account_stops_before_vacancies_and_cannot_be_bypassed(setup, broken):
     account = receipt()
     data, quota = account["data"], account["data"]["quotas"][0]
-    if broken == "paid":
-        data["plan"]["is_free"] = False
+    if broken == "unknown_plan":
+        data["plan"].pop("is_free")
     elif broken == "wrong_service":
         data["api_id"] = "another-service"
     elif broken == "inactive":
@@ -285,7 +285,8 @@ def test_empty_provider_allowance_is_not_replaced_by_local_allowance(setup):
     assert len(requests) == 1
 
 
-def test_monthly_exhaustion_does_not_send_account_or_details_requests(setup):
+def test_monthly_exhaustion_sends_only_the_free_account_check(setup):
+    # The free check is sent: only it can say that a paid plan goes on after the Free credits.
     source, ctx, requests = setup()
     with db.connect() as conn:
         conn.execute(
@@ -294,7 +295,23 @@ def test_monthly_exhaustion_does_not_send_account_or_details_requests(setup):
     list(source.search(query(), ctx))
     with pytest.raises(BudgetExhausted):
         source.load_details(jsearch.to_found_job(item()), ctx)
-    assert requests == [] and reserved() == 200
+    assert [r.url.path for r in requests] == ["/usage"] and reserved() == 200
+
+
+def test_a_paid_plan_goes_on_past_the_free_credits_with_a_share_per_search_day(setup):
+    # The owner's pay-as-you-go plan (2026-10-30): no monthly cap, 40 requests a search day.
+    account = receipt()
+    account["data"]["plan"]["is_free"] = False
+    account["data"].pop("quotas")
+    source, ctx, requests = setup(lambda r: page([item()], "next"), account=account)
+    with db.connect() as conn:  # far past the Free 200 this month
+        conn.execute(
+            "INSERT INTO source_requests VALUES (?, 'jsearch', 900)", (NOW.strftime("%Y-%m-%d"),)
+        )
+    jobs = list(source.search(query(["DE", "IE", "GB"], hours=72), ctx))
+    assert source._remaining is None and source._budget.limits.per_search == 120  # 3 days x 40
+    # Every query until its repeated continuation ends it, despite 900 used this month.
+    assert jobs and len(requests) == 1 + 6
 
 
 @pytest.mark.parametrize("code", [301, 401, 402, 403, 429, 500, 503])

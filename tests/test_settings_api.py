@@ -265,7 +265,7 @@ def test_optional_source_needs_positive_choice_and_preserves_other_limits(client
 
 def test_jsearch_account_check_without_key_sends_no_query(client):
     response = client.post("/api/job-sites/jsearch/check", headers=HEADERS).json()
-    assert not response["ok"] and "Free key" in response["message"]
+    assert not response["ok"] and "JSearch key" in response["message"]
 
 
 def test_recovery_requires_explicit_choice_and_survives_older_settings_clients(client):
