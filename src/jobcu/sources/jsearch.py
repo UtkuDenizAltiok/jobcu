@@ -370,6 +370,7 @@ class JSearchSource(JobSource):
         self._ready = False
         self._key = ""
         self._interrupted_in_a_row = 0
+        self._hours = 24  # the search window: a 72-hour search gets three days' share
 
     def unavailable_reason(self, keys: KeyStore) -> str | None:
         return None if keys.get(KEY_API_KEY) else "JSearch: add a direct Free key in Settings."
@@ -470,7 +471,8 @@ class JSearchSource(JobSource):
         if not self._key:
             raise SourceError("JSearch needs a direct Free key in Settings.")
         limits = share_of_month(
-            self.id, Limits(per_month=MONTHLY_CREDITS), fewest=2, most=MAX_SEARCH_CREDITS
+            self.id, Limits(per_month=MONTHLY_CREDITS), hours=self._hours, fewest=2,
+            most=MAX_SEARCH_CREDITS
         )
         self._budget = RequestBudget(self.id, self.name, limits)
         self._budget.used_this_search = ctx.report.requests
@@ -481,7 +483,8 @@ class JSearchSource(JobSource):
                 self._request(USAGE, {"api_id": self.id}, ctx))
             # The calendar-month share above is only an upper bound: the credits renew on
             # the account's own date, so they are spread until then.
-            paced = share_until(self._remaining, renews, fewest=2, most=MAX_SEARCH_CREDITS)
+            paced = share_until(self._remaining, renews, hours=self._hours, fewest=2,
+                                most=MAX_SEARCH_CREDITS)
             self._budget.limits = replace(
                 limits, per_search=min(limits.per_search or paced, paced))
             self._ready = True
@@ -492,6 +495,7 @@ class JSearchSource(JobSource):
     def search(self, query: JobQuery, ctx: SourceContext):
         if not plan_queries(query):
             return
+        self._hours = query.posted_within_hours
         try:
             self._start(ctx)
             left = min(

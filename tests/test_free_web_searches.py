@@ -55,12 +55,33 @@ def test_each_search_gets_a_fair_share_of_what_is_left():
     with db.connect() as conn:  # this person searches twice a day
         conn.executemany("INSERT INTO searches (started_at, status, form_json) VALUES (?, ?, ?)",
                          [("2026-11-15T09:00:00.000Z", "finished", "{}")] * 28)
-    assert free_web_search_share(settings_with(5000), now) == 50
+    # 1,000 left over 9.8 days at two searches a day (Pacific month ends 1 Dec 08:00 UTC).
+    assert free_web_search_share(settings_with(5000), now) == 51
     assert free_web_search_share(settings_with(4000), now) == 0
     assert free_web_search_share(settings_with(None), now) is None
     # The research provider's own searches count, not the main provider's.
-    assert free_web_search_share(settings_with(5000, "openrouter", "gemini"), now) == 50
-    assert free_web_search_share(settings_with(5000, "openrouter", "anthropic"), now) == 250
+    assert free_web_search_share(settings_with(5000, "openrouter", "gemini"), now) == 51
+    assert free_web_search_share(settings_with(5000, "openrouter", "anthropic"), now) == 255
+
+
+def test_a_planned_month_divides_the_free_searches_equally_by_search_days():
+    from jobcu.settings import save_settings
+
+    now = at("2026-11-21T12:00:00")
+    record("gemini", "2026-11-05T09:00:00.000Z", 2000)
+    planned = settings_with(5000)
+    planned.limits.searches_per_month = 24  # the owner's plan: 24 searches of one day each
+    save_settings(planned)
+    with db.connect() as conn:  # ten daily searches and one 72-hour one: 13 days covered
+        conn.executemany("INSERT INTO searches (started_at, status, form_json) VALUES (?, ?, ?)",
+                         [("2026-11-10T19:00:00.000Z", "finished",
+                           '{"posted_within_hours": 24}')] * 10
+                         + [("2026-11-14T19:00:00.000Z", "finished",
+                             '{"posted_within_hours": 72}'),
+                            ("2026-11-20T19:00:00.000Z", "stopped", "{}")])
+    # 3,000 left for the 11 planned search days still to come; a 72-hour search takes three.
+    assert free_web_search_share(planned, now) == 273
+    assert free_web_search_share(planned, now, hours=72) == 819
 
 
 class Searcher:
@@ -77,3 +98,18 @@ def test_a_used_share_stops_research_with_its_own_reason():
     # The smaller per-search limit decides when it is the one reached.
     client = AIClient(settings, adapter=Searcher(), free_web_search_share=20)
     assert client.web_searches_left() == 10 and not client.free_share_reached()
+
+
+def test_when_paid_limits_only_tell_the_free_share_is_no_cap_and_running_out_is_said():
+    from jobcu.search import free_searches_note
+
+    now = at("2026-11-21T12:00:00")
+    record("gemini", "2026-11-05T09:00:00.000Z", 5200)
+    told = settings_with(5000)
+    told.limits.paid_limits = "tell"
+    assert free_web_search_share(told, now) is None  # paid searches past the free ones go on
+    assert "5,000 free web searches are used up (5,200 so far)" in free_searches_note(told, now)
+    assert free_searches_note(settings_with(5000), now) is None  # stopping: the share asks
+    more = settings_with(6000)
+    more.limits.paid_limits = "tell"
+    assert free_searches_note(more, now) is None  # 800 free ones still left

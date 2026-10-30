@@ -163,6 +163,72 @@ def test_fuerstenfeldbruck_fits_through_munich():
     assert check["detail"] == "Munich, 17 min by public transport"
 
 
+def test_a_searchs_share_of_routes_goes_to_the_workplaces_nearest_a_city_first(monkeypatch):
+    # 24 searches a month of 600-770 routes each used up 9,000 by about the 13th search; each
+    # search now gets its share, and the nearest workplaces are measured first.
+    monkeypatch.setattr(travel, "MAPS_FEWEST_PER_SEARCH", 4)
+    monkeypatch.setattr(travel, "MAPS_MOST_PER_SEARCH", 4)  # one round: 2 cities, 2 samples
+    fake = FakeMaps({"Munich": 17, "Augsburg": 55})
+    condition = near()
+    farther, nearer = group("Landsberg am Lech", "1"), group("Fürstenfeldbruck", "2")
+    meter(fake).measure([condition], [farther, nearer], [0, 1])
+    origins = {b["origins"][0]["waypoint"]["location"]["latLng"]["latitude"]
+               for _, b, _ in fake.requests}
+    assert origins == {48.179}  # Fürstenfeldbruck, although listed second
+    assert condition_fit(condition, nearer) == "yes"
+    assert condition_fit(condition, farther) == "unknown"  # no AI here to estimate it
+
+
+def test_googles_times_are_kept_for_the_exact_same_place_only_when_the_person_chooses():
+    # The owner (2026-10-30): keep a measured time for the same place 90 days, ask Google for
+    # any other place. Off (0) by default: Google's terms allow keeping only coordinates.
+    def search(fake, days, job, when=NOW):
+        settings = Settings()
+        settings.limits.maps_memory_days = days
+        keys = KeyStore()
+        keys.set(travel.KEY_NAME, "fake-maps-key")
+        http = PoliteClient(min_intervals={}, sleep=lambda s: None,
+                            transport=httpx.MockTransport(fake.handler))
+        condition = near()
+        TravelMeter(None, keys, http, settings, now=lambda: when).measure([condition], [job], [0])
+        return condition
+
+    first = FakeMaps({"Munich": 17, "Augsburg": 55})
+    search(first, 90, group("Fürstenfeldbruck", "1"))
+    assert len(first.requests) == 1
+    again = FakeMaps({"Munich": 99})  # Google is not asked: the kept 17 minutes decide
+    later = search(again, 90, group("Fürstenfeldbruck", "2"), NOW + timedelta(days=60))
+    assert again.requests == [] and condition_fit(later, group("Fürstenfeldbruck", "2")) == "yes"
+    moved = FakeMaps({"Munich": 18, "Augsburg": 55})  # another point in the same town
+    search(moved, 90, group("Fürstenfeldbruck", "3", latitude=48.18, longitude=11.26))
+    assert len(moved.requests) == 1
+    stale = FakeMaps({"Munich": 17, "Augsburg": 55})
+    search(stale, 90, group("Fürstenfeldbruck", "4"), NOW + timedelta(days=91))
+    assert len(stale.requests) == 1
+    off = FakeMaps({"Munich": 17, "Augsburg": 55})  # not kept: asked again the next day
+    search(off, 0, group("Fürstenfeldbruck", "5"), NOW + timedelta(days=1))
+    assert len(off.requests) == 1
+
+
+def test_when_paid_limits_only_tell_routes_go_on_past_the_limit_with_a_note():
+    from jobcu import db
+
+    with db.connect() as conn:
+        conn.execute("INSERT INTO source_requests (day, source, count) VALUES (?, ?, ?)",
+                     (NOW.strftime("%Y-%m-%d"), "google_maps_routes", 9000))
+    settings = Settings()
+    settings.limits.paid_limits = "tell"
+    notes = []
+    fake = FakeMaps({"Munich": 17, "Augsburg": 55})
+    condition, job = near(), group("Fürstenfeldbruck")
+    meter(fake, settings=settings, notes=notes).measure([condition], [job], [0])
+    assert len(fake.requests) == 1 and condition_fit(condition, job) == "yes"
+    assert any("past your limit of 9,000" in note for note in notes)
+    stopping = FakeMaps({"Munich": 17})
+    meter(stopping).measure([near()], [group("Fürstenfeldbruck", "2")], [0])
+    assert stopping.requests == []  # the default stops at the limit
+
+
 def test_car_trips_are_measured_without_a_departure_time():
     fake = FakeMaps({"Munich": 25})
     condition = near(minutes=30)
@@ -649,7 +715,7 @@ def test_a_search_keeps_jobs_near_a_big_city_and_leaves_out_far_ones(
     assert any("Google Maps key" in note for note in result["notes"])
 
 
-# --- Remembered for 30 days ---------------------------------------------------------------
+# --- Remembered for 90 days ---------------------------------------------------------------
 
 
 def test_googles_travel_times_are_never_kept_beyond_the_search():
@@ -663,7 +729,7 @@ def test_googles_travel_times_are_never_kept_beyond_the_search():
         assert conn.execute("SELECT COUNT(*) FROM travel_memory").fetchone()[0] == 0
 
 
-def test_ai_estimates_are_remembered_for_30_days_from_the_same_town():
+def test_ai_estimates_are_remembered_for_90_days_from_the_same_town():
     class GuessingClient:
         calls = 0
 
@@ -676,8 +742,12 @@ def test_ai_estimates_are_remembered_for_30_days_from_the_same_town():
     job = group("Fürstenfeldbruck", "2", company="Other GmbH")
     meter(key=False, client=GuessingClient()).measure([later], [job], [0])
     assert GuessingClient.calls == 1 and condition_fit(later, job) == "yes"
+    month = TravelMeter(GuessingClient(), KeyStore(), None, Settings(),
+                        now=lambda: NOW + timedelta(days=45))
+    month.measure([near()], [job], [0])
+    assert GuessingClient.calls == 1  # still remembered after a month and a half
     stale = TravelMeter(GuessingClient(), KeyStore(), None, Settings(),
-                        now=lambda: NOW + timedelta(days=31))
+                        now=lambda: NOW + timedelta(days=91))
     stale.measure([near()], [job], [0])
     assert GuessingClient.calls == 2
 

@@ -163,7 +163,15 @@ AI and wording established it: used for 90 days without another look-up, and aft
 used for up to a year when a new check can't establish the city. A reviewed place-evidence set
 can decide a fact for all cities of a country (`country_decisions`). Unknown verdicts are never
 kept; completed research that left a city unknown is not bought again by ordinary searches for
-30 days through the same AI route, while an explicit retry or edit looks again at once. Plans, other
+30 days through the same AI route, while an explicit retry or edit looks again at once. The AI's
+travel estimates are remembered for 90 days per place, destination and way of travelling.
+Google's travel times are kept only when the person chooses (`maps_memory_days`; the owner: 90)
+for exactly the same origin and destination points; Settings says that Google's Routes terms
+allow keeping only coordinates. Free monthly allowances (Adzuna, JSearch, free web searches, the
+Maps route limit) are divided equally over the planned search days still to come
+(`budget.share`; a 72-hour search counts as three days). Paid limits (monthly AI cost and
+tokens, web searches past the free ones, Maps past its limit) stop by default or only tell
+(`paid_limits`, the owner's choice). Plans, other
 web research, journeys and new-search scores are not reused as setup. Full-ad caching has its
 own bounded age and parser versions. Changed inputs invalidate the relevant cache.
 

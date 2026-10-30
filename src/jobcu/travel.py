@@ -22,10 +22,13 @@ is small. `location.py` reads the condition; this module measures it for each jo
    the AI estimates the times and the card says so.
 
 Each job's answer is kept in the condition (minutes per reference place), so a corrected limit
-is applied again without asking anyone. The AI's estimates are also remembered for 30 days (the
-owner's decision): from the same town, or the same point a job ad gave, to the same place, by
-the same way of travelling. Google's travel times are never kept beyond the search they were
-asked for: the Routes API terms (section 19.3) allow keeping only coordinates, not durations.
+is applied again without asking anyone. The AI's estimates are also remembered for 90 days (the
+owner's decision, 2026-10-30): from the same town, or the same point a job ad gave, to the same
+place, by the same way of travelling. Google's travel times are kept only if the person chooses
+(Settings: remember Google Maps travel times, the owner's 90 days): exactly the same origin and
+destination points, way of travelling and timetable profile; any other point is asked again.
+Google's Routes API terms (section 19.3, checked 2026-10-30) allow keeping only coordinates,
+which Settings says.
 """
 
 import json
@@ -48,7 +51,13 @@ from jobcu.dedupe import JobGroup
 from jobcu.location import Anchor, Condition
 from jobcu.placenames import countries_in
 from jobcu.settings import load_settings
-from jobcu.sources.budget import BudgetExhausted, Limits, RequestBudget
+from jobcu.sources.budget import (
+    BudgetExhausted,
+    Limits,
+    RequestBudget,
+    month_usage,
+    share_of_month,
+)
 from jobcu.sources.http import Blocked
 from jobcu.text import normalise
 
@@ -70,7 +79,10 @@ HOME_TOWN_KM = 30.0
 # this is a request batch size, never a limit on which living cities can qualify.
 NEAREST = 2
 ESTIMATE_BATCH = 30
-MEMORY_DAYS = 30
+MEMORY_DAYS = 90
+# One search's share of the monthly route allowance stays within these bounds (route elements).
+MAPS_FEWEST_PER_SEARCH = 100
+MAPS_MOST_PER_SEARCH = 1500
 MAPS, ESTIMATE = "Google Maps", "AI estimate"
 MAPS_ROUTING_VERSION = 3
 TRAVEL_TIMING = "wednesday-1030"
@@ -437,18 +449,19 @@ class GoogleMaps:
     """Google's Routes API, with the person's own key."""
 
     def __init__(self, key: str, http, now: Callable[[], datetime] = lambda: datetime.now(UTC),
-                 routes: RequestBudget | None = None):
+                 routes: RequestBudget | None = None, memory_days: int = 0):
         self._key = key
         self._http = http
         self._now = now
+        self._memory_days = memory_days  # the person's choice to keep Google's times
         self._routes = routes if routes is not None else RequestBudget(
             "google_maps_routes", "Google Maps",
             Limits(per_month=load_settings().limits.maps_monthly_routes), now=now)
         self._unavailable: str | None = None
         # A search crossing midnight must keep one representative week for all requests.
         self._departure_reference: datetime | None = None
-        # Only this search's validated elements. Missing/error cells stay retryable;
-        # no Google durations enter the cross-search estimate memory.
+        # This search's validated elements (and remembered ones, when the person keeps them).
+        # Missing/error cells stay retryable and are never remembered.
         self._elements: dict[tuple[str, str, str, str | None], int | None] = {}
         self._unidentified_refusals: dict[str, int] = {}
         self._mode_unavailable: dict[str, str] = {}
@@ -541,6 +554,10 @@ class GoogleMaps:
         origin_key = json.dumps(origin, sort_keys=True)
         keys = [(origin_key, json.dumps(destination, sort_keys=True), mode,
                  body.get("departureTime")) for destination in destinations]
+        if self._memory_days:
+            self._elements.update(_recall_maps(
+                [key for key in keys if key not in self._elements], self._memory_days,
+                self._now()))
         pending = list(dict.fromkeys(key for key in keys if key not in self._elements))
         known = {i: self._elements[key] for i, key in enumerate(keys) if key in self._elements}
         if not pending:
@@ -611,6 +628,9 @@ class GoogleMaps:
                 found[index] = math.ceil(seconds / 60)
         for index, value in found.items():
             self._elements[pending[index]] = value
+        if self._memory_days:
+            _remember_maps({pending[index]: value for index, value in found.items()},
+                           self._memory_days, self._now())
         return {index: self._elements[key] for index, key in enumerate(keys)
                 if key in self._elements}
 
@@ -728,21 +748,39 @@ class TravelMeter:
     """Measures the "near" conditions for the jobs still in the running."""
 
     def __init__(self, client, keys, http, settings, note: Callable[[str], None] = lambda m: None,
-                 now: Callable[[], datetime] = lambda: datetime.now(UTC)):
+                 now: Callable[[], datetime] = lambda: datetime.now(UTC), hours: float = 24):
         self._client = client
         self._note = note
         key = keys.get(KEY_NAME) if keys is not None else None
         self._now = now
         limits = settings.limits
-        self._routes = RequestBudget("google_maps_routes", "Google Maps",
-                                     Limits(per_month=limits.maps_monthly_routes), now=now)
-        self._maps = GoogleMaps(key, http, now, routes=self._routes) if key else None
+        # The month's route limit (set within Google's free allowance) is divided equally over
+        # the planned searches, like the job sites' free allowances (budget.share): at 24
+        # searches a month of 600-770 routes each, the owner's 9,000 ran out by about the 13th
+        # search and the rest of the month had only AI estimates. A 72-hour search gets three
+        # parts; what one search doesn't use stays for the next.
+        # When paid limits only tell (the owner), routes past the limit are paid and go on.
+        self._routes_limit = limits.maps_monthly_routes
+        self._tell = limits.paid_limits == "tell"
+        self._routes = RequestBudget("google_maps_routes", "Google Maps", Limits() if self._tell
+                                     else share_of_month(
+            "google_maps_routes", Limits(per_month=limits.maps_monthly_routes), hours=hours,
+            fewest=MAPS_FEWEST_PER_SEARCH, most=MAPS_MOST_PER_SEARCH, now=now), now=now)
+        self._maps = GoogleMaps(key, http, now, routes=self._routes,
+                                memory_days=limits.maps_memory_days) if key else None
 
     def measure(self, conditions: list[Condition], groups: list[JobGroup],
                 indexes: list[int]) -> None:
         for condition in conditions:
             if condition.kind == "near" and condition.filters and condition.max_minutes:
                 self._measure(condition, groups, indexes)
+        if self._tell and self._maps is not None:
+            _, month = month_usage("google_maps_routes", self._now())
+            if month > self._routes_limit:
+                self._note(f"Google Maps: {month:,} travel-time look-ups this month, past your "
+                           f"limit of {self._routes_limit:,} in Settings; the ones past Google's "
+                           "free allowance are billed. Jobcu goes on, as you chose (paid limits "
+                           "only tell).")
 
     def _measure(self, condition: Condition, groups: list[JobGroup], indexes: list[int]) -> None:
         if condition.reference_status != "applied":
@@ -786,6 +824,11 @@ class TravelMeter:
         if not wanted:
             self._settle_status(condition)
             return
+        # The search's share of routes goes first to the workplaces nearest a reference city:
+        # they are the likeliest to fit, often in one round; the farthest get AI estimates first
+        # when the share runs out (search 11: 63 of 78 routed workplaces fitted no city).
+        wanted = dict(sorted(wanted.items(), key=lambda item: min(
+            edge_distance(item[1][0], town, centre) for town in item[1][1])))
         if self._maps and not centre:
             self._note("Google Maps compares sampled city-edge and city-centre destinations; "
                        "other districts may have faster connections.")
@@ -872,7 +915,7 @@ class TravelMeter:
     def _minutes(self, places, mode, centre=False, *, max_minutes=None
                  ) -> dict[str, TravelReading]:
         """Minutes to each town for each place, with who measured them: Google Maps when there
-        is a key, otherwise the AI (its estimates from the last 30 days first)."""
+        is a key, otherwise the AI (its estimates from the last 60 days first)."""
         found = self._with_maps(places, mode, centre) if self._maps else {}
         missing = []
         for point, towns, keys in places:
@@ -1003,7 +1046,7 @@ def _destination(country: str, town: str, centre: bool = False) -> str:
 
 def recall(point: Point, towns: list[place_list.Town], mode: str, *,
            now: datetime, centre: bool = False) -> dict[str, int | None]:
-    """The AI's estimates from the last 30 days, from this place to these towns."""
+    """The AI's remembered estimates (MEMORY_DAYS), from this place to these towns."""
     since = (now - timedelta(days=MEMORY_DAYS)).isoformat()
     known: dict[str, int | None] = {}
     with db.connect() as conn:
@@ -1021,7 +1064,7 @@ def recall(point: Point, towns: list[place_list.Town], mode: str, *,
 
 def remember(point: Point, minutes: dict[str, int | None], mode: str, *, now: datetime,
              centre: bool = False) -> None:
-    """Keeps the AI's estimates for 30 days. Google's answers are never stored (see above)."""
+    """Keeps the AI's estimates for MEMORY_DAYS (Google's: _remember_maps, if chosen)."""
     with db.connect() as conn:
         conn.executemany(
             "INSERT OR REPLACE INTO travel_memory (origin, destination, mode, measured_by, "
@@ -1029,8 +1072,42 @@ def remember(point: Point, minutes: dict[str, int | None], mode: str, *, now: da
             [(point.identity, _destination(point.country, town, centre), mode, ESTIMATE, value,
               now.isoformat()) for town, value in minutes.items()],
         )
-        conn.execute("DELETE FROM travel_memory WHERE measured_at < ?",
-                     ((now - timedelta(days=MEMORY_DAYS)).isoformat(),))
+        conn.execute("DELETE FROM travel_memory WHERE measured_by = ? AND measured_at < ?",
+                     (ESTIMATE, (now - timedelta(days=MEMORY_DAYS)).isoformat()))
+
+
+def _maps_destination(key) -> str:
+    # The exact point, the timetable profile (not the date of next Wednesday) and the routing
+    # version: a changed sample point or method is measured again.
+    return f"{key[1]}|{TRAVEL_TIMING}|v{MAPS_ROUTING_VERSION}"
+
+
+def _recall_maps(keys: list, days: int, now: datetime) -> dict:
+    """Google's remembered times for exactly these origins and destinations (the person's
+    choice in Settings), no older than `days`."""
+    since = (now - timedelta(days=days)).isoformat()
+    known = {}
+    with db.connect() as conn:
+        for key in keys:
+            row = conn.execute(
+                "SELECT minutes FROM travel_memory WHERE origin = ? AND destination = ? AND "
+                "mode = ? AND measured_by = ? AND measured_at >= ?",
+                (key[0], _maps_destination(key), key[2], MAPS, since)).fetchone()
+            if row is not None:
+                known[key] = row["minutes"]
+    return known
+
+
+def _remember_maps(found: dict, days: int, now: datetime) -> None:
+    """Keeps Google's validated times (None: no route) for `days`; failed cells never."""
+    with db.connect() as conn:
+        conn.executemany(
+            "INSERT OR REPLACE INTO travel_memory (origin, destination, mode, measured_by, "
+            "minutes, measured_at) VALUES (?, ?, ?, ?, ?, ?)",
+            [(key[0], _maps_destination(key), key[2], MAPS, value, now.isoformat())
+             for key, value in found.items()])
+        conn.execute("DELETE FROM travel_memory WHERE measured_by = ? AND measured_at < ?",
+                     (MAPS, (now - timedelta(days=days)).isoformat()))
 
 
 def check_key(keys, http) -> tuple[bool, str]:

@@ -16,7 +16,7 @@ import time
 from collections import Counter
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Literal
 
 from jobcu import (
@@ -37,7 +37,7 @@ from jobcu import pool as search_pool
 from jobcu.ai import budgets
 from jobcu.ai.base import AIBadRequest, AIError, AIWebSearchUnavailable
 from jobcu.ai.client import AIClient, in_parallel
-from jobcu.ai.usage import UsageLog, billing_days_left, estimate_cost
+from jobcu.ai.usage import UsageLog, billing_days_left, billing_month_start, estimate_cost
 from jobcu.countries import COUNTRIES, LANGUAGE_NAMES, languages_for
 from jobcu.documents import DocumentError
 from jobcu.filters import REASONS, apply_rules, fails_a_condition
@@ -58,7 +58,7 @@ from jobcu.relevance import quick_pass, screen_titles
 from jobcu.settings import SearchForm, load_settings, save_settings
 from jobcu.sources import accepted_terms, disabled_sources
 from jobcu.sources.base import JobQuery
-from jobcu.sources.budget import searches_a_day
+from jobcu.sources.budget import share
 from jobcu.sources.http import PoliteClient
 from jobcu.vacancy_evidence import group_reasons as original_reasons
 
@@ -427,8 +427,11 @@ def run_search(run: SearchRun) -> None:
         on_progress=lambda message: _ai_progress_note(run, message),
         reference_research_cache=run.reference_research_cache,
         capture=run.capture,
-        free_web_search_share=free_web_search_share(settings),
+        free_web_search_share=free_web_search_share(
+            settings, hours=run.form.posted_within_hours),
     )
+    if note := free_searches_note(settings):
+        run.note(note)
 
     def checkpoint() -> None:
         _checkpoint(run)
@@ -707,7 +710,8 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     # Travel times cost a request each, so they're measured last, only for jobs still worth a
     # closer look; everything else about places is worked out at once.
     measured = [c for c in plan.conditions if c.kind == "near" and c.max_minutes and c.filters]
-    travel_meter = (travel.TravelMeter(client, keys, http, settings, note=run.note)
+    travel_meter = (travel.TravelMeter(client, keys, http, settings, note=run.note,
+                                      hours=run.form.posted_within_hours)
                     if measured else None)
     at_once = [c for c in plan.conditions if all(c is not m for m in measured)]
     ruled_out = [i for i, group in enumerate(groups) if fails_a_condition(group, at_once)]
@@ -1145,8 +1149,11 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
         on_progress=lambda message: _ai_progress_note(run, message),
         reference_research_cache=run.reference_research_cache,
         capture=run.capture,
-        free_web_search_share=free_web_search_share(settings),
+        free_web_search_share=free_web_search_share(
+            settings, hours=run.form.posted_within_hours),
     )
+    if note := free_searches_note(settings):
+        run.note(note)
     http = PoliteClient(should_stop=lambda: run.stop_requested,
                         on_wait=lambda host, seconds: _source_wait_note(run, host, seconds),
                         accepted_terms=accepted_terms(settings))
@@ -1282,16 +1289,33 @@ def _source_wait_note(run: SearchRun, host: str, seconds: float) -> None:
         run.notes.append(message)
 
 
-def free_web_search_share(settings, now: datetime | None = None) -> int | None:
-    """This search's fair share of the research provider's free web searches left this month:
-    what is left, spread over the days to come at the person's usual searches a day."""
+def free_web_search_share(settings, now: datetime | None = None,
+                          hours: float = 24) -> int | None:
+    """This search's equal part of the research provider's free web searches left this billing
+    month (budget.share: the planned searches still to come; a 72-hour search gets three)."""
     allowance = settings.limits.free_web_searches
     provider = settings.ai.research_provider or settings.ai.provider
-    if allowance is None or provider is None:
-        return None
+    if allowance is None or provider is None or settings.limits.paid_limits == "tell":
+        return None  # "tell": paid searches past the free ones go on (free_searches_note)
     now = now or datetime.now(UTC)
     left = max(0, allowance - UsageLog().web_searches_this_month(provider, now))
-    return min(left, math.ceil(left / billing_days_left(now) / searches_a_day(now)))
+    start = billing_month_start(now)
+    end = billing_month_start(now + timedelta(days=billing_days_left(now)))
+    return min(left, math.ceil(share(left, start, end, now, hours)))
+
+
+def free_searches_note(settings, now: datetime | None = None) -> str | None:
+    """When paid limits only tell: a note once this month's free web searches are used up."""
+    allowance = settings.limits.free_web_searches
+    provider = settings.ai.research_provider or settings.ai.provider
+    if allowance is None or provider is None or settings.limits.paid_limits != "tell":
+        return None
+    used = UsageLog().web_searches_this_month(provider, now or datetime.now(UTC))
+    if used < allowance:
+        return None
+    return (f"This month's {allowance:,} free web searches are used up ({used:,} so far): "
+            "further look-ups are paid at your provider's search price. Jobcu goes on, as you "
+            "chose (paid limits only tell).")
 
 
 def _free_searches_left(settings) -> str:

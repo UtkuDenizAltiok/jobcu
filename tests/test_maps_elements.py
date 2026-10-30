@@ -275,7 +275,8 @@ def test_persistent_element_quota_preserves_partial_time_and_stops_later_request
     meter, http, clock, _ = setup(handler)
     notes = []
     meter._note = notes.append
-    condition, jobs = near(), [group('Freising', '1'), group('Dachau', '2')]
+    # Dachau first: the nearest workplace to a reference city is measured first.
+    condition, jobs = near(), [group('Dachau', '1'), group('Freising', '2')]
     try:
         meter.measure([condition], jobs, [0, 1])
         assert condition_fit(condition, jobs[0]) == 'yes'
@@ -338,7 +339,8 @@ def test_element_access_refusal_keeps_valid_data_and_stops_later_network_reads(c
         requests.append(request)
         return httpx.Response(200, json=[measured(0, 19), failed(1, code)])
     meter, http, _, _ = setup(handler)
-    condition, jobs = near(), [group('Freising', '1'), group('Dachau', '2')]
+    # Dachau first: the nearest workplace to a reference city is measured first.
+    condition, jobs = near(), [group('Dachau', '1'), group('Freising', '2')]
     try:
         meter.measure([condition], jobs, [0, 1])
         assert condition_fit(condition, jobs[0]) == 'yes'
