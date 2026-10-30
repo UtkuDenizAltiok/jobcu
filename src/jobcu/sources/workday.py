@@ -102,6 +102,9 @@ class WorkdaySource(CareerSystemSource):
                 postings = data.get("jobPostings") or []
                 too_old = new = 0
                 for item in postings:
+                    # MSD's list held a record with neither (search 12): no job, a blank card.
+                    if not (item.get("title") or "").strip() or not item.get("externalPath"):
+                        continue
                     job = to_found_job(item, site, employer, code, today)
                     if start and freshness(job.posted_at, job.date_precision, start) == "too_old":
                         too_old += 1
