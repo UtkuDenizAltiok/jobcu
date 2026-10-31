@@ -194,4 +194,15 @@ def to_found_job(item: dict, details: dict | None = None) -> FoundJob:
         description_is_complete=details is not None,
         job_types=_job_types(source),
         salary_text=salary,
+        application_options=_original_ad(source),
     )
+
+
+def _original_ad(details: dict) -> list[dict[str, str]]:
+    """Many ads here repeat another site's, whose address the agency's details name."""
+    url = details.get("externeURL")
+    if not isinstance(url, str) or not url.startswith(("https://", "http://")):
+        return []
+    name = details.get("allianzpartnerName")
+    return [{"source": name if isinstance(name, str) and name.strip() else "Original ad",
+             "url": url}]

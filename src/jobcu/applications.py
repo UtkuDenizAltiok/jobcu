@@ -1,4 +1,5 @@
-"""Application links: exclude known unusable destinations without fetching private URLs."""
+"""Application links: exclude known unusable destinations without fetching private URLs. Finding
+the page behind a link happens only when the person clicks it (applylink.py)."""
 
 import json
 import re
@@ -10,6 +11,8 @@ from jobcu.dedupe import SOURCE_KIND_RANK, JobGroup, is_agency
 
 BLOCKED_HOSTS = frozenset({"cv-library.co.uk"})
 REDIRECT_FIELDS = frozenset({"url", "redirect", "redirect_url", "target", "destination", "to"})
+REPEATS_ADS = frozenset({"adzuna", "arbeitsagentur", "jobleads", "jooble", "learn4good", "talent",
+                         "trabajo"})
 EXCLUSION_REASON = "CV-Library application route, with no other saved link"
 REPORTED_EXCLUSION_REASON = "Application link marked unusable, with no other saved link"
 
@@ -27,8 +30,8 @@ def reports() -> list[dict]:
         )]
 
 
-def report_link(job_id: int, url: str) -> None:
-    """Accept only an existing saved link; never fetch it or infer its final host."""
+def saved_link(conn, job_id: int, url: str) -> dict:
+    """The job's saved link with this address: only those can be opened or reported."""
     try:
         parsed = urlsplit(url)
         valid = parsed.scheme in {"http", "https"} and bool(parsed.hostname)
@@ -36,15 +39,26 @@ def report_link(job_id: int, url: str) -> None:
         valid = False
     if not valid:
         raise ValueError("Choose an available job link.")
+    row = conn.execute("SELECT card_json FROM job_cards WHERE job_id = ?", (job_id,)).fetchone()
+    if row is None:
+        raise KeyError(job_id)
+    card = json.loads(row[0])
+    links = [card.get("main_link") or {}, *card.get("also_on", [])]
+    link = next((link for link in links if link.get("url") == url), None)
+    if not url or link is None:
+        raise ValueError("That link is no longer saved for this job. Refresh the job list.")
+    return link
+
+
+def link_to_open(job_id: int, url: str) -> dict:
     with db.connect() as conn:
-        row = conn.execute("SELECT card_json FROM job_cards WHERE job_id = ?", (job_id,)).fetchone()
-        if row is None:
-            raise KeyError(job_id)
-        card = json.loads(row[0])
-        links = [card.get("main_link") or {}, *card.get("also_on", [])]
-        link = next((link for link in links if link.get("url") == url), None)
-        if not url or link is None:
-            raise ValueError("That link is no longer saved for this job. Refresh the job list.")
+        return saved_link(conn, job_id, url)
+
+
+def report_link(job_id: int, url: str) -> None:
+    """Accept only an existing saved link; never fetch it or infer its final host."""
+    with db.connect() as conn:
+        link = saved_link(conn, job_id, url)
         if blocked(url):
             raise ValueError("Jobcu already excludes this application destination.")
         conn.execute(
@@ -118,6 +132,15 @@ def _reported(url: str | None, reports: set[str]) -> bool:
         _advertisement_identity(earlier) == identity for earlier in reports)
 
 
+def _repeats_an_ad(url: str | None) -> bool:
+    """A site that shows other sites' ads: another saved link comes first, nearer the original."""
+    try:
+        host = (urlsplit(url or "").hostname or "").lower().rstrip(".")
+    except ValueError:
+        return False
+    return bool(set(host.split(".")) & REPEATS_ADS)
+
+
 def _copy_urls(copy):
     return (copy.url, copy.employer_url, *(o.get("url") for o in copy.application_options))
 
@@ -142,6 +165,7 @@ def links(group: JobGroup, source_names: dict[str, str],
              for c in copies if allowed(c.url)]
     other += [option for c in copies for option in c.application_options
               if allowed(option.get("url"))]
+    other.sort(key=lambda link: _repeats_an_ad(link["url"]))
     main = ({"source": "Employer's site", "url": employer.employer_url}
             if employer else other.pop(0) if other else {"source": "", "url": ""})
     seen = {main["source"]} if not employer else set()
@@ -185,7 +209,8 @@ def clean_card(card: dict, reported: set[str] | None = None) -> dict:
         main = other.pop(0) if other else {"source": "", "url": ""}
     elif opaque(main.get("url")):
         # Only an independently saved employer link can replace this opaque route.
-        # Never resolve, unwrap or discard the advertiser URL required by Adzuna.
+        # Never resolve, unwrap or discard the advertiser URL required by Adzuna. A click still
+        # goes through Adzuna's own apply link, in the person's browser (applylink.py).
         employer = next((i for i, link in enumerate(other)
                          if link.get("source") == "Employer's site"
                          and not opaque(link["url"])), None)

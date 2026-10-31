@@ -235,8 +235,8 @@ stay unknown, midnight dates are day precision, and a wider source date filter d
 the user's accepted age. Lookup country is stored separately from workplace evidence. Source
 coordinates are not promoted to an address; derived sponsorship/skill fields are not requirements.
 Employer links require both the supplied direct flag and a matching employer/known ATS host;
-original board routes remain available. Jobcu makes no request to those destinations merely to
-resolve a redirect. Fictional tests cover hardware, nursing and teaching, failures and ceilings.
+original board routes remain available. A search makes no request to those destinations merely
+to resolve a redirect; a person's click reads the one page they asked for (see ENGINEERING.md). Fictional tests cover hardware, nursing and teaching, failures and ceilings.
 
 ### Bundesagentur access hold — 2026-10-17
 
