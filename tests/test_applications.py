@@ -215,6 +215,28 @@ def test_only_saved_links_can_be_reported_and_local_header_is_required():
     assert client.delete(undo, headers=HEADERS).status_code == 404
 
 
+def test_a_click_opens_only_saved_links_and_needs_no_page_header(monkeypatch):
+    _, card, _ = saved_card(url="https://board.example.org/jobs/1", also_on=[
+        {"source": "Other", "url": "https://other.example.org/2"}])
+    monkeypatch.setattr("jobcu.applylink.destination",
+                        lambda url: f"https://careers.example.com/?{url[-1]}")
+    client = TestClient(create_app(), base_url="http://127.0.0.1:8765")
+
+    def opened(job_id, url):
+        return client.get(f"/api/jobs/{job_id}/open?url={quote(url, safe='')}",
+                          follow_redirects=False)
+
+    for url, ending in (("https://board.example.org/jobs/1", "1"),
+                        ("https://other.example.org/2", "2")):
+        reply = opened(card["job_id"], url)
+        assert reply.status_code == 302 and reply.headers["cache-control"] == "no-store"
+        assert reply.headers["location"] == f"https://careers.example.com/?{ending}"
+    # Never a way to send someone anywhere else.
+    assert opened(card["job_id"], "https://evil.example.net/").status_code == 400
+    assert opened(card["job_id"], "javascript:alert(1)").status_code == 400
+    assert opened(9999, "https://board.example.org/jobs/1").status_code == 404
+
+
 def test_failed_report_rolls_back_without_affecting_saved_results():
     import sqlite3
 

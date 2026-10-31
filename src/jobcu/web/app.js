@@ -1095,6 +1095,13 @@ function safeUrl(url) {
   }
 }
 
+// A job's link goes through Jobcu, which sends the click on to the page that takes applications.
+function jobLink(card, url) {
+  const safe = safeUrl(url);
+  return safe && card.job_id
+    ? `/api/jobs/${card.job_id}/open?url=${encodeURIComponent(url)}` : safe;
+}
+
 function postedLabel(card) {
   if (!card.posted_at) return "posting date unknown";
   const posted = new Date(card.posted_at);
@@ -1219,7 +1226,7 @@ function renderCard(card) {
   const deductions = (card.deductions || []).map((d) =>
     el("p", { class: "job-limit", text: `−${d.points} points: ${d.why}` }));
 
-  const link = safeUrl(card.main_link.url);
+  const link = jobLink(card, card.main_link.url);
   const actions = el(
     "div",
     { class: "job-actions" },
@@ -1235,7 +1242,7 @@ function renderCard(card) {
         ? el("span", { class: "muted", text: "Application link excluded" }) : null,
   );
   const also = card.also_on
-    .map((copy) => ({ ...copy, url: safeUrl(copy.url) }))
+    .map((copy) => ({ ...copy, url: jobLink(card, copy.url) }))
     .filter((copy) => copy.url);
   if (card.application_destination_unverified) {
     actions.append(el("span", { class: "muted", text:

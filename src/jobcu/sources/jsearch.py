@@ -83,7 +83,7 @@ _BOARDS = {
     "totaljobs",
     "cv-library",
 }
-_ATS = (
+APPLICATION_SYSTEMS = (
     "myworkdayjobs.com",
     "greenhouse.io",
     "lever.co",
@@ -143,7 +143,7 @@ def _direct(url: str, website: str) -> bool:
         return False
     return bool(
         (company and (host == company or host.endswith("." + company)))
-        or any(host == ats or host.endswith("." + ats) for ats in _ATS)
+        or any(host == ats or host.endswith("." + ats) for ats in APPLICATION_SYSTEMS)
     )
 
 

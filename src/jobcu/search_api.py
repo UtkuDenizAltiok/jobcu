@@ -3,9 +3,19 @@
 import json
 
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
 
-from jobcu import applications, jobplace, jobstore, pipeline, recheck, search, vacancy_evidence
+from jobcu import (
+    applications,
+    applylink,
+    jobplace,
+    jobstore,
+    pipeline,
+    recheck,
+    search,
+    vacancy_evidence,
+)
 from jobcu import pool as search_pool
 from jobcu.ai.base import AIError
 from jobcu.location import ConditionEdit, EditProblem, LocationPlan
@@ -186,6 +196,19 @@ def marked_jobs(kind: str) -> dict:
 
 class ApplicationLinkReport(BaseModel):
     url: str = Field(min_length=1, max_length=8192)
+
+
+@router.get("/jobs/{job_id}/open")
+def open_job_link(job_id: int, url: str) -> RedirectResponse:
+    """A click on a job's link: on to the page that takes applications when Jobcu can tell."""
+    try:
+        applications.link_to_open(job_id, url)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Unknown saved job.") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return RedirectResponse(applylink.destination(url), status_code=302,
+                            headers={"Cache-Control": "no-store"})
 
 
 @router.post("/jobs/{job_id}/application-link")

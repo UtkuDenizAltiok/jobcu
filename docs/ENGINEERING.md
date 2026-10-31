@@ -64,6 +64,10 @@ cover that continuation, while usage is cumulative.
   Scores express fit under the rubric, not hiring probability.
 - Matched employer-original application links are preferred. Explicit unusable-link exclusions
   can use another verified copy; opaque redirect destinations are not guessed or bypassed.
+- A click on a job's link reads that one page and sends the browser straight to its single, clear
+  apply link, skipping sites that only repeat an ad. Searches never do this: those links can be
+  paid per click. Sites that forbid reading or refuse it keep their link, and so does anything
+  unclear (`applylink.py`).
 - Saved owner/legacy ratings are protected from automatic replacement. Optional review results
   are stored separately from production scores.
 
