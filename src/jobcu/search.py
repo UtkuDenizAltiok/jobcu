@@ -729,8 +729,11 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             if towns is not None:
                 groups[index].place_from_text = towns
 
+        own_titles = [*profile.target_roles, *(
+            term["text"] for term in run.result.get("search_words", [])
+            if term.get("kind") == "job_title")]
         checked = quick_pass(client, profile, groups, unchecked, on_result=keep_preliminary,
-                             job_types=form.job_types)
+                             job_types=form.job_types, own_titles=own_titles)
         for index in unchecked:
             job_pool.jobs[index].unrelated = index in checked.unrelated
         for index, places in checked.places.items():

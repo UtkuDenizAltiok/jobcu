@@ -369,6 +369,15 @@ def finish(score: JobScore, profile: Profile, *, ad_text: str | None = None,
     return judge(result, profile)
 
 
+def _unconfirmed_expertise(evidence: dict) -> str:
+    """Which central expertise isn't confirmed, so a card names what to check (on 2026-10-31, 92
+    of 117 cards said only "Central specialist expertise is unconfirmed")."""
+    names = [c["requirement"] for c in evidence.get("requirement_checks") or []
+             if c.get("central_to_role") and c["status"] != "met" and "grounding_issues" in c
+             and "ad_quote_unverified" not in c["grounding_issues"]]
+    return f"Not confirmed: {names[0][:60]}" + (f" (+{len(names) - 1} more)" if names[1:] else "")
+
+
 def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
     """Works out the language part, the limits and the total from the evidence kept in a result.
     Used after scoring, and again when the full ad was read online (then `note` says so)."""
@@ -415,7 +424,7 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
     if (central_unknown or evidence.get("role_checked_online")
             or result["evidence"].get("central_role_uncertain")):
         role = parts["role_and_skills"]
-        reason = ("Central specialist expertise is unconfirmed" if central_unknown else
+        reason = (_unconfirmed_expertise(result["evidence"]) if central_unknown else
                   "Main work and core skills match" if role >= 36 else
                   "Main work has specialist skill gaps" if role >= 28 else
                   "Daily tasks are only partly aligned" if role >= 18 else
@@ -666,8 +675,7 @@ class WorkRightJudgement:
 
 def sponsorship_deductions(evidence: dict, profile: Profile) -> list[dict]:
     """Points off a UK job whose ad doesn't confirm sponsorship, unless the person has a stated
-    right to work there. Only the UK costs points: the owner's rule (2026-10-30), no penalty
-    for EU countries or Türkiye."""
+    right to work there. Only the UK costs points: the owner's rule (2026-10-30)."""
     if evidence.get("job_country") != "GB" or evidence.get("sponsorship_confirmed"):
         return []
     right = next((r for r in profile.work_rights if r.country == "GB"), None)
