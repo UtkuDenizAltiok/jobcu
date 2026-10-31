@@ -617,6 +617,15 @@ def test_experienced_people_and_jobs_without_a_title_have_no_such_limit():
     assert not scoring.other_limits(JobScore.model_construct(**_no_evidence()), person, None)
 
 
+def test_a_card_does_not_say_the_same_about_the_role_twice():
+    raw = JobScore.model_validate(score_json("J1", role=20))
+    result = finish(raw, RIGHTS, ad_text="Fictional ad.", complete=True, country="DE")
+    result["evidence"]["role_checked_online"] = True
+    again = scoring.judge(result, RIGHTS)
+    assert again["reasons"][0] == "A related job, its daily tasks partly different from yours"
+    assert "Daily tasks are only partly aligned" not in again["reasons"]
+
+
 def _no_evidence():
     return {"citizenship_or_clearance": "no_such_requirement", "doctorate": "not_required",
             "years_required": None, "citizenship_or_clearance_words": ""}

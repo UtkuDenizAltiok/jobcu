@@ -445,7 +445,11 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
                   "Daily tasks are only partly aligned" if role >= 18 else
                   "Daily work is loosely related" if role >= 8 else
                   "Main work is in another field")
-        reasons = ([limits[0]["why"]] if limits and limits[0]["at"] < 80 else []) + [reason]
+        first = limits[0]["why"] if limits and limits[0]["at"] < 80 else None
+        # "A related job, its daily tasks partly different" needs no "Daily tasks are only partly
+        # aligned" after it.
+        same = first in {why for _, _, why in LIMITS_ROLE} and not central_unknown
+        reasons = ([first] if first else []) + ([] if same else [reason])
     return {
         **result,
         "evidence": evidence,
