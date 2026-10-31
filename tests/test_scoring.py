@@ -3,7 +3,7 @@ import re
 
 import pytest
 
-from jobcu import relevance
+from jobcu import relevance, scoring
 from jobcu.ai.base import ProviderAdapter, RawReply, Usage
 from jobcu.ai.client import AIClient
 from jobcu.dedupe import group_duplicates
@@ -580,6 +580,46 @@ def test_a_lasting_right_to_work_clause_is_compared_with_the_stated_work_rights(
     assert placed("FR", "now")["limits"][0]["why"] == (
         "Needs the right to work in France without visa sponsorship; your documents say you "
         "would need it")
+
+
+@pytest.mark.parametrize("title", [
+    "Lead Electronics Engineer (m/f/d)", "Principal Engineer R&D", "(Senior) Principal Scientist",
+    "Head of Hardware Development", "Head Teacher", "Director of Nursing", "Chief Engineer",
+    "Staff Engineer Device Development", "Staff Hardware Platform Engineer", "Ward Lead",
+    "Teamleiter Hardware Entwicklung", "Abteilungsleiter Pflege", "Leiter Entwicklung",
+    "Projektleitung Elektrotechnik", "Senior/Principal Design Engineer",
+])
+@pytest.mark.parametrize("seniority,years", [("graduate_or_entry", 0), ("junior", 2)])
+def test_a_leading_role_is_limited_for_someone_early_in_their_career(title, seniority, years):
+    person = RIGHTS.model_copy(update={"seniority": seniority, "years_full_time_experience": years})
+    limits = scoring.other_limits(JobScore.model_construct(**_no_evidence()), person, title)
+    assert {"at": 50, "why": "A leading role, well above your experience"} in limits
+
+
+@pytest.mark.parametrize("title", [
+    "Senior Hardware Engineer", "Staff Nurse", "Head Office Administrator", "Print Head Engineer",
+    "Lead-Acid Battery Engineer", "Lead Time Planner", "Halbleiter Entwickler",
+    "Leiterplatten Designer", "Leitungsbau Monteur", "Principled Engineer",
+])
+def test_other_titles_are_not_leading_roles(title):
+    person = RIGHTS.model_copy(update={"seniority": "graduate_or_entry"})
+    limits = scoring.other_limits(JobScore.model_construct(**_no_evidence()), person, title)
+    assert not any(limit["at"] == 50 for limit in limits)
+
+
+def test_experienced_people_and_jobs_without_a_title_have_no_such_limit():
+    title = "Lead Electronics Engineer"
+    senior = RIGHTS.model_copy(update={"seniority": "senior", "years_full_time_experience": 9})
+    assert not scoring.other_limits(JobScore.model_construct(**_no_evidence()), senior, title)
+    early = RIGHTS.model_copy(update={"seniority": "junior", "years_full_time_experience": 6})
+    assert not scoring.other_limits(JobScore.model_construct(**_no_evidence()), early, title)
+    person = RIGHTS.model_copy(update={"seniority": "graduate_or_entry"})
+    assert not scoring.other_limits(JobScore.model_construct(**_no_evidence()), person, None)
+
+
+def _no_evidence():
+    return {"citizenship_or_clearance": "no_such_requirement", "doctorate": "not_required",
+            "years_required": None, "citizenship_or_clearance_words": ""}
 
 
 def test_only_uk_jobs_lose_points_over_sponsorship():
