@@ -54,6 +54,18 @@ LIMIT_LANGUAGE = 80  # a must-have language exactly two levels above the person'
 LIMIT_LANGUAGE_FURTHER = 75  # three or more levels above
 LIMIT_CITIZENSHIP = 30  # a citizenship or clearance the person definitely can't get
 LIMIT_DOCTORATE = 50  # a required doctorate the person doesn't have
+# A title that leads people or a field, for someone early in their career. Measured 2026-10-31 on
+# 202 judged ads and 5 saved runs of 3 models: every one ordered jobs better (+0.005 to +0.014 of
+# clearly different pairs), no known blocker lost; 45 and 55 did less well.
+LIMIT_LEADERSHIP = 50
+LEADERSHIP_TITLE = re.compile(
+    r"(?:^|[\s/(,-])head of\b|^head\b(?! office)|\bdirector\b|\bchief\b|\bprincipal\b|\bvp\b|"
+    r"\bvice president\b|\blead\b(?![- ](?:acid|free|time|generation))|"
+    r"\bstaff (?:[\w&-]+ ){0,2}engineer\b|\bleiter(?:in)?\b|\bleitung\b|"
+    r"\b(?:team|gruppen|abteilungs|bereichs|projekt|werks|betriebs|labor|entwicklungs)"
+    r"(?:leiter(?:in)?|leitung)\b", re.I)
+EARLY_CAREER = {"student", "graduate_or_entry", "junior"}
+EARLY_CAREER_YEARS = 5
 LIMITS_YEARS = [(8, 60), (5, 75), (3, 80)]  # this many years short of what the ad asks: at most
 # Role/skills bands also bound the total; points from unrelated rubric parts cannot turn a
 # clear profession mismatch into a good fit.
@@ -313,6 +325,7 @@ def score_groups(
                 description, complete = _description(groups[index])
                 found[index] = finish(
                     score, profile, ad_text=description, complete=complete,
+                    title=groups[index].main.title,
                     country=next((c.country for c in groups[index].copies if c.country), None),
                 )
                 if len(groups[index].best_description_copy.description) > MAX_DESCRIPTION_CHARS:
@@ -343,7 +356,7 @@ def score_groups(
 
 
 def finish(score: JobScore, profile: Profile, *, ad_text: str | None = None,
-           complete: bool = False, country: str | None = None) -> dict:
+           complete: bool = False, country: str | None = None, title: str | None = None) -> dict:
     """The parts, the limits and the total, worked out from the AI's answer."""
     parts = {name: max(0, min(getattr(score, name), most))
              for name, most in PARTS.items() if name != "languages"}
@@ -356,6 +369,7 @@ def finish(score: JobScore, profile: Profile, *, ad_text: str | None = None,
         "evidence": score.model_dump(include=set(EVIDENCE)),
     }
     result["evidence"]["job_country"] = country
+    result["evidence"]["job_title"] = title
     result["evidence"]["sponsorship_confirmed"] = sponsorship_confirmed(
         score.visa_sponsorship, score.visa_sponsorship_words, ad_text or "")
     if ad_text is not None:
@@ -414,7 +428,8 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
     ):
         rubric_limits = [limit for limit in rubric_limits
                          if limit["why"] != "A requirement you clearly don't meet"]
-    limits = sorted([*language.limits, *other_limits(score, profile), *rubric_limits,
+    title = result["evidence"].get("job_title")
+    limits = sorted([*language.limits, *other_limits(score, profile, title), *rubric_limits,
                      *required.limits, *work.limits],
                     key=lambda x: x["at"])
     deductions = sponsorship_deductions(result["evidence"], profile)
@@ -626,8 +641,11 @@ def judge_languages(score: JobScore, profile: Profile) -> LanguageJudgement:
     return judgement
 
 
-def other_limits(score: JobScore, profile: Profile) -> list[dict]:
+def other_limits(score: JobScore, profile: Profile, title: str | None = None) -> list[dict]:
     limits = []
+    if (title and LEADERSHIP_TITLE.search(title) and profile.seniority in EARLY_CAREER
+            and (profile.years_full_time_experience or 0) < EARLY_CAREER_YEARS):
+        limits.append({"at": LIMIT_LEADERSHIP, "why": "A leading role, well above your experience"})
     if score.citizenship_or_clearance == "required_definitely_out_of_reach":
         words = score.citizenship_or_clearance_words.strip().rstrip(".")
         limits.append({"at": LIMIT_CITIZENSHIP, "why": (
