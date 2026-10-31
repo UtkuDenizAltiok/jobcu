@@ -53,11 +53,14 @@ class _Anchors(HTMLParser):
     def __init__(self) -> None:
         super().__init__()
         self.found: list[tuple[str, str]] = []  # (what the link says, its address)
-        self.marked: list[str] = []  # links the site marks as the direct one (Trabajo.org)
+        self.marked: list[str] = []  # addresses the site marks as the way on (Trabajo.org)
         self._open: dict | None = None
         self._text: list[str] = []
 
     def handle_starttag(self, tag, attrs):
+        offer = dict(attrs).get("data-offer-href")  # a button, not a link (Women For Hire)
+        if offer:
+            self.marked.append(offer)
         if tag == "a":
             self._finish()
             self._open, self._text = dict(attrs), []
@@ -101,7 +104,7 @@ def apply_link_in(page: str, page_url: str) -> str | None:
     if (parts.scheme not in {"http", "https"} or not parts.hostname or target == page_url
             or _ACCOUNT_PATH.search(parts.path) or blocked(target)):
         return None
-    if parts.hostname != here.hostname:
+    if parts.hostname != here.hostname or anchors.marked:
         return target
     if _REDIRECT_PATH.search(parts.path) or (
             _APPLY_PATH.search(parts.path) and _site_words(here.hostname or "") & PASSES_ON):

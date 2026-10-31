@@ -498,7 +498,7 @@ def test_the_town_an_ad_names_decides_when_its_site_gave_only_a_country(conditio
     assert berlin["location"] == "Berlin" and berlin["location_from_ad_text"]
     assert [c["status"] for c in berlin["location_checks"]] == ["verified", "verified"]
     unknown = jobs["location_unchecked"][0]
-    assert unknown["score"] is None
+    assert unknown["score"] == 80  # scored meanwhile, so it can be ranked; still not a match
     assert unknown["location"] == "Deutschland" and not unknown["location_from_ad_text"]
     assert unknown["location_checks"][-1] == {
         "label": "Country Only doesn't say which town this job is in, nor does its text, so "

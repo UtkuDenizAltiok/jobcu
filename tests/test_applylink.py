@@ -71,6 +71,14 @@ def test_a_link_marked_as_the_direct_one_wins_over_buttons_that_open_a_form():
         "https://board.example.org/redirect?id=1&source=2")
 
 
+def test_a_button_carrying_the_way_on_counts_too():
+    page_text = page('<div data-offer-href="/apply/abc.html" id="header-button">Apply</div>',
+                     '<div data-offer-href="/apply/abc.html" data-action="click">Apply</div>')
+    assert applylink.apply_link_in(page_text, AD) == "https://board.example.org/apply/abc.html"
+    login = page('<div data-offer-href="/register/">Apply</div>')
+    assert applylink.apply_link_in(login, AD) is None
+
+
 @pytest.mark.parametrize("path",
                          ["/land/ad/1?token=x", "/jobs/apply/ats-redirect/?id=1", "/away/1"])
 def test_a_redirect_on_the_same_site_is_followed_by_the_browser(path):

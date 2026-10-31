@@ -164,29 +164,45 @@ def job_key(group: JobGroup) -> str:
 
 def job_point(group: JobGroup) -> Point | None:
     """Where the job is: a job site's coordinates if any, otherwise its town's centre, otherwise
-    the town the ad's own text names."""
+    the town the ad's own text names. A town the ad names goes before a place only a feed says."""
     country = job_country(group)
     if country is None:
         return None
     if workplace_conflict(group):
         return None
     for copy in group.copies:
-        if copy.latitude is not None and copy.longitude is not None:
+        if copy.latitude is not None and copy.longitude is not None and _counts(group, copy):
             town = place_list.locate(copy.location_text, country)
             return Point(copy.latitude, copy.longitude, country, "address",
                          town.name if town else copy.location_text)
-    # "London (+1 other)" may not be this ad's workplace: a town the ad names goes first.
-    stated = [copy.location_text for copy in group.copies]
-    for text in ([t for t in stated if not place_list.names_more_places(t)] + found_places(group)
-                 + [t for t in stated if place_list.names_more_places(t)]):
+    for text in job_places(group):
         town = place_list.locate(text, country)
         if town is not None:
             return Point(town.latitude, town.longitude, country, "town", town.name)
     return None
 
 
+def _counts(group: JobGroup, copy) -> bool:
+    """Whether a copy's place stands against a town the ad's own text names. JSearch and Adzuna
+    work out their places themselves: in all 9 disagreements checked in search 14 the ad stated
+    the real workplace ("Location: Eastbourne, East Sussex", listed as South Nutfield). "London (+1
+    other)" doesn't say this ad's workplace either."""
+    return not found_places(group) or (
+        group.source_kinds.get(copy.source) != "aggregator"
+        and not place_list.names_more_places(copy.location_text))
+
+
+def job_places(group: JobGroup) -> list[str]:
+    """The job's places as written, the ones to believe first."""
+    first = [copy.location_text for copy in group.copies
+             if _counts(group, copy) and not place_list.names_more_places(copy.location_text)]
+    rest = [] if found_places(group) else [copy.location_text for copy in group.copies
+                                           if place_list.names_more_places(copy.location_text)]
+    return [*first, *found_places(group), *rest]
+
+
 def workplace_conflict(group: JobGroup) -> bool:
-    """Contradictory ad/feed workplaces cannot support a journey from an arbitrary copy.
+    """Contradictory workplaces cannot support a journey from an arbitrary copy.
 
     Preserve both descriptions for recovery. A mere mention extracted without a supported
     workplace quote is rejected by the quick pass before reaching this function.
@@ -196,9 +212,10 @@ def workplace_conflict(group: JobGroup) -> bool:
              if (town := place_list.locate(name, country)) is not None]
     if not named:
         return False
-    stated = [town for copy in group.copies if not place_list.names_more_places(copy.location_text)
-              and (town := place_list.locate(copy.location_text, country)) is not None]
-    points = [(c.latitude, c.longitude) for c in group.copies
+    counted = [copy for copy in group.copies if _counts(group, copy)]
+    stated = [town for copy in counted
+              if (town := place_list.locate(copy.location_text, country)) is not None]
+    points = [(c.latitude, c.longitude) for c in counted
               if c.latitude is not None and c.longitude is not None]
     return any(place_list.km(a.latitude, a.longitude, b.latitude, b.longitude) > HOME_TOWN_KM
                for a in named for b in [*stated, *named]) or any(

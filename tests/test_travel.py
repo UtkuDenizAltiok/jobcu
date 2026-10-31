@@ -1261,6 +1261,27 @@ def test_a_town_the_ad_names_goes_before_a_listing_of_several_workplaces():
     assert travel.workplace_conflict(job)
 
 
+@pytest.mark.parametrize("profession", ["Engineer", "Nurse", "Teacher"])
+def test_the_ad_s_own_town_wins_over_a_place_an_aggregator_worked_out(profession):
+    # Search 14: all 9 disagreements were like "Location: Eastbourne" listed as South Nutfield.
+    job = group("Berlin", latitude=52.52, longitude=13.405)
+    job.copies[0].title = profession
+    job.source_kinds = {"s": "aggregator"}
+    assert travel.job_point(job).town == places.find("Berlin", "DE").name
+    job.place_from_text = ["Munich"]
+    assert not travel.workplace_conflict(job)
+    point = travel.job_point(job)
+    assert point.town == places.find("Munich", "DE").name and point.how == "town"
+    assert "Berlin" not in travel.job_places(job)
+    # An employer's own feed knows its workplace: that disagreement stays open.
+    job.source_kinds = {"s": "employer"}
+    assert travel.workplace_conflict(job) and travel.job_point(job) is None
+    # An ad naming two far-apart towns doesn't settle where this job is.
+    job.source_kinds = {"s": "aggregator"}
+    job.place_from_text = ["Munich", "Hamburg"]
+    assert travel.workplace_conflict(job) and travel.job_point(job) is None
+
+
 def test_conflicting_ad_workplace_does_not_reuse_feed_point_or_old_journey():
     job = group("Berlin", latitude=52.52, longitude=13.405)
     job.place_from_text = ["Munich"]
