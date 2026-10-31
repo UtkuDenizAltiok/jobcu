@@ -43,6 +43,20 @@ def payload(*, research=False, tools=1, pages=2):
                                                         "message": message}], "usage": usage}
 
 
+def streamed(value):
+    """The answer as the service streams it (seen 2026-10-31): usage in the last chunk."""
+    head = {"id": "chat_fictional", "object": "chat.completion.chunk", "created": 1,
+            "model": "fictional-model"}
+    choice = value["choices"][0]
+    chunks = [{**head, "choices": [{"index": 0, "finish_reason": choice["finish_reason"],
+                                    "delta": {"role": "assistant",
+                                              "content": choice["message"]["content"]}}]}]
+    if "usage" in value:
+        chunks.append({**head, "choices": [], "usage": value["usage"]})
+    text = "".join(f"data: {json.dumps(chunk)}\n\n" for chunk in chunks) + "data: [DONE]\n\n"
+    return httpx.Response(200, headers={"content-type": "text/event-stream"}, text=text)
+
+
 @pytest.fixture
 def service():
     clients = []
@@ -57,6 +71,8 @@ def service():
             value = values[min(len(requests) - 1, len(values) - 1)]
             if isinstance(value, httpx.Response):
                 return value
+            if json.loads(request.content).get("stream"):
+                return streamed(value)
             return httpx.Response(200, json=value)
 
         sdk = openai.OpenAI(api_key=adapter.api_key, base_url=adapter.base_url, max_retries=0,
@@ -98,6 +114,8 @@ def test_native_generation_uses_documented_controls(service, profession):
     assert calls[0].headers["authorization"] == "Bearer fictional-key"
     assert body["thinking"] == {"type": "enabled"}
     assert body["response_format"] == {"type": "json_object"}
+    # Its thinking can outlast a silent request's timeout; a stream stays busy.
+    assert body["stream"] is True and body["stream_options"] == {"include_usage": True}
     assert '"required"' in body["messages"][1]["content"]
     assert body["max_completion_tokens"] == 16000
     assert "max_tokens" not in body and "reasoning_effort" not in body

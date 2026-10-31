@@ -79,6 +79,7 @@ class _CustomEndpoint:
 
 
 class CompatibleAdapter(_CustomEndpoint, ProviderAdapter):
+    streams_usage = False  # the service is known to report usage in its stream's last chunk
     strict_reasoning = True
     formats = MODES
     # Remembers which mode worked for each (address, model) while Jobcu runs, and the models
@@ -214,7 +215,7 @@ class CompatibleAdapter(_CustomEndpoint, ProviderAdapter):
             {"role": "system", "content": system},
             {"role": "user", "content": prompt},
         ], **self._token_limit(max_output_tokens), **extra)
-        if self._router_body():
+        if self._router_body() or self.streams_usage:
             # A router documents usage in its streams' last chunk; other services are not
             # assumed to, so they keep plain requests.
             return _streamed_chat(self._client(), request)

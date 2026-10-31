@@ -35,6 +35,9 @@ RESULTS_PER_KEYWORD = 5
 class MiMoAdapter(CompatibleAdapter):
     can_search_the_web = True
     formats = ("json_object",)  # the native contract does not promise strict JSON Schema
+    # Its thinking can outlast a silent request's 180 seconds (reading a CV on 2026-10-31); a
+    # stream stays busy. Checked on the real service: usage arrives in the last chunk.
+    streams_usage = True
     reasoning_notice = (
         "This provider enables thinking and controls its depth. It does not expose a literal "
         "medium effort setting; this is not measured equivalent reasoning."
