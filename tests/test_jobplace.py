@@ -172,7 +172,7 @@ def test_online_role_reassessment_uses_this_jobs_evidence_and_existing_two_calls
                                           role_and_skills=first.role_and_skills,
                                           role_words=first.role_words)
     assert updated["parts"]["role_and_skills"] == 22 and updated["score"] <= 60
-    assert "Daily tasks are only partly aligned" in updated["reasons"]
+    assert "A related job, its daily tasks partly different from yours" in updated["reasons"]
     restored = scoring.with_ad_read_online(
         updated, PROFILE, [], None, role_and_skills=39, role_words="Provide ordinary ward care")
     assert restored["parts"]["role_and_skills"] == 39 and restored["score"] > 80
