@@ -23,6 +23,7 @@ from jobcu.ai.base import AIAuthError, AIError, AILimitReached, AIModelNotFound,
 from jobcu.ai.client import AIClient, in_parallel
 from jobcu.dedupe import JobGroup
 from jobcu.profile import Profile
+from jobcu.sources.careers import job_types_from_text
 from jobcu.text import normalise
 from jobcu.travel import needs_place
 
@@ -111,13 +112,26 @@ workplace. Do not infer a contradiction from these mentions.\
 """
 
 
+def names_own_title(title: str, own_titles: list[str], job_types: list[str] | None) -> bool:
+    """A title carrying one of the person's own job titles word for word: careful scoring judges
+    it, whatever this cheap check says. In search 14 a model dropped "Contract Power Electronics
+    Engineer" and "Electronics Design Engineer" over the word contract; the person's own job types
+    were kept. "Hardware Engineer Intern" still goes when internships aren't wanted."""
+    stated = job_types_from_text(title)
+    if job_types is not None and stated and not set(stated) & set(job_types):
+        return False
+    words = f" {normalise(title)} "
+    return any(name and f" {name} " in words for name in map(normalise, own_titles))
+
+
 def quick_pass(
     client: AIClient, profile: Profile, groups: list[JobGroup], indexes: list[int], *,
     on_result: Callable[[int, bool, list[str] | None], None] | None = None,
-    job_types: list[str] | None = None,
+    job_types: list[str] | None = None, own_titles: list[str] | None = None,
 ) -> QuickPass:
     """Which of these jobs are clearly unrelated, and where the ones lacking a town are.
-    `job_types`: the types ticked on the search form; None means every type."""
+    `job_types`: the types ticked on the search form; None means every type.
+    `own_titles`: the person's job titles, which this check can't drop (`names_own_title`)."""
     person = profile.model_dump(include=PERSON_FIELDS)
     result = QuickPass()
     result.places = {index: [] for index in indexes if needs_place(groups[index])}
@@ -144,7 +158,9 @@ def quick_pass(
 
     def finished(batch: list[int], answer: QuickPassAnswer) -> None:
         ids = {f"J{i}": i for i in batch}
-        unrelated = {ids[job_id] for job_id in answer.clearly_unrelated if job_id in ids}
+        unrelated = {ids[job_id] for job_id in answer.clearly_unrelated if job_id in ids
+                     and not names_own_title(groups[ids[job_id]].main.title, own_titles or [],
+                                             job_types)}
         result.unrelated.extend(sorted(unrelated))
         for found in answer.places:
             index = ids.get(found.id)

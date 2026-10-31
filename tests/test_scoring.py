@@ -3,6 +3,7 @@ import re
 
 import pytest
 
+from jobcu import relevance
 from jobcu.ai.base import ProviderAdapter, RawReply, Usage
 from jobcu.ai.client import AIClient
 from jobcu.dedupe import group_duplicates
@@ -323,6 +324,20 @@ def test_a_clipped_full_ad_is_an_excerpt_not_complete_evidence():
     assert "Only part of this lengthy ad was read for scoring" in result[0]["notes"]
 
 
+@pytest.mark.parametrize(("title", "wanted", "kept"), [
+    ("Contract Power Electronics Engineer", ["full_time_permanent", "fixed_term"], True),
+    ("Hardware Engineer", ["full_time_permanent"], True),
+    ("Registered Nurse (Night Shift)", ["full_time_permanent"], True),
+    ("Hardware Engineer Intern", ["full_time_permanent"], False),
+    ("Hardware Engineer Intern", None, True),
+    ("Hardware Sales Manager", ["full_time_permanent"], False),
+    ("Senior Hardware", ["full_time_permanent"], False),
+])
+def test_the_first_check_cannot_drop_the_person_s_own_job_titles(title, wanted, kept):
+    own = ["Power Electronics Engineer", "Hardware Engineer", "Registered Nurse", "Primary Teacher"]
+    assert relevance.names_own_title(title, own, wanted) is kept
+
+
 def test_quick_pass_only_accepts_ids_it_was_given():
     adapter = Scripted(lambda r: {"clearly_unrelated": ["J1", "J99", "nonsense"], "places": []})
     found = groups("Hardware Engineer", "Nurse")
@@ -575,7 +590,7 @@ def test_only_uk_jobs_lose_points_over_sponsorship():
     assert points("GB") == 5  # only eligible for a visa
     assert points("GB", sponsorship_confirmed=True) == 0  # the ad offers it
     assert points("GB", SPEAKER) == 5  # nothing stated
-    # The owner's rule (2026-10-30): no penalty for EU countries or Türkiye, rights stated or not.
+    # The owner's rule (2026-10-30): no penalty outside the UK, rights stated or not.
     for country in ("DE", "IE", "FR", "TR", None):
         assert points(country) == 0 and points(country, SPEAKER) == 0
     british = SPEAKER.model_copy(update={"work_rights": [

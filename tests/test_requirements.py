@@ -69,7 +69,7 @@ def test_unconfirmed_central_expertise_cannot_be_called_a_direct_core_match(expe
     limited = score([needed], ad=ad)
     assert limited["parts"]["role_and_skills"] == 35
     assert limited["score"] <= 80
-    assert "Central specialist expertise is unconfirmed" in limited["reasons"]
+    assert f"Not confirmed: {expertise}" in limited["reasons"]
     assert not any(limit["at"] == 55 for limit in limited["limits"])
     # An unsupported invented ad requirement cannot create this restriction.
     unsupported = score([needed], ad="A different mandatory qualification.")
@@ -80,7 +80,7 @@ def test_unconfirmed_central_expertise_cannot_be_called_a_direct_core_match(expe
         "profile_words": expertise, "status": "met"})], ad, person.model_dump())
     resolved = scoring.with_ad_read_online(limited, person, [], None, requirement_checks=grounded)
     assert resolved["parts"]["role_and_skills"] == 38 and resolved["score"] > 80
-    assert "Central specialist expertise is unconfirmed" not in resolved["reasons"]
+    assert not any(reason.startswith("Not confirmed") for reason in resolved["reasons"])
 
 
 @pytest.mark.parametrize(("field", "unsupported"), [
@@ -175,6 +175,58 @@ def test_composed_profile_quotes_cannot_invent_facts_or_remove_negation(quote):
     requirement = check("met", profile_words=quote)
     profile = {"skills": ["Ward care"], "summary": "Registration is not active."}
     assert requirements.ground([requirement], AD, profile)[0]["status"] == "unclear"
+
+
+SPECIALIST = PROFILE.model_copy(update={
+    "skills": ["Altium Designer", "PCB layout and assembly", "Ward care"],
+    "education": [{"degree": "MSc Physics (focus on Optics)",
+                   "institution": "Fictional University of Testing (FUT)", "finished": "2026"}],
+    "technical_areas": ["DC-DC converters (isolated, buck)"],
+})
+
+
+@pytest.mark.parametrize("quote", [
+    "Altium Designer; PCB layout and assembly",  # joined with another mark than a comma
+    "MSc Physics (focus on Optics), FUT",  # a degree with its university's short name
+    "MSc Physics (FUT); Ward care",
+    "DC-DC converters (isolated, buck), PCB layout",  # commas inside brackets, part of a fact
+])
+def test_models_may_join_and_shorten_stated_facts(quote):
+    assert requirements._profile_quote(quote, SPECIALIST.model_dump())
+
+
+@pytest.mark.parametrize("quote", [
+    "Altium Designer; RF design",  # an invented skill beside a real one
+    "MSc Chemistry (FUT)",  # a changed degree
+    "No Altium Designer",  # changed negation
+    "Designer Altium",  # a bag of words
+])
+def test_joined_quotes_still_cannot_invent_or_change_a_fact(quote):
+    assert not requirements._profile_quote(quote, SPECIALIST.model_dump())
+
+
+def test_part_of_a_word_is_not_a_quote():
+    person = SPECIALIST.model_dump()
+    assert not requirements._profile_quote("Alti; Ward care", person)
+    assert not requirements._profile_quote("Design; Ward care", person)
+
+
+@pytest.mark.parametrize("quote", [
+    "Controlled impedance routing, Differential pair routing, Length matching",
+    "controlled impedance ROUTING",
+    "Controlled impedance routing ... Length matching",
+    "Controlled impedance routing… Length matching",
+])
+def test_an_ad_s_list_may_come_back_as_one_line(quote):
+    ad = ("You bring:\n• Controlled impedance routing\n• Differential pair routing\n"
+          "• Length matching")
+    assert requirements._ad_quote(quote, ad)
+
+
+@pytest.mark.parametrize("quote", ["", "...", "Controlled routing", "routing ... Soldering"])
+def test_an_ad_quote_must_still_stand_in_the_ad(quote):
+    ad = "You bring:\n• Controlled impedance routing\n• Differential pair routing"
+    assert not requirements._ad_quote(quote, ad)
 
 
 def test_adjacent_bullet_quotes_keep_real_requirements_but_not_changed_comparisons():

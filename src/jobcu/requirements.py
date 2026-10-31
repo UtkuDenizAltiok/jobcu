@@ -65,15 +65,54 @@ def _profile_values(value) -> set[str]:
     return set()
 
 
+def _words(text: str) -> str:
+    return " " + " ".join(re.findall(r"\w+|[<>≤≥=+%€$£]", _plain(text))) + " "
+
+
+def _stated_in(quote: str, text: str) -> bool:
+    """The quote's words in a row, in whole words. Punctuation between them doesn't count: an ad's
+    bullet list can come back as "A, B, C", and "Für" capitalised differently is the same word.
+    Symbols that change a meaning ("> 20", "5+") do count."""
+    return _words(quote).strip() != "" and _words(quote) in _words(text)
+
+
+def _ad_quote(words: str, ad: str) -> bool:
+    """A quote from the ad; "..." may leave out what stands between its parts."""
+    parts = [part for part in re.split(r"\.{3,}|…", words) if part.strip()]
+    return bool(parts) and all(_stated_in(part, ad) for part in parts)
+
+
+def _named_facts(words: str) -> list[tuple[str, bool]]:
+    """The facts one quote names, and whether each stood in brackets: "MSc Physics (FUT); PCB
+    layout" names MSc Physics, FUT and PCB layout. Models join and shorten profile facts so."""
+    def split(text: str) -> list[str]:
+        return [fact.strip() for fact in re.split(r"[;,]", text) if fact.strip()]
+
+    inside = [fact for part in re.findall(r"\(([^()]*)\)", words) for fact in split(part)]
+    outside = split(re.sub(r"\([^()]*\)", ",", words))
+    return [(fact, False) for fact in outside] + [(fact, True) for fact in inside]
+
+
+def _fact_stated(fact: str, in_brackets: bool, values: set[str]) -> bool:
+    """A named fact stands in the profile word for word. One word alone needs more: "Ward, care"
+    takes "Ward care" apart, while "Debugging" as a skill and "FUT" as a university's short name
+    are stated facts."""
+    if len(fact.split()) > 1 or in_brackets:
+        return any(_stated_in(fact, value) for value in values)
+    plain = _plain(fact)
+    return plain in values or any(f"({plain})" in value for value in values)
+
+
 def _profile_quote(words: str, profile: str | dict) -> bool:
     if _plain(words) in _plain(str(profile)):
         return True
     if not isinstance(profile, dict):
         return False
-    parts = [_plain(part) for part in words.split(",")]
-    # A composed quote must consist entirely of complete stated values. Do not turn a bag
-    # of matching words, changed negation or an invented skill into supported evidence.
-    return len(parts) > 1 and all(parts) and set(parts) <= _profile_values(profile)
+    # A bag of matching words doesn't count, so changed negation or an invented skill stays
+    # unsupported.
+    values = _profile_values(profile)
+    facts = _named_facts(words)
+    return bool(facts) and all(_fact_stated(fact, inside, values) for fact, inside in facts)
 
 
 def ground(checks: list[RequirementCheck] | None, ad_text: str, profile_text: str | dict
@@ -81,7 +120,6 @@ def ground(checks: list[RequirementCheck] | None, ad_text: str, profile_text: st
     """Unsupported comparisons and conflicting answers become unknown, never blockers."""
     if checks is None:
         return None
-    ad = _plain(ad_text)
     found: dict[str, dict] = {}
     for check in checks:
         data = check.model_dump()
@@ -89,7 +127,7 @@ def ground(checks: list[RequirementCheck] | None, ad_text: str, profile_text: st
         data["grounding_issues"] = []
         data["requirement"] = check.requirement.strip() or "A stated requirement"
         words, fact = _plain(check.ad_words), _plain(check.profile_words)
-        if not words or words not in ad:
+        if not words or not _ad_quote(check.ad_words, ad_text):
             data["grounding_issues"].append("ad_quote_unverified")
         if check.status != "unclear" and (
                 not fact or not _profile_quote(check.profile_words, profile_text)):
