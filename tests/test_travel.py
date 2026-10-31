@@ -1282,6 +1282,35 @@ def test_the_ad_s_own_town_wins_over_a_place_an_aggregator_worked_out(profession
     assert travel.workplace_conflict(job) and travel.job_point(job) is None
 
 
+def test_a_small_town_near_the_feed_s_place_may_be_another_town_of_that_name():
+    # Search 14: "Cheadle, United Kingdom" listed as Stockport; the Cheadle on Jobcu's list is 49 km
+    # from there. Trusting it could wrongly rule the job out, so the job stays pending.
+    near = next(town for town in places.towns_in("DE")
+                if town.people < travel.SMALL_TOWN_PEOPLE and travel.HOME_TOWN_KM < places.km(
+                    town.latitude, town.longitude, *_munich()) <= travel.SAME_NAME_KM
+                and places.locate(town.name, "DE") == town)
+    job = group("Munich")
+    job.source_kinds = {"s": "aggregator"}
+    job.place_from_text = [near.name]
+    assert travel.workplace_conflict(job) and travel.job_point(job) is None
+    # A big town isn't in doubt, nor is a small one far from the feed's place.
+    job.place_from_text = ["Hamburg"]
+    assert not travel.workplace_conflict(job)
+    assert travel.job_point(job).town == places.find("Hamburg", "DE").name
+    far = next(town for town in places.towns_in("DE")
+               if town.people < travel.SMALL_TOWN_PEOPLE and places.km(
+                   town.latitude, town.longitude, *_munich()) > 300
+               and places.locate(town.name, "DE") == town)
+    job.place_from_text = [far.name]
+    assert not travel.workplace_conflict(job)
+    assert travel.job_point(job).town == far.name
+
+
+def _munich():
+    town = places.find("Munich", "DE")
+    return town.latitude, town.longitude
+
+
 def test_conflicting_ad_workplace_does_not_reuse_feed_point_or_old_journey():
     job = group("Berlin", latitude=52.52, longitude=13.405)
     job.place_from_text = ["Munich"]

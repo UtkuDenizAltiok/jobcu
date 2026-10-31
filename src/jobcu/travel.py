@@ -82,6 +82,9 @@ FASTEST_KMH = {"transit": 170, "drive": 120, "bicycle": 25, "walk": 7}
 # A job whose ad names a reference town is in it, wherever in the town its address is ("Moosach,
 # München" is Munich), unless the address is this far away: then it's another town of that name.
 HOME_TOWN_KM = 30.0
+# A town the ad names this small and this near a feed's place may share its name with another.
+SMALL_TOWN_PEOPLE = 15_000
+SAME_NAME_KM = 70.0
 # Destinations per round. Continue with further candidates only when no tested city fits;
 # this is a request batch size, never a limit on which living cities can qualify.
 NEAREST = 2
@@ -192,6 +195,23 @@ def _counts(group: JobGroup, copy) -> bool:
         and not place_list.names_more_places(copy.location_text))
 
 
+def _maybe_another_town_of_that_name(group: JobGroup, named: list[place_list.Town],
+                                     country: str | None) -> bool:
+    """A small town near a feed's place may be a different town of that name: "Cheadle, United
+    Kingdom" listed as Stockport is the Cheadle next to Stockport, but the one on Jobcu's list is 49
+    km away. Trusting it could wrongly rule the job out, so this stays a question."""
+    for copy in group.copies:
+        if _counts(group, copy) or place_list.names_more_places(copy.location_text):
+            continue
+        feed = place_list.locate(copy.location_text, country)
+        if feed is not None and any(
+                town.people < SMALL_TOWN_PEOPLE and HOME_TOWN_KM < place_list.km(
+                    town.latitude, town.longitude, feed.latitude, feed.longitude) <= SAME_NAME_KM
+                for town in named):
+            return True
+    return False
+
+
 def job_places(group: JobGroup) -> list[str]:
     """The job's places as written, the ones to believe first."""
     first = [copy.location_text for copy in group.copies
@@ -215,6 +235,8 @@ def workplace_conflict(group: JobGroup) -> bool:
     counted = [copy for copy in group.copies if _counts(group, copy)]
     stated = [town for copy in counted
               if (town := place_list.locate(copy.location_text, country)) is not None]
+    if _maybe_another_town_of_that_name(group, named, country):
+        return True
     points = [(c.latitude, c.longitude) for c in counted
               if c.latitude is not None and c.longitude is not None]
     return any(place_list.km(a.latitude, a.longitude, b.latitude, b.longitude) > HOME_TOWN_KM
