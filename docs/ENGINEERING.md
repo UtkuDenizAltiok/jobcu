@@ -12,7 +12,7 @@ itself as a newly edited checkout. State-changing routes require `X-Jobcu: 1`; C
 binding constrain browser access.
 
 `paths.py` locates private data outside every checkout. SQLite migrations are additive and
-numbered; `db.py` currently includes migration 21. Keys, settings, uploaded documents, logs,
+numbered; `db.py` currently includes migration 22. Keys, settings, uploaded documents, logs,
 reviews and capture files stay private. Reset actions are explicit, scoped and protect usage
 counters, settings and keys. Secure deletion/compaction is app-file behavior, not a promise
 about SSD snapshots or external backups.
@@ -67,7 +67,13 @@ cover that continuation, while usage is cumulative.
 - A click on a job's link reads that one page and sends the browser straight to its single, clear
   apply link, skipping sites that only repeat an ad. Searches never do this: those links can be
   paid per click. Sites that forbid reading or refuse it keep their link, and so does anything
-  unclear (`applylink.py`).
+  unclear (`applylink.py`). A page that plainly can't take the application (gone, 404/410; taking
+  applications only from people elsewhere; or only through CV-Library) is explained instead, and
+  its link is marked unusable like one the person reports. Routes that take applications only from
+  people in the UK (CV-Library, Learn4Good's UK pages) never count as a job's link.
+- The job memory knows a job by its source IDs, then by employer, title and town (the town its
+  location names, whatever the wording). When several remembered jobs share that name, none is
+  chosen and no saved state is shared, but the job counts as shown before.
 - Saved owner/legacy ratings are protected from automatic replacement. Optional review results
   are stored separately from production scores.
 
