@@ -198,6 +198,45 @@ def test_reads_further_pages_only_while_they_are_full():
     assert seen == ["0", "50"]
 
 
+def test_one_refused_search_leaves_only_its_words_out():
+    import pytest
+
+    from jobcu.sources.base import SourceError
+
+    terms = [term(f"Engineer {letter}") for letter in "ABCDEFGHIJKLMNOPQRST"]  # four searches
+
+    def run(refused):
+        report = SourceReport("freehire", "FreeHire")
+
+        def jobs(request):
+            number = len([r for r in asked if not r.url.path.endswith("/facets")])
+            if number in refused:
+                raise _Refused
+            return [ad(f"job{number}")]
+
+        asked = []
+
+        def handler(request):
+            asked.append(request)
+            try:
+                return answering(jobs)(request)
+            except _Refused:
+                return httpx.Response(400, json={"error": "bad query"})
+
+        found = list(freehire.FreeHireSource().search(query(terms), context(handler, report)))
+        return [job.source_job_id for job in found], report
+
+    ids, report = run({2})
+    assert ids == ["job1", "job3", "job4"]
+    assert report.status == "partial" and "left out" in report.message
+    with pytest.raises(SourceError):
+        run({1, 2, 3})
+
+
+class _Refused(Exception):
+    pass
+
+
 def test_slow_down_answer_ends_the_source_as_partial():
     report = SourceReport("freehire", "FreeHire")
 

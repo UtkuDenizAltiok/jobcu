@@ -67,6 +67,12 @@ _WORK_MODES = {"remote": "remote", "hybrid": "hybrid", "onsite": "on_site"}
 # ("jobs.example-group.com"): that names no company.
 _HOST_NAME = re.compile(r"(?:[\w-]+\.)+[a-z]{2,}", re.IGNORECASE)
 _GENDER = re.compile(r"\((?:[mwdfxi]\s*/\s*){1,3}[mwdfxi]\)", re.IGNORECASE)
+# One refused search leaves its words out; a run of them means FreeHire itself has a problem.
+MAX_FAILED_SEARCHES = 2
+
+
+class _OneSearchFailed(SourceError):
+    """This search couldn't be asked for; the others still can."""
 
 
 class FreeHireSource(JobSource):
@@ -84,6 +90,7 @@ class FreeHireSource(JobSource):
         # only show that a copy found fresh elsewhere is a repost.
         start = window_start(query.started_at, query.posted_within_hours + LAG_HOURS)
         seen: set[str] = set()
+        failed = 0
         try:
             originals = self._original_sources(budget, ctx)
             for number, search in enumerate(searches):
@@ -92,15 +99,23 @@ class FreeHireSource(JobSource):
                 # A fair part of what is left, so one broad word can't use up the rest.
                 left = (LIMITS.per_search or 0) - budget.used_this_search
                 pages = max(1, left // (len(searches) - number))
-                for job in self._run(search, query, budget, ctx, pages, originals):
-                    if job.source_job_id in seen:
-                        continue
-                    seen.add(job.source_job_id)
-                    if not matches_places(query.places, job.country, job.location_text):
-                        continue
-                    job.older_copy = freshness(
-                        job.posted_at, job.date_precision, start) == "too_old"
-                    yield job
+                try:
+                    for job in self._run(search, query, budget, ctx, pages, originals):
+                        if job.source_job_id in seen:
+                            continue
+                        seen.add(job.source_job_id)
+                        if not matches_places(query.places, job.country, job.location_text):
+                            continue
+                        job.older_copy = freshness(
+                            job.posted_at, job.date_precision, start) == "too_old"
+                        yield job
+                except _OneSearchFailed as exc:
+                    # One refused search word must not cost the others.
+                    failed += 1
+                    if failed > MAX_FAILED_SEARCHES:
+                        raise SourceError(str(exc)) from exc
+                    ctx.report.status = "partial"
+                    ctx.report.message = str(exc)
         except BudgetExhausted as exc:
             ctx.report.status = "partial"
             ctx.report.message = exc.message
@@ -116,7 +131,7 @@ class FreeHireSource(JobSource):
                 return
             params = {**search, "countries": [code.lower() for code in query.countries],
                       "open_within_days": days, "limit": PAGE_SIZE, "offset": offset}
-            body = self._get("/agent/jobs/search", params, budget, ctx)
+            body = self._get("/agent/jobs/search", params, budget, ctx, one_search=True)
             items = body.get("data")
             if not isinstance(items, list):
                 raise SourceError("FreeHire didn't answer with a job list.")
@@ -139,7 +154,8 @@ class FreeHireSource(JobSource):
             return frozenset()
         return frozenset(name for name in names if isinstance(name, str))
 
-    def _get(self, path: str, params: dict, budget: RequestBudget, ctx: SourceContext) -> dict:
+    def _get(self, path: str, params: dict, budget: RequestBudget, ctx: SourceContext,
+             one_search: bool = False) -> dict:
         budget.spend()
         ctx.report.requests += 1
         try:
@@ -149,7 +165,10 @@ class FreeHireSource(JobSource):
         if response.status_code == 429:
             raise BudgetExhausted("FreeHire asked Jobcu to slow down for now.")
         if response.status_code != 200:
-            raise SourceError(f"FreeHire answered with a problem (code {response.status_code}).")
+            problem = f"FreeHire answered with a problem (code {response.status_code})"
+            if one_search:
+                raise _OneSearchFailed(problem + ", so some search words were left out.")
+            raise SourceError(problem + ".")
         try:
             body = response.json()
         except ValueError as exc:
