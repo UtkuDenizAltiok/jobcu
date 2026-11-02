@@ -586,6 +586,8 @@ def test_a_lasting_right_to_work_clause_is_compared_with_the_stated_work_rights(
     "Lead Electronics Engineer (m/f/d)", "Principal Engineer R&D", "(Senior) Principal Scientist",
     "Head of Hardware Development", "Head Teacher", "Director of Nursing", "Chief Engineer",
     "Staff Engineer Device Development", "Staff Hardware Platform Engineer", "Ward Lead",
+    # Search 15 scored a 7-years "Sr Staff" role at 60: three words stood between.
+    "Sr Staff Analog IC Design Engineer", "Staff Mixed-Signal Digital Design Engineer - Cork",
     "Teamleiter Hardware Entwicklung", "Abteilungsleiter Pflege", "Leiter Entwicklung",
     "Projektleitung Elektrotechnik", "Senior/Principal Design Engineer",
 ])

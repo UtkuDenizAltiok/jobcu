@@ -61,7 +61,7 @@ LIMIT_LEADERSHIP = 50
 LEADERSHIP_TITLE = re.compile(
     r"(?:^|[\s/(,-])head of\b|^head\b(?! office)|\bdirector\b|\bchief\b|\bprincipal\b|\bvp\b|"
     r"\bvice president\b|\blead\b(?![- ](?:acid|free|time|generation))|"
-    r"\bstaff (?:[\w&-]+ ){0,2}engineer\b|\bleiter(?:in)?\b|\bleitung\b|"
+    r"\bstaff (?:[\w&-]+ ){0,4}engineer\b|\bleiter(?:in)?\b|\bleitung\b|"
     r"\b(?:team|gruppen|abteilungs|bereichs|projekt|werks|betriebs|labor|entwicklungs)"
     r"(?:leiter(?:in)?|leitung)\b", re.I)
 EARLY_CAREER = {"student", "graduate_or_entry", "junior"}
