@@ -4,7 +4,7 @@ from urllib.parse import quote
 import pytest
 from fastapi.testclient import TestClient
 
-from jobcu import applications, db, jobstore, search
+from jobcu import applications, applylink, db, jobstore, search
 from jobcu.app import create_app
 from jobcu.dedupe import JobGroup
 from jobcu.sources.base import FoundJob
@@ -235,6 +235,33 @@ def test_a_click_opens_only_saved_links_and_needs_no_page_header(monkeypatch):
     assert opened(card["job_id"], "https://evil.example.net/").status_code == 400
     assert opened(card["job_id"], "javascript:alert(1)").status_code == 400
     assert opened(9999, "https://board.example.org/jobs/1").status_code == 404
+
+
+def test_a_click_on_a_link_that_can_t_take_the_application_explains_and_excludes_it(
+        monkeypatch):
+    _, card, _ = saved_card(url="https://board.example.org/jobs/1")
+
+    def refuse(url):
+        raise applylink.Unusable(applylink.ELSEWHERE_ONLY)
+
+    monkeypatch.setattr("jobcu.applylink.destination", refuse)
+    client = TestClient(create_app(), base_url="http://127.0.0.1:8765")
+    reply = client.get(f"/api/jobs/{card['job_id']}/open?url="
+                       f"{quote('https://board.example.org/jobs/1', safe='')}",
+                       follow_redirects=False)
+    assert reply.status_code == 200 and reply.headers["cache-control"] == "no-store"
+    assert "only from people in the job" in reply.text and "Excluded jobs and links" in reply.text
+    assert applications.reported_urls() == {"https://board.example.org/jobs/1"}
+
+
+@pytest.mark.parametrize(("url", "uk_only"), [
+    ("https://www.learn4good.com/jobs/luton/uk/engineering/5578855491/e/", True),
+    ("https://www.learn4good.com/jobs/deutschland/ingenieure_and_ingenieur/5573628955/g/", False),
+    ("https://www.learn4good.com/jobs/munchen/deutschland/ingenieure/5573596420/g/", False),
+    ("https://board.example.org/jobs/uk/1", False),
+])
+def test_learn4good_s_uk_pages_are_a_uk_only_route_like_cv_library(url, uk_only):
+    assert applications.blocked(url) is uk_only
 
 
 def test_failed_report_rolls_back_without_affecting_saved_results():

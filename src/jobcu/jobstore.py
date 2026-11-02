@@ -16,7 +16,7 @@ from datetime import UTC, datetime, timedelta
 from jobcu import db
 from jobcu.dedupe import JobGroup, group_duplicates
 from jobcu.freshness import parse_iso
-from jobcu.jobidentity import IdentityIndex, aliases, copy_key, family_ids, rows
+from jobcu.jobidentity import IdentityIndex, aliases, copy_key, family_ids, fingerprints, rows
 from jobcu.jobidentity import identity_keys as identity_keys  # preserved helper for local tools
 from jobcu.sources.base import FoundJob
 
@@ -39,9 +39,43 @@ class JobState:
 
 def find_job_ids(groups: list[JobGroup]) -> list[int | None]:
     """The remembered job for each group, or None if this job was never seen."""
+    return find_jobs(groups)[0]
+
+
+def find_jobs(groups: list[JobGroup]) -> tuple[list[int | None], list[set[int]]]:
+    """The remembered job for each group, and for a group that matches several remembered jobs
+    exactly (employer, title and town) and so none of them, those jobs."""
+    add_town_keys()
     with db.connect() as conn:
         index = IdentityIndex.load(conn, groups)
-        return [index.resolve(group) for group in groups]
+        ids = [index.resolve(group) for group in groups]
+        return ids, [index.repeats.get(id(group), set()) for group in groups]
+
+
+def add_town_keys() -> None:
+    """Once: every remembered job also under the town its saved location names, as
+    jobidentity.fingerprints now keeps new ones, so "Ireland, Cork" is found again as "Cork"."""
+    with db.connect() as conn:
+        if conn.execute("SELECT 1 FROM repairs_done WHERE name = 'town_keys'").fetchone():
+            return
+        found = []
+        for job_id, title, company, card_json in conn.execute(
+                "SELECT j.id, j.title, j.company, c.card_json FROM jobs j "
+                "JOIN job_cards c ON c.job_id = j.id"):
+            try:
+                card = json.loads(card_json)
+            except ValueError:
+                continue
+            country = card.get("country") if isinstance(card.get("country"), str) else ""
+            group = JobGroup([FoundJob(source="memory", source_job_id="", url="", title=title,
+                                       company=company, location_text=card.get("location"),
+                                       country=country or None)])
+            found.extend((key, job_id, found_country)
+                         for key, found_country in fingerprints(group))
+        conn.execute("BEGIN IMMEDIATE")
+        conn.executemany(
+            "INSERT OR IGNORE INTO job_fingerprints (key, job_id, country) VALUES (?, ?, ?)", found)
+        conn.execute("INSERT OR IGNORE INTO repairs_done (name) VALUES ('town_keys')")
 
 
 def states(job_ids: list[int]) -> dict[int, JobState]:

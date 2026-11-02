@@ -623,7 +623,13 @@ def judge_languages(score: JobScore, profile: Profile) -> LanguageJudgement:
         if short <= 0:
             continue
         if not asked.must_have:
-            judgement.points = min(judgement.points, LANGUAGE_NICE_TO_HAVE_SHORT)
+            # Wished for in the ad's own language, it's still the language of the work: "good
+            # German desirable" in a German ad counts as a German ad naming no level would
+            # (search 15: someone two levels short got 12 of 15 here, 5 had the ad said nothing).
+            points = (IMPLIED_POINTS.get(short, IMPLIED_POINTS_FURTHER)
+                      if key == _language_key(score.ad_language)
+                      else LANGUAGE_NICE_TO_HAVE_SHORT)
+            judgement.points = min(judgement.points, points)
         elif short == 1:
             judgement.points = min(judgement.points, LANGUAGE_ONE_LEVEL_SHORT)
         else:

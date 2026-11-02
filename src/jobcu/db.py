@@ -272,6 +272,13 @@ MIGRATIONS: list[str] = [
     """
     ALTER TABLE ai_usage ADD COLUMN web_results INTEGER NOT NULL DEFAULT 0;
     """,
+    # 22: One-time repairs of kept data that need Python (jobstore.add_town_keys), by name.
+    """
+    CREATE TABLE repairs_done (
+        name TEXT PRIMARY KEY,
+        done_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+    );
+    """,
 ]
 
 

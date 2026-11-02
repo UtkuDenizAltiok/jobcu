@@ -104,3 +104,48 @@ def test_ad_texts_are_remembered_for_a_few_days_then_forgotten():
     with db.connect() as conn:
         conn.execute("UPDATE ad_texts SET fetched_at = ?", (old,))
     assert jobstore.remembered_ad(short) is None
+
+
+def placed(source, job_id, location, country="IE", title="Test Engineer", company="Flex"):
+    job = FoundJob(source=source, source_job_id=job_id, url="https://x", title=title,
+                   company=company, location_text=location, country=country)
+    return group_duplicates([job], {source: "job_board"})[0]
+
+
+def test_a_job_is_found_again_by_its_town_whatever_the_location_s_wording():
+    # Search 15: a Workday "Ireland, Cork" job came back from JSearch as "Cork, County Cork".
+    ids, _ = jobstore.remember([placed("workday", "WD1", "Ireland, Cork")], new_search())
+    found, repeats = jobstore.find_jobs([placed("jsearch", "J9", "Cork, County Cork")])
+    assert found == ids and repeats == [set()]
+    found, _ = jobstore.find_jobs([placed("jsearch", "J8", "Limerick")])
+    assert found == [None]
+
+
+def test_jobs_remembered_before_town_keys_are_repaired_once():
+    ids, _ = jobstore.remember([placed("workday", "WD1", "Ireland, Cork")], new_search())
+    with db.connect() as conn:  # memory written before town keys: only the first word kept
+        conn.execute("DELETE FROM job_fingerprints")
+        conn.execute("INSERT INTO job_fingerprints VALUES ('job:flex|test engineer|ireland',?,"
+                     "'IE')", (ids[0],))
+        conn.execute("INSERT INTO job_cards (job_id, card_json) VALUES (?, ?) ON CONFLICT "
+                     "(job_id) DO UPDATE SET card_json = excluded.card_json",
+                     (ids[0], json.dumps({"location": "Ireland, Cork", "country": "IE"})))
+        conn.execute("DELETE FROM repairs_done")
+    assert jobstore.find_jobs([placed("jsearch", "J9", "Cork")])[0] == ids
+    with db.connect() as conn:
+        assert conn.execute("SELECT count(*) FROM repairs_done").fetchone()[0] == 1
+
+
+def test_several_remembered_jobs_with_one_name_count_as_shown_before_but_none_is_chosen():
+    # Search 15: SALT AND PEPPER's ad was remembered four times, so a fifth copy was "new".
+    key = "job:salt and pepper|entwicklungsingenieur elektronik|bremen"
+    with db.connect() as conn:
+        for job_id in (41, 42):
+            conn.execute("INSERT INTO jobs (id, title, company) VALUES (?, ?, ?)",
+                         (job_id, "Entwicklungsingenieur Elektronik", "Salt and Pepper"))
+            conn.execute("INSERT INTO job_fingerprints VALUES (?, ?, 'DE')", (key, job_id))
+        conn.execute("INSERT INTO repairs_done (name) VALUES ('town_keys')")
+    copy = placed("c", "3", "Bremen", "DE", "Entwicklungsingenieur Elektronik", "Salt and Pepper")
+    found, repeats = jobstore.find_jobs([copy])
+    assert found == [None] and repeats == [{41, 42}]
+    assert set(jobstore.first_seen([41, 42])) == {41, 42}

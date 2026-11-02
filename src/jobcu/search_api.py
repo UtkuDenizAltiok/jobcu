@@ -1,9 +1,10 @@
 """Internal API for starting a search, following its progress, and job states."""
 
+import html
 import json
 
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from pydantic import BaseModel, Field
 
 from jobcu import (
@@ -207,8 +208,25 @@ def open_job_link(job_id: int, url: str) -> RedirectResponse:
         raise HTTPException(status_code=404, detail="Unknown saved job.") from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return RedirectResponse(applylink.destination(url), status_code=302,
-                            headers={"Cache-Control": "no-store"})
+    try:
+        target = applylink.destination(url)
+    except applylink.Unusable as exc:
+        # Taken off the list like a link the person marks unusable, and undone the same way.
+        applications.report_link(job_id, url)
+        return HTMLResponse(_unusable_page(str(exc)), headers={"Cache-Control": "no-store"})
+    return RedirectResponse(target, status_code=302, headers={"Cache-Control": "no-store"})
+
+
+def _unusable_page(why: str) -> str:
+    return (
+        '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width, initial-scale=1">'
+        '<title>Jobcu: link not usable</title>'
+        '<link rel="stylesheet" href="/static/style.css"></head>'
+        '<body><main class="unusable-link"><h1>This application link doesn\'t work for you</h1>'
+        f"<p>{html.escape(why)}</p>"
+        "<p>Jobcu has taken the job off your list. To bring it back, open "
+        "<b>Excluded jobs and links</b> above your results.</p></main></body></html>")
 
 
 @router.post("/jobs/{job_id}/application-link")

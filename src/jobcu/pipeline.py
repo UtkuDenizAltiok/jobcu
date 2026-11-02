@@ -564,6 +564,9 @@ def build_card(
         "posted_at": group.posted_at.isoformat() if group.posted_at else None,
         "date_precision": group.date_precision,
         "date_known": freshness(group.posted_at, group.date_precision, start) != "unknown",
+        # Dated before the window, kept because a site that lists ads late (JSearch, FreeHire)
+        # had it and Jobcu never showed it: its card says so.
+        "listed_late": freshness(group.posted_at, group.date_precision, start) == "too_old",
         "first_seen_at": first_seen_at.isoformat() if reposted else None,
         "closes_at": group.closes_at.isoformat() if group.closes_at else None,
         "score": scored["score"] if scored else None,

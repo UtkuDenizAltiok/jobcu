@@ -117,13 +117,49 @@ def test_a_click_reads_the_page_once_and_never_visits_the_apply_link_itself():
 
 @pytest.mark.parametrize("reply", [
     html("Blocked", 403),
-    html("Gone", 404),
+    html("Busy", 503),
     html(page('<a href="https://careers.example.com/1">Read more</a>')),
     httpx.Response(200, text="%PDF", headers={"content-type": "application/pdf"}),
 ])
 def test_a_page_that_gives_no_answer_keeps_the_link(reply):
     http, _ = client(reply)
     assert applylink.destination(AD, http) == AD
+
+
+L4G = "https://www.learn4good.com/jobs/deutschland/ingenieure_and_ingenieur/5573628955/g/"
+L4G_CLICK = ("https://www.learn4good.com/jobs/index.php?controller=job_page&action=click"
+             "&job_id=5573628955&source=job_page")
+
+
+def test_learn4good_s_bewerben_click_through_is_followed_by_the_browser():
+    # Its German pages (2026-11-02): the button is its own click-through address, which
+    # robots.txt keeps Jobcu from requesting; the person's browser follows it.
+    page_text = page(f'<a class="item" href="{L4G_CLICK}" rel="nofollow">Bewerben</a>',
+                     f'<a class="apply_button" href="{L4G_CLICK}">JETZT BEWERBEN &gt;&gt;</a>')
+    http, seen = client(html(page_text))
+    assert applylink.destination(L4G, http) == L4G_CLICK
+    assert seen == [L4G]
+    # On a site not known to pass people on, a same-site click address stays unclear.
+    other = "https://board.example.org/index.php?controller=job_page&action=click&job_id=1"
+    assert applylink.apply_link_in(page(f'<a href="{other}">Bewerben</a>'), AD) is None
+
+
+@pytest.mark.parametrize(("reply", "why"), [
+    # Learn4Good's UK pages to a visitor from abroad: no apply button (all 6 checked).
+    (html('<p>To Search, View &amp; Apply for jobs on this site that accept applications from '
+          'your location or country, tap here: <a href="/search/">View / Apply for Jobs<br>'
+          'Matching My Jurisdiction</a></p>'), applylink.ELSEWHERE_ONLY),
+    (html(page('<a href="https://www.cv-library.co.uk/job/1">Apply now</a>')), applylink.UK_ONLY),
+    (httpx.Response(302, headers={"location": "https://www.cv-library.co.uk/job/1"}),
+     applylink.UK_ONLY),
+    (html("Not found", 404), applylink.GONE),
+    (html("Gone", 410), applylink.GONE),
+])
+def test_a_page_that_can_t_take_the_application_says_why(reply, why):
+    http, seen = client(reply)
+    with pytest.raises(applylink.Unusable, match=why[:30]):
+        applylink.destination(AD, http)
+    assert seen == [AD]  # CV-Library itself is never asked
 
 
 def test_a_failed_connection_keeps_the_link():
