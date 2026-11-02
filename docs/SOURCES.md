@@ -284,11 +284,14 @@ merged. On 2026-11-02 its facets counted 229,817 open ads in Germany, 124,731 in
   Some of those systems Jobcu doesn't read itself (SmartRecruiters' robots.txt admits only
   LinkedIn's crawler): Jobcu reads FreeHire's copy, never those systems, and a click on such a
   link opens it as it is.
+- **EURES titles.** German EURES copies are the Bundesagentur's vacancies with the agency's
+  occupation added in brackets ("Senior Engineer (m/w/d) (Hardwareentwickler/in)": all 100 of a
+  day's sample). Jobcu removes that bracket, so the copy matches the agency's own ad.
 - **Coverage measured.** With a hardware engineering search's 25 titles (title only), FreeHire
   had 34 ads first known in the two days Jobcu had searched (29-31 October; the earlier of
   posted and first seen). Jobcu had collected 12 of them; 22 had reached it through no source,
   7 of those relevant: from Lenze's rexx, SMA's SuccessFactors, veralto's Workday, Agile
-  Robots' Greenhouse and Infineon's Eightfold systems, and two board copies (Adzuna, Loxo).
+  Robots' Greenhouse, Infineon's Eightfold and a recruiter's Loxo system, and one Adzuna copy.
 
 ### Source checks — 2026-10-30
 
