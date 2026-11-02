@@ -625,7 +625,7 @@ def judge_languages(score: JobScore, profile: Profile) -> LanguageJudgement:
         if not asked.must_have:
             # Wished for in the ad's own language, it's still the language of the work: "good
             # German desirable" in a German ad counts as a German ad naming no level would
-            # (search 15: an A2 speaker got 12 of 15 here, 5 had the ad said nothing).
+            # (search 15: someone two levels short got 12 of 15 here, 5 had the ad said nothing).
             points = (IMPLIED_POINTS.get(short, IMPLIED_POINTS_FURTHER)
                       if key == _language_key(score.ad_language)
                       else LANGUAGE_NICE_TO_HAVE_SHORT)
