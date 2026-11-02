@@ -53,6 +53,21 @@ def term_matches(term_text: str, text: str) -> bool:
     return len(joined) >= _COMPOUND and _contains_either_form(haystack.replace(" ", ""), joined)
 
 
+def broadest_titles(titles: list[str]) -> list[str]:
+    """The titles still worth asking a search site for: one whose words include all of another's
+    is found by that one already ("Embedded Hardware Engineer" by "Hardware Engineer")."""
+    kept: list[tuple[set[str], str]] = []
+    for title in sorted(dict.fromkeys(t.strip() for t in titles if t.strip()),
+                        key=lambda t: len(normalise(t).split())):
+        words = set(normalise(title).split())
+        if words and not any(other <= words for other, _ in kept):
+            kept.append((words, title))
+    order: dict[str, int] = {}
+    for position, title in enumerate(titles):
+        order.setdefault(title.strip(), position)
+    return sorted((title for _, title in kept), key=lambda t: order[t])
+
+
 def matches_terms(
     terms: Iterable[SearchTerm], languages: set[str], title: str, description: str = ""
 ) -> bool:

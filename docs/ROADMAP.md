@@ -5,8 +5,11 @@ suitable jobs, then cost, then speed. Every item states why it matters and how t
 done. Implementation details belong in pull requests; current behavior is described in
 [ENGINEERING](ENGINEERING.md) and source evidence in [SOURCES](SOURCES.md).
 
-## Recently completed (October 2026)
+## Recently completed (October and November 2026)
 
+- FreeHire, a free source without a key: employers' own ads from about 220 career systems
+  (many that Jobcu's employer list doesn't name), with the full text and the employer's link.
+  Dated by the earlier of the ad's date and FreeHire's first sight, so re-dated ads stay old.
 - Google Flex: the same Gemini model at half the token price, used together with request
   recovery, with retries and a normal-price fallback.
 - A fair monthly share of the research provider's free web searches, asking before more.

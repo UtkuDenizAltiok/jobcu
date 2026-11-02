@@ -12,6 +12,7 @@ from jobcu.sources.careers import CareerSystemSource
 from jobcu.sources.dvinci import DvinciSource
 from jobcu.sources.eightfold import EightfoldSource
 from jobcu.sources.euraxess import EuraxessSource
+from jobcu.sources.freehire import FreeHireSource
 from jobcu.sources.greenhouse import GreenhouseSource
 from jobcu.sources.jobsacuk import JobsAcUkSource
 from jobcu.sources.jobsireland import JobsIrelandSource
@@ -65,7 +66,7 @@ def career_sources() -> list[CareerSystemSource]:
 
 def all_sources() -> list[JobSource]:
     """Fresh source objects for one search, in the order they're shown."""
-    return [AdzunaSource(), JSearchSource(), ArbeitnowSource(), JobTechSource(),
+    return [AdzunaSource(), JSearchSource(), ArbeitnowSource(), FreeHireSource(), JobTechSource(),
             BundesagenturSource(), ServiceBundSource(), EuraxessSource(), JobsAcUkSource(),
             JobsIrelandSource(),
             ReedSource(), TeachingVacanciesSource(), NhsJobsSource(), LeForemSource(),

@@ -142,7 +142,11 @@ def test_a_country_with_more_search_words_gets_a_bigger_share():
 def test_adzuna_may_use_up_to_100_requests_when_the_month_allows():
     from jobcu.sources.budget import share_of_month
 
-    limits = share_of_month("adzuna", adzuna.LIMITS, most=adzuna.MOST_PER_SEARCH)
+    # Late in a month, so the equal share of an unused allowance is above the most (early in
+    # November it was 84 of the 2,400 over the month's planned searches).
+    late = datetime(2026, 10, 25, 12, tzinfo=UTC)
+    limits = share_of_month("adzuna", adzuna.LIMITS, most=adzuna.MOST_PER_SEARCH,
+                            now=lambda: late)
     assert limits.per_search == 100  # nothing used yet this month in this fictional database
 
 
