@@ -1250,3 +1250,14 @@ dialog::backdrop {
 .conditions p {
   margin: 4px 0 0;
 }
+
+/* The page a click shows instead of a link that can't take the person's application. */
+.unusable-link {
+  max-width: 34rem;
+  margin: 4rem auto;
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}

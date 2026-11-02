@@ -10,10 +10,15 @@ from jobcu import db
 from jobcu.dedupe import SOURCE_KIND_RANK, JobGroup, is_agency
 
 BLOCKED_HOSTS = frozenset({"cv-library.co.uk"})
+# Sites whose pages for UK jobs take applications only from people in the UK: all 6 of
+# Learn4Good's UK pages checked on 2026-11-02 showed a visitor from abroad no apply button (its 4
+# German pages had one), as CV-Library accepts only UK residents.
+UK_ONLY_PAGES = frozenset({"learn4good.com"})
 REDIRECT_FIELDS = frozenset({"url", "redirect", "redirect_url", "target", "destination", "to"})
 REPEATS_ADS = frozenset({"adzuna", "arbeitsagentur", "jobleads", "jooble", "learn4good", "talent",
                          "trabajo"})
-EXCLUSION_REASON = "CV-Library application route, with no other saved link"
+EXCLUSION_REASON = ("Applications only from the UK (CV-Library, Learn4Good's UK pages), with no "
+                    "other saved link")
 REPORTED_EXCLUSION_REASON = "Application link marked unusable, with no other saved link"
 
 
@@ -95,6 +100,9 @@ def blocked(url: str | None, depth: int = 0) -> bool:
     except ValueError:
         return False
     if any(host == site or host.endswith("." + site) for site in BLOCKED_HOSTS):
+        return True
+    if (any(host == site or host.endswith("." + site) for site in UK_ONLY_PAGES)
+            and "uk" in parts.path.lower().split("/")):
         return True
     # Some trackers expose their destination; opaque IDs cannot prove a final host.
     return depth < 3 and any(

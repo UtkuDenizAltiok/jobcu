@@ -872,6 +872,14 @@ refused Jobcu, Hays/Rise Technical terms that restricted collection, EURES' part
 and blocked publicjobs.ie, UK Civil Service Jobs and DWP Find a Job interfaces. These were not
 implemented as bypasses. Historical employer/board counts are not current vacancy coverage.
 
+**Learn4Good — 2026-11-02.** JSearch's only link for many UK and German ads. Its robots.txt allows
+job pages and disallows `/jobs/index.php?controller=*`, the address of its "Bewerben" button
+(`controller=job_page&action=click`); Jobcu never requests that address and only sends the
+person's browser there on a click. Of 10 pages read from outside the UK, all 6 UK pages showed
+no apply button but "View / Apply for Jobs Matching My Jurisdiction" ("jobs on this site that
+accept applications from your location"); all 4 German pages had the button. Its UK pages are
+therefore a UK-only route like CV-Library.
+
 ## Native Xiaomi interface — recorded 2026-10-22
 
 The [Chat API](https://mimo.mi.com/docs/en-US/api/chat/openai-api) documents the native endpoint,
