@@ -65,6 +65,7 @@ Countries below describe the adapter's scope, not complete market coverage.
 | Bundesagentur | Opt-in: off unless the person accepts its terms | [Access hold](#bundesagentur-access-hold--2026-10-17) and [owner's decision](#bundesagentur-opt-in--2026-10-30). |
 | JobsIreland | Ireland; public list and job pages | Match titles locally; an empty first page may be a service failure. |
 | Arbeitnow | Germany/UK feeds; public API | Free-text locations need interpretation. |
+| FreeHire | Every country; public search API, no key | Employers' own ads plus some board copies; [check](#freehire--2026-11-02). |
 | jobs.ac.uk | UK/Ireland; search pages and JobPosting data | Academic/research/technical jobs; personal-use terms. |
 | EURAXESS | Supported countries; research-job pages | Throttling and per-search request limits apply. |
 | JobTech | Sweden; public JobSearch API | Full text; local timestamps and paging limits need handling. |
@@ -254,6 +255,43 @@ Identity, earlier matching copies and permitted original posting/closing metadat
 needed to distinguish a fresh opening from a refreshed advertisement.
 
 These are retained decisions from dated checks; no new access was tested during this cleanup.
+
+### FreeHire — 2026-11-02
+
+[FreeHire](https://freehire.me) is an open-source catalogue of job ads that it reads from
+employers' career systems (about 220 systems such as Workday, SuccessFactors, Softgarden,
+SmartRecruiters, JOIN, Personio, rexx and coveto) and from about 130 boards, with duplicates
+merged. On 2026-11-02 its facets counted 229,817 open ads in Germany, 124,731 in the UK and
+11,262 in Ireland. Its [API](https://freehire.me/docs/api) needs no key:
+`/api/v1/agent/jobs/search` returns each hit's full text, `/api/v1/jobs/facets` the live counts.
+
+- **Permission.** Its [terms](https://freehire.me/terms) (updated 2026-10-28) forbid scraping
+  beyond the documented API and say that without a plan the API "is for personal and
+  non-commercial use — your own job search, research, or a tool you run for yourself", which
+  is how each person runs Jobcu. Showing its ads in a service for others needs a plan. Its
+  robots.txt allows `/api/` for every robot and asks robots to use the API instead of the
+  pages. The ads still belong to the employers.
+- **Limits.** 120 requests a minute (its `X-RateLimit-*` headers); Jobcu pauses 0.6 s between
+  requests and asks at most 80 times a search (one search on the day: 8 requests, 4 s).
+- **Dates.** `posted_at` is the date the ad's own source states, which some boards restate;
+  `created_at` is FreeHire's first sight. Jobcu dates a job by the earlier of the two and leaves
+  out an ad FreeHire flags as `fake_freshness`. It asks with `open_within_days` (first sight),
+  the window plus a 48-hour lag: of 81 recent ads, half were listed within 7.5 hours of their
+  date and the latest after 42. A late ad counts only while Jobcu never showed the job.
+- **Copies.** Ads from boards (Adzuna, Reed, EURES, XING and others) carry the board's link and
+  can hold only the start of the ad (Adzuna's 500 characters). Only ads from the sources the
+  facets list under `source_type=ats|company` count as complete ads on the employer's own page.
+  Some of those systems Jobcu doesn't read itself (SmartRecruiters' robots.txt admits only
+  LinkedIn's crawler): Jobcu reads FreeHire's copy, never those systems, and a click on such a
+  link opens it as it is.
+- **EURES titles.** German EURES copies are the Bundesagentur's vacancies with the agency's
+  occupation added in brackets ("Senior Engineer (m/w/d) (Hardwareentwickler/in)": all 100 of a
+  day's sample). Jobcu removes that bracket, so the copy matches the agency's own ad.
+- **Coverage measured.** With a hardware engineering search's 25 titles (title only), FreeHire
+  had 34 ads first known in the two days Jobcu had searched (29-31 October; the earlier of
+  posted and first seen). Jobcu had collected 12 of them; 22 had reached it through no source,
+  7 of those relevant: from Lenze's rexx, SMA's SuccessFactors, veralto's Workday, Agile
+  Robots' Greenhouse, Infineon's Eightfold and a recruiter's Loxo system, and one Adzuna copy.
 
 ### Source checks — 2026-10-30
 

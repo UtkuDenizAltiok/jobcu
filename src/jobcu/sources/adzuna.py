@@ -29,6 +29,7 @@ from jobcu.keywords import SearchTerm
 from jobcu.sources.base import FoundJob, JobQuery, JobSource, SourceContext, SourceError
 from jobcu.sources.budget import BudgetExhausted, Limits, RequestBudget, share_of_month
 from jobcu.sources.http import KeyCheck, client
+from jobcu.sources.matching import broadest_titles
 from jobcu.text import normalise
 
 log = logging.getLogger(__name__)
@@ -172,7 +173,7 @@ def plan_searches(terms: list[SearchTerm], country: str) -> list[dict]:
     """The Adzuna requests for one country, most precise first."""
     languages = ["en", *COUNTRIES[country].ad_languages]
     relevant = [t for t in terms if t.language in languages]
-    titles = _broadest([t.text for t in relevant if t.kind == "job_title"])
+    titles = broadest_titles([t.text for t in relevant if t.kind == "job_title"])
     searches: list[dict] = [{"title_only": title} for title in titles]
     first_spelling: dict[str, str] = {}
     for t in relevant:
@@ -184,21 +185,6 @@ def plan_searches(terms: list[SearchTerm], country: str) -> list[dict]:
                  for i in range(0, len(single), WORDS_PER_REQUEST)]
     searches += [{"what_phrase": skill} for skill in skills if " " in skill]
     return searches
-
-
-def _broadest(titles: list[str]) -> list[str]:
-    """The titles still worth asking for: one whose words include all of another's is found by
-    that one already ("Embedded Hardware Engineer" by "Hardware Engineer")."""
-    kept: list[tuple[set[str], str]] = []
-    for title in sorted(dict.fromkeys(t.strip() for t in titles if t.strip()),
-                        key=lambda t: len(normalise(t).split())):
-        words = set(normalise(title).split())
-        if words and not any(other <= words for other, _ in kept):
-            kept.append((words, title))
-    order: dict[str, int] = {}
-    for position, title in enumerate(titles):
-        order.setdefault(title.strip(), position)
-    return sorted((title for _, title in kept), key=lambda t: order[t])
 
 
 _CONTRACT_TYPES = {

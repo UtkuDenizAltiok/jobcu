@@ -60,6 +60,8 @@ SITE_INTERVALS = {
     "apply.workable.com": 1.0,
     "www.arbeitnow.com": 1.0,
     "www.arbeitnow.co.uk": 1.0,
+    # FreeHire's API allows 120 requests a minute (its X-RateLimit headers, 2026-11-02).
+    "freehire.me": 0.6,
     # Sweden's open job data (CC0, no stated limit): pages are big, so a short pause is enough.
     "jobsearch.api.jobtechdev.se": 0.5,
     # The German public sector's portal: its robots.txt asks for "Crawl-delay: 30".
