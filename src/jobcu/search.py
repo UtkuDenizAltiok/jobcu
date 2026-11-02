@@ -374,11 +374,14 @@ class SearchManager:
             message = ("Jobcu couldn't save this search. Keep Jobcu open to view any results; "
                        "they may be lost when you close it. Please try again.")
             error = f"{error} {message}" if error else message
+        if run.capture:
+            # Before the search says it's done, so whoever sees it done finds the capture
+            # complete (CI read it a moment too early, 2026-11-02).
+            run.capture.event("finished",
+                              snapshot={**run.snapshot(), "status": status, "error": error})
         with run._lock:
             run.error = error
             run.status = status
-        if run.capture:
-            run.capture.event("finished", snapshot=run.snapshot())
 
     def stop(self, search_id: int) -> bool:
         run = self._current

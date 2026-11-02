@@ -293,9 +293,9 @@ def group_duplicates(jobs: list[FoundJob], source_kinds: dict[str, str]) -> list
                     continue
                 if is_agency(jobs[a].company):
                     # Agencies post near-identical ads for different clients: the text must match.
-                    if title_score >= TITLE_MATCH and _both_full_and_similar(
-                        jobs[a], jobs[b], TEXT_MATCH, text_cache
-                    ):
+                    if title_score >= TITLE_MATCH and (
+                            _both_full_and_similar(jobs[a], jobs[b], TEXT_MATCH, text_cache)
+                            or _summary_of(jobs[a], jobs[b], text_cache)):
                         union(a, b)
                 elif title_score >= TITLE_MATCH:
                     union(a, b)
@@ -398,6 +398,19 @@ def _both_full_and_similar(a: FoundJob, b: FoundJob, threshold: float,
     return (min(len(_prepared_shingles(a.description, cache)),
                 len(_prepared_shingles(b.description, cache))) >= SUMMARY_SHINGLES
             and _text_similarity(a.description, b.description, cache) >= SUMMARY_TEXT_MATCH)
+
+
+def _summary_of(a: FoundJob, b: FoundJob, cache: dict[str, set[str]] | None = None) -> bool:
+    """One copy is a job site's summary (Adzuna's first 500 characters) of the other's full ad:
+    nearly all of it stands word for word in the full text. Search 15 showed one recruiter's
+    ad as two cards, scored 88 from the full ad and 75 from the summary; three such pairs had
+    0.99-1.0 of the summary in the full ad, the agencies' other ads at most 0.53."""
+    if a.description_is_complete == b.description_is_complete:
+        return False
+    summary, full = (b, a) if a.description_is_complete else (a, b)
+    return (len(_prepared_shingles(summary.description, cache)) >= SUMMARY_SHINGLES
+            and _text_similarity(summary.description, full.description, cache)
+            >= SUMMARY_TEXT_MATCH)
 
 
 def _same_ad_retitled(a: FoundJob, b: FoundJob, title_a: str, title_b: str,

@@ -106,6 +106,11 @@ ENGLISH_REGIONS: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
 }
 _ENGLISH_MEMBERS = {code: frozenset(f"GB.ENG.{district}" for district in districts)
                     for code, (_, districts) in ENGLISH_REGIONS.items()}
+# Like a state, England's regions are no towns, London aside: Adzuna's "West Yorkshire, Yorkshire
+# And The Humber" was read as the hamlet of Humber in Herefordshire (search 15), 200 km away.
+_ENGLISH_REGION_NAMES = frozenset(
+    normalise(name) for code, (spellings, _) in ENGLISH_REGIONS.items()
+    if code != "GB.ENG.TLI" for name in spellings)
 
 
 def region_inside(inner: str, outer: str) -> bool:
@@ -256,6 +261,8 @@ def _is_region(part: str, country: str | None) -> bool:
     region's own country it always does. Elsewhere a town of that name is that town ("Munster" is
     a province of Ireland and a town in Germany), but no other town is read out of it
     ("Baden-Württemberg" isn't Baden in Switzerland). With no country it counts as the region."""
+    if normalise(part) in _ENGLISH_REGION_NAMES and country in (None, "GB"):
+        return True
     countries = _REGIONS.get(normalise(part))
     return countries is not None and (
         country is None or country in countries or find(part, country) is None)

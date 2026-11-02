@@ -52,6 +52,17 @@ def test_states_and_nations_are_never_read_as_a_town():
     assert places.locate("Berlin", "DE").name == "Berlin"  # a city state is a town too
 
 
+def test_england_s_regions_are_no_towns_but_london_is():
+    # Search 15: Adzuna's "West Yorkshire, Yorkshire And The Humber" was the hamlet of Humber.
+    for text in ("Yorkshire And The Humber", "West Yorkshire, Yorkshire And The Humber",
+                 "Yorkshire and Humber", "East Midlands", "South East England"):
+        assert places.locate(text, "GB") is None, text
+    assert places.locate("Leeds, West Yorkshire, Yorkshire And The Humber", "GB").name == "Leeds"
+    assert places.locate("Nottingham, East Midlands", "GB").name == "Nottingham"
+    assert places.locate("London", "GB").name == "London"
+    assert places.locate("Greater London", "GB").name == "London"
+
+
 def test_a_region_is_no_town_only_in_its_own_country():
     # Munster is a province of Ireland and a town in Germany, France and Austria, and Thüringen a
     # German state and a town in Austria.

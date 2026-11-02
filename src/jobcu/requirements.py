@@ -79,7 +79,18 @@ def _stated_in(quote: str, text: str) -> bool:
 def _ad_quote(words: str, ad: str) -> bool:
     """A quote from the ad; "..." may leave out what stands between its parts."""
     parts = [part for part in re.split(r"\.{3,}|…", words) if part.strip()]
-    return bool(parts) and all(_stated_in(part, ad) for part in parts)
+    apart = _JOINED_AFTER_WORD.sub(r"\1 \2", _JOINED_AFTER_CAPITALS.sub(r"\1 \2", ad))
+    return bool(parts) and all(_stated_in(part, ad) or _stated_in(part, apart) for part in parts)
+
+
+# Some feeds join an ad's lines without a space ("Test und QualitätssicherungAbgeschlossenes
+# Studium", "SAP PLMSehr gute", "1 kVErfahrung"; 35 of JSearch's 252 ads in search 15), and a
+# faithful quote of the next line then began inside a word: 22 of 32 refused ad quotes. A small
+# letter, or capitals, running into a capitalised word mark such a join; the ad's own spelling
+# ("LabVIEW", "PCIe") still matches as it is.
+_UPPER, _LOWER = "A-ZÀ-ÖØ-Þ", "a-zß-öø-ÿ"
+_JOINED_AFTER_WORD = re.compile(rf"([{_LOWER}])([{_UPPER}])")
+_JOINED_AFTER_CAPITALS = re.compile(rf"([{_UPPER}])([{_UPPER}][{_LOWER}])")
 
 
 def _named_facts(words: str) -> list[tuple[str, bool]]:
