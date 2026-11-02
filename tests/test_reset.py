@@ -50,6 +50,7 @@ def populated(temporary_data_dir):
                      "VALUES ('location','example','{}')")
         conn.execute("INSERT INTO ad_texts (source,source_job_id,details_json) "
                      "VALUES ('example','ad','{}')")
+        conn.execute("INSERT INTO repairs_done (name) VALUES ('example')")
         conn.execute("INSERT INTO travel_memory VALUES ('a','b','train','ai',12,'2026-10-09')")
         conn.execute("INSERT INTO found_employers VALUES "
                      "('example','board','Fictional Clinic','DE',0,'Town','2026-10-09')")

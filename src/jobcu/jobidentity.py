@@ -6,6 +6,7 @@ from collections import defaultdict
 from collections.abc import Iterable, Iterator
 from itertools import batched
 
+from jobcu import places as place_list
 from jobcu.dedupe import SOURCE_KIND_RANK, JobGroup, normal_city, normal_company, normal_title
 
 
@@ -16,15 +17,22 @@ def copy_key(source: str, vacancy: str) -> str:
 def fingerprints(group: JobGroup) -> list[tuple[str, str]]:
     entries = []
     for copy in group.copies:
-        # Older keys dropped non-ASCII dashes, joining adjacent words. Keep their
-        # spelling as an alias so existing marks survive without rewriting history.
+        # The town the location names, whatever its wording: Flex's Cork job was remembered as
+        # "Ireland, Cork" (its first word, "ireland") and came back from JSearch as "Cork", a
+        # "new" job two days later (search 15).
+        town = (place_list.locate(copy.location_text, copy.country, villages=False)
+                if copy.country else None)
+        # Older keys dropped non-ASCII dashes, joining adjacent words, and used the location's
+        # first word. Keep their spelling as an alias so existing marks survive.
         for legacy in (False, True):
             company = normal_company(copy.company, legacy_dashes=legacy)
             title = normal_title(copy.title, legacy_dashes=legacy)
             if company and title:
-                city = normal_city(copy.location_text, legacy_dashes=legacy)
-                key = f"job:{company}|{title}|{city}"
-                entries.append((key, (copy.country or "").upper()))
+                cities = [normal_city(copy.location_text, legacy_dashes=legacy)]
+                if town is not None:
+                    cities.append(normal_city(town.name, legacy_dashes=legacy))
+                entries.extend((f"job:{company}|{title}|{city}", (copy.country or "").upper())
+                               for city in cities)
     return list(dict.fromkeys(entries))
 
 
@@ -84,6 +92,9 @@ class IdentityIndex:
         self.ambiguous_names: dict[int, set[str]] = defaultdict(set)
         self.entries: dict[int, list[tuple[str, str]]] = {}
         self.linked: dict[int, int] = {}
+        # Remembered jobs that each have this group's employer, title and town, when more than
+        # one does: none is chosen, but the job was there before.
+        self.repeats: dict[int, set[int]] = {}
 
     def name_entries(self, group: JobGroup) -> list[tuple[str, str]]:
         if id(group) not in self.entries:
@@ -203,8 +214,11 @@ class IdentityIndex:
                       if key not in self.ambiguous_names[id(group)] for job_id in self.names[key]
                       if self._compatible(group, job_id, names_only=True)}
         # A title/employer/town match is insufficient when several vacancies share it.
+        if len(candidates) > 1:
+            self.repeats[id(group)] = candidates
+            return None
         if candidates:
-            return next(iter(candidates)) if len(candidates) == 1 else None
+            return next(iter(candidates))
         return self._placeholder_town_match(group)
 
     def _placeholder_town_match(self, group: JobGroup) -> int | None:

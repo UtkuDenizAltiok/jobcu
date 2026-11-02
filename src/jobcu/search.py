@@ -628,14 +628,23 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
     run.update("filtering", "running")
     groups = pipeline.make_groups(collected)
     jobstore.link_copies(groups)
-    remembered = jobstore.find_job_ids(groups)
+    remembered, repeats = jobstore.find_jobs(groups)
     states = jobstore.states([job_id for job_id in remembered if job_id])
     remembered_states = [states.get(job_id) if job_id else None for job_id in remembered]
-    shown = jobstore.first_seen([job_id for job_id in remembered if job_id])
+    shown = jobstore.first_seen([job_id for job_id in remembered if job_id]
+                                + [job_id for same in repeats for job_id in same])
+
+    def first_shown(job_id, same):
+        # Several remembered jobs with this employer, title and town: no saved state is shared,
+        # but it isn't new either (SALT AND PEPPER's ad came back as a fifth "new" job).
+        dates = [shown[i] for i in ([job_id] if job_id else same) if i in shown]
+        return min(dates) if dates else None
+
     outcome = apply_rules(
         groups,
         remembered_states,
-        first_shown=[shown.get(job_id) if job_id else None for job_id in remembered],
+        first_shown=[first_shown(job_id, same)
+                     for job_id, same in zip(remembered, repeats, strict=True)],
         started_at=query.started_at,
         posted_within_hours=form.posted_within_hours,
         job_types=form.job_types,

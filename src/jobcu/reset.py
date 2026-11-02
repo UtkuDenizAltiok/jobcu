@@ -28,7 +28,7 @@ SEARCH_TABLES = (
     "job_keys",
     "search_results", "search_pool", "jobs", "searches", "profile_cache", "preparation_cache",
     "ad_texts",
-    "travel_memory", "found_employers", "employer_searches",
+    "travel_memory", "found_employers", "employer_searches", "repairs_done",
 )
 KEEP_FILES = {
     SETTINGS_FILENAME, KEYS_FILENAME, "assistant-authorization.json", "README.txt",
