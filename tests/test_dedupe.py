@@ -256,6 +256,53 @@ def test_two_summaries_of_one_agency_ad_merge_only_when_nearly_word_for_word_the
     assert len(group_duplicates(short, KINDS)) == 2
 
 
+def test_an_agency_ad_and_a_job_site_summary_of_it_are_one_job():
+    # Search 15: one recruiter's graduate ad came as two cards, 88 from JSearch's full ad and 75
+    # from Adzuna's summary of it.
+    full = ("Graduate Electronics Engineer - Derby - LM1257f. My client, a manufacturer of "
+            "specialist electronic equipment, seeks a graduate electronics engineer to join its "
+            "growing team near Derby. You will design analogue and digital circuits, lay out "
+            "boards and test prototypes, working with production and quality. A degree in "
+            "electronic engineering is needed; training is given. ") + "Benefits and more. " * 30
+    summary = full[:420] + "…"
+    a = job("board", "1", company="Advanced Technical Recruitment", city="Derby",
+            description=full, description_is_complete=True)
+    b = job("adzuna", "2", company="Advanced Technical Recruitment", city="Derby",
+            description=summary)
+    assert len(group_duplicates([a, b], KINDS)) == 1
+    # Another client's ad with the same title, and a summary too short to tell, stay apart.
+    other = summary.replace("specialist electronic equipment", "medical lasers") \
+        .replace("analogue and digital circuits", "laser driver boards and power stages")
+    c = job("adzuna", "3", company="Advanced Technical Recruitment", city="Derby",
+            description=other)
+    assert len(group_duplicates([a, c], KINDS)) == 2
+    d = job("adzuna", "4", company="Advanced Technical Recruitment", city="Derby",
+            description=full[:120])
+    assert len(group_duplicates([a, d], KINDS)) == 2
+
+
+def test_a_summary_never_joins_two_different_full_ads():
+    full = ("Our client designs power converters for rail and marine customers and seeks an "
+            "electronics engineer for its lab near Derby. You will design and test boards, "
+            "simulate circuits, write test reports, support production and quality teams, visit "
+            "suppliers now and then and help the service team with returned units. A degree in "
+            "electronic engineering and some lab experience are needed; training is given. "
+            "The role is permanent, full time and based on site with flexible hours. ") * 2
+    other = ("Our client builds medical lasers and needs an electronics engineer near Derby to "
+             "align optics, calibrate laser drivers, keep the clean room running and train "
+             "hospital technicians on site. Night shifts may be needed during audits. ") * 3
+    summary = full[:440]
+    jobs = [job("board", "1", company="AMF Recruitment", city="Derby", description=full,
+                description_is_complete=True),
+            job("board", "2", company="AMF Recruitment", city="Derby", description=other,
+                description_is_complete=True),
+            job("adzuna", "3", company="AMF Recruitment", city="Derby", description=summary)]
+    for order in permutations(jobs):
+        groups = group_duplicates(list(order), KINDS)
+        assert len(groups) == 2
+        assert {len(g.copies) for g in groups} == {1, 2}
+
+
 @pytest.mark.parametrize("title", ["Power Electronics Engineer", "Registered Nurse", "Chef"])
 def test_distinct_employer_vacancies_stay_separate_even_with_identical_ad_templates(title):
     kinds = {**KINDS, "employer": "employer"}
