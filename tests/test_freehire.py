@@ -146,6 +146,33 @@ def test_country_names_and_places():
     assert {job.source_job_id: job.country for job in found} == {"munich": "DE", "london": "GB"}
 
 
+def test_the_occupation_eures_adds_to_german_titles_is_left_out():
+    def title(text, country="DE"):
+        item = ad("e", title=text, source="eures", countries=(country.lower(),),
+                  location="Dresden, Germany" if country == "DE" else "Cork, Ireland")
+        return freehire.to_found_job(item, [country], frozenset()).title
+
+    assert title("Senior Engineer (m/w/d) (Embedded-Systems-Entwickler/in)") == \
+        "Senior Engineer (m/w/d)"
+    assert title("Bautechniker (m/w/d), Köln (Techniker/in - Elektrotechnik (Informations- und "
+                 "Kommunikationstechnik))") == "Bautechniker (m/w/d), Köln"
+    assert title("Hardwareentwickler (m/w/d)") == "Hardwareentwickler (m/w/d)"
+    assert title("Hardwareentwickler (Elektronik") == "Hardwareentwickler (Elektronik"
+    assert title("Hardware Engineer (Cork)", "IE") == "Hardware Engineer (Cork)"
+    # Merged with the agency's own ad once the occupation is gone.
+    from jobcu.dedupe import group_duplicates
+    from jobcu.sources.base import FoundJob
+
+    eures = freehire.to_found_job(
+        ad("e", title="Senior Engineer (m/w/d) (Hardwareentwickler/in)", source="eures",
+           location="Dresden, Germany"), ["DE"], frozenset())
+    agency = FoundJob(source="bundesagentur", source_job_id="1-2", url="https://example.com/1",
+                      title="Senior Engineer (m/w/d)", company="FakeCo GmbH",
+                      location_text="Dresden", country="DE")
+    assert len(group_duplicates([eures, agency], {"bundesagentur": "job_board",
+                                                  "freehire": "aggregator"})) == 1
+
+
 def test_a_career_system_address_is_not_a_company_name():
     item = ad("x")
     item["company"] = "jobs.example-group.com"

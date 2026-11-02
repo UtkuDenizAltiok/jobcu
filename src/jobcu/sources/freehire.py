@@ -66,6 +66,7 @@ _WORK_MODES = {"remote": "remote", "hybrid": "hybrid", "onsite": "on_site"}
 # Some career systems give their own address instead of the employer's name
 # ("jobs.example-group.com"): that names no company.
 _HOST_NAME = re.compile(r"(?:[\w-]+\.)+[a-z]{2,}", re.IGNORECASE)
+_GENDER = re.compile(r"\((?:[mwdfxi]\s*/\s*){1,3}[mwdfxi]\)", re.IGNORECASE)
 
 
 class FreeHireSource(JobSource):
@@ -202,7 +203,10 @@ def to_found_job(item: dict, searched: list[str], originals: frozenset[str]) -> 
     if country is None:
         return None
     posted, precision = _first_date(item)
-    original = _text(item.get("source")) in originals
+    source = _text(item.get("source"))
+    original = source in originals
+    if source == "eures" and country == "DE":
+        title = _without_occupation(title)
     company = html.unescape(_text(item.get("company")))
     return FoundJob(
         source="freehire",
@@ -220,6 +224,26 @@ def to_found_job(item: dict, searched: list[str], originals: frozenset[str]) -> 
         employer_url=url if original else None,
         closes_at=parse_closing(_text(item.get("application_deadline"))),
     )
+
+
+def _without_occupation(title: str) -> str:
+    """EURES adds the Bundesagentur's occupation to German titles ("Senior Engineer (m/w/d)
+    (Ingenieur/in - Elektrotechnik)", all 100 of a day's sample on 2026-11-02). It isn't the
+    employer's title, and kept, the copy never matched the agency's own ad: two cards for one
+    job. A gender marker at the end is the title's own and stays."""
+    if not title.endswith(")"):
+        return title
+    depth = 0
+    for position in range(len(title) - 1, -1, -1):
+        if title[position] == ")":
+            depth += 1
+        elif title[position] == "(":
+            depth -= 1
+            if depth == 0:
+                if _GENDER.fullmatch(title[position:]):
+                    return title
+                return title[:position].rstrip() or title
+    return title
 
 
 def _first_date(item: dict) -> tuple[datetime | None, DatePrecision]:
