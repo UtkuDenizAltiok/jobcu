@@ -223,6 +223,29 @@ def test_an_ad_s_list_may_come_back_as_one_line(quote):
     assert requirements._ad_quote(quote, ad)
 
 
+@pytest.mark.parametrize("quote", [
+    "Abgeschlossenes Studium der Elektrotechnik",
+    "Test und Qualitätssicherung",
+    "Qualitätssicherung ... Elektrotechnik, Elektronik",
+    "LabVIEW programming",
+    "Gute Kenntnisse in SAP PLM",
+    "Erfahrung in Planung und Inbetriebnahme",
+])
+def test_a_quote_counts_where_a_feed_joined_two_lines(quote):
+    # A feed's text, lines joined without a space (JSearch, 2026-11-02).
+    ad = ("Software, Test und QualitätssicherungAbgeschlossenes Studium der Elektrotechnik, "
+          "Elektronik oder vergleichbarErfahrung mit LabVIEW programming und PCIeGute "
+          "Kenntnisse in SAP PLMSehr gute Deutschkenntnisse, Anlagen bis 1 kVErfahrung in "
+          "Planung und Inbetriebnahme")
+    assert requirements._ad_quote(quote, ad)
+
+
+@pytest.mark.parametrize("quote", ["Studium der Physik", "sicherung Abgeschlossenes Abitur"])
+def test_a_joined_line_still_needs_the_ad_s_own_words(quote):
+    ad = "Test und QualitätssicherungAbgeschlossenes Studium der Elektrotechnik"
+    assert not requirements._ad_quote(quote, ad)
+
+
 @pytest.mark.parametrize("quote", ["", "...", "Controlled routing", "routing ... Soldering"])
 def test_an_ad_quote_must_still_stand_in_the_ad(quote):
     ad = "You bring:\n• Controlled impedance routing\n• Differential pair routing"
