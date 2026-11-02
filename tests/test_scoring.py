@@ -148,6 +148,21 @@ def test_one_level_short_or_only_a_plus_costs_some_language_points_but_sets_no_l
     assert met["parts"]["languages"] == 15
 
 
+def test_a_language_wished_for_in_its_own_ad_counts_as_the_language_of_the_work():
+    # Search 15: a German ad wishing for good German gave an A2 speaker 12 of 15 (and the job
+    # 89), where the same ad saying nothing about German gives 5.
+    wished = scored(ad_language="German", languages_asked=[asked("German", "B2", must_have=False),
+                                                           asked("English", "B2", must_have=False)])
+    silent = scored(ad_language="German", languages_asked=[asked("English", "B2")])
+    assert wished["parts"]["languages"] == silent["parts"]["languages"] == 5
+    assert wished["limits"] == []  # still no limit: the ad doesn't require it
+    one_short = scored(ad_language="German", languages_asked=[asked("German", "B1", False)])
+    assert one_short["parts"]["languages"] == 10
+    # Wished for in an ad written in another language, it stays a plus.
+    english_ad = scored(ad_language="English", languages_asked=[asked("German", "B2", False)])
+    assert english_ad["parts"]["languages"] == 12
+
+
 def test_an_ad_written_in_german_that_names_no_level_is_low_but_not_zero():
     result = scored(ad_language="German", languages_asked=[asked("English", "B2")])
     assert result["parts"]["languages"] == 5 and result["limits"] == []
