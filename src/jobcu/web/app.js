@@ -1021,6 +1021,19 @@ const SCORE_PARTS = [
 
 const WORK_MODES = { remote: "Remote", hybrid: "Hybrid", on_site: "On-site" };
 
+// The exact hours "Posted within" covered, so the window is never a guess: 24 hours from Tuesday
+// 23:07 reach Wednesday 23:07, across two calendar days.
+function postedWindow(search) {
+  const hours = search.form?.posted_within_hours;
+  const started = search.started_at ? new Date(search.started_at) : null;
+  if (!hours || !started || Number.isNaN(started.getTime())) return "";
+  const from = new Date(started.getTime() - hours * 3600 * 1000);
+  const when = (date) => date.toLocaleString(undefined, {
+    weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
+  });
+  return ` · ads posted from ${when(from)} to ${when(started)}`;
+}
+
 function renderResults() {
   $("retry-checks").hidden = !state.search.can_edit_conditions;
   const jobs = state.search.result.jobs;
@@ -1029,7 +1042,8 @@ function renderResults() {
   const newCount = jobs.new_count;
   $("results-summary").textContent =
     `${shown} ${shown === 1 ? "job" : "jobs"} found` +
-    (newCount ? `, ${newCount} new since your last search` : "");
+    (newCount ? `, ${newCount} new since your last search` : "") +
+    postedWindow(state.search);
 
   const dismissedNow = [...jobs.cards, ...jobs.date_unknown, ...pendingLocation]
     .filter((c) => c.state.dismissed);
