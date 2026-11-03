@@ -57,7 +57,10 @@ cover that continuation, while usage is cumulative.
 - Duplicate identity uses source/requisition identifiers and supporting evidence. Distinct
   requisitions remain separate despite similar names/templates. Ambiguous copies cannot share
   saved/applied/dismissed state solely through title similarity.
-- Original publication/closing dates and job memory distinguish fresh jobs from reposts.
+- Original publication/closing dates and job memory distinguish fresh jobs from reposts. A job an
+  earlier search showed is left out ("Shown in an earlier search already") unless an exact
+  date proves it was posted after the window began: a date given only as a day, or a late
+  listing, spans two daily windows. Saved results follow the same rule when opened.
   Modification timestamps and sitemap lastmod do not establish an original posting date.
 - Full-ad facts replace unsupported summary assumptions. Grounded mandatory requirements and
   known blockers constrain scores; unknowns remain explicit. Low-scoring jobs are retained.

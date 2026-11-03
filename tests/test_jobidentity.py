@@ -126,8 +126,11 @@ def test_linked_history_view_removes_proven_reposts_and_exposes_score_disagreeme
     now = datetime.now(UTC)
     with db.connect() as conn:
         conn.execute("UPDATE jobs SET first_seen_at=?", ((now - timedelta(hours=1)).isoformat(),))
+    # Dated exactly after the window began, so the earlier showing doesn't make them repeats.
+    posted = (now - timedelta(minutes=30)).isoformat()
     original = {"started_at": now.isoformat(), "form": {"posted_within_hours": 24}, "result": {
         "jobs": {"cards": [{"job_id": i, "score": score, "parts": {}, "is_new": True,
+                            "posted_at": posted, "date_precision": "exact",
                             "main_link": {"source": "Board", "url": f"https://example.test/{i}"}}
                            for i, score in zip(ids, [74, 76], strict=True)],
                  "date_unknown": [], "counts": {"shown": 2}}}}
@@ -148,6 +151,30 @@ def test_linked_history_view_removes_proven_reposts_and_exposes_score_disagreeme
     pipeline.history_view(viewed)
     assert viewed["result"]["jobs"]["cards"] == []
     assert viewed["result"]["jobs"]["counts"]["left_out"][0]["count"] == 1
+
+
+def test_saved_results_leave_out_jobs_an_earlier_search_showed_whose_day_spans_the_window():
+    from jobcu import pipeline
+    from jobcu.filters import REASONS
+
+    jobs = [group(name, f"Power Electronics Engineer {name}") for name in ("day", "exact")]
+    ids, _ = jobstore.remember(jobs, new_search())
+    now = datetime.now(UTC)
+    with db.connect() as conn:  # shown by the search before, an hour after this window began
+        conn.execute("UPDATE jobs SET first_seen_at=?", ((now - timedelta(hours=23)).isoformat(),))
+    started_day = (now - timedelta(hours=24)).date().isoformat() + "T12:00:00+00:00"
+    snapshot = {"started_at": now.isoformat(), "form": {"posted_within_hours": 24}, "result": {
+        "jobs": {"cards": [
+            {"job_id": ids[0], "score": 70, "is_new": False, "posted_at": started_day,
+             "date_precision": "day", "main_link": {"source": "A", "url": "https://a.test/1"}},
+            {"job_id": ids[1], "score": 70, "is_new": False,
+             "posted_at": (now - timedelta(hours=1)).isoformat(), "date_precision": "exact",
+             "main_link": {"source": "B", "url": "https://b.test/2"}}],
+            "date_unknown": [], "counts": {"shown": 2, "left_out": []}}}}
+    pipeline.history_view(snapshot)
+    jobs_now = snapshot["result"]["jobs"]
+    assert [card["job_id"] for card in jobs_now["cards"]] == [ids[1]]
+    assert jobs_now["counts"]["left_out"] == [{"reason": REASONS["shown_before"], "count": 1}]
 
 
 @pytest.mark.parametrize("title", [
