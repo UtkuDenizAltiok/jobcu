@@ -215,7 +215,8 @@ not current availability or complete market coverage.
 
 ## Project layout
 
-The root keeps launchers, README, CONTRIBUTING, LICENSE and Python/tool configuration.
+The root keeps launchers, README, CONTRIBUTING, AGENTS (rules and conventions for AI coding agents;
+CLAUDE.md imports it), LICENSE and Python/tool configuration.
 `src/`, `tests/` and `tools/` keep their established paths; no extra build step is required.
 
 | Area | Modules and purpose |
