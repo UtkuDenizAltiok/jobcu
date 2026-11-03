@@ -7,6 +7,19 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- A job leaves the list only when its removal is certain: a route that accepts only UK residents
+  (CV-Library) or a link the person marks unusable. A page that is gone or refuses the person's
+  country is explained on click with a web search, and the job stays. For good jobs whose links
+  can't take the application, the person's AI looks up the employer's own posting, kept only when
+  its web sources list it; cards found for one posting are marked as possible duplicates.
+- Clicks skip middleman pages: Jobcu reads the clicked page then and sends the browser to its one
+  clear apply link (never during a search, as such links may be paid per click).
+- The job memory recognises a job by the town its location names, and marks cards a site listed
+  late, so jobs seen before aren't presented as new.
+- Scoring: a language wished for in the ad's own language counts like a required one; lead, head,
+  principal and staff titles are capped for early-career profiles; the sponsorship penalty
+  applies to UK jobs only.
+- The Federal Employment Agency (Bundesagentur) as an opt-in source under its terms.
 - FreeHire, a free source without a key: employers' own ads from about 220 career systems
   (many that Jobcu's employer list doesn't name), with the full text and the employer's link.
   Dated by the earlier of the ad's date and FreeHire's first sight, so re-dated ads stay old.
@@ -53,9 +66,10 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Then: coverage
 
-6. **Federal Employment Agency (Bundesagentur).** The portal stays paused under its terms.
-   Seek permission for respectful automated reading, and measure how many of its jobs other
-   permitted sources already provide.
+6. **Original postings for more jobs.** Extend the online look-up of the employer's own posting
+   to other good jobs whose only links are sites that refuse Jobcu, prefer employer pages over
+   other job sites, and use the original posting date. Measure per AI provider how often the
+   right open page is found.
 7. **Free source allowances.** Make sure monthly free allowances, such as JSearch credits, are
    fully used across searches without paid overruns.
 8. **Coverage benchmark.** Compare Jobcu with an independently collected sample of real

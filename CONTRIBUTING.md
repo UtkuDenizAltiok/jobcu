@@ -2,7 +2,8 @@
 
 Jobcu is a local Python application with a plain browser UI. No JavaScript build step is
 required. The implementation map is in
-[ENGINEERING.md](docs/ENGINEERING.md#project-layout).
+[ENGINEERING.md](docs/ENGINEERING.md#project-layout). AI coding agents start at
+[AGENTS.md](AGENTS.md): the product's rules and conventions in one page.
 
 ## Setup
 
