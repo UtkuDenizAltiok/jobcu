@@ -328,6 +328,25 @@ def test_a_failed_batch_is_asked_job_by_job_so_one_bad_ad_leaves_only_itself_uns
     assert notes == [scoring.NOT_SCORED]
 
 
+@pytest.mark.parametrize("problem", ["AIRefused", "AIOutputTruncated", "AIInvalidOutput"])
+def test_a_failed_quick_check_batch_is_halved_and_the_bad_ad_stays_in_the_search(problem):
+    from jobcu.ai import base
+
+    def answer(request):
+        ids = re.findall(r"^(J\d+) \|", request["prompt"], re.M)
+        if "J1" in ids:  # the one ad the provider won't answer about
+            raise getattr(base, problem)("Fictional refusal")
+        return {"clearly_unrelated": [job for job in ids if job == "J2"], "places": []}
+
+    adapter = Scripted(answer)
+    ai = client(adapter)
+    ai.parallel_requests = 1
+    result = quick_pass(ai, PROFILE, groups("Engineer", "Engineer II", "Driver"), [0, 1, 2])
+    assert result.unrelated == [2]  # J1 was never judged, so it is kept
+    asked = [re.findall(r"^(J\d+) \|", prompt, re.M) for prompt in adapter.prompts]
+    assert ["J1"] in asked and ["J0"] in asked and ["J2"] in asked
+
+
 def test_every_job_in_a_batch_gets_a_score_even_if_the_ai_skips_one():
     def answer(request):
         ids = re.findall(r"JOB (J\d+)", request["prompt"])

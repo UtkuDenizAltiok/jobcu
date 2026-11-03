@@ -13,19 +13,29 @@ to these jobs too (`JobGroup.place_from_text`).
 This must pass the quality test set before it's trusted.
 """
 
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from pydantic import BaseModel, Field
 
 from jobcu import places as place_list
-from jobcu.ai.base import AIAuthError, AIError, AILimitReached, AIModelNotFound, AIQuotaExhausted
+from jobcu.ai.base import (
+    ONE_ANSWER_PROBLEMS,
+    AIAuthError,
+    AIError,
+    AILimitReached,
+    AIModelNotFound,
+    AIQuotaExhausted,
+)
 from jobcu.ai.client import AIClient, in_parallel
 from jobcu.dedupe import JobGroup
 from jobcu.profile import Profile
 from jobcu.sources.careers import job_types_from_text
 from jobcu.text import normalise
 from jobcu.travel import needs_place
+
+log = logging.getLogger(__name__)
 
 BATCH_SIZE = 40
 OPENING_CHARS = 250
@@ -137,6 +147,21 @@ def quick_pass(
     result.places = {index: [] for index in indexes if needs_place(groups[index])}
 
     def check(batch: list[int]) -> QuickPassAnswer:
+        try:
+            return ask(batch)
+        except ONE_ANSWER_PROBLEMS as exc:
+            # One ad can trip a provider's content filter or overflow the answer (a refused
+            # scoring batch failed search 16): halve the batch until that ad is alone. It stays in
+            # the search unchecked, like a job the AI was unsure about, never dropped.
+            if len(batch) == 1:
+                log.info("Quick check of one job failed, kept unchecked: %s", exc)
+                return QuickPassAnswer(clearly_unrelated=[], places=[])
+            first, second = check(batch[:len(batch) // 2]), check(batch[len(batch) // 2:])
+            return QuickPassAnswer(
+                clearly_unrelated=[*first.clearly_unrelated, *second.clearly_unrelated],
+                places=[*first.places, *second.places])
+
+    def ask(batch: list[int]) -> QuickPassAnswer:
         lines = []
         for index in batch:
             job = groups[index].best_description_copy
