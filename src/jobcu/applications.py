@@ -4,21 +4,23 @@ the page behind a link happens only when the person clicks it (applylink.py)."""
 import json
 import re
 from collections import Counter
-from urllib.parse import parse_qsl, urlsplit
+from urllib.parse import parse_qsl, urlencode, urlsplit
 
 from jobcu import db
 from jobcu.dedupe import SOURCE_KIND_RANK, JobGroup, is_agency
 
 BLOCKED_HOSTS = frozenset({"cv-library.co.uk"})
-# Sites whose pages for UK jobs take applications only from people in the UK: all 6 of
+# Sites whose pages for UK jobs take applications only from visitors in the UK: all 6 of
 # Learn4Good's UK pages checked on 2026-11-02 showed a visitor from abroad no apply button (its 4
-# German pages had one), as CV-Library accepts only UK residents.
-UK_ONLY_PAGES = frozenset({"learn4good.com"})
+# German pages had one). That limits the site, not the job, so the job stays (the owner's rule: only
+# a certainly dead job or CV-Library goes): such a link comes last, Jobcu looks for the employer's
+# own posting online (livepostings.py) and the card adds a web search for it.
+UK_VISITORS_ONLY_PAGES = frozenset({"learn4good.com"})
+WEB_SEARCH = "https://www.google.com/search"
 REDIRECT_FIELDS = frozenset({"url", "redirect", "redirect_url", "target", "destination", "to"})
 REPEATS_ADS = frozenset({"adzuna", "arbeitsagentur", "jobleads", "jooble", "learn4good", "talent",
                          "trabajo"})
-EXCLUSION_REASON = ("Applications only from the UK (CV-Library, Learn4Good's UK pages), with no "
-                    "other saved link")
+EXCLUSION_REASON = "CV-Library application route, with no other saved link"
 REPORTED_EXCLUSION_REASON = "Application link marked unusable, with no other saved link"
 
 
@@ -53,6 +55,14 @@ def saved_link(conn, job_id: int, url: str) -> dict:
     if not url or link is None:
         raise ValueError("That link is no longer saved for this job. Refresh the job list.")
     return link
+
+
+def job_search(job_id: int) -> str:
+    """A web search for a saved job, from its card."""
+    with db.connect() as conn:
+        row = conn.execute("SELECT card_json FROM job_cards WHERE job_id = ?", (job_id,)).fetchone()
+    card = json.loads(row[0]) if row else {}
+    return web_search(card.get("title"), card.get("company"), card.get("location"))
 
 
 def link_to_open(job_id: int, url: str) -> dict:
@@ -91,6 +101,28 @@ def opaque(url: str | None) -> bool:
         len(parts) >= 3 and parts[-3] == "adzuna" and parts[-2] in {"co", "com"})
 
 
+def uk_visitors_only(url: str | None) -> bool:
+    """A page that takes applications only from visitors in the UK (UK_VISITORS_ONLY_PAGES)."""
+    try:
+        parts = urlsplit(url or "")
+        host = (parts.hostname or "").lower().rstrip(".")
+    except ValueError:
+        return False
+    return (any(host == site or host.endswith("." + site) for site in UK_VISITORS_ONLY_PAGES)
+            and "uk" in parts.path.lower().split("/"))
+
+
+def web_search(title: str | None, company: str | None, place: str | None) -> str:
+    """A web search for one vacancy, for when none of its links can take the application."""
+    def plain(text):
+        return " ".join((text or "").replace('"', " ").split())
+
+    title = plain(re.sub(r"\((?:[mwdfxi]\s*/\s*){1,3}[mwdfxi]\)", " ", title or ""))
+    words = [f'"{part}"' for part in (title, plain(company)) if part]
+    town = plain((place or "").split(",")[0])
+    return f"{WEB_SEARCH}?{urlencode({'q': ' '.join([*words, town, 'job']).strip()})}"
+
+
 def blocked(url: str | None, depth: int = 0) -> bool:
     if not url:
         return False
@@ -100,9 +132,6 @@ def blocked(url: str | None, depth: int = 0) -> bool:
     except ValueError:
         return False
     if any(host == site or host.endswith("." + site) for site in BLOCKED_HOSTS):
-        return True
-    if (any(host == site or host.endswith("." + site) for site in UK_ONLY_PAGES)
-            and "uk" in parts.path.lower().split("/")):
         return True
     # Some trackers expose their destination; opaque IDs cannot prove a final host.
     return depth < 3 and any(
@@ -173,7 +202,10 @@ def links(group: JobGroup, source_names: dict[str, str],
              for c in copies if allowed(c.url)]
     other += [option for c in copies for option in c.application_options
               if allowed(option.get("url"))]
-    other.sort(key=lambda link: _repeats_an_ad(link["url"]))
+    if allowed(group.link_from_web):
+        other.insert(0, {"source": "Found online", "url": group.link_from_web})
+    # A page that takes only visitors in the UK comes last; sites repeating ads come late.
+    other.sort(key=lambda link: (uk_visitors_only(link["url"]), _repeats_an_ad(link["url"])))
     main = ({"source": "Employer's site", "url": employer.employer_url}
             if employer else other.pop(0) if other else {"source": "", "url": ""})
     seen = {main["source"]} if not employer else set()
@@ -184,6 +216,11 @@ def links(group: JobGroup, source_names: dict[str, str],
             seen.add(link["source"])
             urls.add(link["url"])
             also.append(link)
+    if uk_visitors_only(main["url"]):
+        # No link that takes applications from anywhere: a web search for the employer's posting.
+        main_copy = copies[0]
+        also.append({"source": "Web search", "url": web_search(
+            main_copy.title, main_copy.company, main_copy.location_text)})
     return main, also
 
 

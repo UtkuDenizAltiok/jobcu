@@ -1,0 +1,106 @@
+"""The employer's own posting, found online, for good jobs whose links can't take the application
+(livepostings.py)."""
+
+from jobcu import livepostings
+from jobcu.ai.base import AILimitReached, ResearchReply, Source, Usage
+from jobcu.dedupe import JobGroup
+from jobcu.sources.base import FoundJob
+
+UK_PAGE = "https://www.learn4good.com/jobs/luton/uk/engineering/{}/e/"
+CAREERS = "https://careers.fakeco.example/jobs/{}"
+
+
+class Researcher:
+    """Stands in for the AI client: each web look-up answers with the next scripted notes and
+    sources, each structuring step with the next scripted addresses."""
+
+    parallel_requests = 1
+
+    def __init__(self, replies, structured=()):
+        self.replies = list(replies)
+        self.structured = list(structured)
+        self.prompts = []
+
+    def research(self, **request):
+        self.prompts.append(request["prompt"])
+        reply = self.replies.pop(0)
+        if isinstance(reply, Exception):
+            raise reply
+        text, sources, searches = reply
+        return ResearchReply(text, [Source(url) for url in sources], Usage(10, 5,
+                                                                           web_searches=searches))
+
+    def generate(self, output, **request):
+        return output.model_validate({"jobs": self.structured.pop(0)})
+
+
+def group(n, *urls):
+    copies = [FoundJob(source="jsearch", source_job_id=f"{n}-{k}", url=url,
+                       title="Hardware Engineer", company="FakeCo", location_text="Luton, UK",
+                       country="GB", description="FakeCo in Luton builds radar test systems.")
+              for k, url in enumerate(urls or [UK_PAGE.format(n)])]
+    return JobGroup(copies, source_kinds={"jsearch": "aggregator"})
+
+
+def test_only_good_jobs_whose_links_take_only_uk_visitors_are_looked_up():
+    good = {"score": 75}
+    assert livepostings.needs_posting(group(1), good)
+    assert not livepostings.needs_posting(group(1), {"score": 40})
+    assert not livepostings.needs_posting(group(1), None)
+    assert not livepostings.needs_posting(group(1, "https://board.example.org/jobs/1"), good)
+    assert not livepostings.needs_posting(group(1, UK_PAGE.format(1),
+                                                "https://board.example.org/jobs/1"), good)
+    # The owner's rule: a job reachable only through CV-Library stays left out, unasked.
+    assert not livepostings.needs_posting(group(1, "https://www.cv-library.co.uk/job/1"), good)
+    assert livepostings.needs_posting(group(1, UK_PAGE.format(1),
+                                            "https://www.cv-library.co.uk/job/1"), good)
+    looked_up = group(1)
+    looked_up.link_from_web = ""
+    assert not livepostings.needs_posting(looked_up, good)
+
+
+def test_an_address_is_kept_only_when_the_provider_s_web_search_returned_it():
+    groups = [group(0), group(1), group(2), group(3)]
+    notes = (f"JOB J0 {CAREERS.format(0)}\nJOB J1 {CAREERS.format(1)}\n"
+             "JOB J2 https://www.cv-library.co.uk/job/2\nJOB J3 NOT FOUND")
+    client = Researcher(
+        [(notes, [CAREERS.format(0) + "/", "https://www.cv-library.co.uk/job/2"], 3)],
+        [[{"id": "J0", "url": CAREERS.format(0)}, {"id": "J1", "url": CAREERS.format(1)},
+          {"id": "J2", "url": "https://www.cv-library.co.uk/job/2"}, {"id": "J3", "url": ""}]])
+    assert livepostings.find_postings(client, groups, [0, 1, 2, 3]) == 1
+    # J1's address appears only in the written notes; J2 is CV-Library; J3 wasn't found.
+    assert [g.link_from_web for g in groups] == [CAREERS.format(0), "", "", ""]
+    assert "radar test systems" in client.prompts[0]
+    assert "J3 | Hardware Engineer" in client.prompts[0]
+
+
+def test_an_answer_from_memory_finds_nothing_and_is_asked_again_next_time():
+    groups = [group(0)]
+    client = Researcher([(f"JOB J0 {CAREERS.format(0)}", [CAREERS.format(0)], 0)])
+    assert livepostings.find_postings(client, groups, [0]) == 0
+    assert groups[0].link_from_web is None
+
+
+def test_a_job_s_own_or_uk_visitors_only_pages_are_never_its_open_posting():
+    groups = [group(0), group(1)]
+    other_uk = UK_PAGE.format(99)
+    client = Researcher(
+        [(f"JOB J0 {UK_PAGE.format(0)}\nJOB J1 {other_uk}", [UK_PAGE.format(0), other_uk], 2)],
+        [[{"id": "J0", "url": UK_PAGE.format(0)}, {"id": "J1", "url": other_uk}]])
+    assert livepostings.find_postings(client, groups, [0, 1]) == 0
+    assert [g.link_from_web for g in groups] == ["", ""]
+
+
+def test_reached_ai_limit_leaves_the_rest_unasked_and_a_cached_look_up_isn_t_paid_twice():
+    groups = [group(n) for n in range(7)]
+    cache = {}
+    first = Researcher([(f"JOB J0 {CAREERS.format(0)}", [CAREERS.format(0)], 5),
+                        AILimitReached("limit")],
+                       [[{"id": "J0", "url": CAREERS.format(0)}]])
+    assert livepostings.find_postings(first, groups, list(range(7)), research_cache=cache) == 1
+    assert groups[0].link_from_web == CAREERS.format(0)
+    assert all(g.link_from_web is None for g in groups[5:]) and len(cache) == 1
+    again = [group(n) for n in range(5)]
+    cached = Researcher([], [[{"id": "J0", "url": CAREERS.format(0)}]])
+    assert livepostings.find_postings(cached, again, list(range(5)), research_cache=cache) == 1
+    assert cached.prompts == []

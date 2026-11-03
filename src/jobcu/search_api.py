@@ -211,22 +211,30 @@ def open_job_link(job_id: int, url: str) -> RedirectResponse:
     try:
         target = applylink.destination(url)
     except applylink.Unusable as exc:
-        # Taken off the list like a link the person marks unusable, and undone the same way.
-        applications.report_link(job_id, url)
-        return HTMLResponse(_unusable_page(str(exc)), headers={"Cache-Control": "no-store"})
+        why = str(exc)
+        # Only CV-Library is certain to be unusable, so only that link leaves the list (the owner's
+        # rule); a gone or elsewhere-only page keeps the job, and a web search may find it open.
+        removed = why == applylink.CV_LIBRARY_ONLY
+        if removed:
+            applications.report_link(job_id, url)
+        return HTMLResponse(_unusable_page(why, removed, applications.job_search(job_id)),
+                            headers={"Cache-Control": "no-store"})
     return RedirectResponse(target, status_code=302, headers={"Cache-Control": "no-store"})
 
 
-def _unusable_page(why: str) -> str:
+def _unusable_page(why: str, removed: bool, search: str) -> str:
+    after = ("<p>Jobcu has taken the job off your list. To bring it back, open "
+             "<b>Excluded jobs and links</b> above your results.</p>" if removed else
+             "<p>The job stays on your list: it may still be open on another site. "
+             f'<a href="{html.escape(search)}" rel="noreferrer">Search the web for this job</a>'
+             ".</p>")
     return (
         '<!doctype html><html lang="en"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width, initial-scale=1">'
         '<title>Jobcu: link not usable</title>'
         '<link rel="stylesheet" href="/static/style.css"></head>'
         '<body><main class="unusable-link"><h1>This application link doesn\'t work for you</h1>'
-        f"<p>{html.escape(why)}</p>"
-        "<p>Jobcu has taken the job off your list. To bring it back, open "
-        "<b>Excluded jobs and links</b> above your results.</p></main></body></html>")
+        f"<p>{html.escape(why)}</p>{after}</main></body></html>")
 
 
 @router.post("/jobs/{job_id}/application-link")

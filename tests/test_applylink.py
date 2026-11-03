@@ -149,9 +149,10 @@ def test_learn4good_s_bewerben_click_through_is_followed_by_the_browser():
     (html('<p>To Search, View &amp; Apply for jobs on this site that accept applications from '
           'your location or country, tap here: <a href="/search/">View / Apply for Jobs<br>'
           'Matching My Jurisdiction</a></p>'), applylink.ELSEWHERE_ONLY),
-    (html(page('<a href="https://www.cv-library.co.uk/job/1">Apply now</a>')), applylink.UK_ONLY),
+    (html(page('<a href="https://www.cv-library.co.uk/job/1">Apply now</a>')),
+     applylink.CV_LIBRARY_ONLY),
     (httpx.Response(302, headers={"location": "https://www.cv-library.co.uk/job/1"}),
-     applylink.UK_ONLY),
+     applylink.CV_LIBRARY_ONLY),
     (html("Not found", 404), applylink.GONE),
     (html("Gone", 410), applylink.GONE),
 ])

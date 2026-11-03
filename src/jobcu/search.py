@@ -26,6 +26,7 @@ from jobcu import (
     employers,
     jobplace,
     jobstore,
+    livepostings,
     pipeline,
     preparation,
     quality,
@@ -1022,6 +1023,15 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     if need_requirements:
         read = sum(1 for i in need_requirements if i in looked_up.requirements)
         found_online.append(f"the requirements of {read} of {len(need_requirements)} jobs")
+    # Good jobs whose links take applications only from visitors in the UK stay; the employer's
+    # own posting is looked for online (livepostings.py).
+    need_posting = [i for i in candidates
+                    if livepostings.needs_posting(groups[i], job_pool.jobs[i].scored)]
+    if need_posting and not client.web_research_unavailable_reason():
+        run.update("places", "running", f"Looking for open postings of {len(need_posting)} jobs")
+        posted = livepostings.find_postings(client, groups, need_posting,
+                                            research_cache=job_pool.research_notes)
+        found_online.append(f"an open posting for {posted} of {len(need_posting)} jobs")
     unavailable = client.web_research_unavailable_reason()
     if worth_it and unavailable:
         run.update("places", "skipped", unavailable)

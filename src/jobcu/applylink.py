@@ -38,14 +38,16 @@ NEVER_READ = frozenset({
 # the browser follows it as a person's click would; Jobcu itself never requests it (robots.txt).
 PASSES_ON = frozenset({"adzuna", "arbeitnow", "learn4good"})
 _CLICK_THROUGH = re.compile(r"(?:^|&)action=click(?:&|$)")
-# What a page says when it won't take an application from where the person is: Learn4Good's UK
-# pages show visitors outside the UK this instead of an apply button (all 6 checked, 2026-11-02).
+# What a page says when the site won't take an application from where the person is: Learn4Good's
+# UK pages show visitors outside the UK this instead of an apply button (all 6 checked, 2026-11-02),
+# with "not being accepted from your jurisdiction for this job currently via this jobsite". That is
+# the site's limit, not the job's: the employer may take the application on its own site.
 _ELSEWHERE_ONLY = ("Apply for Jobs<br>Matching My Jurisdiction",
                    "jobs on this site that accept applications from your location")
-UK_ONLY = ("This job takes applications only through CV-Library, which accepts applicants who "
-           "live in the UK.")
-ELSEWHERE_ONLY = ("This site takes applications for this job only from people in the job's own "
-                  "country.")
+CV_LIBRARY_ONLY = ("This job takes applications only through CV-Library, which accepts "
+                   "applicants who live in the UK.")
+ELSEWHERE_ONLY = ("This site doesn't take applications for this job from your country, but the "
+                  "employer may: on its own site or another job site.")
 GONE = "This job's page no longer exists: the site has taken the ad down."
 
 
@@ -141,7 +143,7 @@ def refusal(page: str, page_url: str) -> str | None:
         return ELSEWHERE_ONLY
     targets, _ = _apply_targets(page, page_url)
     if len(targets) == 1 and blocked(next(iter(targets))):
-        return UK_ONLY
+        return CV_LIBRARY_ONLY
     return None
 
 
@@ -170,7 +172,7 @@ def _read_page(url: str, http: httpx.Client) -> str | None:
             if reply.is_redirect:
                 url = urljoin(url, reply.headers.get("location", ""))
                 if blocked(url):
-                    raise Unusable(UK_ONLY)
+                    raise Unusable(CV_LIBRARY_ONLY)
                 continue
             if reply.status_code in (404, 410):
                 raise Unusable(GONE)
