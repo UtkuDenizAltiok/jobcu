@@ -161,6 +161,11 @@ opening spend, currency/multiplier, historical uncertainty and a receipt cutoff.
 increase the same allowance across restarts, month changes and search deletion. Exact prepared
 inputs select an automatic allowance; explicit client scope supports authorized isolated work.
 
+One ad must never fail a search. A batch over job ads that is refused, cut off or malformed
+(`ai.base.ONE_ANSWER_PROBLEMS`) is asked again in smaller parts: scoring job by job, the quick
+check in halves. A job that fails alone stays in the search, unscored or unchecked, never
+dropped; online look-ups, title screening, travel estimates and re-checks lose only that answer.
+
 Retry behavior distinguishes transport/rate-limit failures from authentication, account and
 spending refusals. Retry-After and bounded waits apply. Ambiguous generation failures do not
 trigger automatic paid repetition. Stop cancels queued work/waits; an already dispatched
