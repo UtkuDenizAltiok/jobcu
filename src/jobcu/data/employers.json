@@ -868,6 +868,25 @@
    }
   },
   {
+   "name": "Overstory",
+   "system": "ashby",
+   "board": "overstory",
+   "countries": [
+    "CH",
+    "DK",
+    "EE",
+    "FR",
+    "GB",
+    "IE",
+    "NL",
+    "PT",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {},
+   "checked": "2026-11-03"
+  },
+  {
    "name": "Oyster",
    "system": "ashby",
    "board": "oyster",
@@ -3645,24 +3664,6 @@
      "Warsaw"
     ]
    }
-  },
-  {
-   "name": "Overstory",
-   "system": "greenhouse",
-   "board": "overstory",
-   "countries": [
-    "CH",
-    "DK",
-    "EE",
-    "FR",
-    "GB",
-    "IE",
-    "NL",
-    "PT",
-    "SE"
-   ],
-   "elsewhere": true,
-   "towns": {}
   },
   {
    "name": "OVO Energy",
