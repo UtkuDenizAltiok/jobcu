@@ -92,7 +92,8 @@ def group_from_dict(group: dict) -> JobGroup:
     return JobGroup(copies=copies, possible_duplicate_of=group["possible_duplicate_of"],
                     source_kinds=group["source_kinds"],
                     place_from_text=group.get("place_from_text"),
-                    place_from_web=group.get("place_from_web"))
+                    place_from_web=group.get("place_from_web"),
+                    link_from_web=group.get("link_from_web"))
 
 
 def _to_dict(pool: Pool) -> dict:

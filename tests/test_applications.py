@@ -1,3 +1,4 @@
+import html
 import json
 from urllib.parse import quote
 
@@ -237,12 +238,15 @@ def test_a_click_opens_only_saved_links_and_needs_no_page_header(monkeypatch):
     assert opened(9999, "https://board.example.org/jobs/1").status_code == 404
 
 
-def test_a_click_on_a_link_that_can_t_take_the_application_explains_and_excludes_it(
-        monkeypatch):
+@pytest.mark.parametrize(("why", "removed"), [
+    (applylink.ELSEWHERE_ONLY, False), (applylink.GONE, False), (applylink.CV_LIBRARY_ONLY, True)])
+def test_a_click_on_a_link_that_can_t_take_the_application_explains_and_keeps_all_but_cv_library(
+        monkeypatch, why, removed):
+    # The owner's rule (2026-11-03): only a certainly dead job or CV-Library leaves the list.
     _, card, _ = saved_card(url="https://board.example.org/jobs/1")
 
     def refuse(url):
-        raise applylink.Unusable(applylink.ELSEWHERE_ONLY)
+        raise applylink.Unusable(why)
 
     monkeypatch.setattr("jobcu.applylink.destination", refuse)
     client = TestClient(create_app(), base_url="http://127.0.0.1:8765")
@@ -250,18 +254,46 @@ def test_a_click_on_a_link_that_can_t_take_the_application_explains_and_excludes
                        f"{quote('https://board.example.org/jobs/1', safe='')}",
                        follow_redirects=False)
     assert reply.status_code == 200 and reply.headers["cache-control"] == "no-store"
-    assert "only from people in the job" in reply.text and "Excluded jobs and links" in reply.text
-    assert applications.reported_urls() == {"https://board.example.org/jobs/1"}
+    assert html.escape(why) in reply.text
+    if removed:
+        assert "Excluded jobs and links" in reply.text
+        assert applications.reported_urls() == {"https://board.example.org/jobs/1"}
+    else:
+        assert "Search the web for this job" in reply.text and "google.com/search" in reply.text
+        assert applications.reported_urls() == set()
 
 
-@pytest.mark.parametrize(("url", "uk_only"), [
+@pytest.mark.parametrize(("url", "uk_visitors_only"), [
     ("https://www.learn4good.com/jobs/luton/uk/engineering/5578855491/e/", True),
     ("https://www.learn4good.com/jobs/deutschland/ingenieure_and_ingenieur/5573628955/g/", False),
-    ("https://www.learn4good.com/jobs/munchen/deutschland/ingenieure/5573596420/g/", False),
     ("https://board.example.org/jobs/uk/1", False),
 ])
-def test_learn4good_s_uk_pages_are_a_uk_only_route_like_cv_library(url, uk_only):
-    assert applications.blocked(url) is uk_only
+def test_learn4good_s_uk_pages_take_only_uk_visitors_but_are_not_excluded(url, uk_visitors_only):
+    assert applications.uk_visitors_only(url) is uk_visitors_only
+    assert applications.blocked(url) is False
+
+
+def test_a_uk_visitors_only_link_comes_last_and_a_web_search_is_added_when_nothing_better_exists():
+    uk = "https://www.learn4good.com/jobs/luton/uk/engineering/1/e/"
+    other = "https://board.example.org/jobs/2"
+
+    def group(*urls, found=None):
+        copies = [FoundJob(source=f"s{n}", source_job_id=str(n), url=url,
+                           title="Hardware Engineer (m/w/d)", company="FakeCo",
+                           location_text="Luton, UK", country="GB")
+                  for n, url in enumerate(urls)]
+        return JobGroup(copies, source_kinds={"s0": "aggregator", "s1": "aggregator"},
+                        link_from_web=found)
+
+    main, also = applications.links(group(uk, other), {}, set())
+    assert main["url"] == other and [link["url"] for link in also] == [uk]
+    main, also = applications.links(group(uk), {}, set())
+    assert main["url"] == uk and also[0]["source"] == "Web search"
+    assert "Hardware+Engineer" in also[0]["url"] and "m%2Fw%2Fd" not in also[0]["url"]
+    found = "https://careers.fakeco.example/jobs/9"
+    main, also = applications.links(group(uk, found=found), {}, set())
+    assert main == {"source": "Found online", "url": found}
+    assert applications.exclusion_key(group(uk), set()) is None
 
 
 def test_failed_report_rolls_back_without_affecting_saved_results():

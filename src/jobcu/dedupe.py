@@ -174,6 +174,9 @@ class JobGroup:
     # Where the ad says the job is, found online by the person's AI when nothing else said
     # (jobplace.py): None until looked up, [] when not found.
     place_from_web: list[str] | None = None
+    # The page where the vacancy is open, found online when none of its links can take the
+    # person's application (livepostings.py): None until looked up, "" when not found.
+    link_from_web: str | None = None
 
     @property
     def main(self) -> FoundJob:

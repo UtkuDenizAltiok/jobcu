@@ -877,8 +877,12 @@ job pages and disallows `/jobs/index.php?controller=*`, the address of its "Bewe
 (`controller=job_page&action=click`); Jobcu never requests that address and only sends the
 person's browser there on a click. Of 10 pages read from outside the UK, all 6 UK pages showed
 no apply button but "View / Apply for Jobs Matching My Jurisdiction" ("jobs on this site that
-accept applications from your location"); all 4 German pages had the button. Its UK pages are
-therefore a UK-only route like CV-Library.
+accept applications from your location"); all 4 German pages had the button. The page says
+applications from the visitor's country are not accepted "via this jobsite": a limit of the site,
+not of the job. Its UK pages' text is a rewritten summary (a reworded title; one gave a different
+town in its heading than in its text) and holds no link to the original. So its UK pages come
+last among a job's links, the job stays, and for a good job the person's AI looks for the
+employer's own posting online (`livepostings.py`).
 
 ## Native Xiaomi interface — recorded 2026-10-22
 
