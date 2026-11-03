@@ -205,6 +205,35 @@ def test_joined_quotes_still_cannot_invent_or_change_a_fact(quote):
     assert not requirements._profile_quote(quote, SPECIALIST.model_dump())
 
 
+@pytest.mark.parametrize("quote", [
+    "technical_areas: DC-DC converters (isolated, buck)",  # a field's name in front
+    "MSc Physics (focus on Optics), FUT, finished 2026",  # a degree's field names and year
+    "Altium Designer... Ward care",  # joined with an ellipsis
+    "years_full_time_experience: 0.0",  # a number the profile states
+    "Spanish: Fluent, cefr: C1",  # a stated value, then what the profile says about it
+    "Spanish: Fluent",
+])
+def test_models_may_name_profile_fields_and_numbers_beside_stated_facts(quote):
+    person = {**SPECIALIST.model_dump(), "years_full_time_experience": 0.0,
+              "languages": [{"language": "Spanish", "level_as_written": "Fluent (spoken)",
+                             "cefr": "C1"}]}
+    assert requirements._profile_quote(quote, person)
+
+
+@pytest.mark.parametrize("quote", [
+    "technical_areas: RF design",  # a field's name beside an invented value
+    "years_full_time_experience: 5",  # a changed number
+    "finished 2019",  # a year the profile doesn't state
+    "Italian: Fluent",  # a language the profile doesn't name
+    "Spanish: Native",  # a changed level
+])
+def test_field_names_and_numbers_cannot_carry_an_invented_fact(quote):
+    person = {**SPECIALIST.model_dump(), "years_full_time_experience": 0.0,
+              "languages": [{"language": "Spanish", "level_as_written": "Fluent (spoken)",
+                             "cefr": "C1"}]}
+    assert not requirements._profile_quote(quote, person)
+
+
 def test_part_of_a_word_is_not_a_quote():
     person = SPECIALIST.model_dump()
     assert not requirements._profile_quote("Alti; Ward care", person)
