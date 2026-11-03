@@ -2,7 +2,7 @@
 (livepostings.py)."""
 
 from jobcu import livepostings
-from jobcu.ai.base import AILimitReached, ResearchReply, Source, Usage
+from jobcu.ai.base import AILimitReached, AIRefused, AIUnavailable, ResearchReply, Source, Usage
 from jobcu.dedupe import JobGroup
 from jobcu.sources.base import FoundJob
 
@@ -104,3 +104,16 @@ def test_reached_ai_limit_leaves_the_rest_unasked_and_a_cached_look_up_isn_t_pai
     cached = Researcher([], [[{"id": "J0", "url": CAREERS.format(0)}]])
     assert livepostings.find_postings(cached, again, list(range(5)), research_cache=cache) == 1
     assert cached.prompts == []
+
+
+def test_a_declined_answer_skips_only_its_own_jobs_and_a_lost_connection_stops():
+    groups = [group(n) for n in range(10)]
+    client = Researcher([AIRefused("declined"),
+                         (f"JOB J5 {CAREERS.format(5)}", [CAREERS.format(5)], 5)],
+                        [[{"id": "J5", "url": CAREERS.format(5)}]])
+    assert livepostings.find_postings(client, groups, list(range(10))) == 1
+    assert all(g.link_from_web is None for g in groups[:5])  # asked again next time
+    assert groups[5].link_from_web == CAREERS.format(5)
+    stopped = Researcher([AIUnavailable("down")])
+    assert livepostings.find_postings(stopped, [group(n) for n in range(10)], list(range(10))) == 0
+    assert len(stopped.prompts) == 1

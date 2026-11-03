@@ -23,6 +23,7 @@ from jobcu import applications
 from jobcu.ai.base import AIError, AILimitReached, Citation, ResearchReply, Source, Usage
 from jobcu.ai.client import AIClient
 from jobcu.dedupe import JobGroup
+from jobcu.jobplace import ONE_ANSWER_PROBLEMS
 from jobcu.travel import job_country
 
 log = logging.getLogger(__name__)
@@ -108,7 +109,8 @@ def usable(url: str, reply: ResearchReply, group: JobGroup) -> bool:
 def find_postings(client: AIClient, groups: list[JobGroup], indexes: list[int], *,
                   research_cache: dict[str, dict] | None = None) -> int:
     """Look these jobs up, a few per request; each gets `link_from_web` ("" when nothing usable
-    was found). Returns how many got one. A problem with the AI leaves the rest unasked."""
+    was found). Returns how many got one. An unusable answer (declined, cut short, malformed)
+    leaves only its own jobs to ask again later; any other problem with the AI leaves the rest."""
     found = 0
     for start in range(0, len(indexes), BATCH_SIZE):
         batch = indexes[start:start + BATCH_SIZE]
@@ -124,6 +126,9 @@ def find_postings(client: AIClient, groups: list[JobGroup], indexes: list[int], 
             reply, answer = _look_up(client, lines, len(batch), research_cache)
         except AILimitReached:
             break
+        except ONE_ANSWER_PROBLEMS as exc:
+            log.info("Looking for open postings: one answer was unusable: %s", exc)
+            continue
         except AIError as exc:
             log.info("Looking for open postings failed: %s", exc)
             break
