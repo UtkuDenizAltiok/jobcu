@@ -306,6 +306,28 @@ def test_completed_preliminary_checks_survive_a_later_batch_failure(monkeypatch)
     assert saved == {0: True}  # the unanswered job is not claimed to have been screened
 
 
+@pytest.mark.parametrize("problem", ["AIRefused", "AIOutputTruncated", "AIInvalidOutput"])
+def test_a_failed_batch_is_asked_job_by_job_so_one_bad_ad_leaves_only_itself_unscored(problem):
+    from jobcu.ai import base
+
+    def answer(request):
+        ids = re.findall(r"JOB (J\d+)", request["prompt"])
+        if "J1" in ids:  # the one ad the provider won't answer about
+            raise getattr(base, problem)("Fictional refusal")
+        return {"scores": [score_json(job) for job in ids]}
+
+    adapter, notes = Scripted(answer), []
+    ai = client(adapter)
+    ai.parallel_requests, ai.notify = 1, notes.append
+    found = groups("Hardware Engineer", "Electronics Engineer", "Test Engineer")
+    results = score_groups(ai, PROFILE, PLAN, found, [0, 1, 2], batch_size=3)
+    assert set(results) == {0, 2}
+    # The batch, then each job on its own (a cut-off answer is first retried with more room).
+    alone = [re.findall(r"JOB (J\d+)", prompt) for prompt in adapter.prompts]
+    assert ["J0"] in alone and ["J1"] in alone and ["J2"] in alone
+    assert notes == [scoring.NOT_SCORED]
+
+
 def test_every_job_in_a_batch_gets_a_score_even_if_the_ai_skips_one():
     def answer(request):
         ids = re.findall(r"JOB (J\d+)", request["prompt"])

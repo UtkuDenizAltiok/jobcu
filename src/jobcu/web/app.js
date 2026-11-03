@@ -1496,7 +1496,7 @@ function renderDetails(search) {
         ? `${c.historical_copies_combined} duplicate cards combined from saved history` : null,
       ...c.left_out.map((item) => `${item.count} left out: ${item.reason}`),
       `${c.unrelated} left out as clearly unrelated to what you're looking for`,
-      c.not_scored ? `${c.not_scored} not scored (scoring limit)` : null,
+      c.not_scored ? `${c.not_scored} not scored yet (scoring limit or an AI problem)` : null,
       c.location_unchecked ? `${c.location_unchecked} waiting for location evidence` : null,
       `${c.shown} shown`,
     ].filter(Boolean);

@@ -11,6 +11,7 @@ Jobs are scored in small batches to save tokens, with a clear instruction to sco
 job on its own. Batch size is checked against the quality test set.
 """
 
+import logging
 import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -19,6 +20,7 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 from jobcu import requirements
+from jobcu.ai.base import ONE_ANSWER_PROBLEMS
 from jobcu.ai.client import AIClient, in_parallel
 from jobcu.countries import COUNTRIES, language_code
 from jobcu.dedupe import JobGroup
@@ -26,7 +28,11 @@ from jobcu.location import LocationPlan
 from jobcu.profile import Profile
 from jobcu.settings import JOB_TYPES
 
+log = logging.getLogger(__name__)
+
 BATCH_SIZE = 4
+NOT_SCORED = ("The AI couldn't score some jobs (it declined or didn't finish its answer); they're "
+              "listed without a score. Retry incomplete checks asks about them again.")
 MAX_DESCRIPTION_CHARS = 12_000
 
 PARTS = {
@@ -309,15 +315,29 @@ def score_groups(
 
     def score(batch: list[int]) -> dict[int, dict]:
         ids = {f"J{i}": i for i in batch}
-        answer = client.generate(
-            ScoringAnswer,
-            step="scoring",
-            system=SYSTEM_PROMPT,
-            prompt=background + "\n\n" + "\n\n".join(
-                _job_block(job_id, groups[index]) for job_id, index in ids.items()
-            ),
-            max_output_tokens=1600 * len(batch) + 1000,
-        )
+        try:
+            answer = client.generate(
+                ScoringAnswer,
+                step="scoring",
+                system=SYSTEM_PROMPT,
+                prompt=background + "\n\n" + "\n\n".join(
+                    _job_block(job_id, groups[index]) for job_id, index in ids.items()
+                ),
+                max_output_tokens=1600 * len(batch) + 1000,
+            )
+        except ONE_ANSWER_PROBLEMS as exc:
+            # One ad can trip a provider's content filter or overflow the answer (search 16: MiMo
+            # refused a batch, which failed the whole search). Each job is asked on its own, so
+            # only a job that fails alone stays unscored; a re-check asks about it again.
+            log.info("Scoring %d jobs together failed: %s", len(batch), exc)
+            if len(batch) == 1:
+                client.notify(NOT_SCORED)
+                return {}
+            found = {}
+            for index in batch:
+                found.update(score_groups(client, profile, plan, groups, [index], 1,
+                                          on_result=on_result))
+            return found
         found: dict[int, dict] = {}
         for score in answer.scores:
             if score.job_id in ids and ids[score.job_id] not in found:
