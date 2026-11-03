@@ -14,6 +14,8 @@ import hashlib
 import json
 import logging
 import re
+from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import asdict
 from urllib.parse import urlsplit
 
@@ -104,6 +106,23 @@ def usable(url: str, reply: ResearchReply, group: JobGroup) -> bool:
     return (_address(url) in found and not applications.blocked(url)
             and not applications.uk_visitors_only(url)
             and _address(url) not in {_address(link) for link in _links(group)})
+
+
+def same_postings(groups: list[JobGroup], indexes: list[int],
+                  score: Callable[[int], float]) -> dict[int, int]:
+    """Jobs whose found posting another of these jobs also found, each to the best-scored of them,
+    for a "Possible duplicate" note. Learn4Good spreads one vacancy over several towns and titles
+    (OHO's one Scotland vacancy was four cards, search 15); one page found for two of them is
+    strong evidence, but the AI's match is not proof enough to hide a card."""
+    by_page: dict[str, list[int]] = defaultdict(list)
+    for index in indexes:
+        if groups[index].link_from_web:
+            by_page[_address(groups[index].link_from_web)].append(index)
+    duplicates = {}
+    for same in by_page.values():
+        best = max(same, key=score)
+        duplicates.update({index: best for index in same if index != best})
+    return duplicates
 
 
 def find_postings(client: AIClient, groups: list[JobGroup], indexes: list[int], *,

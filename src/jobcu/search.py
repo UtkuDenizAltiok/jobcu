@@ -1073,12 +1073,16 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         if kept is None or _score(job_pool.jobs[index]) > _score(job_pool.jobs[kept]):
             best_of[id_of[index]] = index
     shown = [index for index in shown if best_of[id_of[index]] == index]
+    same_posting = livepostings.same_postings(groups, shown,
+                                              lambda index: _score(job_pool.jobs[index]))
     states = jobstore.states(job_ids)
     first_seen = jobstore.first_seen(job_ids)
     names = job_pool.source_names
 
     def card(index: int) -> dict:
         duplicate = groups[index].possible_duplicate_of
+        if duplicate is None:
+            duplicate = same_posting.get(index)
         return pipeline.build_card(
             groups[index],
             job_id=id_of[index],
