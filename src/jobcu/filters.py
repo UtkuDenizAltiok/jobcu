@@ -23,7 +23,7 @@ from datetime import datetime, timedelta
 
 from jobcu import applications, travel, vacancy_evidence
 from jobcu.dedupe import JobGroup
-from jobcu.freshness import freshness, window_start
+from jobcu.freshness import freshness, posted_after, window_start
 from jobcu.jobstore import JobState
 from jobcu.location import fits
 from jobcu.sources import date_lags
@@ -34,6 +34,7 @@ REASONS = {
     "location_condition": "The place doesn't fit a condition you wrote",
     "too_old": "Older than your \"Posted within\" choice",
     "repost": "Posted again: Jobcu saw it before your \"Posted within\" time",
+    "shown_before": "Shown in an earlier search already",
     "closed": "The closing date for applications has passed",
     "job_type": "A job type you didn't tick",
     "remote": "Fully remote (you excluded remote jobs)",
@@ -95,6 +96,12 @@ def _reason(group, state, start, wanted_types, exclude_remote, countries, condit
     # its ads give now (45 of search 11's 349 cards, most re-dated by Adzuna).
     if shown is not None and shown < start:
         return "repost"
+    # Shown by an earlier search, and no exact time proves it was posted after this window
+    # began: it isn't new to the person. A date given only as a day, or a late listing, spans two
+    # daily windows (search 16 showed 60 of search 15's cards again).
+    if (shown is not None and shown < now
+            and not posted_after(group.posted_at, group.date_precision, start)):
+        return "shown_before"
     if group.closes_at is not None and group.closes_at < now:
         return "closed"
     stated_types = [c.job_types for c in group.copies if c.job_types]

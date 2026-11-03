@@ -16,7 +16,7 @@ from jobcu import places as place_list
 from jobcu.countries import COUNTRIES
 from jobcu.dedupe import SOURCE_KIND_RANK, JobGroup, group_duplicates
 from jobcu.filters import REASONS, condition_fit
-from jobcu.freshness import earliest_possible, freshness, parse_iso, window_start
+from jobcu.freshness import earliest_possible, freshness, parse_iso, posted_after, window_start
 from jobcu.jobstore import JobState
 from jobcu.location import LocationPlan
 from jobcu.placenames import countries_in
@@ -389,19 +389,30 @@ def history_view(snapshot: dict) -> None:
     for section in sections:
         for card in jobs[section]:
             groups.setdefault(canonical[card["job_id"]], []).append((section, card))
+
+    def shown_before(first, card) -> bool:
+        # The search's own rule (filters._reason): shown by an earlier search, and its date doesn't
+        # prove it was posted after the window began. Saved results made before the rule follow it.
+        return bool(started and start and first and first < started and not posted_after(
+            parse_iso(card.get("posted_at")), card.get("date_precision") or "unknown", start))
+
     if (len(groups) == len(cards) and all(canonical[c["job_id"]] == c["job_id"] for c in cards)
             and not any(start and seen.get(root) and seen[root] < start for root in groups)
             and not any(c.get("is_new") and started and seen.get(c["job_id"])
-                        and seen[c["job_id"]] < started for c in cards)):
+                        and seen[c["job_id"]] < started for c in cards)
+            and not any(shown_before(seen.get(c["job_id"]), c) for c in cards)):
         return
     for section in sections:
         jobs[section] = []
-    reposts, combined = 0, 0
+    reposts, earlier, combined = 0, 0, 0
     for root, entries in groups.items():
         first = seen.get(root)
         combined += len(entries) - 1
         if start and first and first < start:
             reposts += 1
+            continue
+        if any(shown_before(first, card) for _, card in entries):
+            earlier += 1
             continue
         section, original = min(entries, key=lambda pair: (
             applications.opaque((pair[1].get("main_link") or {}).get("url")),
@@ -435,13 +446,14 @@ def history_view(snapshot: dict) -> None:
     if "location_unchecked" in jobs:
         counts["location_unchecked"] = len(jobs["location_unchecked"])
     jobs["new_count"] = sum(bool(c.get("is_new")) for c in visible)
-    if reposts:
+    if reposts or earlier:
         left_out = Counter()
         for item in counts.get("left_out", []):
             left_out[item["reason"]] += item["count"]
         left_out[REASONS["repost"]] += reposts
+        left_out[REASONS["shown_before"]] += earlier
         counts["left_out"] = [{"reason": reason, "count": count}
-                              for reason, count in left_out.items()]
+                              for reason, count in left_out.items() if count]
     if combined:
         counts["historical_copies_combined"] = (
             counts.get("historical_copies_combined", 0) + combined)

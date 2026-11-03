@@ -46,6 +46,13 @@ def latest_possible(posted_at: datetime | None, precision: str) -> datetime | No
     return posted_at
 
 
+def posted_after(posted_at: datetime | None, precision: str, start: datetime) -> bool:
+    """Whether the date proves the ad was posted after `start`: a day that began before it
+    doesn't."""
+    earliest = earliest_possible(posted_at, precision)
+    return earliest is not None and earliest >= start
+
+
 def freshness(posted_at: datetime | None, precision: str, start: datetime) -> Freshness:
     latest = latest_possible(posted_at, precision)
     if latest is None:
