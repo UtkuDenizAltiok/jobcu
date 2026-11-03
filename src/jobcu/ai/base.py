@@ -196,6 +196,12 @@ class AIInvalidOutput(AIError):
     pass
 
 
+class AIUnsourcedAnswer(AIInvalidOutput):
+    """A research answer the provider's web search gave no usable source for. Its searches
+    sometimes bring back no pages at all (MiMo: 1 to 2 of every 5 to 26 look-ups, Oct-Nov 2026),
+    so the client asks once more before the check stays unchecked."""
+
+
 class AILimitReached(AIError):
     """The user's own monthly limit in Jobcu's settings is reached."""
 

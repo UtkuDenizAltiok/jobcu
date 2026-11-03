@@ -15,6 +15,7 @@ from jobcu.ai.base import (
     AIError,
     AIInvalidOutput,
     AILimitReached,
+    AIUnsourcedAnswer,
     AIUsageUncertain,
     AIWebSearchUnavailable,
     ResearchReply,
@@ -127,7 +128,7 @@ class MiMoAdapter(CompatibleAdapter):
         if not tool_units or not sources:
             # One question without usable results says nothing about the account's search
             # access: only this check stays unverified, and other online checks continue.
-            error = AIInvalidOutput(
+            error = AIUnsourcedAnswer(
                 "The provider answered one online check without a sourced web search. Jobcu "
                 "left its facts unchecked rather than trust an answer from memory.")
             error.usage = usage

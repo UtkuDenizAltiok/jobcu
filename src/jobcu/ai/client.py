@@ -40,6 +40,7 @@ from jobcu.ai.base import (
     AIRateLimited,
     AIReasoningUnsupported,
     AIUnavailable,
+    AIUnsourcedAnswer,
     AIUsageUncertain,
     AIWebSearchUnavailable,
     ProviderAdapter,
@@ -581,7 +582,7 @@ class AIClient:
                 "different checks can still run."
             )
         waits = outages = 0
-        effort_dropped = False
+        effort_dropped = unsourced_retried = False
         while True:
             try:
                 with self._request(step, provider, model, research=True):
@@ -614,6 +615,12 @@ class AIClient:
                 if effort is None or getattr(adapter, "strict_reasoning", False):
                     raise
                 effort, effort_dropped = None, True
+            except AIUnsourcedAnswer:
+                # A search that brought back no pages usually works when asked again; a
+                # second answer without sources leaves the check unchecked.
+                if unsourced_retried:
+                    raise
+                unsourced_retried = True
             except AIRateLimited as exc:
                 self._one_at_a_time()
                 waits += 1

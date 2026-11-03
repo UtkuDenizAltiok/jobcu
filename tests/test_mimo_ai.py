@@ -15,6 +15,7 @@ from jobcu.ai.base import (
     AIOutputTruncated,
     AIQuotaExhausted,
     AIRefused,
+    AIUnsourcedAnswer,
     AIUsageUncertain,
     AIWebSearchUnavailable,
     Usage,
@@ -233,16 +234,27 @@ def test_unsourced_memory_or_unsafe_links_cannot_verify_current_facts(service, a
     assert (found.value.usage.web_searches, found.value.usage.web_results) == (1, 2)
 
 
-def test_one_unsourced_answer_leaves_later_online_checks_available(service):
+def test_an_unsourced_answer_is_asked_once_more_and_both_attempts_are_billed(service):
     unsourced = payload(research=True)
     unsourced["choices"][0]["message"]["annotations"] = []
     adapter, calls = service([unsourced, payload(research=True)])
+    log = UsageLog()
+    answer = client(adapter, usage_log=log).research(step="job_places", system="Rules",
+                                                     prompt="Fictional vacancy")
+    assert answer.sources and len(calls) == 2
+    assert sum(entry.usage.web_searches for entry in log.this_month()) == 2
+
+
+def test_two_unsourced_answers_leave_later_online_checks_available(service):
+    unsourced = payload(research=True)
+    unsourced["choices"][0]["message"]["annotations"] = []
+    adapter, calls = service([unsourced, unsourced, payload(research=True)])
     ai = client(adapter, usage_log=UsageLog())
-    with pytest.raises(AIInvalidOutput):
+    with pytest.raises(AIUnsourcedAnswer):
         ai.research(step="job_places", system="Rules", prompt="Fictional vacancy")
     assert ai.web_research_unavailable_reason() is None
     answer = ai.research(step="job_places", system="Rules", prompt="Another fictional vacancy")
-    assert answer.sources and len(calls) == 2
+    assert answer.sources and len(calls) == 3
 
 
 def test_no_search_and_provider_plugin_failure_stay_specific(service):

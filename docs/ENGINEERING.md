@@ -149,7 +149,9 @@ Other API addresses keep plain requests: a service's streams are not assumed to 
 
 Structured answers require completion/refusal checks and schema validation. Research additionally
 retains provider source annotations and validates required evidence. Generated URLs are not
-provider citations. Missing passage mappings do not become invented quote provenance.
+provider citations. Missing passage mappings do not become invented quote provenance. A research
+answer without any usable source (`AIUnsourcedAnswer`: the provider's searches brought back no
+pages) is asked once more, both attempts billed; a second one leaves that check unchecked.
 
 `ai/usage.py` retains available token/tool receipts on successful and failed calls. Unknown
 usage is not zero; local prices omit some provider fees/discounts and are not invoices.
