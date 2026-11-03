@@ -55,13 +55,28 @@ def _plain(text: str) -> str:
 
 
 def _profile_values(value) -> set[str]:
-    """Complete scalar facts, without JSON/list punctuation between adjacent skills/degrees."""
+    """Complete scalar facts, without JSON/list punctuation between adjacent skills/degrees.
+    Numbers count too: a degree's year, years of experience."""
+    if isinstance(value, bool):
+        return set()
     if isinstance(value, str):
         return {_plain(value)}
+    if isinstance(value, int | float):
+        return {_plain(str(value))}
     if isinstance(value, dict):
         return set().union(*(_profile_values(v) for v in value.values()))
     if isinstance(value, list):
         return set().union(*(_profile_values(v) for v in value))
+    return set()
+
+
+def _profile_keys(value) -> set[str]:
+    """The profile's field names, as a model writes them in front of a value ("cefr: C1")."""
+    if isinstance(value, dict):
+        return {_plain(key) for key in value} | set().union(
+            *(_profile_keys(v) for v in value.values()))
+    if isinstance(value, list):
+        return set().union(*(_profile_keys(v) for v in value))
     return set()
 
 
@@ -93,11 +108,29 @@ _JOINED_AFTER_WORD = re.compile(rf"([{_LOWER}])([{_UPPER}])")
 _JOINED_AFTER_CAPITALS = re.compile(rf"([{_UPPER}])([{_UPPER}][{_LOWER}])")
 
 
-def _named_facts(words: str) -> list[tuple[str, bool]]:
+def _named_facts(words: str, keys: frozenset[str] = frozenset(),
+                 values: frozenset[str] = frozenset()) -> list[tuple[str, bool]]:
     """The facts one quote names, and whether each stood in brackets: "MSc Physics (FUT); PCB
-    layout" names MSc Physics, FUT and PCB layout. Models join and shorten profile facts so."""
+    layout" names MSc Physics, FUT and PCB layout. Models join and shorten profile facts so, join
+    them with "...", and put a profile field's name in front ("technical_areas: Optics", "finished
+    2026"): the name is left out, the value must still be stated."""
     def split(text: str) -> list[str]:
-        return [fact.strip() for fact in re.split(r"[;,]", text) if fact.strip()]
+        facts = []
+        for fact in re.split(r"[;,]|\.{3,}|…", text):
+            fact = fact.strip()
+            label = re.match(r"([\w ]+?)\s*:\s*(.+)", fact)
+            if label and _plain(label.group(1)) in keys:
+                fact = label.group(2).strip()
+            elif label and _plain(label.group(1)) in values:
+                # "Spanish: Basic": a stated value, then what the profile says about it.
+                facts.append(label.group(1).strip())
+                fact = label.group(2).strip()
+            first, _, rest = fact.partition(" ")
+            if rest and _plain(first) in keys:
+                fact = rest.strip()
+            if fact:
+                facts.append(fact)
+        return facts
 
     inside = [fact for part in re.findall(r"\(([^()]*)\)", words) for fact in split(part)]
     outside = split(re.sub(r"\([^()]*\)", ",", words))
@@ -111,7 +144,9 @@ def _fact_stated(fact: str, in_brackets: bool, values: set[str]) -> bool:
     if len(fact.split()) > 1 or in_brackets:
         return any(_stated_in(fact, value) for value in values)
     plain = _plain(fact)
-    return plain in values or any(f"({plain})" in value for value in values)
+    # A value with a detail in brackets states its first word too: "Basic (actively improving)".
+    return plain in values or any(f"({plain})" in value or value.startswith(f"{plain} (")
+                                  for value in values)
 
 
 def _profile_quote(words: str, profile: str | dict) -> bool:
@@ -122,7 +157,7 @@ def _profile_quote(words: str, profile: str | dict) -> bool:
     # A bag of matching words doesn't count, so changed negation or an invented skill stays
     # unsupported.
     values = _profile_values(profile)
-    facts = _named_facts(words)
+    facts = _named_facts(words, frozenset(_profile_keys(profile)), frozenset(values))
     return bool(facts) and all(_fact_stated(fact, inside, values) for fact, inside in facts)
 
 
