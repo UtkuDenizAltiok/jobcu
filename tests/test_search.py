@@ -1265,8 +1265,7 @@ def test_search_excludes_known_cvlibrary_only_application_routes(ready, monkeypa
     assert result["status"] == "finished", result["error"]
     jobs = result["result"]["jobs"]
     assert [c["title"] for c in jobs["cards"]] == ["Electronics Engineer"]
-    assert {"reason": "CV-Library application route, with no other saved link", "count": 1} in (
-        jobs["counts"]["left_out"])
+    assert {"reason": applications.EXCLUSION_REASON, "count": 1} in jobs["counts"]["left_out"]
 
 
 def test_search_remembers_reported_route_and_undo_allows_it_again(ready):
@@ -1719,3 +1718,25 @@ def test_fresh_search_uses_its_extra_allowance_when_ordinary_budget_is_exhausted
                              (run.id,)).fetchall()
     assert [row[0] for row in rows] == [allowance.id]
     assert load_settings().limits == settings.limits
+
+
+def test_a_job_several_remembered_jobs_share_exactly_is_posted_again(ready):
+    # Search 15: SALT AND PEPPER's ad was remembered four times, so a fifth copy showed as new.
+    from jobcu.dedupe import normal_city, normal_company, normal_title
+
+    key = (f"job:{normal_company('Company 0')}|{normal_title('Hardware Engineer')}|"
+           f"{normal_city('Berlin')}")
+    with db.connect() as conn:
+        for job_id in (41, 42):
+            conn.execute("INSERT INTO jobs (id, first_seen_at, title, company) VALUES "
+                         "(?, '2026-10-01T10:00:00Z', 'Hardware Engineer', 'Company 0')",
+                         (job_id,))
+            conn.execute("INSERT INTO job_fingerprints VALUES (?, ?, 'DE')", (key, job_id))
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    result = wait_until_done(manager)
+    assert result["status"] == "finished", result["error"]
+    jobs = result["result"]["jobs"]
+    assert "Hardware Engineer" not in [c["title"] for c in jobs["cards"]]
+    assert any(item["count"] == 1 and item["reason"].startswith("Posted again")
+               for item in jobs["counts"]["left_out"])

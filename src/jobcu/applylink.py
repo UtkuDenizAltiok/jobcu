@@ -33,8 +33,24 @@ NEVER_READ = frozenset({
     "linkedin", "monster", "reed", "stepstone", "totaljobs", "xing", "ziprecruiter",
 })
 # Sites known to repeat ads: their own /apply address only passes people on. On any other site it
-# may be the application form itself, and the person should see the ad first.
-PASSES_ON = frozenset({"adzuna", "arbeitnow"})
+# may be the application form itself, and the person should see the ad first. Learn4Good's
+# "Bewerben" is its own click-through address (`index.php?controller=job_page&action=click`):
+# the browser follows it as a person's click would; Jobcu itself never requests it (robots.txt).
+PASSES_ON = frozenset({"adzuna", "arbeitnow", "learn4good"})
+_CLICK_THROUGH = re.compile(r"(?:^|&)action=click(?:&|$)")
+# What a page says when it won't take an application from where the person is: Learn4Good's UK
+# pages show visitors outside the UK this instead of an apply button (all 6 checked, 2026-11-02).
+_ELSEWHERE_ONLY = ("Apply for Jobs<br>Matching My Jurisdiction",
+                   "jobs on this site that accept applications from your location")
+UK_ONLY = ("This job takes applications only through CV-Library, which accepts applicants who "
+           "live in the UK.")
+ELSEWHERE_ONLY = ("This site takes applications for this job only from people in the job's own "
+                  "country.")
+GONE = "This job's page no longer exists: the site has taken the ad down."
+
+
+class Unusable(Exception):
+    """The link can't take this person's application; Jobcu says why instead of opening it."""
 # The words of an apply button, as the supported countries' job sites write them.
 BUTTON_WORDS = frozenset({
     "apply", "apply now", "apply for this job", "apply for this job now", "apply to this job",
@@ -89,14 +105,19 @@ def _site_words(host: str) -> set[str]:
     return set(host.lower().rstrip(".").split("."))
 
 
-def apply_link_in(page: str, page_url: str) -> str | None:
-    """The page's one apply link, when it leads on; None when there isn't exactly one."""
+def _apply_targets(page: str, page_url: str) -> tuple[set[str], bool]:
+    """Where the page's apply buttons lead, and whether the site marked them as the way on."""
     anchors = _Anchors()
     anchors.feed(page)
     anchors.close()
     wanted = anchors.marked or [href for text, href in anchors.found
                                 if text.casefold().rstrip(" .!→›»") in BUTTON_WORDS]
-    targets = {urljoin(page_url, href) for href in wanted}
+    return {urljoin(page_url, href) for href in wanted}, bool(anchors.marked)
+
+
+def apply_link_in(page: str, page_url: str) -> str | None:
+    """The page's one apply link, when it leads on; None when there isn't exactly one."""
+    targets, marked = _apply_targets(page, page_url)
     if len(targets) != 1:
         return None
     target = targets.pop()
@@ -104,11 +125,23 @@ def apply_link_in(page: str, page_url: str) -> str | None:
     if (parts.scheme not in {"http", "https"} or not parts.hostname or target == page_url
             or _ACCOUNT_PATH.search(parts.path) or blocked(target)):
         return None
-    if parts.hostname != here.hostname or anchors.marked:
+    if parts.hostname != here.hostname or marked:
         return target
-    if _REDIRECT_PATH.search(parts.path) or (
-            _APPLY_PATH.search(parts.path) and _site_words(here.hostname or "") & PASSES_ON):
+    passes_on = bool(_site_words(here.hostname or "") & PASSES_ON)
+    if _REDIRECT_PATH.search(parts.path) or (passes_on and (
+            _APPLY_PATH.search(parts.path) or _CLICK_THROUGH.search(parts.query))):
         return target
+    return None
+
+
+def refusal(page: str, page_url: str) -> str | None:
+    """Why the page can't take this person's application, when it says so plainly: its only way
+    on is an excluded site, or it takes applications only from people somewhere else."""
+    if any(phrase in page for phrase in _ELSEWHERE_ONLY):
+        return ELSEWHERE_ONLY
+    targets, _ = _apply_targets(page, page_url)
+    if len(targets) == 1 and blocked(next(iter(targets))):
+        return UK_ONLY
     return None
 
 
@@ -136,7 +169,11 @@ def _read_page(url: str, http: httpx.Client) -> str | None:
         with http.stream("GET", url) as reply:
             if reply.is_redirect:
                 url = urljoin(url, reply.headers.get("location", ""))
+                if blocked(url):
+                    raise Unusable(UK_ONLY)
                 continue
+            if reply.status_code in (404, 410):
+                raise Unusable(GONE)
             if reply.status_code != 200 or "html" not in reply.headers.get("content-type", ""):
                 return None
             body = bytearray()
@@ -149,11 +186,14 @@ def _read_page(url: str, http: httpx.Client) -> str | None:
 
 
 def destination(url: str, http: httpx.Client | None = None) -> str:
-    """Where a click on this link should go. Never fails: any problem leaves the link as it was."""
+    """Where a click on this link should go. Any problem leaves the link as it was; only a page
+    that plainly can't take the application raises Unusable, saying why."""
     client = http or httpx.Client(timeout=TIMEOUT_SECONDS, follow_redirects=False,
                                   headers={"User-Agent": USER_AGENT})
     try:
         page = _read_page(url, client)
+        if page and (why := refusal(page, url)):
+            raise Unusable(why)
         return (apply_link_in(page, url) if page else None) or url
     except (httpx.HTTPError, httpx.InvalidURL, ValueError, UnicodeError) as exc:
         log.info("Apply link not found: %s", type(exc).__name__)
