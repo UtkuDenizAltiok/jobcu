@@ -11,6 +11,7 @@ from jobcu.ai.base import (
     AIRateLimited,
     AIReasoningUnsupported,
     AIUnavailable,
+    AIUnsourcedAnswer,
     AIWebSearchUnavailable,
     ProviderAdapter,
     RawReply,
@@ -320,6 +321,26 @@ def test_web_research_counts_searches_and_keeps_the_sources():
     assert client.web_searches_used == 3
     assert adapter.calls[0]["max_searches"] == 4
     assert total_tokens(UsageLog().this_month()) == 700
+
+
+class SourcelessThenSearchingAdapter(SearchingAdapter):
+    """Its first search brings back no pages; the next one works."""
+
+    def research(self, **request):
+        if not self.calls:
+            self.calls.append(request)
+            error = AIUnsourcedAnswer("No sources this time.")
+            error.usage = Usage(input_tokens=100, output_tokens=50, web_searches=4)
+            raise error
+        return super().research(**request)
+
+
+def test_any_provider_s_unsourced_answer_is_asked_once_more():
+    adapter = SourcelessThenSearchingAdapter()
+    client = AIClient(research_settings(), adapter=adapter, usage_log=UsageLog())
+    reply = client.research(step="job_places", system="Rules", prompt="Fictional vacancy")
+    assert reply.sources and len(adapter.calls) == 2
+    assert client.web_searches_used == 4 + 3  # the failed attempt's searches count too
 
 
 def test_web_research_stops_at_the_cap_and_when_switched_off():
