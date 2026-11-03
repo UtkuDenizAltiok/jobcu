@@ -117,3 +117,12 @@ def test_a_declined_answer_skips_only_its_own_jobs_and_a_lost_connection_stops()
     stopped = Researcher([AIUnavailable("down")])
     assert livepostings.find_postings(stopped, [group(n) for n in range(10)], list(range(10))) == 0
     assert len(stopped.prompts) == 1
+
+
+def test_jobs_whose_found_posting_is_one_page_are_possible_duplicates_of_the_best_scored():
+    groups = [group(n) for n in range(5)]
+    for n, url in enumerate([CAREERS.format(1), CAREERS.format(1) + "/", CAREERS.format(2), "",
+                             None]):
+        groups[n].link_from_web = url
+    scores = {0: 70, 1: 75, 2: 75, 3: 80, 4: 80}
+    assert livepostings.same_postings(groups, [0, 1, 2, 3, 4], scores.get) == {0: 1}
