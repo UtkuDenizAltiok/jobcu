@@ -60,7 +60,9 @@ cover that continuation, while usage is cumulative.
 - Original publication/closing dates and job memory distinguish fresh jobs from reposts. A job an
   earlier search showed is left out ("Shown in an earlier search already") unless an exact
   date proves it was posted after the window began: a date given only as a day, or a late
-  listing, spans two daily windows. Saved results follow the same rule when opened.
+  listing, spans two daily windows. "Posted within" is strict: an ad dated before the window is
+  too old, also from sites that list ads days late (they look further back only to find
+  reposts). Saved results follow the same rules when opened.
   Modification timestamps and sitemap lastmod do not establish an original posting date.
 - Full-ad facts replace unsupported summary assumptions. Grounded mandatory requirements and
   known blockers constrain scores; unknowns remain explicit. Low-scoring jobs are retained.

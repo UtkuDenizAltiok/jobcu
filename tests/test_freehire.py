@@ -7,7 +7,7 @@ import httpx
 from jobcu.keystore import KeyStore
 from jobcu.keywords import SearchTerm
 from jobcu.location import Place
-from jobcu.sources import date_lags, freehire
+from jobcu.sources import freehire
 from jobcu.sources.base import JobQuery, SourceContext, SourceReport
 from jobcu.sources.http import PoliteClient
 
@@ -125,7 +125,7 @@ def test_a_restated_date_never_makes_an_old_ad_fresh():
     assert found["late"].posted_at == NOW - timedelta(hours=40)
     # Its first sight alone can't date an ad.
     assert found["day"].posted_at is None and found["day"].date_precision == "unknown"
-    assert date_lags()["freehire"] == freehire.LAG_HOURS
+    assert freehire.FreeHireSource.date_lag_hours == freehire.LAG_HOURS
 
 
 def test_a_whole_day_counts_as_a_day():

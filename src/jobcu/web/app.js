@@ -1122,11 +1122,6 @@ function postedLabel(card) {
   return `posted ${Math.round(hours / 24)} days ago`;
 }
 
-// Older than "Posted within", kept because a site listed it late and Jobcu never showed it.
-function lateLabel(card) {
-  return card.listed_late ? "listed late by the job site, new to Jobcu" : null;
-}
-
 // When applications close, if the job site says (public-sector and school jobs usually do).
 function closingLabel(card) {
   if (!card.closes_at) return null;
@@ -1161,7 +1156,7 @@ function renderCard(card) {
   const how = card.location_from_ad_text ? " (from the ad text)"
     : card.location_found_online ? " (found online)" : "";
   const where = card.location ? `${card.location}${how}` : "Location not stated";
-  const meta = [where, WORK_MODES[card.work_mode], types, postedLabel(card), lateLabel(card),
+  const meta = [where, WORK_MODES[card.work_mode], types, postedLabel(card),
     repostLabel(card), closingLabel(card), card.salary].filter(Boolean).join(" · ");
 
   // How the score adds up, so two jobs a point apart can be told apart (scoring.py's rubric).

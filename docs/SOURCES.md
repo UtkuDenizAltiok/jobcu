@@ -151,10 +151,11 @@ second, all 23 ads returned were dated before the window. A direct check of "Har
 returned nothing for `today` and ten ads dated 68-92 hours earlier for `3days`. Jobcu had shown
 three of them in earlier searches (one 15 days before its JSearch date: the date is the
 index's, not the vacancy's); seven were jobs Jobcu had never shown. So JSearch lists ads about
-two to three days late, and a 24-hour search could never count a job only JSearch found. Its
-ads therefore count up to 72 hours before the window (`date_lag_hours`) when no other copy
-dates the job earlier and Jobcu never showed it before the window began. A job already shown
-stays a repost, and the card keeps the date JSearch gives.
+two to three days late. From 2026-10-29 its ads counted up to 72 hours before the window when
+Jobcu had never shown the job; from 2026-11-04 "Posted within" is strict again at the person's
+request (those late ads were 55 of a 24-hour search's 186 cards). JSearch still asks
+`date_lag_hours` (72) further back, so an older copy marks a repost, and the ads it indexes
+within the window still count (8 good matches only it found in that search).
 
 JSearch does not provide the evidence needed to decide population shares, city-election
 comparisons, sampled journeys or personal fit. Its radius filter is not a travel-time filter.
@@ -277,7 +278,8 @@ merged. On 2026-11-02 its facets counted 229,817 open ads in Germany, 124,731 in
   `created_at` is FreeHire's first sight. Jobcu dates a job by the earlier of the two and leaves
   out an ad FreeHire flags as `fake_freshness`. It asks with `open_within_days` (first sight),
   the window plus a 48-hour lag: of 81 recent ads, half were listed within 7.5 hours of their
-  date and the latest after 42. A late ad counts only while Jobcu never showed the job.
+  date and the latest after 42. An ad dated before the window doesn't count; it only marks a
+  repost.
 - **Copies.** Ads from boards (Adzuna, Reed, EURES, XING and others) carry the board's link and
   can hold only the start of the ad (Adzuna's 500 characters). Only ads from the sources the
   facets list under `source_type=ats|company` count as complete ads on the employer's own page.

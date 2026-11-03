@@ -153,6 +153,28 @@ def test_linked_history_view_removes_proven_reposts_and_exposes_score_disagreeme
     assert viewed["result"]["jobs"]["counts"]["left_out"][0]["count"] == 1
 
 
+def test_saved_results_leave_out_ads_dated_before_the_window():
+    from jobcu import pipeline
+    from jobcu.filters import REASONS
+
+    jobs = [group(name, f"Power Electronics Engineer {name}") for name in ("late", "fresh")]
+    ids, _ = jobstore.remember(jobs, new_search())
+    now = datetime.now(UTC)  # first shown by this very search: not a repeat
+    snapshot = {"started_at": (now - timedelta(minutes=5)).isoformat(),
+                "form": {"posted_within_hours": 24}, "result": {"jobs": {"cards": [
+                    {"job_id": ids[0], "score": 75, "is_new": True,
+                     "posted_at": (now - timedelta(hours=60)).isoformat(),
+                     "date_precision": "exact", "main_link": {"source": "A", "url": "https://a.test/1"}},
+                    {"job_id": ids[1], "score": 70, "is_new": True,
+                     "posted_at": (now - timedelta(hours=3)).isoformat(),
+                     "date_precision": "exact", "main_link": {"source": "B", "url": "https://b.test/2"}}],
+                    "date_unknown": [], "counts": {"shown": 2, "left_out": []}}}}
+    pipeline.history_view(snapshot)
+    jobs_now = snapshot["result"]["jobs"]
+    assert [card["job_id"] for card in jobs_now["cards"]] == [ids[1]]
+    assert jobs_now["counts"]["left_out"] == [{"reason": REASONS["too_old"], "count": 1}]
+
+
 def test_saved_results_leave_out_jobs_an_earlier_search_showed_whose_day_spans_the_window():
     from jobcu import pipeline
     from jobcu.filters import REASONS
