@@ -5975,6 +5975,107 @@
    }
   },
   {
+   "name": "ROHM Semiconductor",
+   "system": "personio",
+   "board": "rohm-semiconductor",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Stuttgart"
+    ]
+   },
+   "checked": "2026-11-03"
+  },
+  {
+   "name": "Sungrow EMEA",
+   "system": "personio",
+   "board": "sungrow-emea",
+   "countries": [
+    "AT",
+    "BE",
+    "CH",
+    "CZ",
+    "DE",
+    "DK",
+    "ES",
+    "FI",
+    "GB",
+    "GR",
+    "IE",
+    "IT",
+    "LT",
+    "NL",
+    "PL",
+    "PT",
+    "RO",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Vienna"
+    ],
+    "BE": [
+     "Brussels"
+    ],
+    "CH": [
+     "Zürich"
+    ],
+    "CZ": [
+     "Prague"
+    ],
+    "DE": [
+     "Berlin",
+     "Munich",
+     "Oberschleißheim"
+    ],
+    "DK": [
+     "Copenhagen"
+    ],
+    "ES": [
+     "Madrid"
+    ],
+    "FI": [
+     "Helsinki"
+    ],
+    "GB": [
+     "Milton Keynes"
+    ],
+    "GR": [
+     "Athens"
+    ],
+    "IE": [
+     "Dublin"
+    ],
+    "IT": [
+     "Milan"
+    ],
+    "LT": [
+     "Vilnius"
+    ],
+    "NL": [
+     "Amsterdam"
+    ],
+    "PL": [
+     "Warsaw",
+     "Wrocław"
+    ],
+    "PT": [
+     "Lisbon"
+    ],
+    "RO": [
+     "Bucharest"
+    ],
+    "SE": [
+     "Stockholm"
+    ]
+   },
+   "checked": "2026-11-03"
+  },
+  {
    "name": "Canton of Basel-Landschaft",
    "system": "prospective",
    "board": "1571",
@@ -6518,6 +6619,44 @@
    "checked": "2026-10-30"
   },
   {
+   "name": "Kontron",
+   "system": "softgarden",
+   "board": "verwaltungkontron",
+   "countries": [
+    "AT",
+    "CH",
+    "DE",
+    "FR",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Vienna"
+    ],
+    "CH": [
+     "Rotkreuz"
+    ],
+    "DE": [
+     "Augsburg",
+     "Dresden",
+     "Düsseldorf",
+     "Immenstaad am Bodensee",
+     "Ismaning",
+     "Memmingen",
+     "Stuttgart"
+    ],
+    "FR": [
+     "La Garde",
+     "Montigny-le-Bretonneux"
+    ],
+    "SE": [
+     "Stockholm"
+    ]
+   },
+   "checked": "2026-11-03"
+  },
+  {
    "name": "PULS",
    "system": "softgarden",
    "board": "pulspower",
@@ -6531,6 +6670,25 @@
      "Munich"
     ]
    }
+  },
+  {
+   "name": "Advanced Energy",
+   "system": "successfactors",
+   "board": "jobs.advanced-energy.com",
+   "countries": [
+    "GB",
+    "IE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Littlehampton"
+    ],
+    "IE": [
+     "Cork"
+    ]
+   },
+   "checked": "2026-11-03"
   },
   {
    "name": "Alstom",
@@ -9165,6 +9323,27 @@
    "checked": "2026-10-30"
   },
   {
+   "name": "X-FAB",
+   "system": "successfactors",
+   "board": "jobs.xfab.com",
+   "countries": [
+    "DE",
+    "FR"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Dresden",
+     "Erfurt",
+     "Itzehoe"
+    ],
+    "FR": [
+     "Corbeil-Essonnes"
+    ]
+   },
+   "checked": "2026-11-03"
+  },
+  {
    "name": "ZF",
    "system": "successfactors",
    "board": "jobs.zf.com",
@@ -10963,6 +11142,34 @@
      "Bratislava"
     ]
    }
+  },
+  {
+   "name": "Allegro MicroSystems",
+   "system": "workday",
+   "board": "https://allegromicro.wd5.myworkdayjobs.com/AllegroCareers",
+   "countries": [
+    "CZ",
+    "DE",
+    "FR",
+    "IT"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "CZ": [
+     "Prague"
+    ],
+    "DE": [
+     "Heidelberg"
+    ],
+    "FR": [
+     "Annecy",
+     "Grenoble"
+    ],
+    "IT": [
+     "Milan"
+    ]
+   },
+   "checked": "2026-11-03"
   },
   {
    "name": "Amgen",
@@ -16176,6 +16383,40 @@
    }
   },
   {
+   "name": "Monolithic Power Systems",
+   "system": "workday",
+   "board": "https://monolithicpower.wd12.myworkdayjobs.com/MPS_Careers",
+   "countries": [
+    "CH",
+    "DE",
+    "ES",
+    "GB",
+    "HU",
+    "NL",
+    "PT",
+    "RO"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "CH": [
+     "Schaffhausen"
+    ],
+    "DE": [
+     "Ettenheim",
+     "Munich",
+     "Ottobrunn bei München"
+    ],
+    "ES": [
+     "Barcelona"
+    ],
+    "PT": [
+     "Lisbon",
+     "Porto"
+    ]
+   },
+   "checked": "2026-11-03"
+  },
+  {
    "name": "Moog",
    "system": "workday",
    "board": "https://moog.wd5.myworkdayjobs.com/MOOG_External_Career_Site",
@@ -16428,6 +16669,39 @@
      "Bucharest"
     ]
    }
+  },
+  {
+   "name": "Nexperia",
+   "system": "workday",
+   "board": "https://nexperia.wd3.myworkdayjobs.com/careers",
+   "countries": [
+    "DE",
+    "GB",
+    "HU",
+    "IT",
+    "NL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Hamburg",
+     "Munich"
+    ],
+    "GB": [
+     "Durham",
+     "Manchester"
+    ],
+    "HU": [
+     "Budapest"
+    ],
+    "IT": [
+     "Catania"
+    ],
+    "NL": [
+     "Nijmegen"
+    ]
+   },
+   "checked": "2026-11-03"
   },
   {
    "name": "Nidec",
@@ -17917,6 +18191,34 @@
    }
   },
   {
+   "name": "Semtech",
+   "system": "workday",
+   "board": "https://semtech.wd1.myworkdayjobs.com/SemtechCareers",
+   "countries": [
+    "CH",
+    "DE",
+    "FR",
+    "GB",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "CH": [
+     "Neuchâtel"
+    ],
+    "FR": [
+     "Toulouse"
+    ],
+    "GB": [
+     "Bristol"
+    ],
+    "SE": [
+     "Stockholm"
+    ]
+   },
+   "checked": "2026-11-03"
+  },
+  {
    "name": "Sensata",
    "system": "workday",
    "board": "https://sensata.wd1.myworkdayjobs.com/Sensata-Careers",
@@ -18876,6 +19178,42 @@
    }
   },
   {
+   "name": "Ultra",
+   "system": "workday",
+   "board": "https://ultra.wd3.myworkdayjobs.com/ultra-careers",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Farnborough",
+     "London",
+     "Loudwater",
+     "Maidenhead",
+     "Tring"
+    ]
+   },
+   "checked": "2026-11-03"
+  },
+  {
+   "name": "Ultra Intelligence & Communications",
+   "system": "workday",
+   "board": "https://ultra.wd3.myworkdayjobs.com/UICCareers",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Farnborough",
+     "Maidenhead",
+     "Tring"
+    ]
+   },
+   "checked": "2026-11-03"
+  },
+  {
    "name": "Unilever",
    "system": "workday",
    "board": "https://unilever.wd3.myworkdayjobs.com/Unilever_Experienced_Professionals",
@@ -19173,6 +19511,71 @@
      "Belfast"
     ]
    }
+  },
+  {
+   "name": "Vishay",
+   "system": "workday",
+   "board": "https://vishay.wd3.myworkdayjobs.com/VishayCareers",
+   "countries": [
+    "AT",
+    "CZ",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "HU",
+    "IE",
+    "IT",
+    "PT"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Klagenfurt am Wörthersee",
+     "Vöcklabruck"
+    ],
+    "CZ": [
+     "Blatná",
+     "Přeštice",
+     "Sokolov"
+    ],
+    "DE": [
+     "Erndtebrück",
+     "Heide",
+     "Heilbronn",
+     "Itzehoe",
+     "Landshut",
+     "Selb"
+    ],
+    "ES": [
+     "Madrid"
+    ],
+    "FR": [
+     "Hyères",
+     "Le Pecq",
+     "Nice"
+    ],
+    "GB": [
+     "Newport",
+     "Sunderland",
+     "Warwick"
+    ],
+    "HU": [
+     "Budapest"
+    ],
+    "IE": [
+     "Cork"
+    ],
+    "IT": [
+     "Assago",
+     "Catania",
+     "Turin"
+    ],
+    "PT": [
+     "Famalicão"
+    ]
+   },
+   "checked": "2026-11-03"
   },
   {
    "name": "Vossloh",
