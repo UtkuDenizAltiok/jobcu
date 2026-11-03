@@ -202,6 +202,11 @@ class AIUnsourcedAnswer(AIInvalidOutput):
     so the client asks once more before the check stays unchecked."""
 
 
+# Problems with one answer, not with the connection or account: asking about less (one job
+# instead of a batch), or asking again later, can still work.
+ONE_ANSWER_PROBLEMS = (AIInvalidOutput, AIOutputTruncated, AIRefused)
+
+
 class AILimitReached(AIError):
     """The user's own monthly limit in Jobcu's settings is reached."""
 

@@ -22,10 +22,17 @@ from urllib.parse import urlsplit
 from pydantic import BaseModel
 
 from jobcu import applications
-from jobcu.ai.base import AIError, AILimitReached, Citation, ResearchReply, Source, Usage
+from jobcu.ai.base import (
+    ONE_ANSWER_PROBLEMS,
+    AIError,
+    AILimitReached,
+    Citation,
+    ResearchReply,
+    Source,
+    Usage,
+)
 from jobcu.ai.client import AIClient
 from jobcu.dedupe import JobGroup
-from jobcu.jobplace import ONE_ANSWER_PROBLEMS
 from jobcu.travel import job_country
 
 log = logging.getLogger(__name__)

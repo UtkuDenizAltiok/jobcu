@@ -23,11 +23,9 @@ from pydantic import BaseModel, PrivateAttr
 from jobcu import places as place_list
 from jobcu import requirements
 from jobcu.ai.base import (
+    ONE_ANSWER_PROBLEMS,
     AIError,
-    AIInvalidOutput,
     AILimitReached,
-    AIOutputTruncated,
-    AIRefused,
     Citation,
     ResearchReply,
     Source,
@@ -66,10 +64,9 @@ BATCH_SIZE = 5
 SEARCHES_PER_JOB = 2
 MAX_PLACES = 3
 TEXT_CHARS = 300
-# Problems with one answer (cut off, refused, not in the format) lose only that batch, which can
-# be looked up again later; any other problem (the service down, the key, the quota) stops the
-# batches not started yet.
-ONE_ANSWER_PROBLEMS = (AIInvalidOutput, AIOutputTruncated, AIRefused)
+# Problems with one answer (ONE_ANSWER_PROBLEMS: cut off, refused, not in the format) lose only
+# that batch, which can be looked up again later; any other problem (the service down, the key,
+# the quota) stops the batches not started yet.
 INCOMPLETE_CHECKS = (
     "Some online job checks could not finish. Missing locations and requirements stay unchecked."
 )
