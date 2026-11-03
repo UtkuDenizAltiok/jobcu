@@ -287,6 +287,12 @@ merged. On 2026-11-02 its facets counted 229,817 open ads in Germany, 124,731 in
 - **EURES titles.** German EURES copies are the Bundesagentur's vacancies with the agency's
   occupation added in brackets ("Senior Engineer (m/w/d) (Hardwareentwickler/in)": all 100 of a
   day's sample). Jobcu removes that bracket, so the copy matches the agency's own ad.
+- **Word search in the ad text (2026-11-03).** A field word can miss an ad that says it only far
+  into its text: Nexperia's "Automotive Application Engineer" (6,800 characters) was found by
+  "power semiconductor", which its first paragraph names, but not by "power electronics", which
+  first appears after 3,100 characters. Jobcu therefore also asks for the components and
+  technologies a field works with (ads name them early) and reads key employers' career sites
+  itself.
 - **Coverage measured.** With a hardware engineering search's 25 titles (title only), FreeHire
   had 34 ads first known in the two days Jobcu had searched (29-31 October; the earlier of
   posted and first seen). Jobcu had collected 12 of them; 22 had reached it through no source,

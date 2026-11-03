@@ -18,7 +18,7 @@ from jobcu.profile import Profile
 
 LANGUAGES_PER_REQUEST = 5
 MAX_TITLES_PER_LANGUAGE = 16
-MAX_FIELD_WORDS_PER_LANGUAGE = 8
+MAX_FIELD_WORDS_PER_LANGUAGE = 10
 
 
 LanguageCode = Literal[tuple(LANGUAGE_NAMES)]  # type: ignore[valid-type]
@@ -63,9 +63,12 @@ the work this person wants and can do. Include common variants and spellings of 
 forms employers in that language really use, including English titles if they're common there. \
 No seniority words (Senior, Junior, Lead) unless they are part of the role's name, no \
 locations, no company names.
-- field_or_skill: 4 to 8 short words or phrases (1 to 3 words) naming the person's specialism, \
+- field_or_skill: 5 to 10 short words or phrases (1 to 3 words) naming the person's specialism, \
 as job ads for their kind of work mention it, such as "intensive care", "early years", \
-"employment law", "HGV", "pastry" or "PCB design".
+"employment law", "HGV", "pastry" or "PCB design". Include the components, materials or \
+technologies the specialism works with, which many ads name instead of the field itself, such \
+as "power semiconductors" or "SiC" for power electronics, "dialysis" for renal nursing or \
+"phonics" for early years teaching.
 
 Rules:
 - Write natural terms that job ads in that language actually use, not word-for-word translations.
@@ -125,7 +128,7 @@ def _search_words(client: AIClient, profile: Profile, languages: list[str], *, r
         if reuse:
             client.checkpoint()
             request_key = preparation.key(client, reasoning=False, inputs=[
-                "search-words-3", setup_identity, SYSTEM_PROMPT, prompt,
+                "search-words-4", setup_identity, SYSTEM_PROMPT, prompt,
                 strict_json_schema(SearchWordsAnswer),
                 6000,
                 MAX_TITLES_PER_LANGUAGE, MAX_FIELD_WORDS_PER_LANGUAGE, LANGUAGES_PER_REQUEST,
