@@ -86,8 +86,8 @@ class FreeHireSource(JobSource):
         if not searches:
             return
         budget = RequestBudget(self.id, self.name, LIMITS)
-        # Ads listed late still count while Jobcu never showed them (filters.py); older ones
-        # only show that a copy found fresh elsewhere is a repost.
+        # Ads dated before the window never count (filters.py); they only show that a copy
+        # found fresh elsewhere is a repost.
         start = window_start(query.started_at, query.posted_within_hours + LAG_HOURS)
         seen: set[str] = set()
         failed = 0

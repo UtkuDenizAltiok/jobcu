@@ -173,10 +173,3 @@ def test_the_closing_date_survives_the_saved_pool_and_the_ad_memory():
     summary = found("1")
     again = jobstore.remembered_ad(summary)
     assert again.closes_at == closes and (again.latitude, again.longitude) == (52.5, 13.4)
-
-
-def test_a_card_says_when_a_site_listed_its_job_late():
-    # Search 15: a third of a 24-hour search's cards were dated 1-4 days back (JSearch lists late).
-    late = found("1", posted_at=NOW - timedelta(hours=60))
-    assert card(late)["listed_late"] is True
-    assert card(found("2"))["listed_late"] is False

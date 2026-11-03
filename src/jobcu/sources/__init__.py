@@ -1,7 +1,5 @@
 """Job sources: one isolated module per source. A failing source never breaks a search."""
 
-from functools import cache
-
 from jobcu.settings import Settings
 from jobcu.sources.adzuna import AdzunaSource
 from jobcu.sources.arbeitnow import ArbeitnowSource
@@ -71,9 +69,3 @@ def all_sources() -> list[JobSource]:
             JobsIrelandSource(),
             ReedSource(), TeachingVacanciesSource(), NhsJobsSource(), LeForemSource(),
             WerkenVoorNederlandSource(), NavSource(), *career_sources()]
-
-
-@cache
-def date_lags() -> dict[str, int]:
-    """The sources that list ads late, with their lag in hours (JobSource.date_lag_hours)."""
-    return {source.id: source.date_lag_hours for source in all_sources() if source.date_lag_hours}

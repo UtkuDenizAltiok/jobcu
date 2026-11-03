@@ -390,6 +390,12 @@ def history_view(snapshot: dict) -> None:
         for card in jobs[section]:
             groups.setdefault(canonical[card["job_id"]], []).append((section, card))
 
+    def too_old(card) -> bool:
+        # Saved before "Posted within" became strict (filters._reason): ads sites listed late.
+        return bool(start) and freshness(parse_iso(card.get("posted_at")),
+                                         card.get("date_precision") or "unknown",
+                                         start) == "too_old"
+
     def shown_before(first, card) -> bool:
         # The search's own rule (filters._reason): shown by an earlier search, and its date doesn't
         # prove it was posted after the window began. Saved results made before the rule follow it.
@@ -400,11 +406,12 @@ def history_view(snapshot: dict) -> None:
             and not any(start and seen.get(root) and seen[root] < start for root in groups)
             and not any(c.get("is_new") and started and seen.get(c["job_id"])
                         and seen[c["job_id"]] < started for c in cards)
-            and not any(shown_before(seen.get(c["job_id"]), c) for c in cards)):
+            and not any(shown_before(seen.get(c["job_id"]), c) for c in cards)
+            and not any(too_old(c) for c in cards)):
         return
     for section in sections:
         jobs[section] = []
-    reposts, earlier, combined = 0, 0, 0
+    reposts, earlier, older, combined = 0, 0, 0, 0
     for root, entries in groups.items():
         first = seen.get(root)
         combined += len(entries) - 1
@@ -413,6 +420,9 @@ def history_view(snapshot: dict) -> None:
             continue
         if any(shown_before(first, card) for _, card in entries):
             earlier += 1
+            continue
+        if all(too_old(card) for _, card in entries):
+            older += 1
             continue
         section, original = min(entries, key=lambda pair: (
             applications.opaque((pair[1].get("main_link") or {}).get("url")),
@@ -446,12 +456,13 @@ def history_view(snapshot: dict) -> None:
     if "location_unchecked" in jobs:
         counts["location_unchecked"] = len(jobs["location_unchecked"])
     jobs["new_count"] = sum(bool(c.get("is_new")) for c in visible)
-    if reposts or earlier:
+    if reposts or earlier or older:
         left_out = Counter()
         for item in counts.get("left_out", []):
             left_out[item["reason"]] += item["count"]
         left_out[REASONS["repost"]] += reposts
         left_out[REASONS["shown_before"]] += earlier
+        left_out[REASONS["too_old"]] += older
         counts["left_out"] = [{"reason": reason, "count": count}
                               for reason, count in left_out.items() if count]
     if combined:
@@ -576,9 +587,6 @@ def build_card(
         "posted_at": group.posted_at.isoformat() if group.posted_at else None,
         "date_precision": group.date_precision,
         "date_known": freshness(group.posted_at, group.date_precision, start) != "unknown",
-        # Dated before the window, kept because a site that lists ads late (JSearch, FreeHire)
-        # had it and Jobcu never showed it: its card says so.
-        "listed_late": freshness(group.posted_at, group.date_precision, start) == "too_old",
         "first_seen_at": first_seen_at.isoformat() if reposted else None,
         "closes_at": group.closes_at.isoformat() if group.closes_at else None,
         "score": scored["score"] if scored else None,

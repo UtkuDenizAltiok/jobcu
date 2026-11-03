@@ -19,14 +19,13 @@ Every left-out job is counted with its reason, for "Search details".
 
 from collections import Counter
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from jobcu import applications, travel, vacancy_evidence
 from jobcu.dedupe import JobGroup
 from jobcu.freshness import freshness, posted_after, window_start
 from jobcu.jobstore import JobState
 from jobcu.location import fits
-from jobcu.sources import date_lags
 
 REASONS = {
     **vacancy_evidence.REASONS,
@@ -89,8 +88,10 @@ def _reason(group, state, start, wanted_types, exclude_remote, countries, condit
         return "dismissed"
     if route := applications.exclusion_key(group, reported):
         return route
-    if (freshness(group.posted_at, group.date_precision, start) == "too_old"
-            and not _listed_late(group, start)):
+    # "Posted within 24 hours" means what it says, also for sites that list ads days late
+    # (JSearch, FreeHire): their late ads were 55 of search 16's 186 cards, and the person asked
+    # for nothing older than the window (2026-11-04).
+    if freshness(group.posted_at, group.date_precision, start) == "too_old":
         return "repost" if any(copy.older_copy for copy in group.copies) else "too_old"
     # Shown in an earlier search before the window began: the job existed then, whatever date
     # its ads give now (45 of search 11's 349 cards, most re-dated by Adzuna).
@@ -116,19 +117,6 @@ def _reason(group, state, start, wanted_types, exclude_remote, countries, condit
     if fails_a_condition(group, conditions):
         return "location_condition"
     return None
-
-
-def _listed_late(group: JobGroup, start: datetime) -> bool:
-    """Only a source that lists ads late dates this job before the window, and within its lag:
-    no earlier search could have found it there, so it counts unless Jobcu showed it before."""
-    lags = date_lags()
-    early = [c for c in group.copies
-             if freshness(c.posted_at, c.date_precision, start) == "too_old"]
-    return bool(early) and all(
-        not c.older_copy and c.source in lags
-        and freshness(c.posted_at, c.date_precision,
-                      start - timedelta(hours=lags[c.source])) == "fresh"
-        for c in early)
 
 
 def fails_a_condition(group: JobGroup, conditions: list) -> bool:
