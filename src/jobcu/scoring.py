@@ -210,8 +210,8 @@ person's main skills
 children's ward for an adult ICU nurse, a secondary-school post for a primary teacher, RF \
 design for a power electronics engineer)
   18-27 a related job whose daily tasks are partly different (e.g. a nurse educator or case \
-manager for a ward nurse, a catering manager for a sous-chef, test or field engineering for a \
-design engineer)
+manager for a ward nurse, a catering manager for a sous-chef, field service, or test work \
+outside the person's field, for a design engineer)
   8-17 loosely related (e.g. a care assistant for a registered nurse, a school administrator \
 for a teacher, installation or IT support for a design engineer)
   0-7 a different field
@@ -249,7 +249,15 @@ Judge the main work before counting shared skills: a common industry, employer, 
 graduate level or tool does not establish the same occupation or specialisation. Compare the \
 actual daily deliverables and central domain with the person's stated target work. Customer \
 application support for a specialist technology is different from designing that technology; \
-general hardware debugging does not prove that specialist knowledge. The same distinction \
+general hardware debugging does not prove that specialist knowledge. One exception: \
+application, test, validation or characterisation engineering within the person's own field \
+(for an electronics or power electronics engineer: electronic hardware, measurement, power \
+devices), whose essential requirements are mostly the person's own skills, is the same kind of \
+role with a gap (28-35), not a related job: score the customer or test share as the gap. For \
+example a power-semiconductor application role asking a power electronics engineer for power \
+electronics, MOSFETs, circuit simulation and PCB design. Such work in another field stays \
+related or lower: testing mechanical or vehicle parts (engines, brakes, test rigs), \
+software-only work, IT or production support. The same distinction \
 applies to clinical practice versus clinical software support, classroom teaching versus \
 education-product support, and hands-on cooking versus equipment sales. Preserve suitable \
 adjacent jobs, but score the real task/knowledge gaps. Basic familiarity is not proven advanced \
