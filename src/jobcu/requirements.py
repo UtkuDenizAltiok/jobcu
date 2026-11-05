@@ -91,6 +91,15 @@ def _stated_in(quote: str, text: str) -> bool:
     return _words(quote).strip() != "" and _words(quote) in _words(text)
 
 
+def quoted_in_ad(words: str, ad: str) -> bool:
+    """Whether these words are the ad's own (scoring checks quoted amounts with it)."""
+    return _ad_quote(words, ad)
+
+
+def plain(text: str) -> str:
+    return _plain(text)
+
+
 def _ad_quote(words: str, ad: str) -> bool:
     """A quote from the ad; "..." may leave out what stands between its parts."""
     parts = [part for part in re.split(r"\.{3,}|…", words) if part.strip()]

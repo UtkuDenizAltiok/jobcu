@@ -116,7 +116,7 @@ class LanguageAsked(BaseModel):
 
 # What the AI read in an ad, kept with the score so the rules can be applied again when the full
 # ad is found online (jobplace.py).
-EVIDENCE = ("ad_language", "languages_asked", "years_required", "doctorate",
+EVIDENCE = ("ad_language", "languages_asked", "years_required", "years_words", "doctorate",
             "citizenship_or_clearance", "citizenship_or_clearance_words", "requirement_checks",
             "visa_sponsorship", "visa_sponsorship_words", "right_to_work_required",
             "right_to_work_words", "versions_differ")
@@ -152,6 +152,7 @@ class JobScore(BaseModel):
     ad_language: str = Field(description="The language most of the ad is written in, in English")
     languages_asked: list[LanguageAsked]
     years_required: float | None
+    years_words: str = Field("", description="The ad's words stating the amount, or empty")
     doctorate: Doctorate
     citizenship_or_clearance: CitizenshipOrClearance
     citizenship_or_clearance_words: str = Field(description="The ad's words, or empty")
@@ -185,8 +186,19 @@ isn't needed ("no German required", "our working language is English")."""
 YEARS_RULES = """\
 the least professional experience the ad requires, in years: the lower end of a range ("3-5 \
 years": 3); "several years", "mehrjährige": 3; "many years", "extensive", "langjährige": 5; \
-"first experience", "erste Berufserfahrung": 1. null when the ad states no amount or only calls \
-experience a plus."""
+"first experience", "erste Berufserfahrung": 1. null when the ad states no amount ("strong", \
+"solid", "proven", "fundierte" or "relevant" experience name none) or only calls experience a \
+plus."""
+YEARS_WORDS_RULES = """\
+the ad's words that state that amount, copied exactly, at most 8 words; empty when \
+years_required is null."""
+# Words that state an amount of experience (YEARS_RULES). Da Vinci's "Strong experience in the
+# development of power electronic components" was read as 3 years (search 18): the AI's number
+# counts only when the ad's own words, quoted, state an amount.
+YEARS_AMOUNT = re.compile(
+    r"\d|\b(?:two|three|four|five|six|seven|eight|nine|ten|twelve|fifteen|several|many|multiple|"
+    r"extensive|first|initial|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn|mehrere|"
+    r"mehrjährig\w*|langjährig\w*|erste\w*|years?|jahre?n?|jährig\w*)\b")
 DOCTORATE_RULES = """\
 required_person_has_it or required_person_lacks_it only when the ad requires a doctorate (PhD); \
 not_required when it's a plus or not mentioned."""
@@ -260,6 +272,7 @@ it carefully and never guess.
   Leave the list empty when the ad asks for no language. Don't list a language only because the \
 ad is written in it.
 - years_required: {YEARS_RULES}
+- years_words: {YEARS_WORDS_RULES}
 - doctorate: {DOCTORATE_RULES}
 - citizenship_or_clearance: {CITIZENSHIP_RULES}
 - {SPONSORSHIP_RULES}
@@ -423,6 +436,9 @@ def finish(score: JobScore, profile: Profile, *, ad_text: str | None = None,
     result["evidence"]["job_title"] = title
     result["evidence"]["sponsorship_confirmed"] = sponsorship_confirmed(
         score.visa_sponsorship, score.visa_sponsorship_words, ad_text or "")
+    if ad_text is not None and not years_stated(score, ad_text):
+        result["evidence"]["years_required"] = None
+        result["evidence"]["years_unverified"] = score.years_required
     if ad_text is not None:
         result["evidence"].update({
             "requirement_checks": requirements.ground(
@@ -432,6 +448,16 @@ def finish(score: JobScore, profile: Profile, *, ad_text: str | None = None,
             "requirement_points_proposed": parts["hard_requirements"],
         })
     return judge(result, profile)
+
+
+def years_stated(score: JobScore, ad_text: str) -> bool:
+    """Whether the years the AI read are stated in the ad: its quote is the ad's own words and
+    names an amount. No years read needs no quote."""
+    if score.years_required is None:
+        return True
+    words = score.years_words.strip()
+    return bool(words) and requirements.quoted_in_ad(words, ad_text) and bool(
+        YEARS_AMOUNT.search(requirements.plain(words)))
 
 
 def _unconfirmed_expertise(evidence: dict) -> str:

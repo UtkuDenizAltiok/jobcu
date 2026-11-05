@@ -783,3 +783,25 @@ def test_the_role_rubric_counts_entry_routes_by_discipline_and_never_lifts_other
     for not_lifted in ("sales", "another profession", "technician", "field-service",
                        "Apprenticeships, internships, placements"):
         assert not_lifted in entry
+
+
+def test_years_count_only_when_the_ads_own_words_state_an_amount():
+    # A fictional power electronics ad asked for "strong experience" and named no number; the
+    # model read 3 years and the card said "Asks for 3+ years".
+    ad = ("Your profile: Strong experience in the development of power electronic components. "
+          "Mindestens 3 Jahre Berufserfahrung im Bereich Leistungselektronik sind ein Plus.")
+
+    def years(**answer):
+        result = finish(JobScore.model_validate(score_json("J0", role=39, **answer)), PROFILE,
+                        ad_text=ad, complete=True)
+        return result["evidence"]["years_required"], [cap["why"] for cap in result["limits"]]
+
+    assert years(years_required=3, years_words="Strong experience in the development") == (
+        None, [])
+    assert years(years_required=3, years_words="5+ years of experience") == (None, [])  # not in ad
+    assert years(years_required=3, years_words="")[0] is None
+    stated, limits = years(years_required=3, years_words="Mindestens 3 Jahre Berufserfahrung")
+    assert stated == 3 and limits == [
+        "Asks for 3+ years of experience, you have no full-time years yet"]
+    assert years(years_required=None, years_words="") == (None, [])
+    assert "years_words" in scoring.SYSTEM_PROMPT
