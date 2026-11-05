@@ -149,3 +149,36 @@ def test_several_remembered_jobs_with_one_name_count_as_shown_before_but_none_is
     found, repeats = jobstore.find_jobs([copy])
     assert found == [None] and repeats == [{41, 42}]
     assert set(jobstore.first_seen([41, 42])) == {41, 42}
+
+
+def test_a_job_counts_as_shown_once_a_card_showed_its_score_with_its_place_checked():
+    ids, _ = jobstore.remember([group("a", str(n), f"Hardware Engineer {n}") for n in range(3)],
+                               new_search())
+    scored, pending, unscored = ids
+    jobstore.save_cards([{"job_id": scored, "score": 72, "location_pending": False},
+                         {"job_id": pending, "score": 75, "location_pending": True},
+                         {"job_id": unscored, "score": None}])
+    first = jobstore.first_assessed(ids)
+    assert set(first) == {scored}
+    jobstore.save_cards([{"job_id": pending, "score": 75, "location_pending": False},
+                         {"job_id": scored, "score": 40}])
+    again = jobstore.first_assessed(ids)
+    assert set(again) == {scored, pending}
+    assert again[scored] == first[scored]  # the first such listing counts, not the latest
+    assert set(jobstore.first_seen(ids)) == set(ids)  # every listing is still remembered
+
+
+def test_jobs_kept_from_before_count_as_shown_only_if_their_saved_card_had_a_score():
+    with db.connect() as conn:
+        for job_id, card in [(51, {"score": 70}), (52, {"score": 70, "location_pending": True}),
+                             (53, {"score": None}), (54, "not a card")]:
+            conn.execute("INSERT INTO jobs (id, first_seen_at, title, company) VALUES "
+                         "(?, '2026-10-01T10:00:00Z', 'Hardware Engineer', 'Acme')", (job_id,))
+            conn.execute("INSERT INTO job_cards (job_id, card_json) VALUES (?, ?)",
+                         (job_id, json.dumps(card) if isinstance(card, dict) else card))
+    first = jobstore.first_assessed([51, 52, 53, 54])
+    assert {job_id: when.isoformat() for job_id, when in first.items()} == {
+        51: "2026-10-01T10:00:00+00:00"}
+    with db.connect() as conn:
+        conn.execute("UPDATE jobs SET first_assessed_at = NULL")
+    assert jobstore.first_assessed([51]) == {}  # filled in once only

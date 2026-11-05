@@ -282,7 +282,8 @@ which cities count.
 
 Jobs that fail are left out. Jobs awaiting city facts, a workplace or a journey appear under
 **Location not verified yet**, with the missing evidence shown. They remain available for a
-later check or condition edit and never count as matches before the evidence arrives. When the
+later check or condition edit and never count as matches before the evidence arrives. Such a
+job doesn't count as already shown: if a later search finds it again, it is checked again. When the
 workplace itself is known, the job is scored, so you can see which ones are worth checking
 yourself; a job without a known workplace is not scored from a guessed place. Research and travel checks can still
 use their normal service allowances, so this rule is not a provider spending cap.

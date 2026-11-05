@@ -66,7 +66,8 @@ def apply_rules(
     conditions: list | None = None,
     first_shown: list[datetime | None] | None = None,
 ) -> FilterOutcome:
-    """`first_shown` says when Jobcu's job memory first showed each job, if ever."""
+    """`first_shown` says when Jobcu first listed each job with its score and a checked place,
+    if ever (jobstore.first_assessed)."""
     outcome = FilterOutcome()
     start = window_start(started_at, posted_within_hours)
     wanted_types = set(job_types)

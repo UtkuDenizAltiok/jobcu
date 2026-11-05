@@ -1,6 +1,7 @@
 """What Jobcu remembers about jobs between searches.
 
-Only this is remembered: which jobs were shown before (for the "New" badge), which the user
+Only this is remembered: which jobs were shown before (for the "New" badge, and so a job the
+person has seen with its score isn't listed again), which the user
 marked Saved, Applied or Not interested, and the **text of ads already downloaded**, for a few
 days, so the same ad isn't fetched again. A job is recognised again through any
 of its copies, so if one copy was marked Not interested, every copy stays hidden. Scores and
@@ -170,13 +171,52 @@ def remember(groups: list[JobGroup], search_id: int) -> tuple[list[int], list[bo
 
 
 def first_seen(job_ids: list[int]) -> dict[int, datetime]:
-    """When Jobcu first showed each job, to tell a repost of an old ad from a new job."""
+    """When Jobcu first listed each job, in any section, to label an old ad posted again."""
+    return _earliest(job_ids, "first_seen_at")
+
+
+def first_assessed(job_ids: list[int]) -> dict[int, datetime]:
+    """When Jobcu first listed each job with its score and a checked place. Only that makes a
+    job "shown before" (filters._reason): one listed while its place was still being checked, or
+    without a score, is judged again if it comes back, so a check that didn't finish can't hide
+    a job for good (searches 14-17 listed 15-21 such jobs each)."""
+    add_assessed_dates()
+    return _earliest(job_ids, "first_assessed_at")
+
+
+def is_assessed(card: dict) -> bool:
+    """A card that showed the person its score, with the job's place checked."""
+    return card.get("score") is not None and not card.get("location_pending")
+
+
+def add_assessed_dates() -> None:
+    """Once: jobs remembered before first_assessed_at existed get the date they were first shown,
+    when their saved card (the last one listed) has a score and a checked place."""
+    with db.connect() as conn:
+        if conn.execute("SELECT 1 FROM repairs_done WHERE name = 'assessed_dates'").fetchone():
+            return
+        assessed = []
+        for job_id, card_json in conn.execute("SELECT job_id, card_json FROM job_cards"):
+            try:
+                card = json.loads(card_json)
+            except ValueError:
+                continue
+            if isinstance(card, dict) and is_assessed(card):
+                assessed.append((job_id,))
+        conn.execute("BEGIN IMMEDIATE")
+        conn.executemany("UPDATE jobs SET first_assessed_at = first_seen_at "
+                         "WHERE id = ? AND first_assessed_at IS NULL", assessed)
+        conn.execute("INSERT OR IGNORE INTO repairs_done (name) VALUES ('assessed_dates')")
+
+
+def _earliest(job_ids: list[int], column: str) -> dict[int, datetime]:
+    """The earliest `column` date of each job and the jobs linked to it as the same vacancy."""
     if not job_ids:
         return {}
     with db.connect() as conn:
         linked = aliases(conn)
         found = {}
-        for row in rows(conn, "SELECT id, first_seen_at FROM jobs WHERE id IN ({})",
+        for row in rows(conn, f"SELECT id, {column} FROM jobs WHERE id IN ({{}})",
                         family_ids(job_ids, linked)):
             if (when := parse_iso(row[1])) is not None:
                 root = linked.get(row[0], row[0])
@@ -274,6 +314,11 @@ def save_cards(cards: list[dict]) -> None:
         conn.executemany(
             "INSERT OR REPLACE INTO job_cards (job_id, card_json) VALUES (?, ?)",
             [(card["job_id"], json.dumps(card)) for card in cards],
+        )
+        conn.executemany(
+            "UPDATE jobs SET first_assessed_at = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') "
+            "WHERE id = ? AND first_assessed_at IS NULL",
+            [(card["job_id"],) for card in cards if is_assessed(card)],
         )
 
 

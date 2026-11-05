@@ -126,7 +126,8 @@ def test_linked_history_view_removes_proven_reposts_and_exposes_score_disagreeme
     now = datetime.now(UTC)
     with db.connect() as conn:
         # First shown by this very search, at its end: not repeats of an earlier one.
-        conn.execute("UPDATE jobs SET first_seen_at=?", ((now + timedelta(hours=1)).isoformat(),))
+        conn.execute("UPDATE jobs SET first_seen_at=?1, first_assessed_at=?1",
+                     ((now + timedelta(hours=1)).isoformat(),))
     posted = (now - timedelta(minutes=30)).isoformat()
     original = {"started_at": now.isoformat(), "form": {"posted_within_hours": 24}, "result": {
         "jobs": {"cards": [{"job_id": i, "score": score, "parts": {}, "is_new": True,
@@ -144,7 +145,7 @@ def test_linked_history_view_removes_proven_reposts_and_exposes_score_disagreeme
     assert len(original["result"]["jobs"]["cards"]) == 2
     # Only the remembered proof of existence changes, never the saved source date/score.
     with db.connect() as conn:
-        conn.execute("UPDATE jobs SET first_seen_at=? WHERE id=?",
+        conn.execute("UPDATE jobs SET first_seen_at=?1, first_assessed_at=?1 WHERE id=?2",
                      ((now - timedelta(days=9)).isoformat(), ids[1]))
     viewed = deepcopy(original)
     pipeline.history_view(viewed)
@@ -182,8 +183,9 @@ def test_saved_results_leave_out_jobs_an_earlier_search_showed_whatever_their_da
     jobs = [group(name, f"Power Electronics Engineer {name}") for name in ("day", "exact")]
     ids, _ = jobstore.remember(jobs, new_search())
     now = datetime.now(UTC)
-    with db.connect() as conn:  # shown by the search before, an hour after this window began
-        conn.execute("UPDATE jobs SET first_seen_at=?", ((now - timedelta(hours=23)).isoformat(),))
+    with db.connect() as conn:  # shown with scores by the search before, an hour into the window
+        conn.execute("UPDATE jobs SET first_seen_at=?1, first_assessed_at=?1",
+                     ((now - timedelta(hours=23)).isoformat(),))
     started_day = (now - timedelta(hours=24)).date().isoformat() + "T12:00:00+00:00"
     snapshot = {"started_at": now.isoformat(), "form": {"posted_within_hours": 24}, "result": {
         "jobs": {"cards": [

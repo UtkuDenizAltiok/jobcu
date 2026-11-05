@@ -279,6 +279,11 @@ MIGRATIONS: list[str] = [
         done_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
     );
     """,
+    # 23: When a job was first listed with its score and a checked place. Only that makes it
+    # "shown before" (jobstore.first_assessed); kept jobs are filled in once (add_assessed_dates).
+    """
+    ALTER TABLE jobs ADD COLUMN first_assessed_at TEXT;
+    """,
 ]
 
 

@@ -10,6 +10,8 @@ MARKDOWN_FILES = sorted(
     [*ROOT.glob("*.md"), *(ROOT / "docs").rglob("*.md"), *(ROOT / ".github").rglob("*.md")]
 )
 LINK = re.compile(r"\]\(([^)\s]+)\)")
+# Lines a merge leaves when both sides were kept (the roadmap kept them on 2026-11-05).
+CONFLICT = re.compile(r"^(<<<<<<<|>>>>>>>) ", re.MULTILINE)
 
 
 def _anchors(path):
@@ -57,3 +59,12 @@ def test_the_project_map_lists_every_module_and_tool():
     names += [f"tools/{p.name}" for p in (ROOT / "tools").glob("*.py")]
     missing = [name for name in names if name not in listed]
     assert not missing, f"ENGINEERING.md's project map doesn't mention {missing}"
+
+
+def test_no_file_keeps_the_marks_of_an_unfinished_merge():
+    files = [*MARKDOWN_FILES, *(ROOT / "src").rglob("*.*"), *(ROOT / "tests").rglob("*.py"),
+             *(ROOT / "tools").rglob("*.py")]
+    for path in files:
+        if path.suffix in {".py", ".md", ".js", ".css", ".html", ".json", ".toml"}:
+            text = path.read_text(encoding="utf-8")
+            assert not CONFLICT.search(text), f"{path.relative_to(ROOT)} has merge marks"
