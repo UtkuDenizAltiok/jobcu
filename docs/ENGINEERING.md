@@ -88,10 +88,17 @@ cover that continuation, while usage is cumulative.
   apprenticeship or internship roles are not lifted (`scoring.ROLE_RULES`).
 - Matched employer-original application links are preferred. Explicit unusable-link exclusions
   can use another verified copy; opaque redirect destinations are not guessed or bypassed.
-- A click on a job's link reads that one page and sends the browser straight to its single, clear
-  apply link, skipping sites that only repeat an ad. Searches never do this: those links can be
-  paid per click. Sites that forbid reading or refuse it keep their link, and so does anything
-  unclear (`applylink.py`). A page that plainly can't take the application (gone, 404/410; taking
+- Direct links: the employer's own page (an employer source's page, a supplied employer address, a
+  page of an employer's application system, or the employer's posting found online) is marked
+  `direct` and opens as it is. A good job (60 or more) whose links all lead through job sites gets
+  the employer's page of that vacancy looked up online during the search (`livepostings.py`;
+  never another job site or a careers index; no job link is visited).
+- A click on another site's link reads that one page and sends the browser straight to its single,
+  clear apply link on another site, skipping sites that only repeat an ad. Searches never do this:
+  those links can be paid per click. Sites that forbid reading or refuse it keep their link, and
+  so does anything unclear: a way on into another ad-repeating site, or a same-site address with
+  a query (it can carry a token made for Jobcu's visit; trabajo.org's opened a blank page)
+  (`applylink.py`). A page that plainly can't take the application (gone, 404/410; taking
   applications only from people elsewhere; or only through CV-Library) is explained instead, with
   a web search for the job. Only a CV-Library route leaves the list (marked unusable like one the
   person reports): a job is never dropped unless it is certainly dead or CV-Library.

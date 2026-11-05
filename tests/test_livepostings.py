@@ -140,3 +140,45 @@ def test_jobs_whose_found_posting_is_one_page_are_possible_duplicates_of_the_bes
         groups[n].link_from_web = url
     scores = {0: 70, 1: 75, 2: 75, 3: 80, 4: 80}
     assert livepostings.same_postings(groups, [0, 1, 2, 3, 4], scores.get) == {0: 1}
+
+
+def board_group(n, *urls, kinds=None):
+    copies = [FoundJob(source=f"s{k}", source_job_id=f"{n}-{k}", url=url,
+                       title="Hardware Engineer", company="FakeCo", location_text="Munich",
+                       country="DE", description="FakeCo in Munich builds power converters.")
+              for k, url in enumerate(urls)]
+    return JobGroup(copies, source_kinds=kinds or {f"s{k}": "aggregator" for k in range(len(urls))})
+
+
+ADZUNA = "https://www.adzuna.de/details/{}"
+BA = "https://www.arbeitsagentur.de/jobsuche/jobdetail/{}"
+
+
+def test_a_good_job_whose_links_all_lead_through_job_sites_gets_its_employer_page_looked_up():
+    # Search 18's best jobs had only Adzuna, Arbeitsagentur and trabajo links; one ended on
+    # CV-Library behind Adzuna and one on a blank page.
+    good, weak = {"score": 70}, {"score": 55}
+    assert livepostings.needs_posting(board_group(1, ADZUNA.format(1), BA.format(1)), good)
+    assert not livepostings.needs_posting(board_group(1, ADZUNA.format(1)), weak)
+    workday = "https://fakeco.wd3.myworkdayjobs.com/External/job/Munich/HW_1"
+    assert not livepostings.needs_posting(board_group(1, ADZUNA.format(1), workday), good)
+    own = board_group(1, "https://careers.fakeco.example/1", kinds={"s0": "employer"})
+    assert not livepostings.needs_posting(own, good)
+    unknown = board_group(1, "https://jobs.fakeco.example/hardware-engineer")
+    assert not livepostings.needs_posting(unknown, good)  # likely the employer's own site
+
+
+def test_only_the_employers_page_of_that_vacancy_counts_as_a_direct_link():
+    groups = [board_group(n, ADZUNA.format(n)) for n in range(4)]
+    pages = ["https://de.linkedin.com/jobs/view/hardware-engineer-1", "https://fakeco.example/jobs/",
+             CAREERS.format(2), "https://fakeco.example/stellenangebote?id=77"]
+    client = Researcher(
+        [("\n".join(f"JOB J{n} {page}" for n, page in enumerate(pages)), pages, 4)],
+        [[{"id": f"J{n}", "url": page} for n, page in enumerate(pages)]])
+    assert livepostings.find_postings(client, groups, [0, 1, 2, 3]) == 2
+    assert [g.link_from_web for g in groups] == ["", "", CAREERS.format(2), pages[3]]
+    assert "| employer's page |" in client.prompts[0]
+    uk_only = Researcher([(f"JOB J0 {CAREERS.format(0)}", [CAREERS.format(0)], 1)],
+                         [[{"id": "J0", "url": CAREERS.format(0)}]])
+    livepostings.find_postings(uk_only, [group(0)], [0])
+    assert "| any page open to applicants from any country |" in uk_only.prompts[0]
