@@ -51,7 +51,7 @@ class FilterOutcome:
     # Which jobs each reason left out, so the screen can show them if it wants to.
     by_reason: dict[str, list[int]] = field(default_factory=dict)
     # Jobs left out only because Jobcu showed them before the window began, now dated inside it:
-    # the search may list them again as reposted (search._reposted_cards).
+    # the search may assess them again as reposted (search._reposts_to_assess).
     reposted: list[int] = field(default_factory=list)
 
 

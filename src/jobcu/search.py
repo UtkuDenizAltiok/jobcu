@@ -655,12 +655,13 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
         exclude_remote=form.exclude_remote,
         countries=plan.countries,
     )
-    reposted_cards = _reposted_cards(groups, outcome.reposted, remembered, remembered_states,
-                                     shown_at, query.started_at, names)
-    if reposted_cards:
-        outcome.left_out["repost"] -= len(reposted_cards)
+    reposts = _reposts_to_assess(groups, outcome.reposted, remembered, remembered_states,
+                                 shown_at, query.started_at)
+    if reposts:
+        outcome.left_out["repost"] -= len(reposts)
         if not outcome.left_out["repost"]:
             del outcome.left_out["repost"]
+    kept = sorted([*outcome.kept, *reposts])
     hidden = [i for i, s in enumerate(remembered_states) if s is not None and s.dismissed]
     if run.capture:
         run.capture.event("rules", groups=groups, kept=outcome.kept,
@@ -679,14 +680,14 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
     ]
     # Every job that passed these rules is kept together with what the search learns about it:
     # the conditions about places decide the rest, and the person may correct those later.
-    position = {index: n for n, index in enumerate(outcome.kept)}
+    position = {index: n for n, index in enumerate(kept)}
     job_pool = search_pool.Pool(
         search_id=run.id,
         jobs=[
             search_pool.PoolJob(dataclasses.replace(
                 group, possible_duplicate_of=position.get(group.possible_duplicate_of)
-            ))
-            for group in (groups[index] for index in outcome.kept)
+            ), reposted_first_seen=reposts.get(index))
+            for index, group in ((index, groups[index]) for index in kept)
         ],
         profile=profile.model_dump(),
         left_out=dict(outcome.left_out),
@@ -694,7 +695,6 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
         ads_found=ads_found,
         different_jobs=len(groups),
         hidden_cards=hidden_cards,
-        reposted_cards=reposted_cards,
     )
     try:
         _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden_cards,
@@ -705,15 +705,18 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
 
 
 # A job Jobcu showed at least a week before and really posted again inside the window: the
-# employer is still looking. It's listed among the results with its earlier assessment (no new
-# AI cost) and labelled, when that assessment was worth a look and the person hasn't applied
-# (the owner, 2026-11-04). Overlaps with recent searches and re-datings stay hidden.
+# employer is still looking. It's assessed again with today's ads, places and links, like a new job,
+# and labelled "Reposted", when its earlier assessment was worth a look and the person hasn't
+# applied (the owner, 2026-11-04). Overlaps with recent searches and re-datings stay hidden. Reusing
+# the earlier card instead (search 18) kept October's place checks and an Adzuna link ending on
+# CV-Library, and stopped the search on a card older than its fields.
 REPOSTED_AFTER = timedelta(days=7)
 REPOSTED_MIN_SCORE = 55
 
 
-def _reposted_cards(groups, indexes, remembered, states, shown_at, started_at,
-                    source_names) -> list[dict]:
+def _reposts_to_assess(groups, indexes, remembered, states, shown_at,
+                       started_at) -> dict[int, str]:
+    """The reposted jobs to assess again, each with when Jobcu first showed it."""
     picked: dict[int, int] = {}
     for index in indexes:
         job_id, shown, state = remembered[index], shown_at[index], states[index]
@@ -721,28 +724,10 @@ def _reposted_cards(groups, indexes, remembered, states, shown_at, started_at,
                 and not (state and state.applied) and job_id not in picked.values()):
             picked[index] = job_id
     saved = jobstore.saved_cards(list(picked.values()))
-    reported = applications.reported_urls()
-    cards = []
-    for index, job_id in picked.items():
-        earlier = saved.get(job_id)
-        if (earlier is None or (earlier.get("score") or 0) < REPOSTED_MIN_SCORE
-                or earlier.get("location_pending")):
-            continue
-        group = groups[index]
-        main_link, also_on = applications.links(group, source_names, reported)
-        cards.append({
-            # Cards saved before these fields existed (October) lack them; search 18 stopped
-            # at its last step on one.
-            "deductions": [], "score_checks": [],
-            **earlier, "location_pending": False, "job_id": job_id, "is_new": False,
-            "state": asdict(states[index] or jobstore.JobState()),
-            "posted_at": group.posted_at.isoformat() if group.posted_at else None,
-            "date_precision": group.date_precision, "date_known": True,
-            "closes_at": group.closes_at.isoformat() if group.closes_at else None,
-            "main_link": main_link, "also_on": also_on, "possible_duplicate_of": None,
-            "reposted": True, "first_seen_at": shown_at[index].isoformat(),
-        })
-    return cards
+    return {index: shown_at[index].isoformat() for index, job_id in picked.items()
+            if (earlier := saved.get(job_id)) is not None
+            and (earlier.get("score") or 0) >= REPOSTED_MIN_SCORE
+            and not earlier.get("location_pending")}
 
 
 def _preserve_interrupted_pool(run, job_pool) -> None:
@@ -1148,15 +1133,17 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             posted_within_hours=form.posted_within_hours,
             first_seen_at=first_seen.get(id_of[index]),
             reported_links=reported_links,
+            reposted_first_seen=job_pool.jobs[index].reposted_first_seen,
         )
 
     cards = [card(i) for i in shown]
-    # Reposted jobs keep their earlier assessment; a mark made since can still hide them.
+    # Reposted cards kept by a search before reposts were assessed again (an interrupted pool);
+    # a mark made since can still hide them.
     marks = jobstore.states([c["job_id"] for c in job_pool.reposted_cards])
     for reposted in job_pool.reposted_cards:
         mark = marks.get(reposted["job_id"])
         if not (mark and (mark.applied or mark.dismissed)):
-            # Also cards kept in an interrupted search's pool before _reposted_cards filled these.
+            # Also cards kept in an interrupted pool from before reposts were assessed again.
             cards.append({"deductions": [], "score_checks": [], **reposted,
                           "location_pending": False, "state": asdict(mark or jobstore.JobState())})
     # Jobs a condition the person wrote ruled out are listed (without scores), so they can see

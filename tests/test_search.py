@@ -1768,10 +1768,12 @@ def test_a_job_several_remembered_jobs_share_exactly_is_posted_again(ready):
                for item in jobs["counts"]["left_out"])
 
 
-def test_a_job_shown_a_week_before_and_posted_again_is_listed_with_its_earlier_score(
+def test_a_job_shown_a_week_before_and_posted_again_is_assessed_again_and_labelled(
         ready, monkeypatch):
     # The person (2026-11-04): a job really reposted in the last 24 hours shows in the usual
     # list, labelled, when Jobcu showed it a week or more before; yesterday's overlaps don't.
+    # It's assessed again like a new job (search 18 reused old cards: October's place checks, an
+    # Adzuna link ending on CV-Library, and a stop on a card older than its fields).
     import copy
 
     from jobcu import pipeline
@@ -1804,9 +1806,10 @@ def test_a_job_shown_a_week_before_and_posted_again_is_listed_with_its_earlier_s
     jobs = second["result"]["jobs"]
     (card,) = jobs["cards"]
     assert card["job_id"] == kept["job_id"] and card["reposted"] and not card["is_new"]
-    assert card["score"] == kept["score"] and card["parts"] == kept["parts"]
-    assert card["first_seen_at"] and card["posted_at"] != kept["posted_at"]
-    assert calls.count("ScoringAnswer") == scored  # its earlier assessment, no new AI cost
+    assert card["first_seen_at"].startswith(
+        (datetime.now(UTC) - timedelta(days=10)).date().isoformat())
+    assert card["score"] is not None and card["location_pending"] is False
+    assert calls.count("ScoringAnswer") > scored  # assessed again with today's ad
     assert {"reason": REASONS["repost"], "count": 1} in jobs["counts"]["left_out"]  # applied
     viewed = copy.deepcopy(second)
     pipeline.history_view(viewed)  # opening the saved results keeps it
