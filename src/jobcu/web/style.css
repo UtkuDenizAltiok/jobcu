@@ -778,6 +778,10 @@ dialog::backdrop {
   font-weight: 650;
 }
 
+.unchecked-hint {
+  margin: 0 0 6px;
+}
+
 .toolbar {
   display: flex;
   flex-wrap: wrap;
