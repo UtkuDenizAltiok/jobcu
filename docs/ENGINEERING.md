@@ -94,7 +94,8 @@ cover that continuation, while usage is cumulative.
 - CV-Library links never count as a job's link. Pages that take applications only from visitors
   in the UK (Learn4Good's UK pages: a limit of the site, not the job) come last; for a good job
   with nothing better, the person's AI looks for the employer's own posting online, kept only when
-  the provider's web sources list it (`livepostings.py`), and the card adds a web search for it.
+  the provider's web sources list it and it isn't a site that only repeats other sites' ads
+  (`livepostings.py`), and the card adds a web search for it.
 - The job memory knows a job by its source IDs, then by employer, title and town (the town its
   location names, whatever the wording). When several remembered jobs share that name, none is
   chosen and no saved state is shared, but the job counts as shown before if one of them was

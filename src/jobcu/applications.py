@@ -169,7 +169,7 @@ def _reported(url: str | None, reports: set[str]) -> bool:
         _advertisement_identity(earlier) == identity for earlier in reports)
 
 
-def _repeats_an_ad(url: str | None) -> bool:
+def repeats_ads(url: str | None) -> bool:
     """A site that shows other sites' ads: another saved link comes first, nearer the original."""
     try:
         host = (urlsplit(url or "").hostname or "").lower().rstrip(".")
@@ -205,7 +205,7 @@ def links(group: JobGroup, source_names: dict[str, str],
     if allowed(group.link_from_web):
         other.insert(0, {"source": "Found online", "url": group.link_from_web})
     # A page that takes only visitors in the UK comes last; sites repeating ads come late.
-    other.sort(key=lambda link: (uk_visitors_only(link["url"]), _repeats_an_ad(link["url"])))
+    other.sort(key=lambda link: (uk_visitors_only(link["url"]), repeats_ads(link["url"])))
     main = ({"source": "Employer's site", "url": employer.employer_url}
             if employer else other.pop(0) if other else {"source": "", "url": ""})
     seen = {main["source"]} if not employer else set()

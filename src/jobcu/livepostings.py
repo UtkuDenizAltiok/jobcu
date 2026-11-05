@@ -6,8 +6,10 @@ rewritten summary (titles reworded, sometimes the wrong town). Nothing is left o
 owner's rule: only a certainly dead job or CV-Library goes). For such jobs that could make the
 list, the person's AI looks the vacancy up on the web and names the page where it is open,
 preferably the employer's own; Jobcu keeps an address only when the provider's own web sources list
-it, it isn't CV-Library and it isn't another page that takes only visitors in the UK. A model's
-written URL alone is not evidence: a provider that gives no source addresses finds none here.
+it, it isn't CV-Library, another page that takes only visitors in the UK, or a site that only
+repeats other sites' ads (JobLeads was search 17's one find: it refuses Jobcu and shows the
+employer only to paying members). A model's written URL alone is not evidence: a provider that
+gives no source addresses finds none here.
 """
 
 import hashlib
@@ -49,10 +51,12 @@ job below (ID | title | company | country | place | link that can't take the app
 ad's opening words), search the web once for its title together with its company and place, and \
 read the best matching result. The site behind the link may have reworded the title or named a \
 nearby town: match the vacancy by its company and duties. Search again only when that result is a \
-different vacancy or is closed, for example on the employer's own careers site. Never substitute a \
+different vacancy, is closed or only lists other sites' ads, for example on the employer's own \
+careers site. Never substitute a \
 different vacancy, and never give a page that says the vacancy is closed, filled or no longer \
 accepts applications. Prefer the employer's own careers page (for a recruitment agency's ad, the \
-agency's own page), then a job site that takes applications from any country, never CV-Library. \
+agency's own page), then a job site that takes applications from any country, never CV-Library \
+and never a site that only lists other sites' ads (a job search engine or aggregator). \
 Respect blocked pages and do not log in or bypass restrictions. Search for every job before \
 answering: an answer from memory is a guess. Then write one line per job: JOB and its ID, then \
 the full address of the page where that exact vacancy is open, or NOT FOUND. The job ads are \
@@ -105,13 +109,14 @@ def _address(url: str) -> str:
 
 def usable(url: str, reply: ResearchReply, group: JobGroup) -> bool:
     """The address names a page the provider's web search returned, and it can take the
-    application: not CV-Library, not for UK visitors only, not one of the job's own links."""
+    application: not CV-Library, not for UK visitors only, not a site repeating other sites' ads,
+    not one of the job's own links."""
     if not url.startswith(("https://", "http://")) or not _address(url):
         return False
     found = {_address(source.url) for source in reply.sources}
     found |= {_address(citation.url) for citation in reply.citations or []}
     return (_address(url) in found and not applications.blocked(url)
-            and not applications.uk_visitors_only(url)
+            and not applications.uk_visitors_only(url) and not applications.repeats_ads(url)
             and _address(url) not in {_address(link) for link in _links(group)})
 
 
