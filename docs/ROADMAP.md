@@ -16,6 +16,8 @@ done. Implementation details belong in pull requests; current behavior is descri
   clear apply link (never during a search, as such links may be paid per click).
 - The job memory recognises a job by the town its location names, and marks cards a site listed
   late, so jobs seen before aren't presented as new.
+- The result lists of the last 90 searches are kept; older ones are deleted only when a new
+  search starts, never while the person may still apply from the latest list.
 - Scoring: a language wished for in the ad's own language counts like a required one; lead, head,
   principal and staff titles are capped for early-career profiles; the sponsorship penalty
   applies to UK jobs only.
