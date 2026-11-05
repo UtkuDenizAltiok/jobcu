@@ -26,7 +26,9 @@ done. Implementation details belong in pull requests; current behavior is descri
 >>>>>>> origin/main
 - Scoring: a language wished for in the ad's own language counts like a required one; lead, head,
   principal and staff titles are capped for early-career profiles; the sponsorship penalty
-  applies to UK jobs only.
+  applies to UK jobs only. Roles are graded by closeness to the person's own specialist field,
+  and explicit junior, graduate and training-programme roles in their discipline count as the
+  same kind of work for early-career people.
 - The Federal Employment Agency (Bundesagentur) as an opt-in source under its terms.
 - FreeHire, a free source without a key: employers' own ads from about 220 career systems
   (many that Jobcu's employer list doesn't name), with the full text and the employer's link.

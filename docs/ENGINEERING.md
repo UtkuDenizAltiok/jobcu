@@ -73,6 +73,13 @@ cover that continuation, while usage is cumulative.
 - Full-ad facts replace unsupported summary assumptions. Grounded mandatory requirements and
   known blockers constrain scores; unknowns remain explicit. Low-scoring jobs are retained.
   Scores express fit under the rubric, not hiring probability.
+- The role part grades closeness to the person's own specialist field (their technical areas),
+  not only to their discipline: application or test work in that field is the same kind of role
+  with a gap, the same work for another specialisation is a related job. An entry route (an ad
+  that explicitly hires juniors or recent graduates, or a structured graduate or trainee
+  programme) counts the discipline instead for an early-career person, since the employer
+  teaches the specialisation; sales, other professions, technician, field-service and
+  apprenticeship or internship roles are not lifted (`scoring.ROLE_RULES`).
 - Matched employer-original application links are preferred. Explicit unusable-link exclusions
   can use another verified copy; opaque redirect destinations are not guessed or bypassed.
 - A click on a job's link reads that one page and sends the browser straight to its single, clear

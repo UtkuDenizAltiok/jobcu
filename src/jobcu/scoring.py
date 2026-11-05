@@ -203,21 +203,41 @@ the corresponding stated profile fact."""
 
 ROLE_RULES = """\
 role_and_skills [40]: how well the job's field, daily tasks and required skills match the \
-person's experience, skills and target roles.
+person's experience, skills and target roles. The person's specialist field is what their \
+technical areas and experience name; their discipline is the wider subject of their degree or \
+training (e.g. electronic engineering, nursing, teaching).
   36-40 one of the person's target roles, and its main tasks and required skills are the \
 person's main skills
-  28-35 the same kind of role with a few gaps, or a neighbouring specialisation (e.g. a \
-children's ward for an adult ICU nurse, a secondary-school post for a primary teacher, RF \
-design for a power electronics engineer)
+  28-35 the same kind of role with a few gaps, or a neighbouring specialisation that builds on \
+the person's specialist knowledge (e.g. a children's ward for an adult ICU nurse, a \
+secondary-school post for a primary teacher, general electronic hardware or PCB design in any \
+industry for a power electronics engineer). An industry or product domain new to the person is \
+a gap in the same role, not another specialisation.
   18-27 a related job whose daily tasks are partly different (e.g. a nurse educator or case \
-manager for a ward nurse, a catering manager for a sous-chef, field service, or test work \
-outside the person's field, for a design engineer)
+manager for a ward nurse, a catering manager for a sous-chef; for a power electronics design \
+engineer: RF design, application or test work for another specialisation such as touch \
+sensing, field service, or test work outside the person's field)
   8-17 loosely related (e.g. a care assistant for a registered nurse, a school administrator \
-for a teacher, installation or IT support for a design engineer)
+for a teacher; for a power electronics design engineer: integrated-circuit (chip) design or \
+verification, installation or IT support)
   0-7 a different field
 Only 36-40 qualifies for an uncapped overall match. The 28-35 band has a total maximum of 80; \
 the related/loose/different bands retain their lower maximums. Matching seniority, language or \
 country must not compensate for different main work.
+
+Entry routes: when the person is a student, graduate or junior and the ad explicitly hires \
+juniors or recent graduates (junior, graduate, entry level, new grad, Absolvent, \
+Berufseinsteiger) or offers a structured graduate or trainee programme, the employer will teach \
+the specialist knowledge. Then score professional work in another specialisation of the \
+person's discipline as the same kind of role with a gap (28-35), not as a related job, and keep \
+work in the person's own specialist field at 36-40 when its tasks are the person's main skills. \
+For example, for an electronics graduate: a graduate analog-IC, RF hardware, embedded, systems \
+integration, field application or electronics test role; for a newly qualified nurse: a \
+graduate programme on another kind of ward. Entry routes don't lift sales or account \
+management, another profession, software-only, IT, technician, field-service or installation \
+work, or a branch of the discipline far from the person's target fields (e.g. building-services \
+or grid design for an electronics hardware graduate). Apprenticeships, internships, placements \
+and working-student jobs are not entry routes for someone who has finished their degree.
 
 Core-band points require support for the central specialist work, not only a shared title, \
 PCB/tool names or one secondary task. Do not assume that omitted specialist prerequisites \
@@ -245,19 +265,22 @@ ad is written in it.
 - {SPONSORSHIP_RULES}
 - {RIGHT_TO_WORK_RULES}
 - {requirements.RULES}
-Judge the main work before counting shared skills: a common industry, employer, degree, \
-graduate level or tool does not establish the same occupation or specialisation. Compare the \
-actual daily deliverables and central domain with the person's stated target work. Customer \
-application support for a specialist technology is different from designing that technology; \
-general hardware debugging does not prove that specialist knowledge. One exception: \
-application, test, validation or characterisation engineering within the person's own field \
-(for an electronics or power electronics engineer: electronic hardware, measurement, power \
-devices), whose essential requirements are mostly the person's own skills, is the same kind of \
-role with a gap (28-35), not a related job: score the customer or test share as the gap. For \
+Judge the main work before counting shared skills: a common industry, employer, degree or tool \
+does not by itself establish the same occupation or specialisation (entry routes, below, are \
+where the discipline counts more than the specialisation). Compare the actual daily \
+deliverables and central domain with the person's stated target work. Customer application \
+support for a specialist technology is different from designing that technology; general \
+hardware debugging does not prove that specialist knowledge. One exception: application, test, \
+validation or characterisation engineering within the person's own specialist field (for a \
+power electronics engineer: power semiconductors, power converters, gate drivers and their \
+measurement), whose essential requirements are mostly the person's own skills, is the same kind \
+of role with a gap (28-35), not a related job: score the customer or test share as the gap. For \
 example a power-semiconductor application role asking a power electronics engineer for power \
-electronics, MOSFETs, circuit simulation and PCB design. Such work in another field stays \
-related or lower: testing mechanical or vehicle parts (engines, brakes, test rigs), \
-software-only work, IT or production support. The same distinction \
+electronics, MOSFETs, circuit simulation and PCB design. The same work for another \
+specialisation of the discipline (for a power electronics engineer: touch sensing, RF, chip \
+verification, EMC compliance testing) stays related or lower unless it is an entry route, \
+and such work in another field stays related or lower: testing mechanical or vehicle parts \
+(engines, brakes, test rigs), software-only work, IT or production support. The same distinction \
 applies to clinical practice versus clinical software support, classroom teaching versus \
 education-product support, and hands-on cooking versus equipment sales. Preserve suitable \
 adjacent jobs, but score the real task/knowledge gaps. Basic familiarity is not proven advanced \
