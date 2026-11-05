@@ -758,6 +758,8 @@ function setUpConditionActions() {
     }
   }
   $("retry-checks").addEventListener("click", () => openRecovery(false));
+  $("location-unchecked-jump").addEventListener("click", () =>
+    $("location-unchecked-section").scrollIntoView({ behavior: "smooth", block: "start" }));
   $("resume-search").addEventListener("click", () => openRecovery(true));
   $("close-retry-checks").addEventListener("click", () => $("retry-checks-dialog").close());
   $("start-retry-checks").addEventListener("click", (event) => busy(event.target, async () => {
@@ -1034,6 +1036,10 @@ function postedWindow(search) {
   return ` · ads posted from ${when(from)} to ${when(started)}`;
 }
 
+// A score from which the role is the person's own kind and most else fits (scoring.py caps a
+// related role at 60).
+const STRONG_MATCH = 70;
+
 function renderResults() {
   $("retry-checks").hidden = !state.search.can_edit_conditions;
   const jobs = state.search.result.jobs;
@@ -1050,6 +1056,7 @@ function renderResults() {
   const hiddenCount = jobs.hidden.length + dismissedNow.length;
   $("show-hidden-label").textContent = hiddenCount ? `Show hidden (${hiddenCount})` : "Show hidden";
 
+  $("location-unchecked-hint").hidden = true;
   if (view.list !== "results") {
     $("date-unknown-section").hidden = true;
     $("location-unchecked-section").hidden = true;
@@ -1067,6 +1074,16 @@ function renderResults() {
   const pending = visible(pendingLocation);
   $("location-unchecked-section").hidden = !pending.length;
   fillList($("location-unchecked-list"), sortCards(pending), "");
+  // Strong matches waiting for a place check sit below the whole list (search 17's best-scored
+  // job, 91, gave no town): point to them from the top.
+  const strong = pending.filter((c) => c.score !== null && c.score >= STRONG_MATCH);
+  $("location-unchecked-hint").hidden = !strong.length;
+  if (strong.length) {
+    const best = Math.max(...strong.map((c) => c.score));
+    $("location-unchecked-jump").textContent = strong.length === 1
+      ? `1 strong match (${best}) is waiting for you to check its place`
+      : `${strong.length} strong matches (best ${best}) are waiting for you to check their places`;
+  }
 
   const ruledOut = jobs.ruled_out_by_conditions || [];
   $("ruled-out-section").hidden = !ruledOut.length;

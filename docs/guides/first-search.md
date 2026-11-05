@@ -281,7 +281,8 @@ meet the city's population rule. Your own percentage, named cities or ranking ru
 which cities count.
 
 Jobs that fail are left out. Jobs awaiting city facts, a workplace or a journey appear under
-**Location not verified yet**, with the missing evidence shown. They remain available for a
+**Location not verified yet**, below the other results, with the missing evidence shown. When a
+strong match (70 or more) is waiting there, a link under the number of jobs found takes you to it. They remain available for a
 later check or condition edit and never count as matches before the evidence arrives. Such a
 job doesn't count as already shown: if a later search finds it again, it is checked again. When the
 workplace itself is known, the job is scored, so you can see which ones are worth checking

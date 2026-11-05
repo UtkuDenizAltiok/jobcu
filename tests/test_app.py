@@ -63,3 +63,12 @@ def test_screen_never_loads_anything_from_the_internet():
         if file.suffix in {".html", ".css", ".js"}:
             text = file.read_text(encoding="utf-8")
             assert not re.search(r"https?://|//[a-z0-9.-]+\.[a-z]{2,}/", text), file.name
+
+
+def test_every_element_the_page_script_looks_up_is_on_the_page():
+    # The script has no browser tests here; a renamed or missing id would stop it at that line.
+    script = (WEB_DIR / "app.js").read_text(encoding="utf-8")
+    page = (WEB_DIR / "index.html").read_text(encoding="utf-8")
+    ids = set(re.findall(r'\$\("([\w-]+)"\)', script))
+    assert {"location-unchecked-hint", "location-unchecked-jump"} <= ids
+    assert sorted(i for i in ids if f'id="{i}"' not in page) == []
