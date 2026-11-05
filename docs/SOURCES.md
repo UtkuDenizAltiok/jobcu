@@ -79,6 +79,8 @@ Countries below describe the adapter's scope, not complete market coverage.
 
 Career adapters: Ashby, d.vinci, Eightfold, Greenhouse, Lever, Oracle, Personio, Prospective,
 Recruitee, generic job sitemaps, Softgarden, SuccessFactors, Teamtailor, Workable and Workday.
+Recruitee, SuccessFactors and Teamtailor career sites are also recognised on an employer's own
+address (Recruitee's answers the same public `/api/offers/` there).
 `src/jobcu/data/employers.json` is the directory; `tools/check_employers.py` is its maintenance tool.
 Directory membership does not establish reachable vacancies or engineering recall.
 
