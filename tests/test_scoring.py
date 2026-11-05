@@ -767,3 +767,19 @@ def test_an_ad_found_online_in_two_versions_says_the_stricter_one_is_used():
     assert again["limits"][0]["why"] == "German B2 required, you have A2"
     long = with_ad_read_online(result, RIGHTS, [], None, versions_differ="word " * 40)
     assert len(next(n for n in long["notes"] if n.startswith("Found online"))) <= 150
+
+
+def test_the_role_rubric_counts_entry_routes_by_discipline_and_never_lifts_other_work():
+    # The person (2026-11-05): explicit junior, graduate and training-programme roles in their
+    # discipline are worth a look even outside their specialist field; the same rubric reaches
+    # scoring and the online role re-check.
+    from jobcu import jobplace
+
+    for prompt in (scoring.SYSTEM_PROMPT, jobplace.STRUCTURE_SYSTEM):
+        assert scoring.ROLE_RULES in prompt
+    rules = scoring.ROLE_RULES
+    entry = rules[rules.index("Entry routes:"):]
+    assert "graduate or trainee programme" in entry and "(28-35)" in entry
+    for not_lifted in ("sales", "another profession", "technician", "field-service",
+                       "Apprenticeships, internships, placements"):
+        assert not_lifted in entry
