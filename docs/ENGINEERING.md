@@ -38,6 +38,9 @@ happens before a new search is created or source collection begins, including wi
 5. Build ranked cards and job memory. `jobstore.finish_search` commits status and the final
    snapshot together. Failed/stopped attempts retain available raw candidates and reports even
    before ranked cards exist. A save failure remains visible and preserves prior saved data.
+   The result lists of the last 90 searches are kept; older ones are deleted only when a new
+   search starts (`jobstore.make_room_for_a_new_search`), so the latest list stays until then.
+   Job memory, saved cards and the person's marks are never deleted this way.
 
 The duplicate-removal, full-ad, location, scoring and online-check stages have distinct progress
 states. An interrupted stage differs from an unstarted stage. Source retries are summarized
@@ -58,11 +61,14 @@ cover that continuation, while usage is cumulative.
   requisitions remain separate despite similar names/templates. Ambiguous copies cannot share
   saved/applied/dismissed state solely through title similarity.
 - Original publication/closing dates and job memory distinguish fresh jobs from reposts. A job an
-  earlier search showed is left out ("Shown in an earlier search already") unless an exact
-  date proves it was posted after the window began: a date given only as a day, or a late
-  listing, spans two daily windows. "Posted within" is strict: an ad dated before the window is
+  earlier search showed is left out ("Shown in an earlier search already"), whatever its date: a
+  date later than that showing is the same job dated again, and daily searches started at
+  different times share part of their windows. "Posted within" is strict: an ad dated before the window is
   too old, also from sites that list ads days late (they look further back only to find
-  reposts). Saved results follow the same rules when opened.
+  reposts). A job Jobcu showed at least a week before and really posted again inside the window
+  is listed among the results with its earlier assessment (no new AI request) and a "Reposted"
+  label, when that score was at least 55 and the person hasn't applied or marked it Not
+  interested (`search._reposted_cards`). Saved results follow the same rules when opened.
   Modification timestamps and sitemap lastmod do not establish an original posting date.
 - Full-ad facts replace unsupported summary assumptions. Grounded mandatory requirements and
   known blockers constrain scores; unknowns remain explicit. Low-scoring jobs are retained.

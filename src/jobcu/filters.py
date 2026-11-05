@@ -23,7 +23,7 @@ from datetime import datetime
 
 from jobcu import applications, travel, vacancy_evidence
 from jobcu.dedupe import JobGroup
-from jobcu.freshness import freshness, posted_after, window_start
+from jobcu.freshness import freshness, window_start
 from jobcu.jobstore import JobState
 from jobcu.location import fits
 
@@ -49,6 +49,9 @@ class FilterOutcome:
     left_out: Counter = field(default_factory=Counter)
     # Which jobs each reason left out, so the screen can show them if it wants to.
     by_reason: dict[str, list[int]] = field(default_factory=dict)
+    # Jobs left out only because Jobcu showed them before the window began, now dated inside it:
+    # the search may list them again as reposted (search._reposted_cards).
+    reposted: list[int] = field(default_factory=list)
 
 
 def apply_rules(
@@ -70,10 +73,14 @@ def apply_rules(
     reported = applications.reported_urls()
     original = vacancy_evidence.group_reasons(groups, start)
     for index, group in enumerate(groups):
+        args = (group, remembered_states[index], start, wanted_types, exclude_remote,
+                set(countries), conditions or [], started_at)
         reason = original.get(index) or _reason(
-                         group, remembered_states[index], start, wanted_types, exclude_remote,
-                         set(countries), conditions or [], started_at,
-                         first_shown[index] if first_shown else None, reported)
+            *args, first_shown[index] if first_shown else None, reported)
+        if (reason == "repost" and index not in original
+                and freshness(group.posted_at, group.date_precision, start) == "fresh"
+                and _reason(*args, None, reported) is None):
+            outcome.reposted.append(index)
         if reason:
             outcome.left_out[reason] += 1
             outcome.by_reason.setdefault(reason, []).append(index)
@@ -97,11 +104,12 @@ def _reason(group, state, start, wanted_types, exclude_remote, countries, condit
     # its ads give now (45 of search 11's 349 cards, most re-dated by Adzuna).
     if shown is not None and shown < start:
         return "repost"
-    # Shown by an earlier search, and no exact time proves it was posted after this window
-    # began: it isn't new to the person. A date given only as a day, or a late listing, spans two
-    # daily windows (search 16 showed 60 of search 15's cards again).
-    if (shown is not None and shown < now
-            and not posted_after(group.posted_at, group.date_precision, start)):
+    # Shown by an earlier search inside this window: it isn't new to the person, whatever its
+    # date says (search 16 showed 60 of search 15's cards again). A date later than that showing
+    # is the same job dated again, not a new one: search 17 began 50 minutes earlier in the day
+    # than search 16 and showed 5 of its cards again, one dated 19:34 that search 16 had shown at
+    # 21:46, and one that a job site dated again 2.5 hours after search 16 showed it.
+    if shown is not None and shown < now:
         return "shown_before"
     if group.closes_at is not None and group.closes_at < now:
         return "closed"

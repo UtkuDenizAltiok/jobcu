@@ -94,17 +94,15 @@ def test_posted_within_is_strict_also_for_sites_that_list_ads_late():
     assert outcome.kept == [] and outcome.left_out["shown_before"] == 1
 
 
-def test_a_job_shown_by_an_earlier_search_comes_back_only_when_its_time_proves_it_new():
+def test_a_job_an_earlier_search_showed_inside_the_window_never_comes_back_as_new():
+    # Search 17 began 50 minutes earlier in the day than search 16: an ad dated 19:34 that
+    # search 16 had shown at 21:46 came back, and so did one a job site dated again after it.
     shown = [NOW - timedelta(hours=2)]
-    # The window began at noon of the day before: that day's ads may be older than the window.
     day = found("day", posted_at=NOW - timedelta(hours=20), date_precision="day")
-    exact = found("exact", posted_at=NOW - timedelta(hours=3), date_precision="exact")
-    groups, outcome = run([day], first_shown=shown)
-    assert outcome.kept == [] and outcome.left_out["shown_before"] == 1
-    groups, outcome = run([exact], first_shown=shown)
-    assert outcome.kept == [0]  # posted after the window began, and Jobcu keeps it
+    before = found("before", posted_at=NOW - timedelta(hours=3), date_precision="exact")
+    dated_again = found("again", posted_at=NOW - timedelta(minutes=30), date_precision="exact")
+    for job in (day, before, dated_again):
+        groups, outcome = run([job], first_shown=shown)
+        assert outcome.kept == [] and outcome.left_out["shown_before"] == 1
     groups, outcome = run([day])
     assert outcome.kept == [0]  # never shown: new, whatever its date's precision
-    today = found("today", posted_at=NOW - timedelta(hours=3), date_precision="day")
-    groups, outcome = run([today], first_shown=shown)
-    assert outcome.kept == [0]  # a whole day after the window began proves it new

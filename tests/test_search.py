@@ -70,12 +70,16 @@ class FakeSource(JobSource):
     name = "Fake Jobs"
     kind = "job_board"
     titles = ["Hardware Engineer", "Electronics Engineer", "Nurse"]
+    # Tests with several searches set another edition before each later one: a job an earlier
+    # search showed never comes back (filters._reason), so a later search needs new jobs.
+    edition = ""
 
     def search(self, query, ctx):
         for i, title in enumerate(self.titles):
             ctx.report.requests += 1
-            yield FoundJob(source="fake", source_job_id=str(i), url=f"https://jobs.test/{i}",
-                           title=title, company=f"Company {i}", location_text="Berlin",
+            key = f"{i}{self.edition}"
+            yield FoundJob(source="fake", source_job_id=key, url=f"https://jobs.test/{key}",
+                           title=title, company=f"Company {key}", location_text="Berlin",
                            country="DE", posted_at=datetime.now(UTC), date_precision="exact",
                            description="Short")
 
@@ -539,6 +543,7 @@ def test_decorated_recruiter_copies_use_one_assessment_and_keep_their_saved_mark
     ids, _ = jobstore.remember([JobGroup([c], source_kinds={"fake": "job_board"})
                                for c in copies], old_search)
     jobstore.set_state(ids[1], saved=True)
+    as_if_no_search_showed_them()
     assessed = []
 
     class Tracked(FakeAI):
@@ -594,6 +599,7 @@ def test_two_identical_searches_reuse_setup_but_collect_and_score_afresh(ready, 
     manager = search.SearchManager()
     manager.start(SearchForm(location_text="Germany"))
     first = wait_until_done(manager)
+    monkeypatch.setattr(FakeSource, "edition", "b")
     manager.start(SearchForm(location_text="Germany"))
     second = wait_until_done(manager)
     assert first["status"] == second["status"] == "finished"
@@ -638,6 +644,7 @@ def test_setup_box_edits_reanalyse_even_when_ai_returns_the_same_understanding(
     manager.start(form)
     first = wait_until_done(manager)
     changed = form.model_copy(update={changed_box: getattr(form, changed_box) + edit})
+    monkeypatch.setattr(FakeSource, "edition", "b")
     manager.start(changed)
     second = wait_until_done(manager)
     assert first["status"] == second["status"] == "finished"
@@ -648,6 +655,7 @@ def test_setup_box_edits_reanalyse_even_when_ai_returns_the_same_understanding(
     assert first["result"]["search_words"] == second["result"]["search_words"]
     assert [c["score"] for c in first["result"]["jobs"]["cards"]] == \
         [c["score"] for c in second["result"]["jobs"]["cards"]]
+    monkeypatch.setattr(FakeSource, "edition", "c")
     manager.start(changed)
     third = wait_until_done(manager)
     assert third["status"] == "finished"
@@ -941,6 +949,7 @@ def test_recovered_full_requirements_reach_matching_and_change_the_explanation(
     assert not cards[0]["summary_only"] and cards[0]["score"] == 80
     assert any("8+ years" in limit["why"] for limit in cards[0]["limits"])
     # A new search reuses bounded-age text but makes a fresh matching judgement.
+    as_if_no_search_showed_them()
     manager.start(SearchForm(location_text="Germany"))
     again = wait_until_done(manager)
     assert again["status"] == "finished", again["error"]
@@ -1187,6 +1196,7 @@ def test_not_interested_jobs_are_hidden_from_later_searches(ready):
     manager.start(SearchForm())
     first = wait_until_done(manager)["result"]["jobs"]["cards"]
     jobstore.set_state(first[0]["job_id"], dismissed=True)
+    as_if_no_search_showed_them()
     manager.start(SearchForm())
     jobs = wait_until_done(manager)["result"]["jobs"]
     assert len(jobs["cards"]) == 1
@@ -1268,12 +1278,20 @@ def test_search_excludes_known_cvlibrary_only_application_routes(ready, monkeypa
     assert {"reason": applications.EXCLUSION_REASON, "count": 1} in jobs["counts"]["left_out"]
 
 
+def as_if_no_search_showed_them():
+    """Later searches in a test that look at the same ads again: a job an earlier search showed
+    would be left out (filters._reason), so the job memory forgets when they were shown."""
+    with db.connect() as conn:
+        conn.execute("UPDATE jobs SET first_seen_at = '2999-01-01T00:00:00Z'")
+
+
 def test_search_remembers_reported_route_and_undo_allows_it_again(ready):
     manager = search.SearchManager()
     manager.start(SearchForm(location_text="Germany"))
     first = wait_until_done(manager)["result"]["jobs"]["cards"]
     marked = first[0]
     applications.report_link(marked["job_id"], marked["main_link"]["url"])
+    as_if_no_search_showed_them()
     manager.start(SearchForm(location_text="Germany"))
     result = wait_until_done(manager)
     assert result["status"] == "finished", result["error"]
@@ -1283,6 +1301,7 @@ def test_search_remembers_reported_route_and_undo_allows_it_again(ready):
     assert {"reason": applications.REPORTED_EXCLUSION_REASON, "count": 1} in (
         jobs["counts"]["left_out"])
     applications.undo_report(applications.reports()[0]["id"])
+    as_if_no_search_showed_them()
     manager.start(SearchForm(location_text="Germany"))
     restored = wait_until_done(manager)["result"]["jobs"]["cards"]
     assert [c["title"] for c in restored] == [c["title"] for c in first]
@@ -1517,7 +1536,8 @@ def test_answering_always_removes_the_limit_so_later_searches_don_t_ask(ready, m
     save_settings(settings)
     manager = search.SearchManager()
     asked, notes = [], []
-    for _ in range(2):
+    for edition in ("", "b"):
+        monkeypatch.setattr(FakeSource, "edition", edition)
         manager.start(SearchForm(location_text="Germany"))
         deadline = time.monotonic() + 15
         while manager.current.status == "running" and time.monotonic() < deadline:
@@ -1545,7 +1565,8 @@ def test_free_monthly_searches_are_shared_and_jobcu_asks_before_paying_for_more(
     save_settings(settings)
     manager = search.SearchManager()
     questions, notes = [], []
-    for _ in range(2):
+    for edition in ("", "b"):
+        monkeypatch.setattr(FakeSource, "edition", edition)
         manager.start(SearchForm(location_text="Germany"))
         deadline = time.monotonic() + 15
         while manager.current.status == "running" and time.monotonic() < deadline:
@@ -1740,3 +1761,84 @@ def test_a_job_several_remembered_jobs_share_exactly_is_posted_again(ready):
     assert "Hardware Engineer" not in [c["title"] for c in jobs["cards"]]
     assert any(item["count"] == 1 and item["reason"].startswith("Posted again")
                for item in jobs["counts"]["left_out"])
+
+
+def test_a_job_shown_a_week_before_and_posted_again_is_listed_with_its_earlier_score(
+        ready, monkeypatch):
+    # The person (2026-11-04): a job really reposted in the last 24 hours shows in the usual
+    # list, labelled, when Jobcu showed it a week or more before; yesterday's overlaps don't.
+    import copy
+
+    from jobcu import pipeline
+    from jobcu.filters import REASONS
+
+    calls = []
+
+    class Tracked(FakeAI):
+        def complete_json(self, **request):
+            calls.append(request["schema_name"])
+            return super().complete_json(**request)
+
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: Tracked())
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    first = wait_until_done(manager)["result"]["jobs"]["cards"]
+    assert len(first) == 2 and all(card["score"] >= 55 for card in first)
+    kept, applied = first
+    jobstore.set_state(applied["job_id"], applied=True)
+
+    def shown_days_ago(days):
+        with db.connect() as conn:
+            conn.execute("UPDATE jobs SET first_seen_at = ?",
+                         ((datetime.now(UTC) - timedelta(days=days)).isoformat(),))
+
+    shown_days_ago(10)
+    scored = calls.count("ScoringAnswer")
+    manager.start(SearchForm(location_text="Germany"))
+    second = wait_until_done(manager)
+    jobs = second["result"]["jobs"]
+    (card,) = jobs["cards"]
+    assert card["job_id"] == kept["job_id"] and card["reposted"] and not card["is_new"]
+    assert card["score"] == kept["score"] and card["parts"] == kept["parts"]
+    assert card["first_seen_at"] and card["posted_at"] != kept["posted_at"]
+    assert calls.count("ScoringAnswer") == scored  # its earlier assessment, no new AI cost
+    assert {"reason": REASONS["repost"], "count": 1} in jobs["counts"]["left_out"]  # applied
+    viewed = copy.deepcopy(second)
+    pipeline.history_view(viewed)  # opening the saved results keeps it
+    assert [c["job_id"] for c in viewed["result"]["jobs"]["cards"]] == [kept["job_id"]]
+
+    shown_days_ago(3)  # shown three days ago: an older job dated again, left out
+    manager.start(SearchForm(location_text="Germany"))
+    third = wait_until_done(manager)["result"]["jobs"]
+    assert third["cards"] == []
+    assert {"reason": REASONS["repost"], "count": 2} in third["counts"]["left_out"]
+
+    shown_days_ago(10)  # a week ago, but its earlier score wasn't worth a look
+    with db.connect() as conn:
+        (stored,) = conn.execute("SELECT card_json FROM job_cards WHERE job_id = ?",
+                                 (kept["job_id"],)).fetchone()
+        conn.execute("UPDATE job_cards SET card_json = ? WHERE job_id = ?",
+                     (json.dumps({**json.loads(stored), "score": 50}), kept["job_id"]))
+    manager.start(SearchForm(location_text="Germany"))
+    assert wait_until_done(manager)["result"]["jobs"]["cards"] == []
+
+
+def test_starting_a_search_keeps_the_last_90_result_lists_and_nothing_else_deletes_them():
+    # The person keeps the last 90 searches' lists (2026-11-04); older ones go only as a new
+    # search starts, so the latest list stays to apply from until then.
+    with db.connect() as conn:
+        for n in range(1, jobstore.KEPT_SEARCH_LISTS + 1):
+            conn.execute(
+                "INSERT INTO searches (id, status, form_json) VALUES (?, 'finished', '{}')", (n,))
+            conn.execute("INSERT INTO search_results (search_id, result_json) VALUES (?, '{}')",
+                         (n,))
+    jobstore.finish_search(jobstore.KEPT_SEARCH_LISTS, "finished", "{}")
+    with db.connect() as conn:  # finishing a search deletes nothing
+        assert conn.execute("SELECT COUNT(*) FROM search_results").fetchone()[0] == 90
+    manager = search.SearchManager(runner=lambda run: run.set_result("jobs", {"cards": []}))
+    run = manager.start(SearchForm())
+    wait_until_done(manager)
+    with db.connect() as conn:
+        kept = [row[0] for row in conn.execute(
+            "SELECT search_id FROM search_results ORDER BY search_id")]
+    assert kept == [*range(2, jobstore.KEPT_SEARCH_LISTS + 1), run.id]

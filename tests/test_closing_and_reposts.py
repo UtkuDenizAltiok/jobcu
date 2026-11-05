@@ -113,8 +113,9 @@ def test_a_job_shown_before_the_window_began_is_left_out_as_posted_again():
     groups = group_duplicates([found("1"), found("2"), found("3")], {"s": "job_board"})
     outcome = rules(groups, first_shown=[NOW - timedelta(days=10), NOW - timedelta(hours=60),
                                          None])
-    assert [groups[i].main.source_job_id for i in outcome.kept] == ["2", "3"]
-    assert dict(outcome.left_out) == {"repost": 1}
+    # Shown 60 hours ago, inside this 72-hour window: dated again since, but not new either.
+    assert [groups[i].main.source_job_id for i in outcome.kept] == ["3"]
+    assert dict(outcome.left_out) == {"repost": 1, "shown_before": 1}
     assert "Posted again" in REASONS["repost"]
 
 

@@ -290,7 +290,9 @@ use their normal service allowances, so this rule is not a provider spending cap
 Confirmed duplicate copies share one card, assessment and set of marks. If historical copies
 were assessed separately and disagree, Jobcu says that a new assessment is needed; it does not
 pick the highest old score. Original saved assessments remain in the local history. A matched
-older copy or remembered earlier showing can rule out a repost despite a new board date.
+older copy or remembered earlier showing can rule out a repost despite a new board date. A job
+Jobcu showed you a week or more ago that is really posted again appears with a "Reposted" label
+and its earlier score, unless you applied or marked it Not interested.
 
 If the ad and its feed name different workplaces, Jobcu keeps the conflict visible and does
 not score or measure a journey from a guessed town. Correct workplace evidence is needed.
