@@ -15,15 +15,12 @@ done. Implementation details belong in pull requests; current behavior is descri
 - Clicks skip middleman pages: Jobcu reads the clicked page then and sends the browser to its one
   clear apply link (never during a search, as such links may be paid per click).
 - The job memory recognises a job by the town its location names, and marks cards a site listed
-<<<<<<< HEAD
-  late, so jobs seen before aren't presented as new. A job an earlier search showed stays hidden
-  whatever its date; one shown a week or more before and really posted again is listed with its
+  late, so jobs seen before aren't presented as new. A job an earlier search showed with its
+  score stays hidden whatever its date (one listed only while its place was being checked comes
+  back to be judged); one shown a week or more before and really posted again is listed with its
   earlier score and a "Reposted" label.
-=======
-  late, so jobs seen before aren't presented as new.
 - The result lists of the last 90 searches are kept; older ones are deleted only when a new
   search starts, never while the person may still apply from the latest list.
->>>>>>> origin/main
 - Scoring: a language wished for in the ad's own language counts like a required one; lead, head,
   principal and staff titles are capped for early-career profiles; the sponsorship penalty
   applies to UK jobs only. Roles are graded by closeness to the person's own specialist field,

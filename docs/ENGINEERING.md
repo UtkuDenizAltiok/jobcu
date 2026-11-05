@@ -61,9 +61,11 @@ cover that continuation, while usage is cumulative.
   requisitions remain separate despite similar names/templates. Ambiguous copies cannot share
   saved/applied/dismissed state solely through title similarity.
 - Original publication/closing dates and job memory distinguish fresh jobs from reposts. A job an
-  earlier search showed is left out ("Shown in an earlier search already"), whatever its date: a
-  date later than that showing is the same job dated again, and daily searches started at
-  different times share part of their windows. "Posted within" is strict: an ad dated before the window is
+  earlier search showed with its score and a checked place is left out ("Shown in an earlier
+  search already"), whatever its date: a date later than that showing is the same job dated
+  again, and daily searches started at different times share part of their windows. A job listed
+  only while its place was still being checked, or without a score, is judged again when it
+  comes back (`jobstore.first_assessed`), so an unfinished check never hides a job for good. "Posted within" is strict: an ad dated before the window is
   too old, also from sites that list ads days late (they look further back only to find
   reposts). A job Jobcu showed at least a week before and really posted again inside the window
   is listed among the results with its earlier assessment (no new AI request) and a "Reposted"
@@ -95,7 +97,8 @@ cover that continuation, while usage is cumulative.
   the provider's web sources list it (`livepostings.py`), and the card adds a web search for it.
 - The job memory knows a job by its source IDs, then by employer, title and town (the town its
   location names, whatever the wording). When several remembered jobs share that name, none is
-  chosen and no saved state is shared, but the job counts as shown before.
+  chosen and no saved state is shared, but the job counts as shown before if one of them was
+  shown with its score.
 - Saved owner/legacy ratings are protected from automatic replacement. Optional review results
   are stored separately from production scores.
 

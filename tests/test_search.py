@@ -1282,7 +1282,8 @@ def as_if_no_search_showed_them():
     """Later searches in a test that look at the same ads again: a job an earlier search showed
     would be left out (filters._reason), so the job memory forgets when they were shown."""
     with db.connect() as conn:
-        conn.execute("UPDATE jobs SET first_seen_at = '2999-01-01T00:00:00Z'")
+        conn.execute("UPDATE jobs SET first_seen_at = '2999-01-01T00:00:00Z', "
+                     "first_assessed_at = '2999-01-01T00:00:00Z'")
 
 
 def test_search_remembers_reported_route_and_undo_allows_it_again(ready):
@@ -1749,9 +1750,9 @@ def test_a_job_several_remembered_jobs_share_exactly_is_posted_again(ready):
            f"{normal_city('Berlin')}")
     with db.connect() as conn:
         for job_id in (41, 42):
-            conn.execute("INSERT INTO jobs (id, first_seen_at, title, company) VALUES "
-                         "(?, '2026-10-01T10:00:00Z', 'Hardware Engineer', 'Company 0')",
-                         (job_id,))
+            conn.execute("INSERT INTO jobs (id, first_seen_at, first_assessed_at, title, company) "
+                         "VALUES (?, '2026-10-01T10:00:00Z', '2026-10-01T10:00:00Z', "
+                         "'Hardware Engineer', 'Company 0')", (job_id,))
             conn.execute("INSERT INTO job_fingerprints VALUES (?, ?, 'DE')", (key, job_id))
     manager = search.SearchManager()
     manager.start(SearchForm(location_text="Germany"))
@@ -1789,7 +1790,7 @@ def test_a_job_shown_a_week_before_and_posted_again_is_listed_with_its_earlier_s
 
     def shown_days_ago(days):
         with db.connect() as conn:
-            conn.execute("UPDATE jobs SET first_seen_at = ?",
+            conn.execute("UPDATE jobs SET first_seen_at = ?1, first_assessed_at = ?1",
                          ((datetime.now(UTC) - timedelta(days=days)).isoformat(),))
 
     shown_days_ago(10)
@@ -1842,3 +1843,60 @@ def test_starting_a_search_keeps_the_last_90_result_lists_and_nothing_else_delet
         kept = [row[0] for row in conn.execute(
             "SELECT search_id FROM search_results ORDER BY search_id")]
     assert kept == [*range(2, jobstore.KEPT_SEARCH_LISTS + 1), run.id]
+
+
+def test_a_job_an_earlier_search_listed_without_its_score_is_judged_again_when_it_returns(
+        ready, monkeypatch):
+    # Only a listing with a score and a checked place makes a job "shown before"
+    # (jobstore.first_assessed): one an earlier search couldn't score, or listed while its place
+    # was still being checked, comes back and is judged, rather than hidden for good.
+    import copy
+
+    from jobcu import pipeline
+    from jobcu.filters import REASONS
+
+    unanswered = {"Hardware Engineer"}
+
+    class Unfinished(FakeAI):
+        def complete_json(self, **request):
+            reply = super().complete_json(**request)
+            if request["schema_name"] != "ScoringAnswer" or not unanswered:
+                return reply
+            answer = json.loads(reply.text)
+            titles = dict(re.findall(r"^JOB (J\d+)\nTitle: (.+)$", request["prompt"], re.M))
+            answer["scores"] = [s for s in answer["scores"]
+                                if titles.get(s["job_id"]) not in unanswered]
+            return RawReply(json.dumps(answer), reply.usage)
+
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: Unfinished())
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    first = {c["title"]: c for c in wait_until_done(manager)["result"]["jobs"]["cards"]}
+    assert first["Hardware Engineer"]["score"] is None
+    assert first["Electronics Engineer"]["score"] is not None
+
+    def listed_an_hour_ago():  # the next search starts later, as a day's search would
+        with db.connect() as conn:
+            hour_ago = (datetime.now(UTC) - timedelta(hours=1)).isoformat()
+            conn.execute("UPDATE jobs SET first_seen_at = ?", (hour_ago,))
+            conn.execute("UPDATE jobs SET first_assessed_at = ? "
+                         "WHERE first_assessed_at IS NOT NULL", (hour_ago,))
+
+    listed_an_hour_ago()
+    unanswered.clear()
+    manager.start(SearchForm(location_text="Germany"))
+    second = wait_until_done(manager)
+    jobs = second["result"]["jobs"]
+    (card,) = jobs["cards"]
+    assert card["title"] == "Hardware Engineer" and card["score"] is not None
+    assert card["job_id"] == first["Hardware Engineer"]["job_id"] and not card["is_new"]
+    assert {"reason": REASONS["shown_before"], "count": 1} in jobs["counts"]["left_out"]
+    viewed = copy.deepcopy(second)
+    pipeline.history_view(viewed)  # opening the saved results keeps it too
+    assert [c["job_id"] for c in viewed["result"]["jobs"]["cards"]] == [card["job_id"]]
+
+    listed_an_hour_ago()  # now seen with its score: it stays hidden like the other
+    manager.start(SearchForm(location_text="Germany"))
+    jobs = wait_until_done(manager)["result"]["jobs"]
+    assert jobs["cards"] == []
+    assert {"reason": REASONS["shown_before"], "count": 2} in jobs["counts"]["left_out"]

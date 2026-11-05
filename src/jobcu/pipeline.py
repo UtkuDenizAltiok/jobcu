@@ -381,7 +381,7 @@ def history_view(snapshot: dict) -> None:
     if not cards:
         return
     canonical = jobstore.canonical_ids([c["job_id"] for c in cards])
-    seen = jobstore.first_seen(list(canonical.values()))
+    seen = jobstore.first_assessed(list(canonical.values()))
     started = parse_iso(snapshot.get("started_at"))
     hours = (snapshot.get("form") or {}).get("posted_within_hours")
     start = window_start(started, hours) if started and hours else None

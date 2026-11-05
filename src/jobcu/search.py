@@ -635,8 +635,8 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
     remembered, repeats = jobstore.find_jobs(groups)
     states = jobstore.states([job_id for job_id in remembered if job_id])
     remembered_states = [states.get(job_id) if job_id else None for job_id in remembered]
-    shown = jobstore.first_seen([job_id for job_id in remembered if job_id]
-                                + [job_id for same in repeats for job_id in same])
+    shown = jobstore.first_assessed([job_id for job_id in remembered if job_id]
+                                    + [job_id for same in repeats for job_id in same])
 
     def first_shown(job_id, same):
         # Several remembered jobs with this employer, title and town: no saved state is shared,
