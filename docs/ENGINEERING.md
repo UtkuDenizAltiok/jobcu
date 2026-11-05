@@ -26,7 +26,10 @@ happens before a new search is created or source collection begins, including wi
    search words, and refresh discovered employers when due.
 2. Collect independent sources in parallel. Career-title screening rejects only explicitly
    unrelated titles; unseen titles survive its preliminary request bound. Merge proven copies
-   and apply date, type, remote, country and dismissal rules before full-ad loading.
+   and apply date, type, remote, country and dismissal rules before full-ad loading. A job
+   leaves for its type only when the employer's own career system or the ad text says so (a
+   job site's tag alone can keep a job, never remove it), and as remote only when no copy
+   names an office among its places (`filters.leaves_for_job_type`, `filters.fully_remote`).
 3. Apply location conditions and quick relevance. Recover full ads from matched copies, using
    the bounded-age text cache first, preferring permitted employer originals and retaining
    richer summaries after failed/incomplete reads. Recheck newly revealed objective facts.

@@ -26,6 +26,7 @@ from jobcu.dedupe import JobGroup
 from jobcu.freshness import freshness, window_start
 from jobcu.jobstore import JobState
 from jobcu.location import fits
+from jobcu.placenames import names_an_office
 
 REASONS = {
     **vacancy_evidence.REASONS,
@@ -114,11 +115,13 @@ def _reason(group, state, start, wanted_types, exclude_remote, countries, condit
         return "shown_before"
     if group.closes_at is not None and group.closes_at < now:
         return "closed"
-    stated_types = [c.job_types for c in group.copies if c.job_types]
-    # Left out only if every copy that states a type says it's something not ticked.
-    if stated_types and all(not (set(types) & wanted_types) for types in stated_types):
+    # Left out only if the employer's own career system says it's a type not ticked. A job site's
+    # tag alone can be wrong (three of hackajob's £37,000-85,000 engineering roles, and an ad asking
+    # for at least 35 hours a week, were "part-time"): the ad text decides those after scoring
+    # (search._ad_exclusion).
+    if leaves_for_job_type(group, None, wanted_types):
         return "job_type"
-    if exclude_remote and any(c.work_mode == "remote" for c in group.copies):
+    if exclude_remote and fully_remote(group):
         return "remote"
     stated_countries = {c.country for c in group.copies if c.country}
     if stated_countries and not (stated_countries & countries):
@@ -126,6 +129,47 @@ def _reason(group, state, start, wanted_types, exclude_remote, countries, condit
     if fails_a_condition(group, conditions):
         return "location_condition"
     return None
+
+
+def job_types_of(group: JobGroup, scored: dict | None) -> list[str]:
+    """The job's types: what its job sites say, unless they leave it open between several
+    ("contract" on Adzuna can be fixed-term, freelance or part-time) and the ad text says which
+    one it is. When no site says, the ad text decides alone."""
+    stated = sorted({t for c in group.copies for t in c.job_types})
+    read = (scored or {}).get("job_type")
+    # These two hints describe a full-time schedule with an unspecified contract.
+    # Student work can also be full-time; the ad may refine this broad schedule.
+    student = (read == "internship_or_working_student"
+               and set(stated) == {"full_time_permanent", "fixed_term"})
+    if read and read != "unclear" and (
+            not stated or (len(stated) > 1 and (read in stated or student))):
+        return [read]
+    return stated
+
+
+def leaves_for_job_type(group: JobGroup, scored: dict | None, wanted: set[str] | list[str]) -> bool:
+    """Whether the job is proven to be of types the person didn't tick: its types
+    (job_types_of) aren't ticked and come from the ad text (the score's reading) or the
+    employer's own career system. A job site's tag alone can keep a job, never remove it, and an
+    ad text that names a ticked type keeps it too."""
+    wanted = set(wanted)
+    types = job_types_of(group, scored)
+    read = (scored or {}).get("job_type")
+    if not types or set(types) & wanted or read in wanted:
+        return False
+    from_ad = bool(read) and read != "unclear" and types == [read]
+    from_employer = any(c.job_types and group.source_kinds.get(c.source) == "employer"
+                        for c in group.copies)
+    return from_ad or from_employer
+
+
+def fully_remote(group: JobGroup) -> bool:
+    """Certainly done fully remotely: every copy that says how the job is done says remote, and no
+    copy names an office among its places. Samsara's "London - UK2; Remote - UK" and Wayve's three
+    offices plus "Remote, Germany" offer an office, so the ad text decides those after scoring."""
+    stating = [c for c in group.copies if c.work_mode]
+    return (bool(stating) and all(c.work_mode == "remote" for c in stating)
+            and not any(names_an_office(c.location_text) for c in group.copies))
 
 
 def fails_a_condition(group: JobGroup, conditions: list) -> bool:

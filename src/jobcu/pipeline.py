@@ -15,7 +15,7 @@ from jobcu import applications, jobstore, travel
 from jobcu import places as place_list
 from jobcu.countries import COUNTRIES
 from jobcu.dedupe import SOURCE_KIND_RANK, JobGroup, group_duplicates
-from jobcu.filters import REASONS, condition_fit
+from jobcu.filters import REASONS, condition_fit, job_types_of
 from jobcu.freshness import earliest_possible, freshness, parse_iso, window_start
 from jobcu.jobstore import JobState
 from jobcu.location import LocationPlan
@@ -613,22 +613,6 @@ def build_card(
         "salary": best.salary_text or main.salary_text,
         "location_checks": checks,
     }
-
-
-def job_types_of(group: JobGroup, scored: dict | None) -> list[str]:
-    """The job's types: what its job sites say, unless they leave it open between several
-    ("contract" on Adzuna can be fixed-term, freelance or part-time) and the ad text says which
-    one it is. When no site says, the ad text decides alone."""
-    stated = sorted({t for c in group.copies for t in c.job_types})
-    read = (scored or {}).get("job_type")
-    # These two hints describe a full-time schedule with an unspecified contract.
-    # Student work can also be full-time; the ad may refine this broad schedule.
-    student = (read == "internship_or_working_student"
-               and set(stated) == {"full_time_permanent", "fixed_term"})
-    if read and read != "unclear" and (
-            not stated or (len(stated) > 1 and (read in stated or student))):
-        return [read]
-    return stated
 
 
 def _checked_by(condition, measured_by: str | None = None) -> str:

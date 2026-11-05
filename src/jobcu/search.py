@@ -41,7 +41,7 @@ from jobcu.ai.client import AIClient, in_parallel
 from jobcu.ai.usage import UsageLog, billing_days_left, billing_month_start, estimate_cost
 from jobcu.countries import COUNTRIES, LANGUAGE_NAMES, languages_for
 from jobcu.documents import DocumentError
-from jobcu.filters import REASONS, apply_rules, fails_a_condition
+from jobcu.filters import REASONS, apply_rules, fails_a_condition, leaves_for_job_type
 from jobcu.freshness import window_start
 from jobcu.keystore import KeyStore
 from jobcu.keywords import generate_search_words_reusing
@@ -1213,8 +1213,7 @@ def _ad_exclusion(group, scored, form: SearchForm) -> str | None:
     """Use the same proven ad facts before online work and when building final cards."""
     if scored and form.exclude_remote and scored.get("fully_remote"):
         return "remote_text"
-    types = pipeline.job_types_of(group, scored)
-    if types and not set(types) & set(form.job_types):
+    if leaves_for_job_type(group, scored, form.job_types):
         return "job_type_text"
     return None
 
