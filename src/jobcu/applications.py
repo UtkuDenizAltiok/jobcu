@@ -18,8 +18,10 @@ BLOCKED_HOSTS = frozenset({"cv-library.co.uk"})
 UK_VISITORS_ONLY_PAGES = frozenset({"learn4good.com"})
 WEB_SEARCH = "https://www.google.com/search"
 REDIRECT_FIELDS = frozenset({"url", "redirect", "redirect_url", "target", "destination", "to"})
-REPEATS_ADS = frozenset({"adzuna", "arbeitsagentur", "jobleads", "jooble", "learn4good", "talent",
-                         "trabajo"})
+# beBee lists other sites' ads (search 18's found posting for an agency's firmware job was a beBee
+# copy naming another agency).
+REPEATS_ADS = frozenset({"adzuna", "arbeitsagentur", "bebee", "jobleads", "jooble", "learn4good",
+                         "talent", "trabajo"})
 EXCLUSION_REASON = "CV-Library application route, with no other saved link"
 REPORTED_EXCLUSION_REASON = "Application link marked unusable, with no other saved link"
 

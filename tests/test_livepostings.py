@@ -95,8 +95,8 @@ def test_a_site_that_only_repeats_other_sites_ads_is_never_the_open_posting():
     # Search 17's one find was a JobLeads page: it refuses Jobcu and shows the employer only to
     # paying members, no nearer the employer than the link the job had.
     groups = [group(0), group(1), group(2)]
-    pages = ["https://www.jobleads.com/uk/job/hardware-engineer--luton--e1", "https://uk.jooble.org"
-             "/desc/123", CAREERS.format(2)]
+    pages = ["https://www.jobleads.com/uk/job/hardware-engineer--luton--e1", "https://bebee.com/gb"
+             "/jobs/embedded-software-engineer--fj-123", CAREERS.format(2)]
     client = Researcher(
         [("\n".join(f"JOB J{n} {page}" for n, page in enumerate(pages)), pages, 3)],
         [[{"id": f"J{n}", "url": page} for n, page in enumerate(pages)]])
