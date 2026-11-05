@@ -962,8 +962,8 @@ def test_recovered_full_requirements_reach_matching_and_change_the_explanation(
     ({"posted_at": datetime.now(UTC) - timedelta(days=10)}, "too_old"),
     ({"closes_at": datetime.now(UTC) - timedelta(days=1)}, "closed"),
     ({"country": "AT"}, "country"),
-    ({"job_types": ["part_time"]}, "job_type"),
-    ({"work_mode": "remote"}, "remote"),
+    ({"job_types": ["part_time"]}, "job_type"),  # from the employer's own system (below)
+    ({"work_mode": "remote", "location_text": "Remote - Germany"}, "remote"),
 ])
 @pytest.mark.parametrize("cached", [False, True])
 def test_objective_facts_in_full_evidence_are_checked_before_scoring(
@@ -979,6 +979,8 @@ def test_objective_facts_in_full_evidence_are_checked_before_scoring(
 
     class OneCopy(FakeSource):
         reads = 0
+        # A job site's type tag alone never leaves a job out (filters.leaves_for_job_type).
+        kind = "employer" if reason == "job_type" else "job_board"
 
         def search(self, query, ctx):
             yield copy
@@ -1900,3 +1902,23 @@ def test_a_job_an_earlier_search_listed_without_its_score_is_judged_again_when_i
     jobs = wait_until_done(manager)["result"]["jobs"]
     assert jobs["cards"] == []
     assert {"reason": REASONS["shown_before"], "count": 2} in jobs["counts"]["left_out"]
+
+
+def test_a_job_site_s_part_time_tag_is_scored_and_the_ad_text_keeps_a_full_time_job(
+        ready, monkeypatch):
+    # Hackajob's £37,000-85,000 engineering roles were "part-time" on a job site and left out
+    # before any reading; now the ad text decides, here "full_time_permanent" (FakeAI).
+    class Tagged(FakeSource):
+        def search(self, query, ctx):
+            for job in super().search(query, ctx):
+                yield replace(job, job_types=["part_time"])
+
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [Tagged()])
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany", job_types=["full_time_permanent"]))
+    result = wait_until_done(manager)
+    assert result["status"] == "finished", result["error"]
+    cards = result["result"]["jobs"]["cards"]
+    assert {card["title"] for card in cards} == {"Hardware Engineer", "Electronics Engineer"}
+    assert not any("job type" in row["reason"]
+                   for row in result["result"]["jobs"]["counts"]["left_out"])

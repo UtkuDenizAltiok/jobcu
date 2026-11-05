@@ -131,7 +131,9 @@ permanent** for ongoing full-time work, or **Internship or working student** for
 You can select several types. Tick **Don't include remote jobs** only if you want to exclude
 jobs advertised as remote work.
 Full-time student placements still count as student jobs. An unknown job type stays eligible
-until evidence establishes a type you did not select.
+until evidence establishes a type you did not select: the employer's own job system or the ad
+itself, not only a job site's label. A job that offers an office as well as remote work is not
+treated as remote.
 
 ## 4. Start the search and answer any questions
 

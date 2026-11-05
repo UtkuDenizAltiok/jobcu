@@ -16,7 +16,7 @@ def found(job_id, **extra):
 
 
 def run(jobs, states=None, **options):
-    groups = group_duplicates(jobs, {"s": "job_board"})
+    groups = group_duplicates(jobs, {"s": "job_board", "e": "employer"})
     settings = dict(started_at=NOW, posted_within_hours=24, job_types=list(JOB_TYPES),
                     exclude_remote=False, countries=["DE"])
     settings.update(options)
@@ -27,7 +27,7 @@ def test_every_rule_leaves_jobs_out_with_a_reason():
     jobs = [
         found("ok"),
         found("old", posted_at=NOW - timedelta(days=3)),
-        found("type", job_types=["part_time"]),
+        found("type", source="e", job_types=["part_time"]),
         found("remote", work_mode="remote"),
         found("abroad", country="FR"),
         found("undated", posted_at=None, date_precision="unknown"),
@@ -38,6 +38,62 @@ def test_every_rule_leaves_jobs_out_with_a_reason():
     kept = {groups[i].main.source_job_id for i in outcome.kept}
     assert kept == {"ok", "undated"}
     assert dict(outcome.left_out) == {"too_old": 1, "job_type": 1, "remote": 1, "country": 1}
+
+
+def test_a_job_site_s_type_tag_alone_never_leaves_a_job_out():
+    # Three of hackajob's £37,000-85,000 engineering roles and an ad asking for at least 35 hours
+    # a week were "part-time" on job sites: the ad text decides after scoring.
+    jobs = [found("board", job_types=["part_time"]),
+            found("employer", source="e", job_types=["part_time"]),
+            found("both", source="e", job_types=["full_time_permanent"], title="Same job"),
+            found("both-board", job_types=["part_time"], title="Same job", company="Company both")]
+    groups, outcome = run(jobs, job_types=["full_time_permanent"])
+    assert {groups[i].main.source_job_id for i in outcome.kept} == {"board", "both"}
+    assert dict(outcome.left_out) == {"job_type": 1}
+
+
+def test_the_ad_text_or_the_employer_proves_a_type_and_a_disagreement_keeps_the_job():
+    from jobcu.filters import leaves_for_job_type
+    from jobcu.pipeline import job_types_of
+
+    board = group_duplicates([found("b", job_types=["part_time"])], {"s": "job_board"})[0]
+    employer = group_duplicates([found("e", source="e", job_types=["part_time"])],
+                                {"e": "employer"})[0]
+    open_tag = group_duplicates([found("o", job_types=[
+        "fixed_term", "freelance_or_contract", "part_time"])], {"s": "job_board"})[0]  # "contract"
+    full_tag = group_duplicates([found("f", job_types=["full_time_permanent"])],
+                                {"s": "job_board"})[0]
+    full, part, unclear, freelance = ({"job_type": t} for t in (
+        "full_time_permanent", "part_time", "unclear", "freelance_or_contract"))
+    wanted = ["full_time_permanent", "fixed_term"]
+    assert not leaves_for_job_type(board, None, wanted)  # a site's tag alone
+    assert not leaves_for_job_type(board, unclear, wanted)
+    assert not leaves_for_job_type(board, full, wanted)
+    assert leaves_for_job_type(board, part, wanted)  # the ad text agrees
+    assert leaves_for_job_type(open_tag, freelance, wanted)  # the ad text says which one
+    assert not leaves_for_job_type(full_tag, part, wanted)  # a site's tag can keep a job
+    assert leaves_for_job_type(employer, None, wanted)
+    assert leaves_for_job_type(employer, unclear, wanted)
+    assert not leaves_for_job_type(employer, full, wanted)  # the ad names a ticked type
+    assert job_types_of(board, full) == ["part_time"]  # what the card shows stays the site's
+
+
+def test_a_remote_label_is_certain_only_when_no_copy_names_an_office():
+    jobs = [found("remote-uk", work_mode="remote", location_text="UK, Remote"),
+            found("anywhere", work_mode="remote", location_text="Anywhere"),
+            found("or-london", work_mode="remote", location_text="London - UK2; Remote - UK"),
+            found("offices", work_mode="remote", location_text="Sunnyvale, California USA; "
+                  "London, United Kingdom; Remote, Germany; Yokohama, Japan"),
+            found("mixed", work_mode="remote", location_text="Germany", title="Same job"),
+            found("mixed-site", work_mode="on_site", location_text="Germany", title="Same job",
+                  company="Company mixed"),
+            found("mixed-town", work_mode="remote", location_text="Germany", title="Other job"),
+            found("mixed-town-2", location_text="München", title="Other job",
+                  company="Company mixed-town")]
+    groups, outcome = run(jobs, exclude_remote=True)
+    kept = {groups[i].main.source_job_id for i in outcome.kept}
+    assert kept == {"or-london", "offices", "mixed", "mixed-town"}
+    assert dict(outcome.left_out) == {"remote": 2}
 
 
 def test_jobs_marked_not_interested_are_left_out_first():

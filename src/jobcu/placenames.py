@@ -10,6 +10,7 @@ towns and distances come from the shipped town list (`places.py`).
 import re
 from functools import cache
 
+from jobcu.countries import COUNTRIES
 from jobcu.text import normalise
 
 OTHER = "other"  # a place outside the supported countries
@@ -243,6 +244,35 @@ def countries_in(location_text: str | None) -> set[str]:
         if segment.strip():
             found |= _segment_countries(segment)
     return found
+
+
+# Words that make a part of a location a remote option rather than a workplace.
+_REMOTE = re.compile(r"\b(remote|remotely|anywhere|home ?office|home based|work from home|wfh|"
+                     r"telecommute|virtual|fernarbeit|mobiles arbeiten)\b")
+
+
+# Location words that name no workplace: countries and their parts, "nationwide".
+_NO_WORKPLACE = re.compile(r"\b(" + "|".join(sorted({normalise(name) for name in (
+    *(country.name for country in COUNTRIES.values()), "UK", "U.K.", "United Kingdom",
+    "Great Britain", "Britain", "England", "Scotland", "Wales", "Northern Ireland", "Éire",
+    "Deutschland", "Bundesrepublik", "Österreich", "Schweiz", "Suisse", "Svizzera", "Nederland",
+    "België", "Belgique", "España", "Italia", "Polska", "Sverige", "Norge", "Danmark", "Suomi",
+    "Česko", "Magyarország", "România", "Ελλάδα", "Hrvatska", "Slovensko", "Eesti", "Latvija",
+    "Lietuva", "Ísland", "Luxemburg", "nationwide", "bundesweit", "countrywide", "multiple",
+    "various", "locations", "location", "country", "based")}, key=len, reverse=True)) + r")\b")
+
+
+def names_an_office(location_text: str | None) -> bool:
+    """Whether a part of the location names a place to work without calling it remote:
+    "London - UK2; Remote - UK" offers the London office; "UK, Remote", "Remote - EMEA" and
+    "Deutschland" name none."""
+    for segment in _SEGMENTS.split(location_text or ""):
+        text = normalise(segment)
+        if not text or _REMOTE.search(text):
+            continue
+        if re.search(r"[a-z]{3,}", _REGIONAL.sub(" ", _NO_WORKPLACE.sub(" ", text))):
+            return True
+    return False
 
 
 def is_europe_wide(location_text: str | None) -> bool:
