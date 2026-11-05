@@ -19,8 +19,8 @@ done. Implementation details belong in pull requests; current behavior is descri
 - The job memory recognises a job by the town its location names, and marks cards a site listed
   late, so jobs seen before aren't presented as new. A job an earlier search showed with its
   score stays hidden whatever its date (one listed only while its place was being checked comes
-  back to be judged); one shown a week or more before and really posted again is listed with its
-  earlier score and a "Reposted" label.
+  back to be judged); one shown a week or more before and really posted again is assessed again
+  and listed with a "Reposted" label.
 - The result lists of the last 90 searches are kept; older ones are deleted only when a new
   search starts, never while the person may still apply from the latest list.
 - Scoring: a language wished for in the ad's own language counts like a required one; lead, head,

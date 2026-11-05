@@ -414,7 +414,7 @@ def history_view(snapshot: dict) -> None:
     for root, entries in groups.items():
         first = seen.get(root)
         combined += len(entries) - 1
-        # Listed as reposted on purpose (search._reposted_cards): Jobcu showed it long before.
+        # Listed as reposted on purpose (search._reposts_to_assess): Jobcu showed it long before.
         listed_again = any(card.get("reposted") for _, card in entries)
         if start and first and first < start and not listed_again:
             reposts += 1
@@ -485,6 +485,7 @@ def build_card(
     posted_within_hours: int,
     ruled_out: bool = False,
     first_seen_at: datetime | None = None,
+    reposted_first_seen: str | None = None,
     reported_links: set[str] | None = None,
     location_pending: bool = False,
 ) -> dict:
@@ -588,7 +589,9 @@ def build_card(
         "posted_at": group.posted_at.isoformat() if group.posted_at else None,
         "date_precision": group.date_precision,
         "date_known": freshness(group.posted_at, group.date_precision, start) != "unknown",
-        "first_seen_at": first_seen_at.isoformat() if reposted else None,
+        "first_seen_at": (reposted_first_seen or first_seen_at.isoformat()) if (
+            reposted or reposted_first_seen) else None,
+        **({"reposted": True} if reposted_first_seen else {}),
         "closes_at": group.closes_at.isoformat() if group.closes_at else None,
         "score": scored["score"] if scored else None,
         "location_pending": location_pending,
