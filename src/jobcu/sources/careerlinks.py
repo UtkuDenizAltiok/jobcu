@@ -47,6 +47,9 @@ _READABLE: list[tuple[str, re.Pattern, str]] = [
 _OWN_ADDRESS: list[tuple[str, re.Pattern]] = [
     ("successfactors", re.compile(r"rmkcdn\.successfactors\.com")),
     ("teamtailor", re.compile(r"teamtailor-cdn\.com|assets\.teamtailor")),
+    # Recruitee career sites on the employer's own address (a drone maker's power-electronics
+    # jobs came only through Adzuna, which dated a re-published August vacancy as new).
+    ("recruitee", re.compile(r"careers\.recruiteecdn\.com")),
 ]
 
 # Systems Jobcu doesn't read yet, recognised so their use can be counted.

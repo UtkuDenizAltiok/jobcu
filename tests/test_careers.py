@@ -870,3 +870,28 @@ def test_the_shipped_directory_towns_are_real_places():
             assert country in entry.countries
             for town in towns:
                 assert places.find(town, country) is not None, f"{entry.name}: {town}"
+
+
+def test_a_recruitee_career_site_on_the_employers_own_address_is_read_there():
+    from jobcu.sources.careerlinks import own_address_board
+
+    page = ('<link rel="shortcut icon" href="https://careers.recruiteecdn.com/image/upload/'
+            'production/images/x.png">')
+    assert own_address_board("https://careers.fakeco.example/", page) == (
+        "recruitee", "careers.fakeco.example")
+    asked = []
+    offer = {"id": 7, "title": "Hardware Engineer", "status": "published",
+             "published_at": "2026-09-15 08:11:57 UTC", "careers_url":
+             "https://careers.fakeco.example/o/hardware-engineer", "description": "<p>Boards</p>",
+             "locations": [{"city": "Gilching", "country": "Germany", "country_code": "DE"}]}
+
+    def answer(request):
+        asked.append(str(request.url))
+        return httpx.Response(200, json={"offers": [offer]})
+
+    jobs = list(recruitee.RecruiteeSource().list_jobs(
+        employer("recruitee", "careers.fakeco.example", ("DE",)), context(answer)))
+    assert asked == ["https://careers.fakeco.example/api/offers/"]
+    assert jobs[0].country == "DE" and jobs[0].source_job_id == "careers.fakeco.example/7"
+    list(recruitee.RecruiteeSource().list_jobs(employer("recruitee", "fakeco"), context(answer)))
+    assert asked[-1] == "https://fakeco.recruitee.com/api/offers/"

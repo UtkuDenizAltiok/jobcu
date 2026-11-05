@@ -2,7 +2,8 @@
 career pages; no key). Checked 2026-09-17.
 
 `GET https://{board}.recruitee.com/api/offers/` returns every published job with its full ad,
-publication time, places with country codes, and employment type in one answer.
+publication time, places with country codes, and employment type in one answer. A career site on
+the employer's own address (board "careers.example.com") answers the same at its own /api/offers/.
 """
 
 from collections.abc import Iterator
@@ -21,7 +22,8 @@ class RecruiteeSource(CareerSystemSource):
 
     def list_jobs(self, employer: Employer, ctx: SourceContext, *, countries=None, start=None,
                   terms=None) -> Iterator[FoundJob]:
-        data = self.get_json(f"https://{employer.board}.recruitee.com/api/offers/", ctx)
+        host = employer.board if "." in employer.board else f"{employer.board}.recruitee.com"
+        data = self.get_json(f"https://{host}/api/offers/", ctx)
         for item in data.get("offers") or []:
             if item.get("status", "published") == "published":
                 yield to_found_job(item, employer)
