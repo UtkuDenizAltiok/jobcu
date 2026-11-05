@@ -70,12 +70,16 @@ class FakeSource(JobSource):
     name = "Fake Jobs"
     kind = "job_board"
     titles = ["Hardware Engineer", "Electronics Engineer", "Nurse"]
+    # Tests with several searches set another edition before each later one: a job an earlier
+    # search showed never comes back (filters._reason), so a later search needs new jobs.
+    edition = ""
 
     def search(self, query, ctx):
         for i, title in enumerate(self.titles):
             ctx.report.requests += 1
-            yield FoundJob(source="fake", source_job_id=str(i), url=f"https://jobs.test/{i}",
-                           title=title, company=f"Company {i}", location_text="Berlin",
+            key = f"{i}{self.edition}"
+            yield FoundJob(source="fake", source_job_id=key, url=f"https://jobs.test/{key}",
+                           title=title, company=f"Company {key}", location_text="Berlin",
                            country="DE", posted_at=datetime.now(UTC), date_precision="exact",
                            description="Short")
 
@@ -594,6 +598,7 @@ def test_two_identical_searches_reuse_setup_but_collect_and_score_afresh(ready, 
     manager = search.SearchManager()
     manager.start(SearchForm(location_text="Germany"))
     first = wait_until_done(manager)
+    monkeypatch.setattr(FakeSource, "edition", "b")
     manager.start(SearchForm(location_text="Germany"))
     second = wait_until_done(manager)
     assert first["status"] == second["status"] == "finished"
@@ -638,6 +643,7 @@ def test_setup_box_edits_reanalyse_even_when_ai_returns_the_same_understanding(
     manager.start(form)
     first = wait_until_done(manager)
     changed = form.model_copy(update={changed_box: getattr(form, changed_box) + edit})
+    monkeypatch.setattr(FakeSource, "edition", "b")
     manager.start(changed)
     second = wait_until_done(manager)
     assert first["status"] == second["status"] == "finished"
@@ -648,6 +654,7 @@ def test_setup_box_edits_reanalyse_even_when_ai_returns_the_same_understanding(
     assert first["result"]["search_words"] == second["result"]["search_words"]
     assert [c["score"] for c in first["result"]["jobs"]["cards"]] == \
         [c["score"] for c in second["result"]["jobs"]["cards"]]
+    monkeypatch.setattr(FakeSource, "edition", "c")
     manager.start(changed)
     third = wait_until_done(manager)
     assert third["status"] == "finished"
@@ -1268,12 +1275,20 @@ def test_search_excludes_known_cvlibrary_only_application_routes(ready, monkeypa
     assert {"reason": applications.EXCLUSION_REASON, "count": 1} in jobs["counts"]["left_out"]
 
 
+def as_if_no_search_showed_them():
+    """Later searches in a test that look at the same ads again: a job an earlier search showed
+    would be left out (filters._reason), so the job memory forgets when they were shown."""
+    with db.connect() as conn:
+        conn.execute("UPDATE jobs SET first_seen_at = '2999-01-01T00:00:00Z'")
+
+
 def test_search_remembers_reported_route_and_undo_allows_it_again(ready):
     manager = search.SearchManager()
     manager.start(SearchForm(location_text="Germany"))
     first = wait_until_done(manager)["result"]["jobs"]["cards"]
     marked = first[0]
     applications.report_link(marked["job_id"], marked["main_link"]["url"])
+    as_if_no_search_showed_them()
     manager.start(SearchForm(location_text="Germany"))
     result = wait_until_done(manager)
     assert result["status"] == "finished", result["error"]
@@ -1283,6 +1298,7 @@ def test_search_remembers_reported_route_and_undo_allows_it_again(ready):
     assert {"reason": applications.REPORTED_EXCLUSION_REASON, "count": 1} in (
         jobs["counts"]["left_out"])
     applications.undo_report(applications.reports()[0]["id"])
+    as_if_no_search_showed_them()
     manager.start(SearchForm(location_text="Germany"))
     restored = wait_until_done(manager)["result"]["jobs"]["cards"]
     assert [c["title"] for c in restored] == [c["title"] for c in first]
@@ -1517,7 +1533,8 @@ def test_answering_always_removes_the_limit_so_later_searches_don_t_ask(ready, m
     save_settings(settings)
     manager = search.SearchManager()
     asked, notes = [], []
-    for _ in range(2):
+    for edition in ("", "b"):
+        monkeypatch.setattr(FakeSource, "edition", edition)
         manager.start(SearchForm(location_text="Germany"))
         deadline = time.monotonic() + 15
         while manager.current.status == "running" and time.monotonic() < deadline:
@@ -1545,7 +1562,8 @@ def test_free_monthly_searches_are_shared_and_jobcu_asks_before_paying_for_more(
     save_settings(settings)
     manager = search.SearchManager()
     questions, notes = [], []
-    for _ in range(2):
+    for edition in ("", "b"):
+        monkeypatch.setattr(FakeSource, "edition", edition)
         manager.start(SearchForm(location_text="Germany"))
         deadline = time.monotonic() + 15
         while manager.current.status == "running" and time.monotonic() < deadline:
