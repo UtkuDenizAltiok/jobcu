@@ -232,6 +232,24 @@ def latest_results() -> tuple[int, str] | None:
     return (row[0], row[1]) if row else None
 
 
+def saved_cards(job_ids: list[int]) -> dict[int, dict]:
+    """The best-scored saved card of each job, or of a job linked to it as the same vacancy."""
+    if not job_ids:
+        return {}
+    with db.connect() as conn:
+        linked = aliases(conn)
+        family = family_ids(job_ids, linked)
+        found = [(row[0], json.loads(row[1])) for row in rows(
+            conn, "SELECT job_id, card_json FROM job_cards WHERE job_id IN ({})", family)]
+    best: dict[int, dict] = {}
+    for job_id, card in found:
+        root = linked.get(job_id, job_id)
+        if root not in best or (card.get("score") or 0) > (best[root].get("score") or 0):
+            best[root] = card
+    return {job_id: best[root] for job_id in job_ids
+            if (root := linked.get(job_id, job_id)) in best}
+
+
 def save_cards(cards: list[dict]) -> None:
     with db.connect() as conn:
         conn.executemany(
