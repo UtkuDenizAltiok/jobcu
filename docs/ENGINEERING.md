@@ -61,9 +61,9 @@ cover that continuation, while usage is cumulative.
   requisitions remain separate despite similar names/templates. Ambiguous copies cannot share
   saved/applied/dismissed state solely through title similarity.
 - Original publication/closing dates and job memory distinguish fresh jobs from reposts. A job an
-  earlier search showed is left out ("Shown in an earlier search already") unless an exact
-  date proves it was posted after the window began: a date given only as a day, or a late
-  listing, spans two daily windows. "Posted within" is strict: an ad dated before the window is
+  earlier search showed is left out ("Shown in an earlier search already"), whatever its date: a
+  date later than that showing is the same job dated again, and daily searches started at
+  different times share part of their windows. "Posted within" is strict: an ad dated before the window is
   too old, also from sites that list ads days late (they look further back only to find
   reposts). Saved results follow the same rules when opened.
   Modification timestamps and sitemap lastmod do not establish an original posting date.

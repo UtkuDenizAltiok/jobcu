@@ -125,8 +125,8 @@ def test_linked_history_view_removes_proven_reposts_and_exposes_score_disagreeme
     jobstore.link_copies([confirmed])
     now = datetime.now(UTC)
     with db.connect() as conn:
-        conn.execute("UPDATE jobs SET first_seen_at=?", ((now - timedelta(hours=1)).isoformat(),))
-    # Dated exactly after the window began, so the earlier showing doesn't make them repeats.
+        # First shown by this very search, at its end: not repeats of an earlier one.
+        conn.execute("UPDATE jobs SET first_seen_at=?", ((now + timedelta(hours=1)).isoformat(),))
     posted = (now - timedelta(minutes=30)).isoformat()
     original = {"started_at": now.isoformat(), "form": {"posted_within_hours": 24}, "result": {
         "jobs": {"cards": [{"job_id": i, "score": score, "parts": {}, "is_new": True,
@@ -138,7 +138,7 @@ def test_linked_history_view_removes_proven_reposts_and_exposes_score_disagreeme
     pipeline.history_view(viewed)
     cards = viewed["result"]["jobs"]["cards"]
     assert len(cards) == 1 and cards[0]["job_id"] == ids[0]
-    assert cards[0]["score"] is None and not cards[0]["is_new"]
+    assert cards[0]["score"] is None and cards[0]["is_new"]
     assert "assessed separately" in cards[0]["score_notes"][-1]
     assert len(cards[0]["also_on"]) == 1
     assert len(original["result"]["jobs"]["cards"]) == 2
@@ -175,7 +175,7 @@ def test_saved_results_leave_out_ads_dated_before_the_window():
     assert jobs_now["counts"]["left_out"] == [{"reason": REASONS["too_old"], "count": 1}]
 
 
-def test_saved_results_leave_out_jobs_an_earlier_search_showed_whose_day_spans_the_window():
+def test_saved_results_leave_out_jobs_an_earlier_search_showed_whatever_their_date():
     from jobcu import pipeline
     from jobcu.filters import REASONS
 
@@ -195,8 +195,9 @@ def test_saved_results_leave_out_jobs_an_earlier_search_showed_whose_day_spans_t
             "date_unknown": [], "counts": {"shown": 2, "left_out": []}}}}
     pipeline.history_view(snapshot)
     jobs_now = snapshot["result"]["jobs"]
-    assert [card["job_id"] for card in jobs_now["cards"]] == [ids[1]]
-    assert jobs_now["counts"]["left_out"] == [{"reason": REASONS["shown_before"], "count": 1}]
+    # A day spanning the window, or an exact time after it began: the earlier search showed both.
+    assert jobs_now["cards"] == []
+    assert jobs_now["counts"]["left_out"] == [{"reason": REASONS["shown_before"], "count": 2}]
 
 
 @pytest.mark.parametrize("title", [
@@ -239,7 +240,8 @@ def test_new_employer_requisition_inherits_neither_old_marks_nor_old_freshness(t
     assert new_id != old_id and new == [True]
     assert jobstore.states([new_id]) == {}
     seen = jobstore.first_seen([new_id])
-    outcome = apply_rules([fresh], [None], started_at=datetime.now(UTC),
+    # The search that remembered it is the one deciding (remember() runs at its end).
+    outcome = apply_rules([fresh], [None], started_at=seen[new_id],
                           posted_within_hours=24, job_types=list(JOB_TYPES),
                           exclude_remote=False, countries=["DE"], first_shown=[seen[new_id]])
     assert outcome.kept == [0] and not outcome.left_out

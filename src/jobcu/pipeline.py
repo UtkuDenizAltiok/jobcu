@@ -16,7 +16,7 @@ from jobcu import places as place_list
 from jobcu.countries import COUNTRIES
 from jobcu.dedupe import SOURCE_KIND_RANK, JobGroup, group_duplicates
 from jobcu.filters import REASONS, condition_fit
-from jobcu.freshness import earliest_possible, freshness, parse_iso, posted_after, window_start
+from jobcu.freshness import earliest_possible, freshness, parse_iso, window_start
 from jobcu.jobstore import JobState
 from jobcu.location import LocationPlan
 from jobcu.placenames import countries_in
@@ -397,10 +397,9 @@ def history_view(snapshot: dict) -> None:
                                          start) == "too_old"
 
     def shown_before(first, card) -> bool:
-        # The search's own rule (filters._reason): shown by an earlier search, and its date doesn't
-        # prove it was posted after the window began. Saved results made before the rule follow it.
-        return bool(started and start and first and first < started and not posted_after(
-            parse_iso(card.get("posted_at")), card.get("date_precision") or "unknown", start))
+        # The search's own rule (filters._reason): shown by an earlier search, whatever its date
+        # says. Saved results made before the rule follow it.
+        return bool(started and start and first and first < started)
 
     if (len(groups) == len(cards) and all(canonical[c["job_id"]] == c["job_id"] for c in cards)
             and not any(start and seen.get(root) and seen[root] < start for root in groups)
