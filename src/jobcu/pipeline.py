@@ -414,10 +414,12 @@ def history_view(snapshot: dict) -> None:
     for root, entries in groups.items():
         first = seen.get(root)
         combined += len(entries) - 1
-        if start and first and first < start:
+        # Listed as reposted on purpose (search._reposted_cards): Jobcu showed it long before.
+        listed_again = any(card.get("reposted") for _, card in entries)
+        if start and first and first < start and not listed_again:
             reposts += 1
             continue
-        if any(shown_before(first, card) for _, card in entries):
+        if not listed_again and any(shown_before(first, card) for _, card in entries):
             earlier += 1
             continue
         if all(too_old(card) for _, card in entries):

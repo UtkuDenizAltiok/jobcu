@@ -1145,13 +1145,14 @@ function closingLabel(card) {
   return hoursLeft < 48 ? `apply by ${day} (closes soon)` : `apply by ${day}`;
 }
 
-// An old ad posted again looks fresh: say when Jobcu first showed this job.
+// An old ad posted again looks fresh: say when Jobcu first showed this job. A job shown a week
+// or more before and really posted again now is listed on purpose, with its earlier score.
 function repostLabel(card) {
   if (!card.first_seen_at) return null;
   const day = new Date(card.first_seen_at).toLocaleDateString(undefined, {
     day: "numeric", month: "long",
   });
-  return `first seen by Jobcu on ${day}`;
+  return card.reposted ? `reposted, first seen ${day}` : `first seen by Jobcu on ${day}`;
 }
 
 function renderCard(card) {
@@ -1163,6 +1164,7 @@ function renderCard(card) {
   if (card.possible_duplicate_of) {
     title.append(el("span", { class: "badge", text: "Possible duplicate" }));
   }
+  if (card.reposted) title.append(el("span", { class: "badge", text: "Reposted" }));
 
   const types = card.job_types.length
     ? card.job_types.map((t) => JOB_TYPE_LABELS[t]).join(" or ")

@@ -65,7 +65,10 @@ cover that continuation, while usage is cumulative.
   date later than that showing is the same job dated again, and daily searches started at
   different times share part of their windows. "Posted within" is strict: an ad dated before the window is
   too old, also from sites that list ads days late (they look further back only to find
-  reposts). Saved results follow the same rules when opened.
+  reposts). A job Jobcu showed at least a week before and really posted again inside the window
+  is listed among the results with its earlier assessment (no new AI request) and a "Reposted"
+  label, when that score was at least 55 and the person hasn't applied or marked it Not
+  interested (`search._reposted_cards`). Saved results follow the same rules when opened.
   Modification timestamps and sitemap lastmod do not establish an original posting date.
 - Full-ad facts replace unsupported summary assumptions. Grounded mandatory requirements and
   known blockers constrain scores; unknowns remain explicit. Low-scoring jobs are retained.

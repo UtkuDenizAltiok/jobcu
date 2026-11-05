@@ -1196,6 +1196,7 @@ def test_not_interested_jobs_are_hidden_from_later_searches(ready):
     manager.start(SearchForm())
     first = wait_until_done(manager)["result"]["jobs"]["cards"]
     jobstore.set_state(first[0]["job_id"], dismissed=True)
+    as_if_no_search_showed_them()
     manager.start(SearchForm())
     jobs = wait_until_done(manager)["result"]["jobs"]
     assert len(jobs["cards"]) == 1
@@ -1760,6 +1761,66 @@ def test_a_job_several_remembered_jobs_share_exactly_is_posted_again(ready):
     assert "Hardware Engineer" not in [c["title"] for c in jobs["cards"]]
     assert any(item["count"] == 1 and item["reason"].startswith("Posted again")
                for item in jobs["counts"]["left_out"])
+
+
+def test_a_job_shown_a_week_before_and_posted_again_is_listed_with_its_earlier_score(
+        ready, monkeypatch):
+    # The person (2026-11-04): a job really reposted in the last 24 hours shows in the usual
+    # list, labelled, when Jobcu showed it a week or more before; yesterday's overlaps don't.
+    import copy
+
+    from jobcu import pipeline
+    from jobcu.filters import REASONS
+
+    calls = []
+
+    class Tracked(FakeAI):
+        def complete_json(self, **request):
+            calls.append(request["schema_name"])
+            return super().complete_json(**request)
+
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: Tracked())
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    first = wait_until_done(manager)["result"]["jobs"]["cards"]
+    assert len(first) == 2 and all(card["score"] >= 55 for card in first)
+    kept, applied = first
+    jobstore.set_state(applied["job_id"], applied=True)
+
+    def shown_days_ago(days):
+        with db.connect() as conn:
+            conn.execute("UPDATE jobs SET first_seen_at = ?",
+                         ((datetime.now(UTC) - timedelta(days=days)).isoformat(),))
+
+    shown_days_ago(10)
+    scored = calls.count("ScoringAnswer")
+    manager.start(SearchForm(location_text="Germany"))
+    second = wait_until_done(manager)
+    jobs = second["result"]["jobs"]
+    (card,) = jobs["cards"]
+    assert card["job_id"] == kept["job_id"] and card["reposted"] and not card["is_new"]
+    assert card["score"] == kept["score"] and card["parts"] == kept["parts"]
+    assert card["first_seen_at"] and card["posted_at"] != kept["posted_at"]
+    assert calls.count("ScoringAnswer") == scored  # its earlier assessment, no new AI cost
+    assert {"reason": REASONS["repost"], "count": 1} in jobs["counts"]["left_out"]  # applied
+    viewed = copy.deepcopy(second)
+    pipeline.history_view(viewed)  # opening the saved results keeps it
+    assert [c["job_id"] for c in viewed["result"]["jobs"]["cards"]] == [kept["job_id"]]
+
+    shown_days_ago(3)  # shown three days ago: an older job dated again, left out
+    manager.start(SearchForm(location_text="Germany"))
+    third = wait_until_done(manager)["result"]["jobs"]
+    assert third["cards"] == []
+    assert {"reason": REASONS["repost"], "count": 2} in third["counts"]["left_out"]
+
+    shown_days_ago(10)  # a week ago, but its earlier score wasn't worth a look
+    with db.connect() as conn:
+        (stored,) = conn.execute("SELECT card_json FROM job_cards WHERE job_id = ?",
+                                 (kept["job_id"],)).fetchone()
+        conn.execute("UPDATE job_cards SET card_json = ? WHERE job_id = ?",
+                     (json.dumps({**json.loads(stored), "score": 50}), kept["job_id"]))
+    manager.start(SearchForm(location_text="Germany"))
+    assert wait_until_done(manager)["result"]["jobs"]["cards"] == []
 
 
 def test_starting_a_search_keeps_the_last_90_result_lists_and_nothing_else_deletes_them():
