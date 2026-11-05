@@ -91,6 +91,20 @@ def test_a_job_s_own_or_uk_visitors_only_pages_are_never_its_open_posting():
     assert [g.link_from_web for g in groups] == ["", ""]
 
 
+def test_a_site_that_only_repeats_other_sites_ads_is_never_the_open_posting():
+    # Search 17's one find was a JobLeads page: it refuses Jobcu and shows the employer only to
+    # paying members, no nearer the employer than the link the job had.
+    groups = [group(0), group(1), group(2)]
+    pages = ["https://www.jobleads.com/uk/job/hardware-engineer--luton--e1", "https://uk.jooble.org"
+             "/desc/123", CAREERS.format(2)]
+    client = Researcher(
+        [("\n".join(f"JOB J{n} {page}" for n, page in enumerate(pages)), pages, 3)],
+        [[{"id": f"J{n}", "url": page} for n, page in enumerate(pages)]])
+    assert livepostings.find_postings(client, groups, [0, 1, 2]) == 1
+    assert [g.link_from_web for g in groups] == ["", "", CAREERS.format(2)]
+    assert "only lists other sites' ads" in livepostings.RESEARCH_SYSTEM
+
+
 def test_reached_ai_limit_leaves_the_rest_unasked_and_a_cached_look_up_isn_t_paid_twice():
     groups = [group(n) for n in range(7)]
     cache = {}
