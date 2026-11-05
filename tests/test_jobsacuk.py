@@ -111,3 +111,14 @@ def test_the_full_ad_comes_from_the_jobs_own_page():
     unchanged = jobsacuk.JobsAcUkSource().load_details(
         job, context(lambda request: httpx.Response(404, text="gone")))
     assert unchanged is job
+
+
+def test_a_hybrid_job_the_page_marks_remote_stays_hybrid():
+    remote_page = JOB_PAGE.replace('"employmentType"', '"jobLocationType": "TELECOMMUTE", '
+                                   '"employmentType"')
+    for location, mode in (("Sheffield, Hybrid", "hybrid"), ("Remote", "remote")):
+        job = jobsacuk.parse_results(page([result(1, "Research Engineer", TODAY.strftime("%d %b"),
+                                                  location=location)]), TODAY)[0]
+        full = jobsacuk.JobsAcUkSource().load_details(
+            job, context(lambda request: httpx.Response(200, text=remote_page)))
+        assert full.work_mode == mode

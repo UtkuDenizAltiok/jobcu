@@ -29,6 +29,8 @@ from jobcu.sources.http import Blocked
 from jobcu.sources.matching import matches_places
 from jobcu.text import tidy
 
+_HYBRID = re.compile(r"\bhybrid\b", re.IGNORECASE)
+
 log = logging.getLogger(__name__)
 
 SITE = "https://www.jobs.ac.uk"
@@ -97,7 +99,10 @@ class JobsAcUkSource(JobSource):
             posted_at=posting.date_posted or job.posted_at,
             date_precision="exact" if posting.date_has_time else job.date_precision,
             job_types=job.job_types or posting.job_types,
-            work_mode="remote" if posting.remote else job.work_mode,
+            # The page marks hybrid jobs remote too ("Sheffield, Hybrid", search 18): its
+            # location says which.
+            work_mode=(("hybrid" if _HYBRID.search(job.location_text or "") else "remote")
+                       if posting.remote else job.work_mode),
             closes_at=job.closes_at or posting.valid_through,
         )
 
