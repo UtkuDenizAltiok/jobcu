@@ -731,7 +731,10 @@ def _reposted_cards(groups, indexes, remembered, states, shown_at, started_at,
         group = groups[index]
         main_link, also_on = applications.links(group, source_names, reported)
         cards.append({
-            **earlier, "job_id": job_id, "is_new": False,
+            # Cards saved before these fields existed (October) lack them; search 18 stopped
+            # at its last step on one.
+            "deductions": [], "score_checks": [],
+            **earlier, "location_pending": False, "job_id": job_id, "is_new": False,
             "state": asdict(states[index] or jobstore.JobState()),
             "posted_at": group.posted_at.isoformat() if group.posted_at else None,
             "date_precision": group.date_precision, "date_known": True,
@@ -1153,7 +1156,9 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     for reposted in job_pool.reposted_cards:
         mark = marks.get(reposted["job_id"])
         if not (mark and (mark.applied or mark.dismissed)):
-            cards.append({**reposted, "state": asdict(mark or jobstore.JobState())})
+            # Also cards kept in an interrupted search's pool before _reposted_cards filled these.
+            cards.append({"deductions": [], "score_checks": [], **reposted,
+                          "location_pending": False, "state": asdict(mark or jobstore.JobState())})
     # Jobs a condition the person wrote ruled out are listed (without scores), so they can see
     # what the condition did and judge whether the AI read it right.
     ruled_out_cards = [
@@ -1173,10 +1178,11 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     run.set_result("location", plan.model_dump())
     run.set_result("jobs", {
         "cards": pipeline.sort_cards([c for c in cards if c["date_known"]
-                                      and not c["location_pending"]]),
+                                      and not c.get("location_pending")]),
         "date_unknown": pipeline.sort_cards([c for c in cards if not c["date_known"]
-                                             and not c["location_pending"]]),
-        "location_unchecked": pipeline.sort_cards([c for c in cards if c["location_pending"]]),
+                                             and not c.get("location_pending")]),
+        "location_unchecked": pipeline.sort_cards([c for c in cards
+                                                   if c.get("location_pending")]),
         "hidden": hidden_cards,
         "ruled_out_by_conditions": ruled_out_cards,
         "new_count": sum(1 for c in cards if c["is_new"]),
@@ -1188,7 +1194,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             "unrelated_titles": sorted({groups[i].main.title for i in unrelated})[:200],
             "not_scored": sum(1 for i in candidates if i not in location_pending
                               and job_pool.jobs[i].scored is None),
-            "location_unchecked": sum(c["location_pending"] for c in cards),
+            "location_unchecked": sum(bool(c.get("location_pending")) for c in cards),
             "shown": len(cards),
         },
         "sources": [

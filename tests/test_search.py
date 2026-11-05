@@ -1922,3 +1922,27 @@ def test_a_job_site_s_part_time_tag_is_scored_and_the_ad_text_keeps_a_full_time_
     assert {card["title"] for card in cards} == {"Hardware Engineer", "Electronics Engineer"}
     assert not any("job type" in row["reason"]
                    for row in result["result"]["jobs"]["counts"]["left_out"])
+
+
+def test_a_reposted_job_whose_saved_card_predates_newer_fields_is_listed(ready):
+    # Search 18 stopped at its last step: four reposted jobs' cards were saved in October,
+    # before "location_pending", "deductions" and "score_checks" existed.
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    first = wait_until_done(manager)["result"]["jobs"]["cards"]
+    with db.connect() as conn:
+        ten_days_ago = (datetime.now(UTC) - timedelta(days=10)).isoformat()
+        conn.execute("UPDATE jobs SET first_seen_at = ?1, first_assessed_at = ?1", (ten_days_ago,))
+        for job_id, stored in conn.execute("SELECT job_id, card_json FROM job_cards").fetchall():
+            old = {k: v for k, v in json.loads(stored).items()
+                   if k not in {"location_pending", "deductions", "score_checks"}}
+            conn.execute("UPDATE job_cards SET card_json = ? WHERE job_id = ?",
+                         (json.dumps(old), job_id))
+    manager.start(SearchForm(location_text="Germany"))
+    second = wait_until_done(manager)
+    assert second["status"] == "finished", second["error"]
+    cards = second["result"]["jobs"]["cards"]
+    assert {c["job_id"] for c in cards} == {c["job_id"] for c in first}
+    assert all(c["reposted"] and c["location_pending"] is False and c["deductions"] == []
+               and c["score_checks"] == [] for c in cards)
+    assert second["result"]["jobs"]["location_unchecked"] == []
