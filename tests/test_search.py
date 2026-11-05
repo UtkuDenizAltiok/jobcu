@@ -543,6 +543,7 @@ def test_decorated_recruiter_copies_use_one_assessment_and_keep_their_saved_mark
     ids, _ = jobstore.remember([JobGroup([c], source_kinds={"fake": "job_board"})
                                for c in copies], old_search)
     jobstore.set_state(ids[1], saved=True)
+    as_if_no_search_showed_them()
     assessed = []
 
     class Tracked(FakeAI):
@@ -948,6 +949,7 @@ def test_recovered_full_requirements_reach_matching_and_change_the_explanation(
     assert not cards[0]["summary_only"] and cards[0]["score"] == 80
     assert any("8+ years" in limit["why"] for limit in cards[0]["limits"])
     # A new search reuses bounded-age text but makes a fresh matching judgement.
+    as_if_no_search_showed_them()
     manager.start(SearchForm(location_text="Germany"))
     again = wait_until_done(manager)
     assert again["status"] == "finished", again["error"]
