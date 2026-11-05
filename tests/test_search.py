@@ -915,6 +915,8 @@ def test_recovered_full_requirements_reach_matching_and_change_the_explanation(
                 answer = json.loads(reply.text)
                 for score in answer["scores"]:
                     score["years_required"] = 8 if full in request["prompt"] else None
+                    score["years_words"] = ("at least eight years of experience"
+                                            if full in request["prompt"] else "")
                 return RawReply(json.dumps(answer), reply.usage)
             return reply
 
