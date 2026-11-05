@@ -1196,6 +1196,7 @@ def test_not_interested_jobs_are_hidden_from_later_searches(ready):
     manager.start(SearchForm())
     first = wait_until_done(manager)["result"]["jobs"]["cards"]
     jobstore.set_state(first[0]["job_id"], dismissed=True)
+    as_if_no_search_showed_them()
     manager.start(SearchForm())
     jobs = wait_until_done(manager)["result"]["jobs"]
     assert len(jobs["cards"]) == 1
