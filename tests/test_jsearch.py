@@ -584,7 +584,7 @@ def test_application_options_keep_supplied_links_and_require_support_for_direct_
     )
     assert job.employer_url == EMPLOYER
     main, others = applications.links(JobGroup([job]), {"jsearch": "JSearch"})
-    assert main == {"source": "Employer's site", "url": EMPLOYER}
+    assert main == {"source": "Employer's site", "url": EMPLOYER, "direct": True}
     assert [o["url"] for o in others] == [MAIN]
     generic = jsearch.to_found_job(
         item(

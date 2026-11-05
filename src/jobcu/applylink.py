@@ -17,7 +17,7 @@ from urllib.parse import urljoin, urlsplit
 
 import httpx
 
-from jobcu.applications import blocked
+from jobcu.applications import blocked, repeats_ads
 from jobcu.sources.http import USER_AGENT
 from jobcu.sources.jsearch import APPLICATION_SYSTEMS
 
@@ -127,11 +127,15 @@ def apply_link_in(page: str, page_url: str) -> str | None:
     if (parts.scheme not in {"http", "https"} or not parts.hostname or target == page_url
             or _ACCOUNT_PATH.search(parts.path) or blocked(target)):
         return None
-    if parts.hostname != here.hostname or marked:
-        return target
+    if parts.hostname != here.hostname:
+        # Another site repeating ads is no nearer the employer: the person sees this ad first.
+        return None if repeats_ads(target) else target
     passes_on = bool(_site_words(here.hostname or "") & PASSES_ON)
-    if _REDIRECT_PATH.search(parts.path) or (passes_on and (
-            _APPLY_PATH.search(parts.path) or _CLICK_THROUGH.search(parts.query))):
+    if passes_on and (_APPLY_PATH.search(parts.path) or _CLICK_THROUGH.search(parts.query)):
+        return target
+    # A site's own way on with a query can carry a token made for Jobcu's visit, not the person's
+    # browser: trabajo.org's marked "/redirect?id=...&rt=..." opened a blank page (search 18).
+    if (marked or _REDIRECT_PATH.search(parts.path)) and not parts.query:
         return target
     return None
 

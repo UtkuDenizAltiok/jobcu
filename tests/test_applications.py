@@ -43,8 +43,9 @@ def test_same_vacancy_keeps_employer_alternative_and_never_offers_cvlibrary(titl
     ], source_kinds={"board": "job_board", "other": "aggregator"})
     assert not applications.unavailable(group)
     main, other = applications.links(group, {"other": "Other board"})
-    assert main == {"source": "Employer's site", "url": EMPLOYER_LINK}
-    assert other == [{"source": "Other board", "url": "https://board.example.test/fictional-1"}]
+    assert main == {"source": "Employer's site", "url": EMPLOYER_LINK, "direct": True}
+    assert other == [{"source": "Other board", "url": "https://board.example.test/fictional-1",
+                      "direct": False}]
     assert group.best_description_copy.description == "Full fictional ad"
 
 
@@ -53,7 +54,8 @@ def test_board_alternative_is_used_and_blocked_only_vacancy_is_unavailable():
     assert applications.unavailable(group)
     group.copies.append(FoundJob("other", "fictional-1", EMPLOYER_LINK, "Chef"))
     assert not applications.unavailable(group)
-    assert applications.links(group, {}) == ({"source": "other", "url": EMPLOYER_LINK}, [])
+    assert applications.links(group, {}) == (
+        {"source": "other", "url": EMPLOYER_LINK, "direct": False}, [])
 
 
 def test_opaque_aggregator_is_not_a_proven_alternative_to_known_cvlibrary():
@@ -292,7 +294,8 @@ def test_a_uk_visitors_only_link_comes_last_and_a_web_search_is_added_when_nothi
     assert "Hardware+Engineer" in also[0]["url"] and "m%2Fw%2Fd" not in also[0]["url"]
     found = "https://careers.fakeco.example/jobs/9"
     main, also = applications.links(group(uk, found=found), {}, set())
-    assert main == {"source": "Found online", "url": found}
+    # The employer's own page found online opens as it is (the click skips Jobcu).
+    assert main == {"source": applications.FOUND_EMPLOYER, "url": found, "direct": True}
     assert applications.exclusion_key(group(uk), set()) is None
 
 
@@ -408,3 +411,15 @@ def test_reported_independent_employer_route_is_never_promoted_over_adzuna():
     shown = applications.clean_card(card, {EMPLOYER_LINK})
     assert shown["application_link_unavailable"]
     assert not shown["main_link"]["url"]
+
+
+def test_the_employers_own_page_leads_and_opens_without_jobcu_in_between():
+    linkedin = "https://de.linkedin.com/jobs/view/hardware-engineer-1"
+    workday = "https://fakeco.wd3.myworkdayjobs.com/External/job/Munich/HW_1"
+    job = FoundJob("jsearch", "1", linkedin, "Hardware Engineer", company="FakeCo",
+                   application_options=[{"source": "FakeCo careers", "url": workday}])
+    main, also = applications.links(JobGroup([job]), {"jsearch": "JSearch"}, set())
+    assert main == {"source": "FakeCo careers", "url": workday, "direct": True}
+    assert also == [{"source": "JSearch", "url": linkedin, "direct": False}]
+    assert applications.middleman(linkedin) and not applications.middleman(workday)
+    assert applications.application_system(workday)

@@ -8,6 +8,7 @@ from urllib.parse import parse_qsl, urlencode, urlsplit
 
 from jobcu import db
 from jobcu.dedupe import SOURCE_KIND_RANK, JobGroup, is_agency
+from jobcu.sources.jsearch import APPLICATION_SYSTEMS
 
 BLOCKED_HOSTS = frozenset({"cv-library.co.uk"})
 # Sites whose pages for UK jobs take applications only from visitors in the UK: all 6 of
@@ -22,6 +23,14 @@ REDIRECT_FIELDS = frozenset({"url", "redirect", "redirect_url", "target", "desti
 # copy naming another agency).
 REPEATS_ADS = frozenset({"adzuna", "arbeitsagentur", "bebee", "jobleads", "jooble", "learn4good",
                          "talent", "trabajo"})
+# Job sites a person applies through, or that show others' ads: a job whose links are all on them
+# has no direct link to the employer yet, so a good one has the employer's posting looked up
+# (livepostings.py). Search 18's best jobs had only Adzuna, Arbeitsagentur and trabajo links: one
+# ended on CV-Library, one on a blank page.
+MIDDLEMEN = REPEATS_ADS | frozenset({
+    "arbeitnow", "cv-library", "glassdoor", "indeed", "linkedin", "monster", "reed", "stepstone",
+    "totaljobs", "xing", "ziprecruiter"})
+FOUND_EMPLOYER = "Employer's site, found online"
 EXCLUSION_REASON = "CV-Library application route, with no other saved link"
 REPORTED_EXCLUSION_REASON = "Application link marked unusable, with no other saved link"
 
@@ -171,6 +180,25 @@ def _reported(url: str | None, reports: set[str]) -> bool:
         _advertisement_identity(earlier) == identity for earlier in reports)
 
 
+def _host(url: str | None) -> str:
+    try:
+        return (urlsplit(url or "").hostname or "").lower().rstrip(".")
+    except ValueError:
+        return ""
+
+
+def middleman(url: str | None) -> bool:
+    """A job site's page rather than the employer's: the person applies on it or is passed on."""
+    return bool(set(_host(url).split(".")) & MIDDLEMEN)
+
+
+def application_system(url: str | None) -> bool:
+    """A page of an employer's own application system (Workday, Personio, Greenhouse...)."""
+    host = _host(url)
+    return bool(host) and any(host == name or host.endswith("." + name)
+                              for name in APPLICATION_SYSTEMS)
+
+
 def repeats_ads(url: str | None) -> bool:
     """A site that shows other sites' ads: another saved link comes first, nearer the original."""
     try:
@@ -200,15 +228,23 @@ def links(group: JobGroup, source_names: dict[str, str],
     ))
     employer = next((c for c in copies if allowed(c.employer_url)
                      and not is_agency(c.company)), None)
-    other = [{"source": source_names.get(c.source, c.source), "url": c.url}
+    # "direct": the employer's own page, which the person's click opens as it is; any other link
+    # goes through Jobcu, which skips a page that only passes people on (applylink.py).
+    other = [{"source": source_names.get(c.source, c.source), "url": c.url,
+              "direct": group.source_kinds.get(c.source) == "employer"
+              or application_system(c.url)}
              for c in copies if allowed(c.url)]
-    other += [option for c in copies for option in c.application_options
-              if allowed(option.get("url"))]
+    other += [{**option, "direct": application_system(option.get("url"))}
+              for c in copies for option in c.application_options if allowed(option.get("url"))]
     if allowed(group.link_from_web):
-        other.insert(0, {"source": "Found online", "url": group.link_from_web})
-    # A page that takes only visitors in the UK comes last; sites repeating ads come late.
-    other.sort(key=lambda link: (uk_visitors_only(link["url"]), repeats_ads(link["url"])))
-    main = ({"source": "Employer's site", "url": employer.employer_url}
+        found = group.link_from_web
+        other.insert(0, {"source": "Found online" if middleman(found) else FOUND_EMPLOYER,
+                         "url": found, "direct": True})
+    # A page that takes only visitors in the UK comes last, the employer's own pages first and
+    # sites repeating ads late.
+    other.sort(key=lambda link: (uk_visitors_only(link["url"]), not link["direct"],
+                                 repeats_ads(link["url"])))
+    main = ({"source": "Employer's site", "url": employer.employer_url, "direct": True}
             if employer else other.pop(0) if other else {"source": "", "url": ""})
     seen = {main["source"]} if not employer else set()
     urls = {main["url"]}

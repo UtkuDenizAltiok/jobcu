@@ -468,8 +468,10 @@ def test_employer_page_becomes_the_main_link_unless_it_is_an_agency():
                           started_at=datetime.now(UTC), posted_within_hours=24)
 
     employer = card_for("Acme GmbH")
-    assert employer["main_link"] == {"source": "Employer's site", "url": "https://careers.example/1"}
-    assert employer["also_on"] == [{"source": "Board", "url": "https://board.test/1"}]
+    assert employer["main_link"] == {"source": "Employer's site", "url": "https://careers.example/1",
+                                     "direct": True}
+    assert employer["also_on"] == [{"source": "Board", "url": "https://board.test/1",
+                                    "direct": False}]
     agency = card_for("Brunel GmbH")
     assert agency["main_link"]["source"] == "Board"
 
@@ -489,8 +491,9 @@ def test_a_career_site_job_links_to_the_employer_once():
                       source_names={"s": "Board", "greenhouse": "Company career sites"},
                       possible_duplicate_of=None, started_at=datetime.now(UTC),
                       posted_within_hours=24)
-    assert card["main_link"] == {"source": "Employer's site", "url": "https://careers.example/1"}
-    assert card["also_on"] == [{"source": "Board", "url": "https://board.test/9"}]
+    assert card["main_link"] == {"source": "Employer's site", "url": "https://careers.example/1",
+                                 "direct": True}
+    assert card["also_on"] == [{"source": "Board", "url": "https://board.test/9", "direct": False}]
 
 
 def test_the_screen_shows_the_same_rubric_parts_as_the_scoring_prompt():

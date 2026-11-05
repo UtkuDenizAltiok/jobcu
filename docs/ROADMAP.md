@@ -13,7 +13,9 @@ done. Implementation details belong in pull requests; current behavior is descri
   can't take the application, the person's AI looks up the employer's own posting, kept only when
   its web sources list it; cards found for one posting are marked as possible duplicates.
 - Clicks skip middleman pages: Jobcu reads the clicked page then and sends the browser to its one
-  clear apply link (never during a search, as such links may be paid per click).
+  clear apply link (never during a search, as such links may be paid per click). Good jobs that
+  only had job-site links get the employer's own posting looked up online, and employer pages open
+  directly.
 - The job memory recognises a job by the town its location names, and marks cards a site listed
   late, so jobs seen before aren't presented as new. A job an earlier search showed with its
   score stays hidden whatever its date (one listed only while its place was being checked comes

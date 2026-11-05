@@ -1079,10 +1079,11 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     need_posting = [i for i in candidates
                     if livepostings.needs_posting(groups[i], job_pool.jobs[i].scored)]
     if need_posting and not client.web_research_unavailable_reason():
-        run.update("places", "running", f"Looking for open postings of {len(need_posting)} jobs")
+        run.update("places", "running",
+                   f"Looking for the employers' own postings of {len(need_posting)} jobs")
         posted = livepostings.find_postings(client, groups, need_posting,
                                             research_cache=job_pool.research_notes)
-        found_online.append(f"an open posting for {posted} of {len(need_posting)} jobs")
+        found_online.append(f"the employer's posting for {posted} of {len(need_posting)} jobs")
     unavailable = client.web_research_unavailable_reason()
     if worth_it and unavailable:
         run.update("places", "skipped", unavailable)

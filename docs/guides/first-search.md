@@ -439,7 +439,7 @@ Use these buttons to keep track of jobs:
 
 | Button | How to use it |
 |---|---|
-| **Open job** | Open the advertisement in another browser tab. Read the full requirements and follow that site's application instructions. |
+| **Open job** | Open the advertisement in another browser tab. Read the full requirements and follow that site's application instructions. The button names where it goes: **Employer's site** (or **Employer's site, found online**, which Jobcu looked up for a good job that was only on job sites) opens the employer's page directly; another site's name means Jobcu first checks that page and skips it when it only passes you on. |
 | **Save** | Mark a job to read later. Click **Saved** above the job list to find your saved jobs. Click the job's **Saved** button again to remove the mark. |
 | **Applied** | Mark a job after you have applied yourself. It does not submit an application. Click **Applied** above the list to see these jobs. |
 | **Not interested** | Hide a job you do not want. Tick **Show hidden**, then click **Undo Not interested** if you change your mind. |

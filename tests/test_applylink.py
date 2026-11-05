@@ -66,9 +66,20 @@ def test_a_link_marked_as_the_direct_one_wins_over_buttons_that_open_a_form():
     page_text = page(
         '<a href="#" class="skip">Bewerben</a>',
         '<a class="sRedirect d-none" data-apply-direct-link '
-        'href="/redirect?id=1&amp;source=2">This ad is on a partner site</a>')
-    assert applylink.apply_link_in(page_text, AD) == (
-        "https://board.example.org/redirect?id=1&source=2")
+        'href="https://careers.example.com/jobs/1">This ad is on a partner site</a>')
+    assert applylink.apply_link_in(page_text, AD) == "https://careers.example.com/jobs/1"
+
+
+def test_a_way_on_with_a_token_for_jobcus_visit_opens_the_ad_instead():
+    # Search 18: trabajo.org's marked "/redirect?id=...&rt=..." opened a blank page in the
+    # person's browser; the ad itself, with its own button, works.
+    page_text = page(
+        '<a href="#" class="skip">Bewerben</a>',
+        '<a class="sRedirect d-none" data-apply-direct-link '
+        'href="/redirect?id=1&amp;fuente=2&amp;rt=r2.1793960800.n.abc">On a partner site</a>')
+    assert applylink.apply_link_in(page_text, AD) is None
+    elsewhere = page('<a href="https://de.jooble.org/desc/1">Apply now</a>')
+    assert applylink.apply_link_in(elsewhere, AD) is None  # another site repeating ads
 
 
 def test_a_button_carrying_the_way_on_counts_too():
@@ -79,11 +90,12 @@ def test_a_button_carrying_the_way_on_counts_too():
     assert applylink.apply_link_in(login, AD) is None
 
 
-@pytest.mark.parametrize("path",
-                         ["/land/ad/1?token=x", "/jobs/apply/ats-redirect/?id=1", "/away/1"])
-def test_a_redirect_on_the_same_site_is_followed_by_the_browser(path):
+@pytest.mark.parametrize(("path", "followed"), [
+    ("/away/1", True), ("/out/abc/", True),
+    ("/land/ad/1?token=x", False), ("/jobs/apply/ats-redirect/?id=1", False)])
+def test_a_redirect_on_the_same_site_is_followed_unless_it_carries_a_query(path, followed):
     assert applylink.apply_link_in(page(f'<a href="{path}">Apply now</a>'), AD) == (
-        "https://board.example.org" + path)
+        "https://board.example.org" + path if followed else None)
 
 
 def test_apply_on_the_same_site_counts_only_where_it_is_known_to_pass_people_on():
@@ -238,8 +250,8 @@ def test_a_site_repeating_an_ad_comes_after_the_original():
     job = bundesagentur(externeURL="https://ads.example.de/job/1", allianzpartnerName="Example")
     group = JobGroup(copies=[job], source_kinds={"bundesagentur": "job_board"})
     main, also = applications.links(group, {"bundesagentur": "Bundesagentur für Arbeit"}, set())
-    assert main == {"source": "Example", "url": "https://ads.example.de/job/1"}
-    assert also == [{"source": "Bundesagentur für Arbeit", "url": job.url}]
+    assert main == {"source": "Example", "url": "https://ads.example.de/job/1", "direct": False}
+    assert also == [{"source": "Bundesagentur für Arbeit", "url": job.url, "direct": False}]
 
 
 def test_a_repeating_site_stays_first_when_it_is_the_only_link():
