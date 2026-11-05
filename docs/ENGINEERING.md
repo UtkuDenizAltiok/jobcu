@@ -38,6 +38,9 @@ happens before a new search is created or source collection begins, including wi
 5. Build ranked cards and job memory. `jobstore.finish_search` commits status and the final
    snapshot together. Failed/stopped attempts retain available raw candidates and reports even
    before ranked cards exist. A save failure remains visible and preserves prior saved data.
+   The result lists of the last 90 searches are kept; older ones are deleted only when a new
+   search starts (`jobstore.make_room_for_a_new_search`), so the latest list stays until then.
+   Job memory, saved cards and the person's marks are never deleted this way.
 
 The duplicate-removal, full-ad, location, scoring and online-check stages have distinct progress
 states. An interrupted stage differs from an unstarted stage. Source retries are summarized

@@ -1820,3 +1820,24 @@ def test_a_job_shown_a_week_before_and_posted_again_is_listed_with_its_earlier_s
                      (json.dumps({**json.loads(stored), "score": 50}), kept["job_id"]))
     manager.start(SearchForm(location_text="Germany"))
     assert wait_until_done(manager)["result"]["jobs"]["cards"] == []
+
+
+def test_starting_a_search_keeps_the_last_90_result_lists_and_nothing_else_deletes_them():
+    # The person keeps the last 90 searches' lists (2026-11-04); older ones go only as a new
+    # search starts, so the latest list stays to apply from until then.
+    with db.connect() as conn:
+        for n in range(1, jobstore.KEPT_SEARCH_LISTS + 1):
+            conn.execute(
+                "INSERT INTO searches (id, status, form_json) VALUES (?, 'finished', '{}')", (n,))
+            conn.execute("INSERT INTO search_results (search_id, result_json) VALUES (?, '{}')",
+                         (n,))
+    jobstore.finish_search(jobstore.KEPT_SEARCH_LISTS, "finished", "{}")
+    with db.connect() as conn:  # finishing a search deletes nothing
+        assert conn.execute("SELECT COUNT(*) FROM search_results").fetchone()[0] == 90
+    manager = search.SearchManager(runner=lambda run: run.set_result("jobs", {"cards": []}))
+    run = manager.start(SearchForm())
+    wait_until_done(manager)
+    with db.connect() as conn:
+        kept = [row[0] for row in conn.execute(
+            "SELECT search_id FROM search_results ORDER BY search_id")]
+    assert kept == [*range(2, jobstore.KEPT_SEARCH_LISTS + 1), run.id]

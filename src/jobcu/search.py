@@ -263,6 +263,9 @@ class SearchManager:
                     (form.model_dump_json(), budget_id),
                 )
                 search_id = cursor.lastrowid
+                if removed := jobstore.make_room_for_a_new_search(conn, search_id):
+                    log.info("Removed the result lists of %d older searches (the last %d stay)",
+                             removed, jobstore.KEPT_SEARCH_LISTS)
             run = SearchRun(
                 id=search_id, form=form, started_at=datetime.now(UTC).isoformat(timespec="seconds")
             )

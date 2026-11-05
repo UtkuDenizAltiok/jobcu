@@ -9,6 +9,7 @@ everything else about a search are always made fresh.
 
 import dataclasses
 import json
+import sqlite3
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
@@ -208,6 +209,24 @@ def set_state(job_id: int, **changes: bool) -> JobState:
                 [(int(value), member) for member in members],
             )
     return states([job_id])[job_id]
+
+
+# The result lists of the last 90 searches stay (the owner's choice, 2026-11-04: about 1.7 MB a
+# list, 600 MB a year at one search a day). Older ones go only when the person starts a new
+# search, never otherwise: a list is there to apply from until then. Job memory, saved cards and
+# the person's marks are kept always.
+KEPT_SEARCH_LISTS = 90
+
+
+def make_room_for_a_new_search(conn: sqlite3.Connection, search_id: int) -> int:
+    """Deletes the result lists older than the newest KEPT_SEARCH_LISTS - 1, as search
+    `search_id` starts, so that with its own there are KEPT_SEARCH_LISTS. Returns how many."""
+    return conn.execute(
+        "DELETE FROM search_results WHERE search_id != ? AND search_id NOT IN ("
+        "SELECT search_id FROM search_results WHERE search_id != ? "
+        "ORDER BY search_id DESC LIMIT ?)",
+        (search_id, search_id, KEPT_SEARCH_LISTS - 1),
+    ).rowcount
 
 
 def finish_search(search_id: int, status: str, result_json: str | None) -> None:
