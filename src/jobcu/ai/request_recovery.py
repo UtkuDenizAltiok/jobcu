@@ -15,6 +15,11 @@ from jobcu.paths import data_dir
 
 _lock = threading.RLock()
 _active: set[tuple[str, str, str]] = set()
+# A request still being polled has its alive_at refreshed every few seconds (heartbeat). Another
+# Jobcu process (a tool, a second window, a restart) treats a request as abandoned only when it
+# is finished or nobody has polled it for this long: on 2026-11-06 a second process cancelled and
+# deleted a running search's requests ("cancelled", then 404 "Requested entity was not found").
+STALE_SECONDS = 600
 
 
 @dataclass
@@ -58,10 +63,19 @@ def track(context: RecoveryContext, interaction_id: str, model: str) -> None:
     with _lock, db.connect() as conn:
         conn.execute(
             """INSERT INTO ai_recovery_requests
-            (provider,interaction_id,model,search_id,step,budget_id) VALUES(?,?,?,?,?,?)""",
+            (provider,interaction_id,model,search_id,step,budget_id,alive_at)
+            VALUES(?,?,?,?,?,?,?)""",
             (context.provider, interaction_id, model, context.search_id, context.step,
-             context.budget_id))
+             context.budget_id, time.time()))
         _active.add(_identity(context.provider, interaction_id))
+
+
+def heartbeat(provider: str, interaction_id: str) -> None:
+    """This process is still waiting for the request: no other process may clean it up."""
+    with db.connect() as conn:
+        conn.execute("UPDATE ai_recovery_requests SET alive_at=? "
+                     "WHERE provider=? AND interaction_id=?",
+                     (time.time(), provider, interaction_id))
 
 
 def terminal(provider: str, interaction_id: str) -> None:
@@ -100,9 +114,13 @@ def unclaim(provider: str, interaction_id: str) -> None:
 
 
 def pending(provider: str | None = None, *, force: bool = False) -> list[dict]:
+    """Requests left to clean up: finished, or abandoned (no process polled them lately), and not
+    this process's own. `force` ignores the retry delay after a failed deletion, not liveness."""
     with _lock, db.connect() as conn:
-        query, params = "SELECT * FROM ai_recovery_requests WHERE not_before<=?", [
-            float("inf") if force else time.time()]
+        now = time.time()
+        query, params = ("SELECT * FROM ai_recovery_requests WHERE not_before<=? "
+                         "AND (terminal=1 OR alive_at<?)",
+                         [float("inf") if force else now, now - STALE_SECONDS])
         if provider:
             query += " AND provider=?"
             params.append(provider)

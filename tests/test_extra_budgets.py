@@ -134,6 +134,8 @@ def test_same_extra_receipts_keep_their_tag_after_restart_cleanup(temporary_data
     request_recovery.track(RecoveryContext(True, 'gemini', 'scoring', budget_id=allowance.id),
                            'fictional-pending', 'fictional-model')
     request_recovery.release('gemini', 'fictional-pending', deleted=False)
+    with db.connect() as conn:  # its process is gone: nobody polls it any more
+        conn.execute('UPDATE ai_recovery_requests SET alive_at = 0')
     row, = request_recovery.pending(force=True)
     assert row['budget_id'] == allowance.id
 
