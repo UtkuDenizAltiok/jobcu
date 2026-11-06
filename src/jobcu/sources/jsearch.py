@@ -14,6 +14,7 @@ import ipaddress
 import json
 import logging
 import re
+import time
 from collections import deque
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
@@ -64,6 +65,12 @@ MAX_SEARCH_CREDITS = 40
 PAID_REQUESTS_PER_DAY = 60
 MAX_PAGES_PER_QUERY = 3
 MAX_INTERRUPTIONS = 2  # broken connections in a row before JSearch stops
+# JSearch reads Google for Jobs while it answers: most replies come in about 2 s, but 9 of ~470
+# paid requests (2026-10-30 to 11-07) took longer than the 30 s every site gets, and an
+# interrupted request is never sent again (it may have been charged), so their jobs were lost.
+# A slow reply is waited for; its time is logged, to measure the slow ones.
+REPLY_TIMEOUT = httpx.Timeout(120.0, connect=10.0)
+SLOW_REPLY_SECONDS = 20.0
 # What each query brought, so the few free credits a search has go where the ads are.
 YIELD_KIND = "jsearch_yield"
 YIELD_DAYS = 30
@@ -428,9 +435,12 @@ class JSearchSource(JobSource):
                 )
             self._budget.check()
 
+        sent = []
+
         def spend():
             if ctx.should_stop():
                 raise RequestStopped("Stopped before a JSearch request.")
+            sent.append(time.monotonic())  # after any wait for the site's turn
             if free:
                 return
             self._budget.spend()
@@ -449,7 +459,10 @@ class JSearchSource(JobSource):
                 retry_response=lambda _: False,
                 check_attempt=check,
                 before_attempt=spend,
+                timeout=REPLY_TIMEOUT,
             )
+            if sent and time.monotonic() - sent[-1] >= SLOW_REPLY_SECONDS:
+                log.info("JSearch reply was slow: %.0fs", time.monotonic() - sent[-1])
             if response.status_code in {401, 403}:
                 raise SourceError("JSearch did not accept this direct key. Check its account.")
             if response.status_code == 429:
@@ -471,7 +484,8 @@ class JSearchSource(JobSource):
             # One broken connection lost all of JSearch's jobs in search 9 although the next
             # request worked. The request is never sent again (it may have been charged), but
             # the other queries go on; a second interruption in a row means the service is down.
-            log.info("JSearch request interrupted (%s)", type(exc).__name__)
+            log.info("JSearch request interrupted (%s) after %.0fs", type(exc).__name__,
+                     time.monotonic() - sent[-1] if sent else 0.0)
             self._interrupted_in_a_row += 1
             if url == USAGE or self._interrupted_in_a_row >= MAX_INTERRUPTIONS:
                 self._halted = True
