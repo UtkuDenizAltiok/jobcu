@@ -258,6 +258,8 @@ class AIClient:
                 yield
             except AIError as exc:
                 outcome = type(exc).__name__
+                if exc.detail:  # the provider's reason, kept in the log for audits
+                    outcome += f" detail={exc.detail[:300]!r}"
                 if isinstance(exc, AIUsageUncertain):
                     with self._gate:
                         self._uncertain_requests[endpoint] = exc
