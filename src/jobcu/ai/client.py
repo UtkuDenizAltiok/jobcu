@@ -279,11 +279,16 @@ class AIClient:
                 guard = None
                 if (research and isinstance(exc, (AIUnavailable, AIRateLimited))
                         and usage is not None and usage.web_searches > 0
-                        and usage.unreported_requests
+                        and usage.unreported_requests and self._limits_stop_work()
                         and not (isinstance(exc, AIConnectionError)
                                  and exc.request_sent is True)):
                     # A tool ran before a service/rate failure. Repeating it may buy the
                     # same research again, while its missing bill defeats the local cap.
+                    # When paid limits only tell, there is no cap to defeat: the failure is
+                    # an ordinary outage (bounded retries), its searches count against the
+                    # allowance, and the incomplete bill is noted. Stopping every later online
+                    # check instead left a whole search's places and postings unchecked
+                    # (2026-11-06).
                     guard = AIUsageUncertain(
                         "Online research failed after using search tools, without complete "
                         "usage. Jobcu kept completed work and stopped automatic research on "
@@ -814,6 +819,11 @@ class AIClient:
                     f"This month's estimated AI cost ({cost:.2f}) has passed your limit of "
                     f"{limits.monthly_cost_limit:g} in Settings; Jobcu goes on, as you chose "
                     "(paid limits only tell).")
+
+    def _limits_stop_work(self) -> bool:
+        """Whether a spending limit can stop Jobcu's AI work (Settings: paid limits, or a
+        separate allowance), so a bill Jobcu can't see could carry spending past it."""
+        return self.budget_id is not None or self.settings.limits.paid_limits != "tell"
 
     def _over_limit(self, stop: str, tell: str) -> None:
         """A monthly limit is reached: stop the AI work, or only tell once per search when the

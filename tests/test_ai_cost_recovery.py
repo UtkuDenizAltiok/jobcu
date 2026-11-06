@@ -327,6 +327,44 @@ def test_observed_research_with_missing_failure_receipt_stops_automatic_paid_wor
     assert ask(client).ok and len(adapter.calls) == 2
 
 
+@pytest.mark.parametrize("profession", ["hardware engineer", "nurse", "teacher"])
+def test_when_paid_limits_only_tell_one_research_failure_never_stops_the_other_checks(
+        profession):
+    # 2026-11-06: one look-up failed after its searches, and every later online check of the
+    # search (places, requirements, employer postings) was left unchecked, although the
+    # person's paid limits only tell.
+    class Web(ScriptedAdapter):
+        can_search_the_web = True
+
+        def research(self, **request):
+            raw = self.complete_json(**request)
+            return ResearchReply(raw.text, [], raw.usage)
+
+    failure = AIUnavailable("Fictional service failure after research")
+    failure.usage = Usage(10, 30, reasoning_tokens=20, web_searches=2, unreported_requests=1)
+    adapter = Web(failure, GOOD, GOOD)
+    configured = settings()
+    configured.limits.paid_limits = "tell"
+    ledger, notices, waits = UsageLog(), [], []
+    client = AIClient(configured, adapter=adapter, usage_log=ledger, notify=notices.append,
+                      sleep=waits.append)
+    # The failed look-up is tried again like any outage, after a wait.
+    assert client.research(step="employers", system="Use sourced fictional evidence",
+                           prompt=f"Fictional employers for a {profession}").text
+    assert len(adapter.calls) == 2 and len(waits) == 1
+    # Later, independent look-ups still run.
+    assert client.research(step="job_places", system="Fictional evidence",
+                           prompt="Another fictional job").text
+    assert len(adapter.calls) == 3
+    # The failed attempt's searches count against the allowance; its missing bill is told.
+    assert client.web_searches_used >= 2 and client._web_searches_reserved == 0
+    month = ledger.this_month()[0].usage  # the failed attempt plus the two answers
+    assert month.web_searches == 2 and month.unreported_requests == 1
+    assert month.input_tokens == 10 + 2 * 10
+    assert sum("did not report complete usage" in note for note in notices) == 1
+    assert not any("stopped automatic research" in note for note in notices)
+
+
 @pytest.mark.parametrize("usage", [Usage(unreported_requests=1),
                                    Usage(10, 30, web_searches=2)])
 def test_early_failure_or_complete_research_receipt_keeps_bounded_transient_recovery(usage):
