@@ -58,7 +58,9 @@ _TERMINAL_INTERACTIONS = {
 # capacity for: try again a little later, then send it at the normal price. After this many
 # Flex failures in one search, the rest of the search uses normal processing.
 FLEX_ATTEMPTS = 3
-FLEX_RETRY_SECONDS = 5.0
+# Google's high demand lasts minutes rather than seconds; the owner puts cost before a search's
+# duration, so a busy Flex request waits 30 s, then 60 s, before going at the normal price.
+FLEX_RETRY_SECONDS = 30.0
 FLEX_SECONDS = 1200
 FLEX_FAILURES = 3
 FLEX_NOTICE = ("Google's half-price Flex processing was busy or failed several times, so the "
@@ -73,6 +75,21 @@ class _FlexRefused(Exception):
     def __init__(self, error: AIError) -> None:
         super().__init__(error.message)
         self.error = error
+
+
+def _work_done(payload: dict) -> bool:
+    """Whether a finished interaction generated anything: a step besides the person's input, or
+    reported tokens."""
+    if any(step.get("type") != "user_input" for step in payload.get("steps") or []):
+        return True
+    usage = payload.get("usage") or {}
+    return any((usage.get(name) or 0) > 0 for name in (
+        "total_output_tokens", "total_thought_tokens", "total_tool_use_tokens"))
+
+
+def _errors_text(payload: dict) -> str:
+    return "; ".join(str(error.get("message") or error.get("code") or "")
+                     for error in payload.get("errors") or [] if isinstance(error, dict))
 
 
 class _FlexLost(Exception):
@@ -462,6 +479,15 @@ class GeminiAdapter(ProviderAdapter):
                                                 request_sent=True)
                     finished = True
                     request_recovery.terminal(context.provider, interaction_id)
+                    if (request.get("service_tier") == "flex" and current.status == "failed"
+                            and not _work_done(payload)):
+                        # Busy Flex in background mode: where a stream gets 503 "currently
+                        # experiencing high demand", a background interaction fails at once with
+                        # no output, no usage and "You will only be charged for tokens
+                        # successfully generated" (2026-11-06, every Flex request that morning).
+                        # Nothing was generated, so it is tried again like a 503, then normally.
+                        context.account(Usage(), interaction_id)  # nothing generated or billed
+                        raise _FlexRefused(AIUnavailable(MSG_UNAVAILABLE, _errors_text(payload)))
                     if current.status == "cancelled" and request.get("service_tier") == "flex":
                         context.account(state.usage(interrupted=True), interaction_id)
                         raise _FlexLost(AIBadRequest(
@@ -523,7 +549,7 @@ class GeminiAdapter(ProviderAdapter):
                                    "The original search outcome is preserved.")
                 finally:
                     request_recovery.unclaim(context.provider, interaction_id)
-            if failure is not None and interaction_id:
+            if failure is not None and interaction_id and not isinstance(failure, _FlexRefused):
                 # Cancellation may deliver the final bill even when Stop interrupted polling.
                 failure.usage = state.usage(interrupted=not state.final_usage)
                 failure.recovery_id = interaction_id

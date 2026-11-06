@@ -162,8 +162,9 @@ exposes its mapping/uncertainty rather than silently disabling thinking. Native 
 their native host.
 
 Google Flex is an explicit choice for the same Gemini model at half the token price.
-A request Google refuses for capacity before accepting work is retried with backoff and then sent
-at the normal tier; accepted Flex work that fails follows the normal retry rules, so nothing that
+A request Google refuses for capacity before accepting work (a 503 "high demand", or in background
+mode an interaction that fails at once without generating anything) is retried with backoff (30 s,
+then 60 s) and then sent at the normal tier; accepted Flex work that fails follows the normal retry rules, so nothing that
 may have been billed is repeated automatically, except Flex work Google itself cancels or
 loses ("not found") without an answer: that request goes once at the normal tier. Repeated Flex
 failures end Flex for that search.
