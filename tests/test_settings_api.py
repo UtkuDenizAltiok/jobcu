@@ -176,6 +176,24 @@ def test_missing_request_usage_stays_visible_with_zero_known_tokens_and_saved_pr
     assert month["by_model"][0]["unreported_requests"] == 2
 
 
+def test_the_month_cost_leaves_out_searches_the_free_allowance_covers(client):
+    from jobcu.ai.base import Usage
+    from jobcu.ai.usage import UsageLog
+
+    settings = load_settings()
+    settings.ai.provider, settings.ai.model = "gemini", "fictional-model"
+    settings.limits.free_web_searches = 5000
+    save_settings(settings)
+    UsageLog().record(step="job_places", provider="gemini", model="fictional-model",
+                      usage=Usage(input_tokens=1_000_000, web_searches=1000))
+    prices = [{"provider": "gemini", "model": "fictional-model", "input_per_million": 1,
+               "output_per_million": 2, "web_search_per_thousand": 14, "currency": "USD"}]
+    data = client.put("/api/settings/prices", json={"prices": prices}, headers=HEADERS).json()
+    # The 1,000 searches are inside the 5,000 free ones: only the tokens cost money.
+    assert data["this_month"]["cost"] == 1.0 and data["ordinary_this_month"]["cost"] == 1.0
+    assert data["this_month"]["by_model"][0]["cost"] == 1.0
+
+
 def test_limits_and_source_switches_are_saved(client):
     data = client.put("/api/settings/limits", headers=HEADERS, json={
         "scoring_cap": 40, "monthly_token_limit": 2_000_000, "monthly_cost_limit": 25.0,

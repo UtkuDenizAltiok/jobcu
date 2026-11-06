@@ -244,6 +244,9 @@ tokens, web searches past the free ones, Maps past its limit) stop by default or
 searches without a full bill pauses automatic research for the rest of the search, because the
 missing bill could pass the limit. With limits that only tell, it is an ordinary outage
 (bounded retries), its searches count against the allowance, and the incomplete bill is noted.
+The monthly cost (limit check and Settings) leaves out searches the research provider's free
+monthly searches cover (`usage.free_search_credit`); a limit note whose amount changes comes once
+per search.
 Plans, other
 web research, journeys and new-search scores are not reused as setup. Full-ad caching has its
 own bounded age and parser versions. Changed inputs invalidate the relevant cache.
