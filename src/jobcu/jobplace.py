@@ -42,6 +42,7 @@ from jobcu.scoring import (
     ROLE_RULES,
     SPONSORSHIP_RULES,
     YEARS_RULES,
+    YEARS_WORDS_RULES,
     CitizenshipOrClearance,
     Doctorate,
     LanguageAsked,
@@ -49,6 +50,7 @@ from jobcu.scoring import (
     VisaSponsorship,
     evidence_priority,
     sponsorship_confirmed,
+    years_grounded,
 )
 from jobcu.travel import job_country, job_point, workplace_conflict
 
@@ -115,6 +117,7 @@ fully remote, or when only a country or region is known.
 {LEVEL_RULES} must_have: false when the ad calls it a plus, an advantage or nice to have. Empty \
 when the ad asks for no language.
 - years_required: {YEARS_RULES}
+- years_words: {YEARS_WORDS_RULES} Copy them from the notes.
 - doctorate: {DOCTORATE_RULES}
 - citizenship_or_clearance: {CITIZENSHIP_RULES} When the ad wasn't found: no_such_requirement \
 and not_required.
@@ -140,6 +143,7 @@ class OnlineJob(BaseModel):
     towns: list[str]
     languages_asked: list[LanguageAsked]
     years_required: float | None
+    years_words: str = ""
     doctorate: Doctorate
     citizenship_or_clearance: CitizenshipOrClearance
     citizenship_or_clearance_words: str
@@ -384,6 +388,8 @@ def _look_up(client: AIClient, lines: list[str], jobs: int,
                 and len(job.role_words.split()) <= 20
                 and requirements._plain(job.role_words) in requirements._plain(own_notes)):
             job.role_and_skills, job.role_words = None, ""
+        if not years_grounded(job.years_required, job.years_words, own_notes):
+            job.years_required = None  # "strong experience" names no amount (scoring.py)
         job._sponsorship_confirmed = sponsorship_confirmed(
             job.visa_sponsorship, job.visa_sponsorship_words,
             own_notes)

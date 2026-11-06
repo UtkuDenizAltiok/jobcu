@@ -78,7 +78,8 @@ cover that continuation, while usage is cumulative.
   Modification timestamps and sitemap lastmod do not establish an original posting date.
 - Full-ad facts replace unsupported summary assumptions. Grounded mandatory requirements and
   known blockers constrain scores; unknowns remain explicit. A years-of-experience limit needs
-  the ad's own words stating an amount (`scoring.years_stated`): "strong experience" is none. Low-scoring jobs are retained.
+  the ad's own words stating an amount (`scoring.years_stated`): "strong experience" is none;
+  a number from an online look-up needs such words in its own notes (`scoring.years_grounded`). Low-scoring jobs are retained.
   Scores express fit under the rubric, not hiring probability.
 - The role part grades closeness to the person's own specialist field (their technical areas),
   not only to their discipline: application or test work in that field is the same kind of role

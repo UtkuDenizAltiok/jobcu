@@ -453,10 +453,16 @@ def finish(score: JobScore, profile: Profile, *, ad_text: str | None = None,
 def years_stated(score: JobScore, ad_text: str) -> bool:
     """Whether the years the AI read are stated in the ad: its quote is the ad's own words and
     names an amount. No years read needs no quote."""
-    if score.years_required is None:
+    return years_grounded(score.years_required, score.years_words, ad_text)
+
+
+def years_grounded(years: float | None, words: str, text: str) -> bool:
+    """Whether `words` stating an amount of experience are found in `text` (the ad, or the notes
+    of an online look-up), so `years` can count. No years needs no words."""
+    if years is None:
         return True
-    words = score.years_words.strip()
-    return bool(words) and requirements.quoted_in_ad(words, ad_text) and bool(
+    words = words.strip()
+    return bool(words) and requirements.quoted_in_ad(words, text) and bool(
         YEARS_AMOUNT.search(requirements.plain(words)))
 
 

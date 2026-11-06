@@ -57,11 +57,11 @@ def jobs(*places):
     return group_duplicates(found, {"adzuna": "aggregator"})
 
 
-def online(job_id, towns=(), languages=(), years=None, found=True):
+def online(job_id, towns=(), languages=(), years=None, found=True, years_words=""):
     return {"id": job_id, "found": found, "towns": list(towns),
             "languages_asked": [{"language": language, "level": level, "must_have": must}
                                 for language, level, must in languages],
-            "years_required": years, "doctorate": "not_required",
+            "years_required": years, "years_words": years_words, "doctorate": "not_required",
             "citizenship_or_clearance": "no_such_requirement", "citizenship_or_clearance_words": ""}
 
 
@@ -275,10 +275,13 @@ def test_the_service_being_down_stops_the_jobs_not_asked_yet():
 
 def test_the_full_ad_found_online_gives_its_languages_and_years():
     groups = jobs(("Deutschland", "DE"), ("Radeberg", "DE"), ("Dresden", "DE"))
-    answer = [online("J0", ["Radeberg"], [("German", "B2", True), ("English", "B2", False)], 3),
+    answer = [online("J0", ["Radeberg"], [("German", "B2", True), ("English", "B2", False)], 3,
+                     years_words="mindestens 3 Jahre Berufserfahrung"),
               online("J1"),
               online("J2", found=False)]
-    looked_up = jobplace.find_online(Researcher(["notes"], [answer]), groups, [0, 1, 2])
+    notes = ("J0: Radeberg. Deutsch B2, Englisch von Vorteil, mindestens 3 Jahre "
+             "Berufserfahrung.\nJ1: no requirements found.\nJ2: not found.")
+    looked_up = jobplace.find_online(Researcher([notes], [answer]), groups, [0, 1, 2])
     found = looked_up.requirements
     assert set(found) == {0, 1}
     assert [(a.language, a.level, a.must_have) for a in found[0].languages] == [
@@ -339,3 +342,18 @@ def test_summaries_that_could_make_the_list_are_looked_up_for_their_requirements
     assert not jobplace.needs_requirements(group, {"score": 80})  # scored by an older Jobcu
     group.copies[0].description_is_complete = True
     assert not jobplace.needs_requirements(group, scored)
+
+
+
+def test_years_found_online_count_only_when_the_notes_quote_an_amount():
+    # Search 18: an ad asking for "strong experience" became "3+ years" in scoring (#263); an
+    # online look-up's number needs the same: its words, in the notes, naming an amount.
+    groups = jobs(("Deutschland", "DE"), ("Deutschland", "DE"), ("Deutschland", "DE"))
+    notes = ("J0: Strong experience in power electronics development.\n"
+             "J1: Mindestens zwei Jahre Erfahrung in der Hardwareentwicklung.\n"
+             "J2: Several years of experience are required.")
+    answer = [online("J0", years=3, years_words="Strong experience in power electronics"),
+              online("J1", years=2, years_words="Mindestens zwei Jahre Erfahrung"),
+              online("J2", years=3, years_words="Ten years of experience")]  # not in the notes
+    found = jobplace.find_online(Researcher([notes], [answer]), groups, [0, 1, 2]).requirements
+    assert [found[i].years_required for i in range(3)] == [None, 2, None]
