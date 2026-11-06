@@ -63,8 +63,20 @@ def service():
             if request.method == "DELETE":
                 return httpx.Response(200, json={})
             tier = posts[-1].get("service_tier", "standard")
-            if outcome["status"] in ("failed", "cancelled"):
-                return httpx.Response(200, json={"id": outcome["id"], "status": outcome["status"],
+            if outcome["status"] == "failed":  # accepted work that generated tokens, then failed
+                return httpx.Response(200, json={
+                    "id": outcome["id"], "status": "failed", "service_tier": tier,
+                    "steps": [{"type": "model_output", "content": []}],
+                    "usage": {"total_input_tokens": 1000, "total_output_tokens": 40}})
+            if outcome["status"] == "full":  # Google's busy Flex in background mode (2026-11-06)
+                return httpx.Response(200, json={
+                    "id": outcome["id"], "status": "failed", "service_tier": tier,
+                    "steps": [{"type": "user_input", "content": [{"type": "text", "text": "x"}]}],
+                    "errors": [{"message": "There was a problem processing your request. You "
+                                "will only be charged for tokens successfully generated.",
+                                "code": "INTERNAL"}]})
+            if outcome["status"] == "cancelled":
+                return httpx.Response(200, json={"id": outcome["id"], "status": "cancelled",
                                                  "service_tier": tier})
             if outcome["status"] == "vanished":
                 return httpx.Response(404, json={"error": {
@@ -135,6 +147,22 @@ def test_accepted_flex_work_that_fails_is_not_sent_again_at_the_normal_price(ser
     with pytest.raises(AIUnavailable):
         ask(client)
     assert [post.get("service_tier") for post in posts] == ["flex"]
+
+
+def test_a_flex_request_that_fails_at_once_without_generating_is_busy_and_tried_again(service):
+    # Google's high demand: a stream gets 503, a background interaction fails at once with no
+    # output or usage ("You will only be charged for tokens successfully generated").
+    client, posts, notices, waits = service(["full"] * FLEX_ATTEMPTS + ["accepted"])
+    assert ask(client).ok
+    assert [post.get("service_tier") for post in posts] == ["flex"] * FLEX_ATTEMPTS + [None]
+    flex = [u.usage for u in UsageLog().for_search_by_model(1) if u.model.endswith("(flex)")]
+    # Nothing generated: no tokens and no request of unknown cost (no incomplete-usage note).
+    assert all(not u.input_tokens and not u.output_tokens and not u.unreported_requests
+               for u in flex)
+    assert sum(waits) >= gemini_adapter.FLEX_RETRY_SECONDS * (2 ** (FLEX_ATTEMPTS - 1) - 1)
+    client, posts, _, _ = service(["full", "accepted"])
+    assert ask(client).ok and [post.get("service_tier") for post in posts] == ["flex", "flex"]
+    assert notices == []
 
 
 @pytest.mark.parametrize("lost", ["cancelled", "vanished"])
