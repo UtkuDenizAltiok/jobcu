@@ -11,7 +11,7 @@ import httpx
 from google import genai
 from google.genai import errors, types
 
-from jobcu.ai import request_recovery
+from jobcu.ai import flex_pause, request_recovery
 from jobcu.ai.base import (
     MSG_BAD_REQUEST,
     MSG_CONNECTION,
@@ -62,7 +62,8 @@ FLEX_RETRY_SECONDS = 5.0
 FLEX_SECONDS = 1200
 FLEX_FAILURES = 3
 FLEX_NOTICE = ("Google's half-price Flex processing was busy or failed several times, so the "
-               "rest of this search uses normal processing at the normal price.")
+               "rest of this search, and searches in the next few days, use normal processing at "
+               "the normal price. Jobcu tries Flex again after that.")
 _REFUSAL_REASONS = {"SAFETY", "PROHIBITED_CONTENT", "BLOCKLIST", "SPII", "RECITATION"}
 log = logging.getLogger(__name__)
 
@@ -228,8 +229,13 @@ class GeminiAdapter(ProviderAdapter):
         with self._client_lock:
             self._flex_failures += 1
             last = self._flex_failures == FLEX_FAILURES
-        if last and context is not None:
-            context.notify(FLEX_NOTICE)
+        if last:
+            try:
+                flex_pause.pause("gemini")
+            except Exception:  # noqa: BLE001 - the search goes on at the normal price anyway
+                log.warning("Could not remember that Flex failed; the next search tries it again")
+            if context is not None:
+                context.notify(FLEX_NOTICE)
 
     def _send_events(self, request, web_search, context):
         flex = request.get("service_tier") == "flex"

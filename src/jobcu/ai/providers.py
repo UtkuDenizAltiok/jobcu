@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 
+from jobcu.ai import flex_pause
 from jobcu.ai.anthropic_adapter import AnthropicAdapter
 from jobcu.ai.base import ProviderAdapter
 from jobcu.ai.compatible_adapter import (
@@ -71,7 +72,7 @@ def configured_adapter(provider: str, key: str, ai: AISettings, *, timeout=180.0
     if provider != "openai_compatible":
         adapter = PROVIDERS[provider].adapter(key, timeout=timeout)
         if getattr(adapter, "can_flex", False):
-            adapter.flex = ai.flex_processing
+            adapter.flex = ai.flex_processing and not flex_pause.paused(provider)
         return adapter
     options = {"base_url": ai.base_url.strip(), "timeout": timeout, "session_id": session_id}
     if ai.compatible_protocol == "responses":

@@ -166,7 +166,8 @@ A request Google refuses for capacity before accepting work is retried with back
 at the normal tier; accepted Flex work that fails follows the normal retry rules, so nothing that
 may have been billed is repeated automatically, except Flex work Google itself cancels or
 loses ("not found") without an answer: that request goes once at the normal tier. Repeated Flex
-failures end Flex for that search.
+failures end Flex for that search and pause it for the next few days (`ai/flex_pause.py`), after
+which Flex is tried again by itself.
 Usage records the served tier as `<model> (flex)`, priced at half the normal row unless a Flex
 row exists. Connection tests use the normal tier. Flex runs only with request recovery: a
 preempted Flex stream is otherwise an ambiguous dropped connection.

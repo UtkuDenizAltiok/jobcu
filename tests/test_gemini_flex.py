@@ -214,3 +214,22 @@ def test_a_connection_test_does_not_wait_in_the_flex_queue(monkeypatch, tmp_path
     keys.set("ai_gemini", "fictional-key")
     assert not check_setup(settings, keys).ok
     assert seen == [False] and settings.ai.flex_processing is True
+
+
+def test_flex_that_failed_in_a_search_is_paused_for_days_then_tried_again(service):
+    from datetime import UTC, datetime, timedelta
+
+    from jobcu import db
+    from jobcu.ai import flex_pause
+
+    client, posts, notices, _ = service(["cancelled", "accepted"], failures=FLEX_FAILURES - 1)
+    assert ask(client).ok and notices.count(FLEX_NOTICE) == 1
+    assert flex_pause.paused("gemini")
+    settings = AISettings(provider="gemini", model="gemini-3.8-flash", flex_processing=True)
+    assert not configured_adapter("gemini", "fictional-key", settings).flex  # next searches
+    with db.connect() as conn:
+        old = (datetime.now(UTC) - timedelta(days=flex_pause.PAUSE_DAYS, hours=1)).isoformat()
+        conn.execute("UPDATE preparation_cache SET created_at = ? WHERE kind = 'flex_paused'",
+                     (old,))
+    assert not flex_pause.paused("gemini")
+    assert configured_adapter("gemini", "fictional-key", settings).flex  # tried again
