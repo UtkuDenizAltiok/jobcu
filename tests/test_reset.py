@@ -298,6 +298,8 @@ def test_reset_keeps_outstanding_provider_ids_for_cancellation_and_billing(popul
     request_recovery.track(RecoveryContext(True, 'gemini', 'job_places', search_id=7),
                            'fictional-pending', 'fictional-model')
     request_recovery.release('gemini', 'fictional-pending', deleted=False)
+    with db.connect() as conn:  # its process is gone: nobody polls it any more
+        conn.execute('UPDATE ai_recovery_requests SET alive_at = 0')
     assert reset.clear_data('searches')
     row, = request_recovery.pending(force=True)
     assert row['interaction_id'] == 'fictional-pending'

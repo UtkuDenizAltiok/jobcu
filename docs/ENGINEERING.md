@@ -210,7 +210,9 @@ trigger automatic paid repetition. Stop cancels queued work/waits; an already di
 synchronous request can finish first. Completed answers and receipts are retained.
 
 Optional Google background recovery creates one provider operation and retrieves that same ID.
-`ai/request_recovery.py` journals attribution locally. Cancellation/deletion is attempted on
+`ai/request_recovery.py` journals attribution locally. A request still being polled refreshes its
+heartbeat; another Jobcu process (a tool, a second window, a restart) cleans up only requests that
+are finished or nobody polled for 10 minutes, never a running search's. Cancellation/deletion is attempted on
 Stop/completion, with startup cleanup for outstanding operations. Unknown cancellation blocks
 new generation. Cumulative receipts update the original usage row instead of double charging.
 This option uses temporary provider storage and requires explicit consent; default requests

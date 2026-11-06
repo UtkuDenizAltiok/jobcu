@@ -284,6 +284,11 @@ MIGRATIONS: list[str] = [
     """
     ALTER TABLE jobs ADD COLUMN first_assessed_at TEXT;
     """,
+    # 24: When a running process last polled each recoverable AI request; another process may
+    # clean up only requests no live process is waiting for (request_recovery.pending).
+    """
+    ALTER TABLE ai_recovery_requests ADD COLUMN alive_at REAL NOT NULL DEFAULT 0;
+    """,
 ]
 
 

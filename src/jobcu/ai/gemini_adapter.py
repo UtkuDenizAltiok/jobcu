@@ -499,6 +499,7 @@ class GeminiAdapter(ProviderAdapter):
                     reply.recovery_id = interaction_id
                     return reply
                 context.observe(state.usage(interrupted=True), interaction_id)
+                request_recovery.heartbeat(context.provider, interaction_id)
                 context.wait(poll_delay)
                 poll_delay = min(poll_delay * 2, 5.0)
                 if time.monotonic() >= deadline:

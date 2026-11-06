@@ -18,6 +18,12 @@ from jobcu.ai.usage import UsageLog
 from jobcu.settings import Settings
 
 
+def abandoned():
+    """Requests left by a process that is gone: nobody has polled them for a long time."""
+    with db.connect() as conn:
+        conn.execute("UPDATE ai_recovery_requests SET alive_at = 0")
+
+
 class Answer(BaseModel):
     ok: bool
 
@@ -200,6 +206,7 @@ def test_abandoned_request_is_reconciled_and_cleaned_before_new_work(service):
     old = RecoveryContext(True, "gemini", "job_places", search_id=99)
     request_recovery.track(old, "fictional-old", "gemini-3.8-flash")
     request_recovery.release("gemini", "fictional-old", deleted=False)
+    abandoned()
     UsageLog().record(step="job_places", provider="gemini", model="gemini-3.8-flash",
                       usage=Usage(web_searches=1, unreported_requests=1), search_id=99,
                       recovery_id="fictional-old")
@@ -300,6 +307,7 @@ def test_unconfirmed_old_work_blocks_new_generation_and_keeps_cleanup_id(service
     old = RecoveryContext(True, "gemini", "job_places", search_id=99)
     request_recovery.track(old, "fictional-old", "gemini-3.8-flash")
     request_recovery.release("gemini", "fictional-old", deleted=False)
+    abandoned()
 
     def handler(request, calls):
         assert request.method == "GET" or request.url.path.endswith("/cancel")
@@ -338,6 +346,7 @@ def test_one_uncancellable_orphan_does_not_leave_other_abandoned_work_running(se
     for identifier in ("fictional-stuck", "fictional-done"):
         request_recovery.track(old, identifier, "gemini-3.8-flash")
         request_recovery.release("gemini", identifier, deleted=False)
+    abandoned()
 
     def handler(request, calls):
         if "fictional-stuck" in request.url.path:
@@ -377,3 +386,21 @@ def test_same_request_recovery_bills_only_the_selected_extra_allowance(service, 
     with db.connect() as conn:
         assert conn.execute('SELECT budget_id FROM ai_usage WHERE recovery_id=?',
                              ('fictional-extra',)).fetchone()[0] == allowance.id
+
+
+
+def test_another_process_never_cleans_up_a_request_still_being_polled(service):
+    # 2026-11-06: a second Jobcu process (a tool) saw a running search's requests as abandoned,
+    # cancelled and deleted them; Google then said "cancelled" and 404 "not found".
+    other = RecoveryContext(True, "gemini", "scoring", search_id=7)
+    request_recovery.track(other, "fictional-live", "gemini-3.8-flash")
+    request_recovery.unclaim("gemini", "fictional-live")  # as if another process owned it
+    assert request_recovery.pending(force=True) == []  # polled just now: alive
+    with db.connect() as conn:
+        conn.execute("UPDATE ai_recovery_requests SET alive_at = ?",
+                     (__import__("time").time() - request_recovery.STALE_SECONDS + 30,))
+    assert request_recovery.pending(force=True) == []  # still within the grace period
+    request_recovery.heartbeat("gemini", "fictional-live")
+    abandoned()
+    assert [row["interaction_id"] for row in request_recovery.pending(force=True)] == [
+        "fictional-live"]  # nobody polled it for a long time: its process is gone
