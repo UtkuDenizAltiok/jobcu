@@ -195,6 +195,11 @@ before dispatch; release only reconciled unused capacity. Do not assume an empty
 error, timeout or same-query retry is free. The current published error-charging treatment is
 not sufficiently explicit to make that claim. Paid overages are not a spending ceiling.
 
+Measured 2026-10-30 to 11-07 (~470 paid requests): replies usually come in about 2 s, but 9
+requests stalled past the 30-second timeout every site gets (3 in one search), and an
+interrupted request is never sent again, so its jobs were lost. JSearch now waits up to 120 s
+for a reply and logs replies slower than 20 s, which gives the slow ones a measured time.
+
 #### Rights and privacy
 
 The provider's current [terms](https://www.openwebninja.com/terms), sections 2, 3 and 8, expressly

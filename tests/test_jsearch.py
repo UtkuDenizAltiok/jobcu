@@ -378,6 +378,20 @@ def test_ambiguous_failures_are_not_repeated_or_spent_again(setup, failure):
     assert len({str(r.url) for r in requests}) == len(requests)  # nothing sent twice
 
 
+def test_a_slow_jsearch_reply_is_waited_for_longer_than_other_sites(setup):
+    # 9 of ~470 paid requests took longer than the 30 s every site gets; their jobs were lost.
+    timeouts = []
+
+    def respond(request):
+        timeouts.append(request.extensions["timeout"])
+        return page([item(job_title="Circuit Designer")])
+
+    source, ctx, _ = setup(respond)
+    jobs = list(source.search(query(terms=[term("Circuit Designer")]), ctx))
+    assert [job.title for job in jobs] == ["Circuit Designer"]
+    assert timeouts[-1]["read"] >= 120 and timeouts[-1]["connect"] <= 10
+
+
 def test_after_one_broken_connection_the_other_queries_still_bring_their_jobs(setup):
     def respond(request):
         if "Hardware" in request.url.params["query"]:
