@@ -25,6 +25,7 @@ from jobcu.ai.base import (
     Usage,
 )
 from jobcu.ai.gemini_adapter import GeminiAdapter
+from jobcu.ai.gemini_events import EventAnswer
 
 
 class Events(httpx.SyncByteStream):
@@ -404,6 +405,20 @@ def test_terminal_failure_never_accepts_schema_valid_partial_text(service, statu
     with pytest.raises(error):
         generate(adapter)
     assert len(requests) == 1 and streams[0].closed
+
+
+def test_a_failed_interaction_keeps_the_providers_reason_for_the_log():
+    # 2026-11-06: web look-ups failed after 20-35 searches; "status failed" alone could not tell
+    # a busy service from a request that always fails.
+    answer = EventAnswer(model="gemini-3.8-flash", web_search=True)
+    with pytest.raises(AIUnavailable) as caught:
+        answer.add({"event_type": "interaction.completed", "interaction": {
+            "status": "failed", "errors": [{"code": "INTERNAL", "message": "Fictional overload"}]}})
+    assert "failed" in caught.value.detail and "INTERNAL Fictional overload" in caught.value.detail
+    with pytest.raises(AIUnavailable) as plain:
+        EventAnswer(model="gemini-3.8-flash", web_search=False).add(
+            {"event_type": "interaction.completed", "interaction": {"status": "failed"}})
+    assert plain.value.detail == "AI interaction ended with status failed."
 
 
 @pytest.mark.parametrize("status,error", [("incomplete", AIOutputTruncated),

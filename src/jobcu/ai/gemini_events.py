@@ -123,7 +123,7 @@ class EventAnswer:
                     self._start(index, step)
             status = interaction.get("status")
             if status and status != "completed":
-                self._terminal(status)
+                self._terminal(status, interaction.get("errors"))
             self.complete = True
         elif kind == "interaction.status_update":
             if event.get("status") in (
@@ -156,7 +156,7 @@ class EventAnswer:
                 "message": error.get("message") or code, "status": code.upper()}})
 
     @staticmethod
-    def _terminal(status):
+    def _terminal(status, problems=None):
         if status == "budget_exceeded":
             raise AIQuotaExhausted(MSG_QUOTA, "The provider's execution budget was exceeded.")
         if status == "incomplete":
@@ -165,7 +165,14 @@ class EventAnswer:
             raise AIBadRequest(MSG_BAD_REQUEST, "The provider requested an undeclared client tool.")
         if status == "cancelled":
             raise AIBadRequest(MSG_BAD_REQUEST, "The provider cancelled this interaction.")
-        raise AIUnavailable(MSG_UNAVAILABLE, f"AI interaction ended with status {status}.")
+        # The provider's own reason (code and message) goes into the detail that the log keeps:
+        # on 2026-11-06 web look-ups failed after 20-35 searches, and "status failed" alone
+        # could not tell a busy service from a request that always fails.
+        reasons = "; ".join(
+            " ".join(str(part) for part in (problem.get("code"), problem.get("message")) if part)
+            for problem in problems or [] if isinstance(problem, dict))
+        raise AIUnavailable(MSG_UNAVAILABLE, f"AI interaction ended with status {status}"
+                            + (f": {reasons[:300]}" if reasons else "."))
 
     def usage(self, *, interrupted=False) -> Usage:
         searches = max(self.search_count, len(self.queries), int(self.search_seen))
