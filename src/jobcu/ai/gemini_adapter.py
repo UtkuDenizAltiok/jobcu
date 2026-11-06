@@ -93,7 +93,7 @@ def _errors_text(payload: dict) -> str:
 
 
 class _FlexLost(Exception):
-    """Google accepted a Flex request, then cancelled it or lost it, without an answer."""
+    """Google accepted a Flex request, then cancelled, stopped or lost it, without an answer."""
 
     def __init__(self, error: AIError) -> None:
         super().__init__(error.message)
@@ -233,8 +233,9 @@ class GeminiAdapter(ProviderAdapter):
                          lost.error.detail or lost.error.message)
                 break
             except (AIUnavailable, AIRateLimited) as error:
-                # Accepted Flex work that failed is not repeated here: Jobcu's normal retry
-                # rules decide, so a request that may have been billed is never doubled.
+                # Other failures around accepted Flex work (a lost connection while waiting, a
+                # refused retrieval) follow Jobcu's normal retry rules, so a request that may
+                # have been billed is not doubled here.
                 if not isinstance(error, AIConnectionError):
                     self._flex_failed(context)
                 raise
@@ -488,10 +489,17 @@ class GeminiAdapter(ProviderAdapter):
                         # Nothing was generated, so it is tried again like a 503, then normally.
                         context.account(Usage(), interaction_id)  # nothing generated or billed
                         raise _FlexRefused(AIUnavailable(MSG_UNAVAILABLE, _errors_text(payload)))
-                    if current.status == "cancelled" and request.get("service_tier") == "flex":
+                    if (request.get("service_tier") == "flex"
+                            and current.status in {"cancelled", "failed"}):
+                        # Google may stop accepted Flex work when normal traffic rises ("may be
+                        # preempted or evicted", its Flex documentation): it ends cancelled, or
+                        # failed after part of the work. Treated as an outage, a web look-up
+                        # failed after 4 searches stopped every later online check of its search
+                        # (2026-11-06). What it used is recorded as of unknown cost, and the
+                        # request goes once at the normal price.
                         context.account(state.usage(interrupted=True), interaction_id)
-                        raise _FlexLost(AIBadRequest(
-                            MSG_BAD_REQUEST, "The provider cancelled this Flex interaction."))
+                        raise _FlexLost(AIUnavailable(MSG_UNAVAILABLE, _errors_text(payload)
+                                                      or f"Flex interaction {current.status}."))
                     state.steps = {}  # only the final canonical output can be accepted
                     state.add({"event_type": "interaction.completed", "interaction": payload})
                     context.account(state.usage(), interaction_id)

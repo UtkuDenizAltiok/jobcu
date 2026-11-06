@@ -164,10 +164,12 @@ their native host.
 Google Flex is an explicit choice for the same Gemini model at half the token price.
 A request Google refuses for capacity before accepting work (a 503 "high demand", or in background
 mode an interaction that fails at once without generating anything) is retried with backoff (30 s,
-then 60 s) and then sent at the normal tier; accepted Flex work that fails follows the normal retry rules, so nothing that
-may have been billed is repeated automatically, except Flex work Google itself cancels or
-loses ("not found") without an answer: that request goes once at the normal tier. Repeated Flex
-failures end Flex for that search.
+then 60 s) and then sent at the normal tier. Flex work Google accepts and then stops without an
+answer (cancelled, failed after part of the work, e.g. a web look-up after some searches, or
+"not found") goes once at the normal tier, and what the stopped part used is recorded as of unknown
+cost; otherwise one stopped look-up would read as an outage after paid searches and stop every
+later online check of the search. Other failures around accepted Flex work (a lost connection while
+waiting) follow the normal retry rules. Repeated Flex failures end Flex for that search.
 Usage records the served tier as `<model> (flex)`, priced at half the normal row unless a Flex
 row exists. Connection tests use the normal tier. Flex runs only with request recovery: a
 preempted Flex stream is otherwise an ambiguous dropped connection.

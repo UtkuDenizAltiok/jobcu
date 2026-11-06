@@ -68,6 +68,18 @@ def service():
                     "id": outcome["id"], "status": "failed", "service_tier": tier,
                     "steps": [{"type": "model_output", "content": []}],
                     "usage": {"total_input_tokens": 1000, "total_output_tokens": 40}})
+            if outcome["status"] == "stopped":  # a Flex web look-up stopped after 4 searches
+                return httpx.Response(200, json={
+                    "id": outcome["id"], "status": "failed", "service_tier": tier,
+                    "steps": [{"type": "user_input", "content": [{"type": "text", "text": "x"}]},
+                              {"type": "google_search_call", "arguments": {"queries": [
+                                  "fictional maker A", "fictional maker B",
+                                  "fictional maker C", "fictional maker D"]}}]})
+            if outcome["status"] == "researched":
+                answer = finished(tier, outcome["id"])
+                answer["steps"].insert(0, {"type": "google_search_call",
+                                           "arguments": {"queries": ["fictional maker"]}})
+                return httpx.Response(200, json=answer)
             if outcome["status"] == "full":  # Google's busy Flex in background mode (2026-11-06)
                 return httpx.Response(200, json={
                     "id": outcome["id"], "status": "failed", "service_tier": tier,
@@ -142,11 +154,32 @@ def test_repeated_flex_failures_move_the_rest_of_the_search_to_normal_processing
     assert [post.get("service_tier") for post in posts[sent:]] == [None]
 
 
-def test_accepted_flex_work_that_fails_is_not_sent_again_at_the_normal_price(service):
+def test_flex_work_google_stops_midway_is_recorded_and_sent_once_at_the_normal_price(service):
+    # Google may preempt or evict accepted Flex work; it ends "failed" after part of the work.
     client, posts, _, _ = service(["failed", "accepted"], patient=False)
-    with pytest.raises(AIUnavailable):
-        ask(client)
-    assert [post.get("service_tier") for post in posts] == ["flex"]
+    assert ask(client).ok
+    assert [post.get("service_tier") for post in posts] == ["flex", None]
+    flex = [u.usage for u in UsageLog().for_search_by_model(1) if u.model.endswith("(flex)")]
+    assert flex[0].input_tokens == 1000 and flex[0].unreported_requests == 1
+
+
+def test_a_flex_web_look_up_stopped_after_searching_is_sent_again_and_research_goes_on(service):
+    # Search 19 (2026-11-06): Google stopped a Flex employer look-up after 4 searches. Read as an
+    # outage after paid tool use, it stopped every later online check of the search.
+    client, posts, notices, _ = service(["stopped", "researched", "researched"])
+
+    def look_up():
+        return client.research(step="employers", system="Use only fictional evidence",
+                               prompt="Fictional electronics makers")
+
+    assert look_up().text
+    assert [post.get("service_tier") for post in posts] == ["flex", None]
+    flex = [u.usage for u in UsageLog().for_search_by_model(1) if u.model.endswith("(flex)")]
+    # The stopped part is kept on record: its searches, with its cost unknown.
+    assert flex[0].web_searches == 4 and flex[0].unreported_requests == 1
+    assert look_up().text  # later online checks still run, on Flex again
+    assert [post.get("service_tier") for post in posts] == ["flex", None, "flex"]
+    assert not any("stopped automatic research" in notice for notice in notices)
 
 
 def test_a_flex_request_that_fails_at_once_without_generating_is_busy_and_tried_again(service):
@@ -165,7 +198,7 @@ def test_a_flex_request_that_fails_at_once_without_generating_is_busy_and_tried_
     assert notices == []
 
 
-@pytest.mark.parametrize("lost", ["cancelled", "vanished"])
+@pytest.mark.parametrize("lost", ["cancelled", "vanished", "failed"])
 def test_flex_work_the_provider_cancels_or_loses_is_sent_once_at_the_normal_price(service, lost):
     # 2026-11-06: Google cancelled every recoverable Flex request after seconds, or answered "not
     # found" when Jobcu asked for its result; normal processing worked.
