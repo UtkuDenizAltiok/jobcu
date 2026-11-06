@@ -75,6 +75,14 @@ class _FlexRefused(Exception):
         self.error = error
 
 
+class _FlexLost(Exception):
+    """Google accepted a Flex request, then cancelled it or lost it, without an answer."""
+
+    def __init__(self, error: AIError) -> None:
+        super().__init__(error.message)
+        self.error = error
+
+
 class GeminiAdapter(ProviderAdapter):
     can_search_the_web = True
     can_recover_requests = True
@@ -199,6 +207,14 @@ class GeminiAdapter(ProviderAdapter):
                     delay = FLEX_RETRY_SECONDS * 2 ** (attempt - 1)
                     (context.wait(delay, retry=True) if context is not None
                      else time.sleep(delay))
+            except _FlexLost as lost:
+                # On 2026-11-06 Google cancelled every recoverable Flex request after seconds, or
+                # answered "not found" for it, while normal processing worked: no answer came, so
+                # this one request goes once at the normal price (and the search moves to normal
+                # processing after FLEX_FAILURES) instead of failing the search's AI work.
+                log.info("Flex request lost by the provider; sending it at the normal price: %s",
+                         lost.error.detail or lost.error.message)
+                break
             except (AIUnavailable, AIRateLimited) as error:
                 # Accepted Flex work that failed is not repeated here: Jobcu's normal retry
                 # rules decide, so a request that may have been billed is never doubled.
@@ -446,6 +462,10 @@ class GeminiAdapter(ProviderAdapter):
                                                 request_sent=True)
                     finished = True
                     request_recovery.terminal(context.provider, interaction_id)
+                    if current.status == "cancelled" and request.get("service_tier") == "flex":
+                        context.account(state.usage(interrupted=True), interaction_id)
+                        raise _FlexLost(AIBadRequest(
+                            MSG_BAD_REQUEST, "The provider cancelled this Flex interaction."))
                     state.steps = {}  # only the final canonical output can be accepted
                     state.add({"event_type": "interaction.completed", "interaction": payload})
                     context.account(state.usage(), interaction_id)
@@ -470,6 +490,10 @@ class GeminiAdapter(ProviderAdapter):
                         break
                     except Exception as error:
                         translated = self._recovery_error(error, web_search=state.web_search)
+                        if (request.get("service_tier") == "flex"
+                                and isinstance(translated, AIModelNotFound)):
+                            finished = True  # nothing left to cancel or retrieve
+                            raise _FlexLost(translated) from error
                         if not isinstance(translated, (AIUnavailable, AIRateLimited)):
                             raise translated from error
                         retries += 1

@@ -27,8 +27,8 @@ BUSY = {"error": {"code": 503, "status": "UNAVAILABLE",
                   "message": "The model is currently experiencing high demand."}}
 
 
-def finished(tier):
-    return {"id": "fictional-1", "status": "completed", "service_tier": tier,
+def finished(tier, interaction="fictional-1"):
+    return {"id": interaction, "status": "completed", "service_tier": tier,
             "steps": [{"type": "model_output",
                        "content": [{"type": "text", "text": '{"ok":true}'}]}],
             "usage": {"total_input_tokens": 1000, "total_output_tokens": 300,
@@ -55,16 +55,21 @@ def service():
                 if answer == "busy":
                     return httpx.Response(503, json=BUSY)
                 outcome["status"] = answer
+                # Each accepted request is its own interaction (usage is recorded once per ID).
+                outcome["id"] = f"fictional-{len(posts)}"
                 return httpx.Response(200, json={
-                    "id": "fictional-1", "status": "in_progress",
+                    "id": outcome["id"], "status": "in_progress",
                     "service_tier": body.get("service_tier", "standard")})
             if request.method == "DELETE":
                 return httpx.Response(200, json={})
             tier = posts[-1].get("service_tier", "standard")
-            if outcome["status"] == "failed":
-                return httpx.Response(200, json={"id": "fictional-1", "status": "failed",
+            if outcome["status"] in ("failed", "cancelled"):
+                return httpx.Response(200, json={"id": outcome["id"], "status": outcome["status"],
                                                  "service_tier": tier})
-            return httpx.Response(200, json=finished(tier))
+            if outcome["status"] == "vanished":
+                return httpx.Response(404, json={"error": {
+                    "message": "Requested entity was not found.", "code": "not_found"}})
+            return httpx.Response(200, json=finished(tier, outcome["id"]))
 
         sdk = genai.Client(api_key="fictional-key", http_options=types.HttpOptions(
             retry_options=types.HttpRetryOptions(attempts=1),
@@ -130,6 +135,21 @@ def test_accepted_flex_work_that_fails_is_not_sent_again_at_the_normal_price(ser
     with pytest.raises(AIUnavailable):
         ask(client)
     assert [post.get("service_tier") for post in posts] == ["flex"]
+
+
+@pytest.mark.parametrize("lost", ["cancelled", "vanished"])
+def test_flex_work_the_provider_cancels_or_loses_is_sent_once_at_the_normal_price(service, lost):
+    # 2026-11-06: Google cancelled every recoverable Flex request after seconds, or answered "not
+    # found" when Jobcu asked for its result; normal processing worked.
+    client, posts, notices, _ = service([lost, "accepted"])
+    assert ask(client).ok
+    assert [post.get("service_tier") for post in posts] == ["flex", None]
+    assert "gemini-3.8-flash" in recorded_models()  # the answer, at the normal tier
+    client, posts, notices, _ = service([lost, "accepted"], failures=FLEX_FAILURES - 1)
+    assert ask(client).ok and notices.count(FLEX_NOTICE) == 1
+    sent = len(posts)
+    assert ask(client).ok  # the rest of the search: normal processing, no Flex attempt
+    assert [post.get("service_tier") for post in posts[sent:]] == [None]
 
 
 def test_flex_is_off_unless_chosen(service):
