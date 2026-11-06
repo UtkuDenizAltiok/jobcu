@@ -197,3 +197,25 @@ def estimate_cost(usages: list[ModelUsage], prices: list[ModelPrice]) -> tuple[f
         # Adding EUR and USD has no meaningful monetary value without a chosen exchange rate.
         return 0.0, False
     return cost, complete
+
+
+def free_search_credit(usages: list[ModelUsage], prices: list[ModelPrice],
+                       provider: str | None, free: int | None) -> dict[tuple[str, str], float]:
+    """What the provider's free web searches take off each model's estimate.
+
+    `estimate_cost` prices every search; the first `free` searches at the research provider in
+    its billing month are not billed (Google: 5,000 a month for Gemini 3). Without this, a month
+    well inside the free searches read as ~$24 over the person's limit (2026-11-07)."""
+    table = {(p.provider, p.model): p for p in prices}
+    left = max(free or 0, 0) if provider else 0
+    credit: dict[tuple[str, str], float] = {}
+    for item in usages:
+        if left <= 0:
+            break
+        price = price_for(table, item.provider, item.model)
+        if item.provider != provider or price is None or price.web_search_per_thousand is None:
+            continue
+        covered = min(left, item.usage.web_searches + item.usage.web_results)
+        left -= covered
+        credit[(item.provider, item.model)] = covered / 1000 * price.web_search_per_thousand
+    return credit

@@ -14,7 +14,13 @@ from jobcu.ai import budgets
 from jobcu.ai.base import AIError
 from jobcu.ai.client import AIClient, check_research_setup, check_setup
 from jobcu.ai.providers import PROVIDERS, configured_adapter
-from jobcu.ai.usage import ModelUsage, UsageLog, estimate_cost, total_tokens
+from jobcu.ai.usage import (
+    ModelUsage,
+    UsageLog,
+    estimate_cost,
+    free_search_credit,
+    total_tokens,
+)
 from jobcu.keystore import KeyStore, KeyStoreError, mask
 from jobcu.settings import (
     AISettings,
@@ -304,8 +310,10 @@ def _source_requests(now: datetime) -> tuple[dict[str, int], dict[str, int]]:
             {row["source"]: row["used"] for row in month})
 
 
-def _money(usages: list[ModelUsage], prices: list[ModelPrice]) -> dict:
+def _money(usages: list[ModelUsage], prices: list[ModelPrice], free: float = 0.0) -> dict:
+    """Tokens and estimated cost; `free` is what the provider's free web searches cover."""
     cost, complete = estimate_cost(usages, prices)
+    cost = max(cost - free, 0.0)
     currencies = {price.currency for price in prices} or {"USD"}
     return {"tokens": total_tokens(usages), "cost": round(cost, 2), "cost_is_complete": complete,
             "currency": currencies.pop() if len(currencies) == 1 else "",
@@ -386,15 +394,22 @@ def get_usage(now: datetime | None = None) -> dict:
             budgets.check_preparation(budget_id)
     except AIError as exc:
         budget_problem = exc.message
+    research = settings.ai.research_provider or settings.ai.provider
+    ordinary = log.ordinary_this_month(now)
+    ordinary_free = free_search_credit(ordinary, settings.prices, research,
+                                       settings.limits.free_web_searches)
+    month_free = free_search_credit(this_month, settings.prices, research,
+                                    settings.limits.free_web_searches)
     return {
         "search_budget_problem": budget_problem,
-        "ordinary_this_month": _money(log.ordinary_this_month(now), settings.prices),
+        "ordinary_this_month": _money(ordinary, settings.prices, sum(ordinary_free.values())),
         "extra_allowances": [budgets.summary(item, settings) for item in extra_allowances],
         "this_month": {
-            **_money(this_month, settings.prices),
+            **_money(this_month, settings.prices, sum(month_free.values())),
             "by_model": [
                 {"provider": item.provider, "model": item.model,
-                 **_money([item], settings.prices)}
+                 **_money([item], settings.prices,
+                          month_free.get((item.provider, item.model), 0.0))}
                 for item in sorted(this_month, key=lambda i: (i.provider, i.model))
             ],
         },

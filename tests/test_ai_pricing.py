@@ -126,3 +126,32 @@ def test_a_price_saved_while_a_search_runs_applies_at_once():
     saved.prices = [price()]
     save_settings(saved)
     client._check_monthly_limit(provider="gemini", model="fictional-model")
+
+
+def test_free_web_searches_stay_out_of_the_monthly_limit_and_its_note_comes_once():
+    # 2026-11-07: searches inside Google's free 5,000 were priced at $14 per 1,000, so a month
+    # far below the person's limit read as over it, and the note came with every request.
+    settings = Settings()
+    settings.ai.provider, settings.ai.model = "gemini", "fictional-model"
+    settings.limits.monthly_cost_limit = 1
+    settings.limits.paid_limits = "tell"
+    settings.limits.free_web_searches = 5000
+    settings.prices = [price(web_search_per_thousand=14.0)]
+    save_settings(settings)
+    log, notices = UsageLog(), []
+    client = AIClient(settings, usage_log=log, notify=notices.append)
+
+    def spend(**counts):
+        log.record(step="job_places", provider="gemini", model="fictional-model",
+                   usage=Usage(**counts))
+        client._check_monthly_limit(provider="gemini", model="fictional-model")
+
+    spend(web_searches=1000)  # $14 at the search price, but inside the free searches
+    assert notices == []
+    spend(input_tokens=400_000, output_tokens=100_000)  # $1.60 of tokens: over the limit
+    spend(input_tokens=10_000)
+    assert len(notices) == 1 and "(1.60)" in notices[0]
+    settings.limits.free_web_searches = 500  # half of those searches past the free ones
+    client = AIClient(settings, usage_log=log, notify=notices.append)
+    client._check_monthly_limit(provider="gemini", model="fictional-model")
+    assert "(8.62)" in notices[-1]
