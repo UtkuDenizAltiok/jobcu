@@ -820,20 +820,21 @@ class AIClient:
                     "stopped using the AI. You can raise the limit in Settings.",
                     f"This month's estimated AI cost ({cost:.2f}) has passed your limit of "
                     f"{limits.monthly_cost_limit:g} in Settings; Jobcu goes on, as you chose "
-                    "(paid limits only tell).")
+                    "(paid limits only tell).", once="monthly_cost")
 
     def _limits_stop_work(self) -> bool:
         """Whether a spending limit can stop Jobcu's AI work (Settings: paid limits, or a
         separate allowance), so a bill Jobcu can't see could carry spending past it."""
         return self.budget_id is not None or self.settings.limits.paid_limits != "tell"
 
-    def _over_limit(self, stop: str, tell: str) -> None:
+    def _over_limit(self, stop: str, tell: str, *, once: str | None = None) -> None:
         """A monthly limit is reached: stop the AI work, or only tell once per search when the
-        person chose so (Settings: paid limits)."""
+        person chose so (Settings: paid limits). `once` names a note whose wording changes (an
+        amount), which otherwise came again with nearly every request (2026-11-07)."""
         if self.settings.limits.paid_limits != "tell":
             raise AILimitReached(stop)
-        if tell not in self._told:
-            self._told.add(tell)
+        if (once or tell) not in self._told:
+            self._told.add(once or tell)
             self.notify(tell)
 
 

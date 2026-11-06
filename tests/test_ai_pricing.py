@@ -126,3 +126,20 @@ def test_a_price_saved_while_a_search_runs_applies_at_once():
     saved.prices = [price()]
     save_settings(saved)
     client._check_monthly_limit(provider="gemini", model="fictional-model")
+
+
+def test_the_monthly_cost_note_comes_once_while_the_amount_grows():
+    # 2026-11-07: the note carried the amount, so every request past the limit told it again.
+    settings = Settings()
+    settings.ai.provider, settings.ai.model = "gemini", "fictional-model"
+    settings.limits.monthly_cost_limit = 1
+    settings.limits.paid_limits = "tell"
+    settings.prices = [price()]
+    save_settings(settings)
+    log, notices = UsageLog(), []
+    client = AIClient(settings, usage_log=log, notify=notices.append)
+    for _ in range(3):
+        log.record(step="scoring", provider="gemini", model="fictional-model",
+                   usage=Usage(input_tokens=400_000, output_tokens=100_000))
+        client._check_monthly_limit(provider="gemini", model="fictional-model")
+    assert len(notices) == 1 and "(1.60)" in notices[0]
