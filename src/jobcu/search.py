@@ -1367,11 +1367,16 @@ def _source_wait_note(run: SearchRun, host: str, seconds: float) -> None:
 def free_web_search_share(settings, now: datetime | None = None,
                           hours: float = 24) -> int | None:
     """This search's equal part of the research provider's free web searches left this billing
-    month (budget.share: the planned searches still to come; a 72-hour search gets three)."""
+    month (budget.share: the planned searches still to come; a 72-hour search gets three).
+
+    It holds whatever the paid limits say: past it, the search asks before more look-ups
+    (with their price) and goes on without them when nobody answers. With paid limits that only
+    tell, a search once used about three times its share in paid searches unasked, and a month
+    of searches like it would need two to three times the free searches."""
     allowance = settings.limits.free_web_searches
     provider = settings.ai.research_provider or settings.ai.provider
-    if allowance is None or provider is None or settings.limits.paid_limits == "tell":
-        return None  # "tell": paid searches past the free ones go on (free_searches_note)
+    if allowance is None or provider is None:
+        return None
     now = now or datetime.now(UTC)
     left = max(0, allowance - UsageLog().web_searches_this_month(provider, now))
     start = billing_month_start(now)

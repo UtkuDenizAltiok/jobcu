@@ -100,14 +100,18 @@ def test_a_used_share_stops_research_with_its_own_reason():
     assert client.web_searches_left() == 10 and not client.free_share_reached()
 
 
-def test_when_paid_limits_only_tell_the_free_share_is_no_cap_and_running_out_is_said():
+def test_when_paid_limits_only_tell_the_free_share_still_holds_and_running_out_is_said():
+    # 2026-11-07: with paid limits that only tell, a search used paid web searches unasked, about
+    # three times its share of the free ones. The share now holds; past it the search asks.
     from jobcu.search import free_searches_note
 
     now = at("2026-11-21T12:00:00")
-    record("gemini", "2026-11-05T09:00:00.000Z", 5200)
     told = settings_with(5000)
     told.limits.paid_limits = "tell"
-    assert free_web_search_share(told, now) is None  # paid searches past the free ones go on
+    record("gemini", "2026-11-05T09:00:00.000Z", 4000)
+    assert free_web_search_share(told, now) == free_web_search_share(settings_with(5000), now) > 0
+    record("gemini", "2026-11-06T09:00:00.000Z", 1200)
+    assert free_web_search_share(told, now) == 0  # used up: every further look-up is asked
     assert "5,000 free web searches are used up (5,200 so far)" in free_searches_note(told, now)
     assert free_searches_note(settings_with(5000), now) is None  # stopping: the share asks
     more = settings_with(6000)

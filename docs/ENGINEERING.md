@@ -240,7 +240,9 @@ allow keeping only coordinates. Free monthly allowances (Adzuna, JSearch, free w
 Maps route limit) are divided equally over the planned search days still to come
 (`budget.share`; a 72-hour search counts as three days). Paid limits (monthly AI cost and
 tokens, web searches past the free ones, Maps past its limit) stop by default or only tell
-(`paid_limits`, the owner's choice). With limits that stop, a web look-up that fails after its
+(`paid_limits`, the owner's choice). A search's share of the free web searches holds either way:
+past it the search asks before more look-ups, with their price, and goes on without them when
+nobody answers (`search.free_web_search_share`). With limits that stop, a web look-up that fails after its
 searches without a full bill pauses automatic research for the rest of the search, because the
 missing bill could pass the limit. With limits that only tell, it is an ordinary outage
 (bounded retries), its searches count against the allowance, and the incomplete bill is noted.

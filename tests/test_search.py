@@ -1559,13 +1559,18 @@ def test_answering_always_removes_the_limit_so_later_searches_don_t_ask(ready, m
     assert len(ai.looked_up) == 4  # both jobs in both searches, the second without asking
 
 
+@pytest.mark.parametrize("paid_limits", ["stop", "tell"])
 def test_free_monthly_searches_are_shared_and_jobcu_asks_before_paying_for_more(ready,
-                                                                             monkeypatch):
+                                                                             monkeypatch,
+                                                                             paid_limits):
+    # With paid limits that only tell, too: past its free share a search asks first (2026-11-07:
+    # one used paid searches unasked, about three times its share).
     ai = ResearchingAI()
     monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: ai)
     monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [SummarySource()])
     monkeypatch.setattr("jobcu.jobplace.BATCH_SIZE", 1)
     settings = load_settings()
+    settings.limits.paid_limits = paid_limits
     settings.limits.free_web_searches = 1  # one free search left this month: this search's share
     save_settings(settings)
     manager = search.SearchManager()
