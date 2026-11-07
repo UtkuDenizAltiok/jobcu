@@ -111,8 +111,8 @@ REAPPLY_STEPS: list[tuple[str, str]] = [
 # carrying on without the extra work.
 QUESTION_TIMEOUT_SECONDS = 3600
 # Share of the free monthly web searches kept back from the per-search shares (see
-# free_web_search_share): 250 of Google's 5,000.
-FREE_SEARCH_MARGIN = 0.05
+# free_web_search_share): 150 of Google's 5,000.
+FREE_SEARCH_MARGIN = 0.03
 # How many jobs ruled out by a condition the person wrote are listed back to them.
 MAX_RULED_OUT_SHOWN = 60
 

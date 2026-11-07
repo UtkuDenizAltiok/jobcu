@@ -241,7 +241,7 @@ Maps route limit) are divided equally over the planned search days still to come
 (`budget.share`; a 72-hour search counts as three days). Paid limits (monthly AI cost and
 tokens, web searches past the free ones, Maps past its limit) stop by default or only tell
 (`paid_limits`, the owner's choice). A search's share of the free web searches holds either way
-(`search.free_web_search_share`; 5% of the allowance is kept back for the employer step and for
+(`search.free_web_search_share`; 3% of the allowance is kept back for the employer step and for
 searches Jobcu doesn't see): past it the search looks nothing more up, best jobs first, and
 neither pays nor asks. With limits that stop, a web look-up that fails after its
 searches without a full bill pauses automatic research for the rest of the search, because the
