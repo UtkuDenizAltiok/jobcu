@@ -1560,18 +1560,17 @@ def test_answering_always_removes_the_limit_so_later_searches_don_t_ask(ready, m
 
 
 @pytest.mark.parametrize("paid_limits", ["stop", "tell"])
-def test_free_monthly_searches_are_shared_and_jobcu_asks_before_paying_for_more(ready,
-                                                                             monkeypatch,
-                                                                             paid_limits):
-    # With paid limits that only tell, too: past its free share a search asks first (2026-11-07:
-    # one used paid searches unasked, about three times its share).
+def test_free_monthly_searches_are_shared_and_a_search_never_pays_or_asks_past_its_share(
+        ready, monkeypatch, paid_limits):
+    # 2026-11-07: with paid limits that only tell, a search used paid searches unasked, about
+    # three times its share. The owner: the free searches are the budget, with no intervention.
     ai = ResearchingAI()
     monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: ai)
     monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [SummarySource()])
     monkeypatch.setattr("jobcu.jobplace.BATCH_SIZE", 1)
     settings = load_settings()
     settings.limits.paid_limits = paid_limits
-    settings.limits.free_web_searches = 1  # one free search left this month: this search's share
+    settings.limits.free_web_searches = 2  # less the margin: one free search, this search's share
     save_settings(settings)
     manager = search.SearchManager()
     questions, notes = [], []
@@ -1587,13 +1586,12 @@ def test_free_monthly_searches_are_shared_and_jobcu_asks_before_paying_for_more(
         result = manager.current.snapshot()
         assert result["status"] == "finished", result["error"]
         notes.append(result["notes"])
-    assert [q["kind"] for q in questions] == ["web_search_cap"]  # only the first search asked
-    assert ("used its share of this month's free web searches (0 of 1 left this month). "
-            "More look-ups are charged" in questions[0]["message"])
-    assert "1 more job could be read online" in questions[0]["message"]
-    assert load_settings().limits.free_web_searches is None
-    assert any("every search from now on, with no limit" in note for note in notes[0])
-    assert len(ai.looked_up) == 4
+    assert questions == []  # nothing to answer, in either search
+    assert len(ai.looked_up) == 1  # the first search's share: one job; the second had none left
+    assert any("used its share of this month's free web searches" in note
+               and "1 lower-ranked job was not looked up online" in note for note in notes[0])
+    assert any("2 lower-ranked jobs were not looked up online" in note for note in notes[1])
+    assert load_settings().limits.free_web_searches == 2  # the allowance itself is untouched
 
 
 def test_look_ups_that_lost_their_turn_to_others_running_are_done_before_asking(ready,
