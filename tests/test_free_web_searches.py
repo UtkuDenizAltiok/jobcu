@@ -55,13 +55,14 @@ def test_each_search_gets_a_fair_share_of_what_is_left():
     with db.connect() as conn:  # this person searches twice a day
         conn.executemany("INSERT INTO searches (started_at, status, form_json) VALUES (?, ?, ?)",
                          [("2026-11-15T09:00:00.000Z", "finished", "{}")] * 28)
-    # 1,000 left over 9.8 days at two searches a day (Pacific month ends 1 Dec 08:00 UTC).
-    assert free_web_search_share(settings_with(5000), now) == 51
+    # 4,850 usable (3% kept back), 850 left over 9.8 days at two searches a day (Pacific month
+    # ends 1 Dec 08:00 UTC).
+    assert free_web_search_share(settings_with(5000), now) == 44
     assert free_web_search_share(settings_with(4000), now) == 0
     assert free_web_search_share(settings_with(None), now) is None
     # The research provider's own searches count, not the main provider's.
-    assert free_web_search_share(settings_with(5000, "openrouter", "gemini"), now) == 51
-    assert free_web_search_share(settings_with(5000, "openrouter", "anthropic"), now) == 255
+    assert free_web_search_share(settings_with(5000, "openrouter", "gemini"), now) == 44
+    assert free_web_search_share(settings_with(5000, "openrouter", "anthropic"), now) == 247
 
 
 def test_a_planned_month_divides_the_free_searches_equally_by_search_days():
@@ -79,9 +80,10 @@ def test_a_planned_month_divides_the_free_searches_equally_by_search_days():
                          + [("2026-11-14T19:00:00.000Z", "finished",
                              '{"posted_within_hours": 72}'),
                             ("2026-11-20T19:00:00.000Z", "stopped", "{}")])
-    # 3,000 left for the 11 planned search days still to come; a 72-hour search takes three.
-    assert free_web_search_share(planned, now) == 273
-    assert free_web_search_share(planned, now, hours=72) == 819
+    # 2,850 left of the 4,850 usable for the 11 planned search days still to come; a 72-hour
+    # search takes three.
+    assert free_web_search_share(planned, now) == 260
+    assert free_web_search_share(planned, now, hours=72) == 778
 
 
 class Searcher:

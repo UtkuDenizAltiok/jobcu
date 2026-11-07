@@ -110,6 +110,9 @@ REAPPLY_STEPS: list[tuple[str, str]] = [
 # How long a search waits for an answer to a question (e.g. the scoring limit) before
 # carrying on without the extra work.
 QUESTION_TIMEOUT_SECONDS = 3600
+# Share of the free monthly web searches kept back from the per-search shares (see
+# free_web_search_share): 150 of Google's 5,000.
+FREE_SEARCH_MARGIN = 0.03
 # How many jobs ruled out by a condition the person wrote are listed back to them.
 MAX_RULED_OUT_SHOWN = 60
 
@@ -994,16 +997,23 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
                                  on_evidence=keep_online, research_cache=job_pool.research_notes))
         if len(looked_up.not_asked) >= waiting:
             break
-    if looked_up.not_asked:
+    if looked_up.not_asked and client.free_share_reached():
+        # The free searches are the budget: past this search's share Jobcu neither pays nor asks,
+        # so searches run without anyone watching (2026-11-07). The best jobs were looked up
+        # first; later searches get their own share, and "free web searches" in Settings can be
+        # raised or cleared.
+        left = len(looked_up.not_asked)
+        run.note(f"This search used its share of this month's free web searches "
+                 f"({_free_searches_left(settings)}); {left} lower-ranked "
+                 f"{'job was' if left == 1 else 'jobs were'} not looked up online, so nothing "
+                 "was paid for web searches.")
+    elif looked_up.not_asked:
         # One question for every job left, counted in jobs (search 9 asked four times, each
         # "yes" adding web look-ups for only about 25 of the jobs its button promised).
         left = len(looked_up.not_asked)
         jobs, their = ("job", "its") if left == 1 else ("jobs", "their")
-        free_share = client.free_share_reached()
-        used = (f"This search has used its share of this month's free web searches "
-                f"({_free_searches_left(settings)}). More look-ups are charged at your provider's "
-                "search price. " if free_share else
-                f"Jobcu has used this search's {settings.limits.web_search_cap} web look-ups. ")
+        free_share = False
+        used = f"Jobcu has used this search's {settings.limits.web_search_cap} web look-ups. "
         wants_more = run.ask({
             "kind": "web_search_cap",
             "message": (
@@ -1369,16 +1379,18 @@ def free_web_search_share(settings, now: datetime | None = None,
     """This search's equal part of the research provider's free web searches left this billing
     month (budget.share: the planned searches still to come; a 72-hour search gets three).
 
-    It holds whatever the paid limits say: past it, the search asks before more look-ups
-    (with their price) and goes on without them when nobody answers. With paid limits that only
-    tell, a search once used about three times its share in paid searches unasked, and a month
-    of searches like it would need two to three times the free searches."""
+    It holds whatever the paid limits say, and past it the search looks nothing more up: it
+    neither pays nor asks. With paid limits that only tell, a search once used about three times
+    its share in paid searches unasked. FREE_SEARCH_MARGIN of the allowance is kept back for what
+    the share can't see: the monthly employer step's own look-ups, and searches the provider
+    counts that Jobcu doesn't (tools run outside Jobcu, requests that failed)."""
     allowance = settings.limits.free_web_searches
     provider = settings.ai.research_provider or settings.ai.provider
     if allowance is None or provider is None:
         return None
     now = now or datetime.now(UTC)
-    left = max(0, allowance - UsageLog().web_searches_this_month(provider, now))
+    usable = math.floor(allowance * (1 - FREE_SEARCH_MARGIN))
+    left = max(0, usable - UsageLog().web_searches_this_month(provider, now))
     start = billing_month_start(now)
     end = billing_month_start(now + timedelta(days=billing_days_left(now)))
     return min(left, math.ceil(share(left, start, end, now, hours)))
