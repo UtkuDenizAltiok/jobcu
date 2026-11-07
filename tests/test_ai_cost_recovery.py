@@ -431,3 +431,25 @@ def test_search_stop_reaches_the_ai_wait_during_document_understanding(monkeypat
         assert conn.execute("SELECT status FROM searches WHERE id=?", (run.id,)).fetchone()[0] == (
             "stopped")
     assert UsageLog().for_search(run.id)["profile"].unreported_requests == 1
+
+
+def test_every_research_request_carries_its_web_search_budget_and_overspending_is_logged(caplog):
+    # Search 19 (2026-11-06): Gemini's search tool has no cap, and Gemini ran 4 to 10 searches a
+    # job where 2 were allowed. The budget is now said in every research request.
+    class Web(ScriptedAdapter):
+        can_search_the_web = True
+
+        def research(self, **request):
+            raw = self.complete_json(**request)
+            return ResearchReply(raw.text, [], Usage(10, 5, web_searches=7))
+
+    adapter = Web(GOOD)
+    client = AIClient(settings(), adapter=adapter, usage_log=UsageLog())
+    with caplog.at_level("INFO", logger="jobcu.ai.client"):
+        client.research(step="job_places", system="Find fictional workplaces",
+                        prompt="Five fictional jobs", max_searches=4)
+    sent = adapter.calls[0]
+    assert sent["max_searches"] == 4
+    assert sent["system"].startswith("Find fictional workplaces")
+    assert "at most 4 searches in total" in sent["system"]
+    assert "used=7 allowed=4" in caplog.text
