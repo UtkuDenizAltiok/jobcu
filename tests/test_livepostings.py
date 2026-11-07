@@ -1,6 +1,10 @@
 """The employer's own posting, found online, for good jobs whose links can't take the application
 (livepostings.py)."""
 
+import logging
+
+import pytest
+
 from jobcu import livepostings
 from jobcu.ai.base import AILimitReached, AIRefused, AIUnavailable, ResearchReply, Source, Usage
 from jobcu.dedupe import JobGroup
@@ -27,8 +31,9 @@ class Researcher:
         if isinstance(reply, Exception):
             raise reply
         text, sources, searches = reply
-        return ResearchReply(text, [Source(url) for url in sources], Usage(10, 5,
-                                                                           web_searches=searches))
+        # A source is its address, or (address, title).
+        return ResearchReply(text, [Source(*s) if isinstance(s, tuple) else Source(s)
+                                    for s in sources], Usage(10, 5, web_searches=searches))
 
     def generate(self, output, **request):
         return output.model_validate({"jobs": self.structured.pop(0)})
@@ -182,3 +187,62 @@ def test_only_the_employers_page_of_that_vacancy_counts_as_a_direct_link():
                          [[{"id": "J0", "url": CAREERS.format(0)}]])
     livepostings.find_postings(uk_only, [group(0)], [0])
     assert "| any page open to applicants from any country |" in uk_only.prompts[0]
+
+
+REDIRECT = "https://redirect.search.example/r/{}"
+
+
+def test_the_log_counts_postings_kept_why_the_others_weren_t_and_sources_naming_no_page(caplog):
+    # Gemini lists its search sources as Google redirect links titled with the page's site: they
+    # name no page, so they can't confirm an address, and Jobcu never follows them to find out.
+    groups = [group(n) for n in range(4)]
+    cv_library = "https://www.cv-library.co.uk/job/2"
+    notes = (f"JOB J0 {CAREERS.format(0)}\nJOB J1 {CAREERS.format(1)}\nJOB J2 {cv_library}\n"
+             "JOB J3 NOT FOUND")
+    sources = [CAREERS.format(0), (REDIRECT.format(1), "careers.fakeco.example"),
+               (REDIRECT.format(2), "jobs.otherco.example"), (cv_library, "CV-Library: job 2")]
+    client = Researcher([(notes, sources, 4)],
+                        [[{"id": "J0", "url": CAREERS.format(0)},
+                          {"id": "J1", "url": CAREERS.format(1)},
+                          {"id": "J2", "url": cv_library}, {"id": "J3", "url": ""}]])
+    with caplog.at_level(logging.INFO, logger="jobcu.livepostings"):
+        assert livepostings.find_postings(client, groups, [0, 1, 2, 3]) == 1
+    assert [g.link_from_web for g in groups] == [CAREERS.format(0), "", "", ""]
+    assert ("Open postings: 1 of 4 jobs kept (not kept: 1 not among the provider's sources, "
+            "1 CV-Library or a blocked site, 1 no address named); the provider's 4 sources "
+            "include 2 that name no page") in caplog.text
+
+
+def test_a_source_names_no_page_only_when_its_title_is_another_site():
+    assert livepostings.names_no_page(Source(REDIRECT.format(1), "careers.fakeco.example"))
+    assert livepostings.names_no_page(Source(REDIRECT.format(1), "www.FakeCo.example"))
+    page = CAREERS.format(1)
+    for title in ("careers.fakeco.example", "fakeco.example", "Hardware Engineer - FakeCo", ""):
+        assert not livepostings.names_no_page(Source(page, title))
+    assert not livepostings.names_no_page(Source("https://www.fakeco.example/jobs/1",
+                                                 "fakeco.example"))
+
+
+@pytest.mark.parametrize(("job", "url", "why"), [
+    (group(0), "careers.fakeco.example/jobs/9", "not a web address"),
+    (board_group(0, ADZUNA.format(0)), "https://www.stepstone.de/stellenangebote--9",
+     "a job site's page, not the employer's"),
+    (board_group(0, ADZUNA.format(0)), "https://fakeco.example/karriere/", "a list of jobs, "
+     "not one vacancy"),
+    (group(0), "https://careers.fakeco.example/jobs/unlisted", "not among the provider's sources"),
+    (group(0), "https://www.cv-library.co.uk/job/9", "CV-Library or a blocked site"),
+    (group(0), UK_PAGE.format(9), "takes only visitors in the UK"),
+    (group(0), "https://www.jobleads.com/uk/job/hardware-engineer--e9",
+     "a site that only repeats other sites' ads"),
+    (group(0, UK_PAGE.format(0), CAREERS.format(0)), CAREERS.format(0),
+     "one of the job's own links"),
+    (group(0), CAREERS.format(9), ""),
+])
+def test_each_address_that_can_t_be_the_posting_says_why(job, url, why):
+    listed = ["careers.fakeco.example/jobs/9", "https://www.stepstone.de/stellenangebote--9",
+              "https://fakeco.example/karriere/", "https://www.cv-library.co.uk/job/9",
+              UK_PAGE.format(9), "https://www.jobleads.com/uk/job/hardware-engineer--e9",
+              CAREERS.format(0), CAREERS.format(9)]
+    reply = ResearchReply("notes", [Source(page) for page in listed], Usage(10, 5, web_searches=1))
+    assert livepostings.why_not_usable(url, reply, job) == why
+    assert livepostings.usable(url, reply, job) is (why == "")

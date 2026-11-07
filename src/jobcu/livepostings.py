@@ -11,13 +11,20 @@ it, it isn't CV-Library, another page that takes only visitors in the UK, or a s
 repeats other sites' ads (JobLeads was search 17's one find: it refuses Jobcu and shows the
 employer only to paying members). A model's written URL alone is not evidence: a provider that
 gives no source addresses finds none here.
+
+Some providers list a source only as their own link to it, titled with the page's site (Gemini's
+search sources are Google redirect links: 209 of 215 in two recorded searches). Such a source
+names no page, so it can't confirm an address. Jobcu never follows those links to learn where they
+lead: Google's grounding terms forbid collecting links by automated means. The log counts, for each
+look-up, the postings kept, why the others weren't, and how many sources named no page, so each
+provider's real yield can be measured on live searches.
 """
 
 import hashlib
 import json
 import logging
 import re
-from collections import defaultdict
+from collections import Counter, defaultdict
 from collections.abc import Callable
 from dataclasses import asdict
 from urllib.parse import urlsplit
@@ -145,15 +152,48 @@ def usable(url: str, reply: ResearchReply, group: JobGroup) -> bool:
     """The address names a page the provider's web search returned, and it can take the
     application: not CV-Library, not for UK visitors only, not a site repeating other sites' ads,
     not one of the job's own links."""
+    return not why_not_usable(url, reply, group)
+
+
+def why_not_usable(url: str, reply: ResearchReply, group: JobGroup) -> str:
+    """Why the address can't be the job's open posting, in a few words; "" when it can."""
     if not url.startswith(("https://", "http://")) or not _address(url):
-        return False
+        return "not a web address"
+    if _employer_page_wanted(group):
+        # A direct link is the employer's page of this vacancy, not another job site.
+        if applications.middleman(url):
+            return "a job site's page, not the employer's"
+        if not _one_vacancy(url):
+            return "a list of jobs, not one vacancy"
     found = {_address(source.url) for source in reply.sources}
     found |= {_address(citation.url) for citation in reply.citations or []}
-    if _employer_page_wanted(group) and (applications.middleman(url) or not _one_vacancy(url)):
-        return False  # a direct link is the employer's page of this vacancy, not another job site
-    return (_address(url) in found and not applications.blocked(url)
-            and not applications.uk_visitors_only(url) and not applications.repeats_ads(url)
-            and _address(url) not in {_address(link) for link in _links(group)})
+    if _address(url) not in found:
+        return "not among the provider's sources"
+    if applications.blocked(url):
+        return "CV-Library or a blocked site"
+    if applications.uk_visitors_only(url):
+        return "takes only visitors in the UK"
+    if applications.repeats_ads(url):
+        return "a site that only repeats other sites' ads"
+    if _address(url) in {_address(link) for link in _links(group)}:
+        return "one of the job's own links"
+    return ""
+
+
+_SITE_NAME = re.compile(r"(?:[a-z0-9-]+\.)+[a-z]{2,}")
+
+
+def names_no_page(source: Source) -> bool:
+    """A source listed only as the provider's link to it: its title is a site's name, and that
+    site isn't the address's own (Gemini's sources are Google redirect links titled with the
+    page's site). Its address can never be the address an answer names."""
+    title = source.title.strip().lower().removeprefix("www.")
+    try:
+        host = (urlsplit(source.url).hostname or "").lower().removeprefix("www.")
+    except ValueError:
+        return False
+    return (bool(_SITE_NAME.fullmatch(title)) and bool(host) and host != title
+            and not host.endswith("." + title) and not title.endswith("." + host))
 
 
 def _one_vacancy(url: str) -> bool:
@@ -211,13 +251,20 @@ def find_postings(client: AIClient, groups: list[JobGroup], indexes: list[int], 
         if reply is None:
             continue
         urls = {job.id: job.url.strip() for job in answer.jobs}
+        not_kept: Counter[str] = Counter()
         for index in batch:
             url = urls.get(f"J{index}", "")
-            keep = url if url and usable(url, reply, groups[index]) else ""
-            if url and not keep:
-                log.info("Open posting not kept (not among the provider's sources or unusable)")
-            groups[index].link_from_web = keep
-            found += bool(keep)
+            why = why_not_usable(url, reply, groups[index]) if url else "no address named"
+            groups[index].link_from_web = "" if why else url
+            if why:
+                not_kept[why] += 1
+            else:
+                found += 1
+        reasons = ", ".join(f"{count} {why}" for why, count in not_kept.most_common())
+        log.info("Open postings: %d of %d jobs kept%s; the provider's %d sources include %d that "
+                 "name no page", len(batch) - not_kept.total(), len(batch),
+                 f" (not kept: {reasons})" if reasons else "", len(reply.sources),
+                 sum(names_no_page(source) for source in reply.sources))
     return found
 
 

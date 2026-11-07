@@ -94,7 +94,11 @@ cover that continuation, while usage is cumulative.
   page of an employer's application system, or the employer's posting found online) is marked
   `direct` and opens as it is. A good job (60 or more) whose links all lead through job sites gets
   the employer's page of that vacancy looked up online during the search (`livepostings.py`;
-  never another job site or a careers index; no job link is visited).
+  never another job site or a careers index; no job link is visited). An address is kept only
+  when one of the provider's sources names that page. A source listed only as the provider's own
+  link to a site (Gemini's Google redirect links) names no page; Jobcu never follows it to learn
+  where it leads (Google's grounding terms). The log counts per look-up the postings kept, why the
+  others weren't, and the sources that name no page, to measure each provider's yield.
 - A click on another site's link reads that one page and sends the browser straight to its single,
   clear apply link on another site, skipping sites that only repeat an ad. Searches never do this:
   those links can be paid per click. Sites that forbid reading or refuse it keep their link, and

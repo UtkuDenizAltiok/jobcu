@@ -78,7 +78,8 @@ done. Implementation details belong in pull requests; current behavior is descri
 6. **Original postings for more jobs.** Extend the online look-up of the employer's own posting
    to other good jobs whose only links are sites that refuse Jobcu, prefer employer pages over
    other job sites, and use the original posting date. Measure per AI provider how often the
-   right open page is found.
+   right open page is found: the log counts each look-up's postings kept and why the others
+   weren't. With Gemini most sources are redirect links that name no page, so few can be kept.
 7. **Free source allowances.** Make sure monthly free allowances, such as JSearch credits, are
    fully used across searches without paid overruns.
 8. **Coverage benchmark.** Compare Jobcu with an independently collected sample of real

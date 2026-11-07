@@ -690,6 +690,19 @@ A provider attribution establishes provenance, not independent verification or a
 condition. Missing/ambiguous links remain unknown. This uses the existing Generate Content
 contract and adds no service, endpoint, retention right or paid-call authority.
 
+### Grounding links are not followed — 2026-11-07
+
+**Checked 2026-11-07.** The [Gemini API Additional Terms](https://aistudio.google.com/docs/terms)
+(effective 2026-03-23), "Grounding with Google Search", define Links as "any other means to fetch
+web pages (including hyperlinks and URLs)" in a Grounded Result, and call it a violation to
+extract or collect them "for another purpose", for example "using programmatic or automated means
+to collect Links" or "using Links to identify destination pages for crawling or scraping". Gemini's research sources are Google redirect links titled only with
+the page's site: 209 of 215 sources in two recorded Jobcu searches (3.8 Flash, Interactions API).
+Decision: Jobcu never requests a redirect link to learn its target. A redirect source names no
+page, so it can't confirm an address an answer names (`livepostings.py` keeps an employer posting
+only when a source names that page; the log counts sources that name no page). No request, retention
+right or paid-call authority is added.
+
 ### Transport diagnosis limits — 2026-10-16
 
 **Checked 2026-10-16.** In [SDK issue #1356](https://github.com/googleapis/python-genai/issues/1356),
