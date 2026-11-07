@@ -177,7 +177,11 @@ preempted Flex stream is otherwise an ambiguous dropped connection.
 An optional monthly free-search allowance (`limits.free_web_searches`) gives each search a
 share of the research provider's free searches left in its billing month (Pacific time for
 Google), spread over the remaining days at the person's searches per day; past the share Jobcu
-asks before more look-ups, like the per-search limit, and the smaller of the two applies.
+looks nothing more up (it neither pays nor asks), and the smaller of the share and the per-search
+limit applies. Every research request carries its own search budget (2 a job for look-ups): as a
+native cap where the provider has one (Anthropic `max_uses`, OpenAI `max_tool_calls`, MiMo
+keywords) and, for all, said in the request (`client.with_search_budget`), since Gemini's search
+tool has no cap. A provider that searches past it is logged.
 
 Native Anthropic requests stream and use only the final message: a streamed answer starts at
 once, where a silent plain request was cut by a network idle limit at 60 s. A broken stream keeps

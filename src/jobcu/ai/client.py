@@ -84,6 +84,19 @@ def with_thinking_room(max_output_tokens: int, effort: Effort | None) -> int:
                max(max_output_tokens, MAX_OUTPUT_TOKENS))
 
 
+def with_search_budget(system: str, allowed: int) -> str:
+    """The request's web search budget, said to the model itself.
+
+    Some providers cap searches natively (Anthropic max_uses, OpenAI max_tool_calls, MiMo's
+    keyword count); Gemini's search tool has no such control, so Gemini searched as it liked: 4 to
+    10 searches a job where 2 were allowed (search 19, 2026-11-06), each one billed past the free
+    monthly searches. Said in the request, the budget holds for every provider."""
+    searches = "1 search" if allowed == 1 else f"{allowed} searches"
+    return (f"{system}\n\nWeb search budget for this request: at most {searches} in total. Plan "
+            "your queries first, cover several items or facts with one query where you can, and "
+            "stop searching as soon as you have what you need.")
+
+
 class AIClient:
     # Explicitly unsupported native reasoning controls with a successful fallback.
     _effort_unsupported: ClassVar[set[tuple[str, str]]] = set()
@@ -602,12 +615,16 @@ class AIClient:
                                              "look-ups, including failed attempts.")
                     reply = self._call_adapter(adapter.research, step, provider,
                         model=model,
-                        system=system,
+                        system=with_search_budget(system, allowed),
                         prompt=prompt,
                         max_searches=allowed,
                         max_output_tokens=with_thinking_room(max_output_tokens, effort),
                         effort=effort,
                     )
+                    if reply.usage.web_searches > allowed:
+                        log.info("Research used more web searches than allowed: step=%s "
+                                 "provider=%s model=%s used=%d allowed=%d", step, provider,
+                                 model, reply.usage.web_searches, allowed)
                     completed(reply.usage)
                     self._record(step, provider, model, reply.usage,
                                  recovery_id=reply.recovery_id)
