@@ -90,9 +90,14 @@ def with_search_budget(system: str, allowed: int) -> str:
     Some providers cap searches natively (Anthropic max_uses, OpenAI max_tool_calls, MiMo's
     keyword count); Gemini's search tool has no such control, so Gemini searched as it liked: 4 to
     10 searches a job where 2 were allowed (search 19, 2026-11-06), each one billed past the free
-    monthly searches. Said in the request, the budget holds for every provider."""
-    searches = "1 search" if allowed == 1 else f"{allowed} searches"
-    return (f"{system}\n\nWeb search budget for this request: at most {searches} in total. Plan "
+    monthly searches. Said in the request, the budget holds for every provider.
+
+    The budget is counted in queries, the unit providers bill: told "at most 10 searches", three
+    requests each sent 32 to 36 queries (2026-11-12). One search step can send several queries
+    at once, so a budget in "searches" can be read as steps."""
+    queries = "1 search query" if allowed == 1 else f"{allowed} search queries"
+    return (f"{system}\n\nWeb search budget for this request: at most {queries} in total. "
+            "Every query you send counts, also each of several sent in one search step. Plan "
             "your queries first, cover several items or facts with one query where you can, and "
             "stop searching as soon as you have what you need.")
 
@@ -622,9 +627,12 @@ class AIClient:
                         effort=effort,
                     )
                     if reply.usage.web_searches > allowed:
+                        # search_steps says whether the model counted steps instead of
+                        # queries (0: the provider doesn't say).
                         log.info("Research used more web searches than allowed: step=%s "
-                                 "provider=%s model=%s used=%d allowed=%d", step, provider,
-                                 model, reply.usage.web_searches, allowed)
+                                 "provider=%s model=%s used=%d allowed=%d search_steps=%d",
+                                 step, provider, model, reply.usage.web_searches, allowed,
+                                 reply.search_steps)
                     completed(reply.usage)
                     self._record(step, provider, model, reply.usage,
                                  recovery_id=reply.recovery_id)

@@ -219,4 +219,6 @@ class EventAnswer:
                 if text.count(words) == 1:
                     citations[words, url] = Citation(words, url)
         return ResearchReply(text=text, usage=self.usage(), sources=unique_sources(sources),
-                             citations=list(citations.values()) if self.web_search else None)
+                             citations=list(citations.values()) if self.web_search else None,
+                             search_steps=sum(1 for step in self.steps.values()
+                                              if step["kind"] == "google_search_call"))

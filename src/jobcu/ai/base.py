@@ -82,6 +82,8 @@ class ResearchReply:
     # None: adapter has no passage mapping. Empty: mapping was available but no usable links.
     citations: list[Citation] | None = None
     recovery_id: str | None = None
+    # Search steps the provider ran, where it says: one step can send several billed queries.
+    search_steps: int = 0
 
 
 class AIError(Exception):

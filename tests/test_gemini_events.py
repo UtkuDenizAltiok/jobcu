@@ -185,6 +185,7 @@ def test_byte_citations_queries_and_late_metadata_are_preserved_without_guessing
     assert [(c.text, c.url) for c in reply.citations] == [(words, valid["url"])]
     assert [s.url for s in reply.sources] == [valid["url"]]
     assert reply.usage == Usage(100, 80, 10, 50, web_searches=2)
+    assert reply.search_steps == 1  # one search step sent both billed queries
     assert requests[0]["body"]["tools"] == [{"type": "google_search"}]
     assert "response_format" not in requests[0]["body"]
     assert len(requests) == 1 and streams[0].closed
@@ -486,3 +487,36 @@ def test_refusal_after_started_generation_preserves_missing_usage(service):
         generate(adapter)
     assert caught.value.usage and caught.value.usage.unreported_requests == 1
     assert len(requests) == 1
+
+
+def test_the_search_budget_is_said_in_billed_queries_and_an_overrun_is_logged_with_its_steps(
+        service, caplog):
+    # 2026-11-12: told "at most 10 searches", three requests each sent 32 to 36 queries. One
+    # search step can send several queries; providers bill each query.
+    import logging
+
+    from jobcu.ai.client import AIClient, with_search_budget
+    from jobcu.settings import Settings
+
+    assert "at most 4 search queries in total" in with_search_budget("Look it up.", 4)
+    assert "at most 1 search query in total" in with_search_budget("Look it up.", 1)
+    assert "each of several sent in one search step" in with_search_budget("Look it up.", 4)
+
+    adapter, requests, _ = service([
+        start(0, "google_search_call", arguments={"queries": ["fictional library opening",
+                                                              "fictional library address",
+                                                              "fictional town library"]}),
+        start(1), text("The fictional library opens on Sundays.", 1),
+        event("step.delta", index=1, delta={"type": "text_annotation_delta", "annotations": [
+            {"type": "url_citation", "url": "https://example.test/library", "title": "Library",
+             "start_index": 0, "end_index": 12}]}), done(),
+    ])
+    configured = Settings()
+    configured.ai.provider, configured.ai.model = "gemini", "gemini-3.8-flash"
+    client = AIClient(configured, adapter=adapter)
+    with caplog.at_level(logging.INFO, logger="jobcu.ai.client"):
+        client.research(step="location", system="Use sourced evidence",
+                        prompt="Fictional town library", max_searches=2)
+    assert "at most 2 search queries in total" in requests[0]["body"]["system_instruction"]
+    assert any("used=3 allowed=2 search_steps=1" in record.getMessage()
+               for record in caplog.records)
