@@ -261,6 +261,10 @@ neither pays nor asks. With limits that stop, a web look-up that fails after its
 searches without a full bill pauses automatic research for the rest of the search, because the
 missing bill could pass the limit. With limits that only tell, it is an ordinary outage
 (bounded retries), its searches count against the allowance, and the incomplete bill is noted.
+A job look-up request that still fails after its retries while other look-ups of the same round
+come back is asked again in halves, down to single jobs, so one ad the provider can't handle
+doesn't leave its batch unchecked; with no answer yet in the round the service counts as down
+and the queued look-ups stop (`jobplace.find_online`).
 Plans, other
 web research, journeys and new-search scores are not reused as setup. Full-ad caching has its
 own bounded age and parser versions. Changed inputs invalidate the relevant cache.
