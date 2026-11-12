@@ -190,7 +190,8 @@ looks nothing more up (it neither pays nor asks), and the smaller of the share a
 limit applies. Every research request carries its own search budget (2 a job for look-ups): as a
 native cap where the provider has one (Anthropic `max_uses`, OpenAI `max_tool_calls`, MiMo
 keywords) and, for all, said in the request (`client.with_search_budget`), since Gemini's search
-tool has no cap. A provider that searches past it is logged.
+tool has no cap. The budget is counted in queries, the unit providers bill: one search step can
+send several. A provider that searches past it is logged with its search steps.
 
 Native Anthropic requests stream and use only the final message: a streamed answer starts at
 once, where a silent plain request was cut by a network idle limit at 60 s. A broken stream keeps

@@ -451,5 +451,5 @@ def test_every_research_request_carries_its_web_search_budget_and_overspending_i
     sent = adapter.calls[0]
     assert sent["max_searches"] == 4
     assert sent["system"].startswith("Find fictional workplaces")
-    assert "at most 4 searches in total" in sent["system"]
-    assert "used=7 allowed=4" in caplog.text
+    assert "at most 4 search queries in total" in sent["system"]
+    assert "used=7 allowed=4 search_steps=0" in caplog.text  # this provider reports no steps
