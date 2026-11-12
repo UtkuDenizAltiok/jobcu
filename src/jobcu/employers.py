@@ -8,7 +8,8 @@ opens the employer's careers page once to find it (sources/careerlinks.py), chec
 with that system's own reader as the directory check does, and remembers the employers whose
 lists it can read, in the person's data folder. Every later search reads them like the
 directory's; the AI looks again after REFRESH_DAYS, or at once when the person's kind of work
-changes. Failed or incomplete country lookups remain due on the next normal search. Only
+changes. Failed or incomplete country lookups remain due on the next normal search; one is
+complete when the provider cited pages or billed web searches for the employers it named. Only
 independently checked career lists are kept; an AI-written address is not proof of a job list.
 """
 
@@ -180,7 +181,19 @@ def _ask(client: AIClient, profile: Profile, countries: list[str],
             rows = parse_lines(reply.text, code)[:MAX_PER_COUNTRY]
             empty = reply.text.strip(" `\r\n\t") == "NONE"
             in_country = any(row[1] == code for row in rows)
-            lookup = _Lookup(code, rows, bool(reply.sources) and (in_country or empty))
+            # The look-up is done when the provider shows it searched: by the pages it cites,
+            # or by the searches it billed when it names employers in the country (a list of
+            # names and addresses often carries no citation; every address is checked by Jobcu
+            # anyway). An uncited "NONE" proves nothing. On 2026-11-12 two countries' answers,
+            # each after more than 30 searches, stayed "incomplete" and due again every search.
+            searched = bool(reply.sources) or reply.usage.web_searches > 0
+            lookup = _Lookup(code, rows, bool(reply.sources) and empty or searched and in_country)
+            if not lookup.complete:
+                log.info("Finding employers in %s is incomplete: %d employers named, %s in "
+                         "that country, %d pages cited, %d web searches, answer %s", code,
+                         len(rows), "some" if in_country else "none", len(reply.sources),
+                         reply.usage.web_searches, "NONE" if empty else f"of {len(reply.text)} "
+                         "characters")
         with lock:
             completed[code] = lookup
 
