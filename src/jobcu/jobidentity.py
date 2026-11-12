@@ -14,8 +14,20 @@ def copy_key(source: str, vacancy: str) -> str:
     return f"copy:{source}:{vacancy}"
 
 
+def found_town(group: JobGroup) -> str | None:
+    """The one town Jobcu found for a job itself, in the ad's text or online (relevance.py,
+    jobplace.py). Several towns name no single workplace, so they identify nothing."""
+    places = [*(group.place_from_text or []), *(group.place_from_web or [])]
+    return places[0] if places and len({normal_city(place) for place in places}) == 1 else None
+
+
 def fingerprints(group: JobGroup) -> list[tuple[str, str]]:
     entries = []
+    # A job site that names no town ("Deutschland") or a neighbouring one hides a job Jobcu
+    # showed before: two of search 19's cards were "new" although earlier searches had shown the
+    # same employer's same title in the town Jobcu then found online. The found town is the
+    # job's town too.
+    found = found_town(group)
     for copy in group.copies:
         # The town the location names, whatever its wording: Flex's Cork job was remembered as
         # "Ireland, Cork" (its first word, "ireland") and came back from JSearch as "Cork", a
@@ -31,6 +43,12 @@ def fingerprints(group: JobGroup) -> list[tuple[str, str]]:
                 cities = [normal_city(copy.location_text, legacy_dashes=legacy)]
                 if town is not None:
                     cities.append(normal_city(town.name, legacy_dashes=legacy))
+                if found and not legacy:
+                    cities.append(normal_city(found))
+                    named = (place_list.locate(found, copy.country, villages=False)
+                             if copy.country else None)
+                    if named is not None:
+                        cities.append(normal_city(named.name))
                 entries.extend((f"job:{company}|{title}|{city}", (copy.country or "").upper())
                                for city in cities)
     return list(dict.fromkeys(entries))

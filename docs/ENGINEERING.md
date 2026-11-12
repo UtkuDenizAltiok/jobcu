@@ -116,7 +116,12 @@ cover that continuation, while usage is cumulative.
 - The job memory knows a job by its source IDs, then by employer, title and town (the town its
   location names, whatever the wording). When several remembered jobs share that name, none is
   chosen and no saved state is shared, but the job counts as shown before if one of them was
-  shown with its score.
+  shown with its score. A single town Jobcu found itself, in the ad's text or online, counts as
+  the job's town too (`jobidentity.found_town`): a job whose site names only the country, or a
+  neighbouring town, is recognised as shown before once that town is found, before scoring where
+  the ad's text names it and after the online look-ups otherwise
+  (`search._shown_before_in_found_town`), and follows the same rules as one recognised when the
+  search began.
 - Saved owner/legacy ratings are protected from automatic replacement. Optional review results
   are stored separately from production scores.
 
