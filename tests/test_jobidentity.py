@@ -504,3 +504,36 @@ def test_generic_titles_different_towns_and_two_candidates_stay_separate_jobs():
     # A town-less copy cannot choose between two known jobs with that title.
     jobstore.remember([located("t-3", title, "Hamburg", source="y")], new_search())
     assert jobstore.find_job_ids([located("t-4", title, "Deutschland", source="z")]) == [None]
+
+
+def test_a_town_jobcu_found_itself_identifies_a_job_whose_site_named_none_or_another():
+    # Search 19: two cards were "new" though earlier searches had shown the same employer's same
+    # title in that town. One site wrote only the country, the other a neighbouring town; Jobcu
+    # found the real town online, after its memory had been asked.
+    shown = group("one", "Hardware Engineer", source="board", kind="job_board")  # in Berlin
+    ids, _ = jobstore.remember([shown], new_search())
+
+    nameless = group("two", "Hardware Engineer", source="other", kind="aggregator")
+    nameless.main.location_text = "Deutschland"
+    assert jobstore.find_job_ids([nameless]) == [None]
+    nameless.place_from_web = ["Berlin"]
+    assert jobstore.find_job_ids([nameless]) == ids
+
+    neighbour = group("three", "Hardware Engineer", source="other", kind="aggregator")
+    neighbour.main.location_text = "Potsdam"
+    neighbour.place_from_text = ["Berlin"]
+    assert jobstore.find_job_ids([neighbour]) == ids
+
+    several = group("four", "Hardware Engineer", source="other", kind="aggregator")
+    several.main.location_text = "Deutschland"
+    several.place_from_web = ["Berlin", "Hamburg"]  # no single workplace: nothing to go by
+    assert jobstore.find_job_ids([several]) == [None]
+
+    # A job remembered with a found town is found again by a site that names that town.
+    found = group("five", "Test Engineer", source="other", kind="aggregator")
+    found.main.location_text = "Deutschland"
+    found.place_from_web = ["Leipzig"]
+    found_ids, _ = jobstore.remember([found], new_search())
+    later = group("six", "Test Engineer", source="board", kind="job_board")
+    later.main.location_text = "Leipzig"
+    assert jobstore.find_job_ids([later]) == found_ids

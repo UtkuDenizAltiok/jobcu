@@ -1834,6 +1834,88 @@ def test_a_job_shown_a_week_before_and_posted_again_is_assessed_again_and_labell
     assert wait_until_done(manager)["result"]["jobs"]["cards"] == []
 
 
+class NoTownSource(FakeSource):
+    """A job site that names only the country; the ad's text names the town."""
+
+    def search(self, query, ctx):
+        ctx.report.requests += 1
+        yield FoundJob(source="fake", source_job_id="n0", url="https://jobs.test/n0",
+                       title="Hardware Engineer", company="Company 0",
+                       location_text="Deutschland", country="DE", posted_at=datetime.now(UTC),
+                       date_precision="exact", description="You design boards in Berlin.")
+
+    def load_details(self, job, ctx):
+        job.description_is_complete = True
+        return job
+
+
+class PlacingAI(FakeAI):
+    """Reads the town from the ad's text when the job site gave none."""
+
+    def __init__(self):
+        super().__init__()
+        self.calls: list[str] = []
+
+    def complete_json(self, **request):
+        self.calls.append(request["schema_name"])
+        if request["schema_name"] == "QuickPassAnswer":
+            ids = re.findall(r"^(J\d+) \|.*WHERE\?$", request["prompt"], re.MULTILINE)
+            answer = {"clearly_unrelated": [],
+                      "places": [{"id": job_id, "places": ["Berlin"]} for job_id in ids]}
+            return RawReply(json.dumps(answer), Usage(10, 5))
+        return super().complete_json(**request)
+
+
+def remembered_in_berlin(days_ago, score):
+    """Company 0's Hardware Engineer in Berlin, as an earlier search showed it."""
+    from jobcu.dedupe import normal_city, normal_company, normal_title
+
+    when = (datetime.now(UTC) - timedelta(days=days_ago)).isoformat()
+    key = (f"job:{normal_company('Company 0')}|{normal_title('Hardware Engineer')}|"
+           f"{normal_city('Berlin')}")
+    with db.connect() as conn:
+        conn.execute("INSERT INTO jobs (id, first_seen_at, first_assessed_at, title, company) "
+                     "VALUES (41, ?1, ?1, 'Hardware Engineer', 'Company 0')", (when,))
+        conn.execute("INSERT INTO job_fingerprints VALUES (?, 41, 'DE')", (key,))
+    jobstore.save_cards([{"job_id": 41, "title": "Hardware Engineer", "company": "Company 0",
+                          "location": "Berlin", "country": "DE", "score": score,
+                          "location_pending": False}])
+
+
+def test_a_job_shown_before_is_recognised_once_jobcu_finds_its_town(ready, monkeypatch):
+    # Search 19 showed two jobs again as new: their sites named no town or a neighbouring one,
+    # so nothing matched Jobcu's memory when the search began; the town was found afterwards.
+    from jobcu.filters import REASONS
+
+    ai = PlacingAI()
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: ai)
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [NoTownSource()])
+    remembered_in_berlin(days_ago=3, score=80)
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    result = wait_until_done(manager)
+    assert result["status"] == "finished", result["error"]
+    jobs = result["result"]["jobs"]
+    assert jobs["cards"] == []
+    assert {"reason": REASONS["repost"], "count": 1} in jobs["counts"]["left_out"]
+    assert "ScoringAnswer" not in ai.calls  # recognised before any scoring was paid for
+
+
+def test_a_job_recognised_by_its_found_town_and_posted_again_after_a_week_is_labelled(
+        ready, monkeypatch):
+    ai = PlacingAI()
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: ai)
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [NoTownSource()])
+    remembered_in_berlin(days_ago=10, score=60)
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    result = wait_until_done(manager)
+    assert result["status"] == "finished", result["error"]
+    (card,) = result["result"]["jobs"]["cards"]
+    assert card["job_id"] == 41 and card["reposted"] and not card["is_new"]
+    assert card["score"] is not None and "ScoringAnswer" in ai.calls  # judged with today's ad
+
+
 def test_starting_a_search_keeps_the_last_90_result_lists_and_nothing_else_deletes_them():
     # The person keeps the last 90 searches' lists (2026-11-04); older ones go only as a new
     # search starts, so the latest list stays to apply from until then.

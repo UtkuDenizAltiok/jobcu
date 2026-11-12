@@ -24,6 +24,7 @@ from jobcu import (
     db,
     documents,
     employers,
+    jobidentity,
     jobplace,
     jobstore,
     livepostings,
@@ -733,6 +734,59 @@ def _reposts_to_assess(groups, indexes, remembered, states, shown_at,
             and not earlier.get("location_pending")}
 
 
+def _shown_before_in_found_town(groups, job_pool, indexes, started_at,
+                                posted_within_hours) -> dict[int, str]:
+    """Jobs an earlier search showed, recognised only now that Jobcu found their town itself.
+
+    When a search begins, a job is matched to Jobcu's memory by its job sites' own numbers or by
+    employer, title and town. A site that names no town ("Deutschland") or a neighbouring one
+    leaves nothing to match, so the job looked new until its town was found in the ad's text or
+    online, after that check. Returns why each such job leaves (a filters.REASONS key), by the
+    rules a job recognised at the start follows; one really posted again long after it was shown
+    stays and is labelled a repost (_reposts_to_assess)."""
+    asked = [i for i in indexes if jobidentity.found_town(groups[i])
+             and not job_pool.jobs[i].reposted_first_seen]
+    if not asked:
+        return {}
+    remembered, repeats = jobstore.find_jobs([groups[i] for i in asked])
+    shown = jobstore.first_assessed([job_id for job_id in remembered if job_id]
+                                    + [job_id for same in repeats for job_id in same])
+    states = jobstore.states([job_id for job_id in remembered if job_id])
+    start = window_start(started_at, posted_within_hours)
+    reasons: dict[int, str] = {}
+    before_window: list[int] = []  # positions in `asked`
+    shown_at: list[datetime | None] = []
+    for position, (index, job_id, same) in enumerate(zip(asked, remembered, repeats,
+                                                         strict=True)):
+        dates = [shown[i] for i in ([job_id] if job_id else same) if i in shown]
+        first = min(dates) if dates else None
+        shown_at.append(first)
+        state = states.get(job_id) if job_id else None
+        if state is not None and state.dismissed:
+            reasons[index] = "dismissed"
+        elif first is None or first >= started_at:
+            continue  # never shown with a score and a checked place, or shown by this search
+        elif first < start:
+            reasons[index] = "repost"
+            before_window.append(position)
+        else:
+            reasons[index] = "shown_before"
+    # One card for a job posted again: not a second one beside a repost the search kept already.
+    kept_reposts = [job.group for job in job_pool.jobs if job.reposted_first_seen]
+    already = set(jobstore.find_job_ids(kept_reposts)) if before_window and kept_reposts else set()
+    reposts = _reposts_to_assess(
+        [groups[i] for i in asked], [p for p in before_window if remembered[p] not in already],
+        remembered, [states.get(job_id) if job_id else None for job_id in remembered],
+        shown_at, started_at)
+    for position, first_shown in reposts.items():
+        job_pool.jobs[asked[position]].reposted_first_seen = first_shown
+        del reasons[asked[position]]
+    if reasons or reposts:
+        log.info("Recognised once their town was found: %d jobs shown before leave, %d posted "
+                 "again stay", len(reasons), len(reposts))
+    return reasons
+
+
 def _preserve_interrupted_pool(run, job_pool) -> None:
     """Keep completed evidence without masking the failure or starting more work."""
     if run.capture:
@@ -868,6 +922,12 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         if early_lookup.not_asked:
             run.note("Some workplaces are waiting for the existing web lookup allowance; "
                      "those jobs have not been sent for scoring.")
+
+    # A town found in the ad's text or online can show that an earlier search listed this job.
+    seen_again = _shown_before_in_found_town(groups, job_pool, candidates, started_at,
+                                             form.posted_within_hours)
+    candidates = [i for i in candidates if i not in seen_again]
+    to_score = [i for i in to_score if i not in seen_again]
 
     # Original metadata may identify a different workplace. A journey for the earlier
     # summary point is not evidence for that workplace; measure only changed points again.
@@ -1063,6 +1123,9 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         fails += [i for i in in_reach if fails_a_condition(groups[i], measured)]
     ruled_out = sorted([*ruled_out, *fails])
     candidates = [i for i in candidates if i not in set(fails)]
+    seen_again.update(_shown_before_in_found_town(groups, job_pool, candidates, started_at,
+                                                  form.posted_within_hours))
+    candidates = [i for i in candidates if i not in seen_again]
     found_online = []
     if need_town:
         found_online.append(f"the town of {looked_up.towns_found} of {len(need_town)} jobs")
@@ -1091,6 +1154,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     left_out.update(detail_rules.left_out)
     left_out.update(unavailable_routes.values())
     left_out.update(original.values())
+    left_out.update(seen_again.values())
     if ruled_out:
         left_out["location_condition"] = len(ruled_out)
     shown: list[int] = []
