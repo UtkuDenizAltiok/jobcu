@@ -123,6 +123,30 @@ def test_uncited_names_are_verified_and_kept_without_claiming_discovery_complete
     assert employers._last_looked(employers.subject_of(NURSE), ["IE"]) == {}
 
 
+def test_named_employers_after_billed_searches_complete_the_lookup_without_citations(
+        monkeypatch, caplog):
+    # 2026-11-12: two countries' answers named employers after more than 30 web searches each,
+    # but a plain list carries no citation; they stayed due and were asked again every search.
+    import logging
+
+    monkeypatch.setattr(employers, "career_sources", lambda: [FakeTeamtailor()])
+    answer = ResearchReply("Beacon Hospital | IE | https://beacon.teamtailor.com", [],
+                           Usage(100, 50, web_searches=4))
+    ai = CountryAI({"IE": answer})
+    result = employers.find(client_for(ai), web({}), NURSE, ["IE"], [], now=NOW)
+    assert result.new == ["Beacon Hospital"] and not result.failed_countries
+    again = employers.find(client_for(ai), web({}), NURSE, ["IE"], [],
+                           now=NOW + timedelta(days=1))
+    assert not again.looked and len(ai.asked) == 1  # not asked again the next day
+
+    # An answer that stays incomplete says why in the log.
+    ai.outcomes["DE"] = ResearchReply("NONE", [], Usage(100, 50, web_searches=2))
+    with caplog.at_level(logging.INFO, logger="jobcu.employers"):
+        employers.find(client_for(ai), web({}), NURSE, ["DE"], [], now=NOW)
+    assert any("Finding employers in DE is incomplete: 0 employers named" in r.getMessage()
+               and "0 pages cited, 2 web searches" in r.getMessage() for r in caplog.records)
+
+
 def test_names_in_another_country_do_not_prove_requested_country_was_completed(monkeypatch):
     monkeypatch.setattr(employers, "career_sources", lambda: [FakeTeamtailor()])
     result = employers.find(client_for(CountryAI({
