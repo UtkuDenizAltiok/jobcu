@@ -26,6 +26,7 @@ from jobcu.ai.base import (
     ONE_ANSWER_PROBLEMS,
     AIError,
     AILimitReached,
+    AIUnavailable,
     Citation,
     ResearchReply,
     Source,
@@ -225,6 +226,9 @@ def needs_place_retry(group: JobGroup) -> bool:
 
 
 _USED_UP = "used up"  # a batch not asked about because the web look-ups ran out
+# In the answers of a batch asked in parts: its jobs not asked (look-ups ran out), and its jobs
+# whose answer was unusable.
+_NOT_ASKED, _UNCHECKED = "not asked", "unchecked"
 
 
 def find_online(client: AIClient, groups: list[JobGroup], indexes: list[int],
@@ -237,23 +241,70 @@ def find_online(client: AIClient, groups: list[JobGroup], indexes: list[int],
     `place_from_web` ([] when the ad wasn't found or names no town); the requirements of every
     ad found are returned."""
     stopped = threading.Event()
+    answered = threading.Event()  # a look-up of this round came back: the provider is up
 
-    def look_up(batch: list[int]) -> dict[str, OnlineJob] | str | None:
-        if stopped.is_set():
-            return None
+    def ask(batch: list[int]) -> dict[str, OnlineJob]:
         lines = []
         for index in batch:
             job = groups[index].best_description_copy
             text = " ".join(job.description.split())[:TEXT_CHARS]
             lines.append(f"J{index} | {job.title} | {job.company or 'company unknown'} | "
                          f"{job_country(groups[index])} | {groups[index].main.url} | {text}")
+        answers = _look_up(client, lines, len(batch), profile, research_cache=research_cache)
+        answered.set()
+        return answers
+
+    def in_parts(batch: list[int]) -> dict:
+        """The answers for a batch the provider kept failing, asked again in halves down to
+        single jobs. A job that still fails alone counts as looked up and not found: it isn't
+        tried again in this search, and "Retry incomplete checks" can still ask for it."""
+        answers: dict = {_NOT_ASKED: set(), _UNCHECKED: set()}
+        for part in (batch[:len(batch) // 2], batch[len(batch) // 2:]):
+            try:
+                answers.update(ask(part))
+            except AILimitReached:
+                answers[_NOT_ASKED].update(part)
+            except ONE_ANSWER_PROBLEMS as exc:
+                log.info("Looking jobs up online: one answer was unusable: %s", exc)
+                answers[_UNCHECKED].update(part)
+            except AIUnavailable as exc:
+                if len(part) > 1:
+                    inner = in_parts(part)
+                    for key in (_NOT_ASKED, _UNCHECKED):
+                        answers[key].update(inner.pop(key))
+                    answers.update(inner)
+                else:
+                    log.info("Looking jobs up online: the provider can't finish this one "
+                             "job's look-up, so it stays unfound: %s", exc)
+        return answers
+
+    def look_up(batch: list[int]) -> dict | str | None:
+        if stopped.is_set():
+            return None
         try:
-            return _look_up(client, lines, len(batch), profile, research_cache=research_cache)
+            return ask(batch)
         except AILimitReached:
             return _USED_UP
         except ONE_ANSWER_PROBLEMS as exc:
             log.info("Looking jobs up online: one answer was unusable: %s", exc)
             client.notify(INCOMPLETE_CHECKS)
+            return None
+        except AIUnavailable as exc:
+            # While other look-ups of this round come back, the provider is up and it is this
+            # request it can't finish: Google failed the same five jobs five times in four
+            # minutes while ten other requests worked (2026-11-13), and all five stayed
+            # unchecked. Asked again in parts, one ad can't cost the others their check. With
+            # no answer yet, the service itself is down: the queue stops as before.
+            client.notify(INCOMPLETE_CHECKS)
+            if len(batch) > 1 and answered.is_set():
+                log.info("Looking jobs up online: one request of %d jobs keeps failing while "
+                         "others work; asking it again in parts: %s", len(batch), exc)
+                try:
+                    return in_parts(batch)
+                except AIError as inner:
+                    exc = inner
+            log.info("Looking jobs up online failed: %s", exc)
+            stopped.set()
             return None
         except AIError as exc:
             log.info("Looking jobs up online failed: %s", exc)
@@ -270,7 +321,13 @@ def find_online(client: AIClient, groups: list[JobGroup], indexes: list[int],
             looked_up.not_asked.extend(batch)
             return  # deferred work is still pending; count it when a later round attempts it
         if isinstance(answers, dict):
+            # A batch asked in parts: its jobs past the allowance wait for a later round, and
+            # those of an unusable answer stay unchecked.
+            later = answers.get(_NOT_ASKED, ())
+            looked_up.not_asked.extend(index for index in batch if index in later)
             for index in batch:
+                if index in later or index in answers.get(_UNCHECKED, ()):
+                    continue
                 answer = answers.get(f"J{index}")
                 _keep_answer(groups[index], index, answer, looked_up)
                 if on_evidence is not None:

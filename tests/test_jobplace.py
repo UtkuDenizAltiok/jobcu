@@ -273,6 +273,24 @@ def test_the_service_being_down_stops_the_jobs_not_asked_yet():
     assert looked_up.not_asked == []  # not a question of web look-ups: nothing to offer
 
 
+def test_a_request_the_provider_keeps_failing_while_others_work_is_asked_again_in_parts():
+    # 2026-11-13: Google failed the same five jobs five times in four minutes while ten other
+    # requests worked; all five stayed unchecked for one ad the provider couldn't handle.
+    groups = jobs(*[("UK", "GB")] * 12)
+    down = AIUnavailable("status failed")
+    researcher = Researcher(
+        ["notes", down, "notes", down, down, "notes", "notes"],
+        [[online(f"J{i}", ["Leeds"]) for i in range(5)],         # the first request works
+         [online("J5", ["Leeds"]), online("J6", ["Leeds"])],     # first half of the failed one
+         [online("J8", ["Leeds"]), online("J9", ["Leeds"])],     # what is left beside job 7
+         [online("J10", ["Leeds"]), online("J11", ["Leeds"])]])  # the last request
+    looked_up = jobplace.find_online(researcher, groups, list(range(12)))
+    assert len(researcher.prompts) == 7
+    assert looked_up.asked == set(range(12)) and looked_up.not_asked == []
+    assert [g.place_from_web for g in groups] == [["Leeds"]] * 7 + [[]] + [["Leeds"]] * 4
+    assert researcher.notifications == [jobplace.INCOMPLETE_CHECKS]
+
+
 def test_the_full_ad_found_online_gives_its_languages_and_years():
     groups = jobs(("Deutschland", "DE"), ("Radeberg", "DE"), ("Dresden", "DE"))
     answer = [online("J0", ["Radeberg"], [("German", "B2", True), ("English", "B2", False)], 3,
