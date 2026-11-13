@@ -190,7 +190,10 @@ later online check of the search. Other failures around accepted Flex work (a lo
 waiting) follow the normal retry rules. Repeated Flex failures end Flex for that search.
 Usage records the served tier as `<model> (flex)`, priced at half the normal row unless a Flex
 row exists. Connection tests use the normal tier. Flex runs only with request recovery: a
-preempted Flex stream is otherwise an ambiguous dropped connection.
+preempted Flex stream is otherwise an ambiguous dropped connection. Both need the event path,
+which serves the Gemini models listed in `ai/gemini_events.py` (`EVENT_MODELS`); a model not
+listed there is sent the older way, without Flex or recovery, at the normal price. A new model is
+listed once the live API has answered it over that path.
 
 An optional monthly free-search allowance (`limits.free_web_searches`) gives each search a
 share of the research provider's free searches left in its billing month (Pacific time for
