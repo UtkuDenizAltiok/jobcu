@@ -66,7 +66,14 @@ cover that continuation, while usage is cumulative.
   requirements remain labelled; absence of a requirement is not evidence it is satisfied.
 - Duplicate identity uses source/requisition identifiers and supporting evidence. Distinct
   requisitions remain separate despite similar names/templates. Ambiguous copies cannot share
-  saved/applied/dismissed state solely through title similarity.
+  saved/applied/dismissed state solely through title similarity. Duplicates are looked for
+  twice: in what the job sites' lists give, and again among the jobs worth a closer look once
+  their full ads are read (`dedupe.same_jobs`, `search._join_same_jobs`), because an agency's
+  ad counts as another site's copy only when the texts match and some sites list an ad without
+  its text. A job that joins another gives it its copies and is scored once. The same ad under
+  a shorter and a longer employer name is one job when place, title and text agree. One ad
+  listed for several towns stays a card per town, each naming the others
+  (`dedupe.same_ad_elsewhere`, card field `same_ad_in`).
 - Original publication/closing dates and job memory distinguish fresh jobs from reposts. A job an
   earlier search showed with its score and a checked place is left out ("Shown in an earlier
   search already"), whatever its date: a date later than that showing is the same job dated

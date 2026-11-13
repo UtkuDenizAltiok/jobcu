@@ -471,6 +471,12 @@ def history_view(snapshot: dict) -> None:
             counts.get("historical_copies_combined", 0) + combined)
 
 
+def card_place(group: JobGroup) -> str:
+    """The place a card names: a town Jobcu found when the job sites gave only a country, in
+    the ad's text (relevance.py) or online (jobplace.py), else what the job site says."""
+    return ", ".join(travel.found_places(group)) or readable_place(group.main)
+
+
 def build_card(
     group: JobGroup,
     *,
@@ -488,6 +494,7 @@ def build_card(
     reposted_first_seen: str | None = None,
     reported_links: set[str] | None = None,
     location_pending: bool = False,
+    same_ad_in: list[str] | None = None,
 ) -> dict:
     main = group.main
     best = group.best_description_copy
@@ -577,9 +584,7 @@ def build_card(
         "state": asdict(state),
         "title": main.title,
         "company": main.company,
-        # A town Jobcu found when the job sites gave only a country: in the ad's text
-        # (relevance.py) or online (jobplace.py).
-        "location": ", ".join(travel.found_places(group)) or readable_place(main),
+        "location": card_place(group),
         "location_from_ad_text": bool(group.place_from_text),
         "location_found_online": bool(group.place_from_web),
         "country": country,
@@ -612,6 +617,8 @@ def build_card(
         "application_link_unavailable": applications.unavailable(group, reported_links),
         "application_destination_unverified": applications.opaque(main_link["url"]),
         "possible_duplicate_of": possible_duplicate_of,
+        # Other places the same poster listed this same ad for (dedupe.same_ad_elsewhere).
+        "same_ad_in": sorted(set(same_ad_in or []) - {card_place(group)}),
         "summary_only": not best.description_is_complete,
         "salary": best.salary_text or main.salary_text,
         "location_checks": checks,

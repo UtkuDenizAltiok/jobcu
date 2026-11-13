@@ -1190,7 +1190,10 @@ function renderCard(card) {
   const how = card.location_from_ad_text ? " (from the ad text)"
     : card.location_found_online ? " (found online)" : "";
   const where = card.location ? `${card.location}${how}` : "Location not stated";
-  const meta = [where, WORK_MODES[card.work_mode], types, postedLabel(card),
+  // One ad listed for several places is a card per place (the conditions about places differ).
+  const elsewhere = (card.same_ad_in || []).length
+    ? `same ad also for ${card.same_ad_in.join("; ")}` : "";
+  const meta = [where, elsewhere, WORK_MODES[card.work_mode], types, postedLabel(card),
     repostLabel(card), closingLabel(card), card.salary].filter(Boolean).join(" · ");
 
   // How the score adds up, so two jobs a point apart can be told apart (scoring.py's rubric).

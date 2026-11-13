@@ -173,6 +173,7 @@ def test_saved_requirement_retry_runs_only_after_current_location_admission(monk
     for i, job in enumerate(jobs):
         copy = job.group.copies[0]
         copy.source_job_id = str(i)
+        copy.company = f"Fictional Employer {i}"  # three jobs, not one ad three times
         copy.title, copy.location_text = title, "Fictional Village"
         copy.latitude, copy.longitude = 50, 8.9
         copy.posted_at, copy.date_precision = now, "exact"
