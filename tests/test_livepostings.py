@@ -246,3 +246,58 @@ def test_each_address_that_can_t_be_the_posting_says_why(job, url, why):
     reply = ResearchReply("notes", [Source(page) for page in listed], Usage(10, 5, web_searches=1))
     assert livepostings.why_not_usable(url, reply, job) == why
     assert livepostings.usable(url, reply, job) is (why == "")
+
+
+class NamedResearcher(Researcher):
+    """A client that says which provider and model do its web research, and keeps its notes."""
+
+    def __init__(self, replies, structured=(), model="model-a"):
+        super().__init__(replies, structured)
+        self.model, self.notes = model, []
+
+    def research_endpoint(self):
+        return "fictional", self.model, None
+
+    def notify(self, message):
+        self.notes.append(message)
+
+
+def test_the_provider_s_own_link_to_a_result_is_never_kept_as_the_posting(caplog):
+    # 2026-11-13: four answers named the search provider's redirect link itself. It was "among the
+    # sources", so four cards showed it as "Employer's site, found online", destination unknown.
+    groups = [group(0)]
+    client = Researcher([(f"JOB J0 {REDIRECT.format(0)}",
+                          [(REDIRECT.format(0), "careers.fakeco.example")], 3)],
+                        [[{"id": "J0", "url": REDIRECT.format(0)}]])
+    with caplog.at_level(logging.INFO, logger="jobcu.livepostings"):
+        assert livepostings.find_postings(client, groups, [0]) == 0
+    assert groups[0].link_from_web == ""
+    assert "not kept: 1 a search link that names no page" in caplog.text
+    google = "https://vertexaisearch.cloud.google.com/grounding-api-redirect/FICTIONAL"
+    reply = ResearchReply("notes", [Source(google)], Usage(10, 5, web_searches=1))
+    assert livepostings.why_not_usable(google, reply, group(0)) == (
+        "a search link that names no page")
+
+
+def test_a_provider_whose_sources_name_no_pages_isn_t_asked_for_more_postings():
+    # Each such look-up of five jobs used about 30 web searches and could confirm nothing.
+    groups = [group(n) for n in range(12)]
+    redirects = [(REDIRECT.format(n), "careers.fakeco.example") for n in range(3)]
+    client = NamedResearcher([("JOB J0 NOT FOUND", redirects, 30)],
+                             [[{"id": f"J{n}", "url": ""} for n in range(5)]])
+    assert livepostings.find_postings(client, groups, list(range(12))) == 0
+    assert len(client.prompts) == 1 and client.notes == [livepostings.NO_PAGES_NOTE]
+    assert [g.link_from_web for g in groups] == [""] * 5 + [None] * 7  # the rest: not asked
+
+    again = NamedResearcher([])  # remembered: the next search spends nothing on it
+    assert livepostings.find_postings(again, groups, list(range(5, 12))) == 0
+    assert again.prompts == [] and again.notes == [livepostings.NO_PAGES_NOTE]
+
+    # Another model's sources are its own matter, and sources naming pages keep it asked.
+    other = NamedResearcher(
+        [(f"JOB J5 {CAREERS.format(5)}", [CAREERS.format(5)], 2),
+         ("JOB J10 NOT FOUND", [CAREERS.format(10)], 2)],
+        [[{"id": "J5", "url": CAREERS.format(5)}], [{"id": "J10", "url": ""}]], model="model-b")
+    assert livepostings.find_postings(other, groups, list(range(5, 12))) == 1
+    assert len(other.prompts) == 2 and other.notes == []
+    assert groups[5].link_from_web == CAREERS.format(5)

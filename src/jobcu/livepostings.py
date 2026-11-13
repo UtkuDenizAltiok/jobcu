@@ -18,6 +18,13 @@ names no page, so it can't confirm an address. Jobcu never follows those links t
 lead: Google's grounding terms forbid collecting links by automated means. The log counts, for each
 look-up, the postings kept, why the others weren't, and how many sources named no page, so each
 provider's real yield can be measured on live searches.
+
+Measured on Gemini (2026-11-07: 209 of 215 recorded sources; 2026-11-13, a live search): no
+posting could be confirmed, each look-up of five jobs used about 30 web searches, and four
+answers named the redirect link itself, which then passed as "among the sources" and was shown as
+the employer's page. So an address that is such a link is never kept, and once a look-up's sources
+all name no page, the rest of the search's posting look-ups are skipped and the provider is
+remembered for RECHECK_DAYS, after which one look-up tries again.
 """
 
 import hashlib
@@ -31,7 +38,7 @@ from urllib.parse import urlsplit
 
 from pydantic import BaseModel
 
-from jobcu import applications
+from jobcu import applications, preparation
 from jobcu.ai.base import (
     ONE_ANSWER_PROBLEMS,
     AIError,
@@ -165,8 +172,13 @@ def why_not_usable(url: str, reply: ResearchReply, group: JobGroup) -> str:
             return "a job site's page, not the employer's"
         if not _one_vacancy(url):
             return "a list of jobs, not one vacancy"
-    found = {_address(source.url) for source in reply.sources}
-    found |= {_address(citation.url) for citation in reply.citations or []}
+    # Only a source that names a page can confirm an address: the provider's own link to a
+    # result says nothing about where it leads, also when the answer names that very link.
+    unnamed = {_address(source.url) for source in reply.sources if names_no_page(source)}
+    if _address(url) in unnamed or applications.search_link(url):
+        return "a search link that names no page"
+    found = {_address(source.url) for source in reply.sources} - unnamed
+    found |= {_address(citation.url) for citation in reply.citations or []} - unnamed
     if _address(url) not in found:
         return "not among the provider's sources"
     if applications.blocked(url):
@@ -194,6 +206,41 @@ def names_no_page(source: Source) -> bool:
         return False
     return (bool(_SITE_NAME.fullmatch(title)) and bool(host) and host != title
             and not host.endswith("." + title) and not title.endswith("." + host))
+
+
+# How long a provider whose web sources name no pages isn't asked for postings again.
+RECHECK_DAYS = 14
+SOURCES_KIND = "posting_sources"
+NO_PAGES_NOTE = ("Your AI's web search doesn't name the pages it finds, so Jobcu can't confirm "
+                 "employers' own job pages with it. It skips those look-ups and spends no web "
+                 "searches on them.")
+
+
+class _SourcesSeen(BaseModel):
+    name_pages: bool
+
+
+def _research_route(client) -> str | None:
+    endpoint = getattr(client, "research_endpoint", None)
+    if endpoint is None:
+        return None
+    provider, model, _ = endpoint()
+    return f"{provider}:{model}"
+
+
+def sources_name_no_pages(client) -> bool:
+    """This provider's web search listed its sources only as its own links, within
+    RECHECK_DAYS: it can confirm no address, so asking it for postings buys nothing."""
+    route = _research_route(client)
+    seen = (preparation.read(SOURCES_KIND, route, _SourcesSeen, max_age_days=RECHECK_DAYS)
+            if route else None)
+    return seen is not None and not seen.name_pages
+
+
+def _remember_sources(client, name_pages: bool) -> None:
+    route = _research_route(client)
+    if route:
+        preparation.write(SOURCES_KIND, route, _SourcesSeen(name_pages=name_pages))
 
 
 def _one_vacancy(url: str) -> bool:
@@ -226,6 +273,12 @@ def find_postings(client: AIClient, groups: list[JobGroup], indexes: list[int], 
     was found). Returns how many got one. An unusable answer (declined, cut short, malformed)
     leaves only its own jobs to ask again later; any other problem with the AI leaves the rest."""
     found = 0
+    notify = getattr(client, "notify", None) or (lambda message: None)
+    if indexes and sources_name_no_pages(client):
+        log.info("Open postings: not asked for %d jobs; this provider's web sources named no "
+                 "pages within the last %d days", len(indexes), RECHECK_DAYS)
+        notify(NO_PAGES_NOTE)
+        return 0
     for start in range(0, len(indexes), BATCH_SIZE):
         batch = indexes[start:start + BATCH_SIZE]
         lines = []
@@ -265,6 +318,15 @@ def find_postings(client: AIClient, groups: list[JobGroup], indexes: list[int], 
                  "name no page", len(batch) - not_kept.total(), len(batch),
                  f" (not kept: {reasons})" if reasons else "", len(reply.sources),
                  sum(names_no_page(source) for source in reply.sources))
+        if reply.sources:
+            none_named = all(names_no_page(source) for source in reply.sources)
+            _remember_sources(client, name_pages=not none_named)
+            if none_named:
+                left = len(indexes) - start - len(batch)
+                log.info("Open postings: this provider's web sources name no pages, so no "
+                         "address can be confirmed; %d more jobs aren't asked", left)
+                notify(NO_PAGES_NOTE)
+                break
     return found
 
 
