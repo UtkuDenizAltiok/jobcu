@@ -746,16 +746,21 @@ def _reposts_to_assess(groups, indexes, remembered, states, shown_at,
 
 
 def _shown_before_in_found_town(groups, job_pool, indexes, started_at,
-                                posted_within_hours) -> dict[int, str]:
-    """Jobs an earlier search showed, recognised only now that Jobcu found their town itself.
+                                posted_within_hours, joined=()) -> dict[int, str]:
+    """Jobs an earlier search showed, recognised only now that Jobcu found their town itself
+    or joined their two ads.
 
     When a search begins, a job is matched to Jobcu's memory by its job sites' own numbers or by
     employer, title and town. A site that names no town ("Deutschland") or a neighbouring one
     leaves nothing to match, so the job looked new until its town was found in the ad's text or
-    online, after that check. Returns why each such job leaves (a filters.REASONS key), by the
-    rules a job recognised at the start follows; one really posted again long after it was shown
-    stays and is labelled a repost (_reposts_to_assess)."""
-    asked = [i for i in indexes if jobidentity.found_town(groups[i])
+    online, after that check. And two ads of one search with the same employer, title and town
+    match no remembered job, since either could be it: an ad found on two sites, one without
+    its text, looked like two new jobs although an earlier search had shown it. Once the full
+    ads join them (`joined`: the jobs that took in another), the one job is looked up again.
+    Returns why each such job leaves (a filters.REASONS key), by the rules a job recognised at
+    the start follows; one really posted again long after it was shown stays and is labelled a
+    repost (_reposts_to_assess)."""
+    asked = [i for i in indexes if (jobidentity.found_town(groups[i]) or i in joined)
              and not job_pool.jobs[i].reposted_first_seen]
     if not asked:
         return {}
@@ -793,8 +798,8 @@ def _shown_before_in_found_town(groups, job_pool, indexes, started_at,
         job_pool.jobs[asked[position]].reposted_first_seen = first_shown
         del reasons[asked[position]]
     if reasons or reposts:
-        log.info("Recognised once their town was found: %d jobs shown before leave, %d posted "
-                 "again stay", len(reasons), len(reposts))
+        log.info("Recognised once their town was found or their ads were joined: %d jobs shown "
+                 "before leave, %d posted again stay", len(reasons), len(reposts))
     return reasons
 
 
@@ -941,7 +946,8 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
 
     # A town found in the ad's text or online can show that an earlier search listed this job.
     seen_again = _shown_before_in_found_town(groups, job_pool, candidates, started_at,
-                                             form.posted_within_hours)
+                                             form.posted_within_hours,
+                                             joined=set(joined_now.values()))
     candidates = [i for i in candidates if i not in seen_again]
     to_score = [i for i in to_score if i not in seen_again]
 
