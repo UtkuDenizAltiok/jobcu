@@ -365,6 +365,37 @@ def test_when_paid_limits_only_tell_one_research_failure_never_stops_the_other_c
     assert not any("stopped automatic research" in note for note in notices)
 
 
+@pytest.mark.parametrize("provider,counted", [("gemini", 0), ("anthropic", 12)])
+def test_a_failed_look_up_takes_nothing_from_the_search_where_the_provider_bills_nothing(
+        provider, counted):
+    # November 2026: a search lost about a quarter of its share of the free web searches to
+    # look-ups Google had failed after 8 to 19 searches each; Google's billing report showed
+    # none of them. Where nothing is measured, the searches seen still count.
+    class Web(ScriptedAdapter):
+        can_search_the_web = True
+
+        def research(self, **request):
+            raw = self.complete_json(**request)
+            return ResearchReply(raw.text, [], Usage(10, 5, web_searches=2))
+
+    failure = AIUnavailable("Fictional failure: the provider ended the request without usage")
+    failure.usage = Usage(web_searches=12, unreported_requests=1)
+    adapter = Web(failure, GOOD)
+    configured = settings()
+    configured.ai.provider = provider
+    configured.limits.paid_limits = "tell"
+    ledger = UsageLog()
+    client = AIClient(configured, adapter=adapter, usage_log=ledger, sleep=lambda seconds: None,
+                      free_web_search_share=20)
+    assert client.research(step="job_places", system="Fictional evidence",
+                           prompt="A fictional job").text
+    assert client.web_searches_used == counted + 2 and client._web_searches_reserved == 0
+    assert client.web_searches_left() == 20 - counted - 2
+    # The ledger keeps what was seen either way; only the count against the month differs.
+    assert ledger.this_month()[0].usage.web_searches == 14
+    assert ledger.web_searches_this_month(provider) == counted + 2
+
+
 @pytest.mark.parametrize("usage", [Usage(unreported_requests=1),
                                    Usage(10, 30, web_searches=2)])
 def test_early_failure_or_complete_research_receipt_keeps_bounded_transient_recovery(usage):

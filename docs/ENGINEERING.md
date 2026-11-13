@@ -266,6 +266,11 @@ neither pays nor asks. With limits that stop, a web look-up that fails after its
 searches without a full bill pauses automatic research for the rest of the search, because the
 missing bill could pass the limit. With limits that only tell, it is an ordinary outage
 (bounded retries), its searches count against the allowance, and the incomplete bill is noted.
+Searches seen inside a request that ended without a usage report (the provider failed it, or a
+stopped search cancelled it) stay in the usage record but count against neither the free month
+nor the search's share where the provider doesn't bill such requests
+(`usage.UNFINISHED_REQUESTS_FREE`: Google, whose billing report by SKU matched the finished
+requests alone on three search days: tokens exactly, search queries within 5%).
 A job look-up request that still fails after its retries while other look-ups of the same round
 come back is asked again in halves, down to single jobs, so one ad the provider can't handle
 doesn't leave its batch unchecked; with no answer yet in the round the service counts as down
