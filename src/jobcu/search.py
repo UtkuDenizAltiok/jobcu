@@ -15,6 +15,7 @@ import threading
 import time
 from collections import Counter
 from collections.abc import Callable
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime, timedelta
 from typing import Literal
@@ -61,7 +62,7 @@ from jobcu.settings import SearchForm, load_settings, save_settings
 from jobcu.sources import accepted_terms, disabled_sources
 from jobcu.sources.base import JobQuery
 from jobcu.sources.budget import share
-from jobcu.sources.http import PoliteClient
+from jobcu.sources.http import PoliteClient, RequestStopped
 from jobcu.vacancy_evidence import group_reasons as original_reasons
 
 log = logging.getLogger(__name__)
@@ -69,6 +70,9 @@ log = logging.getLogger(__name__)
 STOPPING_NOTE = ("Stopping… retry waits and queued AI work are cancelled. "
                  "A request already sent may finish first.")
 STOPPED_NOTE = "Search stopped. Retry waits and queued AI work were cancelled."
+STOPPED_WITH_RESULTS_NOTE = (
+    "Search stopped. The jobs scored until then are shown; the rest were not scored or looked "
+    "up online. \"Retry incomplete checks\" finishes them.")
 CONTINUATION_NOTE = "Before continuation: "
 
 
@@ -139,6 +143,8 @@ class SearchRun:
     error: str | None = None
     result: dict = field(default_factory=dict)
     stop_requested: bool = False
+    # Stop arrived once jobs were scored: the search ended early and built its results.
+    stopped_with_results: bool = False
     question: dict | None = None
     # The person answered "always": do it now, and without asking in later searches.
     answered_always: bool = False
@@ -314,7 +320,8 @@ class SearchManager:
                                     ((c.anchor.reference_checks or []) if c.anchor else [])))]
             check_edits(LocationPlan.model_validate(snapshot["result"]["location"]), edits)
             earlier_notes = [note for note in snapshot.get("notes", [])
-                             if note not in {STOPPING_NOTE, STOPPED_NOTE}]
+                             if note not in {STOPPING_NOTE, STOPPED_NOTE,
+                                             STOPPED_WITH_RESULTS_NOTE}]
             if snapshot.get("error"):
                 earlier_notes.append(snapshot["error"])
             run = SearchRun(
@@ -352,6 +359,8 @@ class SearchManager:
         error = None
         try:
             runner(run)
+            if run.stopped_with_results:
+                status = "stopped"
         except SearchStopped:
             status = "stopped"
         except (AIError, DocumentError) as exc:
@@ -368,8 +377,9 @@ class SearchManager:
         _mark_remaining(run, "failed" if status == "failed" else "skipped",
                         stopped=status == "stopped")
         if status == "stopped":
+            stopped_note = STOPPED_WITH_RESULTS_NOTE if run.stopped_with_results else STOPPED_NOTE
             with run._lock:
-                run.notes = [STOPPED_NOTE if note == STOPPING_NOTE else note for note in run.notes]
+                run.notes = [stopped_note if note == STOPPING_NOTE else note for note in run.notes]
         try:
             # Polling and new searches must still see "running" until the save commits.
             snapshot = {**run.snapshot(), "status": status, "error": error}
@@ -977,8 +987,26 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         job_pool.jobs[index].scored = result
         scored_now[index] = result
 
+    # Stop, once jobs are scored, shows them: the person expects to keep what the search worked
+    # out (a search stopped late in its look-ups had no cards at all, only "Continue"). From
+    # here on a stop ends the remaining AI and network work, the results are built from what is
+    # done, and "Retry incomplete checks" finishes the rest. With nothing scored, and when
+    # corrections to a finished search are stopped, the attempt ends without results as before.
+    stopped = False
+
+    @contextmanager
+    def until_stopped():
+        """Work that a stop ends early; each use starts with a checkpoint."""
+        nonlocal stopped
+        try:
+            yield
+        except (SearchStopped, RequestStopped):
+            if run.kind == "reapply" or all(job.scored is None for job in job_pool.jobs):
+                raise
+            stopped = run.stopped_with_results = True
+
     position = 0
-    while position < len(order):
+    while position < len(order) and not stopped:
         chunk = order[position : position + cap] if position == 0 else order[position:]
         if position > 0:
             remaining = len(order) - position
@@ -1002,16 +1030,22 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         def progress(done, total, base=position):
             run.update("scoring", "running", f"{base + done} of {len(order)} jobs")
 
-        scored_now.update(scoring.score_groups(client, profile, plan, groups, chunk,
-                                              on_progress=progress, on_result=keep_score))
-        position += len(chunk)
-        checkpoint()
+        with until_stopped():
+            scored_now.update(scoring.score_groups(client, profile, plan, groups, chunk,
+                                                  on_progress=progress, on_result=keep_score))
+            position += len(chunk)
+            checkpoint()
     for index, result in scored_now.items():
         job_pool.jobs[index].scored = result
     nothing_new = not scored_now and run.kind == "reapply"
-    run.update("scoring", "done",
-               "Nothing new to score" if nothing_new else f"{len(scored_now)} jobs scored")
-    checkpoint()
+    with until_stopped():
+        checkpoint()
+    if stopped:
+        run.update("scoring", "interrupted",
+                   f"{len(scored_now)} of {len(order)} jobs scored before you stopped")
+    else:
+        run.update("scoring", "done",
+                   "Nothing new to score" if nothing_new else f"{len(scored_now)} jobs scored")
 
     # The best jobs whose town nobody gave, and those near the top scored from a short summary:
     # the person's AI finds their ads online. The conditions about places then decide about
@@ -1032,72 +1066,16 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     need_town = list(dict.fromkeys([*early_towns, *later_towns]))
     worth_it = sorted(set(later_towns) | set(need_requirements),
                       key=lambda i: -scoring.evidence_priority(job_pool.jobs[i].scored))
-    # Counted over both rounds, when the person says yes to more web look-ups in between.
-    looked_before = 0
-
-    def looking(done: int, total: int) -> None:
-        run.update("places", "running", f"{looked_before + done} of {len(worth_it)} jobs")
-
-    if worth_it:
-        looking(0, len(worth_it))
-    looking_since = time.monotonic()
-    unavailable = client.web_research_unavailable_reason()
-    looked_up = early_lookup.add(
-        jobplace.find_online(client, groups, worth_it, profile, looking, on_evidence=keep_online,
-                             research_cache=job_pool.research_notes)
-        if worth_it and not unavailable else jobplace.LookedUp())
-    # Look-ups sent together can find the allowance held by others still running; those jobs get
-    # another turn while look-ups are left (a test search on 2026-10-01 skipped 100 of 115 jobs
-    # without asking).
-    while looked_up.not_asked and client.web_searches_left() > 0:
-        waiting = len(looked_up.not_asked)
-        looked_before = len(worth_it) - waiting
-        looked_up = looked_up.add(
-            jobplace.find_online(client, groups, looked_up.not_asked, profile, looking,
-                                 on_evidence=keep_online, research_cache=job_pool.research_notes))
-        if len(looked_up.not_asked) >= waiting:
-            break
-    if looked_up.not_asked and client.free_share_reached():
-        # The free searches are the budget: past this search's share Jobcu neither pays nor asks,
-        # so searches run without anyone watching (2026-11-07). The best jobs were looked up
-        # first; later searches get their own share, and "free web searches" in Settings can be
-        # raised or cleared.
-        left = len(looked_up.not_asked)
-        run.note(f"This search used its share of this month's free web searches "
-                 f"({_free_searches_left(settings)}); {left} lower-ranked "
-                 f"{'job was' if left == 1 else 'jobs were'} not looked up online, so nothing "
-                 "was paid for web searches.")
-    elif looked_up.not_asked:
-        # One question for every job left, counted in jobs (search 9 asked four times, each
-        # "yes" adding web look-ups for only about 25 of the jobs its button promised).
-        left = len(looked_up.not_asked)
-        jobs, their = ("job", "its") if left == 1 else ("jobs", "their")
-        free_share = False
-        used = f"Jobcu has used this search's {settings.limits.web_search_cap} web look-ups. "
-        wants_more = run.ask({
-            "kind": "web_search_cap",
-            "message": (
-                used + f"{left} more {jobs} could be read online, for {their} town or full ad ("
-                + _look_up_estimate(client, settings, time.monotonic() - looking_since,
-                                    len(looked_up.asked), left)
-                + "). Look them up too?"),
-            "yes": f"Look up {left} more",
-            "always": "Always look them up",
-            "no": "Show results now",
-        })
-        if run.answered_always:
-            _no_limit("free_web_searches" if free_share else "web_search_cap", run,
-                      "Jobcu looks up every job worth reading online in every search from now on")
-        while wants_more and looked_up.not_asked:
-            waiting = len(looked_up.not_asked)
-            looked_before = len(worth_it) - waiting
-            client.allow_more_web_searches(jobplace.SEARCHES_PER_JOB * waiting)
-            looked_up = looked_up.add(
-                jobplace.find_online(client, groups, looked_up.not_asked, profile, looking,
-                                     on_evidence=keep_online,
-                                     research_cache=job_pool.research_notes))
-            if len(looked_up.not_asked) >= waiting:
-                break  # no progress: stop rather than loop
+    looked_up = early_lookup
+    with until_stopped():
+        checkpoint()
+        looked_up = _look_up_online(run, client, settings, groups, job_pool, profile, worth_it,
+                                    early_lookup, keep_online)
+    if stopped:
+        # What the interrupted look-ups had finished is in the pool already (keep_online).
+        looked_up = jobplace.saved_lookups(groups, {
+            i: job.online_evidence for i, job in enumerate(job_pool.jobs)
+            if job.online_evidence is not None})
     for index in looked_up.asked:
         scored = job_pool.jobs[index].scored
         found = looked_up.requirements.get(index)
@@ -1119,8 +1097,14 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     fails = [i for i in placed if fails_a_condition(groups[i], at_once)]
     if measured and placed:
         in_reach = [i for i in placed if i not in fails]
-        travel_meter.measure(measured, groups, in_reach)
+        with until_stopped():
+            checkpoint()
+            travel_meter.measure(measured, groups, in_reach)
         fails += [i for i in in_reach if fails_a_condition(groups[i], measured)]
+        if stopped:
+            # A journey the stop left unmeasured is a condition still without evidence.
+            location_pending |= {i for i in in_reach if i not in fails
+                                 and pipeline.unchecked_location_conditions(groups[i], plan)}
     ruled_out = sorted([*ruled_out, *fails])
     candidates = [i for i in candidates if i not in set(fails)]
     seen_again.update(_shown_before_in_found_town(groups, job_pool, candidates, started_at,
@@ -1136,14 +1120,20 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     # own posting is looked for online (livepostings.py).
     need_posting = [i for i in candidates
                     if livepostings.needs_posting(groups[i], job_pool.jobs[i].scored)]
-    if need_posting and not client.web_research_unavailable_reason():
+    if need_posting and not stopped and not client.web_research_unavailable_reason():
         run.update("places", "running",
                    f"Looking for the employers' own postings of {len(need_posting)} jobs")
-        posted = livepostings.find_postings(client, groups, need_posting,
-                                            research_cache=job_pool.research_notes)
-        found_online.append(f"the employer's posting for {posted} of {len(need_posting)} jobs")
+        with until_stopped():
+            checkpoint()
+            posted = livepostings.find_postings(client, groups, need_posting,
+                                                research_cache=job_pool.research_notes)
+            found_online.append(
+                f"the employer's posting for {posted} of {len(need_posting)} jobs")
     unavailable = client.web_research_unavailable_reason()
-    if worth_it and unavailable:
+    if stopped:
+        run.update("places", "interrupted", "Found online before you stopped: "
+                   + ", ".join(found_online) if found_online else "Stopped before any look-up")
+    elif worth_it and unavailable:
         run.update("places", "skipped", unavailable)
     else:
         run.update("places", "done", "Found online: " + ", ".join(found_online)
@@ -1275,6 +1265,80 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         {i for i in unrelated if i in worked_on},
         plan,
     )
+
+
+def _look_up_online(run, client, settings, groups, job_pool, profile, worth_it, early_lookup,
+                    keep_online):
+    """Finds the ads of the jobs worth it online, best first, within the search's web look-ups;
+    past its own limit the person is asked. Returns what was looked up, earlier look-ups
+    included."""
+    # Counted over both rounds, when the person says yes to more web look-ups in between.
+    looked_before = 0
+
+    def looking(done: int, total: int) -> None:
+        run.update("places", "running", f"{looked_before + done} of {len(worth_it)} jobs")
+
+    if worth_it:
+        looking(0, len(worth_it))
+    looking_since = time.monotonic()
+    unavailable = client.web_research_unavailable_reason()
+    looked_up = early_lookup.add(
+        jobplace.find_online(client, groups, worth_it, profile, looking, on_evidence=keep_online,
+                             research_cache=job_pool.research_notes)
+        if worth_it and not unavailable else jobplace.LookedUp())
+    # Look-ups sent together can find the allowance held by others still running; those jobs get
+    # another turn while look-ups are left (a test search on 2026-10-01 skipped 100 of 115 jobs
+    # without asking).
+    while looked_up.not_asked and client.web_searches_left() > 0:
+        waiting = len(looked_up.not_asked)
+        looked_before = len(worth_it) - waiting
+        looked_up = looked_up.add(
+            jobplace.find_online(client, groups, looked_up.not_asked, profile, looking,
+                                 on_evidence=keep_online, research_cache=job_pool.research_notes))
+        if len(looked_up.not_asked) >= waiting:
+            break
+    if looked_up.not_asked and client.free_share_reached():
+        # The free searches are the budget: past this search's share Jobcu neither pays nor asks,
+        # so searches run without anyone watching (2026-11-07). The best jobs were looked up
+        # first; later searches get their own share, and "free web searches" in Settings can be
+        # raised or cleared.
+        left = len(looked_up.not_asked)
+        run.note(f"This search used its share of this month's free web searches "
+                 f"({_free_searches_left(settings)}); {left} lower-ranked "
+                 f"{'job was' if left == 1 else 'jobs were'} not looked up online, so nothing "
+                 "was paid for web searches.")
+    elif looked_up.not_asked:
+        # One question for every job left, counted in jobs (search 9 asked four times, each
+        # "yes" adding web look-ups for only about 25 of the jobs its button promised).
+        left = len(looked_up.not_asked)
+        jobs, their = ("job", "its") if left == 1 else ("jobs", "their")
+        free_share = False
+        used = f"Jobcu has used this search's {settings.limits.web_search_cap} web look-ups. "
+        wants_more = run.ask({
+            "kind": "web_search_cap",
+            "message": (
+                used + f"{left} more {jobs} could be read online, for {their} town or full ad ("
+                + _look_up_estimate(client, settings, time.monotonic() - looking_since,
+                                    len(looked_up.asked), left)
+                + "). Look them up too?"),
+            "yes": f"Look up {left} more",
+            "always": "Always look them up",
+            "no": "Show results now",
+        })
+        if run.answered_always:
+            _no_limit("free_web_searches" if free_share else "web_search_cap", run,
+                      "Jobcu looks up every job worth reading online in every search from now on")
+        while wants_more and looked_up.not_asked:
+            waiting = len(looked_up.not_asked)
+            looked_before = len(worth_it) - waiting
+            client.allow_more_web_searches(jobplace.SEARCHES_PER_JOB * waiting)
+            looked_up = looked_up.add(
+                jobplace.find_online(client, groups, looked_up.not_asked, profile, looking,
+                                     on_evidence=keep_online,
+                                     research_cache=job_pool.research_notes))
+            if len(looked_up.not_asked) >= waiting:
+                break  # no progress: stop rather than loop
+    return looked_up
 
 
 def _ad_exclusion(group, scored, form: SearchForm) -> str | None:

@@ -464,6 +464,72 @@ def test_resume_before_cards_keeps_identity_and_never_collects_again(
         assert conn.execute("SELECT COUNT(*) FROM searches").fetchone()[0] == 1
 
 
+def test_stop_once_jobs_are_scored_shows_them_and_a_retry_finishes_the_rest(ready, monkeypatch):
+    # A search stopped late (the person wanted to keep what it had worked out) had no cards at
+    # all, only "Continue".
+    manager = search.SearchManager()
+    monkeypatch.setattr(search, "manager", manager)
+    original = search.scoring.score_groups
+
+    def one_job_then_stop(client, profile, plan, groups, indexes, *args, **kwargs):
+        original(client, profile, plan, groups, indexes[:1], *args, **kwargs)
+        assert manager.stop(manager.current.id)
+        raise search.SearchStopped
+
+    monkeypatch.setattr(search.scoring, "score_groups", one_job_then_stop)
+    looked_up, look_up_online = [], search._look_up_online
+    monkeypatch.setattr(search, "_look_up_online",
+                        lambda *args: looked_up.append(args) or pytest.fail("No look-ups"))
+    run = manager.start(SearchForm(location_text="Germany"))
+    stopped = wait_until_done(manager)
+    assert stopped["status"] == "stopped" and stopped["error"] is None
+    jobs = stopped["result"]["jobs"]
+    # The scored job leads; the one the stop left unscored is listed without a score, as after
+    # "Show results now" at the scoring limit.
+    assert [card["score"] is not None for card in jobs["cards"]] == [True, False]
+    assert jobs["counts"]["not_scored"] == 1 and not looked_up
+    assert search.STOPPED_WITH_RESULTS_NOTE in stopped["notes"]
+    assert search.STOPPING_NOTE not in stopped["notes"]
+    steps = {step["id"]: step for step in stopped["steps"]}
+    assert steps["scoring"]["status"] == steps["places"]["status"] == "interrupted"
+    assert steps["scoring"]["detail"] == "1 of 2 jobs scored before you stopped"
+
+    monkeypatch.setattr(search.scoring, "score_groups", original)
+    monkeypatch.setattr(search, "_look_up_online", look_up_online)
+    manager = search.SearchManager()  # Jobcu reopened: the stopped search is read from disk
+    monkeypatch.setattr(search, "manager", manager)
+    with TestClient(create_app(), base_url="http://127.0.0.1") as client:
+        current = client.get("/api/search/current").json()["search"]
+        assert current["status"] == "stopped" and len(current["result"]["jobs"]["cards"]) == 2
+        # Cards exist, so the rest is finished from them, not by continuing a card-less attempt.
+        assert current["can_edit_conditions"] and not current["can_resume"]
+        assert client.post(f"/api/search/{run.id}/retry-checks",
+                           headers=HEADERS).status_code == 200
+    finished = wait_until_done(manager)
+    assert finished["status"] == "finished", finished["error"]
+    assert all(card["score"] is not None for card in finished["result"]["jobs"]["cards"])
+    assert finished["result"]["jobs"]["counts"]["not_scored"] == 0
+
+
+def test_stop_during_the_online_look_ups_keeps_every_scored_job(ready, monkeypatch):
+    manager = search.SearchManager()
+
+    def stop_while_looking(run, *args):
+        assert manager.stop(run.id)
+        raise search.SearchStopped
+
+    monkeypatch.setattr(search, "_look_up_online", stop_while_looking)
+    monkeypatch.setattr(search.livepostings, "find_postings",
+                        lambda *args, **kwargs: pytest.fail("No look-ups after a stop"))
+    manager.start(SearchForm(location_text="Germany"))
+    stopped = wait_until_done(manager)
+    assert stopped["status"] == "stopped" and stopped["error"] is None
+    assert len(stopped["result"]["jobs"]["cards"]) == 2
+    steps = {step["id"]: step for step in stopped["steps"]}
+    assert steps["scoring"]["status"] == "done" and steps["places"]["status"] == "interrupted"
+    assert search.STOPPED_WITH_RESULTS_NOTE in stopped["notes"]
+
+
 def test_stop_distinguishes_interrupted_work_from_steps_not_reached():
     run = search.SearchRun(1, SearchForm(), datetime.now(UTC).isoformat())
     run.update("filtering", "running")
