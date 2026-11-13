@@ -112,6 +112,22 @@ def opaque(url: str | None) -> bool:
         len(parts) >= 3 and parts[-3] == "adzuna" and parts[-2] in {"co", "com"})
 
 
+# A search provider's own link to a result: where it leads is unknown until someone opens it
+# (Google's grounding links), so it is no page of a job. Four cards of one search showed such a
+# link as "Employer's site, found online" (2026-11-13).
+SEARCH_LINK_HOSTS = frozenset({"vertexaisearch.cloud.google.com"})
+
+
+def search_link(url: str | None) -> bool:
+    if not url:
+        return False
+    try:
+        host = (urlsplit(url).hostname or "").lower().rstrip(".")
+    except ValueError:
+        return False
+    return host in SEARCH_LINK_HOSTS
+
+
 def uk_visitors_only(url: str | None) -> bool:
     """A page that takes applications only from visitors in the UK (UK_VISITORS_ONLY_PAGES)."""
     try:
@@ -236,7 +252,7 @@ def links(group: JobGroup, source_names: dict[str, str],
              for c in copies if allowed(c.url)]
     other += [{**option, "direct": application_system(option.get("url"))}
               for c in copies for option in c.application_options if allowed(option.get("url"))]
-    if allowed(group.link_from_web):
+    if allowed(group.link_from_web) and not search_link(group.link_from_web):
         found = group.link_from_web
         other.insert(0, {"source": "Found online" if middleman(found) else FOUND_EMPLOYER,
                          "url": found, "direct": True})
@@ -281,10 +297,15 @@ def clean_card(card: dict, reported: set[str] | None = None) -> dict:
         return card
     reported = reported_urls() if reported is None else reported
     main = card.get("main_link") or {"source": "", "url": ""}
-    all_links = [main, *card.get("also_on", [])]
+    # Saved before a search provider's own links were refused as a job's page: the next link
+    # the card kept takes its place.
+    also = [link for link in card.get("also_on", []) if not search_link(link.get("url"))]
+    if search_link(main.get("url")):
+        main, also = (also[0], also[1:]) if also else ({"source": "", "url": ""}, [])
+    all_links = [main, *also]
     marked = any(_reported(link.get("url"), reported) for link in all_links)
     known_blocked = marked or any(blocked(link.get("url")) for link in all_links)
-    other = [link for link in card.get("also_on", []) if link.get("url")
+    other = [link for link in also if link.get("url")
              and not _reported(link["url"], reported) and not blocked(link["url"])
              and not (known_blocked and opaque(link["url"]))]
     if _reported(main.get("url"), reported) or blocked(main.get("url")) or (

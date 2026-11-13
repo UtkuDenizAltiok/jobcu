@@ -423,3 +423,25 @@ def test_the_employers_own_page_leads_and_opens_without_jobcu_in_between():
     assert also == [{"source": "JSearch", "url": linkedin, "direct": False}]
     assert applications.middleman(linkedin) and not applications.middleman(workday)
     assert applications.application_system(workday)
+
+
+def test_a_search_provider_s_own_link_is_never_shown_as_a_job_s_page():
+    # 2026-11-13: four cards showed a Google grounding link as "Employer's site, found online".
+    # Where such a link leads is unknown until it is opened.
+    search_link = "https://vertexaisearch.cloud.google.com/grounding-api-redirect/FICTIONAL"
+    board = "https://board.example.test/fictional-1"
+    assert applications.search_link(search_link) and not applications.search_link(board)
+    group = JobGroup([FoundJob("other", "fictional-1", board, "Registered Nurse",
+                               company="Example Ltd")], source_kinds={"other": "aggregator"})
+    group.link_from_web = search_link
+    main, other = applications.links(group, {"other": "Other board"})
+    assert main == {"source": "Other board", "url": board, "direct": False} and other == []
+
+    # A card saved with such a link opens the next link it kept.
+    saved = {"job_id": 1, "title": "Registered Nurse",
+             "main_link": {"source": applications.FOUND_EMPLOYER, "url": search_link,
+                           "direct": True},
+             "also_on": [{"source": "Other board", "url": board, "direct": False}]}
+    cleaned = applications.clean_card(saved)
+    assert cleaned["main_link"]["url"] == board and cleaned["also_on"] == []
+    assert not cleaned["application_link_unavailable"]
