@@ -50,7 +50,7 @@ from jobcu.ai.base import (
 from jobcu.ai.providers import PROVIDERS, configured_adapter
 from jobcu.ai.request_recovery import RecoveryContext
 from jobcu.ai.schema import extract_json, strict_json_schema
-from jobcu.ai.usage import UsageLog, estimate_cost, price_for, total_tokens
+from jobcu.ai.usage import UsageLog, billed_searches, estimate_cost, price_for, total_tokens
 from jobcu.keystore import KeyStore
 from jobcu.settings import Effort, ModelPrice, Settings, settings_path
 
@@ -148,11 +148,10 @@ class AIClient:
         self._native_reasoning_notices: set[str] = set()
         # Web look-ups used in this search, against the cap in Settings, and those promised to
         # requests still running, so requests sent together never go past the cap.
-        previous = (usage_log.for_search(search_id)
-                    if usage_log is not None and search_id is not None else {})
         # Employer discovery has its own allowance (own_web_searches), also after reopening.
-        self.web_searches_used = sum(u.web_searches for step, u in previous.items()
-                                    if step != "employers")
+        self.web_searches_used = (
+            usage_log.web_searches_of_search(search_id, without_step="employers")
+            if usage_log is not None and search_id is not None else 0)
         self._web_searches_reserved = 0
         # This search's share of the month's free web searches (Settings), counted on top of
         # what it used before being continued.
@@ -306,7 +305,8 @@ class AIClient:
                     # same research again, while its missing bill defeats the local cap.
                     # When paid limits only tell, there is no cap to defeat: the failure is
                     # an ordinary outage (bounded retries), its searches count against the
-                    # allowance, and the incomplete bill is noted. Stopping every later online
+                    # allowance where the provider bills them (usage.billed_searches), and
+                    # the incomplete bill is noted. Stopping every later online
                     # check instead left a whole search's places and postings unchecked
                     # (2026-11-06).
                     guard = AIUsageUncertain(
@@ -325,7 +325,7 @@ class AIClient:
                     self._record(step, provider, model, usage, recovery_id=exc.recovery_id)
                     if research:
                         with self._gate:
-                            self.web_searches_used += usage.web_searches
+                            self.web_searches_used += billed_searches(provider, usage)
                 if isinstance(exc, AIQuotaExhausted):
                     with self._gate:
                         first = (provider, model) not in self._quota_errors
@@ -347,7 +347,7 @@ class AIClient:
                                  recovery_id=getattr(exc, "recovery_id", None))
                     if research:
                         with self._gate:
-                            self.web_searches_used += usage.web_searches
+                            self.web_searches_used += billed_searches(provider, usage)
                 raise
             else:
                 with self._gate:

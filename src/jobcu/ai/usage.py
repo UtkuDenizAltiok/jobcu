@@ -13,6 +13,13 @@ from jobcu.settings import ModelPrice
 # Google counts its free monthly web searches in Pacific time (the free 5,000 renew on the 1st
 # at 00:00 in California, 10:00 in Turkey).
 BILLING_ZONE = ZoneInfo("America/Los_Angeles")
+# Providers that don't bill a request which ended without a usage report: one they failed, or
+# one cancelled before its answer. Google's billing report by SKU showed it on three search
+# days (November 2026): its token counts equalled the finished requests' to the token, and its
+# search queries were theirs within 5%, while the unfinished requests held as many searches
+# again. Elsewhere such searches still count: nothing measured says they are free.
+UNFINISHED_REQUESTS_FREE = frozenset({"gemini"})
+_UNFINISHED = "unreported_requests > 0 AND input_tokens = 0 AND output_tokens = 0"
 
 
 def billing_month_start(now: datetime) -> datetime:
@@ -90,12 +97,22 @@ class UsageLog:
 
     def web_searches_this_month(self, provider: str, now: datetime | None = None) -> int:
         """Billed web search units at one provider in its billing month, every step and
-        allowance included: they all come out of the provider's free monthly searches."""
+        allowance included: they all come out of the provider's free monthly searches.
+        Searches the provider doesn't bill (`billed_searches`) are left out."""
         start = billing_month_start(now or datetime.now(UTC)).strftime("%Y-%m-%dT%H:%M:%S")
         with db.connect(self.folder) as conn:
             return conn.execute(
                 "SELECT COALESCE(SUM(web_searches + web_results), 0) FROM ai_usage "
-                "WHERE provider = ? AND created_at >= ?", (provider, start)).fetchone()[0]
+                f"WHERE provider = ? AND created_at >= ? AND {_BILLED}",
+                (provider, start)).fetchone()[0]
+
+    def web_searches_of_search(self, search_id: int, *, without_step: str) -> int:
+        """Billed search queries of one search so far, outside a step with its own allowance."""
+        with db.connect(self.folder) as conn:
+            return conn.execute(
+                "SELECT COALESCE(SUM(web_searches), 0) FROM ai_usage "
+                f"WHERE search_id = ? AND step != ? AND {_BILLED}",
+                (search_id, without_step)).fetchone()[0]
 
     def for_budget(self, budget_id: str, *, after_id: int = 0) -> list[ModelUsage]:
         return self._by_model("budget_id = ? AND id > ?", (budget_id, after_id))
@@ -128,6 +145,17 @@ class UsageLog:
                 params,
             ).fetchall()
         return [ModelUsage(row[0], row[1], Usage(*row[2:])) for row in rows]
+
+
+_BILLED = "NOT (provider IN ({}) AND {})".format(
+    ", ".join(f"'{provider}'" for provider in sorted(UNFINISHED_REQUESTS_FREE)), _UNFINISHED)
+
+
+def billed_searches(provider: str, usage: Usage) -> int:
+    """The search queries of one request that its provider bills: none when the request ended
+    without a usage report at a provider that doesn't bill such requests."""
+    unfinished = usage.unreported_requests and not (usage.input_tokens or usage.output_tokens)
+    return 0 if unfinished and provider in UNFINISHED_REQUESTS_FREE else usage.web_searches
 
 
 FLEX = " (flex)"

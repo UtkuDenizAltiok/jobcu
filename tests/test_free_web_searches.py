@@ -41,6 +41,48 @@ def test_every_billed_search_at_the_provider_this_month_counts():
     assert UsageLog().web_searches_this_month("gemini", at("2026-11-04T00:00:00")) == 10
 
 
+def failed(provider, created_at, searches, search_id=None):
+    """A request that ended without a usage report: the provider failed it, or it was
+    cancelled. Only the searches seen until then are known."""
+    UsageLog().record(step="job_places", provider=provider, model="fictional-model",
+                      usage=Usage(web_searches=searches, unreported_requests=1),
+                      created_at=created_at, search_id=search_id)
+
+
+def test_searches_inside_a_request_google_failed_or_that_was_cancelled_are_not_counted():
+    # Google's billing report, November 2026: on three search days its token counts equalled the
+    # finished requests' exactly and its search queries were theirs within 5%; the requests it
+    # failed and the ones a stopped search cancelled were not billed. Counting them took about a
+    # quarter of a search's share of the free searches away.
+    record("gemini", "2026-11-02T09:00:00.000Z", 7)
+    failed("gemini", "2026-11-02T09:01:00.000Z", 30)
+    assert UsageLog().web_searches_this_month("gemini", at("2026-11-04T00:00:00")) == 7
+    # A request whose tokens were reported did finish: its searches are billed, also when
+    # part of its usage is missing.
+    UsageLog().record(step="job_places", provider="gemini", model="fictional-model",
+                      usage=Usage(10, 5, web_searches=1, unreported_requests=1),
+                      created_at="2026-11-02T09:02:00.000Z")
+    assert UsageLog().web_searches_this_month("gemini", at("2026-11-04T00:00:00")) == 8
+    # Nothing measured says another provider leaves such searches unbilled: they still count.
+    failed("anthropic", "2026-11-02T09:01:00.000Z", 30)
+    assert UsageLog().web_searches_this_month("anthropic", at("2026-11-04T00:00:00")) == 30
+
+
+def test_a_continued_search_starts_from_the_searches_it_was_billed_for():
+    with db.connect() as conn:
+        search_id = conn.execute("INSERT INTO searches (started_at, status, form_json) "
+                                 "VALUES ('2026-11-02T09:00:00.000Z', 'stopped', '{}')").lastrowid
+    UsageLog().record(step="job_places", provider="gemini", model="fictional-model",
+                      usage=Usage(10, 5, web_searches=6), search_id=search_id)
+    UsageLog().record(step="employers", provider="gemini", model="fictional-model",
+                      usage=Usage(10, 5, web_searches=20), search_id=search_id)  # own allowance
+    failed("gemini", "2026-11-02T09:01:00.000Z", 30, search_id=search_id)
+    settings = settings_with(None)
+    settings.limits.web_search_cap = 50
+    client = AIClient(settings, adapter=Searcher(), usage_log=UsageLog(), search_id=search_id)
+    assert client.web_searches_used == 6 and client.web_searches_left() == 44
+
+
 def settings_with(free, provider="gemini", research=None):
     settings = Settings()
     settings.ai.provider, settings.ai.model = provider, "fictional-model"
