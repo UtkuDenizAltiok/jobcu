@@ -79,7 +79,10 @@ done. Implementation details belong in pull requests; current behavior is descri
    to other good jobs whose only links are sites that refuse Jobcu, prefer employer pages over
    other job sites, and use the original posting date. Measure per AI provider how often the
    right open page is found: the log counts each look-up's postings kept and why the others
-   weren't. With Gemini most sources are redirect links that name no page, so few can be kept.
+   weren't. Measured on Gemini: its sources are redirect links that name no page, so no posting
+   could be confirmed and each look-up used about 30 web searches; Jobcu now skips these look-ups
+   for a provider whose sources name no pages and tries again after two weeks. Next for such
+   providers: reach the employer's own page through more career systems Jobcu reads itself.
 7. **Free source allowances.** Make sure monthly free allowances, such as JSearch credits, are
    fully used across searches without paid overruns.
 8. **Coverage benchmark.** Compare Jobcu with an independently collected sample of real
