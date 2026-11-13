@@ -23,6 +23,7 @@ from typing import Literal
 from jobcu import (
     applications,
     db,
+    dedupe,
     documents,
     employers,
     jobidentity,
@@ -836,7 +837,10 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
                           if (reason := applications.exclusion_key(group, reported_links))}
     original = original_reasons(groups, window_start(started_at, form.posted_within_hours))
     ruled_out = [i for i in ruled_out if i not in unavailable_routes and i not in original]
-    excluded = set(ruled_out) | set(unavailable_routes) | set(original)
+    # A job that an earlier pass found to be another one of this pool (_join_same_jobs).
+    joined = {i for i, job in enumerate(job_pool.jobs) if job.same_as is not None}
+    ruled_out = [i for i in ruled_out if i not in joined]
+    excluded = set(ruled_out) | set(unavailable_routes) | set(original) | joined
     in_running = [i for i in range(len(groups)) if i not in excluded]
     unchecked = [i for i in in_running if job_pool.jobs[i].unrelated is None]
     if unchecked:
@@ -893,6 +897,8 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         exclude_remote=form.exclude_remote, countries=plan.countries,
     )
     candidates = [candidates[i] for i in detail_rules.kept]
+    joined_now = _join_same_jobs(groups, job_pool, candidates, plan, points_before_details)
+    candidates = [i for i in candidates if i not in joined_now]
     kept = set(candidates)
     to_score = [i for i in to_score if i in kept]
 
@@ -941,7 +947,9 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
 
     # Original metadata may identify a different workplace. A journey for the earlier
     # summary point is not evidence for that workplace; measure only changed points again.
-    moved = [i for i in to_score if travel.job_point(groups[i]) != points_before_details[i]]
+    moved = [i for i in candidates if i in points_before_details
+             and (i in to_score or i in joined_now.values())
+             and travel.job_point(groups[i]) != points_before_details[i]]
     if deferred_references:
         from jobcu import reference_places
 
@@ -1176,6 +1184,7 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     shown = [index for index in shown if best_of[id_of[index]] == index]
     same_posting = livepostings.same_postings(groups, shown,
                                               lambda index: _score(job_pool.jobs[index]))
+    elsewhere = dedupe.same_ad_elsewhere(groups, shown)
     states = jobstore.states(job_ids)
     first_seen = jobstore.first_seen(job_ids)
     names = job_pool.source_names
@@ -1199,6 +1208,8 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             first_seen_at=first_seen.get(id_of[index]),
             reported_links=reported_links,
             reposted_first_seen=job_pool.jobs[index].reposted_first_seen,
+            same_ad_in=[place for other in elsewhere.get(index, [])
+                        if (place := pipeline.card_place(groups[other]))],
         )
 
     cards = [card(i) for i in shown]
@@ -1339,6 +1350,46 @@ def _look_up_online(run, client, settings, groups, job_pool, profile, worth_it, 
             if len(looked_up.not_asked) >= waiting:
                 break  # no progress: stop rather than loop
     return looked_up
+
+
+def _join_same_jobs(groups, job_pool, indexes, plan, points) -> dict[int, int]:
+    """Joins jobs that the full ads show to be one, and returns the ones that joined another,
+    each with the job it joined.
+
+    Duplicates are first looked for in what the job sites' lists gave. An agency's ad counts as
+    another site's copy only when the texts match, and some sites list an ad without its text:
+    one search showed four such ads twice, scored separately (77 and 74, 70 and 66), and seven
+    more under two spellings of the employer's name. The job already scored stays, else the
+    earlier one; it takes the other's copies, so its links and dates are all there, and it is
+    scored once. `points` gets where each such job was before, so a place that a new copy
+    changes is measured again; a journey already measured for the same place is kept."""
+    order = sorted(indexes, key=lambda i: (job_pool.jobs[i].scored is None, i))
+    same = dedupe.same_jobs(groups, order)
+    for kept in dict.fromkeys(same.values()):
+        points.setdefault(kept, travel.job_point(groups[kept]))
+    keys = {kept: travel.job_key(groups[kept]) for kept in same.values()}
+    for duplicate, kept in same.items():
+        seen = {(c.source, c.source_job_id) for c in groups[kept].copies if c.source_job_id}
+        groups[kept].copies.extend(
+            copy for copy in groups[duplicate].copies
+            if not copy.source_job_id or (copy.source, copy.source_job_id) not in seen)
+        job_pool.jobs[duplicate].same_as = kept
+        if job_pool.jobs[kept].reposted_first_seen is None:
+            job_pool.jobs[kept].reposted_first_seen = job_pool.jobs[duplicate].reposted_first_seen
+    for kept, key in keys.items():
+        # Journeys are kept under the main copy's name, which a better copy can change.
+        now = travel.job_key(groups[kept])
+        if now != key and travel.job_point(groups[kept]) == points[kept]:
+            for condition in plan.conditions:
+                if key in condition.travel:
+                    condition.travel.setdefault(now, condition.travel[key])
+    if same:
+        for job in job_pool.jobs:
+            if job.group.possible_duplicate_of in same:
+                job.group.possible_duplicate_of = same[job.group.possible_duplicate_of]
+        job_pool.different_jobs -= len(same)
+        log.info("Full ads showed %d jobs to be copies of others in this search", len(same))
+    return same
 
 
 def _ad_exclusion(group, scored, form: SearchForm) -> str | None:

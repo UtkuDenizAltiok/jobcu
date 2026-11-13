@@ -590,6 +590,67 @@ def test_unicode_duplicate_copies_are_assessed_once_before_cards_are_saved(ready
         "https://jobs.test/0", "https://jobs.test/1"}
 
 
+def test_an_ad_whose_text_arrives_later_joins_its_copy_and_names_its_other_town(
+        ready, monkeypatch):
+    # An agency's ad is another site's copy only when the texts match, and one site lists it
+    # without its text: one search showed four such ads as two cards each, scored separately.
+    text = " ".join(f"Fictional duty {i} includes development validation and reporting."
+                    for i in range(60))
+    scored_ids = []
+
+    def ad(source, key, town, description=""):
+        return FoundJob(source=source, source_job_id=key, url=f"https://{source}.test/{key}",
+                        title="Hardware Engineer", company="Fictional Staffing GmbH",
+                        location_text=town, country="DE", posted_at=datetime.now(UTC),
+                        date_precision="exact", description=description,
+                        description_is_complete=bool(description))
+
+    class ListsWithoutText(FakeSource):
+        def search(self, query, ctx):
+            yield ad("fake", "1", "Berlin")
+
+        def load_details(self, job, ctx):
+            job.description, job.description_is_complete = text, True
+            return job
+
+    class ListsWholeAds(FakeSource):
+        id, name = "another", "Another Site"
+
+        def search(self, query, ctx):
+            yield ad("another", "7", "Berlin", text)
+            yield ad("another", "8", "Hamburg", text)
+
+        def load_details(self, job, ctx):
+            return job
+
+    class TrackedAI(FakeAI):
+        def complete_json(self, **request):
+            if request["schema_name"] == "ScoringAnswer":
+                scored_ids.extend(re.findall(r"^JOB (J\d+)", request["prompt"], re.MULTILINE))
+            return super().complete_json(**request)
+
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: TrackedAI())
+    monkeypatch.setattr("jobcu.pipeline.all_sources",
+                        lambda: [ListsWithoutText(), ListsWholeAds()])
+    manager = search.SearchManager()
+    run = manager.start(SearchForm(location_text="Germany"))
+    result = wait_until_done(manager)
+    assert result["status"] == "finished", result["error"]
+    cards = {card["location"]: card for card in result["result"]["jobs"]["cards"]}
+    assert sorted(cards) == ["Berlin", "Hamburg"] and len(scored_ids) == 2
+    berlin = cards["Berlin"]
+    assert {berlin["main_link"]["url"], *(link["url"] for link in berlin["also_on"])} == {
+        "https://fake.test/1", "https://another.test/7"}
+    # The same ad for another town stays its own card (the places differ) and says so.
+    assert berlin["same_ad_in"] == ["Hamburg"] and cards["Hamburg"]["same_ad_in"] == ["Berlin"]
+    assert result["result"]["jobs"]["counts"]["different_jobs"] == 2
+    # Applying the conditions again keeps the two jobs joined and scores nothing twice.
+    manager.reapply(run.id, [])
+    again = wait_until_done(manager)
+    assert again["status"] == "finished", again["error"]
+    assert len(again["result"]["jobs"]["cards"]) == 2 and len(scored_ids) == 2
+
+
 @pytest.mark.parametrize("title", [
     "Power Electronics Engineer", "Registered Nurse", "Primary Teacher"])
 def test_decorated_recruiter_copies_use_one_assessment_and_keep_their_saved_mark(

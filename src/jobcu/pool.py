@@ -28,6 +28,9 @@ class PoolJob:
     online_evidence: dict | None = None  # completed lookup, kept before any later batch fails
     # When Jobcu first showed this job, for one listed again because it was really reposted.
     reposted_first_seen: str | None = None
+    # The job in this pool that this one turned out to be once the full ads were read
+    # (dedupe.same_jobs): its copies moved there, and it is no job of its own any more.
+    same_as: int | None = None
 
 
 @dataclass
@@ -116,5 +119,6 @@ def _from_dict(data: dict) -> Pool:
             scored=stored["scored"],
             online_evidence=stored.get("online_evidence"),
             reposted_first_seen=stored.get("reposted_first_seen"),
+            same_as=stored.get("same_as"),
         ))
     return Pool(jobs=jobs, **data)

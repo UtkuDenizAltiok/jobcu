@@ -7,6 +7,13 @@
   board copy that resembles both. Missing IDs never establish an exact match.
 - Ads from staffing agencies that hide the employer are tagged "possible duplicate"
   instead of being merged, because they may or may not be the same job.
+- The same ad under a shorter and a longer employer name ("Acme" and "Acme Robotics GmbH
+  Leeds") is one job when place and title agree and the texts match: two full ads alike, or one
+  a job site's summary of the other.
+- Texts read after the first comparison can still join two jobs (`same_jobs`): an agency's ad
+  arrives from one site without its text, so only the full ads show it is the other site's ad.
+- One ad posted for several towns stays one card per town, each naming the others
+  (`same_ad_elsewhere`): the places differ, and so may the person's conditions about them.
 - One employer's complete ad posted under several titles (a recruiter's "Hardware Engineer",
   "Hardwareentwickler" and "Elektronik-Ingenieur", search 8) is one job when the texts are
   practically identical and the titles agree on level and reference numbers.
@@ -309,22 +316,23 @@ def group_duplicates(jobs: list[FoundJob], source_kinds: dict[str, str]) -> list
                 elif _same_ad_retitled(jobs[a], jobs[b], titles[a], titles[b], text_cache):
                     union(a, b)
 
-    # A recruiter can publish the same vacancy under a parent name and a division label.
-    # A shared name prefix alone proves nothing: require the same role/place and strong
-    # matching ad evidence, preserving employer requisition and complete-text guards.
+    # One ad can carry a parent name on one site and a division, branch or legal name on
+    # another ("Cirrus" and "Cirrus Logic", "Akkodis" and "Akkodis Germany Tech Experts": eight
+    # pairs of cards in one search). A shared start of the name alone proves nothing: require the
+    # same role and place and matching ad text, preserving employer requisition and
+    # complete-text guards.
     for company, members in by_company.items():
         words = company.split()
-        for end in range(max(1, len(words) - 2), len(words)):
+        for end in range(1, len(words)):
             parent_members = by_company.get(" ".join(words[:end]), [])
             for a in members:
-                if not is_agency(jobs[a].company):
-                    continue
                 for b in parent_members:
-                    if (find(a) != find(b) and is_agency(jobs[b].company)
+                    if (find(a) != find(b)
                             and _same_place(jobs[a], jobs[b], cities[a], cities[b],
                                             towns[a], towns[b])
                             and title_similarity(titles[a], titles[b]) >= TITLE_MATCH
-                            and _both_full_and_similar(jobs[a], jobs[b], TEXT_MATCH, text_cache)):
+                            and (_both_full_and_similar(jobs[a], jobs[b], TEXT_MATCH, text_cache)
+                                 or _summary_of(jobs[a], jobs[b], text_cache))):
                         union(a, b)
 
     grouped: dict[int, list[int]] = {}
@@ -334,6 +342,60 @@ def group_duplicates(jobs: list[FoundJob], source_kinds: dict[str, str]) -> list
               for members in grouped.values()]
     _tag_agency_repeats(groups, text_cache)
     return groups
+
+
+def same_jobs(groups: list[JobGroup], indexes: list[int]) -> dict[int, int]:
+    """The groups among `indexes` that the duplicate rules take for one job now, each mapped to
+    the first of them in `indexes`. The first comparison runs on what the job sites' lists
+    gave; full ads read later can show that two of its jobs are one (an agency's ad needs
+    matching text, and one site lists it without any)."""
+    if not indexes:
+        return {}
+    owner = {id(copy): index for index in indexes for copy in groups[index].copies}
+    position = {index: n for n, index in enumerate(indexes)}
+    leader = {index: index for index in indexes}
+
+    def find(index: int) -> int:
+        while leader[index] != index:
+            leader[index] = leader[leader[index]]
+            index = leader[index]
+        return index
+
+    copies = [copy for index in indexes for copy in groups[index].copies]
+    for group in group_duplicates(copies, groups[indexes[0]].source_kinds):
+        owners = sorted({find(owner[id(copy)]) for copy in group.copies}, key=position.get)
+        for other in owners[1:]:
+            leader[other] = owners[0]
+    return {index: find(index) for index in indexes if find(index) != index}
+
+
+def same_ad_elsewhere(groups: list[JobGroup], indexes: list[int]) -> dict[int, list[int]]:
+    """For each of these jobs, the others that are the same poster's same ad for another place
+    (one graduate programme listed for two cities, a recruiter's ad for four towns: nine pairs
+    among 251 cards of one search). Agencies reuse a template for different roles, so the texts
+    must be practically identical, not merely alike."""
+    by_poster: dict[tuple[str, str | None], list[int]] = {}
+    for index in indexes:
+        main = groups[index].main
+        if company := normal_company(main.company):
+            by_poster.setdefault((company, main.country), []).append(index)
+    cache: dict[str, set[str]] = {}
+    found: dict[int, list[int]] = {}
+    for members in by_poster.values():
+        for n, a in enumerate(members):
+            for b in members[n + 1:]:
+                one, other = groups[a].best_description_copy, groups[b].best_description_copy
+                if (title_similarity(normal_title(one.title), normal_title(other.title))
+                        >= TITLE_MATCH
+                        and min(len(_prepared_shingles(one.description or "", cache)),
+                                len(_prepared_shingles(other.description or "", cache)))
+                        >= SUMMARY_SHINGLES
+                        and one.description_is_complete == other.description_is_complete
+                        and _text_similarity(one.description, other.description, cache)
+                        >= RETITLED_TEXT_MATCH):
+                    found.setdefault(a, []).append(b)
+                    found.setdefault(b, []).append(a)
+    return found
 
 
 def _town_part(location: str | None, country: str | None) -> str:

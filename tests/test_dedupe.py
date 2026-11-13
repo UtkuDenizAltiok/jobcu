@@ -424,3 +424,64 @@ def test_a_retitled_ad_needs_a_whole_matching_text_and_the_same_level(different)
         a.source = b.source = "employer"
         kinds["employer"] = "employer"
     assert len(group_duplicates([a, b], kinds)) == 2
+
+
+# A whole ad with no repeated sentence, as real ads are.
+WHOLE_AD = " ".join(f"Task {n}: design converter stage {n}, test it on rig {n} and report."
+                    for n in range(60))
+
+
+@pytest.mark.parametrize("short,long", [
+    ("Acme", "Acme Robotics"), ("Acme", "Acme Robotics Germany Tech Experts GmbH"),
+    ("Example Works GmbH", "Example Works GmbH Leeds")])
+def test_one_ad_under_a_shorter_and_a_longer_employer_name_is_one_job(short, long):
+    # One search showed the same ad twice under two spellings of eight employers' names
+    # (a parent and a division, a company and its branch), scored up to 20 points apart.
+    full = dict(description=WHOLE_AD, description_is_complete=True)
+    assert len(group_duplicates([job(company=short, **full),
+                                 job("board", company=long, **full)], KINDS)) == 1
+    # Also when one site gives only the start of the ad.
+    summary = job(company=short, description=WHOLE_AD[:700])
+    assert len(group_duplicates([summary, job("board", company=long, **full)], KINDS)) == 1
+    # The name's start alone proves nothing: another text, title or town is another job.
+    other = dict(description="We build test rigs for wind turbines in our plant. " * 20,
+                 description_is_complete=True)
+    for different in (job("board", company=long, **other),
+                      job("board", company=long, title="Software Engineer", **full),
+                      job("board", company=long, city="Hamburg", **full),
+                      job("board", company=long)):
+        assert len(group_duplicates([job(company=short, **full), different], KINDS)) == 2
+
+
+def test_full_ads_read_later_join_two_jobs_that_looked_different_at_first():
+    from jobcu.dedupe import same_jobs
+
+    # An agency's ad is another site's copy only when the texts match, and one site lists it
+    # without its text: four such ads were two cards each in one search.
+    listed = job("board", company="Fictional Staffing GmbH")
+    with_text = job(company="Fictional Staffing GmbH", description=TEXT,
+                    description_is_complete=True)
+    another = job("board", "2", title="Test Engineer", company="Fictional Staffing GmbH")
+    groups = group_duplicates([listed, with_text, another], KINDS)
+    assert len(groups) == 3 and same_jobs(groups, [0, 1, 2]) == {}
+    listed.description, listed.description_is_complete = TEXT, True
+    assert same_jobs(groups, [0, 1, 2]) == {1: 0}
+    assert same_jobs(groups, [2, 1, 0]) == {0: 1}  # the first one named stays
+    assert same_jobs(groups, [0, 2]) == {} and same_jobs(groups, []) == {}
+
+
+def test_one_ad_listed_for_several_towns_names_the_other_towns_and_stays_separate():
+    from jobcu.dedupe import same_ad_elsewhere
+
+    full = dict(description=WHOLE_AD, description_is_complete=True)
+    munich, hamburg = job(**full), job(job_id="2", city="Hamburg", **full)
+    # A recruiter's template for another role is alike, not the same ad.
+    template = job(job_id="3", city="Köln", description=" ".join(
+        f"Task {n}: design converter stage {n}, test it on rig {n} and report." if n % 6
+        else f"Duty {n}: validate battery pack {n} and write up result {n}."
+        for n in range(60)), description_is_complete=True)
+    other_title = job(job_id="4", title="Software Engineer", city="Berlin", **full)
+    other_poster = job(job_id="5", company="Another Employer GmbH", city="Bremen", **full)
+    groups = group_duplicates([munich, hamburg, template, other_title, other_poster], KINDS)
+    assert len(groups) == 5
+    assert same_ad_elsewhere(groups, list(range(5))) == {0: [1], 1: [0]}
