@@ -240,6 +240,10 @@ def test_a_low_total_is_not_raised_by_a_limit():
 @pytest.mark.parametrize(("role", "hard", "total", "why"), [
     (36, 15, 36 + 15 + 15 + 15 + 8, None),  # the person's own kind of work: no limit
     (28, 15, 80, "Some gaps in the main work or a neighbouring specialisation"),
+    (33, 15, 80, "Some gaps in the main work or a neighbouring specialisation"),
+    # The band's top two points rise towards the uncapped band, so its best jobs don't tie.
+    (34, 15, 84, "Some gaps in the main work or a neighbouring specialisation"),
+    (35, 15, 88, "Some gaps in the main work or a neighbouring specialisation"),
     (24, 15, 60, "A related job, its daily tasks partly different from yours"),
     (12, 15, 45, "Only loosely related to your work"),
     (5, 15, 30, "Another field than yours"),

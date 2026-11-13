@@ -158,6 +158,9 @@ def test_focused_retry_cannot_erase_a_still_unconfirmed_central_skill(expertise)
     assert recheck.compare(Client([reply]), job, PERSON)
     assert job.scored["evidence"]["requirement_checks"][0]["central_to_role"]
     assert job.scored["parts"]["role_and_skills"] == 35 and job.scored["score"] <= 80
+    # Held at 35, not earned: the rise of the band's top (88 at 35 points) is not for it.
+    assert {"at": 80, "why": "Some gaps in the main work or a neighbouring specialisation"
+            } in job.scored["limits"]
 
 
 @pytest.mark.parametrize(("role", "expertise"), [
