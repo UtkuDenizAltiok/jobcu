@@ -25,12 +25,14 @@ from jobcu.ai.base import (
 )
 
 # Dated API/locked-SDK capability list, not a model recommendation or default selection.
-# Unverified model IDs continue through the supported Generate Content adapter.
+# Unverified model IDs continue through the supported Generate Content adapter, which has no
+# Flex and no request recovery: a model is added here once the live API has answered it over this
+# path (plain, streamed, in the background and with web search).
 EVENT_MODELS = frozenset({
     "gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite",
     "gemini-3-flash-preview", "gemini-3.1-pro-preview", "gemini-3.1-flash-lite",
     "gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-3.6-flash",
-    "gemini-3.7-flash", "gemini-3.8-flash", "gemini-4-argon",
+    "gemini-3.7-flash", "gemini-3.8-flash", "gemini-4-argon", "gemini-4-hydrogen",
     "gemini-flash-latest", "gemini-flash-lite-latest", "gemini-pro-latest",
 })
 

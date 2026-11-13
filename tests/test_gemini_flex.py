@@ -39,7 +39,8 @@ def finished(tier, interaction="fictional-1"):
 def service():
     sdks = []
 
-    def make(answers, *, flex=True, failures=0, patient=True, recover=True):
+    def make(answers, *, flex=True, failures=0, patient=True, recover=True,
+             model="gemini-3.8-flash"):
         """`answers` gives each POST a response: "busy", "accepted" or "failed"."""
         posts, notices, waits = [], [], []
         adapter = GeminiAdapter("fictional-key")
@@ -101,7 +102,7 @@ def service():
         adapter._genai_client = sdk
         sdks.append(sdk)
         settings = Settings()
-        settings.ai.provider, settings.ai.model = "gemini", "gemini-3.8-flash"
+        settings.ai.provider, settings.ai.model = "gemini", model
         settings.ai.recover_interrupted_requests = recover
         client = AIClient(settings, adapter=adapter, usage_log=UsageLog(), search_id=1,
                           sleep=waits.append, notify=notices.append, patient=patient)
@@ -131,6 +132,23 @@ def test_flex_answer_is_recorded_apart_and_priced_at_half_the_normal_tokens(serv
     cost, complete = estimate_cost(UsageLog().for_search_by_model(1), [normal])
     assert complete and cost == pytest.approx((1000 * 0.75 + 1000 * 3.75) / 2 / 1e6)
     assert notices == []
+
+
+def test_a_newer_listed_model_is_sent_on_flex_and_an_unlisted_one_at_the_normal_price(
+        service, monkeypatch):
+    client, posts, _, _ = service(["accepted"], model="gemini-4-hydrogen")
+    assert ask(client).ok
+    assert [post.get("service_tier") for post in posts] == ["flex"]
+    assert posts[0]["background"] is True  # recoverable, as Flex needs
+    assert recorded_models() == ["gemini-4-hydrogen (flex)"]
+
+    # A model the event path isn't verified for goes the older way: no Flex request is made.
+    sent = []
+    client, posts, _, _ = service(["accepted"], model="gemini-9-fictional")
+    monkeypatch.setattr(client.adapter(), "_stream", lambda model, prompt, config, **_: (
+        sent.append(model) or type("Reply", (), {"text": '{"ok":true}', "usage": Usage(10, 5)})()))
+    assert ask(client).ok
+    assert sent == ["gemini-9-fictional"] and posts == []
 
 
 def test_busy_flex_is_tried_again_then_sent_at_the_normal_price(service):
