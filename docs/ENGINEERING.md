@@ -289,7 +289,8 @@ Searches seen inside a request that ended without a usage report (the provider f
 stopped search cancelled it) stay in the usage record but count against neither the free month
 nor the search's share where the provider doesn't bill such requests
 (`usage.UNFINISHED_REQUESTS_FREE`: Google, whose billing report by SKU matched the finished
-requests alone on three search days: tokens exactly, search queries within 5%).
+requests alone on three search days: tokens exactly, search queries within 5%). There no bill
+is missing either, so such a failure is an ordinary outage with limits that stop too.
 A job look-up request that still fails after its retries while other look-ups of the same round
 come back is asked again in halves, down to single jobs, so one ad the provider can't handle
 doesn't leave its batch unchecked; with no answer yet in the round the service counts as down

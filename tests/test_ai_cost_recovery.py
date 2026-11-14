@@ -396,6 +396,51 @@ def test_a_failed_look_up_takes_nothing_from_the_search_where_the_provider_bills
     assert ledger.web_searches_this_month(provider) == counted + 2
 
 
+@pytest.mark.parametrize("provider,pauses", [("gemini", False), ("anthropic", True)])
+def test_with_limits_that_stop_a_look_up_the_provider_failed_for_free_is_only_an_outage(
+        provider, pauses):
+    # November 2026: Google failed 2 of 21 look-up requests of one search after their searches
+    # and billed nothing for them. With limits that stop, one such failure still left every
+    # later place, requirement and posting of the search unchecked. Where nothing is measured,
+    # the failure's bill is unknown and the pause stays.
+    class Web(ScriptedAdapter):
+        can_search_the_web = True
+
+        def research(self, **request):
+            raw = self.complete_json(**request)
+            return ResearchReply(raw.text, [], Usage(10, 5, web_searches=2))
+
+    failure = AIUnavailable("Fictional failure: the provider ended the request without usage")
+    failure.usage = Usage(web_searches=12, unreported_requests=1)
+    adapter = Web(failure, GOOD, GOOD)
+    configured = settings()
+    configured.ai.provider = provider
+    assert configured.limits.paid_limits == "stop"
+    ledger, notices, waits = UsageLog(), [], []
+    client = AIClient(configured, adapter=adapter, usage_log=ledger, notify=notices.append,
+                      sleep=waits.append)
+
+    def look_up(prompt):
+        return client.research(step="job_places", system="Fictional evidence", prompt=prompt)
+
+    if pauses:
+        with pytest.raises(AIUsageUncertain):
+            look_up("A fictional job")
+        with pytest.raises(AIUsageUncertain):
+            look_up("Another fictional job")
+        assert len(adapter.calls) == 1 and not waits
+        assert sum("stopped automatic research" in note for note in notices) == 1
+    else:
+        # Tried again after a wait, like any outage, and later look-ups still run.
+        assert look_up("A fictional job").text and look_up("Another fictional job").text
+        assert len(adapter.calls) == 3 and len(waits) == 1
+        assert not any("stopped automatic research" in note for note in notices)
+        assert client.web_searches_used == 4
+    # What was seen stays on record either way.
+    assert ledger.this_month()[0].usage.web_searches == 12 + 2 * (not pauses) * 2
+    assert client._web_searches_reserved == 0
+
+
 @pytest.mark.parametrize("usage", [Usage(unreported_requests=1),
                                    Usage(10, 30, web_searches=2)])
 def test_early_failure_or_complete_research_receipt_keeps_bounded_transient_recovery(usage):
