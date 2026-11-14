@@ -143,3 +143,45 @@ def test_the_monthly_cost_note_comes_once_while_the_amount_grows():
                    usage=Usage(input_tokens=400_000, output_tokens=100_000))
         client._check_monthly_limit(provider="gemini", model="fictional-model")
     assert len(notices) == 1 and "(1.60)" in notices[0]
+
+
+@pytest.mark.parametrize("provider,priced", [("gemini", 10), ("anthropic", 22)])
+def test_searches_inside_a_request_the_provider_failed_for_free_are_kept_but_not_priced(
+        provider, priced):
+    # November 2026: one search's estimate priced 553 web searches where the provider's billing
+    # report showed 431; the rest sat in look-up requests it had failed and didn't bill.
+    # Where nothing is measured, every search seen is still priced.
+    tariff = ModelPrice(provider=provider, model="fictional-model", input_per_million=2,
+                        output_per_million=8, web_search_per_thousand=10)
+    log = UsageLog()
+    log.record(step="job_places", provider=provider, model="fictional-model",
+               usage=Usage(1_000_000, 100_000, web_searches=10), search_id=7)
+    log.record(step="job_places", provider=provider, model="fictional-model",
+               usage=Usage(web_searches=12, unreported_requests=1), search_id=7)
+    month = log.this_month()[0]
+    assert month.usage.web_searches == 22  # the record keeps what was seen
+    assert month.billed_search_units == priced
+    assert estimate_cost([month], [tariff])[0] == pytest.approx(2 + .8 + priced * 10 / 1000)
+    assert estimate_cost(log.for_search_by_model(7), [tariff])[0] == pytest.approx(
+        2.8 + priced * 10 / 1000)
+    assert log.for_search(7)["job_places"].web_searches == 22
+    assert log.billed_searches_by_step(7) == {"job_places": priced}
+
+
+def test_searches_the_provider_never_billed_do_not_reach_the_monthly_spending_limit():
+    settings = Settings()
+    settings.ai.provider, settings.ai.model = "gemini", "fictional-model"
+    settings.prices = [price(web_search_per_thousand=10)]
+    settings.limits.monthly_cost_limit = 1
+    log = UsageLog()
+    log.record(step="job_places", provider="gemini", model="fictional-model",
+               usage=Usage(web_searches=100, unreported_requests=1))
+    client = AIClient(settings, usage_log=log)
+    client._check_monthly_limit()
+    # Nor do they ask for a search price: nothing of theirs is priced.
+    settings.prices = [price()]
+    client._check_monthly_limit()
+    log.record(step="job_places", provider="gemini", model="fictional-model",
+               usage=Usage(10, 5, web_searches=1))
+    with pytest.raises(AILimitReached, match="no search price"):
+        client._check_monthly_limit()

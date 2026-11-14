@@ -1595,6 +1595,8 @@ function renderDetails(search) {
   const rows = Object.entries(usage).map(([step, used]) =>
     el("li", {
       text: `${stepNames[step] || step}: ${used.input_tokens.toLocaleString()} tokens in, ${used.output_tokens.toLocaleString()} tokens out` +
+        // Searches the provider bills; searches kept before this count existed show none.
+        (used.billed_web_searches ? `, ${used.billed_web_searches.toLocaleString()} web ${used.billed_web_searches === 1 ? "search" : "searches"}` : "") +
         (used.unreported_requests ? `; ${used.unreported_requests} request(s) have incomplete usage` : ""),
     }),
   );

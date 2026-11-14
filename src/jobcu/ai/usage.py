@@ -38,6 +38,14 @@ class ModelUsage:
     provider: str
     model: str
     usage: Usage
+    # Of `usage.web_searches`, those seen inside requests the provider doesn't bill
+    # (`billed_searches`): they stay on record and are never priced.
+    unbilled_searches: int = 0
+
+    @property
+    def billed_search_units(self) -> int:
+        """What the provider bills for searching: queries and result pages."""
+        return self.usage.web_searches - self.unbilled_searches + self.usage.web_results
 
 
 class UsageLog:
@@ -129,6 +137,13 @@ class UsageLog:
             ).fetchall()
         return {row[0]: Usage(*row[1:]) for row in rows}
 
+    def billed_searches_by_step(self, search_id: int) -> dict[str, int]:
+        """Billed search queries per step of one search, for "Search details"."""
+        with db.connect(self.folder) as conn:
+            return dict(conn.execute(
+                "SELECT step, SUM(web_searches) FROM ai_usage "
+                f"WHERE search_id = ? AND {_BILLED} GROUP BY step", (search_id,)).fetchall())
+
     def for_search_by_model(self, search_id: int, step: str | None = None) -> list[ModelUsage]:
         """One search's usage per model (of one step, if given), so its cost can be estimated."""
         if step is not None:
@@ -140,11 +155,12 @@ class UsageLog:
             rows = conn.execute(
                 f"""SELECT provider, model, SUM(input_tokens), SUM(output_tokens),
                     SUM(cached_input_tokens), SUM(reasoning_tokens), SUM(web_searches),
-                    SUM(unreported_requests), SUM(web_results)
+                    SUM(unreported_requests), SUM(web_results),
+                    SUM(CASE WHEN {_BILLED} THEN 0 ELSE web_searches END)
                     FROM ai_usage WHERE {where} GROUP BY provider, model""",
                 params,
             ).fetchall()
-        return [ModelUsage(row[0], row[1], Usage(*row[2:])) for row in rows]
+        return [ModelUsage(row[0], row[1], Usage(*row[2:9]), row[9]) for row in rows]
 
 
 _BILLED = "NOT (provider IN ({}) AND {})".format(
@@ -193,7 +209,9 @@ def estimate_cost(usages: list[ModelUsage], prices: list[ModelPrice]) -> tuple[f
 
     Price reported usage before account allowances, taxes and other service fees. Thinking is
     already included in output. Missing cache prices use the regular input price; missing
-    search prices omit those fees. Either omission makes the estimate incomplete.
+    search prices omit those fees. Either omission makes the estimate incomplete. Searches
+    the provider doesn't bill (`ModelUsage.unbilled_searches`) cost nothing: one search's
+    estimate priced 553 searches where the provider's report billed 431 (November 2026).
     """
     table = {(p.provider, p.model): p for p in prices}
     cost = 0.0
@@ -204,8 +222,8 @@ def estimate_cost(usages: list[ModelUsage], prices: list[ModelPrice]) -> tuple[f
         price = price_for(table, item.provider, item.model)
         if price is None:
             complete = complete and not (
-                item.usage.input_tokens or item.usage.output_tokens or item.usage.web_searches
-                or item.usage.web_results)
+                item.usage.input_tokens or item.usage.output_tokens
+                or item.billed_search_units)
             continue
         currencies.add(price.currency.strip().upper())
         cached = min(max(item.usage.cached_input_tokens, 0), item.usage.input_tokens)
@@ -215,7 +233,7 @@ def estimate_cost(usages: list[ModelUsage], prices: list[ModelPrice]) -> tuple[f
         cost += (item.usage.input_tokens - cached) / 1e6 * price.input_per_million
         cost += cached / 1e6 * (price.input_per_million if cached_price is None else cached_price)
         cost += item.usage.output_tokens / 1e6 * price.output_per_million
-        billed = item.usage.web_searches + item.usage.web_results
+        billed = item.billed_search_units
         if billed:
             if price.web_search_per_thousand is None:
                 complete = False

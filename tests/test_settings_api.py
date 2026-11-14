@@ -322,6 +322,9 @@ def test_a_search_like_the_recent_ones_is_estimated_before_it_starts(client):
         log.record(step="scoring", provider="gemini", model="fictional-model",
                    usage=Usage(input_tokens=100_000, output_tokens=output,
                                web_searches=searches), search_id=search_id)
+    # Searches inside a look-up the provider failed and doesn't bill: on record, not counted.
+    log.record(step="job_places", provider="gemini", model="fictional-model",
+               usage=Usage(web_searches=40, unreported_requests=1), search_id=2)
     typical = client.get("/api/usage").json()["typical_search"]
     # The median of the finished searches; web searches are counted, not priced.
     assert typical["searches"] == 3 and typical["tokens"] == 300_000
