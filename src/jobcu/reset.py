@@ -31,7 +31,7 @@ SEARCH_TABLES = (
     "travel_memory", "found_employers", "employer_searches", "repairs_done",
 )
 KEEP_FILES = {
-    SETTINGS_FILENAME, KEYS_FILENAME, "assistant-authorization.json", "README.txt",
+    SETTINGS_FILENAME, KEYS_FILENAME, "README.txt",
     db.DB_FILENAME, db.DB_FILENAME + "-wal", db.DB_FILENAME + "-shm",
     db.DB_FILENAME + "-journal",
 }
