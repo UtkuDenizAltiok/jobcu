@@ -651,6 +651,62 @@ def test_an_ad_whose_text_arrives_later_joins_its_copy_and_names_its_other_town(
     assert len(again["result"]["jobs"]["cards"]) == 2 and len(scored_ids) == 2
 
 
+def test_an_ad_found_twice_in_one_search_is_still_the_job_an_earlier_search_showed(
+        ready, monkeypatch):
+    # Two ads of one search with the same employer, title and town match no remembered job,
+    # since either could be it: an agency's ad found on two sites, one without its text, came
+    # back as two new cards a month after it was shown.
+    text = " ".join(f"Fictional duty {i} includes development validation and reporting."
+                    for i in range(60))
+
+    def ad(source, key, description=""):
+        return FoundJob(source=source, source_job_id=key, url=f"https://{source}.test/{key}",
+                        title="Hardware Engineer", company="Fictional Staffing GmbH",
+                        location_text="Berlin", country="DE", posted_at=datetime.now(UTC),
+                        date_precision="exact", description=description,
+                        description_is_complete=bool(description))
+
+    class ListsWithoutText(FakeSource):
+        listed = False
+
+        def search(self, query, ctx):
+            if self.listed:
+                yield ad("fake", "1")
+
+        def load_details(self, job, ctx):
+            job.description, job.description_is_complete = text, True
+            return job
+
+    class ListsWholeAds(FakeSource):
+        id, name, number = "another", "Another Site", "7"
+
+        def search(self, query, ctx):
+            yield ad("another", self.number, text)
+
+        def load_details(self, job, ctx):
+            return job
+
+    monkeypatch.setattr("jobcu.pipeline.all_sources",
+                        lambda: [ListsWithoutText(), ListsWholeAds()])
+    manager = search.SearchManager()
+    manager.start(SearchForm(location_text="Germany"))
+    first = wait_until_done(manager)
+    assert len(first["result"]["jobs"]["cards"]) == 1
+    with db.connect() as conn:  # an hour ago, inside the next search's window
+        earlier = (datetime.now(UTC) - timedelta(hours=1)).isoformat()
+        conn.execute("UPDATE jobs SET first_seen_at=?1, first_assessed_at=?1", (earlier,))
+
+    # The next search finds the ad on both sites, under numbers it has not seen.
+    ListsWithoutText.listed, ListsWholeAds.number = True, "9"
+    manager.start(SearchForm(location_text="Germany"))
+    second = wait_until_done(manager)
+    assert second["status"] == "finished", second["error"]
+    jobs = second["result"]["jobs"]
+    assert jobs["cards"] == [] and jobs["counts"]["shown"] == 0
+    assert {"reason": "Shown in an earlier search already",
+            "count": 1} in jobs["counts"]["left_out"]
+
+
 @pytest.mark.parametrize("title", [
     "Power Electronics Engineer", "Registered Nurse", "Primary Teacher"])
 def test_decorated_recruiter_copies_use_one_assessment_and_keep_their_saved_mark(
