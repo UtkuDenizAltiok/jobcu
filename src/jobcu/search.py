@@ -524,8 +524,7 @@ def run_search(run: SearchRun) -> None:
         _find_and_score(run, settings, client, keys, http, profile, plan, query, checkpoint)
     finally:
         http.close()
-        usage = UsageLog().for_search(run.id)
-        run.set_result("usage", {step: asdict(used) for step, used in usage.items()})
+        _save_usage(run)
 
 
 def _screen_career_titles(run, client, profile, collected) -> str:
@@ -1456,8 +1455,7 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
         raise
     finally:
         http.close()
-        usage = UsageLog().for_search(run.id)
-        run.set_result("usage", {step: asdict(used) for step, used in usage.items()})
+        _save_usage(run)
 
 
 def _prepare_saved_evidence_retry(job_pool) -> None:
@@ -1651,6 +1649,15 @@ def _keep_for_the_score_check(groups, shown, scored, unrelated, plan) -> None:
 
 
 manager = SearchManager()
+
+
+def _save_usage(run) -> None:
+    """What each step of the search used, for "Search details": tokens as reported, and the
+    web searches the provider bills (the usage record keeps every search seen)."""
+    log = UsageLog()
+    billed = log.billed_searches_by_step(run.id)
+    run.set_result("usage", {step: {**asdict(used), "billed_web_searches": billed.get(step, 0)}
+                             for step, used in log.for_search(run.id).items()})
 
 
 def _look_up_estimate(client: AIClient, settings, seconds: float, asked: int, left: int) -> str:

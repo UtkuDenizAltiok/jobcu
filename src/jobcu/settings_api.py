@@ -344,8 +344,10 @@ def _typical_search(settings, log: UsageLog) -> dict | None:
             break
     if not picked:
         return None
-    # Tokens are priced here; web searches are counted, since free allowances may cover them.
-    tokens_only = [[replace(item, usage=replace(item.usage, web_searches=0, web_results=0))
+    # Tokens are priced here; web searches are counted, since free allowances may cover them:
+    # the billed ones, which is what comes out of the allowance.
+    tokens_only = [[replace(item, unbilled_searches=0,
+                            usage=replace(item.usage, web_searches=0, web_results=0))
                     for item in used] for used in picked]
     costs = [estimate_cost(used, settings.prices) for used in tokens_only]
     currencies = {price.currency for price in settings.prices} or {"USD"}
@@ -356,7 +358,8 @@ def _typical_search(settings, log: UsageLog) -> dict | None:
         "cost_is_complete": all(complete for _, complete in costs),
         "currency": currencies.pop() if len(currencies) == 1 else "",
         "web_searches": round(statistics.median(
-            sum(item.usage.web_searches for item in used) for used in picked)),
+            sum(item.usage.web_searches - item.unbilled_searches for item in used)
+            for used in picked)),
     }
 
 

@@ -804,14 +804,13 @@ class AIClient:
             table = self._current_prices()
             prices = {(p.provider, p.model): p for p in table}
             needed = {(u.provider, u.model) for u in month if (
-                u.usage.input_tokens or u.usage.output_tokens or u.usage.web_searches
-                or u.usage.web_results)}
+                u.usage.input_tokens or u.usage.output_tokens or u.billed_search_units)}
             if provider is not None and model is not None:
                 needed.add((provider, model))
             currencies = {p.currency.strip().upper() for p in table}
             missing = {key for key in needed if price_for(prices, *key) is None}
             web_unpriced = {(u.provider, u.model) for u in month
-                            if (u.usage.web_searches or u.usage.web_results)
+                            if u.billed_search_units
                             and (found := price_for(prices, u.provider, u.model)) is not None
                             and found.web_search_per_thousand is None}
             if research and (provider, model) in prices and (

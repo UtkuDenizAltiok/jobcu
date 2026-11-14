@@ -34,7 +34,8 @@ done. Implementation details belong in pull requests; current behavior is descri
   share: searches inside requests the provider failed, or a stopped search cancelled, are kept
   in the usage record but not counted where the provider doesn't bill them (measured against
   Google's billing report). Such a failed look-up is tried again like any outage, also when
-  paid limits stop work: it no longer pauses the rest of the search's online checks.
+  paid limits stop work: it no longer pauses the rest of the search's online checks. Cost
+  estimates price only the billed searches, and "Search details" names each step's.
 - The best jobs of the "same kind of work, with gaps" band no longer tie at its maximum: its top
   two role points rise towards the uncapped band, measured on the judged ads (more of the ten
   best ads in the top ten, as many scores within their judged range).
