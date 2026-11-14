@@ -289,6 +289,24 @@ MIGRATIONS: list[str] = [
     """
     ALTER TABLE ai_recovery_requests ADD COLUMN alive_at REAL NOT NULL DEFAULT 0;
     """,
+    # 25: When each job was first seen on an employer's own list, and when each list was last
+    # read whole: a job's first sight dates it where its page gives no date (listmemory.py).
+    """
+    CREATE TABLE listed_jobs (
+        source TEXT NOT NULL,
+        board TEXT NOT NULL,
+        job_id TEXT NOT NULL,
+        first_seen_at TEXT NOT NULL,
+        absent_at TEXT,
+        PRIMARY KEY (source, board, job_id)
+    );
+    CREATE TABLE list_readings (
+        source TEXT NOT NULL,
+        board TEXT NOT NULL,
+        read_at TEXT NOT NULL,
+        PRIMARY KEY (source, board)
+    );
+    """,
 ]
 
 

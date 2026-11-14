@@ -40,6 +40,10 @@ done. Implementation details belong in pull requests; current behavior is descri
   title where the page marks them in a block without a type (five large employers' jobs came
   in with a page address for a title and no text), one title where a page marks it twice, and
   no job where a listed page only says the position is filled.
+- Career sites that give no posting date (13 of the 49 SuccessFactors sites) are dated by their
+  own list: a job that appears between two readings a day apart is posted that day and joins
+  the main list, and one listed since before the window can show a job site's fresh copy to
+  be a repost. Before, every job of theirs stayed under "Posting date unknown".
 - The best jobs of the "same kind of work, with gaps" band no longer tie at its maximum: its top
   two role points rise towards the uncapped band, measured on the judged ads (more of the ten
   best ads in the top ten, as many scores within their judged range).

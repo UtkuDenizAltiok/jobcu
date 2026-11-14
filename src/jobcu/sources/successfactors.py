@@ -21,6 +21,7 @@ memory after reading.
 
 import dataclasses
 import html
+import itertools
 import re
 from collections.abc import Iterator
 from copy import deepcopy
@@ -31,6 +32,7 @@ from xml.etree import ElementTree
 from lxml import html as lxml_html
 from lxml.etree import ParserError
 
+from jobcu import listmemory
 from jobcu import places as place_list
 from jobcu.countries import COUNTRIES
 from jobcu.freshness import day_at_utc, parse_iso
@@ -47,6 +49,8 @@ SITEMAP = "{http://www.google.com/schemas/sitemap/0.9}"
 _DATE_POSTED = re.compile(r"itemprop=[\"']datePosted[\"'][^>]*content=[\"']([^\"']+)[\"']", re.I)
 _ZIP = re.compile(r"^[A-Z0-9 -]*\d[A-Z0-9 -]*$")
 _JOB_PATH = re.compile(r"/job/([^/]+)/(\d+)/?$")
+# Listed pages looked at to tell whether a site's job pages can be read.
+READABLE_PAGES = 5
 
 
 class SuccessFactorsSource(CareerSystemSource):
@@ -79,22 +83,32 @@ class SuccessFactorsSource(CareerSystemSource):
                         terms, languages, job.title, job.description):
                     yield self._dated(job, ctx)
             return
-        for loc in root.iterfind(f"{SITEMAP}url/{SITEMAP}loc"):
-            job = from_page_address((loc.text or "").strip(), employer)
-            if job is None:
-                continue
-            if terms is None:
-                yield job
-            elif matches_terms(terms, languages, job.title):
+        listed = [job for loc in root.iterfind(f"{SITEMAP}url/{SITEMAP}loc")
+                  if (job := from_page_address((loc.text or "").strip(), employer)) is not None]
+        if terms is None:
+            yield from listed
+            return
+        # The whole list, matching or not: a job's first sight dates it where its page
+        # gives no date (listmemory).
+        sights = listmemory.note(self.id, employer.board, [job.source_job_id for job in listed])
+        for job in listed:
+            if matches_terms(terms, languages, job.title):
                 full = self._from_page(job, ctx)
+                if full is not None and full.posted_at is None:
+                    posted, precision = listmemory.posted(sights.get(job.source_job_id), start)
+                    full = dataclasses.replace(full, posted_at=posted, date_precision=precision)
                 if full is not None:
                     yield full
 
     def readable(self, employer: Employer, ctx: SourceContext) -> bool:
-        """Some sites' job pages show only the title and need JavaScript for the rest (Danfoss,
-        SICK): one page must carry its posting date."""
-        for job in self.list_jobs(employer, ctx):
-            return date_posted(self._page(job, ctx) or "") is not None
+        """Some sites' job pages show only the title and need scripts for the rest: one page
+        must carry its ad or its posting date. The first pages listed can be closed jobs'
+        notices, so a few are looked at."""
+        for job in itertools.islice(self.list_jobs(employer, ctx), READABLE_PAGES):
+            page = self._page(job, ctx) or ""
+            found = read_page(page)
+            if not found.get("gone"):
+                return date_posted(page) is not None or bool(found.get("has_description"))
         return False
 
     def _page(self, job: FoundJob, ctx: SourceContext) -> str | None:
