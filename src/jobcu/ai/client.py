@@ -297,12 +297,16 @@ class AIClient:
                     usage = Usage(unreported_requests=0 if unsent else 1)
                 guard = None
                 if (research and isinstance(exc, (AIUnavailable, AIRateLimited))
-                        and usage is not None and usage.web_searches > 0
+                        and usage is not None and billed_searches(provider, usage) > 0
                         and usage.unreported_requests and self._limits_stop_work()
                         and not (isinstance(exc, AIConnectionError)
                                  and exc.request_sent is True)):
                     # A tool ran before a service/rate failure. Repeating it may buy the
                     # same research again, while its missing bill defeats the local cap.
+                    # Where the provider bills nothing for a request it failed
+                    # (usage.billed_searches), no bill is missing: the failure is an
+                    # ordinary outage, and pausing left every later place, requirement and
+                    # posting unchecked over a look-up that had cost nothing.
                     # When paid limits only tell, there is no cap to defeat: the failure is
                     # an ordinary outage (bounded retries), its searches count against the
                     # allowance where the provider bills them (usage.billed_searches), and

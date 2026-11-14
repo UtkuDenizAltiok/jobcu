@@ -133,10 +133,12 @@ usage receipt, so Jobcu cannot confirm their charges. It does not prove that the
 This also applies when the connection closes quietly before the AI service confirms the
 answer is finished. Jobcu keeps completed work and stops automatic repetition on that path
 because the service may already have charged for the interrupted request.
-If online research reports using search tools and then fails without complete usage, Jobcu
-also stops automatic research on that provider/model path for this search. This avoids buying
-the same research again with an unknown bill. Completed work is kept and ordinary matching
-remains available. Check service and billing before choosing **Retry incomplete checks**.
+If online research reports using search tools and then fails without complete usage, and your
+paid limits stop work, Jobcu also stops automatic research on that provider/model path for
+this search. This avoids buying the same research again with an unknown bill. Completed work
+is kept and ordinary matching remains available. Check service and billing before choosing
+**Retry incomplete checks**. Google does not bill a request it failed, so with Google such a
+look-up is simply tried again and research goes on.
 An unfinished or refused research answer does not count as confirmed evidence, even if the
 provider returned some text. Available charges from that attempt still appear in usage;
 missing usage remains marked incomplete. Supported provider tool ceilings use the search
