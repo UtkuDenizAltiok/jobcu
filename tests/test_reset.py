@@ -69,7 +69,6 @@ def populated(temporary_data_dir):
                                 ("assistant-reviews", "review.json")]:
         (folder / directory).mkdir(exist_ok=True)
         (folder / directory / filename).write_text("Fictional private evidence", encoding="utf-8")
-    (folder / "assistant-authorization.json").write_text('{"scope":"fictional"}', encoding="utf-8")
     (folder / "assistant-checkpoint.json").write_text('{"evidence":"fictional"}', encoding="utf-8")
     return folder
 
@@ -112,7 +111,6 @@ def test_scopes_clear_exact_data_preserve_choices_and_real_spending(client, popu
         before["search_form"].update(location_text="", about_you="")
     assert after == before
     assert KeyStore().get("reed_api_key") == "fictional-key-value"
-    assert (populated / "assistant-authorization.json").read_text() == '{"scope":"fictional"}'
     for name in ("documents", "assistant-reviews", "logs", "assistant-checkpoint.json"):
         assert (populated / name).exists() == (scope != "all")
     assert request_reset(client, scope).status_code == 200  # safe to repeat
