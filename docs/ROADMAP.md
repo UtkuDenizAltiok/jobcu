@@ -23,6 +23,20 @@ done. Implementation details belong in pull requests; current behavior is descri
   and listed with a "Reposted" label.
 - The result lists of the last 90 searches are kept; older ones are deleted only when a new
   search starts, never while the person may still apply from the latest list.
+- One card for an ad found twice: duplicates are looked for again once the full ads are read
+  (an agency's ad that one site lists without its text), a shorter and a longer employer name
+  count as one when place, title and text agree, and one ad listed for several towns names the
+  other towns on each card. A job joined this way is matched to the job memory again, so an ad
+  an earlier search showed doesn't return as new.
+- Stop keeps what is scored: once jobs are scored, stopping a search builds the list from them,
+  and "Retry incomplete checks" finishes the rest.
+- Only web searches the provider bills count against the free monthly searches and a search's
+  share: searches inside requests the provider failed, or a stopped search cancelled, are kept
+  in the usage record but not counted where the provider doesn't bill them (measured against
+  Google's billing report).
+- The best jobs of the "same kind of work, with gaps" band no longer tie at its maximum: its top
+  two role points rise towards the uncapped band, measured on the judged ads (more of the ten
+  best ads in the top ten, as many scores within their judged range).
 - Scoring: a language wished for in the ad's own language counts like a required one; lead, head,
   principal and staff titles are capped for early-career profiles; the sponsorship penalty
   applies to UK jobs only. Roles are graded by closeness to the person's own specialist field,
