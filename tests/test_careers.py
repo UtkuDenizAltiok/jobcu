@@ -6,6 +6,7 @@ from datetime import UTC, date, datetime, timedelta
 import httpx
 import pytest
 
+from jobcu import db, listmemory
 from jobcu.keystore import KeyStore
 from jobcu.keywords import SearchTerm
 from jobcu.location import Place
@@ -601,6 +602,72 @@ def test_successfactors_search_takes_the_title_and_text_of_a_job_block_without_a
     # Such a layout gives no place or date of its own: the address's town stands, undated.
     assert buehl.location_text == "Bühl" and buehl.country == "DE"
     assert buehl.posted_at is None and buehl.date_precision == "unknown"
+
+
+def sf_site(pages, addresses=SF_ADDRESSES):
+    def handler(request):
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+        if request.url.path == "/sitemap.xml":
+            return httpx.Response(200, content=addresses.encode(),
+                                  headers={"content-type": "text/xml"})
+        page = pages.get(request.url.path.rstrip("/").split("/")[-1])
+        return httpx.Response(200, text=page) if page else httpx.Response(404)
+    return handler
+
+
+def test_a_successfactors_job_without_a_date_is_dated_by_its_first_sight_on_the_list(
+        monkeypatch):
+    # November 2026: 13 of 49 sites gave no posting date, so every job of theirs, however
+    # new, stayed under "Posting date unknown".
+    undated = sf_own_layout_page("Hardware Engineer (m/w/d)", "Design gate driver boards.")
+    fake = employer("successfactors", board="jobs.fake.example", countries=("DE",))
+    monkeypatch.setattr(careers, "load_directory", lambda: (fake,))
+    source = successfactors.SuccessFactorsSource()
+
+    def search():
+        return list(source.search(query(["DE"], hours=24),
+                                  context(sf_site({"555": undated}), "successfactors")))
+
+    # Yesterday's reading of the whole list didn't have the job; today's does.
+    listmemory.note("successfactors", "jobs.fake.example",
+                    ["jobs.fake.example/666", "jobs.fake.example/777"],
+                    NOW - timedelta(hours=25))
+    new = search()[0]
+    assert (new.posted_at.date(), new.date_precision) == (datetime.now(UTC).date(), "day")
+    assert not new.older_copy
+    with db.connect() as conn:  # every listed job is remembered, not only the matching one
+        assert conn.execute("SELECT count(*) FROM listed_jobs").fetchone()[0] == 3
+    # A page with its own date keeps it.
+    dated = sf_full_page("Hardware Engineer (m/w/d)", "Bühl, DE, 77815", NOW - timedelta(days=9))
+    own = list(source.search(query(["DE"], hours=24),
+                             context(sf_site({"555": dated}), "successfactors")))[0]
+    assert own.posted_at.date() == (NOW - timedelta(days=9)).date() and own.older_copy
+
+
+def test_a_successfactors_job_listed_since_before_the_window_is_an_older_copy(monkeypatch):
+    # Without a date, such a job could not show that a job site's fresh copy is a repost.
+    undated = sf_own_layout_page("Hardware Engineer (m/w/d)", "Design gate driver boards.")
+    fake = employer("successfactors", board="jobs.fake.example", countries=("DE",))
+    monkeypatch.setattr(careers, "load_directory", lambda: (fake,))
+    listmemory.note("successfactors", "jobs.fake.example", ["jobs.fake.example/555"],
+                    NOW - timedelta(days=5))
+    jobs = list(successfactors.SuccessFactorsSource().search(
+        query(["DE"], hours=24), context(sf_site({"555": undated}), "successfactors")))
+    assert [job.older_copy for job in jobs] == [True]
+    assert jobs[0].posted_at == (NOW - timedelta(days=5)).replace(microsecond=0)
+
+
+def test_a_successfactors_site_is_readable_by_its_ad_and_past_a_closed_jobs_notice():
+    gone = ('<html><div class="jobDisplayShell" itemscope><div class="job"><p>Sorry, this '
+            'position has been filled.</p></div></div></html>')
+    undated = sf_own_layout_page("Hardware Engineer", "Design gate driver boards.")
+    title_only = '<html><div class="jobDisplayShell" itemscope><h1 itemprop="title">X</h1></div>'
+    fake = employer("successfactors", board="jobs.fake.example", countries=("DE",))
+    source = successfactors.SuccessFactorsSource()
+    assert source.readable(fake, context(sf_site({"555": gone, "666": undated})))
+    assert not source.readable(fake, context(sf_site({"555": gone, "666": title_only})))
+    assert not source.readable(fake, context(sf_site({"555": gone, "666": gone, "777": gone})))
 
 
 def test_a_successfactors_title_marked_twice_on_the_page_is_one_title():

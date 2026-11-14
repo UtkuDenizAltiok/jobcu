@@ -56,6 +56,9 @@ def populated(temporary_data_dir):
                      "('example','board','Fictional Clinic','DE',0,'Town','2026-10-09')")
         conn.execute("INSERT INTO employer_searches (subject,country,searched_at,complete) "
                      "VALUES ('nursing','DE','2026-10-09',1)")
+        conn.execute("INSERT INTO listed_jobs (source,board,job_id,first_seen_at) "
+                     "VALUES ('example','board','ad','2026-10-09')")
+        conn.execute("INSERT INTO list_readings VALUES ('example','board','2026-10-09')")
         conn.execute("INSERT INTO ai_usage (search_id,step,provider,model,input_tokens,"
                      "output_tokens,cached_input_tokens,reasoning_tokens,web_searches) "
                      "VALUES (7,'scoring','openai_compatible','fictional-model',100,20,0,0,0)")

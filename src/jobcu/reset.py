@@ -29,6 +29,7 @@ SEARCH_TABLES = (
     "search_results", "search_pool", "jobs", "searches", "profile_cache", "preparation_cache",
     "ad_texts",
     "travel_memory", "found_employers", "employer_searches", "repairs_done",
+    "listed_jobs", "list_readings",
 )
 KEEP_FILES = {
     SETTINGS_FILENAME, KEYS_FILENAME, "README.txt",

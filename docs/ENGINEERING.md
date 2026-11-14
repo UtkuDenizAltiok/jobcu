@@ -87,6 +87,13 @@ cover that continuation, while usage is cumulative.
   marked it Not interested (`search._reposts_to_assess`). Saved results follow the same rules when
   opened.
   Modification timestamps and sitemap lastmod do not establish an original posting date.
+  A career site whose job pages give no date is dated by its own list (`listmemory.py`): Jobcu
+  remembers when it first saw each job of a list it reads whole, and the reading before. A job
+  that appeared between two readings at most a day and a half apart was posted on the day it
+  was first seen (day precision); one listed since before the window began is older than the
+  window, so it is an older copy that can show a job site's fresh copy to be a repost; a list's
+  first reading, a first sight after a longer pause and a list that is mostly new at once
+  (renumbered) date nothing, and those jobs stay "Posting date unknown".
 - Full-ad facts replace unsupported summary assumptions. Grounded mandatory requirements and
   known blockers constrain scores; unknowns remain explicit. A years-of-experience limit needs
   the ad's own words stating an amount (`scoring.years_stated`): "strong experience" is none;
@@ -334,7 +341,7 @@ CLAUDE.md imports it), LICENSE and Python/tool configuration.
 | Search coordination | `search.py`, `search_api.py`, `pipeline.py`, `pool.py`; progress, collection, decisions, cards and condition reapplication. |
 | Places/criteria | `countries.py`, `location.py`, `reference_places.py`, `reference_sources.py`, `reference_tables.py`, `places.py`, `placenames.py`, `travel.py`; supported geography, query interpretation, finite reference-city evidence, exact table calculations and measurements. |
 | Discovery | `keywords.py`, `employers.py`; multilingual words and periodically discovered employers. |
-| Evidence/matching | `text.py`, `jobposting.py`, `dedupe.py`, `filters.py`, `freshness.py`, `relevance.py`, `jobplace.py`, `requirements.py`, `recheck.py`, `scoring.py`; text extraction, filtering, research, grounded requirements, saved-ad recovery and fit. |
+| Evidence/matching | `text.py`, `jobposting.py`, `dedupe.py`, `filters.py`, `freshness.py`, `listmemory.py`, `relevance.py`, `jobplace.py`, `requirements.py`, `recheck.py`, `scoring.py`; text extraction, filtering, dates (also from a job's first sight on its employer's list), research, grounded requirements, saved-ad recovery and fit. |
 | Results/evaluation | `applications.py`, `applylink.py`, `livepostings.py`, `vacancy_evidence.py`, `jobidentity.py`, `jobstore.py`, `quality.py`, `quality_api.py`; application routes, apply links found on a click, verified original facts, remembered jobs, saved results and independent score checks. |
 | Private comparison capture | `review_capture.py`; explicitly armed one-run document/candidate/request/response evidence outside Git, without searches, timers or paid replay. |
 | `ai/` | `client.py` is the sole AI entry point; provider adapters, schemas, errors and token/web usage. |

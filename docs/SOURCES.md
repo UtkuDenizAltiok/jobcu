@@ -466,6 +466,20 @@ reader's own terms, robots and polite-request gates (no new endpoint, page scope
 This is a parser correction on pages already requested. It is not evidence about how many of
 these employers' jobs the search words find, and the missing dates are not repaired by it.
 
+**Dates from the list itself (same day).** The sitemap's `lastmod` is one day for every page
+(487 of 487 on one site), so it dates nothing. Job numbers in the sitemap last: 12 of 23
+numbers remembered from searches one to five weeks earlier are still on two sites' lists. Jobcu
+therefore remembers each listed job's first sight and the reading before it (`listmemory.py`,
+the list's public job numbers and reading times only) and dates an undated page from that: a
+job that appeared between two readings at most 36 hours apart is posted on the day it was
+first seen; one listed since before the search's window began is older than the window; a
+list's first reading, a first sight after a longer pause, an empty answer and a list that is
+mostly new at once date nothing. Checked end to end on two of the sites with a copy of a real
+database (the earlier reading made up from the day's list without four matching jobs): those
+four were dated to the day and kept, the 15 other matching jobs became older copies with their
+full ads. It adds no request: the sitemap is read whole in every search already. What a real
+second search a day later shows is not measured yet.
+
 ### Original-ad sections and access boundaries — 2026-10-15
 
 **Checked:** [Schema.org's JobPosting definition](https://schema.org/JobPosting) supplies
