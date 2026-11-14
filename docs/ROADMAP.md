@@ -36,6 +36,10 @@ done. Implementation details belong in pull requests; current behavior is descri
   Google's billing report). Such a failed look-up is tried again like any outage, also when
   paid limits stop work: it no longer pauses the rest of the search's online checks. Cost
   estimates price only the billed searches, and "Search details" names each step's.
+- SuccessFactors career sites with their own job layout are read in full: the ad and its real
+  title where the page marks them in a block without a type (five large employers' jobs came
+  in with a page address for a title and no text), one title where a page marks it twice, and
+  no job where a listed page only says the position is filled.
 - The best jobs of the "same kind of work, with gaps" band no longer tie at its maximum: its top
   two role points rise towards the uncapped band, measured on the judged ads (more of the ten
   best ads in the top ten, as many scores within their judged range).

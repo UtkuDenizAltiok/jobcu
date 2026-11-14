@@ -132,6 +132,8 @@ class SuccessFactorsSource(CareerSystemSource):
         if page is None:
             return None
         found = read_page(page)
+        if found.get("gone"):
+            return None
         location, code = place(found.get("place") or "")
         posted = date_posted(page)
         return dataclasses.replace(
@@ -162,19 +164,67 @@ def date_posted(page: str) -> datetime | None:
     return posting.date_posted if posting else None
 
 
+def _untyped_job_block(doc):
+    """The block that holds the ad on a page whose job layout names no type.
+
+    Sites with their own job layout mark the title and the ad inside a block that says only
+    that it is an item (`<div class="jobDisplayShell" itemscope>`), not that it is a job
+    posting. Read as "some other item", it hid the whole ad: the jobs of five of the 49
+    employers read in November 2026 (large engineering employers) came in with their page
+    address for a title and no text, and were scored from that alone. A block of another
+    named type (an organisation, a related item) is still not the job."""
+    for node in doc.iter():
+        if not {'title', 'description'} & set((node.get('itemprop') or '').split()):
+            continue
+        block = next((a for a in node.iterancestors() if 'itemscope' in a.attrib), None)
+        return block if block is not None and not (block.get('itemtype') or '').strip() else None
+    return None
+
+
+# The longest notice a job page shows instead of a job that is gone.
+_NOTICE_CHARS = 200
+_JOB_BLOCK = '//*[contains(concat(" ", normalize-space(@class), " "), " jobDisplayShell ")]'
+
+
+def _job_is_gone(doc) -> bool:
+    """True when the page's job block holds a short notice and nothing of a job.
+
+    Sitemaps keep listing jobs after they close; their pages then answer normally and say
+    "Sorry, this position has been filled" where the ad was (three of the 49 employers' first
+    listed pages, November 2026). Such a page became a job with its address for a title, no
+    text and no date. A block with a title, a layout, a part the site fills in later or a link
+    to apply is a job, however little of it can be read."""
+    blocks = doc.xpath(_JOB_BLOCK)
+    if len(blocks) != 1:
+        return False
+    for node in blocks[0].iter():
+        if not isinstance(node.tag, str):
+            continue
+        classes = node.get('class') or ''
+        if (node.get('itemprop') or node.tag == 'a' or '-' in node.tag
+                or 'joblayouttoken' in classes or 'customPlugin' in classes):
+            return False
+    return len(" ".join(blocks[0].text_content().split())) <= _NOTICE_CHARS
+
+
 def read_page(page: str) -> dict[str, str]:
-    """Title, place, company and ad text from the data a job page marks for search engines."""
+    """Title, place, company and ad text from the data a job page marks for search engines;
+    `gone` when the page shows a notice in place of the job."""
     try:
         doc = lxml_html.document_fromstring(page or "<html></html>")
     except (ParserError, ValueError):
         return {}
+    if _job_is_gone(doc):
+        return {"gone": "yes"}
 
     def is_job_scope(node) -> bool:
         return any(kind.rstrip('/').rsplit('/', 1)[-1] == 'JobPosting'
                    for kind in (node.get('itemtype') or '').split())
 
     scopes = [node for node in doc.iter() if is_job_scope(node)]
-    scope = scopes[0] if scopes else doc
+    scope = scopes[0] if scopes else _untyped_job_block(doc)
+    if scope is None:
+        scope = doc
 
     def belongs(node) -> bool:
         # A nested organization/related vacancy is not part of this job's ad text.
@@ -234,7 +284,10 @@ def read_page(page: str) -> dict[str, str]:
     fallback_place = ", ".join(p for p in (posting.location_text, posting.country) if p) \
         if posting else ""
     return {
-        "title": " ".join(fields.get('title', [])) or (posting.title if posting else ""),
+        # A page that marks its title twice (a heading and a layout part) names one title:
+        # joined, "Hardware Engineer Hardware Engineer" matched no other copy of the job.
+        "title": " ".join(dict.fromkeys(fields.get('title', [])))
+                 or (posting.title if posting else ""),
         "place": first('streetAddress') or first('addressLocality') or fallback_place,
         "company": first('hiringOrganization')
                    or (posting.company if posting else ""),
