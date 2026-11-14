@@ -544,6 +544,121 @@ def test_successfactors_keeps_all_original_sections_and_ignores_other_objects():
     assert found['title'] == 'Power Hardware Engineer'
 
 
+def sf_own_layout_page(title, text):
+    """A site's own job layout: the ad sits in a block that names no type and gives no date."""
+    return f'''<html><body><div class="jobDisplayShell" itemscope="itemscope">
+      <div class="joblayouttoken"><span itemprop="title">{title}</span></div>
+      <div class="joblayouttoken"><span class="joblayouttoken-label">Site: </span>
+        <span>Fictional Town</span></div>
+      <div class="joblayouttoken"><span itemprop="description"><h2>Your tasks</h2>
+        <ul><li>{text}</li></ul></span></div>
+      </div><footer itemscope itemtype="https://schema.org/Organization">
+        <p itemprop="description">We employ a million people.</p></footer></body></html>'''
+
+
+@pytest.mark.parametrize('title,text', [
+    ('Hardware Engineer (m/w/d)', 'Design gate driver boards.'),
+    ('Community Nurse', 'A nursing registration is required.'),
+    ('Primary Teacher', 'A teaching qualification is required.'),
+])
+def test_successfactors_reads_the_ad_from_a_job_block_that_names_no_type(title, text):
+    # November 2026: five of the 49 employers read used such a layout; their jobs came in with
+    # the page address as the title and no text at all.
+    found = successfactors.read_page(sf_own_layout_page(title, text))
+    assert found['title'] == title
+    assert text in found['description'] and 'Your tasks' in found['description']
+    assert found['has_description']
+    assert 'million' not in found['description']
+    # A block of another named type is still not the job.
+    other = ('<html><div itemscope itemtype="https://schema.org/Organization">'
+             f'<p itemprop="description">{text}</p></div></html>')
+    assert not successfactors.read_page(other)['description']
+
+
+def test_successfactors_search_takes_the_title_and_text_of_a_job_block_without_a_type(
+        monkeypatch):
+    pages = {"555": sf_own_layout_page("Hardware-Engineer – Drives (m/w/d)",
+                                       "Design gate driver boards.")}
+
+    def handler(request):
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+        if request.url.path == "/sitemap.xml":
+            return httpx.Response(200, content=SF_ADDRESSES.encode(),
+                                  headers={"content-type": "text/xml"})
+        return httpx.Response(200, text=pages[request.url.path.rstrip("/").split("/")[-1]])
+
+    fake = employer("successfactors", board="jobs.fake.example", countries=("DE",))
+    monkeypatch.setattr(careers, "load_directory", lambda: (fake,))
+    monkeypatch.setitem(pages, "666", sf_own_layout_page("Hardware Engineer", "Far away."))
+    jobs = list(successfactors.SuccessFactorsSource().search(
+        query(["DE"], hours=72), context(handler, "successfactors")))
+    assert [job.source_job_id for job in jobs] == ["jobs.fake.example/555"]
+    buehl = jobs[0]
+    # The page's own title, not the words of its address ("Bühl Hardware Engineer (mwd)").
+    assert buehl.title == "Hardware-Engineer – Drives (m/w/d)"
+    assert "Design gate driver boards." in buehl.description and buehl.description_is_complete
+    # Such a layout gives no place or date of its own: the address's town stands, undated.
+    assert buehl.location_text == "Bühl" and buehl.country == "DE"
+    assert buehl.posted_at is None and buehl.date_precision == "unknown"
+
+
+def test_a_successfactors_title_marked_twice_on_the_page_is_one_title():
+    # November 2026: one employer's eight jobs came in as "Electronics Developer (w/m/d)
+    # Electronics Developer (w/m/d)", so the copies job sites listed stayed separate cards.
+    page = ('<main itemscope itemtype="https://schema.org/JobPosting">'
+            '<h1 itemprop="title">Electronics Developer (w/m/d)</h1>'
+            '<span itemprop="title">Electronics Developer (w/m/d) </span>'
+            '<div itemprop="description">Design boards.</div></main>')
+    assert successfactors.read_page(page)['title'] == 'Electronics Developer (w/m/d)'
+
+
+def test_successfactors_takes_the_title_of_an_untyped_job_block_whose_ad_the_site_fills_in_later():
+    page = ('<html><div class="jobDisplayShell" itemscope="itemscope"><div class="job">'
+            '<h1><span itemprop="title">Power Electronics Intern </span></h1>'
+            '<a href="/talentcommunity/apply/1/">Apply now</a></div></div></html>')
+    found = successfactors.read_page(page)
+    assert found['title'] == 'Power Electronics Intern' and not found.get('gone')
+    assert not found['has_description']
+
+
+@pytest.mark.parametrize('notice', [
+    '<div class="jobTitle"> </div><div class="job"><p><strong>Sorry, this position has been '
+    'filled.</strong></p></div>',
+    '<div class="job"><p class="jobErrMsg"><strong>You can\'t view this job because it\'s not '
+    'available at this time.</strong></p></div>',
+])
+def test_a_successfactors_page_that_only_says_the_job_is_gone_is_no_job(monkeypatch, notice):
+    # November 2026: sitemaps still listed closed jobs, whose pages answer normally with a
+    # notice where the ad was. Each became a job without text or date under its address.
+    gone = ('<html><body><nav><a href="/">Search jobs</a></nav><div class="jobDisplayShell" '
+            f'itemscope="itemscope"><div class="jobDisplay"><div class="content">{notice}'
+            '</div></div></div><footer>Fictional Works</footer></body></html>')
+    assert successfactors.read_page(gone) == {"gone": "yes"}
+    pages = {"555": gone, "666": gone}
+
+    def handler(request):
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+        if request.url.path == "/sitemap.xml":
+            return httpx.Response(200, content=SF_ADDRESSES.encode(),
+                                  headers={"content-type": "text/xml"})
+        return httpx.Response(200, text=pages[request.url.path.rstrip("/").split("/")[-1]])
+
+    fake = employer("successfactors", board="jobs.fake.example", countries=("DE",))
+    monkeypatch.setattr(careers, "load_directory", lambda: (fake,))
+    assert not list(successfactors.SuccessFactorsSource().search(
+        query(["DE"], hours=72), context(handler, "successfactors")))
+    # A page the site fills in later, or one with little to read, still shows a job.
+    for kept in ('<div class="customPlugin"><csb-loader page="posting"></csb-loader></div>',
+                 '<div class="joblayouttoken">Hardware Engineer</div>',
+                 '<p>Hardware Engineer</p><a href="/talentcommunity/apply/1/">Apply now</a>'):
+        page = f'<html><div class="jobDisplayShell" itemscope>{kept}</div></html>'
+        assert not successfactors.read_page(page).get("gone")
+    assert not successfactors.read_page(sf_full_page("Hardware Engineer", "Bühl, DE, 77815",
+                                                     NOW)).get("gone")
+
+
 @pytest.mark.parametrize('title,requirement', [
     ('Electronics Engineer', 'Design power converters.'),
     ('Community Nurse', 'A nursing registration is required.'),

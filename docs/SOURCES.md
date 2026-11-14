@@ -438,6 +438,34 @@ returned listed jobs with full descriptions. The API host's robots file returned
 no HTML crawling permission is inferred. Existing documented posting-API use, access decisions
 and request budgets remain. This verifies board identity, not market coverage or fresh-job recall.
 
+### SuccessFactors job layouts without a type or a date — 2026-11-14
+
+**Checked:** one sitemap and one job page of each of the directory's 49 SuccessFactors
+employers, then every page matching one saved search's words at 18 of them, all through the
+reader's own terms, robots and polite-request gates (no new endpoint, page scope or allowance).
+
+- 13 sites' job pages carry no `datePosted` (B. Braun, Danfoss, HARTING, Liebherr, Rohde &
+  Schwarz, Sennheiser, SICK, sonnen, TE Connectivity, Vaillant, Vector Informatik, Vitesco
+  Technologies, Webasto). Their jobs stay "Posting date unknown".
+- On five of them (Danfoss, Liebherr, Rohde & Schwarz, sonnen, Webasto) the site's own job
+  layout marks the title and the ad inside a block that says `itemscope` without a type. The
+  reader took that block for some other item and kept nothing: 30 of 30 matching pages came in
+  with the page address as the title and no text. It now reads an untyped block that holds the
+  title or the ad as the job; a block of another named type is still left out. After the
+  correction all 44 matching undated pages gave the full ad, and 31 pages of five dated sites
+  read as before.
+- Sitemaps keep listing closed jobs. Their pages answer 200 and show a short notice where the
+  ad was ("this position has been filled"): the first listed page of three sites. A job block
+  holding only such a notice (no title, layout part, apply link or part filled in later) is
+  no job.
+- One site marks its title twice; joined, the doubled title matched no job-site copy of the
+  same job (all eight of its jobs in one saved search). A repeated title is read once.
+- Two sites (Vector Informatik, Vitesco Technologies) fill the ad in with scripts; their pages
+  give a title at most. Nothing is run or requested to get more.
+
+This is a parser correction on pages already requested. It is not evidence about how many of
+these employers' jobs the search words find, and the missing dates are not repaired by it.
+
 ### Original-ad sections and access boundaries — 2026-10-15
 
 **Checked:** [Schema.org's JobPosting definition](https://schema.org/JobPosting) supplies
