@@ -75,11 +75,22 @@ EARLY_CAREER_YEARS = 5
 LIMITS_YEARS = [(8, 60), (5, 75), (3, 80)]  # this many years short of what the ad asks: at most
 # Role/skills bands also bound the total; points from unrelated rubric parts cannot turn a
 # clear profession mismatch into a good fit.
+# The top two points of the 28-35 band rise towards the uncapped band. With one maximum for the
+# whole band, the best jobs of a list tied at it (general hardware design at 33-35 points beside
+# clearly weaker 28-point jobs); on 62 labelled ads and nine saved runs of three models the rise
+# put 7.1 instead of 5.9 of the ten best ads into the top ten, ordered clear pairs better
+# (0.926 against 0.923) and left as many scores within their labelled range. Ramps at the lower
+# edges were tried and not adopted: they moved good jobs under 70 and related ones over 60.
+# The rubric text still tells the AI the band's maximum as 80: its wording is unchanged, so
+# its points are what was measured.
+LIMIT_ROLE_BAND = 80
 LIMITS_ROLE = [
     (7, 30, "Another field than yours"),
     (17, 45, "Only loosely related to your work"),
     (27, 60, "A related job, its daily tasks partly different from yours"),
-    (35, 80, "Some gaps in the main work or a neighbouring specialisation"),
+    (33, LIMIT_ROLE_BAND, "Some gaps in the main work or a neighbouring specialisation"),
+    (34, 84, "Some gaps in the main work or a neighbouring specialisation"),
+    (35, 88, "Some gaps in the main work or a neighbouring specialisation"),
 ]
 # The rubric already distinguishes small level gaps from clearly unsuitable responsibility
 # or experience levels. Skill overlap must not compensate for the latter in the total.
@@ -504,7 +515,7 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
         parts["location_and_preferences"] = min(
             result["evidence"]["location_preferences_proposed"], 8 if uncertain_location else 10,
         )
-    rubric_limits = fit_limits(parts)
+    rubric_limits = fit_limits(parts, role_held=central_unknown)
     if required.limits or work.limits or (
         "requirements_complete" in result["evidence"]
         and requirements.special_blocker(result["evidence"])
@@ -824,14 +835,15 @@ def work_right(evidence: dict, profile: Profile) -> WorkRightJudgement:
     return WorkRightJudgement()
 
 
-def fit_limits(parts: dict[str, int]) -> list[dict]:
+def fit_limits(parts: dict[str, int], *, role_held: bool = False) -> list[dict]:
     """Limits for a job whose work or requirements fit the person only partly, from the AI's
-    points for them."""
+    points for them. `role_held`: the role points are held down because the ad's central
+    expertise is unconfirmed; then the band's top doesn't rise."""
     limits = []
     role = parts.get("role_and_skills", PARTS["role_and_skills"])
     for most_points, at, why in LIMITS_ROLE:
         if role <= most_points:
-            limits.append({"at": at, "why": why})
+            limits.append({"at": min(at, LIMIT_ROLE_BAND) if role_held else at, "why": why})
             break
     seniority = parts.get("seniority", PARTS["seniority"])
     for most_points, at, why in LIMITS_SENIORITY:

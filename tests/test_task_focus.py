@@ -23,13 +23,15 @@ def strong_other_parts(role):
 
 
 @pytest.mark.parametrize("field,target", FIELDS)
-@pytest.mark.parametrize("role", [28, 31, 35])
+@pytest.mark.parametrize("role,most", [(28, 80), (31, 80), (33, 80), (34, 84), (35, 88)])
 def test_neighbouring_or_gapped_main_work_cannot_become_an_excellent_match(
-        field, target, role):
+        field, target, role, most):
+    # The band's best jobs rise a little above the rest of it, so they don't all tie, and stay
+    # under any job of the person's own kind (the next test).
     person = PROFILE.model_copy(update={"field": field, "target_roles": [target]})
     result = scoring.finish(strong_other_parts(role), person)
-    assert result["score"] == 80
-    assert sum(result["parts"].values()) > 80
+    assert result["score"] == most
+    assert sum(result["parts"].values()) > most
     assert result["limits"][0]["why"] == \
         "Some gaps in the main work or a neighbouring specialisation"
 
