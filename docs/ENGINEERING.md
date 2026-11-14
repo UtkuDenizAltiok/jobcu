@@ -73,7 +73,10 @@ cover that continuation, while usage is cumulative.
   its text. A job that joins another gives it its copies and is scored once. The same ad under
   a shorter and a longer employer name is one job when place, title and text agree. One ad
   listed for several towns stays a card per town, each naming the others
-  (`dedupe.same_ad_elsewhere`, card field `same_ad_in`).
+  (`dedupe.same_ad_elsewhere`, card field `same_ad_in`). A career site's listings of one
+  vacancy in several languages are one job (`FoundJob.source_context["requisition"]`: the
+  site's own vacancy number, or the shared untranslated ad), and the search keeps the version
+  the person reads best (`pipeline.prefer_language_versions`).
 - Original publication/closing dates and job memory distinguish fresh jobs from reposts. A job an
   earlier search showed with its score and a checked place is left out ("Shown in an earlier
   search already"), whatever its date: a date later than that showing is the same job dated

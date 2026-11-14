@@ -480,6 +480,20 @@ four were dated to the day and kept, the 15 other matching jobs became older cop
 full ads. It adds no request: the sitemap is read whole in every search already. What a real
 second search a day later shows is not measured yet.
 
+**One vacancy per language (same day).** These sites list a vacancy once per language, under
+different numbers: 440 pairs among one site's 919 listed pages. Each listing became its own
+job, so the same job showed as two cards (in one saved history, 18 of 54 career-site cards
+were nine jobs twice), up to 12 points apart where only one version was in a language the
+person spoke. Sites that number their vacancies send both pages to an address with that number
+and the language (`/3387-de_DE/`, `/3387-en_US/`): the reader takes that as the site's word
+that the listings are one vacancy. Sites that don't show the same untranslated ad under each
+language's listing; there, listings with the same title, place and posting day are one when
+their texts are identical, or their pages are in different languages and at least half of
+their lines are the same (10 of 10 pairs on one site, 62 to 76% alike). Read with the
+corrected reader, 43 matching pages of four sites are 31 jobs. Of a vacancy's versions the
+search keeps the one the person reads best (their level in its language, then the job
+country's own language). Pages are requested as before; nothing new is read.
+
 ### Original-ad sections and access boundaries — 2026-10-15
 
 **Checked:** [Schema.org's JobPosting definition](https://schema.org/JobPosting) supplies

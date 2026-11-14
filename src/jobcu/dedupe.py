@@ -4,7 +4,8 @@
 - Copies match on normalised company, job title and location; when both copies carry a
   full ad, similar descriptions also confirm a match.
 - Different vacancy IDs from the same employer source remain separate, even through a
-  board copy that resembles both. Missing IDs never establish an exact match.
+  board copy that resembles both. Missing IDs never establish an exact match. Listings a
+  career site itself gives one vacancy number (one job listed once per language) are one job.
 - Ads from staffing agencies that hide the employer are tagged "possible duplicate"
   instead of being merged, because they may or may not be the same job.
 - The same ad under a shorter and a longer employer name ("Acme" and "Acme Robotics GmbH
@@ -231,10 +232,16 @@ class JobGroup:
         return copy.date_precision if copy else "unknown"
 
 
+def _vacancy(job: FoundJob) -> str:
+    """The vacancy a listing stands for: its own number, or the vacancy its career site says
+    it belongs to when the site lists one job once per language (`source_context`)."""
+    return job.source_context.get("requisition") or job.source_job_id
+
+
 def group_duplicates(jobs: list[FoundJob], source_kinds: dict[str, str]) -> list[JobGroup]:
     parent = list(range(len(jobs)))
     sizes = [1] * len(jobs)
-    employer_ids = [{job.source: job.source_job_id}
+    employer_ids = [{job.source: _vacancy(job)}
                     if job.source_job_id and source_kinds.get(job.source) == "employer" else {}
                     for job in jobs]
     complete_texts = [{job.description} if job.description_is_complete else set() for job in jobs]
@@ -280,7 +287,7 @@ def group_duplicates(jobs: list[FoundJob], source_kinds: dict[str, str]) -> list
     for i, job in enumerate(jobs):
         if not job.source_job_id:
             continue
-        key = (job.source, job.source_job_id)
+        key = (job.source, _vacancy(job))
         if key in by_source_id:
             union(i, by_source_id[key], exact=True)
         else:
