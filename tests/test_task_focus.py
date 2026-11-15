@@ -23,17 +23,24 @@ def strong_other_parts(role):
 
 
 @pytest.mark.parametrize("field,target", FIELDS)
-@pytest.mark.parametrize("role,most", [(28, 80), (31, 80), (33, 80), (34, 84), (35, 88)])
+@pytest.mark.parametrize("role,most,why", [
+    (28, 80, "A neighbouring specialisation, or clear gaps in the main work"),
+    (30, 80, "A neighbouring specialisation, or clear gaps in the main work"),
+    (31, 83, "Close to your work, with some gaps in the main tasks"),
+    (32, 86, "Close to your work, with some gaps in the main tasks"),
+    (33, 89, "Close to your work, with some gaps in the main tasks"),
+    (34, 91, "Very close to your work, with small gaps"),
+    (35, 93, "Very close to your work, with small gaps"),
+])
 def test_neighbouring_or_gapped_main_work_cannot_become_an_excellent_match(
-        field, target, role, most):
-    # The band's best jobs rise a little above the rest of it, so they don't all tie, and stay
-    # under any job of the person's own kind (the next test).
+        field, target, role, most, why):
+    # The closer the work, the higher the most it can score: jobs of the band don't all show
+    # one number, and all stay under any job of the person's own kind (the next test).
     person = PROFILE.model_copy(update={"field": field, "target_roles": [target]})
     result = scoring.finish(strong_other_parts(role), person)
     assert result["score"] == most
     assert sum(result["parts"].values()) > most
-    assert result["limits"][0]["why"] == \
-        "Some gaps in the main work or a neighbouring specialisation"
+    assert result["limits"][0]["why"] == why
 
 
 @pytest.mark.parametrize("field,target", FIELDS)

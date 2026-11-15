@@ -239,11 +239,13 @@ def test_a_low_total_is_not_raised_by_a_limit():
 
 @pytest.mark.parametrize(("role", "hard", "total", "why"), [
     (36, 15, 36 + 15 + 15 + 15 + 8, None),  # the person's own kind of work: no limit
-    (28, 15, 80, "Some gaps in the main work or a neighbouring specialisation"),
-    (33, 15, 80, "Some gaps in the main work or a neighbouring specialisation"),
-    # The band's top two points rise towards the uncapped band, so its best jobs don't tie.
-    (34, 15, 84, "Some gaps in the main work or a neighbouring specialisation"),
-    (35, 15, 88, "Some gaps in the main work or a neighbouring specialisation"),
+    (28, 15, 80, "A neighbouring specialisation, or clear gaps in the main work"),
+    (30, 15, 80, "A neighbouring specialisation, or clear gaps in the main work"),
+    # From 31 points the maximum rises with every point towards the uncapped band, so jobs
+    # that are close to the person's work don't all show the same number.
+    (31, 15, 83, "Close to your work, with some gaps in the main tasks"),
+    (33, 15, 33 + 15 + 15 + 15 + 8, None),  # the parts add up to less than its maximum of 89
+    (34, 15, 34 + 15 + 15 + 15 + 8, None),
     (24, 15, 60, "A related job, its daily tasks partly different from yours"),
     (12, 15, 45, "Only loosely related to your work"),
     (5, 15, 30, "Another field than yours"),
@@ -254,9 +256,10 @@ def test_a_job_that_fits_only_partly_is_limited_by_the_rubric_s_own_bands(role, 
     raw = score_json("J1", role=role, hard_requirements=hard)
     result = finish(JobScore.model_validate(raw), SPEAKER)
     assert result["score"] == total
-    expected = [why] if why else []
-    if role == 34 and hard == 8:
-        expected.append("Some gaps in the main work or a neighbouring specialisation")
+    # A limit above what the parts add up to is still named: it says what kind of fit this is.
+    band = {33: "Close to your work, with some gaps in the main tasks",
+            34: "Very close to your work, with small gaps"}.get(role)
+    expected = ([why] if why else []) + ([band] if band else [])
     assert [limit["why"] for limit in result["limits"]] == expected
 
 
@@ -812,3 +815,38 @@ def test_years_count_only_when_the_ads_own_words_state_an_amount():
         "Asks for 3+ years of experience, you have no full-time years yet"]
     assert years(years_required=None, years_words="") == (None, [])
     assert "years_words" in scoring.SYSTEM_PROMPT
+
+
+def test_a_uk_card_without_the_sponsorship_deduction_says_that_the_ad_offers_it():
+    # November 2026: a UK job showed no deduction and no reason; its ad offered sponsorship.
+    ad = ("Design power converters in Harwell. Visa sponsorship is available for overseas "
+          "applicants who require it.")
+    raw = score_json("J1", role=38, visa_sponsorship="available_for_this_job",
+                     visa_sponsorship_words="Visa sponsorship is available for overseas "
+                                            "applicants who require it")
+    said = 'The ad offers visa sponsorship: "Visa sponsorship is available for overseas ' \
+           'applicants who require it"'
+    offered = finish(JobScore.model_validate(raw), SPEAKER, ad_text=ad, complete=True,
+                     country="GB")
+    assert offered["deductions"] == [] and offered["notes"] == [said]
+    # Without the offer the deduction says why; elsewhere nothing is said about sponsorship.
+    silent = finish(JobScore.model_validate(score_json("J1", role=38)), SPEAKER,
+                    ad_text=ad, complete=True, country="GB")
+    assert [d["points"] for d in silent["deductions"]] == [5] and silent["notes"] == []
+    german = finish(JobScore.model_validate(raw), SPEAKER, ad_text=ad, complete=True,
+                    country="DE")
+    assert german["deductions"] == [] and german["notes"] == []
+
+
+@pytest.mark.parametrize(("role", "most"), [(30, 80), (32, 86), (35, 86)])
+def test_a_job_with_an_unconfirmed_central_requirement_can_be_good_but_not_among_the_best(
+        role, most):
+    # An early-careers programme named areas of work the person hadn't done yet; held at 80
+    # with every such job, it sat below unheld jobs of its own kind.
+    assert scoring_limits(role, held=True) == most
+    assert scoring_limits(role, held=False) >= most
+
+
+def scoring_limits(role, *, held):
+    from jobcu.scoring import fit_limits
+    return fit_limits({"role_and_skills": role}, role_held=held)[0]["at"]

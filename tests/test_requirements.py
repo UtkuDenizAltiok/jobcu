@@ -68,7 +68,7 @@ def test_unconfirmed_central_expertise_cannot_be_called_a_direct_core_match(expe
                                           profile_words="", status="unclear", central_to_role=True)
     limited = score([needed], ad=ad)
     assert limited["parts"]["role_and_skills"] == 35
-    assert limited["score"] <= 80
+    assert limited["score"] <= 86  # a good match at most, not one of the best
     assert f"Not confirmed: {expertise}" in limited["reasons"]
     assert not any(limit["at"] == 55 for limit in limited["limits"])
     # An unsupported invented ad requirement cannot create this restriction.

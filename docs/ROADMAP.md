@@ -47,9 +47,12 @@ done. Implementation details belong in pull requests; current behavior is descri
 - One card for a job a career site lists once per language: the listings are joined by the
   site's own vacancy number, or by their shared untranslated ad, and the version the person
   reads best is the one scored. Before, the same job showed twice, sometimes 12 points apart.
-- The best jobs of the "same kind of work, with gaps" band no longer tie at its maximum: its top
-  two role points rise towards the uncapped band, measured on the judged ads (more of the ten
-  best ads in the top ten, as many scores within their judged range).
+- Jobs close to the person's own work no longer all show 80: inside the "same kind of work,
+  with gaps" band the most a job can score rises with every role point (83 to 93 from 31
+  points), and a job with an unconfirmed central requirement can reach 86. Measured on the
+  judged ads without AI calls (clear pairs ordered better, 7.7 instead of 5.9 of the ten best
+  ads in the top ten, as many scores within their judged range); no score falls. A UK card
+  without the sponsorship deduction now says that the ad offers sponsorship.
 - Scoring: a language wished for in the ad's own language counts like a required one; lead, head,
   principal and staff titles are capped for early-career profiles; the sponsorship penalty
   applies to UK jobs only. Roles are graded by closeness to the person's own specialist field,
