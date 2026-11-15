@@ -44,6 +44,9 @@ done. Implementation details belong in pull requests; current behavior is descri
   own list: a job that appears between two readings a day apart is posted that day and joins
   the main list, and one listed since before the window can show a job site's fresh copy to
   be a repost. Before, every job of theirs stayed under "Posting date unknown".
+- One card for a job a career site lists once per language: the listings are joined by the
+  site's own vacancy number, or by their shared untranslated ad, and the version the person
+  reads best is the one scored. Before, the same job showed twice, sometimes 12 points apart.
 - The best jobs of the "same kind of work, with gaps" band no longer tie at its maximum: its top
   two role points rise towards the uncapped band, measured on the judged ads (more of the ten
   best ads in the top ten, as many scores within their judged range).

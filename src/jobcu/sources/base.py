@@ -54,6 +54,8 @@ class FoundJob:
     # Supplied alternative application destinations, not discovered by redirect probing.
     application_options: list[dict[str, str]] = field(default_factory=list)
     # Lookup locale for opaque source IDs; not evidence of the workplace's country/language.
+    # A career site's own word that several of its listings are one vacancy (`requisition`),
+    # and the language of this listing's page (`language`), when one job is listed per language.
     source_context: dict[str, str] = field(default_factory=dict)
 
 

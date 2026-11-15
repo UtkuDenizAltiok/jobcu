@@ -20,6 +20,7 @@ memory after reading.
 """
 
 import dataclasses
+import hashlib
 import html
 import itertools
 import re
@@ -91,6 +92,7 @@ class SuccessFactorsSource(CareerSystemSource):
         # The whole list, matching or not: a job's first sight dates it where its page
         # gives no date (listmemory).
         sights = listmemory.note(self.id, employer.board, [job.source_job_id for job in listed])
+        read = []
         for job in listed:
             if matches_terms(terms, languages, job.title):
                 full = self._from_page(job, ctx)
@@ -98,7 +100,8 @@ class SuccessFactorsSource(CareerSystemSource):
                     posted, precision = listmemory.posted(sights.get(job.source_job_id), start)
                     full = dataclasses.replace(full, posted_at=posted, date_precision=precision)
                 if full is not None:
-                    yield full
+                    read.append(full)
+        yield from same_ad_twice(read)
 
     def readable(self, employer: Employer, ctx: SourceContext) -> bool:
         """Some sites' job pages show only the title and need scripts for the rest: one page
@@ -112,12 +115,18 @@ class SuccessFactorsSource(CareerSystemSource):
         return False
 
     def _page(self, job: FoundJob, ctx: SourceContext) -> str | None:
+        opened = self._open(job, ctx)
+        return opened[0] if opened else None
+
+    def _open(self, job: FoundJob, ctx: SourceContext) -> tuple[str, str] | None:
+        """The job's page and the address it ended at."""
         if not self.allowed(job.url, ctx):
             return None
         try:
-            return self.get(job.url, ctx, cache=False).text
+            response = self.get(job.url, ctx, cache=False)
         except (SourceError, BudgetExhausted):
             return None
+        return response.text, str(response.url)
 
     def _dated(self, job: FoundJob, ctx: SourceContext) -> FoundJob:
         """A feed job with its posting day, from memory or from its page."""
@@ -142,9 +151,10 @@ class SuccessFactorsSource(CareerSystemSource):
 
     def _from_page(self, job: FoundJob, ctx: SourceContext) -> FoundJob | None:
         """Everything about a listed job from its own page, or None if it can't be read."""
-        page = self._page(job, ctx)
-        if page is None:
+        opened = self._open(job, ctx)
+        if opened is None:
             return None
+        page, address = opened
         found = read_page(page)
         if found.get("gone"):
             return None
@@ -152,6 +162,7 @@ class SuccessFactorsSource(CareerSystemSource):
         posted = date_posted(page)
         return dataclasses.replace(
             job,
+            source_context=version_of(address, page, employer_board(job)),
             title=found.get("title") or job.title,
             company=found.get("company") or job.company,
             location_text=location or job.location_text,
@@ -161,6 +172,82 @@ class SuccessFactorsSource(CareerSystemSource):
             description=found.get("description") or "",
             description_is_complete=bool(found.get("has_description")),
         )
+
+
+# A job page's address on sites that number their vacancies: ".../job/Town-Title/3387-de_DE/".
+_VACANCY_ADDRESS = re.compile(r"/(\d+)-([a-z]{2})_[A-Z]{2}/?$")
+_PAGE_LANGUAGE = re.compile(r"<html\b[^>]*\blang\s*=\s*[\"']([A-Za-z]{2})\b")
+
+
+def employer_board(job: FoundJob) -> str:
+    return job.source_job_id.rsplit("/", 1)[0]
+
+
+def version_of(address: str, page: str, board: str) -> dict[str, str]:
+    """What a job page says about being one language version of a vacancy.
+
+    These sites list every vacancy once per language, under different numbers (440 pairs
+    among one site's 919 listed pages, November 2026), and each became its own card: the same
+    job twice, 12 points apart where only one version was in a language the person spoke.
+    Sites that number their vacancies send both pages to an address with that number and the
+    language ("/3387-de_DE/", "/3387-en_US/"): the site's own word that they are one vacancy
+    (`requisition`). The page's language tells the versions apart."""
+    context = {}
+    vacancy = _VACANCY_ADDRESS.search(urlsplit(address).path)
+    if vacancy:
+        context["requisition"] = f"{board}/vacancy-{vacancy.group(1)}"
+    language = vacancy.group(2) if vacancy else None
+    if language is None and (tagged := _PAGE_LANGUAGE.search(page or "")):
+        language = tagged.group(1).lower()
+    if language:
+        context["language"] = language
+    return context
+
+
+# How much of two pages' lines must be the same for two language listings to be one ad whose
+# text wasn't translated (only the page around it is in each language).
+SAME_LINES = 0.5
+
+
+def same_ad_twice(jobs: list[FoundJob]) -> list[FoundJob]:
+    """Marks one employer's jobs that are one ad under two listings as one vacancy, on sites
+    that don't number their vacancies. Two listings with the same title, place and posting day
+    are one when their pages carry the very same text, or are in different languages with
+    mostly the same lines: such sites show the untranslated ad under each language's listing
+    (10 of 10 pairs on one site, half to three quarters of their lines alike). Listings with
+    other titles, places, days or texts stay different vacancies."""
+    buckets: dict[tuple, list[int]] = {}
+    for index, job in enumerate(jobs):
+        if (job.description.strip() and job.description_is_complete
+                and "requisition" not in job.source_context):
+            day = job.posted_at.date() if job.posted_at else None
+            buckets.setdefault((" ".join(job.title.split()).casefold(), job.location_text or "",
+                                day), []).append(index)
+    marked = list(jobs)
+    for indexes in buckets.values():
+        first = indexes[0]
+        lines = _lines(jobs[first])
+        same = [first, *(i for i in indexes[1:] if _one_ad(jobs[first], lines, jobs[i]))]
+        if len(same) > 1:
+            mark = hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()[:16]
+            for index in same:
+                job = marked[index]
+                marked[index] = dataclasses.replace(job, source_context={
+                    **job.source_context, "requisition": f"{employer_board(job)}/ad-{mark}"})
+    return marked
+
+
+def _lines(job: FoundJob) -> set[str]:
+    return {" ".join(line.split()) for line in job.description.splitlines() if line.strip()}
+
+
+def _one_ad(job: FoundJob, lines: set[str], other: FoundJob) -> bool:
+    theirs = _lines(other)
+    if lines == theirs:
+        return True
+    languages = {job.source_context.get("language"), other.source_context.get("language")}
+    return (None not in languages and len(languages) == 2
+            and len(lines & theirs) >= SAME_LINES * max(len(lines), len(theirs)))
 
 
 def date_posted(page: str) -> datetime | None:

@@ -20,7 +20,7 @@ from jobcu.freshness import earliest_possible, freshness, parse_iso, window_star
 from jobcu.jobstore import JobState
 from jobcu.location import LocationPlan
 from jobcu.placenames import countries_in
-from jobcu.scoring import LEGACY_ONLINE_NOTE, ONLINE_NOTE, PARTS, ROLE_REVIEW_NOTE
+from jobcu.scoring import LEGACY_ONLINE_NOTE, ONLINE_NOTE, PARTS, ROLE_REVIEW_NOTE, person_levels
 from jobcu.sources import all_sources
 from jobcu.sources.base import (
     FoundJob,
@@ -133,6 +133,40 @@ def make_groups(collected: Collected) -> list[JobGroup]:
                     else dataclasses.replace(group, copies=copies))
     return [dataclasses.replace(group, possible_duplicate_of=position.get(
         group.possible_duplicate_of)) for group in kept]
+
+
+def prefer_language_versions(groups: list[JobGroup], profile) -> list[JobGroup]:
+    """Of one vacancy's ads in several languages (a career site lists the job once per
+    language, `FoundJob.source_context`), keeps the one the person reads best: by their level
+    in its language, then the job country's own language, then the first listed.
+
+    The versions say the same. Scored in a language the person lacks, the ad's language reads
+    as a need although the employer wrote the ad in theirs too: the same job came as two cards
+    12 points apart (November 2026). Versions with one text, or without a known language, stay
+    as they are."""
+    levels = person_levels(profile) if profile is not None else {}
+    kept: list[JobGroup] = []
+    for group in groups:
+        versions: dict[tuple[str, str], list[FoundJob]] = {}
+        for copy in group.copies:
+            vacancy = copy.source_context.get("requisition")
+            if vacancy and copy.source_context.get("language"):
+                versions.setdefault((copy.source, vacancy), []).append(copy)
+        dropped: set[int] = set()
+        for copies in versions.values():
+            if len({copy.source_context["language"] for copy in copies}) < 2:
+                continue
+
+            def rank(copy: FoundJob) -> tuple[int, bool]:
+                language = copy.source_context["language"]
+                country = COUNTRIES.get(copy.country or "")
+                return levels.get(language, 0), bool(country and language in country.ad_languages)
+
+            best = max(copies, key=rank)
+            dropped.update(id(copy) for copy in copies if copy is not best)
+        kept.append(group if not dropped else dataclasses.replace(
+            group, copies=[copy for copy in group.copies if id(copy) not in dropped]))
+    return kept
 
 
 def _complete_ad(job: FoundJob) -> bool:

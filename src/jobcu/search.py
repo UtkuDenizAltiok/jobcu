@@ -647,6 +647,8 @@ def _find_and_score(run, settings, client, keys, http, profile, plan, query, che
     groups = pipeline.make_groups(collected)
     jobstore.link_copies(groups)
     remembered, repeats = jobstore.find_jobs(groups)
+    # The memory knows a job by any language's listing of it; the search goes on with one.
+    groups = pipeline.prefer_language_versions(groups, profile)
     states = jobstore.states([job_id for job_id in remembered if job_id])
     remembered_states = [states.get(job_id) if job_id else None for job_id in remembered]
     shown = jobstore.first_assessed([job_id for job_id in remembered if job_id]
