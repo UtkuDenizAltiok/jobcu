@@ -301,3 +301,10 @@ def test_factual_research_note_has_no_uncertainty_marker_but_missing_evidence_ke
         {"text": "Mandatory requirements were not fully checked", "status": "unclear"},
     ]
     assert card["score"] == 60 and card["score_notes"] == result["notes"]
+    # A fact Jobcu found is information too, not something the person still has to check: the
+    # ad's sponsorship offer stood under "Needs checks".
+    offer = 'The ad offers visa sponsorship: "Sponsorship is available"'
+    offered = build_card(group, job_id=1, is_new=True, state=None,
+                         scored={**result, "notes": [offer]}, plan=plan, source_names={},
+                         possible_duplicate_of=None, started_at=NOW, posted_within_hours=24)
+    assert offered["score_checks"] == [{"text": offer, "status": "info"}]
