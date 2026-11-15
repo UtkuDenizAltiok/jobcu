@@ -42,6 +42,9 @@ class FoundJob:
     job_types: list[JobType] = field(default_factory=list)  # as stated by the source
     work_mode: WorkMode | None = None  # as stated by the source
     employer_url: str | None = None  # the employer's own page or career system, if known
+    # The company's own website as the source names it: not a page of this job. Offered when
+    # none of the job's links can take the person's application.
+    employer_site: str | None = None
     salary_text: str | None = None
     via: str | None = None  # e.g. "Found through Reed" for career-system jobs
     closes_at: datetime | None = None  # when applications close, if the source says (aware)

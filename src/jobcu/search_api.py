@@ -217,17 +217,21 @@ def open_job_link(job_id: int, url: str) -> RedirectResponse:
         removed = why == applylink.CV_LIBRARY_ONLY
         if removed:
             applications.report_link(job_id, url)
-        return HTMLResponse(_unusable_page(why, removed, applications.job_search(job_id)),
-                            headers={"Cache-Control": "no-store"})
+        return HTMLResponse(
+            _unusable_page(why, removed, applications.job_search(job_id),
+                           None if removed else applications.company_site(job_id)),
+            headers={"Cache-Control": "no-store"})
     return RedirectResponse(target, status_code=302, headers={"Cache-Control": "no-store"})
 
 
-def _unusable_page(why: str, removed: bool, search: str) -> str:
+def _unusable_page(why: str, removed: bool, search: str, site: str | None = None) -> str:
+    company = (f'<a href="{html.escape(site)}" rel="noreferrer">Open the company\'s website</a>'
+               " or " if site else "")
     after = ("<p>Jobcu has taken the job off your list. To bring it back, open "
              "<b>Excluded jobs and links</b> above your results.</p>" if removed else
              "<p>The job stays on your list: it may still be open on another site. "
-             f'<a href="{html.escape(search)}" rel="noreferrer">Search the web for this job</a>'
-             ".</p>")
+             f'{company}<a href="{html.escape(search)}" rel="noreferrer">'
+             f'{"search" if site else "Search"} the web for this job</a>.</p>')
     return (
         '<!doctype html><html lang="en"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width, initial-scale=1">'

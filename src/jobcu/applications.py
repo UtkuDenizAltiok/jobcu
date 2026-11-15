@@ -18,6 +18,7 @@ BLOCKED_HOSTS = frozenset({"cv-library.co.uk"})
 # own posting online (livepostings.py) and the card adds a web search for it.
 UK_VISITORS_ONLY_PAGES = frozenset({"learn4good.com"})
 WEB_SEARCH = "https://www.google.com/search"
+COMPANY_SITE = "Company website"
 REDIRECT_FIELDS = frozenset({"url", "redirect", "redirect_url", "target", "destination", "to"})
 # beBee lists other sites' ads (search 18's found posting for an agency's firmware job was a beBee
 # copy naming another agency).
@@ -271,11 +272,26 @@ def links(group: JobGroup, source_names: dict[str, str],
             urls.add(link["url"])
             also.append(link)
     if uk_visitors_only(main["url"]):
-        # No link that takes applications from anywhere: a web search for the employer's posting.
+        # No link that takes applications from anywhere: the company's own website when a job
+        # site names it (its vacancies are a click or two away there), and a web search for
+        # the posting. Two of one list's three best jobs had only such a link (2026-11-15).
+        site = next((c.employer_site for c in copies if allowed(c.employer_site)
+                     and not search_link(c.employer_site)), None)
+        if site and site not in urls:
+            also.append({"source": COMPANY_SITE, "url": site, "direct": True})
         main_copy = copies[0]
         also.append({"source": "Web search", "url": web_search(
             main_copy.title, main_copy.company, main_copy.location_text)})
     return main, also
+
+
+def company_site(job_id: int) -> str | None:
+    """The company's website kept with a saved job's card, if any."""
+    with db.connect() as conn:
+        row = conn.execute("SELECT card_json FROM job_cards WHERE job_id = ?", (job_id,)).fetchone()
+    card = json.loads(row[0]) if row else {}
+    return next((link.get("url") for link in card.get("also_on", [])
+                 if link.get("source") == COMPANY_SITE and link.get("url")), None)
 
 
 def exclusion_key(group: JobGroup, reported: set[str] | None = None) -> str | None:

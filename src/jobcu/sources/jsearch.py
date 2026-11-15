@@ -237,6 +237,7 @@ def to_found_job(item: dict) -> FoundJob | None:
         job_types=job_types_from_text(type_text),
         work_mode="remote" if item.get("job_is_remote") is True else None,
         employer_url=direct[0] if direct else None,
+        employer_site=website or None,
         salary_text=_text(item.get("job_salary_string")) or None,
         application_options=list({o["url"]: o for o in options}.values()),
     )

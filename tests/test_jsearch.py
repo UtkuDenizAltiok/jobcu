@@ -597,6 +597,9 @@ def test_application_options_keep_supplied_links_and_require_support_for_direct_
         )
     )
     assert job.employer_url == EMPLOYER
+    # The company's website is kept for a job none of whose links can take the application.
+    assert job.employer_site == "https://fictional.example.test"
+    assert jsearch.to_found_job(item()).employer_site is None
     main, others = applications.links(JobGroup([job]), {"jsearch": "JSearch"})
     assert main == {"source": "Employer's site", "url": EMPLOYER, "direct": True}
     assert [o["url"] for o in others] == [MAIN]

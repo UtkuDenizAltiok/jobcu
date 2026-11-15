@@ -265,6 +265,26 @@ def test_a_click_on_a_link_that_can_t_take_the_application_explains_and_keeps_al
         assert applications.reported_urls() == set()
 
 
+def test_a_link_that_can_t_take_the_application_also_offers_the_company_s_own_website(
+        monkeypatch):
+    # November 2026: two of one list's three best jobs had only a link that takes applications
+    # from visitors in one country; the click offered nothing but a web search.
+    site = "https://www.fakeco.example"
+    _, card, _ = saved_card(url="https://board.example.org/jobs/1", also_on=[
+        {"source": applications.COMPANY_SITE, "url": site, "direct": True}])
+
+    def refuse(url):
+        raise applylink.Unusable(applylink.ELSEWHERE_ONLY)
+
+    monkeypatch.setattr("jobcu.applylink.destination", refuse)
+    client = TestClient(create_app(), base_url="http://127.0.0.1:8765")
+    reply = client.get(f"/api/jobs/{card['job_id']}/open?url="
+                       f"{quote('https://board.example.org/jobs/1', safe='')}",
+                       follow_redirects=False)
+    assert f'<a href="{site}" rel="noreferrer">Open the company\'s website</a> or ' in reply.text
+    assert "search the web for this job" in reply.text
+
+
 @pytest.mark.parametrize(("url", "uk_visitors_only"), [
     ("https://www.learn4good.com/jobs/luton/uk/engineering/5578855491/e/", True),
     ("https://www.learn4good.com/jobs/deutschland/ingenieure_and_ingenieur/5573628955/g/", False),
@@ -292,6 +312,18 @@ def test_a_uk_visitors_only_link_comes_last_and_a_web_search_is_added_when_nothi
     main, also = applications.links(group(uk), {}, set())
     assert main["url"] == uk and also[0]["source"] == "Web search"
     assert "Hardware+Engineer" in also[0]["url"] and "m%2Fw%2Fd" not in also[0]["url"]
+    # The company's own website, when a job site names it, comes before the web search.
+    known = group(uk)
+    known.copies[0].employer_site = "https://www.fakeco.example"
+    main, also = applications.links(known, {}, set())
+    assert main["url"] == uk and [link["source"] for link in also] == [
+        applications.COMPANY_SITE, "Web search"]
+    assert also[0] == {"source": applications.COMPANY_SITE, "url": "https://www.fakeco.example",
+                       "direct": True}
+    # With a link that can take the application, the card needs neither.
+    usable = group(uk, other)
+    usable.copies[0].employer_site = "https://www.fakeco.example"
+    assert [link["url"] for link in applications.links(usable, {}, set())[1]] == [uk]
     found = "https://careers.fakeco.example/jobs/9"
     main, also = applications.links(group(uk, found=found), {}, set())
     # The employer's own page found online opens as it is (the click skips Jobcu).
