@@ -1252,12 +1252,12 @@ function renderCard(card) {
     el("summary", { text: "Needs checks" }),
     el("ul", {}, ...[...missing].map((text) => el("li", { text })))) : null;
 
-  // A clear blocker holds the score below what the parts add up to (scoring.py).
-  const limits = card.limits || [];
-  const limit = limits.length && card.parts
+  // A limit holds the score below what the parts add up to (scoring.py). One above that total
+  // changes nothing and isn't shown.
+  const limits = holdingLimits(card);
+  const limit = limits.length
     ? el("p", { class: "job-limit", text:
-        `Maximum ${Math.min(...limits.map((l) => l.at))}; parts total ` +
-        `${Object.values(card.parts).reduce((a, b) => a + b, 0)}: ` +
+        `Maximum ${Math.min(...limits.map((l) => l.at))}; parts total ${partsTotal(card)}: ` +
         limits.map((l) => `${l.why} (maximum ${l.at})`).join(" · ") })
     : null;
   const deductions = (card.deductions || []).map((d) =>
@@ -1334,12 +1334,24 @@ function renderCard(card) {
   );
 }
 
+function partsTotal(card) {
+  return Object.values(card.parts || {}).reduce((a, b) => a + b, 0);
+}
+
+/** The limits that hold this card's score down: those below what its parts add up to. */
+function holdingLimits(card) {
+  if (!card.parts) return [];
+  const total = partsTotal(card);
+  return (card.limits || []).filter((l) => l.at < total);
+}
+
 function scoreTooltip(card) {
   if (!card.parts) return "Not scored";
   const lines = SCORE_PARTS.filter(([key]) => card.parts[key] !== undefined)
     .map(([key, label, most]) => `${label}: ${card.parts[key]} of ${most}`);
-  if ((card.limits || []).length) {
-    lines.push(`Maximum ${Math.min(...card.limits.map((l) => l.at))}`);
+  const limits = holdingLimits(card);
+  if (limits.length) {
+    lines.push(`Maximum ${Math.min(...limits.map((l) => l.at))}`);
   }
   for (const deduction of card.deductions || []) {
     lines.push(`−${deduction.points} points: ${deduction.why}`);

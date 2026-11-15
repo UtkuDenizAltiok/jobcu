@@ -75,23 +75,42 @@ EARLY_CAREER_YEARS = 5
 LIMITS_YEARS = [(8, 60), (5, 75), (3, 80)]  # this many years short of what the ad asks: at most
 # Role/skills bands also bound the total; points from unrelated rubric parts cannot turn a
 # clear profession mismatch into a good fit.
-# The top two points of the 28-35 band rise towards the uncapped band. With one maximum for the
-# whole band, the best jobs of a list tied at it (general hardware design at 33-35 points beside
-# clearly weaker 28-point jobs); on 62 labelled ads and nine saved runs of three models the rise
-# put 7.1 instead of 5.9 of the ten best ads into the top ten, ordered clear pairs better
-# (0.926 against 0.923) and left as many scores within their labelled range. Ramps at the lower
-# edges were tried and not adopted: they moved good jobs under 70 and related ones over 60.
+# From 31 points on, the 28-35 band ("the same kind of role with gaps, or a neighbouring
+# specialisation") has a maximum that rises with every point, up to just under the uncapped
+# band (role 36 with every other part full is 96). With one maximum for the band (80, and 84
+# and 88 at its top), every good job that wasn't the person's exact kind of work showed the
+# same 80: an application role in the person's own field at 33 points beside a graduate
+# programme in another branch at 29, and the person could not tell them apart (seven such cards
+# in one list, November 2026). Tried on saved scores without any AI call: on 62 labelled ads
+# and nine runs of three models the rise orders clear pairs better (0.931 against 0.923), puts
+# 7.7 instead of 5.9 of the ten best ads into the top ten and leaves as many scores within
+# their labelled range (36.7 against 37.0); on 202 older ads 0.889 against 0.888 and 6.4
+# against 5.2. No score falls: the band's lowest maximum stays 80, so a job of the person's
+# own kind at a clearly wrong level (80 at most) still can't pass a suitable neighbouring one.
+# No maximum at all in the band did worse than either.
 # The rubric text still tells the AI the band's maximum as 80: its wording is unchanged, so
 # its points are what was measured.
-LIMIT_ROLE_BAND = 80
+NEIGHBOURING = "A neighbouring specialisation, or clear gaps in the main work"
+CLOSE = "Close to your work, with some gaps in the main tasks"
+VERY_CLOSE = "Very close to your work, with small gaps"
+ROLE_BAND_LOWEST = 80
 LIMITS_ROLE = [
     (7, 30, "Another field than yours"),
     (17, 45, "Only loosely related to your work"),
     (27, 60, "A related job, its daily tasks partly different from yours"),
-    (33, LIMIT_ROLE_BAND, "Some gaps in the main work or a neighbouring specialisation"),
-    (34, 84, "Some gaps in the main work or a neighbouring specialisation"),
-    (35, 88, "Some gaps in the main work or a neighbouring specialisation"),
+    (30, ROLE_BAND_LOWEST, NEIGHBOURING),
+    (31, 83, CLOSE),
+    (32, 86, CLOSE),
+    (33, 89, CLOSE),
+    (34, 91, VERY_CLOSE),
+    (35, 93, VERY_CLOSE),
 ]
+# A job whose role points are held down because a central requirement isn't confirmed by the
+# person's documents can be a good match, not one of the best: at most what 32 points give.
+# At 80 for all of them, an early-careers programme whose ad names areas of work the person
+# hasn't done yet sat below every unheld job of its kind.
+LIMIT_ROLE_HELD = 86
+ROLE_HELD = "A central requirement of the job isn't confirmed by your documents"
 # The rubric already distinguishes small level gaps from clearly unsuitable responsibility
 # or experience levels. Skill overlap must not compensate for the latter in the total.
 LIMITS_SENIORITY = [
@@ -539,7 +558,7 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
                   "Daily tasks are only partly aligned" if role >= 18 else
                   "Daily work is loosely related" if role >= 8 else
                   "Main work is in another field")
-        first = limits[0]["why"] if limits and limits[0]["at"] < 80 else None
+        first = limits[0]["why"] if limits and limits[0]["at"] < ROLE_BAND_LOWEST else None
         # "A related job, its daily tasks partly different" needs no "Daily tasks are only partly
         # aligned" after it.
         same = first in {why for _, _, why in LIMITS_ROLE} and not central_unknown
@@ -559,7 +578,7 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
             if evidence.get("role_checked_online") and evidence.get("role_words") else []
         ) + ([f"Found online in versions that differ ({_short(evidence['versions_differ'])}); "
               "the stricter one is used"] if evidence.get("versions_differ") else []
-        ) + language.notes + required.notes + work.notes + (
+        ) + language.notes + required.notes + work.notes + sponsorship_notes(evidence) + (
             ["Security or nationality eligibility is unconfirmed" + (
                 f": {score.citizenship_or_clearance_words.strip()}"
                 if score.citizenship_or_clearance_words.strip() else "")]
@@ -806,6 +825,15 @@ def sponsorship_deductions(evidence: dict, profile: Profile) -> list[dict]:
     return [{"points": UK_SPONSORSHIP_DEDUCTION, "why": UK_SPONSORSHIP_REASON}]
 
 
+def sponsorship_notes(evidence: dict) -> list[str]:
+    """Why a UK job has no sponsorship deduction: the ad's own offer, quoted. Without it the
+    person couldn't tell an offer from a deduction Jobcu forgot."""
+    if evidence.get("job_country") != "GB" or not evidence.get("sponsorship_confirmed"):
+        return []
+    words = _short((evidence.get("visa_sponsorship_words") or "").strip(), 110)
+    return ["The ad offers visa sponsorship" + (f': "{words}"' if words else "")]
+
+
 def work_right(evidence: dict, profile: Profile) -> WorkRightJudgement:
     """The ad's right-to-work clause against the person's stated work rights in its country."""
     asked, country = evidence.get("right_to_work_required", "not_stated"), evidence.get(
@@ -838,12 +866,14 @@ def work_right(evidence: dict, profile: Profile) -> WorkRightJudgement:
 def fit_limits(parts: dict[str, int], *, role_held: bool = False) -> list[dict]:
     """Limits for a job whose work or requirements fit the person only partly, from the AI's
     points for them. `role_held`: the role points are held down because the ad's central
-    expertise is unconfirmed; then the band's top doesn't rise."""
+    expertise is unconfirmed; then the total stays at LIMIT_ROLE_HELD or less."""
     limits = []
     role = parts.get("role_and_skills", PARTS["role_and_skills"])
     for most_points, at, why in LIMITS_ROLE:
         if role <= most_points:
-            limits.append({"at": min(at, LIMIT_ROLE_BAND) if role_held else at, "why": why})
+            held = role_held and at > LIMIT_ROLE_HELD
+            limits.append({"at": LIMIT_ROLE_HELD if held else at,
+                           "why": ROLE_HELD if held else why})
             break
     seniority = parts.get("seniority", PARTS["seniority"])
     for most_points, at, why in LIMITS_SENIORITY:

@@ -157,9 +157,9 @@ def test_focused_retry_cannot_erase_a_still_unconfirmed_central_skill(expertise)
     reply = recheck.Comparison(**{**req.model_dump(), "id": "R0", "central_to_role": False})
     assert recheck.compare(Client([reply]), job, PERSON)
     assert job.scored["evidence"]["requirement_checks"][0]["central_to_role"]
-    assert job.scored["parts"]["role_and_skills"] == 35 and job.scored["score"] <= 80
-    # Held at 35, not earned: the rise of the band's top (88 at 35 points) is not for it.
-    assert {"at": 80, "why": "Some gaps in the main work or a neighbouring specialisation"
+    assert job.scored["parts"]["role_and_skills"] == 35 and job.scored["score"] <= 86
+    # Held at 35, not earned: the band's top (93 at 35 points) is not for it.
+    assert {"at": 86, "why": "A central requirement of the job isn't confirmed by your documents"
             } in job.scored["limits"]
 
 
@@ -201,7 +201,7 @@ def test_unsupported_replacement_preserves_grounded_requirement_and_score_limit(
     assert retained["last_retry"]["status"] == "unclear"
     issue = "profile_quote_unverified" if invalid == "invented_profile" else "ad_quote_unverified"
     assert issue in retained["last_retry"]["grounding_issues"]
-    assert job.scored["parts"]["role_and_skills"] == 35 and job.scored["score"] <= 80
+    assert job.scored["parts"]["role_and_skills"] == 35 and job.scored["score"] <= 86
     assert any("latest retry" in note for note in job.scored["notes"])
     assert not any(limit["at"] == 55 for limit in job.scored["limits"])
     # Free validation and a second failed response cannot promote it or grow retry history.

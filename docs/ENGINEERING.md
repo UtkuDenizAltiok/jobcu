@@ -103,10 +103,16 @@ cover that continuation, while usage is cumulative.
   a number from an online look-up needs such words in its own notes (`scoring.years_grounded`). Low-scoring jobs are retained.
   Scores express fit under the rubric, not hiring probability.
 - The role points also bound the total (`scoring.LIMITS_ROLE`): 30, 45 and 60 for the three
-  lower bands, 80 for 28-33 points, 84 and 88 for 34 and 35, none from 36. The top two points
-  of the 28-35 band rise so that a list's best jobs don't tie at one maximum; a role held at 35
-  because the ad's central expertise is unconfirmed keeps 80. Ramps at the lower edges were
-  measured on the labelled ads and not adopted.
+  lower bands, none from 36. Inside the 28-35 band the maximum is 80 up to 30 points and rises
+  with every point from there (83, 86, 89, 91, 93), so jobs close to the person's work don't
+  all show one number and the closest come first; the card says which it is (a neighbouring
+  specialisation, close, very close). A role held down because a central requirement isn't
+  confirmed by the person's documents reaches 86 at most (`LIMIT_ROLE_HELD`) and says so.
+  Measured without AI calls on the saved runs of the labelled ads; no score falls. Ramps at
+  the lower band edges and no maximum at all in the band were measured and not adopted. The
+  rubric text still names 80 to the AI: unchanged wording keeps its points as measured.
+- A UK card without the sponsorship deduction says why: the ad's own offer, quoted
+  (`scoring.sponsorship_notes`).
 - The role part grades closeness to the person's own specialist field (their technical areas),
   not only to their discipline: application or test work in that field is the same kind of role
   with a gap, the same work for another specialisation is a related job. An entry route (an ad
