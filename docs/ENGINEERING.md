@@ -138,7 +138,9 @@ cover that continuation, while usage is cumulative.
   a query (it can carry a token made for Jobcu's visit; trabajo.org's opened a blank page)
   (`applylink.py`). A page that plainly can't take the application (gone, 404/410; taking
   applications only from people elsewhere; or only through CV-Library) is explained instead, with
-  a web search for the job. Only a CV-Library route leaves the list (marked unusable like one the
+  the company's own website when a job site named it (`FoundJob.employer_site`, kept from
+  JSearch) and a web search for the job; a card whose only link takes applications from
+  visitors in one country carries both links too. Only a CV-Library route leaves the list (marked unusable like one the
   person reports): a job is never dropped unless it is certainly dead or CV-Library.
 - CV-Library links never count as a job's link. Pages that take applications only from visitors
   in the UK (Learn4Good's UK pages: a limit of the site, not the job) come last; for a good job

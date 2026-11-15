@@ -53,6 +53,8 @@ done. Implementation details belong in pull requests; current behavior is descri
   judged ads without AI calls (clear pairs ordered better, 7.7 instead of 5.9 of the ten best
   ads in the top ten, as many scores within their judged range); no score falls. A UK card
   without the sponsorship deduction now says that the ad offers sponsorship.
+- A job whose only link can't take the person's application also offers the company's own
+  website, when a job site names it, beside the web search.
 - Scoring: a language wished for in the ad's own language counts like a required one; lead, head,
   principal and staff titles are capped for early-career profiles; the sponsorship penalty
   applies to UK jobs only. Roles are graded by closeness to the person's own specialist field,
