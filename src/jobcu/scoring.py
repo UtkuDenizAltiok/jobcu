@@ -670,6 +670,7 @@ def sponsorship_confirmed(status: str, words: str, ad_text: str) -> bool:
 LEGACY_ONLINE_NOTE = "Languages, experience and other requirements read from the full ad online"
 ONLINE_NOTE = "Online evidence used to check requirements"
 ROLE_REVIEW_NOTE = "Role fit checked against online evidence"
+SPONSORSHIP_NOTE = "The ad offers visa sponsorship"
 
 
 def with_ad_read_online(result: dict, profile: Profile, languages: list[LanguageAsked],
@@ -831,7 +832,7 @@ def sponsorship_notes(evidence: dict) -> list[str]:
     if evidence.get("job_country") != "GB" or not evidence.get("sponsorship_confirmed"):
         return []
     words = _short((evidence.get("visa_sponsorship_words") or "").strip(), 110)
-    return ["The ad offers visa sponsorship" + (f': "{words}"' if words else "")]
+    return [SPONSORSHIP_NOTE + (f': "{words}"' if words else "")]
 
 
 def work_right(evidence: dict, profile: Profile) -> WorkRightJudgement:

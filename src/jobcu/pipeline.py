@@ -20,7 +20,14 @@ from jobcu.freshness import earliest_possible, freshness, parse_iso, window_star
 from jobcu.jobstore import JobState
 from jobcu.location import LocationPlan
 from jobcu.placenames import countries_in
-from jobcu.scoring import LEGACY_ONLINE_NOTE, ONLINE_NOTE, PARTS, ROLE_REVIEW_NOTE, person_levels
+from jobcu.scoring import (
+    LEGACY_ONLINE_NOTE,
+    ONLINE_NOTE,
+    PARTS,
+    ROLE_REVIEW_NOTE,
+    SPONSORSHIP_NOTE,
+    person_levels,
+)
 from jobcu.sources import all_sources
 from jobcu.sources.base import (
     FoundJob,
@@ -639,9 +646,10 @@ def build_card(
         "limits": (scored or {}).get("limits", []),
         "deductions": (scored or {}).get("deductions", []),
         "score_notes": (scored or {}).get("notes", []),
+        # What Jobcu did or found is information; anything else is still to be checked.
         "score_checks": [{"text": ONLINE_NOTE if note == LEGACY_ONLINE_NOTE else note,
                           "status": "info" if note in {ONLINE_NOTE, LEGACY_ONLINE_NOTE}
-                          or note.startswith(ROLE_REVIEW_NOTE)
+                          or note.startswith((ROLE_REVIEW_NOTE, SPONSORSHIP_NOTE))
                           else "unclear"}
                          for note in (scored or {}).get("notes", [])],
         "reasons": scored["reasons"] if scored else [],
