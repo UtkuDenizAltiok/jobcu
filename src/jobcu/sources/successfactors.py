@@ -36,7 +36,7 @@ from lxml.etree import ParserError
 from jobcu import listmemory
 from jobcu import places as place_list
 from jobcu.countries import COUNTRIES
-from jobcu.freshness import day_at_utc, parse_iso
+from jobcu.freshness import day_at_utc, freshness, parse_iso
 from jobcu.jobposting import AD_SECTIONS, ad_sections, append_sections, find_job_posting
 from jobcu.placenames import OTHER
 from jobcu.sources.base import FoundJob, SourceContext, SourceError
@@ -92,7 +92,7 @@ class SuccessFactorsSource(CareerSystemSource):
         # The whole list, matching or not: a job's first sight dates it where its page
         # gives no date (listmemory).
         sights = listmemory.note(self.id, employer.board, [job.source_job_id for job in listed])
-        read = []
+        read, unread = [], []
         for job in listed:
             if matches_terms(terms, languages, job.title):
                 full = self._from_page(job, ctx)
@@ -101,7 +101,26 @@ class SuccessFactorsSource(CareerSystemSource):
                     full = dataclasses.replace(full, posted_at=posted, date_precision=precision)
                 if full is not None:
                     read.append(full)
+            elif new := _new_in_searched_country(job, sights, countries, start):
+                unread.append(new)
         yield from same_ad_twice(read)
+        # Titles the search words miss go to the person's AI like other career sites' (their
+        # titles it keeps are opened later, `load_details`). Only jobs new on the list since its
+        # last reading: every open job's title each search would be thousands, nearly all old.
+        # Such titles gave four of one search's cards at 70 or more on other career sites, the
+        # best match of the list among them, while this site's were never looked at.
+        yield from unread
+
+    def load_details(self, job: FoundJob, ctx: SourceContext) -> FoundJob:
+        """A job listed only by its address (a title the search words missed): its page's
+        title, place, ad and date. Where the page gives no date, its first sight stands."""
+        full = self._from_page(job, ctx)
+        if full is None:
+            return job
+        if full.posted_at is None:
+            full = dataclasses.replace(full, posted_at=job.posted_at,
+                                       date_precision=job.date_precision)
+        return full
 
     def readable(self, employer: Employer, ctx: SourceContext) -> bool:
         """Some sites' job pages show only the title and need scripts for the rest: one page
@@ -457,9 +476,30 @@ def from_page_address(url: str, employer: Employer) -> FoundJob | None:
 
 def _leading_town(words: list[str]):
     """The town the address starts with ("Frankfurt-am-Main-…"), in a supported country."""
+    found = _town_and_length(words)
+    return found[0] if found else None
+
+
+def _town_and_length(words: list[str]):
     for length in (3, 2, 1):
         name = " ".join(words[:length])
         towns = [town for code in COUNTRIES if (town := place_list.find(name, code))]
         if towns:
-            return max(towns, key=lambda town: town.people)
+            return max(towns, key=lambda town: town.people), length
     return None
+
+
+def _new_in_searched_country(job: FoundJob, sights: dict, countries, start) -> FoundJob | None:
+    """A listed job whose address names a town in a country searched and that is new on the
+    list since its last reading (dated to its first sight, `listmemory`), with the title its
+    address spells after the town; None for any other."""
+    if not countries or job.country not in countries:
+        return None
+    posted, precision = listmemory.posted(sights.get(job.source_job_id), start)
+    if precision != "day" or (start is not None
+                              and freshness(posted, precision, start) != "fresh"):
+        return None
+    words = job.title.split()
+    found = _town_and_length(words)
+    title = " ".join(words[found[1]:]) if found and words[found[1]:] else job.title
+    return dataclasses.replace(job, title=title, posted_at=posted, date_precision=precision)

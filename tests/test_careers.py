@@ -702,6 +702,58 @@ def test_a_successfactors_job_listed_since_before_the_window_is_an_older_copy(mo
     assert jobs[0].posted_at == (NOW - timedelta(days=5)).replace(microsecond=0)
 
 
+def test_a_new_successfactors_title_the_search_words_miss_goes_to_the_title_check(monkeypatch):
+    # Other career sites' titles the search words miss go to the person's AI; this site's were
+    # dropped unseen. Titles that missed the words gave a search's best card elsewhere.
+    fake = employer("successfactors", board="jobs.fake.example", countries=("DE",))
+    monkeypatch.setattr(careers, "load_directory", lambda: (fake,))
+    requested = []
+    site = sf_site({"555": sf_full_page("Hardware Engineer (m/w/d)", "Bühl, DE, 77815",
+                                        NOW - timedelta(days=30)),
+                    "777": sf_own_layout_page("Controller (m/w/d)", "Design motor controls.")})
+
+    def handler(request):
+        requested.append(request.url.path)
+        return site(request)
+
+    source = successfactors.SuccessFactorsSource()
+    # Yesterday's reading didn't have the Herzogenaurach job (777) or the one in China (666).
+    listmemory.note("successfactors", "jobs.fake.example", ["jobs.fake.example/555"],
+                    NOW - timedelta(hours=25))
+    jobs = {job.source_job_id: job for job in source.search(
+        query(["DE"], hours=24), context(handler, "successfactors"))}
+    assert set(jobs) == {"jobs.fake.example/555", "jobs.fake.example/777"}
+    new = jobs["jobs.fake.example/777"]
+    assert new.title_unmatched and new.title == "Controller (mwd)" and not new.description
+    assert (new.posted_at.date(), new.date_precision) == (datetime.now(UTC).date(), "day")
+    assert not any(path.endswith("/777/") for path in requested)  # its page waits for the AI
+    # Kept by the title check, its page is read; with no date of its own, the first sight stays.
+    full = source.load_details(new, context(handler, "successfactors"))
+    assert full.title == "Controller (m/w/d)" and "motor controls" in full.description
+    assert full.posted_at == new.posted_at and full.date_precision == "day"
+
+
+def test_successfactors_titles_already_listed_or_abroad_are_not_sent_to_the_title_check(
+        monkeypatch):
+    fake = employer("successfactors", board="jobs.fake.example", countries=("DE",))
+    monkeypatch.setattr(careers, "load_directory", lambda: (fake,))
+    source = successfactors.SuccessFactorsSource()
+
+    def unmatched():
+        return [job.source_job_id for job in source.search(
+            query(["DE"], hours=24), context(sf_site({}), "successfactors"))]
+
+    # The list's first reading dates nothing: every title would look new.
+    assert unmatched() == []
+    # Read again a day later with nothing new: the Herzogenaurach job is an old one.
+    with db.connect() as conn:
+        conn.execute("UPDATE listed_jobs SET first_seen_at = ?, absent_at = NULL",
+                     ((NOW - timedelta(days=9)).isoformat(),))
+        conn.execute("UPDATE list_readings SET read_at = ?",
+                     ((NOW - timedelta(hours=25)).isoformat(),))
+    assert unmatched() == []
+
+
 def test_a_successfactors_site_is_readable_by_its_ad_and_past_a_closed_jobs_notice():
     gone = ('<html><div class="jobDisplayShell" itemscope><div class="job"><p>Sorry, this '
             'position has been filled.</p></div></div></html>')

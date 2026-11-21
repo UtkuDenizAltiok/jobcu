@@ -55,6 +55,9 @@ done. Implementation details belong in pull requests; current behavior is descri
   without the sponsorship deduction now says that the ad offers sponsorship.
 - A job whose only link can't take the person's application also offers the company's own
   website, when a job site names it, beside the web search.
+- SuccessFactors titles the search words miss reach the person's AI like other career sites'
+  titles: only jobs new on the list since the last reading, in a country searched; a page is
+  opened only for a title the AI keeps.
 - Jobs that aren't the person's kind of work are ordered like a careful reader would: inside
   the "related job" band the most a job can score rises with its role points (51 to 60), and
   below 28 role points its other gaps (far more experience asked, a language the person lacks)
