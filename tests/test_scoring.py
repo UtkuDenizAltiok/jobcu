@@ -232,9 +232,12 @@ def test_the_lowest_limit_wins_and_every_reason_is_kept():
 
 
 def test_a_low_total_is_not_raised_by_a_limit():
-    raw = score_json("J1", role=18, seniority=2, hard_requirements=12,
+    raw = score_json("J1", role=28, seniority=2, hard_requirements=12,
                      location_and_preferences=1, years_required=5)
-    assert finish(JobScore.model_validate(raw), SPEAKER)["score"] == 18 + 2 + 15 + 12 + 1
+    assert finish(JobScore.model_validate(raw), SPEAKER)["score"] == 28 + 2 + 15 + 12 + 1
+
+
+OTHER_GAPS = "; other gaps lower it further"
 
 
 @pytest.mark.parametrize(("role", "hard", "total", "why"), [
@@ -246,9 +249,11 @@ def test_a_low_total_is_not_raised_by_a_limit():
     (31, 15, 83, "Close to your work, with some gaps in the main tasks"),
     (33, 15, 33 + 15 + 15 + 15 + 8, None),  # the parts add up to less than its maximum of 89
     (34, 15, 34 + 15 + 15 + 15 + 8, None),
-    (24, 15, 60, "A related job, its daily tasks partly different from yours"),
-    (12, 15, 45, "Only loosely related to your work"),
-    (5, 15, 30, "Another field than yours"),
+    # Below 28 points the maximum (57, 45 and 30 here) is for a job whose other parts are all
+    # full; these lack 12 points elsewhere, and their share comes off it.
+    (24, 15, 52, "A related job, its daily tasks partly different from yours" + OTHER_GAPS),
+    (12, 15, 41, "Only loosely related to your work" + OTHER_GAPS),
+    (5, 15, 27, "Another field than yours" + OTHER_GAPS),
     (34, 8, 55, "A requirement you clearly don't meet"),  # e.g. a placement only for students
 ])
 def test_a_job_that_fits_only_partly_is_limited_by_the_rubric_s_own_bands(role, hard, total,
@@ -261,6 +266,40 @@ def test_a_job_that_fits_only_partly_is_limited_by_the_rubric_s_own_bands(role, 
             34: "Very close to your work, with small gaps"}.get(role)
     expected = ([why] if why else []) + ([band] if band else [])
     assert [limit["why"] for limit in result["limits"]] == expected
+
+
+def related(role, **parts):
+    full = {"seniority": 20, "hard_requirements": 15, "location_and_preferences": 10}
+    raw = score_json("J1", role=role, **{**full, **parts})
+    return finish(JobScore.model_validate(raw), SPEAKER)
+
+
+def test_role_points_inside_the_related_band_order_its_jobs():
+    # One maximum for the band showed RF design beside the person's field and a field-service
+    # post as the same 60. Now it rises with every point, and no related job passes 60.
+    scores = [related(role)["score"] for role in range(18, 28)]
+    assert scores == list(range(51, 61))
+    assert related(27)["limits"] == [{"at": 60, "why": scoring.RELATED}]
+    assert related(28)["score"] == 80  # the next band: the same kind of work with gaps
+
+
+def test_a_related_job_with_other_gaps_scores_below_one_that_fits_otherwise():
+    # Its maximum is 18 to 27 points under what its parts add up to, so without this a job
+    # asking for far more experience, or a language the person lacks, kept the band's maximum.
+    level = related(22, seniority=8)
+    language = related(22, languages_asked=[asked("German", "C1")])
+    assert related(22)["score"] == 55
+    assert level["score"] == round(55 * (82 - 12) / 82) == 47
+    assert language["score"] < 55 and language["limits"][0]["why"].endswith(OTHER_GAPS)
+    # Two shortfalls stay below one, whatever the role points.
+    assert level["score"] < related(18)["score"]
+
+
+def test_the_other_gaps_count_only_below_the_same_kind_of_work():
+    # From 28 points the maxima are close to what a full job adds up to, so the total already
+    # counts the other parts: a neighbouring job at the person's level keeps its 80.
+    assert related(30, seniority=17, location_and_preferences=7)["score"] == 80
+    assert related(30, seniority=8)["score"] == 30 + 8 + 15 + 15 + 10
 
 
 def test_completed_scores_reach_checkpoint_before_a_later_batch_fails():

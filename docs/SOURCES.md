@@ -426,6 +426,18 @@ a saved search's pool (free, Jobcu's own reader): 8 postings joined, all the rig
 (Leonardo's three graduate and academy jobs, first posted 25 August to 26 October and listed
 again by a job site on 10 November; Vishay, Airbus, MBDA); ADI's and Microchip's servers were
 behind the robots.txt challenge recorded the same day and weren't asked.
+### Workday robots.txt behind a human check — 2026-11-21
+
+Fetched once each with Jobcu's own identity: `robots.txt` on Workday's `wd1` and `wd5` servers
+(46 and 41 of the directory's 175 Workday companies, e.g. iqvia.wd1, analogdevices.wd1,
+emerson.wd5, microchiphr.wd5) answered 429 with Cloudflare's "Security Check: enable JavaScript
+and cookies" page (`cf-mitigated: challenge`); `wd3` servers (80) answered their usual file.
+The job-list address itself still answered. Jobcu does not get past a human check, and a
+`robots.txt` it isn't shown allows nothing, so those companies are not read while it lasts
+(`careers.CareerSystemSource.allowed`); their jobs still arrive through other sources. A refused
+company no longer stops reading the others: before, the first such server ended reading for
+every Workday company of the search. A search read 160 of 161 Workday companies on 12-13
+November, so the challenge is newer than that.
 
 ### Workday detail workplaces — 2026-10-23
 

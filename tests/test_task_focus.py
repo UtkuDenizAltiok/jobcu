@@ -135,11 +135,13 @@ def test_unchecked_reference_fact_is_sent_to_scorer_despite_usable_outer_rule():
 def test_uncertainty_reduction_does_not_drop_useful_evidence_work_at_the_research_gate():
     from jobcu import jobplace
 
+    # A related job's maximum counts the other parts' gaps (scoring._role_limit): the
+    # uncertain place points don't lower it at the gate either.
     raw = scoring.JobScore.model_validate(score_json(
-        "J0", role=18, seniority=0, hard_requirements=7, location_and_preferences=10))
+        "J0", role=18, seniority=20, hard_requirements=14, location_and_preferences=10))
     before = scoring.finish(raw, PROFILE)
     checked = scoring.with_location_confidence(before, PROFILE, plan(), group())
-    assert before["score"] == 50 and checked["score"] == 48
+    assert before["score"] == 50 and checked["score"] == 49
     assert scoring.evidence_priority(checked) == 50
     assert jobplace.needs_requirements(group(), before)
     assert jobplace.needs_requirements(group(), checked)

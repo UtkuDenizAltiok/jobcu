@@ -25,7 +25,7 @@ from jobcu.sources import workday as wd
 from jobcu.sources.base import FoundJob, JobQuery, SourceContext, SourceError, SourceReport
 from jobcu.sources.budget import Limits
 from jobcu.sources.careers import Employer, job_types_from_text, keep_job
-from jobcu.sources.http import PoliteClient
+from jobcu.sources.http import Blocked, PoliteClient
 
 NOW = datetime.now(UTC)
 
@@ -186,6 +186,50 @@ def test_one_company_failing_never_stops_the_others(monkeypatch):
     monkeypatch.setattr(careers, "load_directory", lambda: directory[:1])
     with pytest.raises(SourceError):
         list(source.search(query(["IE"]), context(handler, "greenhouse")))
+
+
+CHALLENGE = ("<html><title>Security Check</title><div class='captcha-box'>Enable JavaScript and "
+             "cookies to continue</div></html>")
+
+
+def test_a_company_whose_robots_txt_is_behind_a_human_check_is_skipped_and_no_other(monkeypatch):
+    # November 2026: Cloudflare put robots.txt of half of Workday's servers (wd1, wd5) behind a
+    # challenge. Jobcu doesn't get past it, so that company isn't read; reading every other
+    # company on its own server goes on (it used to stop all 175).
+    first = employer("workday", "https://checked.wd1.myworkdayjobs.com/External", name="Checked")
+    second = employer("workday", "https://open.wd3.myworkdayjobs.com/External", name="Open")
+    monkeypatch.setattr(careers, "load_directory", lambda: (first, second))
+    fresh = [posting("Hardware Engineer", "Posted Today", "/job/Limerick/H_1")]
+    open_site = workday_handler([fresh])
+    asked = []
+
+    def handler(request):
+        asked.append((request.url.host, request.url.path))
+        if request.url.host.startswith("checked."):
+            return httpx.Response(429, text=CHALLENGE, headers={"cf-mitigated": "challenge"})
+        return open_site(request)
+
+    source = wd.WorkdaySource()
+    source.parallel = 1
+    ctx = context(handler, "workday")
+    jobs = list(source.search(query(["IE"]), ctx))
+    assert [job.company for job in jobs] == ["Open"]
+    assert [path for host, path in asked if host.startswith("checked.")] == ["/robots.txt"]
+    assert ctx.report.status == "partial" and "Checked" in ctx.report.message
+
+
+def test_a_system_whose_shared_server_refuses_jobcu_is_asked_once(monkeypatch):
+    directory = (employer(board="first"), employer(board="second"), employer(board="third"))
+    monkeypatch.setattr(careers, "load_directory", lambda: directory)
+    asked = []
+
+    def handler(request):
+        asked.append(request.url.path)
+        return httpx.Response(403, text=CHALLENGE)
+
+    with pytest.raises(Blocked):
+        list(greenhouse.GreenhouseSource().search(query(["IE"]), context(handler, "greenhouse")))
+    assert len(asked) == 1  # the other companies weren't asked once the server refused
 
 
 def test_career_systems_are_part_of_every_search():
