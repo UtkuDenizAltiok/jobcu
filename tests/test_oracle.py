@@ -121,3 +121,25 @@ def test_a_site_whose_robots_txt_closes_the_list_is_not_read():
 
 def test_it_is_one_of_the_career_systems_with_employers_in_the_directory():
     assert any(isinstance(source, oracle.OracleSource) for source in all_sources())
+
+
+def test_a_title_search_asks_the_lists_own_keyword_finder_once():
+    # For a job only job sites listed (employerpostings.py): the employer's posting of any age.
+    asked = []
+
+    def handler(request):
+        if request.url.path == "/robots.txt":
+            return not_found(request)
+        asked.append(request.url.params["finder"])
+        return httpx.Response(200, json=page(
+            requisition(7, title="Power Electronics Engineer", day="2026-08-01"),
+            requisition(8, title="Power Electronics Engineer", place="Allen, TX, United States",
+                        country="US")))
+
+    found = oracle.OracleSource().find_by_title(
+        EMPLOYER, 'power electronics engineer, "senior"', context(handler))
+    assert asked == ['findReqs;siteNumber=CX_1,keyword="power electronics engineer senior",'
+                     f'limit={oracle.TITLE_SEARCH_SIZE}']
+    assert [(job.source_job_id, job.country) for job in found] == [
+        (f"{HOST}/CX_1/7", "DE"), (f"{HOST}/CX_1/8", "US")]
+    assert found[0].posted_at == day_at_utc(date(2026, 8, 1))

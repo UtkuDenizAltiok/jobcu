@@ -415,6 +415,25 @@ unknown town, employer head office or first posting date. Fictional evidence and
 
 ## Identity and freshness evidence
 
+### Oracle title search for a job only job sites listed — 2026-11-21
+
+Oracle's list finder takes a `keyword` (the career site's search box): one request, most
+relevant first, from every country (`OracleSource.find_by_title`, at most 50 answers). Checked
+once on one employer's public list. On a saved search's pool it joined one employer's posting
+first posted a year before a job site listed it again. A list answer that names another country
+is ruled out before any full ad is read.
+
+### Workday title search for a job only job sites listed — 2026-11-21
+
+Workday's list address takes a `searchText` (the search box on every Workday career site). For
+a job still in the running that only job sites listed, of a directory employer on Workday,
+Jobcu asks that employer's list once for the job's title and reads the full ads of at most the
+three closest titles (`WorkdaySource.find_by_title`, `employerpostings.py`). Same address, robots
+check, polite client and request budget as reading the list; no new endpoint or host. Checked on
+a saved search's pool (free, Jobcu's own reader): 8 postings joined, all the right vacancy
+(Leonardo's three graduate and academy jobs, first posted 25 August to 26 October and listed
+again by a job site on 10 November; Vishay, Airbus, MBDA); ADI's and Microchip's servers were
+behind the robots.txt challenge recorded the same day and weren't asked.
 ### Workday robots.txt behind a human check — 2026-11-21
 
 Fetched once each with Jobcu's own identity: `robots.txt` on Workday's `wd1` and `wd5` servers

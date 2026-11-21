@@ -35,6 +35,7 @@ DETAILS = "https://{host}/hcmRestApi/resources/latest/recruitingCEJobRequisition
 PAGE = "https://{host}/hcmUI/CandidateExperience/en/sites/{site}/job/{id}"
 PAGE_SIZE = 100
 MAX_PAGES = 10  # 1,000 newest jobs: well over a week for the biggest sites checked
+TITLE_SEARCH_SIZE = 50  # a title search answers from every country, most relevant first
 _AD_PARTS = ("ExternalDescriptionStr", "ExternalResponsibilitiesStr",
              "ExternalQualificationsStr")
 
@@ -70,6 +71,24 @@ class OracleSource(CareerSystemSource):
             if len(jobs) < PAGE_SIZE or (page + 1) * PAGE_SIZE >= int(
                     search.get("TotalJobsCount") or 0):
                 return
+
+    finds_by_title = True
+
+    def find_by_title(self, employer: Employer, title: str, ctx: SourceContext
+                      ) -> list[FoundJob]:
+        """The list's own keyword search (the career site's search box), most relevant first,
+        from every country: one request."""
+        host, site = _board(employer)
+        address = LIST.format(host=host)
+        if not self.allowed(address, ctx):
+            raise SourceError(f"{host} asks automated tools not to read its job list.")
+        # The finder separates its fields with commas and quotes the keyword.
+        keyword = " ".join(title.replace('"', " ").replace(",", " ").split())
+        data = self.get_json(address, ctx, params={
+            "onlyData": "true", "expand": "requisitionList.secondaryLocations",
+            "finder": f'findReqs;siteNumber={site},keyword="{keyword}",limit={TITLE_SEARCH_SIZE}'})
+        jobs = (data.get("items") or [{}])[0].get("requisitionList") or []
+        return [job for item in jobs if (job := to_found_job(item, host, site, employer))]
 
     def load_details(self, job: FoundJob, ctx: SourceContext) -> FoundJob:
         host, _, rest = job.source_job_id.partition("/")
