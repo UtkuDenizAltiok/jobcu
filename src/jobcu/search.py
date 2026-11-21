@@ -25,6 +25,7 @@ from jobcu import (
     db,
     dedupe,
     documents,
+    employerpostings,
     employers,
     jobidentity,
     jobplace,
@@ -890,6 +891,17 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     to_score = [i for i in candidates if job_pool.jobs[i].scored is None]
     points_before_details = {i: travel.job_point(groups[i]) for i in to_score}
     run.update("details", "running")
+    # A job only job sites listed, of an employer whose career site Jobcu reads: its own posting
+    # gives the employer's link, full ad and date (an older one makes it a labelled repost).
+    if any(employerpostings.needs_posting(groups[i]) for i in to_score):
+        run.update("details", "running", "Looking for employers' own postings")
+        found = employerpostings.find(
+            groups, to_score, collected.sources, http, keys,
+            {report.source: report for report in collected.reports},
+            lambda: run.stop_requested, run.note,
+            window_start(started_at, form.posted_within_hours))
+        if found:
+            log.info("Employers' own postings joined %d jobs found only on job sites", found)
     pipeline.load_full_ads(groups, to_score, collected, http, keys, run)
     run.update("details", "done", "Full ads read where available")
     checkpoint()

@@ -59,6 +59,10 @@ done. Implementation details belong in pull requests; current behavior is descri
   window while a job site dated it again inside it, is listed as reposted, with the day the
   employer first posted it and the employer's page as its link. Before, such jobs were hidden
   where Jobcu read the employer's older entries and shown as new where it didn't.
+- A job only job sites listed, of an employer whose Workday career site Jobcu reads, gets the
+  employer's own posting from that site's search: the employer's link, full ad and date (an
+  older posting makes it a labelled repost). The posting joins only when the duplicate rules
+  take it for the same job.
 - Scoring: a language wished for in the ad's own language counts like a required one; lead, head,
   principal and staff titles are capped for early-career profiles; the sponsorship penalty
   applies to UK jobs only. Roles are graded by closeness to the person's own specialist field,
@@ -117,8 +121,10 @@ done. Implementation details belong in pull requests; current behavior is descri
    right open page is found: the log counts each look-up's postings kept and why the others
    weren't. Measured on Gemini: its sources are redirect links that name no page, so no posting
    could be confirmed and each look-up used about 30 web searches; Jobcu now skips these look-ups
-   for a provider whose sources name no pages and tries again after two weeks. Next for such
-   providers: reach the employer's own page through more career systems Jobcu reads itself.
+   for a provider whose sources name no pages and tries again after two weeks. Started for such
+   providers: a job only job sites listed, of an employer Jobcu reads on Workday, gets the
+   employer's own posting from the employer's list search. Next: the same for Oracle and
+   Eightfold lists (also read newest first).
 7. **Free source allowances.** Make sure monthly free allowances, such as JSearch credits, are
    fully used across searches without paid overruns.
 8. **Coverage benchmark.** Compare Jobcu with an independently collected sample of real

@@ -415,6 +415,18 @@ unknown town, employer head office or first posting date. Fictional evidence and
 
 ## Identity and freshness evidence
 
+### Workday title search for a job only job sites listed — 2026-11-21
+
+Workday's list address takes a `searchText` (the search box on every Workday career site). For
+a job still in the running that only job sites listed, of a directory employer on Workday,
+Jobcu asks that employer's list once for the job's title and reads the full ads of at most the
+three closest titles (`WorkdaySource.find_by_title`, `employerpostings.py`). Same address, robots
+check, polite client and request budget as reading the list; no new endpoint or host. Checked on
+a saved search's pool (free, Jobcu's own reader): 8 postings joined, all the right vacancy
+(Leonardo's three graduate and academy jobs, first posted 25 August to 26 October and listed
+again by a job site on 10 November; Vishay, Airbus, MBDA); ADI's and Microchip's servers were
+behind the robots.txt challenge recorded the same day and weren't asked.
+
 ### Workday detail workplaces — 2026-10-23
 
 A bounded check through the existing Workday reader's terms, robots and polite-request gates

@@ -169,8 +169,24 @@ class WorkdaySource(CareerSystemSource):
             work_mode=work_mode_from_text(info.get("remoteType")) or job.work_mode,
         )
 
-    def _page(self, site: Site, facets: dict, offset: int, ctx: SourceContext) -> dict:
-        body = {"appliedFacets": facets, "limit": PAGE_SIZE, "offset": offset, "searchText": ""}
+    finds_by_title = True
+
+    def find_by_title(self, employer: Employer, title: str, ctx: SourceContext
+                      ) -> list[FoundJob]:
+        """One page of the site's own search for the title (the list's `searchText`, the box on
+        the career site). The country comes from the full ad's places (load_details)."""
+        site = parse_board(employer.board)
+        self._check_robots(site, ctx)
+        today = datetime.now(UTC).date()
+        data = self._page(site, {}, 0, ctx, search=title)
+        return [to_found_job(item, site, employer, None, today)
+                for item in data.get("jobPostings") or []
+                if (item.get("title") or "").strip() and item.get("externalPath")]
+
+    def _page(self, site: Site, facets: dict, offset: int, ctx: SourceContext,
+              search: str = "") -> dict:
+        body = {"appliedFacets": facets, "limit": PAGE_SIZE, "offset": offset,
+                "searchText": search}
         return self.get_json(f"{site.api}/jobs", ctx, method="POST", json=body, headers=HEADERS)
 
     def _check_robots(self, site: Site, ctx: SourceContext) -> None:

@@ -127,6 +127,16 @@ cover that continuation, while usage is cumulative.
   apprenticeship or internship roles are not lifted (`scoring.ROLE_RULES`).
 - Matched employer-original application links are preferred. Explicit unusable-link exclusions
   can use another verified copy; opaque redirect destinations are not guessed or bypassed.
+- The employer's own posting from its career site: before the full ads are read, a job still in
+  the running that only job sites listed, of an employer Jobcu reads on a system with its own
+  title search (Workday's list search), is looked up there (`employerpostings.py`): the site's
+  search for the title, the full ads of the closest titles (at most three), and the first that
+  the duplicate rules take for the same job (company, place, title and matching text) joins it
+  as its employer copy. Workday lists are read newest first and stop at the first page older
+  than the window, so a job such an employer posted weeks ago and a job site listed again came
+  without the employer's link, full ad or date; with its posting it leads to the employer's page,
+  is scored on the employer's ad, and an older posting makes it a labelled repost. Same public
+  list, polite client and request budget as the search; no job site is asked and no AI.
 - Direct links: the employer's own page (an employer source's page, a supplied employer address, a
   page of an employer's application system, or the employer's posting found online) is marked
   `direct` and opens as it is. A good job (60 or more) whose links all lead through job sites gets
@@ -358,7 +368,7 @@ CLAUDE.md imports it), LICENSE and Python/tool configuration.
 | Places/criteria | `countries.py`, `location.py`, `reference_places.py`, `reference_sources.py`, `reference_tables.py`, `places.py`, `placenames.py`, `travel.py`; supported geography, query interpretation, finite reference-city evidence, exact table calculations and measurements. |
 | Discovery | `keywords.py`, `employers.py`; multilingual words and periodically discovered employers. |
 | Evidence/matching | `text.py`, `jobposting.py`, `dedupe.py`, `filters.py`, `freshness.py`, `listmemory.py`, `relevance.py`, `jobplace.py`, `requirements.py`, `recheck.py`, `scoring.py`; text extraction, filtering, dates (also from a job's first sight on its employer's list), research, grounded requirements, saved-ad recovery and fit. |
-| Results/evaluation | `applications.py`, `applylink.py`, `livepostings.py`, `vacancy_evidence.py`, `jobidentity.py`, `jobstore.py`, `quality.py`, `quality_api.py`; application routes, apply links found on a click, verified original facts, remembered jobs, saved results and independent score checks. |
+| Results/evaluation | `applications.py`, `applylink.py`, `employerpostings.py`, `livepostings.py`, `vacancy_evidence.py`, `jobidentity.py`, `jobstore.py`, `quality.py`, `quality_api.py`; application routes, apply links found on a click, employers' own postings of board-only jobs, verified original facts, remembered jobs, saved results and independent score checks. |
 | Private comparison capture | `review_capture.py`; explicitly armed one-run document/candidate/request/response evidence outside Git, without searches, timers or paid replay. |
 | `ai/` | `client.py` is the sole AI entry point; provider adapters, schemas, errors and token/web usage. |
 | `sources/` | Isolated adapters and the registry. `base.py` defines `JobSource`; `http.py` applies polite requests/robots; `budget.py` tracks limits; `matching.py` matches lists; `careers.py` uses the directory; `careerlinks.py` recognizes career hosts. See [SOURCES](SOURCES.md). |

@@ -221,6 +221,17 @@ class CareerSystemSource(JobSource):
         check). Jobs are still checked against the whole search afterwards."""
         raise NotImplementedError
 
+    # Whether the system's list has its own search for a title (find_by_title). Systems read
+    # newest first stop at the first page of jobs older than the window, so a job posted weeks
+    # ago that a job site listed again is found only this way (employerpostings.py).
+    finds_by_title = False
+
+    def find_by_title(self, employer: Employer, title: str, ctx: SourceContext
+                      ) -> list[FoundJob]:
+        """The employer's listed jobs its site's own search finds for `title`, whatever their
+        age; each as the list gives it (load_details reads the full ad)."""
+        raise NotImplementedError
+
     def readable(self, employer: Employer, ctx: SourceContext) -> bool:
         """Whether the employer's jobs can be read in full (a system may need to look at one job
         page to tell)."""
