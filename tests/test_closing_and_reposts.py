@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 
 from jobcu import db, jobstore
 from jobcu.dedupe import group_duplicates
-from jobcu.filters import REASONS, apply_rules
+from jobcu.filters import REASONS, apply_rules, first_posted_by_employer
 from jobcu.freshness import end_of_day, parse_closing
 from jobcu.jobposting import find_job_posting
 from jobcu.location import LocationPlan
@@ -135,6 +135,50 @@ def test_an_older_copy_on_the_employers_site_dates_the_same_job_elsewhere():
     assert collected.ads_found == 1
     groups = make_groups(collected)
     assert len(groups) == 1 and len(groups[0].copies) == 2
+    # Shown by an earlier search: a repeat, whatever its dates.
+    assert dict(rules(groups, first_shown=[NOW - timedelta(days=6)]).left_out) == {"repost": 1}
+
+
+def employer_repost():
+    board = found("a1", source="adzuna", title="Power Electronics Development Engineer (m/w/d)",
+                  company="GE Vernova", location_text="Berlin, Deutschland",
+                  posted_at=NOW - timedelta(days=1))
+    collected = Collected([board, career_copy("w1", 20, True)], [],
+                          {"adzuna": FakeSource("aggregator"), "workday": FakeSource("employer")})
+    return make_groups(collected)
+
+
+def test_a_job_never_shown_that_the_employer_posted_before_the_window_is_listed_as_a_repost():
+    # Weeks-old graduate programmes that job sites listed again came in as new where Jobcu
+    # didn't read the employer's older entries and were hidden where it did; the person had
+    # never seen them and judged them among their best. The employer's list is read today, so
+    # the job is still open: it stays, and says when the employer posted it.
+    groups = employer_repost()
+    assert first_posted_by_employer(groups[0], NOW - timedelta(hours=72)) == (
+        groups[0].copies[1].posted_at)
+    outcome = rules(groups)
+    assert outcome.kept == [0] and not outcome.left_out
+    shown = build_card(groups[0], job_id=1, is_new=True, state=None, scored=None, plan=PLAN,
+                       source_names={"adzuna": "Adzuna", "workday": "Workday"},
+                       possible_duplicate_of=None, started_at=NOW, posted_within_hours=72)
+    # Dated the day it was posted again, so it isn't an old ad among the new ones; the
+    # employer's own page is its main link.
+    assert shown["posted_at"] == (NOW - timedelta(days=1)).isoformat() and shown["date_known"]
+    assert shown["first_posted_at"] == (NOW - timedelta(days=20)).isoformat()
+    assert shown["reposted"] and shown["main_link"]["url"].startswith("https://board.test/w1")
+
+
+def test_a_job_sites_older_copy_alone_still_proves_a_job_old():
+    # Job sites list ads late and date them again: only the employer's own list says when the
+    # employer posted a job.
+    old = found("j1", source="jsearch", title="Hardware Engineer", company="Beispiel GmbH",
+                older_copy=True, posted_at=NOW - timedelta(days=9))
+    fresh = found("a1", source="adzuna", title="Hardware Engineer", company="Beispiel GmbH",
+                  posted_at=NOW - timedelta(hours=5))
+    groups = make_groups(Collected([old, fresh], [], {"jsearch": FakeSource("aggregator"),
+                                                      "adzuna": FakeSource("aggregator")}))
+    assert len(groups) == 1 and first_posted_by_employer(groups[0], NOW - timedelta(hours=72)) \
+        is None
     assert dict(rules(groups).left_out) == {"repost": 1}
 
 
@@ -156,7 +200,10 @@ def test_an_exact_source_id_still_proves_a_repost_when_one_copy_was_redated():
     collected = Collected([old, redated], [], {"workday": FakeSource("employer")})
     (group,) = make_groups(collected)
     assert len(group.copies) == 2 and group.posted_at == old.posted_at
-    assert dict(rules([group]).left_out) == {"repost": 1}
+    # The employer published its own vacancy again: listed once, as a repost, unless shown.
+    assert first_posted_by_employer(group, NOW - timedelta(hours=72)) == old.posted_at
+    assert rules([group]).kept == [0]
+    assert dict(rules([group], first_shown=[NOW - timedelta(days=8)]).left_out) == {"repost": 1}
 
 
 def test_the_closing_date_survives_the_saved_pool_and_the_ad_memory():

@@ -1164,12 +1164,15 @@ function closingLabel(card) {
 }
 
 // An old ad posted again looks fresh: say when Jobcu first showed this job. A job shown a week
-// or more before and really posted again now is listed on purpose, with its earlier score.
+// or more before and really posted again now is listed on purpose, with its earlier score. One
+// never shown, which the employer's own site lists from before, says when the employer posted it.
 function repostLabel(card) {
-  if (!card.first_seen_at) return null;
-  const day = new Date(card.first_seen_at).toLocaleDateString(undefined, {
+  const when = card.first_posted_at || card.first_seen_at;
+  if (!when) return null;
+  const day = new Date(when).toLocaleDateString(undefined, {
     day: "numeric", month: "long",
   });
+  if (card.first_posted_at) return `reposted, first posted by the employer on ${day}`;
   return card.reposted ? `reposted, first seen ${day}` : `first seen by Jobcu on ${day}`;
 }
 

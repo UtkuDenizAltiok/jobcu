@@ -61,6 +61,10 @@ done. Implementation details belong in pull requests; current behavior is descri
   count too instead of all showing 60. Measured on the judged ads without AI calls: clear pairs
   ordered better, about 11 more of 62 scores within their judged range, the top ten unchanged;
   no job crosses 70 in a saved list.
+- A job the person has never seen, which the employer's own career site lists from before the
+  window while a job site dated it again inside it, is listed as reposted, with the day the
+  employer first posted it and the employer's page as its link. Before, such jobs were hidden
+  where Jobcu read the employer's older entries and shown as new where it didn't.
 - Scoring: a language wished for in the ad's own language counts like a required one; lead, head,
   principal and staff titles are capped for early-career profiles; the sponsorship penalty
   applies to UK jobs only. Roles are graded by closeness to the person's own specialist field,
