@@ -415,6 +415,19 @@ unknown town, employer head office or first posting date. Fictional evidence and
 
 ## Identity and freshness evidence
 
+### Workday robots.txt behind a human check — 2026-11-21
+
+Fetched once each with Jobcu's own identity: `robots.txt` on Workday's `wd1` and `wd5` servers
+(46 and 41 of the directory's 175 Workday companies, e.g. iqvia.wd1, analogdevices.wd1,
+emerson.wd5, microchiphr.wd5) answered 429 with Cloudflare's "Security Check: enable JavaScript
+and cookies" page (`cf-mitigated: challenge`); `wd3` servers (80) answered their usual file.
+The job-list address itself still answered. Jobcu does not get past a human check, and a
+`robots.txt` it isn't shown allows nothing, so those companies are not read while it lasts
+(`careers.CareerSystemSource.allowed`); their jobs still arrive through other sources. A refused
+company no longer stops reading the others: before, the first such server ended reading for
+every Workday company of the search. A search read 160 of 161 Workday companies on 12-13
+November, so the challenge is newer than that.
+
 ### Workday detail workplaces — 2026-10-23
 
 A bounded check through the existing Workday reader's terms, robots and polite-request gates
