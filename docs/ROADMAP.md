@@ -55,6 +55,12 @@ done. Implementation details belong in pull requests; current behavior is descri
   without the sponsorship deduction now says that the ad offers sponsorship.
 - A job whose only link can't take the person's application also offers the company's own
   website, when a job site names it, beside the web search.
+- Jobs that aren't the person's kind of work are ordered like a careful reader would: inside
+  the "related job" band the most a job can score rises with its role points (51 to 60), and
+  below 28 role points its other gaps (far more experience asked, a language the person lacks)
+  count too instead of all showing 60. Measured on the judged ads without AI calls: clear pairs
+  ordered better, about 11 more of 62 scores within their judged range, the top ten unchanged;
+  no job crosses 70 in a saved list.
 - Scoring: a language wished for in the ad's own language counts like a required one; lead, head,
   principal and staff titles are capped for early-career profiles; the sponsorship penalty
   applies to UK jobs only. Roles are graded by closeness to the person's own specialist field,

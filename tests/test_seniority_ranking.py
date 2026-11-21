@@ -84,5 +84,6 @@ def test_stronger_eligibility_limit_survives_the_new_level_limit():
 
 def test_stronger_role_limit_survives_the_new_level_limit():
     result = score(profile("Teaching"), level=4, role=5)
-    assert result["score"] == 30
-    assert {limit["at"] for limit in result["limits"]} == {30, 65}
+    # Another field's maximum of 30, less the share of the 16 level points it lacks.
+    assert result["score"] == 23
+    assert {limit["at"] for limit in result["limits"]} == {23, 65}

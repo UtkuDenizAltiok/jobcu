@@ -102,8 +102,16 @@ cover that continuation, while usage is cumulative.
   the ad's own words stating an amount (`scoring.years_stated`): "strong experience" is none;
   a number from an online look-up needs such words in its own notes (`scoring.years_grounded`). Low-scoring jobs are retained.
   Scores express fit under the rubric, not hiring probability.
-- The role points also bound the total (`scoring.LIMITS_ROLE`): 30, 45 and 60 for the three
-  lower bands, none from 36. Inside the 28-35 band the maximum is 80 up to 30 points and rises
+- The role points also bound the total (`scoring.LIMITS_ROLE`): 30 and 45 for the two lowest
+  bands, 51 rising to 60 inside the "related job" band (18-27 points), none from 36. Below 28
+  points such a maximum is what the job reaches with every other part full, and the share of
+  points it lacks elsewhere comes off it too (`scoring._role_limit`): a related job asking for
+  far more experience, or a language the person lacks, ranks below one at their level, and the
+  card says "other gaps lower it further". The research gate works the maximum out with the
+  proposed place points (`scoring.evidence_priority`). From 28 points the maxima are close to a
+  full job's total, which already counts the other parts; measured without AI calls on the
+  labelled ads (clear pairs ordered better, far more scores within their judged range, the top
+  ten unchanged). Inside the 28-35 band the maximum is 80 up to 30 points and rises
   with every point from there (83, 86, 89, 91, 93), so jobs close to the person's work don't
   all show one number and the closest come first; the card says which it is (a neighbouring
   specialisation, close, very close). A role held down because a central requirement isn't
