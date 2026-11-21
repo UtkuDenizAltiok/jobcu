@@ -87,8 +87,13 @@ cover that continuation, while usage is cumulative.
   reposts). A job Jobcu showed at least a week before and really posted again inside the window
   is assessed again like a new job (today's ad, places, links and score) and listed with a
   "Reposted" label, when its earlier score was at least 55 and the person hasn't applied or
-  marked it Not interested (`search._reposts_to_assess`). Saved results follow the same rules when
-  opened.
+  marked it Not interested (`search._reposts_to_assess`). A job Jobcu has never shown, which the
+  employer's own career site lists from before the window while another copy (a job site's, or
+  the employer's listing made again) is dated inside it, was posted again and is still open (the
+  employer's list was read today): it stays, dated the day it was posted again, with the
+  employer's page as its main link and "reposted, first posted by the employer on <day>"
+  (`filters.first_posted_by_employer`). A job site's older copy alone still proves a job old:
+  sites list ads late and date them again. Saved results follow the same rules when opened.
   Modification timestamps and sitemap lastmod do not establish an original posting date.
   A career site whose job pages give no date is dated by its own list (`listmemory.py`): Jobcu
   remembers when it first saw each job of a list it reads whole, and the reading before. A job

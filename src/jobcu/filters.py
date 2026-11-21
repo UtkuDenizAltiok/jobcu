@@ -5,7 +5,10 @@ A job is left out only when a fact proves it doesn't fit:
 - it's proven older than "Posted within": by its earliest copy's date, or because Jobcu
   already showed it in a search before that time began (a job posted again looks new). A
   source that lists ads days after their date (JSearch) doesn't prove that within its lag:
-  the job is new to this search unless Jobcu showed it before.
+  the job is new to this search unless Jobcu showed it before. One exception: a job Jobcu has
+  never shown, which the employer's own career site lists from before the window while
+  another copy is dated inside it, was posted again and is still open; it stays, and its card
+  says when the employer first posted it (`first_posted_by_employer`).
 - its closing date for applications has passed
 - the source states a job type the user didn't tick
 - the source states it's fully remote and remote jobs are excluded
@@ -100,7 +103,8 @@ def _reason(group, state, start, wanted_types, exclude_remote, countries, condit
     # "Posted within 24 hours" means what it says, also for sites that list ads days late
     # (JSearch, FreeHire): their late ads were 55 of search 16's 186 cards, and the person asked
     # for nothing older than the window (2026-11-04).
-    if freshness(group.posted_at, group.date_precision, start) == "too_old":
+    if freshness(group.posted_at, group.date_precision, start) == "too_old" and not (
+            shown is None and first_posted_by_employer(group, start)):
         return "repost" if any(copy.older_copy for copy in group.copies) else "too_old"
     # Shown in an earlier search before the window began: the job existed then, whatever date
     # its ads give now (45 of search 11's 349 cards, most re-dated by Adzuna).
@@ -129,6 +133,26 @@ def _reason(group, state, start, wanted_types, exclude_remote, countries, condit
     if fails_a_condition(group, conditions):
         return "location_condition"
     return None
+
+
+def first_posted_by_employer(group: JobGroup, start: datetime) -> datetime | None:
+    """When the employer first posted a job that was posted again inside the window: its own
+    career site lists it from before `start`, and another copy (a job site's, or the employer's
+    listing made again) is dated inside it. None for any other job.
+
+    The employer's list is read today, so the job is still open. Left out as "posted again",
+    weeks-old graduate programmes that job sites had listed again came in as new where Jobcu
+    didn't read the employer's older entries, and were hidden where it did, although the
+    person had never seen them and judged them among the best of their list (November 2026).
+    The owner's rule for such jobs: "if it's really reposted ... show it in the usual list but
+    mention it's reposted". Only a job never shown before gets this: one shown earlier stays a
+    repeat (`_reason`)."""
+    fresh = any(freshness(copy.posted_at, copy.date_precision, start) == "fresh"
+                for copy in group.copies)
+    older = [copy.posted_at for copy in group.copies
+             if group.source_kinds.get(copy.source) == "employer" and copy.posted_at
+             and freshness(copy.posted_at, copy.date_precision, start) == "too_old"]
+    return min(older) if fresh and older else None
 
 
 def job_types_of(group: JobGroup, scored: dict | None) -> list[str]:

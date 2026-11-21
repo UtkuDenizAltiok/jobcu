@@ -15,7 +15,7 @@ from jobcu import applications, jobstore, travel
 from jobcu import places as place_list
 from jobcu.countries import COUNTRIES
 from jobcu.dedupe import SOURCE_KIND_RANK, JobGroup, group_duplicates
-from jobcu.filters import REASONS, condition_fit, job_types_of
+from jobcu.filters import REASONS, condition_fit, first_posted_by_employer, job_types_of
 from jobcu.freshness import earliest_possible, freshness, parse_iso, window_start
 from jobcu.jobstore import JobState
 from jobcu.location import LocationPlan
@@ -615,8 +615,17 @@ def build_card(
                       for text in plan.not_checked_yet)
     start = window_start(started_at, posted_within_hours)
     state = state or JobState()
+    # A job the employer posted before the window and posted again inside it shows the day it
+    # was posted again, and says when the employer first posted it (filters.py).
+    first_posted = first_posted_by_employer(group, start)
+    dated = min((c for c in group.copies
+                 if freshness(c.posted_at, c.date_precision, start) == "fresh"),
+                key=lambda c: earliest_possible(c.posted_at, c.date_precision)
+                ) if first_posted else group.earliest_copy
+    posted_at = dated.posted_at if dated else None
+    precision = dated.date_precision if dated else "unknown"
     # An old ad posted again looks fresh; Jobcu's memory knows when it first showed this job.
-    earliest = earliest_possible(group.posted_at, group.date_precision)
+    earliest = earliest_possible(posted_at, precision)
     reposted = bool(first_seen_at and earliest and first_seen_at < earliest - timedelta(days=1))
     # A pending card keeps its score for order: its section says it isn't a match yet.
     return {
@@ -632,12 +641,13 @@ def build_card(
         "work_mode": work_mode,
         "job_types": job_types,
         "job_types_from_ad_text": job_types != stated_types and bool(job_types),
-        "posted_at": group.posted_at.isoformat() if group.posted_at else None,
-        "date_precision": group.date_precision,
-        "date_known": freshness(group.posted_at, group.date_precision, start) != "unknown",
+        "posted_at": posted_at.isoformat() if posted_at else None,
+        "date_precision": precision,
+        "date_known": freshness(posted_at, precision, start) != "unknown",
         "first_seen_at": (reposted_first_seen or first_seen_at.isoformat()) if (
             reposted or reposted_first_seen) else None,
-        **({"reposted": True} if reposted_first_seen else {}),
+        **({"first_posted_at": first_posted.isoformat()} if first_posted else {}),
+        **({"reposted": True} if reposted_first_seen or first_posted else {}),
         "closes_at": group.closes_at.isoformat() if group.closes_at else None,
         "score": scored["score"] if scored else None,
         "location_pending": location_pending,
