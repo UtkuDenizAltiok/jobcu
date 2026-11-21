@@ -90,14 +90,35 @@ LIMITS_YEARS = [(8, 60), (5, 75), (3, 80)]  # this many years short of what the 
 # No maximum at all in the band did worse than either.
 # The rubric text still tells the AI the band's maximum as 80: its wording is unchanged, so
 # its points are what was measured.
+#
+# Below that band the job isn't the person's kind of work, and two more rules let a careful
+# reader's order show (November 2026). The 18-27 band ("a related job") also had one maximum,
+# 60: RF design beside a power-electronics designer's own field and a field-service post both
+# showed 60, so the maximum now rises with every point (51 at 18 up to 60 at 27; no related job
+# passes 60). And under every maximum below 28 points the other parts had no weight: such a
+# maximum is 18 to 27 points under what a job with every other part full adds up to, so a
+# related job asking for far more experience, or a language the person lacks, still showed the
+# same 60 as one at the person's level (87 cards at 55 or 60 in one list). There the maximum is
+# now what the job reaches with every other part full, and the share of points it lacks
+# elsewhere comes off it too (`_role_limit`). Tried on saved scores without any AI call: on 62
+# labelled ads and nine runs of three models clear pairs are ordered better (0.931 against
+# 0.923) and 48.3 instead of 37.0 scores lie within their labelled range (average miss 2.9
+# against 6.7 points); on 202 older ads 0.897 against 0.886, 123 against 100 in range. The top
+# ten don't change, and in that list no job crosses 70 either way. From 28 points the maxima
+# are within a few points of what a full job adds up to, so the parts' total already counts
+# every other gap; scaling there too would have moved good jobs of a neighbouring
+# specialisation under 70.
 NEIGHBOURING = "A neighbouring specialisation, or clear gaps in the main work"
 CLOSE = "Close to your work, with some gaps in the main tasks"
 VERY_CLOSE = "Very close to your work, with small gaps"
+RELATED = "A related job, its daily tasks partly different from yours"
 ROLE_BAND_LOWEST = 80
+SCALED_UP_TO = 27  # role points: maxima at or under this count the other parts' gaps too
+OTHER_GAPS = "; other gaps lower it further"
 LIMITS_ROLE = [
     (7, 30, "Another field than yours"),
     (17, 45, "Only loosely related to your work"),
-    (27, 60, "A related job, its daily tasks partly different from yours"),
+    *((points, 51 + points - 18, RELATED) for points in range(18, 28)),
     (30, ROLE_BAND_LOWEST, NEIGHBOURING),
     (31, 83, CLOSE),
     (32, 86, CLOSE),
@@ -111,6 +132,7 @@ LIMITS_ROLE = [
 # hasn't done yet sat below every unheld job of its kind.
 LIMIT_ROLE_HELD = 86
 ROLE_HELD = "A central requirement of the job isn't confirmed by your documents"
+ROLE_TEXTS = {why for _, _, why in LIMITS_ROLE}
 # The rubric already distinguishes small level gaps from clearly unsuitable responsibility
 # or experience levels. Skill overlap must not compensate for the latter in the total.
 LIMITS_SENIORITY = [
@@ -559,9 +581,10 @@ def judge(result: dict, profile: Profile, note: str | None = None) -> dict:
                   "Daily work is loosely related" if role >= 8 else
                   "Main work is in another field")
         first = limits[0]["why"] if limits and limits[0]["at"] < ROLE_BAND_LOWEST else None
+        first = first and first.removesuffix(OTHER_GAPS)
         # "A related job, its daily tasks partly different" needs no "Daily tasks are only partly
         # aligned" after it.
-        same = first in {why for _, _, why in LIMITS_ROLE} and not central_unknown
+        same = first in ROLE_TEXTS and not central_unknown
         reasons = ([first] if first else []) + ([] if same else [reason])
     return {
         **result,
@@ -638,11 +661,16 @@ def evidence_priority(result: dict | None) -> int:
     if not result:
         return 0
     parts = result.get("parts", {})
-    proposed = result.get("evidence", {}).get("location_preferences_proposed")
+    evidence = result.get("evidence", {})
+    proposed = evidence.get("location_preferences_proposed")
     if proposed is None or "location_and_preferences" not in parts:
         return result.get("score_before_deductions", result.get("score", 0))
-    total = sum(parts.values()) + max(0, proposed - parts["location_and_preferences"])
-    return min([total, *(limit["at"] for limit in result.get("limits", []))])
+    full = {**parts, "location_and_preferences": max(proposed, parts["location_and_preferences"])}
+    # A role maximum that counts the other parts' gaps is worked out again with the proposed
+    # place points, so the uncertainty doesn't lower it either.
+    limits = [limit["at"] for limit in result.get("limits", []) if not is_role_limit(limit["why"])]
+    role = _role_limit(full, evidence.get("central_role_uncertain", False))
+    return min([sum(full.values()), *limits, *([role["at"]] if role else [])])
 
 
 def sponsorship_confirmed(status: str, words: str, ad_text: str) -> bool:
@@ -868,14 +896,7 @@ def fit_limits(parts: dict[str, int], *, role_held: bool = False) -> list[dict]:
     """Limits for a job whose work or requirements fit the person only partly, from the AI's
     points for them. `role_held`: the role points are held down because the ad's central
     expertise is unconfirmed; then the total stays at LIMIT_ROLE_HELD or less."""
-    limits = []
-    role = parts.get("role_and_skills", PARTS["role_and_skills"])
-    for most_points, at, why in LIMITS_ROLE:
-        if role <= most_points:
-            held = role_held and at > LIMIT_ROLE_HELD
-            limits.append({"at": LIMIT_ROLE_HELD if held else at,
-                           "why": ROLE_HELD if held else why})
-            break
+    limits = [role] if (role := _role_limit(parts, role_held)) else []
     seniority = parts.get("seniority", PARTS["seniority"])
     for most_points, at, why in LIMITS_SENIORITY:
         if seniority <= most_points:
@@ -884,6 +905,31 @@ def fit_limits(parts: dict[str, int], *, role_held: bool = False) -> list[dict]:
     if parts.get("hard_requirements", PARTS["hard_requirements"]) <= LIMIT_REQUIREMENT_POINTS:
         limits.append({"at": LIMIT_REQUIREMENT, "why": "A requirement you clearly don't meet"})
     return limits
+
+
+def _role_limit(parts: dict[str, int], held: bool) -> dict | None:
+    """The role band's maximum for the total (LIMITS_ROLE). At or under SCALED_UP_TO role points
+    it is what the job reaches with every other part full, less the share of points it lacks in
+    them; a part not given counts as full."""
+    role = parts.get("role_and_skills", PARTS["role_and_skills"])
+    band = next(((at, why) for most, at, why in LIMITS_ROLE if role <= most), None)
+    if band is None:
+        return None
+    at, why = band
+    if role <= SCALED_UP_TO:
+        full = role + sum(most for name, most in PARTS.items() if name != "role_and_skills")
+        total = sum(min(parts.get(name, most), most) for name, most in PARTS.items())
+        scaled = round(at * total / full)
+        if scaled < at:
+            at, why = scaled, why + OTHER_GAPS
+    if held and at > LIMIT_ROLE_HELD:
+        return {"at": LIMIT_ROLE_HELD, "why": ROLE_HELD}
+    return {"at": at, "why": why}
+
+
+def is_role_limit(why: str) -> bool:
+    """Whether a limit's text is the role band's (with or without the other gaps' clause)."""
+    return why == ROLE_HELD or why.removesuffix(OTHER_GAPS) in ROLE_TEXTS
 
 
 def person_levels(profile: Profile) -> dict[str, int]:
