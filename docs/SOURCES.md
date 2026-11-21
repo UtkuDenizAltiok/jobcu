@@ -415,6 +415,14 @@ unknown town, employer head office or first posting date. Fictional evidence and
 
 ## Identity and freshness evidence
 
+### Oracle title search for a job only job sites listed — 2026-11-21
+
+Oracle's list finder takes a `keyword` (the career site's search box): one request, most
+relevant first, from every country (`OracleSource.find_by_title`, at most 50 answers). Checked
+once on one employer's public list. On a saved search's pool it joined one employer's posting
+first posted a year before a job site listed it again. A list answer that names another country
+is ruled out before any full ad is read.
+
 ### Workday title search for a job only job sites listed — 2026-11-21
 
 Workday's list address takes a `searchText` (the search box on every Workday career site). For

@@ -8,14 +8,14 @@ the job site's date. In one saved list, six of the person's best cards were such
 and more days old on the employers' own lists.
 
 Before the full ads are read, each job still in the running that has no employer copy, and whose
-employer Jobcu reads on a system with its own title search, is looked up there: the site's search
-for the job's title, the full ads of the closest titles it lists (at most MAX_READ), and the first
-that Jobcu's duplicate rules take for the same job (`dedupe.group_duplicates`: the same company,
-place and title, and matching text) joins it as its employer copy. The card then leads to the
-employer's page, scoring reads the employer's full ad, and a listing older than the window makes
-the job a repost with the employer's date (`filters.first_posted_by_employer`). The requests go to
-the same public list the search reads, through the same polite client and request budget; no job
-site is asked and no AI.
+employer Jobcu reads on a system with its own title search (Workday, Oracle), is looked up
+there: the site's search for the job's title, the full ads of the closest titles it lists in
+the job's country (at most MAX_READ), and the first that Jobcu's duplicate rules take for the
+same job (`dedupe.group_duplicates`: the same company, place and title, and matching text) joins
+it as its employer copy. The card then leads to the employer's page, scoring reads the
+employer's full ad, and a listing older than the window makes the job a repost with the
+employer's date (`filters.first_posted_by_employer`). The requests go to the same public list the
+search reads, through the same polite client and request budget; no job site is asked and no AI.
 """
 
 import dataclasses
@@ -128,10 +128,13 @@ def _posting(group: JobGroup, employer: Employer, source: CareerSystemSource,
     if not title:
         return None
     listed = source.find_by_title(employer, title, ctx)
-    alike = sorted(
-        ((dedupe.title_similarity(title, dedupe.normal_title(job.title)), job) for job in listed),
-        key=lambda pair: -pair[0])
     country = _country(group)
+    # A list that names a job's country tells another country's vacancy apart before its full
+    # ad is read (a title search answers from every country the employer hires in).
+    alike = sorted(
+        ((dedupe.title_similarity(title, dedupe.normal_title(job.title)), job) for job in listed
+         if not country or not (places := job_countries(job)) or country in places),
+        key=lambda pair: -pair[0])
     for similarity, job in alike[:MAX_READ]:
         if similarity < dedupe.TITLE_MATCH_WITH_TEXT:
             break

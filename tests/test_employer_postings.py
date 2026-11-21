@@ -129,3 +129,16 @@ def test_a_site_that_refuses_jobcu_is_left_alone(monkeypatch):
     assert find([job], site([listing("Graduate Electronics Engineer")], robots=challenge,
                             asked=asked), monkeypatch) == 0
     assert asked == [("GET", "/robots.txt")] and len(job.copies) == 1
+
+
+def test_a_title_found_in_another_country_is_not_read(monkeypatch):
+    # A title search answers from every country; the list's own place rules those out first.
+    asked = []
+    abroad = {**listing("Graduate Electronics Engineer", "/job/Austin/Graduate_R9"),
+              "locationsText": "Austin, Texas, United States"}
+    job = group(board_copy())
+    assert find([job], site([abroad, listing("Graduate Electronics Engineer")], asked=asked),
+                monkeypatch) == 1
+    read = [path for method, path in asked if method == "GET" and path != "/robots.txt"]
+    assert len(read) == 1 and not read[0].endswith("Graduate_R9")
+    assert job.copies[-1].url.endswith("Graduate-Electronics-Engineer_R1")
