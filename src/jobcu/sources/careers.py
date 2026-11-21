@@ -163,6 +163,7 @@ class CareerSystemSource(JobSource):
         start = window_start(query.started_at, query.posted_within_hours)
         employers = self.employers(query.countries, query.places)
         failed: list[str] = []
+        refused: list[Blocked] = []
         stop: list[BaseException] = []  # a problem that ends reading for every company
 
         def read(employer: Employer) -> list[FoundJob]:
@@ -172,8 +173,17 @@ class CareerSystemSource(JobSource):
                 return [kept for job in self.list_jobs(employer, ctx, countries=query.countries,
                                                        start=start, terms=query.terms)
                         if (kept := keep_job(job, employer, query, start)) is not None]
-            except (BudgetExhausted, Blocked) as exc:
+            except BudgetExhausted as exc:
                 stop.append(exc)
+            except Blocked as exc:
+                # One company's site refusing Jobcu says nothing about the others: on Workday
+                # every company has its own server, and in November 2026 half of them put their
+                # robots.txt behind a human check. That stopped reading all 175 companies. A
+                # system's shared server, once it refuses, refuses each company at once without
+                # another request (http.PoliteClient), so none is asked twice.
+                log.info("%s: %s refused Jobcu's requests: %s", self.name, employer.name, exc)
+                refused.append(exc)
+                failed.append(employer.name)
             except EmployerNotFound as exc:
                 # A list the person's AI found that no longer exists is forgotten; a
                 # directory company's is reported, and the next directory check drops it.
@@ -192,13 +202,13 @@ class CareerSystemSource(JobSource):
         with ThreadPoolExecutor(max_workers=self.parallel, thread_name_prefix=self.id) as pool:
             for jobs in pool.map(read, employers):
                 yield from jobs
-        if stop and isinstance(stop[0], Blocked):
-            raise stop[0]
         if stop:
             ctx.report.status = "partial"
             ctx.report.message = f"{stop[0].message} Some companies weren't read."
             return
         if failed and len(failed) == len(employers):
+            if refused:
+                raise refused[0]
             raise SourceError(f"None of the {len(employers)} companies' job lists could be read.")
         if failed:
             ctx.report.status = "partial"
@@ -274,12 +284,18 @@ class CareerSystemSource(JobSource):
         host = urlsplit(url).hostname or ""
         robots: dict[str, RobotsRules] = self.__dict__.setdefault("_robots", {})
         if host not in robots:
+            refused = False
             try:
                 response = ctx.http.get(f"https://{host}/robots.txt")
                 ctx.report.requests += 1
+            except Blocked:
+                # Behind a human check (Cloudflare's challenge on half of Workday's servers in
+                # November 2026): it isn't shown to Jobcu, so nothing there may be read.
+                ctx.report.requests += 1
+                response, refused = None, True
             except Exception:
                 response = None
-            if response is not None and response.status_code in (401, 403):
+            if refused or response is not None and response.status_code in (401, 403):
                 robots[host] = RobotsRules(disallow_all=True)
             elif response is not None and response.status_code == 200:
                 robots[host] = RobotsRules(response.text)
