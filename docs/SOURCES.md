@@ -451,6 +451,18 @@ returned listed jobs with full descriptions. The API host's robots file returned
 no HTML crawling permission is inferred. Existing documented posting-API use, access decisions
 and request budgets remain. This verifies board identity, not market coverage or fresh-job recall.
 
+### SuccessFactors titles the search words miss — 2026-11-21
+
+The reader opened only pages whose address matched the search words, so a SuccessFactors title
+the words miss never reached the person's AI, while other career systems' did (2,162 titles in
+one search; four of its cards at 70 or more came from them, the best match of the list among
+them). Now a job new on the list since its last reading (first seen within 36 hours of a reading
+that didn't have it, `listmemory.posted`), whose address names a town in a country searched,
+goes to the title check with the title its address spells; its page is opened only if the check
+keeps it. Same sitemap and job pages, robots check and request budget; no page is opened that
+the earlier rule wouldn't have opened for a matching title. A list's first reading dates
+nothing, so the first search after a pause sends no such titles.
+
 ### SuccessFactors job layouts without a type or a date — 2026-11-14
 
 **Checked:** one sitemap and one job page of each of the directory's 49 SuccessFactors

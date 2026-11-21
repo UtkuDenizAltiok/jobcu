@@ -25,7 +25,10 @@ happens before a new search is created or source collection begins, including wi
 1. Parse documents into a profile, interpret geography/conditions, generate multilingual
    search words, and refresh discovered employers when due.
 2. Collect independent sources in parallel. Career-title screening rejects only explicitly
-   unrelated titles; unseen titles survive its preliminary request bound. Merge proven copies
+   unrelated titles; unseen titles survive its preliminary request bound. SuccessFactors sites
+   list job pages by address only, so of the titles there the search words miss, only jobs new
+   on the list since its last reading (`listmemory.py`), in a country searched, are screened;
+   a page is opened only for a title the screen keeps (`SuccessFactorsSource.load_details`). Merge proven copies
    and apply date, type, remote, country and dismissal rules before full-ad loading. A job
    leaves for its type only when the employer's own career system or the ad text says so (a
    job site's tag alone can keep a job, never remove it), and as remote only when no copy
