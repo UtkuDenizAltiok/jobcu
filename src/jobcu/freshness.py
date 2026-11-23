@@ -67,14 +67,20 @@ def end_of_day(day: date, zone: tzinfo) -> datetime:
 
 
 def parse_closing(text: str | None) -> datetime | None:
-    """A closing date in ISO form. Given as a day only, it lasts until that day's end."""
+    """A closing date in ISO form. Given as a day only, it lasts until that day's end. So does one
+    at midnight: that is how many sites write a closing day (jobs.ac.uk gives every closing date
+    as 00:00), and reading it as the day's start would drop a job on its last day, while a job
+    leaves the list only when it has certainly closed."""
     text = (text or "").strip()
     if len(text) == 10:
         try:
             return end_of_day(date.fromisoformat(text), UTC)
         except ValueError:
             return None
-    return parse_iso(text)
+    value = parse_iso(text)
+    if value is not None and value.time() == time(0):
+        return end_of_day(value.date(), value.tzinfo or UTC)
+    return value
 
 
 def day_at_utc(day: date) -> datetime:
