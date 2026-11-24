@@ -44,6 +44,8 @@ done. Implementation details belong in pull requests; current behavior is descri
 - Siemens' and Siemens Energy's own career sites (Avature) can be read, country by country: Siemens
   had 381 jobs in Germany, 155 in the UK and 15 in Ireland; few of them reached Jobcu through job sites.
   Siemens' terms forbid automated reading, so the source is off until the person switches it on.
+- Schneider Electric and AMD are read through their Jibe career sites (newest first, full ads, a
+  few requests), and Arm and BAE Systems through their own job sitemaps.
 - Phenom career sites can be read: ABB, Siemens Healthineers, Thermo Fisher, Danaher, RTX, GE
   Aerospace and Exyte, each country's list with its posting days in a few requests. ABB's terms
   require permission for scraping, so the source is off until the person switches it on.

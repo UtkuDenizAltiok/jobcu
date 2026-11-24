@@ -5013,6 +5013,65 @@
    }
   },
   {
+   "name": "AMD",
+   "system": "jibe",
+   "board": "careers.amd.com",
+   "countries": [
+    "BE",
+    "DE",
+    "FI",
+    "FR",
+    "GB",
+    "IE",
+    "PL",
+    "RO",
+    "SE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "checked": "2026-11-24"
+  },
+  {
+   "name": "Schneider Electric",
+   "system": "jibe",
+   "board": "careers.se.com",
+   "countries": [
+    "AT",
+    "BE",
+    "CH",
+    "CY",
+    "CZ",
+    "DE",
+    "DK",
+    "EE",
+    "ES",
+    "FI",
+    "FR",
+    "GB",
+    "GR",
+    "HR",
+    "HU",
+    "IE",
+    "IS",
+    "IT",
+    "LT",
+    "LU",
+    "LV",
+    "MT",
+    "NL",
+    "NO",
+    "PL",
+    "PT",
+    "RO",
+    "SE",
+    "SI",
+    "SK"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "checked": "2026-11-24"
+  },
+  {
    "name": "Ajax Systems",
    "system": "lever",
    "board": "ajax",
@@ -7262,6 +7321,49 @@
      "Sigmaringen"
     ]
    }
+  },
+  {
+   "name": "Arm",
+   "system": "sitemap",
+   "board": "https://careers.arm.com/sitemap.xml",
+   "countries": [
+    "FR",
+    "GB",
+    "HU"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "FR": [
+     "Sophia Antipolis"
+    ],
+    "GB": [
+     "Bristol",
+     "Cambridge"
+    ],
+    "HU": [
+     "Budapest"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
+   "name": "BAE Systems",
+   "system": "sitemap",
+   "board": "https://jobsearch.baesystems.com/sitemap_index.xml",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Cowes",
+     "Edinburgh",
+     "Frimley",
+     "Portsmouth",
+     "Warton"
+    ]
+   },
+   "checked": "2026-11-24"
   },
   {
    "name": "Delta Energy Systems",
