@@ -28,6 +28,9 @@ done. Implementation details belong in pull requests; current behavior is descri
   count as one when place, title and text agree, and one ad listed for several towns names the
   other towns on each card. A job joined this way is matched to the job memory again, so an ad
   an earlier search showed doesn't return as new.
+- A job site's short summary or cut-off text is treated as part of the ad, not the whole ad,
+  without buying JSearch details that would repeat it: one search had five jobs at 70 or more
+  judged from such fragments as if every requirement had been seen.
 - Stop keeps what is scored: once jobs are scored, stopping a search builds the list from them,
   and "Retry incomplete checks" finishes the rest.
 - Only web searches the provider bills count against the free monthly searches and a search's

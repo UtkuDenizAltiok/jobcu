@@ -159,6 +159,14 @@ request (those late ads were 55 of a 24-hour search's 186 cards). JSearch still 
 `date_lag_hours` (72) further back, so an older copy marks a repost, and the ads it indexes
 within the window still count (8 good matches only it found in that search).
 
+**Short texts — 2026-11-24.** JSearch passes on what each job site gives. In one search's results
+34 of 705 texts were under 700 characters yet counted as whole ads: jobleads.com's summaries
+(median 475 characters), and learn4good and Jooble texts cut mid-word at 250-400, while whole ads
+ran 2,000-4,000. Twelve scored jobs (five at 70 or more) had only such a text, so the scorer took
+missing requirements as absent. A text under 700 characters now counts as part of the ad. Its paid
+details repeat a short text word for word, so they are bought only for a text cut with an ellipsis,
+or for a missing date or place.
+
 JSearch does not provide the evidence needed to decide population shares, city-election
 comparisons, sampled journeys or personal fit. Its radius filter is not a travel-time filter.
 More structured full text could reduce some online-ad research, but additional unique jobs

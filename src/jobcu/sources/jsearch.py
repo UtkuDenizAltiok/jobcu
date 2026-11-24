@@ -233,7 +233,7 @@ def to_found_job(item: dict) -> FoundJob | None:
         posted_at=posted,
         date_precision=precision,
         description=description,
-        description_is_complete=bool(description and not description.endswith(("…", "..."))),
+        description_is_complete=_complete_text(description),
         job_types=job_types_from_text(type_text),
         work_mode="remote" if item.get("job_is_remote") is True else None,
         employer_url=direct[0] if direct else None,
@@ -392,10 +392,29 @@ def remember_yield(q: Query, jobs: int) -> None:
         empty_in_a_row=0 if jobs else seen.empty_in_a_row + 1), keep=YIELD_KEPT)
 
 
+# A text this short is a job site's summary or a cut-off start, not the ad: in one search's
+# results jobleads.com sent summaries (median 475 characters) and learn4good and Jooble texts
+# cut mid-word at 250-400, while whole ads ran 2,000-4,000. Marked complete, they told the
+# scorer it had seen every requirement.
+SHORT_TEXT = 700
+
+
+def _complete_text(description: str | None) -> bool:
+    text = (description or "").strip()
+    return bool(text) and not text.endswith(("…", "...")) and len(text) >= SHORT_TEXT
+
+
 class JSearchSource(JobSource):
     id, name, kind = "jsearch", "JSearch", "aggregator"
     details_supply_locations = True
     details_supply_posted_date = True
+
+    def details_may_complete(self, job: FoundJob) -> bool:
+        """Whether the paid details request can give more of the ad's text. JSearch's details
+        carry the same text as its list, except where the list cut it with an ellipsis: a
+        short text without one is all the site gave."""
+        text = (job.description or "").strip()
+        return not text or text.endswith(("…", "..."))
     # Google for Jobs lists ads days after their date: on 2026-10-29 the newest "Hardware-
     # entwickler in Germany" ads were 68-92 hours old and "today" returned none, so searches
     # 10 and 11 (24 hours) counted no ad for 10 credits (11: 0 of 23). Of ten such ads, seven
