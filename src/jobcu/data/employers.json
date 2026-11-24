@@ -1357,6 +1357,180 @@
    }
   },
   {
+   "name": "Siemens",
+   "system": "avature",
+   "board": "jobs.siemens.com/en_US/externaljobs",
+   "countries": [
+    "AT",
+    "BE",
+    "CH",
+    "CY",
+    "CZ",
+    "DE",
+    "DK",
+    "EE",
+    "ES",
+    "FI",
+    "FR",
+    "GB",
+    "GR",
+    "HR",
+    "HU",
+    "IE",
+    "IS",
+    "IT",
+    "LT",
+    "LU",
+    "LV",
+    "MT",
+    "NL",
+    "NO",
+    "PL",
+    "PT",
+    "RO",
+    "SE",
+    "SI",
+    "SK"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "AT": [
+     "Graz",
+     "Hohenems",
+     "Vienna"
+    ],
+    "BE": [
+     "Beersel",
+     "Brussels"
+    ],
+    "CH": [
+     "Zug",
+     "Zürich"
+    ],
+    "CZ": [
+     "Ostrava"
+    ],
+    "DE": [
+     "Berlin",
+     "Karlsruhe",
+     "Rastatt"
+    ],
+    "DK": [
+     "Copenhagen",
+     "Odense",
+     "Vejle"
+    ],
+    "FI": [
+     "Espoo"
+    ],
+    "FR": [
+     "Châtillon",
+     "Nantes",
+     "Saint-Priest",
+     "Toulouse"
+    ],
+    "GB": [
+     "Bedford",
+     "Chatham",
+     "London",
+     "Manchester"
+    ],
+    "HR": [
+     "Zagreb"
+    ],
+    "HU": [
+     "Budapest"
+    ],
+    "IT": [
+     "Milan",
+     "Turin"
+    ],
+    "LU": [
+     "Luxembourg"
+    ],
+    "NL": [
+     "The Hague",
+     "Utrecht"
+    ],
+    "NO": [
+     "Oslo"
+    ],
+    "PL": [
+     "Mirków"
+    ],
+    "PT": [
+     "Lisbon"
+    ],
+    "RO": [
+     "Cluj-Napoca",
+     "Sibiu"
+    ],
+    "SE": [
+     "Kiruna"
+    ],
+    "SK": [
+     "Žilina"
+    ]
+   },
+   "lists": {
+    "AT": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812123&listFilterMode=1",
+    "BE": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812131&listFilterMode=1",
+    "CH": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812129&listFilterMode=1",
+    "CY": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=811975&listFilterMode=1",
+    "CZ": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812141&listFilterMode=1",
+    "DE": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812132&listFilterMode=1",
+    "DK": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812124&listFilterMode=1",
+    "EE": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812008&listFilterMode=1",
+    "ES": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812119&listFilterMode=1",
+    "FI": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812020&listFilterMode=1",
+    "FR": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812134&listFilterMode=1",
+    "GB": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812127&listFilterMode=1",
+    "GR": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=811990&listFilterMode=1",
+    "HR": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812145&listFilterMode=1",
+    "HU": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812024&listFilterMode=1",
+    "IE": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812128&listFilterMode=1",
+    "IS": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812126&listFilterMode=1",
+    "IT": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812120&listFilterMode=1",
+    "LT": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812011&listFilterMode=1",
+    "LU": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812133&listFilterMode=1",
+    "LV": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812010&listFilterMode=1",
+    "MT": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812122&listFilterMode=1",
+    "NL": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812130&listFilterMode=1",
+    "NO": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812027&listFilterMode=1",
+    "PL": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812023&listFilterMode=1",
+    "PT": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812097&listFilterMode=1",
+    "RO": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812022&listFilterMode=1",
+    "SE": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812013&listFilterMode=1",
+    "SI": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812144&listFilterMode=1",
+    "SK": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812026&listFilterMode=1"
+   },
+   "checked": "2026-11-24"
+  },
+  {
+   "name": "Siemens Energy",
+   "system": "avature",
+   "board": "jobs.siemens-energy.com/en_US/jobs",
+   "countries": [
+    "DE",
+    "DK",
+    "ES",
+    "GB",
+    "RO",
+    "SE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "lists": {
+    "DE": "https://jobs.siemens-energy.com/en_US/jobs/SearchJobsGermany",
+    "GB": "https://jobs.siemens-energy.com/en_US/jobs/SearchJobsUK",
+    "RO": "https://jobs.siemens-energy.com/en_US/jobs/SearchJobsRomania",
+    "SE": "https://jobs.siemens-energy.com/en_US/jobs/SearchJobsSweden",
+    "DK": "https://jobs.siemens-energy.com/en_US/jobs/SearchJobsDenmark",
+    "ES": "https://jobs.siemens-energy.com/en_US/jobs/SearchJobsSpain"
+   },
+   "checked": "2026-11-24"
+  },
+  {
    "name": "ADS-TEC Energy",
    "system": "dvinci",
    "board": "adstec-karriere",

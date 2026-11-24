@@ -65,6 +65,9 @@ class Employer:
     # The employer's own job sitemap, whose job pages are named by the same vacancy numbers as
     # its career system's: read for an ad the career system itself won't serve (workday.py).
     ads: str | None = None
+    # The address of its job list per country, where a system lists each country apart and has
+    # no filter Jobcu can name (avature.py).
+    lists: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -93,6 +96,7 @@ def load_directory(path: Path = DIRECTORY) -> tuple[Employer, ...]:
             towns={country: tuple(towns)
                    for country, towns in (entry.get("towns") or {}).items()},
             ads=entry.get("ads"),
+            lists=dict(entry.get("lists") or {}),
         )
         for entry in data["employers"]
     )

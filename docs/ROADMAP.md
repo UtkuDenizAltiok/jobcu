@@ -41,6 +41,9 @@ done. Implementation details belong in pull requests; current behavior is descri
   on the ads is never passed, so those jobs come with title, place, date and the employer's link.
   Where the employer's own career site lists the same vacancy number (GE Vernova, Johnson &
   Johnson, Thermo Fisher, Danaher, RTX), the full ad is read there instead.
+- Siemens' and Siemens Energy's own career sites (Avature) can be read, country by country: Siemens
+  had 381 jobs in Germany, 155 in the UK and 15 in Ireland; few of them reached Jobcu through job sites.
+  Siemens' terms forbid automated reading, so the source is off until the person switches it on.
 - More employers read directly: Woodward, BorgWarner, Evolito, Altera, Leidos, Emerson, and Micron's
   and HP's own Eightfold sites; NXP at Workday's newer address (its old one stopped answering) and
   Dell on its new Oracle site.

@@ -363,7 +363,9 @@ Adapters use `sources/http.py` for robots rules, polite request timing, bounded 
 Retry-After. Each source reports status independently. `sources/budget.py` counts source usage;
 collection/detail budgets and hosted AI tool allowances are distinct.
 
-Blocked access remains blocked. The Bundesagentur portal is paused under its recorded terms.
+Blocked access remains blocked. Sources whose site terms forbid automated reading (the
+Bundesagentur portal, Siemens' Avature site) run only for a person who switches them on in
+Settings, accepting those terms (`sources.TERMS_NOTES`); they are off by default.
 Employer feeds and original pages can change; their directory and permitted interfaces are
 recorded in [SOURCES](SOURCES.md). Offline source tests validate parsing and failure handling,
 not current availability or complete market coverage.
