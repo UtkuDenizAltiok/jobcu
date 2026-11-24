@@ -29,7 +29,14 @@ from jobcu.sources.http import PoliteClient, RequestStopped
 NOW = datetime.now(UTC)
 FULL = (
     "Fictional vacancy: develop analogue circuits, document the design and test prototypes. "
-    "Experience with schematic design and laboratory measurements required. Full-time role."
+    "Experience with schematic design and laboratory measurements required. Full-time role. "
+    "You will join a small team that builds measurement instruments for fictional customers, "
+    "from the first sketch of a circuit to the finished prototype in the laboratory. Tasks: "
+    "design and simulate analogue front ends, choose components, review board layouts with "
+    "the layout team, write test plans and run them, and document the results for production. "
+    "Requirements: a degree in electrical engineering or a similar subject, good knowledge of "
+    "circuit simulation and measurement equipment, and clear written English. We offer a "
+    "permanent contract, flexible hours and a fictional pension plan."
 )
 MAIN = "https://board.example.test/jobs/fictional-1"
 EMPLOYER = "https://careers.fictional.example.test/jobs/fictional-1"
@@ -730,6 +737,28 @@ def test_complete_text_cannot_skip_a_missing_publication_date(setup, title, othe
     groups = [JobGroup([job])]
     pipeline.load_full_ads(groups, [0], collected, ctx.http, ctx.keys, run)
     assert groups[0].posted_at == old and len(requests) == 2
+
+
+@pytest.mark.parametrize("text", [
+    "Fictional summary: design circuits in a fast-paced environment.",  # a site's summary
+    FULL[:400],  # cut mid-word, no ellipsis
+])
+def test_a_short_job_site_text_is_part_of_the_ad_and_buys_no_details(setup, text):
+    source, ctx, requests = setup()
+    job = jsearch.to_found_job(item(job_description=text))
+    assert not job.description_is_complete
+    collected = pipeline.Collected([job], [ctx.report], {"jsearch": source})
+    run = SimpleNamespace(stop_requested=False, update=lambda *a: None, note=lambda *a: None)
+    pipeline.load_full_ads([JobGroup([job])], [0], collected, ctx.http, ctx.keys, run)
+    # The details would repeat the same text: nothing is bought.
+    assert not requests and reserved() == 0
+
+
+def test_a_text_cut_with_an_ellipsis_still_asks_for_the_details(setup):
+    source, ctx, requests = setup()
+    job = jsearch.to_found_job(item(job_description=FULL[:300] + "..."))
+    assert not job.description_is_complete and source.details_may_complete(job)
+    assert jsearch.to_found_job(item()).description_is_complete
 
 
 def test_complete_known_date_does_not_buy_details_for_an_unsupported_deadline(setup):

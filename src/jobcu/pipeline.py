@@ -267,6 +267,12 @@ def load_full_ads(groups, indexes, collected: Collected, http, keys, run) -> Non
             if (_complete_ad(group.best_description_copy)
                     and (not metadata_reader(copy) or copy_index in metadata_checked)):
                 continue
+            # A reader whose details can't add to a partial text is asked only for missing
+            # dates or places (JSearch's paid details repeat a short text word for word).
+            if (source is not None and not (metadata_reader(copy)
+                                            and copy_index not in metadata_checked)
+                    and not getattr(source, "details_may_complete", lambda job: True)(copy)):
+                continue
             if (identity in seen or source is None or report is None
                     or type(source).load_details is JobSource.load_details
                     or report.status in {"skipped", "unavailable"}
