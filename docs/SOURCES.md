@@ -65,7 +65,7 @@ Countries below describe the adapter's scope, not complete market coverage.
 | Bundesagentur | Opt-in: off unless the person accepts its terms | [Access hold](#bundesagentur-access-hold--2026-10-17) and [owner's decision](#bundesagentur-opt-in--2026-10-30). |
 | JobsIreland | Ireland; public list and job pages | Match titles locally; an empty first page may be a service failure. |
 | Arbeitnow | Germany/UK feeds; public API | Free-text locations need interpretation. |
-| FreeHire | Every country; public search API, no key | Employers' own ads plus some board copies; [check](#freehire--2026-11-02). |
+| FreeHire | Every country; public search API, no key | Employers' own ads plus some board copies; [check](#freehire--2026-11-02). Some employers are named by their career site's address ("riedelcommunications"); the duplicate rules read it as the spaced name. |
 | jobs.ac.uk | UK/Ireland; search pages and JobPosting data | Academic/research/technical jobs; personal-use terms. Its JobPosting data marks hybrid jobs remote too; the listing's "Hybrid" decides. Closing dates come as midnight of the closing day; Jobcu reads any midnight closing time as the whole day. |
 | EURAXESS | Supported countries; research-job pages | Throttling and per-search request limits apply. |
 | JobTech | Sweden; public JobSearch API | Full text; local timestamps and paging limits need handling. |

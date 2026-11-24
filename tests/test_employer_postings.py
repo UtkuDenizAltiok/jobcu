@@ -1,5 +1,6 @@
 """The employer's own posting of a job that came only from job sites (employerpostings.py)."""
 
+import dataclasses
 import json
 from datetime import UTC, datetime, timedelta
 
@@ -238,3 +239,10 @@ def test_a_listed_job_whose_page_shows_no_ad_is_not_taken_for_the_posting(monkey
         assert [copy.source for copy in job.copies] == ["jsearch"]
     finally:
         http.close()
+
+
+def test_a_company_written_without_its_spaces_finds_its_employer():
+    employers = {"advanced energy": Employer("Advanced Energy", "successfactors",
+                                             "jobs.fake.example", ("IE",))}
+    job = group(dataclasses.replace(board_copy(), company="AdvancedEnergy"))
+    assert employerpostings.employer_of(job, employers) is employers["advanced energy"]

@@ -31,6 +31,8 @@ done. Implementation details belong in pull requests; current behavior is descri
 - A job site's short summary or cut-off text is treated as part of the ad, not the whole ad,
   without buying JSearch details that would repeat it: one search had five jobs at 70 or more
   judged from such fragments as if every requirement had been seen.
+- A company written without its spaces (FreeHire names some by their career site's address,
+  "riedelcommunications") is the same company: one saved search had two such jobs as extra cards.
 - Town sizes in Germany come from official statistics (Destatis, 2,059 towns) instead of
   GeoNames' mixed-age figures: Braunschweig had wrongly fallen below "0.3% of the country's
   people", so its jobs were measured against Hannover, 79 minutes away.
