@@ -77,8 +77,9 @@ Countries below describe the adapter's scope, not complete market coverage.
 | NAV | Norway; public experimental feed token | Production-token permission is a separate owner/account decision. |
 | Employer career systems | Directory plus discovered employers; public lists, feeds or sitemaps | Check each employer host's permission and full-ad evidence. |
 
-Career adapters: Ashby, d.vinci, Eightfold, Greenhouse, Lever, Oracle, Personio, Prospective,
-Recruitee, generic job sitemaps, Softgarden, SuccessFactors, Teamtailor, Workable and Workday.
+Career adapters: Ashby, Avature (opt-in, [Siemens' terms](#avature-siemens-and-siemens-energy--2026-11-24)),
+d.vinci, Eightfold, Greenhouse, Lever, Oracle, Personio, Prospective, Recruitee, generic job
+sitemaps, Softgarden, SuccessFactors, Teamtailor, Workable and Workday.
 Recruitee, SuccessFactors and Teamtailor career sites are also recognised on an employer's own
 address (Recruitee's answers the same public `/api/offers/` there).
 `src/jobcu/data/employers.json` is the directory; `tools/check_employers.py` is its maintenance tool.
@@ -361,6 +362,41 @@ hardware-developer ads of the last day, five of which Jobcu had not found elsewh
   Engineers Ireland is a manual benchmark candidate pending collection checks; VDAB requires a
   partnership; Job-Room's employer-management API is not a public vacancy-search feed.
 
+### Avature: Siemens and Siemens Energy — 2026-11-24
+
+**Access.** `jobs.siemens.com` (= `siemens.avature.net`) and `jobs.siemens-energy.com` run Avature.
+Their robots.txt allows the job portals (`/*/externaljobs`, `/*/jobs`; only addresses with `qtvc=`
+are closed); their sitemaps list the sites' own pages, not jobs; the RSS feed (`.../SearchJobs/feed/`)
+follows a country filter but lists only the 20 oldest jobs and ignores sorting and paging, so it is
+not used. Lists are ordinary pages: Siemens shows six jobs a page whatever is asked and pages with
+`folderOffset`, Siemens Energy twenty with `jobOffset`; the reader follows each page's own next-page
+link. A Siemens list is filtered by a country option (`?42386[]=812132` for Germany; the option
+numbers of all 30 supported countries were read from the site's own option search, 24 November),
+Siemens Energy has a page per country (`SearchJobsGermany`, `SearchJobsUK`, ...). Read with Jobcu's
+own client on 24 November: Siemens 381 jobs in Germany, 155 in the UK, 15 in Ireland; Siemens Energy
+271 in Germany, 137 in the UK. A job "in multiple locations" is on every country's list (Iceland's had
+four, in Brazil and Japan): its country comes from its page. Job pages: Siemens' carry Avature's
+label and value fields ("Posted since 23-Nov-2026", "Location(s)", job type, work mode) and the ad in
+an unlabelled field, no JobPosting data; Siemens Energy's carry JobPosting data with only the title
+and posting day, and the place at the top of the ad. A live read through the reader with
+electronics search words (Germany, 7 days): 95 requests in about 4 minutes, 30 matching jobs read,
+7 fresh, among them two "Siemens Graduate Program" jobs and a junior electrical engineer's in Erlangen;
+Siemens Energy 45 requests, a UK "Graduate Electrical Engineer" among them.
+
+**Terms and risk (owner rule of 24 November: only a real risk of being sued or of a lasting ban rules
+a source out).** [Siemens' terms of use](https://www.siemens.com/global/en/general/terms-of-use.html)
+forbid users to "engage in text or data mining", including "any automated scraping, reproduction, or
+extraction of content" from its digital services. [Siemens Energy's terms of use](https://www.siemens-energy.com/global/en/home/general/terms-of-use.html)
+have no clause about automated reading. No lawsuit or legal threat by either company against readers
+of job lists or job aggregators was found (web searches, 24 November). What Jobcu reads per search:
+the searched countries' lists (about 90 pages for Germany, the UK and Ireland at Siemens), at most
+30 job pages a list of titles matching the person's search words (a page read once is remembered),
+at one request a second or slower, with Jobcu's own name, robots.txt respected and reading stopped at
+the first refusal; no account, no check passed. So the source is off by default and read only for a
+person who switches "Company career sites (Avature)" on in Settings, accepting Siemens' terms for
+their own job search (`sources.TERMS_NOTES`), like the Bundesagentur; Siemens Energy is read under the
+same switch.
+
 ### Broad boards and web discovery — 2026-10-10
 
 **Rechecked:** [LinkedIn's agreement](https://www.linkedin.com/legal/user-agreement) restricts
@@ -555,8 +591,9 @@ JobPosting data (20 jobs in Germany).
 
 Not added: ABB's and Clarios' Workday lists ask automated tools not to read them (Clarios is on wd5,
 behind the human check above). [Siemens' terms of use](https://www.siemens.com/global/en/general/terms-of-use.html)
-forbid "text or data mining", including "any automated scraping", so its Avature site is never read,
-although its robots file allows job pages. Advantest's jobs are on ADP Recruiting, which Jobcu has no
+forbid "text or data mining", including "any automated scraping": its Avature site is read only for a
+person who accepts that in Settings ([its record](#avature-siemens-and-siemens-energy--2026-11-24)).
+Advantest's jobs are on ADP Recruiting, which Jobcu has no
 reader for. Saab's job pages are in its sitemap without JobPosting data. Bosch, Brainlab, AECOM and
 ALTEN use SmartRecruiters, whose restrictions remain held.
 
@@ -785,7 +822,7 @@ outdated acquired companies; independently verify identity and country.
 | Ireland: microelectronics ecosystem | [MIDAS industry members](https://www.midasireland.ie/about-us/midas-company-members/) identifies design/research/manufacturing firms such as Emdalo, Icergi, Farran and Firecomms. A stronger sector-discovery reference than relying only on a general national board; no current relevant-job count inferred. |
 | UK: electronics supply chain | [TechWorks member search](https://techworks.org.uk/members-searchable/) covers semiconductors, electronic systems and power electronics as well as other sectors/agencies. Candidate employer reference; no automatic collection right inferred. |
 | Netherlands and Italy | [High Tech NL](https://www.hightechnl.nl/onzeleden/) separates semiconductor, energy and other clusters; [ANIE](https://anie.it/) represents electrotechnical/electronic industry. Candidate references, pending individual career-site checks and contribution evidence. Switzerland/Belgium need equally specific verified references, not guessed parity. |
-| Original career-system gaps | [Bosch's FAQ](https://www.bosch.com/careers/faq/) confirms SmartRecruiters; its restrictions remain held. [ABB's application guide](https://careers.abb/global/en/how-to-apply) identifies Workday; its board (`abb.wd3`, External_Career_Page) asks automated tools not to read it (2026-11-24). [Keysight's current career landing](https://jobs.keysight.com/external) is public; reachability does not establish an API/reader entitlement. Siemens' Avature site is never read: its terms forbid automated scraping (2026-11-24, below). |
+| Original career-system gaps | [Bosch's FAQ](https://www.bosch.com/careers/faq/) confirms SmartRecruiters; its restrictions remain held. [ABB's application guide](https://careers.abb/global/en/how-to-apply) identifies Workday; its board (`abb.wd3`, External_Career_Page) asks automated tools not to read it (2026-11-24). [Keysight's current career landing](https://jobs.keysight.com/external) is public; reachability does not establish an API/reader entitlement. Siemens' Avature site is read only for a person who accepts its terms in Settings ([2026-11-24](#avature-siemens-and-siemens-energy--2026-11-24)). |
 | Specialist boards | [Engineers Ireland terms](https://www.engineersireland.ie/Terms-of-use) do not establish an automated vacancy licence. [Jobvector's legal page](https://www.jobvector.de/impressum.html) links separate terms; no permitted Jobcu feed established. IET's [platform terms](https://www.theiet.org/media/9621/iet-platform-general-terms.pdf) contain extraction restrictions; the applicable job-board terms/permission remain a dependency. Suitable public manual benchmarks need original dates and employer IDs. |
 | Broader portals | [StepStone XML documentation](https://api.stepstone.com/knowledge-base/xml-guide-stepstone-de/) describes publishing ads, not a general vacancy-reading licence. [jobs.ch terms](https://www.jobs.ch/en/terms/) expressly restrict scraping and automation outside official tools. LinkedIn/Indeed and EURES dependencies above remain; no internal endpoint, cookies or blocked-host bypass is introduced. |
 

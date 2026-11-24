@@ -30,10 +30,12 @@ a document links to a missing file or section, or when the module map in ENGINEE
 - **Privacy.** The repository is public. No keys, settings, CVs, saved searches, logs or anything about a real user
   in code, tests, commit messages or PR text: use fictional examples. Private data lives outside the checkout
   (`paths.ensure_data_dir()`).
-- **Respect every source.** Follow robots.txt and terms; never bypass logins, human checks or blocks, never imitate
-  a browser to get past a refusal, and never request an address a site disallows. Sites whose terms forbid reading
-  (LinkedIn, Indeed and others in `applylink.NEVER_READ`) are never read. [SOURCES](docs/SOURCES.md) records each
-  decision.
+- **Respect every source.** Follow robots.txt; never bypass logins, human checks or blocks, never imitate a browser
+  to get past a refusal, and never request an address a site disallows. Sites with a real risk of legal action or
+  lasting bans (LinkedIn, Indeed and others in `applylink.NEVER_READ`) are never read. A site whose terms forbid
+  automated reading, without such a risk, is read only for a person who switches its source on in Settings and so
+  accepts those terms for their own job search (`sources.TERMS_NOTES`; off by default). [SOURCES](docs/SOURCES.md)
+  records each decision: robots, terms, any history of legal action, and what is read at what pace.
 - **No automatic visits to application links.** Many links are paid per click. Jobcu reads a middleman page only
   when the person clicks it (`applylink.py`), never during a search.
 - **Keep a job unless its removal is certain.** A job leaves the list only for a route that can't take the person's

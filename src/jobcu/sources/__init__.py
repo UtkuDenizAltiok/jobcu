@@ -4,6 +4,7 @@ from jobcu.settings import Settings
 from jobcu.sources.adzuna import AdzunaSource
 from jobcu.sources.arbeitnow import ArbeitnowSource
 from jobcu.sources.ashby import AshbySource
+from jobcu.sources.avature import AvatureSource
 from jobcu.sources.base import JobSource
 from jobcu.sources.bundesagentur import BundesagenturSource
 from jobcu.sources.careers import CareerSystemSource
@@ -41,6 +42,10 @@ from jobcu.sources.workday import WorkdaySource
 TERMS_NOTES = {
     "bundesagentur": "Its portal terms (8 July 2026) don't allow automated reading. Switch it "
                      "on only if you accept that for your own job search.",
+    # Siemens' terms of use forbid "text or data mining" of its websites (2026-11-24); no
+    # record of Siemens acting against readers of its job lists was found (SOURCES).
+    "avature": "Siemens' website terms don't allow automated reading (text and data mining). "
+               "Switch it on only if you accept that for your own job search.",
 }
 OPT_IN_SOURCES = frozenset({"jsearch", *TERMS_NOTES})
 
@@ -56,10 +61,10 @@ def accepted_terms(settings: Settings) -> frozenset[str]:
 
 def career_sources() -> list[CareerSystemSource]:
     """Company career systems, read for the employers in the employer directory."""
-    return [AshbySource(), DvinciSource(), EightfoldSource(), GreenhouseSource(), LeverSource(),
-            OracleSource(), PersonioSource(), ProspectiveSource(), RecruiteeSource(),
-            SitemapSource(), SoftgardenSource(), SuccessFactorsSource(), TeamtailorSource(),
-            WorkableSource(), WorkdaySource()]
+    return [AshbySource(), AvatureSource(), DvinciSource(), EightfoldSource(),
+            GreenhouseSource(), LeverSource(), OracleSource(), PersonioSource(),
+            ProspectiveSource(), RecruiteeSource(), SitemapSource(), SoftgardenSource(),
+            SuccessFactorsSource(), TeamtailorSource(), WorkableSource(), WorkdaySource()]
 
 
 def all_sources() -> list[JobSource]:
