@@ -406,4 +406,5 @@ Private-data boundaries are described in [CONTRIBUTING](../CONTRIBUTING.md#priva
 | `tools/made_up_search.py` | A full fictional search in its own data folder. Live/paid runs still need authorization. |
 | `tools/check_employers.py` | Inspect directory entries and candidate career systems; live source checks need current terms. |
 | `tools/update_places.py` | Rebuild public GeoNames town/village/region/postcode assets. |
+| `tools/update_official_people.py` | Rebuild German towns' official populations (Destatis), which replace GeoNames' figures. |
 | `tools/update_stations.py` | Rebuild the main railway stations of the biggest towns from GeoNames. |

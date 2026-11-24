@@ -1,0 +1,2064 @@
+# Official populations of German towns with town rights on 31.12.2024
+# (2022 census basis). Source: Statistisches Bundesamt (Destatis),
+# Gemeindeverzeichnis; copying and passing on with the source named is
+# permitted. Rebuilt by tools/update_official_people.py.
+# Columns: district, town, people.
+DE.K.11000,Berlin,3685265
+DE.K.02000,Hamburg,1862565
+DE.K.09162,München,1505005
+DE.K.05315,Köln,1024621
+DE.K.06412,Frankfurt am Main,756021
+DE.K.05111,Düsseldorf,618685
+DE.K.08111,Stuttgart,612663
+DE.K.14713,Leipzig,611850
+DE.K.05913,Dortmund,603462
+DE.K.04011,Bremen,586271
+DE.K.05113,Essen,574682
+DE.K.14612,Dresden,564904
+DE.K.09564,Nürnberg,529508
+DE.K.03241,Hannover,522131
+DE.K.05112,Duisburg,502270
+DE.K.05911,Bochum,358676
+DE.K.05124,Wuppertal,358193
+DE.K.05711,Bielefeld,331605
+DE.K.05314,Bonn,323336
+DE.K.08222,Mannheim,318035
+DE.K.08212,Karlsruhe,309050
+DE.K.05515,Münster,308258
+DE.K.09761,Augsburg,301105
+DE.K.06414,Wiesbaden,288850
+DE.K.05513,Gelsenkirchen,267930
+DE.K.05116,Mönchengladbach,267213
+DE.K.05334,Aachen,262670
+DE.K.03101,Braunschweig,252962
+DE.K.01002,Kiel,252668
+DE.K.14511,Chemnitz,245618
+DE.K.15003,Magdeburg,244329
+DE.K.08311,Freiburg im Breisgau,237460
+DE.K.05114,Krefeld,231406
+DE.K.15002,Halle (Saale),226767
+DE.K.07315,Mainz,224684
+DE.K.16051,Erfurt,218793
+DE.K.01003,Lübeck,216889
+DE.K.05119,Oberhausen,213646
+DE.K.13003,Rostock,205307
+DE.K.06611,Kassel,197230
+DE.K.05914,Hagen,190384
+DE.K.12054,Potsdam,184754
+DE.K.10041,Saarbrücken,182971
+DE.K.05915,Hamm,179968
+DE.K.07314,Ludwigshafen am Rhein,177222
+DE.K.03403,Oldenburg (Oldenburg),176614
+DE.K.05117,Mülheim an der Ruhr,173050
+DE.K.05316,Leverkusen,168581
+DE.K.06411,Darmstadt,167029
+DE.K.03404,Osnabrück,166057
+DE.K.05122,Solingen,165626
+DE.K.05774,Paderborn,156378
+DE.K.05916,Herne,155851
+DE.K.08221,Heidelberg,155756
+DE.K.05162,Neuss,154317
+DE.K.09362,Regensburg,151389
+DE.K.09161,Ingolstadt,141185
+DE.K.08231,Pforzheim,134912
+DE.K.09663,Würzburg,133258
+DE.K.06413,Offenbach am Main,132746
+DE.K.09563,Fürth,132036
+DE.K.08121,Heilbronn,131986
+DE.K.08421,Ulm,129882
+DE.K.03103,Wolfsburg,129560
+DE.K.03159,Göttingen,127259
+DE.K.08415,Reutlingen,118852
+DE.K.04012,Bremerhaven,118610
+DE.K.05512,Bottrop,118535
+DE.K.09562,Erlangen,115928
+DE.K.05562,Recklinghausen,115344
+DE.K.05120,Remscheid,113828
+DE.K.07111,Koblenz,113378
+DE.K.05378,Bergisch Gladbach,111361
+DE.K.16053,Jena,109725
+DE.K.03102,Salzgitter,104970
+DE.K.07211,Trier,104342
+DE.K.05970,Siegen,102685
+DE.K.05170,Moers,101503
+DE.K.05754,Gütersloh,100479
+DE.K.07312,Kaiserslautern,100426
+DE.K.03254,Hildesheim,98510
+DE.K.13004,Schwerin,98308
+DE.K.06435,Hanau,97956
+DE.K.01001,Flensburg,96326
+DE.K.08116,Esslingen am Neckar,96182
+DE.K.16052,Gera,95608
+DE.K.12052,Cottbus/Chóśebuz,95123
+DE.K.05358,Düren,94568
+DE.K.08118,Ludwigsburg,92858
+DE.K.08416,Tübingen,92322
+DE.K.05962,Iserlohn,91811
+DE.K.05954,Witten,91808
+DE.K.08326,Villingen-Schwenningen,89756
+DE.K.05158,Ratingen,89368
+DE.K.06531,Gießen,89179
+DE.K.14524,"Zwickau, Stadt",87410
+DE.K.08335,Konstanz,86919
+DE.K.05562,Marl,86766
+DE.K.07319,Worms,86753
+DE.K.05978,Lünen,86163
+DE.K.05770,Minden,84013
+DE.K.01060,Norderstedt,82844
+DE.K.05158,Velbert,82463
+DE.K.03401,Delmenhorst,81406
+DE.K.01004,Neumünster,79809
+DE.K.05166,Viersen,78373
+DE.K.05566,Rheine,77209
+DE.K.09461,Bamberg,77150
+DE.K.05382,Troisdorf,75901
+DE.K.03405,Wilhelmshaven,75745
+DE.K.05562,Gladbeck,75499
+DE.K.15001,Dessau-Roßlau,75402
+DE.K.05562,Dorsten,75277
+DE.K.05958,Arnsberg,74879
+DE.K.03355,Lüneburg,74785
+DE.K.05766,Detmold,74278
+DE.K.12051,Brandenburg an der Havel,74113
+DE.K.06534,Marburg,73544
+DE.K.05562,Castrop-Rauxel,73282
+DE.K.05554,Bocholt,73257
+DE.K.09661,Aschaffenburg,73091
+DE.K.09462,Bayreuth,72940
+DE.K.09261,Landshut,71863
+DE.K.05962,Lüdenscheid,71212
+DE.K.05974,Lippstadt,68739
+DE.K.09763,Kempten (Allgäu),67645
+DE.K.08136,Aalen,67621
+DE.K.05758,Herford,67503
+DE.K.07138,Neuwied,67083
+DE.K.05170,Dinslaken,66993
+DE.K.03351,Celle,66834
+DE.K.05362,Kerpen,66585
+DE.K.05162,Grevenbroich,65983
+DE.K.16055,Weimar,65954
+DE.K.06433,Rüsselsheim am Main,65627
+DE.K.14523,Plauen,65599
+DE.K.06631,Fulda,65434
+DE.K.09163,Rosenheim,65274
+DE.K.08136,Schwäbisch Gmünd,64416
+DE.K.05162,Dormagen,63799
+DE.K.08317,Offenburg,62993
+DE.K.08435,Friedrichshafen,62796
+DE.K.09775,Neu-Ulm,62641
+DE.K.05362,Hürth,62160
+DE.K.05362,Bergheim,61611
+DE.K.08115,Sindelfingen,61422
+DE.K.05562,Herten,60941
+DE.K.05170,Wesel,60785
+DE.K.13071,Neubrandenburg,60344
+DE.K.05366,Euskirchen,60021
+DE.K.05158,Langenfeld (Rheinland),59975
+DE.K.03241,Garbsen,59903
+DE.K.08117,Göppingen,58937
+DE.K.05978,Unna,58333
+DE.K.03252,Hameln,58244
+DE.K.05334,Stolberg (Rhld.),57684
+DE.K.05334,Eschweiler,57534
+DE.K.08119,Waiblingen,57313
+DE.K.12053,Frankfurt (Oder),57107
+DE.K.05162,Meerbusch,57078
+DE.K.03456,Nordhorn,56973
+DE.K.08211,Baden-Baden,56881
+DE.K.06434,Bad Homburg v. d. Höhe,56688
+DE.K.05382,Sankt Augustin,56521
+DE.K.03454,Lingen (Ems),56498
+DE.K.05362,Pulheim,56150
+DE.K.13075,Greifswald,56092
+DE.K.14626,"Görlitz, Stadt",55186
+DE.K.05158,Hilden,55157
+DE.K.06532,Wetzlar,54665
+DE.K.09662,Schweinfurt,54481
+DE.K.07133,Bad Kreuznach,54168
+DE.K.03241,Langenhagen,54142
+DE.K.13073,Stralsund,54094
+DE.K.05766,Bad Salzuflen,53958
+DE.K.05954,Hattingen,53044
+DE.K.09262,Passau,53039
+DE.K.05154,Kleve,53028
+DE.K.07316,Neustadt an der Weinstraße,52945
+DE.K.05570,Ahlen,52666
+DE.K.03158,Wolfenbüttel,52604
+DE.K.05362,Frechen,52309
+DE.K.05962,Menden (Sauerland),52255
+DE.K.05566,Ibbenbüren,51803
+DE.K.08115,Böblingen,51483
+DE.K.08336,Lörrach,51349
+DE.K.01056,Elmshorn,51342
+DE.K.05374,Gummersbach,51290
+DE.K.03157,Peine,50987
+DE.K.08317,Lahr/Schwarzwald,50775
+DE.K.08216,Rastatt,50741
+DE.K.08436,Ravensburg,50628
+DE.K.05770,Bad Oeynhausen,50620
+DE.K.08135,Heidenheim an der Brenz,50618
+DE.K.05554,Gronau (Westf.),50547
+DE.K.03352,Cuxhaven,49697
+DE.K.07318,Speyer,49564
+DE.K.08115,Leonberg,49480
+DE.K.05166,Willich,49413
+DE.K.03402,Emden,49202
+DE.K.05978,Bergkamen,49143
+DE.K.12065,Oranienburg,49122
+DE.K.09263,Straubing,49002
+DE.K.09178,Freising,48928
+DE.K.05334,Alsdorf,48810
+DE.K.05362,Erftstadt,48772
+DE.K.03359,Stade,48633
+DE.K.05334,Herzogenrath,48574
+DE.K.07313,Landau in der Pfalz,48209
+DE.K.05382,Bornheim,48203
+DE.K.05382,Hennef (Sieg),48188
+DE.K.07311,Frankenthal (Pfalz),48140
+DE.K.05754,Rheda-Wiedenbrück,48030
+DE.K.05558,Dülmen,47989
+DE.K.08215,Bruchsal,47784
+DE.K.05974,Soest,47776
+DE.K.08335,Singen (Hohentwiel),47621
+DE.K.03153,Goslar,47419
+DE.K.10043,Neunkirchen,47344
+DE.K.09174,Dachau,47138
+DE.K.08119,Fellbach,47120
+DE.K.08417,Albstadt,46950
+DE.K.09464,Hof,46778
+DE.K.06434,Oberursel (Taunus),46736
+DE.K.03459,Melle,46436
+DE.K.16067,Gotha,46400
+DE.K.05758,Bünde,46365
+DE.K.08116,Filderstadt,46243
+DE.K.09762,Kaufbeuren,46193
+DE.K.08226,Weinheim,45852
+DE.K.05978,Schwerte,45821
+DE.K.12063,Falkensee,45720
+DE.K.08416,Rottenburg am Neckar,45677
+DE.K.05362,Brühl,45555
+DE.K.05370,Erkelenz,45315
+DE.K.06438,Rodgau,45277
+DE.K.15091,Wittenberg,45249
+DE.K.01056,Pinneberg,44865
+DE.K.03241,Neustadt am Rübenberge,44668
+DE.K.12060,Bernau bei Berlin,44597
+DE.K.03241,Lehrte,44255
+DE.K.09764,Memmingen,44192
+DE.K.05158,"Erkrath, Fundort des Neanderthalers",43706
+DE.K.05158,Monheim am Rhein,43630
+DE.K.08118,Bietigheim-Bissingen,43556
+DE.K.10045,Homburg,43382
+DE.K.13074,Wismar,43329
+DE.K.05162,Kaarst,43295
+DE.K.05370,Heinsberg,43163
+DE.K.05554,Borken,43035
+DE.K.03151,Gifhorn,42726
+DE.K.03452,Aurich,42612
+DE.K.08127,Schwäbisch Hall,42598
+DE.K.09361,Amberg,42553
+DE.K.05382,Siegburg,42445
+DE.K.09363,Weiden i.d.OPf.,42444
+DE.K.05978,Kamen,42319
+DE.K.08116,Kirchheim unter Teck,42299
+DE.K.05166,Nettetal,41955
+DE.K.03241,Laatzen,41838
+DE.K.03353,Buchholz in der Nordheide,41737
+DE.K.06438,Dreieich,41692
+DE.K.08119,Schorndorf,41647
+DE.K.14522,"Freiberg, Stadt",41519
+DE.K.12060,Eberswalde,41481
+DE.K.03241,Wunstorf,41211
+DE.K.05370,Hückelhoven,41192
+DE.K.08116,Leinfelden-Echterdingen,41185
+DE.K.06431,Bensheim,41124
+DE.K.09373,Neumarkt i.d.OPf.,41103
+DE.K.09463,Coburg,41064
+DE.K.10041,Völklingen,40952
+DE.K.09179,Germering,40916
+DE.K.03359,Buxtehude,40886
+DE.K.09565,Schwabach,40835
+DE.K.05758,Löhne,40826
+DE.K.08116,Nürtingen,40773
+DE.K.16062,Nordhausen,40767
+DE.K.16063,Eisenach,40747
+DE.K.09561,Ansbach,40742
+DE.K.05382,Königswinter,40574
+DE.K.05554,Ahaus,40176
+DE.K.05334,Würselen,40145
+DE.K.14628,Pirna,40128
+DE.K.05766,Lemgo,39905
+DE.K.08116,Ostfildern,39778
+DE.K.07317,Pirmasens,39761
+DE.K.08317,Kehl,39584
+DE.K.05158,Mettmann,39542
+DE.K.12061,Königs Wusterhausen,39360
+DE.K.14628,Freital,39281
+DE.K.06436,Hofheim am Taunus,39259
+DE.K.06435,Maintal,38987
+DE.K.16070,Ilmenau,38834
+DE.K.08119,Backnang,38818
+DE.K.06438,Langen (Hessen),38785
+DE.K.08215,Ettlingen,38578
+DE.K.05382,Niederkassel,38485
+DE.K.05558,Coesfeld,38237
+DE.K.05170,Kamp-Lintfort,38217
+DE.K.05566,Greven,38212
+DE.K.05562,Haltern am See,38142
+DE.K.05362,Wesseling,38106
+DE.K.15084,Weißenfels,37929
+DE.K.06438,Neu-Isenburg,37926
+DE.K.15085,Halberstadt,37898
+DE.K.15090,Stendal,37850
+DE.K.05570,Warendorf,37703
+DE.K.10044,Saarlouis,37667
+DE.K.14625,Bautzen / Budyšin,37566
+DE.K.09179,Fürstenfeldbruck,37420
+DE.K.03454,Papenburg,37206
+DE.K.09177,Erding,37171
+DE.K.05570,Beckum,37133
+DE.K.08327,Tuttlingen,37109
+DE.K.08226,Sinsheim,37036
+DE.K.03353,Winsen (Luhe),36961
+DE.K.03454,Meppen,36930
+DE.K.15082,Bitterfeld-Wolfen,36592
+DE.K.03453,Cloppenburg,36565
+DE.K.05770,Porta Westfalica,36521
+DE.K.16064,Mühlhausen/Thüringen,36353
+DE.K.05566,Emsdetten,36159
+DE.K.06440,Bad Vilbel,35961
+DE.K.06533,Limburg a. d. Lahn,35938
+DE.K.08127,Crailsheim,35755
+DE.K.05170,Voerde (Niederrhein),35661
+DE.K.08417,Balingen,35623
+DE.K.06438,Dietzenbach,35561
+DE.K.05562,Datteln,35473
+DE.K.10045,St. Ingbert,35453
+DE.K.05766,Lage,35054
+DE.K.09271,Deggendorf,35044
+DE.K.07339,Ingelheim am Rhein,35016
+DE.K.05962,Hemer,35005
+DE.K.05154,Geldern,34962
+DE.K.01056,Wedel,34912
+DE.K.05154,Goch,34907
+DE.K.05358,Jülich,34890
+DE.K.05566,Steinfurt,34860
+DE.K.16054,Suhl,34685
+DE.K.08336,Rheinfelden (Baden),34674
+DE.K.05162,Korschenbroich,34600
+DE.K.08426,Biberach an der Riß,34576
+DE.K.01062,Ahrensburg,34534
+DE.K.06431,Viernheim,34426
+DE.K.15088,Merseburg,34392
+DE.K.05378,Wermelskirchen,34375
+DE.K.03241,Seelze,34364
+DE.K.08115,Herrenberg,34192
+DE.K.05166,Kempen,34105
+DE.K.03457,Leer (Ostfriesland),34025
+DE.K.08118,Kornwestheim,33980
+DE.K.03241,Barsinghausen,33941
+DE.K.12073,Schwedt/Oder,33730
+DE.K.03460,Vechta,33728
+DE.K.01053,Geesthacht,33519
+DE.K.07320,Zweibrücken,33323
+DE.K.09474,Forchheim,33017
+DE.K.14627,Radebeul,32979
+DE.K.06440,Bad Nauheim,32894
+DE.K.03361,Achim,32870
+DE.K.03360,Uelzen,32821
+DE.K.01061,Itzehoe,32725
+DE.K.03256,Nienburg (Weser),32608
+DE.K.06431,Lampertheim,32400
+DE.K.08336,Weil am Rhein,32236
+DE.K.15085,Wernigerode,32167
+DE.K.05774,Delbrück,32166
+DE.K.12067,Fürstenwalde/Spree,32002
+DE.K.12068,Neuruppin,31962
+DE.K.15084,Naumburg (Saale),31940
+DE.K.05154,Emmerich am Rhein,31829
+DE.K.08335,Radolfzell am Bodensee,31734
+DE.K.10042,Merzig,31697
+DE.K.06433,Mörfelden-Walldorf,31638
+DE.K.05562,Oer-Erkenschwick,31404
+DE.K.03459,Georgsmarienhütte,31244
+DE.K.05170,Rheinberg,31172
+DE.K.03352,Geestland,31093
+DE.K.16077,Altenburg,31093
+DE.K.03241,Burgdorf,31051
+DE.K.03358,Walsrode,31019
+DE.K.15089,Bernburg (Saale),30992
+DE.K.05382,Lohmar,30992
+DE.K.05970,Kreuztal,30905
+DE.K.06632,Bad Hersfeld,30846
+DE.K.14625,Hoyerswerda / Wojerecy,30759
+DE.K.01058,Rendsburg,30633
+DE.K.15089,Schönebeck (Elbe),30419
+DE.K.06440,Friedberg (Hessen),30409
+DE.K.08215,Bretten,30274
+DE.K.05978,Werne,30202
+DE.K.07134,Idar-Oberstein,30170
+DE.K.06439,Taunusstein,30145
+DE.K.09185,Neuburg a.d.Donau,30135
+DE.K.05570,Oelde,30129
+DE.K.05158,Haan,30086
+DE.K.05754,Rietberg,30055
+DE.K.07137,Andernach,30039
+DE.K.05954,Gevelsberg,30006
+DE.K.09771,Friedberg,29953
+DE.K.09376,Schwandorf,29877
+DE.K.08119,Winnenden,29876
+DE.K.03155,Einbeck,29751
+DE.K.03356,Osterholz-Scharmbeck,29710
+DE.K.05958,Meschede,29615
+DE.K.05974,Werl,29600
+DE.K.08216,Gaggenau,29529
+DE.K.12072,Ludwigsfelde,29514
+DE.K.08316,Emmendingen,29502
+DE.K.05954,Ennepetal,29446
+DE.K.14627,Riesa,29373
+DE.K.06432,Griesheim,29309
+DE.K.09181,Landsberg am Lech,29257
+DE.K.05166,Tönisvorst,29251
+DE.K.05334,Baesweiler,29206
+DE.K.06438,Mühlheim am Main,29194
+DE.K.05366,Mechernich,29187
+DE.K.05562,Waltrop,29177
+DE.K.16073,Saalfeld/Saale,29086
+DE.K.13072,Güstrow,28959
+DE.K.08118,Vaihingen an der Enz,28798
+DE.K.06438,Rödermark,28753
+DE.K.14627,Meißen,28753
+DE.K.05378,Rösrath,28709
+DE.K.03241,Springe,28669
+DE.K.16070,Arnstadt,28615
+DE.K.08216,Bühl,28608
+DE.K.05370,Geilenkirchen,28494
+DE.K.09184,Unterschleißheim,28482
+DE.K.06436,Hattersheim am Main,28467
+DE.K.08436,Wangen im Allgäu,28412
+DE.K.15084,Zeitz,28328
+DE.K.05154,Kevelaer,28296
+DE.K.01062,Reinbek,28274
+DE.K.03459,Bramsche,28220
+DE.K.06436,Kelkheim (Taunus),28175
+DE.K.05762,Höxter,28166
+DE.K.05370,Wegberg,28089
+DE.K.03460,Lohne (Oldenburg),28089
+DE.K.05378,Leichlingen (Rheinland),28078
+DE.K.07131,Bad Neuenahr-Ahrweiler,27961
+DE.K.05954,Schwelm,27953
+DE.K.06633,Baunatal,27929
+DE.K.09772,Königsbrunn,27879
+DE.K.06431,Heppenheim (Bergstraße),27864
+DE.K.08117,Geislingen an der Steige,27791
+DE.K.08425,Ehingen (Donau),27764
+DE.K.08226,Wiesloch,27731
+DE.K.12064,Strausberg,27719
+DE.K.12069,Teltow,27682
+DE.K.05958,Sundern (Sauerland),27654
+DE.K.14729,Grimma,27529
+DE.K.03155,Northeim,27326
+DE.K.09179,Olching,27310
+DE.K.05170,Neukirchen-Vluyn,27140
+DE.K.03361,Verden (Aller),27121
+DE.K.08119,Weinstadt,27074
+DE.K.12069,Werder (Havel),27065
+DE.K.06440,Butzbach,27046
+DE.K.09186,Pfaffenhofen a.d.Ilm,26996
+DE.K.05382,Rheinbach,26918
+DE.K.05170,Hamminkeln,26873
+DE.K.08226,Leimen,26873
+DE.K.12065,Hohen Neuendorf,26857
+DE.K.05770,Lübbecke,26815
+DE.K.08236,Mühlacker,26787
+DE.K.08317,Achern,26733
+DE.K.12065,Hennigsdorf,26677
+DE.K.05378,Overath,26663
+DE.K.09477,Kulmbach,26625
+DE.K.06432,Weiterstadt,26583
+DE.K.08125,Neckarsulm,26431
+DE.K.05754,Schloß Holte-Stukenbrock,26297
+DE.K.05158,Heiligenhaus,26252
+DE.K.09573,Zirndorf,26243
+DE.K.08118,Remseck am Neckar,26188
+DE.K.09574,Lauf a.d.Pegnitz,26106
+DE.K.05954,Wetter (Ruhr),26090
+DE.K.09173,Geretsried,25997
+DE.K.05978,Selm,25969
+DE.K.14730,Delitzsch,25895
+DE.K.03461,Nordenham,25889
+DE.K.06434,Friedrichsdorf,25871
+DE.K.09776,Lindau (Bodensee),25845
+DE.K.05754,Verl,25762
+DE.K.09183,Waldkraiburg,25737
+DE.K.06439,Idstein,25736
+DE.K.08126,Öhringen,25673
+DE.K.08237,Horb am Neckar,25651
+DE.K.15089,Aschersleben,25647
+DE.K.03257,Rinteln,25602
+DE.K.05770,Espelkamp,25576
+DE.K.05754,Harsewinkel,25523
+DE.K.09576,Roth,25458
+DE.K.10046,St. Wendel,25441
+DE.K.05774,Salzkotten,25429
+DE.K.05958,Brilon,25424
+DE.K.06432,Pfungstadt,25415
+DE.K.15087,Sangerhausen,25392
+DE.K.06433,Groß-Gerau,25388
+DE.K.07339,Bingen am Rhein,25384
+DE.K.01059,Schleswig,25352
+DE.K.05770,Petershagen,25340
+DE.K.14729,Markkleeberg,25331
+DE.K.05362,Bedburg,25316
+DE.K.06438,Obertshausen,25316
+DE.K.14626,"Zittau, Stadt",25286
+DE.K.03251,Syke,25270
+DE.K.05558,Lüdinghausen,25265
+DE.K.08215,Stutensee,25259
+DE.K.03452,Norden,25178
+DE.K.05374,Wiehl,25164
+DE.K.03154,Helmstedt,25099
+DE.K.12063,Rathenow,25087
+DE.K.05382,Bad Honnef,25061
+DE.K.08337,Waldshut-Tiengen,25019
+DE.K.16066,Meiningen,25002
+DE.K.08235,Calw,25001
+DE.K.08136,Ellwangen (Jagst),25001
+DE.K.05974,Warstein,24988
+DE.K.08325,Rottweil,24985
+DE.K.08436,Weingarten,24940
+DE.K.05382,Meckenheim,24925
+DE.K.16073,Rudolstadt,24852
+DE.K.01062,Bad Oldesloe,24846
+DE.K.05958,Schmallenberg,24711
+DE.K.03455,Varel,24704
+DE.K.12067,Eisenhüttenstadt,24703
+DE.K.05966,Olpe,24695
+DE.K.09188,Starnberg,24471
+DE.K.08237,Freudenstadt,24464
+DE.K.08225,Mosbach,24459
+DE.K.05962,Plettenberg,24429
+DE.K.03454,Haren (Ems),24365
+DE.K.05370,Übach-Palenberg,24277
+DE.K.05966,Lennestadt,24238
+DE.K.09572,Herzogenaurach,24237
+DE.K.05954,Sprockhövel,24232
+DE.K.08436,Leutkirch im Allgäu,24226
+DE.K.15082,Köthen (Anhalt),24110
+DE.K.01054,Husum,24090
+DE.K.08128,Bad Mergentheim,24023
+DE.K.03451,Westerstede,23938
+DE.K.05162,Jüchen,23926
+DE.K.08235,Nagold,23864
+DE.K.14522,Döbeln,23819
+DE.K.03241,Ronnenberg,23814
+DE.K.14524,Limbach-Oberfrohna,23673
+DE.K.09775,Senden,23641
+DE.K.05966,Attendorn,23554
+DE.K.01060,Kaltenkirchen,23502
+DE.K.03159,Hann. Münden,23478
+DE.K.12066,Senftenberg/Zły Komorow,23466
+DE.K.03241,Sehnde,23431
+DE.K.09772,Gersthofen,23427
+DE.K.06435,"Gelnhausen, Barbarossastadt",23290
+DE.K.09190,Weilheim i.OB,23279
+DE.K.05762,Warburg,23252
+DE.K.09672,Bad Kissingen,23223
+DE.K.15089,Staßfurt,23181
+DE.K.08415,Metzingen,23178
+DE.K.06433,Riedstadt,23146
+DE.K.15085,Quedlinburg,23139
+DE.K.03357,Rotenburg (Wümme),23117
+DE.K.06436,Bad Soden am Taunus,23103
+DE.K.05554,Vreden,23099
+DE.K.05970,Netphen,23080
+DE.K.06532,Dillenburg,22974
+DE.K.15081,Salzwedel,22964
+DE.K.09675,Kitzingen,22936
+DE.K.09772,Neusäß,22904
+DE.K.06635,"Korbach, Hansestadt",22901
+DE.K.08128,Wertheim,22874
+DE.K.16072,Sonneberg,22843
+DE.K.08426,Laupheim,22839
+DE.K.16071,Apolda,22787
+DE.K.05954,Herdecke,22772
+DE.K.08435,Überlingen,22735
+DE.K.08125,Bad Rappenau,22703
+DE.K.03453,Friesoythe,22685
+DE.K.08125,Eppingen,22666
+DE.K.08118,Ditzingen,22666
+DE.K.03257,Stadthagen,22638
+DE.K.06440,Karben,22600
+DE.K.15086,Burg,22585
+DE.K.16063,Bad Salzungen,22557
+DE.K.05566,Lengerich,22557
+DE.K.01056,Quickborn,22521
+DE.K.03358,Soltau,22511
+DE.K.15087,Eisleben,22505
+DE.K.09183,Mühldorf a.Inn,22503
+DE.K.08215,Waghäusel,22466
+DE.K.06440,Büdingen,22411
+DE.K.06436,Eschborn,22403
+DE.K.08117,Eislingen/Fils,22325
+DE.K.09771,Aichach,22015
+DE.K.01051,Heide,22002
+DE.K.05154,Rees,21913
+DE.K.15081,Gardelegen,21822
+DE.K.08326,Donaueschingen,21790
+DE.K.05366,Zülpich,21780
+DE.K.08226,Schwetzingen,21767
+DE.K.08315,Bad Krozingen,21755
+DE.K.08416,Mössingen,21751
+DE.K.09780,Sonthofen,21734
+DE.K.07334,Germersheim,21715
+DE.K.08226,Hockenheim,21623
+DE.K.05374,Wipperfürth,21604
+DE.K.03159,Osterode am Harz,21598
+DE.K.05774,Büren,21593
+DE.K.05374,Radevormwald,21565
+DE.K.01058,Eckernförde,21563
+DE.K.10044,Dillingen/ Saar,21529
+DE.K.05754,Versmold,21513
+DE.K.08316,Waldkirch,21510
+DE.K.14524,Glauchau,21442
+DE.K.06534,Stadtallendorf,21425
+DE.K.05362,Elsdorf,21424
+DE.K.09774,Günzburg,21423
+DE.K.12072,Zossen,21412
+DE.K.05754,Halle (Westf.),21393
+DE.K.07338,Schifferstadt,21387
+DE.K.06436,Flörsheim am Main,21344
+DE.K.06438,Seligenstadt,21298
+DE.K.08215,Rheinstetten,21267
+DE.K.06432,Groß-Umstadt,21245
+DE.K.05170,Xanten,21179
+DE.K.03458,Wildeshausen,21155
+DE.K.12071,Spremberg/Grodk,21140
+DE.K.15082,Zerbst/Anhalt,21124
+DE.K.12072,Luckenwalde,21010
+DE.K.03455,Schortens,20995
+DE.K.05554,Stadtlohn,20946
+DE.K.05974,Geseke,20930
+DE.K.16065,Sondershausen,20910
+DE.K.09189,Traunstein,20877
+DE.K.09179,Puchheim,20858
+DE.K.08436,Bad Waldsee,20838
+DE.K.09279,Dingolfing,20749
+DE.K.05158,Wülfrath,20731
+DE.K.05758,Enger,20688
+DE.K.08325,Schramberg,20610
+DE.K.08435,Tettnang,20520
+DE.K.14524,Werdau,20520
+DE.K.06435,Bruchköbel,20509
+DE.K.05978,Fröndenberg/Ruhr,20504
+DE.K.09478,Lichtenfels,20488
+DE.K.14627,Coswig,20479
+DE.K.06532,Herborn,20421
+DE.K.05566,Ochtrup,20394
+DE.K.03241,Burgwedel,20379
+DE.K.09189,Traunreut,20379
+DE.K.03159,Duderstadt,20375
+DE.K.09779,Nördlingen,20352
+DE.K.08336,Schopfheim,20332
+DE.K.13071,Waren (Müritz),20260
+DE.K.10045,Blieskastel,20197
+DE.K.13071,Neustrelitz,20191
+DE.K.05566,Hörstel,20166
+DE.K.14729,Borna,20131
+DE.K.06435,Nidderau,20119
+DE.K.08315,Müllheim im Markgräflerland,20097
+DE.K.05570,Telgte,20069
+DE.K.03462,Wittmund,20037
+DE.K.05962,Meinerzhagen,20019
+DE.K.09178,Moosburg a.d.Isar,20012
+DE.K.14730,Torgau,19992
+DE.K.09779,Donauwörth,19990
+DE.K.08135,Giengen an der Brenz,19967
+DE.K.16061,Leinefelde-Worbis,19957
+DE.K.01055,Bad Schwartau,19954
+DE.K.01056,Schenefeld,19909
+DE.K.08125,Bad Friedrichshall,19853
+DE.K.08317,Oberkirch,19847
+DE.K.05570,Ennigerloh,19841
+DE.K.09173,Bad Tölz,19826
+DE.K.08417,Hechingen,19807
+DE.K.09773,Dillingen a.d.Donau,19806
+DE.K.14523,Reichenbach im Vogtland,19797
+DE.K.05374,Waldbröl,19795
+DE.K.16076,Greiz,19766
+DE.K.08415,Pfullingen,19759
+DE.K.03252,Bad Pyrmont,19722
+DE.K.05370,Wassenberg,19713
+DE.K.07137,Mayen,19713
+DE.K.12063,Nauen,19679
+DE.K.05554,Rhede,19674
+DE.K.09173,Wolfratshausen,19658
+DE.K.08118,Korntal-Münchingen,19654
+DE.K.01053,Mölln,19627
+DE.K.09171,Burghausen,19558
+DE.K.05958,Marsberg,19555
+DE.K.03153,Bad Harzburg,19489
+DE.K.07331,Alzey,19468
+DE.K.10044,Lebach,19468
+DE.K.03254,Sarstedt,19405
+DE.K.09371,Sulzbach-Rosenberg,19379
+DE.K.08115,Weil der Stadt,19353
+DE.K.16066,Schmalkalden,19323
+DE.K.06438,Heusenstamm,19312
+DE.K.05378,Burscheid,19272
+DE.K.03257,Bückeburg,19221
+DE.K.07332,Bad Dürkheim,19159
+DE.K.15083,Haldensleben,19121
+DE.K.09187,Kolbermoor,19094
+DE.K.05762,Bad Driburg,19080
+DE.K.07231,Wittlich,19049
+DE.K.03358,Schneverdingen,19016
+DE.K.15085,Blankenburg (Harz),18970
+DE.K.03241,Hemmingen,18932
+DE.K.12073,Prenzlau,18928
+DE.K.03255,Holzminden,18921
+DE.K.14730,Schkeuditz,18905
+DE.K.06532,Haiger,18888
+DE.K.14521,Aue-Bad Schlema,18868
+DE.K.15083,Oschersleben (Bode),18859
+DE.K.01056,Uetersen,18827
+DE.K.14521,Annaberg-Buchholz,18815
+DE.K.06636,Eschwege,18743
+DE.K.07141,Lahnstein,18719
+DE.K.14625,Radeberg,18683
+DE.K.01062,Glinde,18681
+DE.K.06434,Kronberg im Taunus,18671
+DE.K.03153,Seesen,18657
+DE.K.08118,Sachsenheim,18638
+DE.K.05374,Bergneustadt,18628
+DE.K.09777,Marktoberdorf,18617
+DE.K.03252,Hessisch Oldendorf,18567
+DE.K.08115,Renningen,18567
+DE.K.03357,Bremervörde,18564
+DE.K.16068,Sömmerda,18503
+DE.K.09187,Bad Aibling,18497
+DE.K.09775,Illertissen,18433
+DE.K.06436,Hochheim am Main,18422
+DE.K.06634,Schwalmstadt,18420
+DE.K.05970,Bad Berleburg,18400
+DE.K.01060,Bad Segeberg,18399
+DE.K.08118,Gerlingen,18392
+DE.K.07334,Wörth am Rhein,18387
+DE.K.10041,Püttlingen,18361
+DE.K.09577,Weißenburg i.Bay.,18345
+DE.K.05758,Vlotho,18335
+DE.K.05366,Bad Münstereifel,18297
+DE.K.09172,Bad Reichenhall,18288
+DE.K.14524,Crimmitschau,18272
+DE.K.16061,Heilbad Heiligenstadt,18230
+DE.K.08225,Buchen (Odenwald),18226
+DE.K.14627,Großenhain,18183
+DE.K.07235,Konz,18121
+DE.K.09275,Vilshofen an der Donau,18084
+DE.K.09671,Alzenau,18034
+DE.K.03254,Alfeld (Leine),17956
+DE.K.09772,Bobingen,17905
+DE.K.13076,Parchim,17893
+DE.K.08437,Bad Saulgau,17889
+DE.K.09185,Schrobenhausen,17815
+DE.K.06431,Bürstadt,17804
+DE.K.10045,Bexbach,17793
+DE.K.08337,Bad Säckingen,17767
+DE.K.07137,Bendorf,17726
+DE.K.06432,Babenhausen,17695
+DE.K.06531,Pohlheim,17677
+DE.K.06633,Vellmar,17663
+DE.K.09184,Garching b.München,17656
+DE.K.03251,Diepholz,17648
+DE.K.09573,Oberasbach,17647
+DE.K.08335,Stockach,17646
+DE.K.06635,Frankenberg (Eder),17635
+DE.K.09172,Freilassing,17619
+DE.K.05962,Werdohl,17618
+DE.K.07131,Remagen,17603
+DE.K.03460,Damme,17508
+DE.K.08327,Trossingen,17489
+DE.K.09372,Cham,17433
+DE.K.05554,Gescher,17433
+DE.K.06635,Bad Wildungen,17364
+DE.K.05970,Freudenberg,17355
+DE.K.05766,Horn-Bad Meinberg,17320
+DE.K.14523,Auerbach/Vogtl.,17314
+DE.K.01055,Eutin,17275
+DE.K.03252,Bad Münder am Deister,17261
+DE.K.07131,Sinzig,17256
+DE.K.05774,Bad Lippspringe,17252
+DE.K.05766,Oerlinghausen,17233
+DE.K.12071,Forst (Lausitz)/Baršć (Łužyca),17155
+DE.K.09479,Marktredwitz,17121
+DE.K.09273,Kelheim,17066
+DE.K.06440,Nidda,17060
+DE.K.12070,Wittenberge,17058
+DE.K.06439,Eltville am Rhein,17031
+DE.K.09190,Penzberg,17028
+DE.K.01053,Schwarzenbek,16999
+DE.K.06631,Hünfeld,16955
+DE.K.09778,Bad Wörishofen,16933
+DE.K.14625,Kamenz / Kamjenc,16918
+DE.K.08437,Sigmaringen,16884
+DE.K.03456,Bad Bentheim,16798
+DE.K.15085,Thale,16788
+DE.K.08125,Brackenheim,16774
+DE.K.16064,Bad Langensalza,16717
+DE.K.14628,Heidenau,16686
+DE.K.06434,Königstein im Taunus,16680
+DE.K.09577,Gunzenhausen,16665
+DE.K.06433,Kelsterbach,16622
+DE.K.05962,Altena,16621
+DE.K.09476,Kronach,16616
+DE.K.03251,Bassum,16604
+DE.K.08425,Blaustein,16581
+DE.K.14730,Eilenburg,16539
+DE.K.06432,Reinheim,16503
+DE.K.01057,Preetz,16503
+DE.K.06433,Ginsheim-Gustavsburg,16488
+DE.K.08315,Breisach am Rhein,16487
+DE.K.05154,Straelen,16458
+DE.K.10042,Wadern,16453
+DE.K.05962,Kierspe,16450
+DE.K.09275,Pocking,16414
+DE.K.10041,Sulzbach/ Saar,16376
+DE.K.08126,Künzelsau,16348
+DE.K.05962,Halver,16322
+DE.K.05974,Erwitte,16300
+DE.K.05570,Drensteinfurt,16282
+DE.K.06534,Kirchhain,16254
+DE.K.01062,Bargteheide,16245
+DE.K.14729,Wurzen,16238
+DE.K.05770,Rahden,16195
+DE.K.14729,Markranstädt,16194
+DE.K.05762,Brakel,16193
+DE.K.08226,Walldorf,16188
+DE.K.14521,Marienberg,16139
+DE.K.06635,Bad Arolsen,16050
+DE.K.08116,Wendlingen am Neckar,15988
+DE.K.01055,Neustadt in Holstein,15930
+DE.K.06435,Erlensee,15907
+DE.K.14730,Taucha,15866
+DE.K.06432,Dieburg,15798
+DE.K.12071,Guben,15794
+DE.K.12066,Lübbenau/Spreewald / Lubnjow/Błota,15778
+DE.K.07140,Boppard,15771
+DE.K.06435,Schlüchtern,15723
+DE.K.06434,Usingen,15683
+DE.K.16076,Zeulenroda-Triebes,15677
+DE.K.08226,Eppelheim,15663
+DE.K.09772,Stadtbergen,15649
+DE.K.12073,Templin,15590
+DE.K.07232,Bitburg,15554
+DE.K.09778,Mindelheim,15531
+DE.K.08118,Freiberg am Neckar,15520
+DE.K.12062,Finsterwalde,15496
+DE.K.05766,Blomberg,15485
+DE.K.09574,Altdorf b.Nürnberg,15478
+DE.K.14521,Schwarzenberg/Erzgeb.,15475
+DE.K.08118,Marbach am Neckar,15474
+DE.K.06436,Schwalbach am Taunus,15443
+DE.K.01060,Bad Bramstedt,15439
+DE.K.09673,Bad Neustadt a.d.Saale,15434
+DE.K.08117,Ebersbach an der Fils,15420
+DE.K.06437,Michelstadt,15396
+DE.K.03154,Königslutter am Elm,15395
+DE.K.13073,Ribnitz-Damgarten,15333
+DE.K.06535,Alsfeld,15307
+DE.K.03241,Gehrden,15301
+DE.K.06433,Raunheim,15297
+DE.K.09777,Füssen,15287
+DE.K.09772,Schwabmünchen,15277
+DE.K.08425,Langenau,15274
+DE.K.09273,Mainburg,15271
+DE.K.03457,Weener,15215
+DE.K.08226,Schriesheim,15209
+DE.K.03461,Brake (Unterweser),15200
+DE.K.08436,Isny im Allgäu,15145
+DE.K.06636,Witzenhausen,15132
+DE.K.06432,Ober-Ramstadt,15078
+DE.K.03358,Munster,15062
+DE.K.09273,Abensberg,15061
+DE.K.01053,Ratzeburg,15026
+DE.K.14626,"Weißwasser/O.L., Stadt / Běła Woda",15002
+DE.K.09677,Lohr a.Main,14996
+DE.K.08436,Bad Wurzach,14942
+DE.K.07143,Montabaur,14884
+DE.K.09573,Stein,14866
+DE.K.08325,Oberndorf am Neckar,14853
+DE.K.09473,Neustadt b.Coburg,14824
+DE.K.09279,Landau a.d.Isar,14801
+DE.K.09273,Neustadt a.d.Donau,14778
+DE.K.03455,Jever,14774
+DE.K.08415,Münsingen,14772
+DE.K.15088,Landsberg,14772
+DE.K.09177,Dorfen,14759
+DE.K.09479,Selb,14743
+DE.K.09677,Karlstadt,14739
+DE.K.08226,Eberbach,14727
+DE.K.06634,"Homberg (Efze), Reformationsstadt",14703
+DE.K.05958,Olsberg,14700
+DE.K.03241,Pattensen,14666
+DE.K.05758,Spenge,14620
+DE.K.08215,Kraichtal,14602
+DE.K.03153,Langelsheim,14599
+DE.K.01056,Tornesch,14588
+DE.K.14628,Wilsdruff,14583
+DE.K.09376,Burglengenfeld,14569
+DE.K.05570,Sassenberg,14558
+DE.K.08119,Murrhardt,14551
+DE.K.05154,Kalkar,14513
+DE.K.06634,Fritzlar,14493
+DE.K.08116,Plochingen,14487
+DE.K.06532,Aßlar,14482
+DE.K.05374,Hückeswagen,14480
+DE.K.14626,Löbau,14467
+DE.K.06435,Langenselbold,14440
+DE.K.06633,Hofgeismar,14439
+DE.K.07332,Grünstadt,14419
+DE.K.05970,Hilchenbach,14412
+DE.K.08216,Gernsbach,14405
+DE.K.09780,Immenstadt i.Allgäu,14391
+DE.K.06434,Neu-Anspach,14342
+DE.K.03453,Löningen,14307
+DE.K.08117,Uhingen,14304
+DE.K.08435,Markdorf,14300
+DE.K.06431,Lorsch,14283
+DE.K.09277,Eggenfelden,14271
+DE.K.06533,Bad Camberg,14268
+DE.K.10043,Ottweiler,14255
+DE.K.12073,Angermünde,14233
+DE.K.09375,Neutraubling,14224
+DE.K.09775,Weißenhorn,14186
+DE.K.08115,Holzgerlingen,14184
+DE.K.14730,Oschatz,14184
+DE.K.08128,Lauda-Königshofen,14180
+DE.K.09774,Krumbach (Schwaben),14178
+DE.K.06531,Lich,14167
+DE.K.05570,Sendenhorst,14167
+DE.K.08425,Erbach,14140
+DE.K.08118,Markgröningen,14138
+DE.K.15088,Leuna,14131
+DE.K.15082,Sandersdorf-Brehna,14130
+DE.K.01057,Schwentinental,14091
+DE.K.09775,Vöhringen,14044
+DE.K.12066,Lauchhammer,14042
+DE.K.12061,Lübben (Spreewald) / Lubin (Błota),14028
+DE.K.03459,Quakenbrück,14007
+DE.K.06634,Melsungen,13994
+DE.K.03357,Zeven,13958
+DE.K.09175,Grafing b.München,13942
+DE.K.06437,Erbach,13935
+DE.K.14628,Dippoldiswalde,13915
+DE.K.03153,Clausthal-Zellerfeld,13912
+DE.K.09176,Eichstätt,13891
+DE.K.12069,Beelitz,13879
+DE.K.03452,Wiesmoor,13875
+DE.K.09572,Höchstadt a.d.Aisch,13867
+DE.K.09674,Haßfurt,13867
+DE.K.14522,"Mittweida, Stadt",13839
+DE.K.09777,Buchloe,13815
+DE.K.12068,Wittstock/Dosse,13804
+DE.K.14524,Hohenstein-Ernstthal,13788
+DE.K.08215,Philippsburg,13748
+DE.K.15083,Wanzleben-Börde,13724
+DE.K.08317,Ettenheim,13722
+DE.K.06435,Bad Soden-Salmünster,13719
+DE.K.08327,Spaichingen,13714
+DE.K.06531,Grünberg,13683
+DE.K.09472,Pegnitz,13665
+DE.K.14522,"Frankenberg/Sa., Stadt",13659
+DE.K.09576,Hilpoltstein,13654
+DE.K.05358,Linnich,13653
+DE.K.08118,Asperg,13650
+DE.K.15091,Jessen (Elster),13639
+DE.K.03460,Dinklage,13622
+DE.K.06532,Solms,13579
+DE.K.05366,Schleiden,13578
+DE.K.14524,Meerane,13567
+DE.K.03456,Schüttorf,13562
+DE.K.16077,Schmölln,13542
+DE.K.03155,Uslar,13536
+DE.K.03454,Haselünne,13527
+DE.K.13073,Bergen auf Rügen,13457
+DE.K.08215,Östringen,13450
+DE.K.08128,Tauberbischofsheim,13445
+DE.K.08437,Pfullendorf,13442
+DE.K.15086,Genthin,13416
+DE.K.03251,Sulingen,13394
+DE.K.14521,Schneeberg,13377
+DE.K.08226,Neckargemünd,13335
+DE.K.06531,Linden,13308
+DE.K.09575,Neustadt a.d.Aisch,13294
+DE.K.08125,Weinsberg,13268
+DE.K.08135,Herbrechtingen,13238
+DE.K.01055,Fehmarn,13200
+DE.K.05558,Olfen,13175
+DE.K.05958,Winterberg,13168
+DE.K.03251,Twistringen,13162
+DE.K.09271,Plattling,13160
+DE.K.09577,Treuchtlingen,13159
+DE.K.09372,Roding,13157
+DE.K.08326,Bad Dürrheim,13149
+DE.K.05970,Bad Laasphe,13148
+DE.K.09171,Altötting,13138
+DE.K.08337,Wehr,13126
+DE.K.06440,Rosbach v. d. Höhe,13084
+DE.K.06533,Hadamar,13082
+DE.K.13072,Bad Doberan,13079
+DE.K.06436,Eppstein,13070
+DE.K.06535,Lauterbach (Hessen),13047
+DE.K.12065,Zehdenick,13040
+DE.K.03254,Bad Salzdetfurth,13037
+DE.K.15083,Oebisfelde-Weferlingen,13002
+DE.K.06533,Weilburg,12992
+DE.K.03351,Bergen,12991
+DE.K.06534,Biedenkopf,12969
+DE.K.06632,Bebra,12945
+DE.K.06632,Rotenburg a. d. Fulda,12937
+DE.K.12072,Jüterbog,12926
+DE.K.08226,Ladenburg,12914
+DE.K.16067,Waltershausen,12871
+DE.K.15082,Südliches Anhalt,12857
+DE.K.08325,Sulz am Neckar,12847
+DE.K.08315,Titisee-Neustadt,12797
+DE.K.03159,Herzberg am Harz,12792
+DE.K.03358,Bad Fallingbostel,12783
+DE.K.15087,Hettstedt,12783
+DE.K.09277,Pfarrkirchen,12764
+DE.K.06531,Hungen,12754
+DE.K.08415,Bad Urach,12751
+DE.K.06435,Wächtersbach,12731
+DE.K.12065,Velten,12727
+DE.K.08425,Blaubeuren,12719
+DE.K.01051,Brunsbüttel,12692
+DE.K.08315,Neuenburg am Rhein,12690
+DE.K.05554,Velen,12678
+DE.K.05762,Beverungen,12669
+DE.K.15086,Möckern,12591
+DE.K.06633,Wolfhagen,12582
+DE.K.09190,Schongau,12572
+DE.K.09571,Feuchtwangen,12551
+DE.K.09574,Röthenbach a.d.Pegnitz,12529
+DE.K.09473,Rödental,12457
+DE.K.09575,Bad Windsheim,12446
+DE.K.05770,Preußisch Oldendorf,12439
+DE.K.08425,Laichingen,12425
+DE.K.05774,Bad Wünnenberg,12418
+DE.K.06534,Gladenbach,12415
+DE.K.09175,Ebersberg,12408
+DE.K.05334,Monschau,12389
+DE.K.09187,Wasserburg a.Inn,12375
+DE.K.09574,Hersbruck,12346
+DE.K.06636,Hessisch Lichtenau,12337
+DE.K.15083,Wolmirstedt,12323
+DE.K.08118,Tamm,12305
+DE.K.08326,St. Georgen im Schwarzwald,12301
+DE.K.09271,Osterhofen,12280
+DE.K.06634,Borken (Hessen),12268
+DE.K.08118,Besigheim,12267
+DE.K.09571,Dinkelsbühl,12260
+DE.K.09274,Vilsbiburg,12237
+DE.K.16061,Dingelstädt,12204
+DE.K.08116,Wernau (Neckar),12200
+DE.K.08125,Lauffen am Neckar,12189
+DE.K.16066,Zella-Mehlis,12157
+DE.K.08417,Burladingen,12124
+DE.K.14729,Frohburg,12120
+DE.K.05762,Steinheim,12107
+DE.K.09376,Maxhütte-Haidhof,12053
+DE.K.13076,Hagenow,12022
+DE.K.12070,Perleberg,12022
+DE.K.08127,Gaildorf,12005
+DE.K.09275,Hauzenberg,11965
+DE.K.13076,Ludwigslust,11961
+DE.K.16075,Pößneck,11960
+DE.K.05558,Billerbeck,11945
+DE.K.13075,Anklam,11917
+DE.K.08226,Hemsbach,11915
+DE.K.05966,Drolshagen,11913
+DE.K.08118,Steinheim an der Murr,11908
+DE.K.12064,Bad Freienwalde (Oder),11877
+DE.K.12070,Pritzwalk,11866
+DE.K.14628,Neustadt in Sachsen,11810
+DE.K.08215,Oberderdingen,11690
+DE.K.03257,Bad Nenndorf,11686
+DE.K.08125,Schwaigern,11661
+DE.K.01053,Lauenburg/ Elbe,11657
+DE.K.12067,Erkner,11641
+DE.K.08125,Leingarten,11637
+DE.K.16069,Hildburghausen,11632
+DE.K.05962,Neuenrade,11621
+DE.K.08225,Walldürn,11614
+DE.K.09776,Lindenberg i.Allgäu,11587
+DE.K.09182,Miesbach,11573
+DE.K.09186,Geisenfeld,11563
+DE.K.08136,Bopfingen,11560
+DE.K.06439,Bad Schwalbach,11532
+DE.K.15088,Bad Dürrenberg,11521
+DE.K.09773,Lauingen (Donau),11510
+DE.K.06439,Oestrich-Winkel,11443
+DE.K.07141,Diez,11428
+DE.K.01061,Glückstadt,11410
+DE.K.09677,Marktheidenfeld,11402
+DE.K.06439,Geisenheim,11369
+DE.K.09571,Rothenburg ob der Tauber,11365
+DE.K.14521,Zwönitz,11358
+DE.K.09272,Waldkirchen,11356
+DE.K.08317,Rheinau,11346
+DE.K.09189,Trostberg,11337
+DE.K.08335,Engen,11311
+DE.K.08119,Welzheim,11264
+DE.K.08115,Rutesheim,11258
+DE.K.05554,Isselburg,11251
+DE.K.05962,Balve,11240
+DE.K.15091,Gräfenhainichen,11228
+DE.K.09679,Ochsenfurt,11219
+DE.K.08426,Riedlingen,11176
+DE.K.07137,Mülheim-Kärlich,11159
+DE.K.03151,Wittingen,11136
+DE.K.15091,Coswig (Anhalt),11129
+DE.K.14521,Stollberg/Erzgeb.,11127
+DE.K.12069,Bad Belzig,11118
+DE.K.08317,Gengenbach,11081
+DE.K.03154,Schöningen,11078
+DE.K.05754,Werther (Westf.),11051
+DE.K.13076,Boizenburg/ Elbe,11048
+DE.K.06532,Braunfels,11045
+DE.K.15085,Osterwieck,11045
+DE.K.09276,Regen,11018
+DE.K.13075,Wolgast,10991
+DE.K.05774,Lichtenau,10985
+DE.K.16074,Eisenberg,10955
+DE.K.14521,Oelsnitz/Erzgeb.,10954
+DE.K.14626,Ebersbach-Neugersdorf,10937
+DE.K.08417,Haigerloch,10930
+DE.K.03456,Neuenhaus,10890
+DE.K.14524,Lichtenstein/Sa.,10875
+DE.K.06434,Steinbach (Taunus),10856
+DE.K.09478,Bad Staffelstein,10821
+DE.K.08136,Lorch,10806
+DE.K.08235,Altensteig,10798
+DE.K.08316,Herbolzheim,10783
+DE.K.05358,Nideggen,10764
+DE.K.08316,Kenzingen,10748
+DE.K.12061,Wildau,10717
+DE.K.09672,Hammelburg,10694
+DE.K.06433,Gernsheim,10685
+DE.K.08417,Meßstetten,10677
+DE.K.09774,Burgau,10670
+DE.K.03459,Bad Iburg,10652
+DE.K.14625,Bischofswerda,10576
+DE.K.08117,Donzdorf,10568
+DE.K.06634,Felsberg,10535
+DE.K.03254,Gronau (Leine),10527
+DE.K.14627,Nossen,10486
+DE.K.01056,Barmstedt,10470
+DE.K.09278,Bogen,10453
+DE.K.09573,Langenzenn,10438
+DE.K.03459,Dissen am Teutoburger Wald,10423
+DE.K.01058,Büdelsdorf,10417
+DE.K.08436,Aulendorf,10417
+DE.K.14522,Burgstädt,10413
+DE.K.08235,Bad Wildbad,10388
+DE.K.03454,Werlte,10382
+DE.K.08316,Endingen am Kaiserstuhl,10381
+DE.K.07132,Betzdorf,10363
+DE.K.15088,Braunsbedra,10352
+DE.K.05974,Rüthen,10290
+DE.K.09277,Simbach a.Inn,10261
+DE.K.08125,Neuenstadt am Kocher,10249
+DE.K.16069,Schleusingen,10225
+DE.K.06531,Lollar,10222
+DE.K.09176,Beilngries,10218
+DE.K.15090,Tangermünde,10212
+DE.K.06435,Steinau an der Straße,10189
+DE.K.08117,Süßen,10185
+DE.K.14522,Flöha,10183
+DE.K.10041,Friedrichsthal,10180
+DE.K.01054,Niebüll,10173
+DE.K.13074,Grevesmühlen,10167
+DE.K.03159,Bad Lauterberg im Harz,10164
+DE.K.16077,Meuselwitz,10148
+DE.K.08437,Mengen,10148
+DE.K.08136,Heubach,10145
+DE.K.15090,Tangerhütte,10108
+DE.K.09677,Gemünden a.Main,10098
+DE.K.15086,Gommern,10090
+DE.K.14523,Oelsnitz/Vogtl.,10062
+DE.K.07141,Bad Ems,10030
+DE.K.12061,Mittenwalde,10027
+DE.K.15088,Querfurt,10007
+DE.K.08326,Blumberg,10003
+DE.K.16067,Ohrdruf,9991
+DE.K.08235,Wildberg,9977
+DE.K.09475,Münchberg,9969
+DE.K.14521,Olbernhau,9953
+DE.K.03256,Rehburg-Loccum,9942
+DE.K.06435,Bad Orb,9934
+DE.K.06634,Gudensberg,9925
+DE.K.16062,Bleicherode,9920
+DE.K.08116,Weilheim an der Teck,9887
+DE.K.06439,Rüdesheim am Rhein,9879
+DE.K.06440,Niddatal,9861
+DE.K.01060,Wahlstedt,9831
+DE.K.09676,Erlenbach a.Main,9717
+DE.K.16065,Bad Frankenhausen/Kyffhäuser,9715
+DE.K.01055,Oldenburg in Holstein,9711
+DE.K.07339,Nieder-Olm,9703
+DE.K.12072,Trebbin,9700
+DE.K.06531,Laubach,9699
+DE.K.15081,Klötze,9699
+DE.K.09571,Heilsbronn,9692
+DE.K.13075,Pasewalk,9666
+DE.K.14729,Brandis,9654
+DE.K.07331,Osthofen,9650
+DE.K.06535,Schotten,9641
+DE.K.12064,Altlandsberg,9630
+DE.K.07131,Bad Breisig,9623
+DE.K.08116,Aichtal,9599
+DE.K.13071,Demmin,9583
+DE.K.15088,Wettin-Löbejün,9554
+DE.K.15085,Oberharz am Brocken,9547
+DE.K.06533,Runkel,9543
+DE.K.06437,Bad König,9508
+DE.K.09171,Töging a.Inn,9496
+DE.K.09773,Wertingen,9486
+DE.K.01055,Heiligenhafen,9484
+DE.K.14625,Großröhrsdorf,9477
+DE.K.03360,Bad Bevensen,9466
+DE.K.03254,Bockenem,9465
+DE.K.03357,Visselhövede,9458
+DE.K.03459,Fürstenau,9443
+DE.K.06437,Oberzent,9429
+DE.K.14628,Sebnitz,9421
+DE.K.14524,Wilkau-Haßlau,9418
+DE.K.07143,Höhr-Grenzhausen,9415
+DE.K.15085,Ilsenburg (Harz),9414
+DE.K.09375,Hemau,9408
+DE.K.12060,Werneuchen,9397
+DE.K.09774,Ichenhausen,9373
+DE.K.15090,Osterburg (Altmark),9371
+DE.K.08426,Ochsenhausen,9358
+DE.K.09676,Miltenberg,9351
+DE.K.07334,Kandel,9337
+DE.K.08337,Laufenburg (Baden),9335
+DE.K.06534,Neustadt (Hessen),9316
+DE.K.14729,Zwenkau,9305
+DE.K.08235,Bad Liebenzell,9301
+DE.K.06535,Schlitz,9271
+DE.K.05766,Lügde,9232
+DE.K.15091,Kemberg,9217
+DE.K.15084,Hohenmölsen,9211
+DE.K.12061,Luckau,9203
+DE.K.12067,Storkow (Mark),9196
+DE.K.03354,Lüchow (Wendland),9170
+DE.K.03355,Bleckede,9154
+DE.K.09373,Freystadt,9151
+DE.K.12068,Kyritz,9147
+DE.K.09376,Nittenau,9145
+DE.K.03155,Dassel,9142
+DE.K.07333,Eisenberg (Pfalz),9137
+DE.K.16066,Steinbach-Hallenberg,9130
+DE.K.09779,Rain,9127
+DE.K.01062,Reinfeld (Holstein),9107
+DE.K.05566,Tecklenburg,9098
+DE.K.06440,Florstadt,9097
+DE.K.13073,Grimmen,9076
+DE.K.07137,Vallendar,9062
+DE.K.09276,Zwiesel,9059
+DE.K.09475,Rehau,9045
+DE.K.08426,Bad Schussenried,9044
+DE.K.07137,Mendig,9034
+DE.K.07137,Weißenthurm,9020
+DE.K.09373,Berching,9008
+DE.K.03461,Elsfleth,9004
+DE.K.09171,Neuötting,8991
+DE.K.14522,Waldheim,8989
+DE.K.15091,Zahna-Elster,8984
+DE.K.03155,Bad Gandersheim,8983
+DE.K.09479,Wunsiedel,8970
+DE.K.14626,Niesky,8956
+DE.K.09275,Bad Griesbach i.Rottal,8952
+DE.K.03257,Obernkirchen,8912
+DE.K.15082,Zörbig,8899
+DE.K.12062,Bad Liebenwerda,8899
+DE.K.13075,Torgelow,8899
+DE.K.13073,Sassnitz,8893
+DE.K.09186,Vohburg a.d.Donau,8891
+DE.K.15088,Bad Lauchstädt,8883
+DE.K.03254,Elze,8880
+DE.K.06534,Wetter (Hessen),8867
+DE.K.05754,Borgholzhausen,8847
+DE.K.09371,Auerbach i.d.OPf.,8846
+DE.K.01057,Plön,8844
+DE.K.05954,Breckerfeld,8816
+DE.K.01059,Kappeln,8812
+DE.K.14522,Brand-Erbisdorf,8797
+DE.K.09471,Hallstadt,8781
+DE.K.14729,Naunhof,8776
+DE.K.13075,"Ueckermünde, Seebad",8768
+DE.K.14521,"Zschopau, Stadt",8760
+DE.K.08115,Waldenbuch,8750
+DE.K.16075,Neustadt an der Orla,8743
+DE.K.12062,Herzberg (Elster),8732
+DE.K.07337,Bad Bergzabern,8724
+DE.K.08336,Kandern,8710
+DE.K.03352,Hemmoor,8709
+DE.K.15082,Raguhn-Jeßnitz,8702
+DE.K.08125,Möckmühl,8680
+DE.K.07132,Wissen,8679
+DE.K.08437,Meßkirch,8676
+DE.K.08226,Rauenberg,8675
+DE.K.09372,Furth im Wald,8659
+DE.K.05762,Borgentreich,8632
+DE.K.09676,Obernburg a.Main,8575
+DE.K.07133,Kirn,8551
+DE.K.09377,Tirschenreuth,8516
+DE.K.07331,Wörrstadt,8515
+DE.K.09675,Volkach,8512
+DE.K.16075,Schleiz,8501
+DE.K.09274,Rottenburg a.d.Laaber,8486
+DE.K.16072,Neuhaus am Rennweg,8468
+DE.K.08315,Staufen im Breisgau,8459
+DE.K.12062,Doberlug-Kirchhain,8438
+DE.K.06440,Ortenberg,8423
+DE.K.15085,Ballenstedt,8422
+DE.K.08326,Furtwangen im Schwarzwald,8420
+DE.K.09276,Viechtach,8361
+DE.K.12066,Großräschen/Rań,8355
+DE.K.07335,"Landstuhl, Sickingenstadt",8332
+DE.K.07132,Kirchen (Sieg),8318
+DE.K.16070,Stadtilm,8312
+DE.K.05766,Barntrup,8297
+DE.K.09571,Herrieden,8295
+DE.K.06531,Staufenberg,8291
+DE.K.05762,Willebadessen,8281
+DE.K.09677,Arnstein,8281
+DE.K.14522,Hainichen,8255
+DE.K.14729,Colditz,8249
+DE.K.01061,Kellinghusen,8243
+DE.K.15084,Lützen,8242
+DE.K.08216,Kuppenheim,8224
+DE.K.03459,Bersenbrück,8221
+DE.K.16074,Hermsdorf,8210
+DE.K.09272,Grafenau,8203
+DE.K.07140,Simmern/ Hunsrück,8195
+DE.K.08237,Dornstetten,8194
+DE.K.08236,Knittlingen,8188
+DE.K.13072,Teterow,8186
+DE.K.15088,Mücheln (Geiseltal),8185
+DE.K.14521,Lauter-Bernsbach,8179
+DE.K.07143,Ransbach-Baumbach,8176
+DE.K.08236,Neuenbürg,8162
+DE.K.06636,Bad Sooden-Allendorf,8141
+DE.K.08317,Zell am Harmersbach,8129
+DE.K.09475,Helmbrechts,8125
+DE.K.08118,Bönnigheim,8123
+DE.K.05766,Schieder-Schwalenberg,8098
+DE.K.15087,Mansfeld,8096
+DE.K.09376,Neunburg vorm Wald,8093
+DE.K.13072,"Kühlungsborn, Ostseebad",8088
+DE.K.07339,Nierstein,8078
+DE.K.09376,Teublitz,8060
+DE.K.08326,Hüfingen,8060
+DE.K.14522,Penig,8059
+DE.K.12063,Premnitz,8057
+DE.K.14729,Bad Lausick,8043
+DE.K.15089,Calbe (Saale),8030
+DE.K.14522,Leisnig,8028
+DE.K.08118,Großbottwar,8005
+DE.K.16071,Bad Sulza,8001
+DE.K.15091,Oranienbaum-Wörlitz,7998
+DE.K.12067,Beeskow,7998
+DE.K.03354,Dannenberg (Elbe),7966
+DE.K.07333,Kirchheimbolanden,7956
+DE.K.08136,Neresheim,7954
+DE.K.15091,Bad Schmiedeberg,7941
+DE.K.16076,Weida,7939
+DE.K.05958,Medebach,7906
+DE.K.08128,Weikersheim,7902
+DE.K.09572,Baiersdorf,7890
+DE.K.15089,Könnern,7875
+DE.K.09373,Parsberg,7818
+DE.K.15089,Barby,7813
+DE.K.09773,Gundelfingen a.d.Donau,7783
+DE.K.08136,Oberkochen,7746
+DE.K.13072,Bützow,7745
+DE.K.14625,Lauta,7726
+DE.K.14730,Bad Düben,7713
+DE.K.15084,Teuchern,7712
+DE.K.12068,Rheinsberg,7699
+DE.K.08235,Bad Herrenalb,7694
+DE.K.08315,Löffingen,7692
+DE.K.08125,Bad Wimpfen,7686
+DE.K.14524,Kirchberg,7678
+DE.K.12062,Elsterwerda,7663
+DE.K.16063,Bad Liebenstein,7662
+DE.K.15090,Bismark (Altmark),7660
+DE.K.07235,Schweich,7643
+DE.K.07335,Ramstein-Miesenbach,7636
+DE.K.12066,Vetschau/Spreewald / Wětošow/Błota,7635
+DE.K.12066,Calau/Kalawa,7626
+DE.K.14627,Radeburg,7615
+DE.K.07233,Daun,7608
+DE.K.14523,Treuen,7597
+DE.K.08317,Renchen,7582
+DE.K.09672,Münnerstadt,7577
+DE.K.09374,Vohenstrauß,7576
+DE.K.14522,Oederan,7569
+DE.K.13073,Barth,7568
+DE.K.14521,Lößnitz,7557
+DE.K.15089,Seeland,7553
+DE.K.12069,Treuenbrietzen,7539
+DE.K.15087,Allstedt,7535
+DE.K.12065,Kremmen,7535
+DE.K.05566,Horstmar,7528
+DE.K.08316,Elzach,7515
+DE.K.03352,Otterndorf,7515
+DE.K.07235,Saarburg,7504
+DE.K.09372,Bad Kötzting,7494
+DE.K.09475,Naila,7482
+DE.K.14521,Lugau/Erzgeb.,7481
+DE.K.06636,Sontra,7466
+DE.K.14628,Altenberg,7462
+DE.K.08125,Gundelsheim,7449
+DE.K.14729,Groitzsch,7442
+DE.K.09774,Leipheim,7434
+DE.K.16071,Bad Berka,7389
+DE.K.14523,Falkenstein/Vogtl.,7388
+DE.K.14730,Belgern-Schildau,7363
+DE.K.16067,Friedrichroda,7352
+DE.K.09172,Laufen,7336
+DE.K.15085,Harzgerode,7309
+DE.K.14523,Klingenthal,7289
+DE.K.06431,Zwingenberg,7283
+DE.K.14521,Pockau-Lengefeld,7273
+DE.K.03155,Hardegsen,7250
+DE.K.14625,Pulsnitz,7246
+DE.K.07233,Gerolstein,7210
+DE.K.06437,Breuberg,7196
+DE.K.09674,Ebern,7193
+DE.K.03159,Bad Sachsa,7193
+DE.K.08317,Haslach im Kinzigtal,7190
+DE.K.01058,Nortorf,7190
+DE.K.16069,Eisfeld,7181
+DE.K.01051,Meldorf,7166
+DE.K.07337,Annweiler am Trifels,7160
+DE.K.09576,Greding,7154
+DE.K.15082,Aken (Elbe),7153
+DE.K.14522,Roßwein,7149
+DE.K.09471,Scheßlitz,7129
+DE.K.12064,Wriezen,7107
+DE.K.06633,Immenhausen,7078
+DE.K.09272,Freyung,7078
+DE.K.07339,Oppenheim,7071
+DE.K.16065,Roßleben-Wiehe,7062
+DE.K.07134,Birkenfeld,7062
+DE.K.14523,Markneukirchen,7061
+DE.K.16071,Am Ettersberg,7010
+DE.K.03462,Esens,6998
+DE.K.08127,Ilshofen,6990
+DE.K.16073,Königsee,6979
+DE.K.15081,Kalbe (Milde),6976
+DE.K.06535,Homberg (Ohm),6973
+DE.K.09278,Geiselhöring,6964
+DE.K.06440,Reichelsheim (Wetterau),6961
+DE.K.14523,Lengenfeld,6910
+DE.K.06635,Waldeck,6905
+DE.K.09773,Höchstädt a.d.Donau,6902
+DE.K.07337,Edenkoben,6896
+DE.K.14729,Geithain,6870
+DE.K.09675,Dettelbach,6866
+DE.K.08425,Dietenheim,6843
+DE.K.12064,Müncheberg,6831
+DE.K.16074,Kahla,6825
+DE.K.08337,Bonndorf im Schwarzwald,6802
+DE.K.14521,Eibenstock,6795
+DE.K.14729,Böhlen,6787
+DE.K.16074,Stadtroda,6785
+DE.K.06634,Neukirchen,6782
+DE.K.13071,Malchin,6767
+DE.K.09678,Gerolzhofen,6767
+DE.K.07132,Altenkirchen (Westerwald),6758
+DE.K.14627,Gröditz,6752
+DE.K.07231,Bernkastel-Kues,6727
+DE.K.09377,Waldsassen,6711
+DE.K.06440,Gedern,6709
+DE.K.08128,Boxberg,6709
+DE.K.09474,Ebermannstadt,6688
+DE.K.12063,Ketzin/Havel,6684
+DE.K.07235,Hermeskeil,6677
+DE.K.07137,Polch,6675
+DE.K.06632,Heringen (Werra),6669
+DE.K.08225,Osterburken,6639
+DE.K.08126,Neuenstein,6618
+DE.K.08425,Schelklingen,6616
+DE.K.07339,Gau-Algesheim,6606
+DE.K.09377,Mitterteich,6604
+DE.K.15087,Gerbstedt,6601
+DE.K.14729,Pegau,6578
+DE.K.08315,Heitersheim,6577
+DE.K.15086,Jerichow,6571
+DE.K.09475,Schwarzenbach a.d.Saale,6570
+DE.K.13076,Neustadt-Glewe,6566
+DE.K.09372,Waldmünchen,6565
+DE.K.07133,Bad Sobernheim,6564
+DE.K.16071,Blankenhain,6543
+DE.K.03155,Moringen,6540
+DE.K.06635,Volkmarsen,6535
+DE.K.07132,Herdorf,6508
+DE.K.14522,Hartha,6503
+DE.K.09672,Bad Brückenau,6470
+DE.K.16068,Buttstädt,6470
+DE.K.16068,Kölleda,6467
+DE.K.09478,Burgkunstadt,6463
+DE.K.16065,Artern,6462
+DE.K.08236,Maulbronn,6452
+DE.K.15089,Hecklingen,6446
+DE.K.09575,Uffenheim,6431
+DE.K.14628,Glashütte,6414
+DE.K.09571,Wassertrüdingen,6414
+DE.K.08125,Beilstein,6412
+DE.K.09774,Thannhausen,6406
+DE.K.09373,Dietfurt a.d.Altmühl,6405
+DE.K.08125,Güglingen,6394
+DE.K.08417,Rosenfeld,6393
+DE.K.16069,Römhild,6383
+DE.K.09371,Vilseck,6382
+DE.K.07340,Rodalben,6378
+DE.K.09374,Grafenwöhr,6360
+DE.K.07138,Bad Hönningen,6355
+DE.K.07143,Hachenburg,6336
+DE.K.09183,Neumarkt-Sankt Veit,6334
+DE.K.14729,Rötha,6325
+DE.K.15091,Annaburg,6309
+DE.K.01059,Glücksburg (Ostsee),6306
+DE.K.13076,Wittenburg,6300
+DE.K.12060,Biesenthal,6295
+DE.K.03257,Rodenberg,6287
+DE.K.09376,Nabburg,6276
+DE.K.07138,Linz am Rhein,6265
+DE.K.08415,Trochtelfingen,6264
+DE.K.13072,Laage,6253
+DE.K.15090,Havelberg,6246
+DE.K.14625,Bernsdorf,6242
+DE.K.08315,Vogtsburg im Kaiserstuhl,6234
+DE.K.15081,Arendsee (Altmark),6232
+DE.K.08327,Geisingen,6225
+DE.K.08325,Dornhan,6219
+DE.K.08336,Zell im Wiesental,6204
+DE.K.06633,Zierenberg,6203
+DE.K.07138,Dierdorf,6192
+DE.K.09473,Bad Rodach,6179
+DE.K.08437,Gammertingen,6155
+DE.K.14523,Rodewisch,6131
+DE.K.15087,Arnstein,6123
+DE.K.09571,Windsbach,6114
+DE.K.08237,Alpirsbach,6114
+DE.K.09676,Klingenberg a.Main,6112
+DE.K.08116,Neuffen,6104
+DE.K.07143,Bad Marienberg (Westerwald),6096
+DE.K.06636,Großalmerode,6090
+DE.K.09273,Riedenburg,6090
+DE.K.05762,Nieheim,6081
+DE.K.12062,Falkenberg/Elster,6070
+DE.K.09374,Neustadt a.d.Waldnaab,6057
+DE.K.13071,Friedland,6044
+DE.K.09673,Bad Königshofen i.Grabfeld,6034
+DE.K.14628,Dohna,6030
+DE.K.16063,Werra-Suhl-Tal,6028
+DE.K.07143,Westerburg,6002
+DE.K.06634,Spangenberg,5967
+DE.K.13071,Malchow,5961
+DE.K.13076,Plau am See,5960
+DE.K.08435,Meersburg,5956
+DE.K.14521,Thalheim/Erzgeb.,5956
+DE.K.09471,Schlüsselfeld,5932
+DE.K.13076,Lübz,5892
+DE.K.16070,Großbreitenbach,5884
+DE.K.16065,An der Schmücke,5881
+DE.K.08235,Haiterbach,5872
+DE.K.08417,Geislingen,5870
+DE.K.12065,Gransee,5868
+DE.K.09377,Kemnath,5864
+DE.K.08317,Hausach,5851
+DE.K.14625,Schirgiswalde-Kirschau,5849
+DE.K.16073,Bad Blankenburg,5843
+DE.K.16076,Berga-Wünschendorf,5840
+DE.K.09189,Tittmoning,5826
+DE.K.08226,Waibstadt,5794
+DE.K.01054,Bredstedt,5790
+DE.K.08326,Bräunlingen,5784
+DE.K.08127,Schrozberg,5777
+DE.K.16063,Treffurt,5772
+DE.K.12066,Schwarzheide,5765
+DE.K.09779,Wemding,5757
+DE.K.16064,Nottertal-Heilinger Höhen,5750
+DE.K.12065,Fürstenberg/Havel,5741
+DE.K.09371,Hirschau,5726
+DE.K.07140,Kastellaun,5722
+DE.K.14524,Oberlungwitz,5716
+DE.K.06532,Leun,5715
+DE.K.08235,Neubulach,5713
+DE.K.14626,Herrnhut,5695
+DE.K.07143,Wirges,5694
+DE.K.06440,Münzenberg,5663
+DE.K.08125,Neudenau,5643
+DE.K.15089,Nienburg (Saale),5635
+DE.K.09779,Harburg (Schwaben),5598
+DE.K.01051,Marne,5586
+DE.K.08317,Wolfach,5571
+DE.K.16066,Brotterode-Trusetal,5571
+DE.K.09571,Leutershausen,5570
+DE.K.06634,Niedenstein,5570
+DE.K.14521,Grünhain-Beierfeld,5569
+DE.K.16066,Kaltennordheim,5562
+DE.K.14625,Wittichenau / Kulow,5554
+DE.K.14522,"Rochlitz, Stadt",5549
+DE.K.09576,Abenberg,5547
+DE.K.16065,Greußen,5544
+DE.K.12064,Seelow,5541
+DE.K.09674,Zeil a.Main,5540
+DE.K.09673,Mellrichstadt,5530
+DE.K.08236,Heimsheim,5530
+DE.K.16075,Bad Lobenstein,5523
+DE.K.14730,Mügeln,5505
+DE.K.08126,Ingelfingen,5501
+DE.K.12071,Drebkau/Drjowk,5455
+DE.K.06635,Battenberg (Eder),5450
+DE.K.09779,Monheim,5450
+DE.K.14628,Stolpen,5436
+DE.K.09373,Velburg,5424
+DE.K.01057,Lütjenburg,5424
+DE.K.13076,Grabow,5422
+DE.K.07231,Traben-Trarbach,5421
+DE.K.08425,Munderkingen,5408
+DE.K.08126,Forchtenberg,5405
+DE.K.07333,Rockenhausen,5371
+DE.K.14628,Bad Gottleuba-Berggießhübel,5367
+DE.K.08128,Külsheim,5360
+DE.K.06633,Grebenstein,5358
+DE.K.07334,Hagenbach,5354
+DE.K.06631,Gersfeld (Rhön),5352
+DE.K.08337,Stühlingen,5351
+DE.K.07335,Otterberg,5348
+DE.K.03452,Norderney,5343
+DE.K.16066,Wasungen,5342
+DE.K.07336,Kusel,5332
+DE.K.13076,Zarrentin am Schaalsee,5312
+DE.K.09674,Eltmann,5311
+DE.K.16074,Dornburg-Camburg,5289
+DE.K.07232,Prüm,5284
+DE.K.03158,Schöppenstedt,5265
+DE.K.08317,Mahlberg,5254
+DE.K.16062,Ellrich,5239
+DE.K.14522,Großschirma,5217
+DE.K.08225,Adelsheim,5207
+DE.K.09375,Wörth a.d.Donau,5196
+DE.K.09779,Oettingen i.Bay.,5196
+DE.K.09576,Spalt,5196
+DE.K.09472,Pottenstein,5190
+DE.K.06635,Diemelstadt,5186
+DE.K.13071,Burg Stargard,5171
+DE.K.14628,Tharandt,5170
+DE.K.14729,Kitzscher,5140
+DE.K.16063,Ruhla,5126
+DE.K.09674,Hofheim i.UFr.,5125
+DE.K.07336,Waldmohr,5124
+DE.K.09377,Erbendorf,5095
+DE.K.13074,Gadebusch,5087
+DE.K.06431,Lindenfels,5059
+DE.K.07138,Unkel,5051
+DE.K.08216,Lichtenau,5015
+DE.K.13071,Altentreptow,4992
+DE.K.09374,Windischeschenbach,4980
+DE.K.07140,Emmelshausen,4980
+DE.K.13072,Schwaan,4976
+DE.K.06534,Amöneburg,4972
+DE.K.16076,Ronneburg,4971
+DE.K.08336,Todtnau,4960
+DE.K.12072,Dahme/Mark,4957
+DE.K.07135,Cochem,4946
+DE.K.09376,Pfreimd,4943
+DE.K.06633,Naumburg,4935
+DE.K.15085,Falkenstein/Harz,4924
+DE.K.08135,Niederstotzingen,4916
+DE.K.09472,Creußen,4914
+DE.K.16063,Amt Creuzburg,4910
+DE.K.09479,Arzberg,4908
+DE.K.08128,Niederstetten,4906
+DE.K.09376,Oberviechtach,4905
+DE.K.12062,Uebigau-Wahrenbrück,4905
+DE.K.13072,Kröpelin,4899
+DE.K.16063,Vacha,4891
+DE.K.03454,Freren,4868
+DE.K.03255,Stadtoldendorf,4868
+DE.K.08136,Lauchheim,4857
+DE.K.13071,"Stavenhagen, Reuterstadt",4855
+DE.K.07141,Nassau,4840
+DE.K.03153,Braunlage,4839
+DE.K.08335,Tengen,4818
+DE.K.08317,Oppenau,4815
+DE.K.08417,Schömberg,4814
+DE.K.01054,Tönning,4814
+DE.K.13075,Eggesin,4812
+DE.K.05762,Marienmünster,4791
+DE.K.09478,Weismain,4786
+DE.K.09472,Hollfeld,4784
+DE.K.07332,Freinsheim,4772
+DE.K.09676,Wörth a.Main,4769
+DE.K.09675,Iphofen,4768
+DE.K.09673,Bischofsheim i.d.Rhön,4755
+DE.K.06633,Trendelburg,4755
+DE.K.08127,Vellberg,4747
+DE.K.14627,Lommatzsch,4737
+DE.K.16063,Geisa,4708
+DE.K.14521,Thum,4695
+DE.K.09576,Heideck,4684
+DE.K.13071,Röbel/Müritz,4684
+DE.K.03255,Bodenwerder,4672
+DE.K.14625,Königsbrück,4665
+DE.K.08426,Bad Buchau,4651
+DE.K.14625,Wilthen,4642
+DE.K.14523,Pausa-Mühltroff,4625
+DE.K.12067,Müllrose,4622
+DE.K.13076,Crivitz,4601
+DE.K.07141,Nastätten,4588
+DE.K.09575,Scheinfeld,4583
+DE.K.06535,Herbstein,4583
+DE.K.08326,Triberg im Schwarzwald,4580
+DE.K.14626,Reichenbach/O.L.,4574
+DE.K.03354,Hitzacker (Elbe),4566
+DE.K.06432,Groß-Bieberau,4562
+DE.K.08126,Krautheim,4561
+DE.K.15090,Seehausen (Altmark),4554
+DE.K.06631,Tann (Rhön),4492
+DE.K.05358,Heimbach,4487
+DE.K.13073,Marlow,4487
+DE.K.16067,Tambach-Dietharz/Thür. Wald,4474
+DE.K.16062,Heringen/Helme,4474
+DE.K.07143,Rennerod,4464
+DE.K.06534,Rauschenberg,4463
+DE.K.08128,Creglingen,4453
+DE.K.14523,Adorf/Vogtl.,4451
+DE.K.08127,Gerabronn,4451
+DE.K.13073,Putbus,4441
+DE.K.15084,Freyburg (Unstrut),4433
+DE.K.13076,Lübtheen,4433
+DE.K.07332,Wachenheim an der Weinstraße,4421
+DE.K.12065,Liebenwalde,4413
+DE.K.14524,Hartenstein,4411
+DE.K.14522,Augustusburg,4379
+DE.K.09472,Bad Berneck i.Fichtelgebirge,4373
+DE.K.08226,Schönau,4369
+DE.K.05958,Hallenberg,4367
+DE.K.14628,Rabenau,4359
+DE.K.14521,Ehrenfriedersdorf,4343
+DE.K.03457,Borkum,4325
+DE.K.13074,Schönberg,4321
+DE.K.09377,Waldershof,4315
+DE.K.09374,Eschenbach i.d.OPf.,4308
+DE.K.09371,Schnaittenbach,4304
+DE.K.01061,Wilster,4302
+DE.K.12071,Peitz/Picnjo,4301
+DE.K.07340,Dahn,4297
+DE.K.07140,Rheinböllen,4296
+DE.K.03159,Dransfeld,4290
+DE.K.07132,Daaden,4280
+DE.K.13075,Strasburg (Uckermark),4278
+DE.K.07134,Baumholder,4265
+DE.K.12069,Brück,4258
+DE.K.09472,Gefrees,4240
+DE.K.09475,Schwarzenbach a.Wald,4231
+DE.K.08127,Kirchberg an der Jagst,4221
+DE.K.09374,Pressath,4217
+DE.K.08226,Neckarbischofsheim,4195
+DE.K.07140,Kirchberg (Hunsrück),4189
+DE.K.13075,Loitz,4189
+DE.K.08126,Niedernhall,4185
+DE.K.12072,Baruth/Mark,4168
+DE.K.09474,Gräfenberg,4160
+DE.K.08317,Hornberg,4154
+DE.K.14730,Dahlen,4144
+DE.K.09475,Selbitz,4141
+DE.K.13072,Tessin,4139
+DE.K.01054,Wyk auf Föhr,4113
+DE.K.09471,Baunach,4109
+DE.K.13071,Dargun,4100
+DE.K.14522,Geringswalde,4066
+DE.K.06636,Waldkappel,4052
+DE.K.06635,Lichtenfels,4051
+DE.K.06636,Wanfried,4050
+DE.K.14626,Rothenburg/O.L.,4047
+DE.K.13071,Woldegk,4045
+DE.K.13071,Penzlin,4033
+DE.K.07332,Lambrecht (Pfalz),3995
+DE.K.07135,Zell (Mosel),3993
+DE.K.13072,Neubukow,3969
+DE.K.09577,Pappenheim,3942
+DE.K.14524,Waldenburg,3941
+DE.K.13074,Neukloster,3925
+DE.K.13074,Dassow,3922
+DE.K.09676,Amorbach,3907
+DE.K.09577,Ellingen,3897
+DE.K.14522,Lunzenau,3880
+DE.K.03256,Hoya,3862
+DE.K.15089,Güsten,3843
+DE.K.06431,Neckarsteinach,3828
+DE.K.06531,Allendorf (Lumda),3824
+DE.K.16068,Kindelbrück,3823
+DE.K.08337,St. Blasien,3818
+DE.K.09473,Seßlach,3809
+DE.K.14729,Regis-Breitingen,3803
+DE.K.09675,Marktbreit,3793
+DE.K.06439,Lorch,3780
+DE.K.13076,Sternberg,3769
+DE.K.14521,Wolkenstein,3762
+DE.K.14729,Trebsen/Mulde,3744
+DE.K.12066,Ruhland,3728
+DE.K.13071,Mirow,3711
+DE.K.07232,Speicher,3681
+DE.K.16076,Bad Köstritz,3651
+DE.K.08327,Mühlheim an der Donau,3649
+DE.K.14627,Strehla,3644
+DE.K.08128,Grünsfeld,3640
+DE.K.08326,Vöhrenbach,3631
+DE.K.07332,Deidesheim,3623
+DE.K.08128,Freudenberg,3615
+DE.K.14523,Netzschkau,3615
+DE.K.14523,Elsterberg,3609
+DE.K.06635,Gemünden (Wohra),3606
+DE.K.16075,Triptis,3606
+DE.K.16068,Weißensee,3598
+DE.K.14626,Bad Muskau / Mužakow,3577
+DE.K.14521,Johanngeorgenstadt,3567
+DE.K.09182,Tegernsee,3567
+DE.K.14523,Bad Elster,3552
+DE.K.09674,Königsberg i.Bay.,3543
+DE.K.13074,Rehna,3542
+DE.K.14626,Seifhennersdorf,3536
+DE.K.08325,Schiltach,3517
+DE.K.07133,Stromberg,3514
+DE.K.09575,Burgbernheim,3512
+DE.K.06431,Hirschhorn (Neckar),3482
+DE.K.12068,Neustadt (Dosse),3469
+DE.K.08125,Löwenstein,3460
+DE.K.16077,Lucka,3457
+DE.K.16072,Steinach,3456
+DE.K.14524,Wildenfels,3452
+DE.K.09472,Goldkronach,3451
+DE.K.07135,Ulmen,3432
+DE.K.08116,Owen,3417
+DE.K.16077,Gößnitz,3413
+DE.K.12060,Joachimsthal,3402
+DE.K.07137,Münstermaifeld,3394
+DE.K.03255,Eschershausen,3378
+DE.K.16071,Kranichfeld,3376
+DE.K.06633,Bad Karlshafen,3373
+DE.K.01051,Wesselburen,3368
+DE.K.14628,Bad Schandau,3346
+DE.K.09673,Ostheim v.d.Rhön,3344
+DE.K.15083,Gröningen,3343
+DE.K.16076,Auma-Weidatal,3324
+DE.K.13072,Krakow am See,3324
+DE.K.16073,Schwarzatal,3319
+DE.K.12062,Mühlberg/Elbe,3309
+DE.K.08118,Oberriexingen,3306
+DE.K.16075,Tanna,3304
+DE.K.09571,Wolframs-Eschenbach,3282
+DE.K.16075,Saalburg-Ebersdorf,3271
+DE.K.16069,Heldburg,3261
+DE.K.07135,Kaisersesch,3256
+DE.K.09372,Rötz,3256
+DE.K.14521,Geyer,3255
+DE.K.13074,Warin,3255
+DE.K.13076,Goldberg,3236
+DE.K.08235,Bad Teinach-Zavelstein,3220
+DE.K.07233,Hillesheim,3207
+DE.K.15087,Kelbra (Kyffhäuser),3196
+DE.K.12069,Havelsee,3181
+DE.K.08327,Fridingen an der Donau,3157
+DE.K.14628,Hohnstein,3150
+DE.K.12073,Lychen,3139
+DE.K.16072,Lauscha,3133
+DE.K.09479,Kirchenlamitz,3122
+DE.K.12062,Sonnewalde,3120
+DE.K.14626,Bernstadt a. d. Eigen,3117
+DE.K.16072,Schalkau,3111
+DE.K.15089,Egeln,3108
+DE.K.12071,Welzow/Wjelcej,3102
+DE.K.09571,Merkendorf,3099
+DE.K.16074,Bürgel,3099
+DE.K.14626,Neusalza-Spremberg,3092
+DE.K.09679,Eibelstadt,3091
+DE.K.09479,Schönwald,3076
+DE.K.06535,Kirtorf,3072
+DE.K.09476,Ludwigsstadt,3068
+DE.K.12071,Döbern/Derbno,3066
+DE.K.12064,Lebus,3049
+DE.K.13074,Klütz,3036
+DE.K.13075,Gützkow,3034
+DE.K.09675,Prichsenstadt,3032
+DE.K.14625,Weißenberg / Wóspork,3024
+DE.K.09377,Bärnau,3007
+DE.K.07141,Braubach,3002
+DE.K.08225,Ravenstein,2999
+DE.K.13071,Wesenberg,2992
+DE.K.09472,Waischenfeld,2989
+DE.K.08126,Waldenburg,2986
+DE.K.09477,Stadtsteinach,2983
+DE.K.07137,Rhens,2950
+DE.K.07140,Oberwesel,2939
+DE.K.15084,Nebra (Unstrut),2937
+DE.K.12067,Friedland,2936
+DE.K.07131,Adenau,2935
+DE.K.12068,Lindow (Mark),2921
+DE.K.07133,Meisenheim,2910
+DE.K.07143,Selters (Westerwald),2902
+DE.K.12062,Schönewalde,2899
+DE.K.06633,Liebenau,2880
+DE.K.09479,Weißenstadt,2880
+DE.K.06635,Hatzfeld (Eder),2865
+DE.K.13076,Dömitz,2864
+DE.K.16075,Wurzbach,2864
+DE.K.14523,Schöneck/Vogtl.,2857
+DE.K.07140,Sankt Goar,2847
+DE.K.16076,Münchenbernsdorf,2842
+DE.K.09479,Marktleuthen,2820
+DE.K.01054,Garding,2816
+DE.K.08315,Sulzburg,2794
+DE.K.13075,Jarmen,2787
+DE.K.06635,Frankenau,2782
+DE.K.09571,Schillingsfürst,2770
+DE.K.06535,Ulrichstein,2728
+DE.K.13072,Gnoien,2703
+DE.K.16065,Ebeleben,2667
+DE.K.16069,Themar,2664
+DE.K.15084,Laucha an der Unstrut,2657
+DE.K.14522,Frauenstein,2656
+DE.K.14625,Elstra / Halštrow,2651
+DE.K.14521,Elterlein,2636
+DE.K.06535,Romrod,2574
+DE.K.12070,Putlitz,2566
+DE.K.01054,Friedrichstadt,2563
+DE.K.16074,Schkölen,2559
+DE.K.08117,Lauterstein,2558
+DE.K.13076,Brüel,2557
+DE.K.12063,Friesack,2545
+DE.K.15089,Alsleben (Saale),2526
+DE.K.03354,Wustrow (Wendland),2524
+DE.K.15084,Bad Bibra,2515
+DE.K.12070,Bad Wilsnack,2512
+DE.K.08437,Scheer,2510
+DE.K.13073,Tribsees,2506
+DE.K.08336,Schönau im Schwarzwald,2504
+DE.K.09472,Betzenstein,2491
+DE.K.12061,Golßen,2458
+DE.K.01061,Krempe,2435
+DE.K.09476,Wallenfels,2432
+DE.K.14521,Jöhstadt,2413
+DE.K.16064,Bad Tennstedt,2399
+DE.K.12069,Ziesar,2389
+DE.K.15085,Wegeleben,2378
+DE.K.08335,Aach,2377
+DE.K.09374,Pleystein,2368
+DE.K.16068,Rastenberg,2360
+DE.K.15085,Schwanebeck,2352
+DE.K.15084,Osterfeld,2346
+DE.K.12062,Schlieben,2344
+DE.K.16075,Gefell,2344
+DE.K.03358,Rethem (Aller),2332
+DE.K.12073,Gartz (Oder),2328
+DE.K.07141,Katzenelnbogen,2287
+DE.K.06535,Grebenau,2273
+DE.K.09376,Schönsee,2269
+DE.K.15084,Eckartsberga,2255
+DE.K.09675,Mainbernheim,2230
+DE.K.08415,Hayingen,2211
+DE.K.14521,Schlettau,2208
+DE.K.14730,Dommitzsch,2198
+DE.K.14626,Ostritz,2198
+DE.K.16068,Gebesee,2181
+DE.K.13073,Garz/Rügen,2170
+DE.K.13072,"Rerik, Ostseebad",2166
+DE.K.14628,Königstein/Sächs. Schw.,2151
+DE.K.08437,Veringenstadt,2149
+DE.K.16075,Hirschberg,2105
+DE.K.09673,Fladungen,2092
+DE.K.12070,Meyenburg,2061
+DE.K.06635,Rosenthal,2051
+DE.K.12069,Niemegk,2038
+DE.K.12070,Lenzen (Elbe),2031
+DE.K.08117,Wiesensteig,2001
+DE.K.12066,Ortrand,1996
+DE.K.07336,Lauterecken,1990
+DE.K.12060,Oderberg,1981
+DE.K.14521,Scheibenberg,1972
+DE.K.16070,Plaue,1972
+DE.K.14521,"Oberwiesenthal, Kurort",1929
+DE.K.16071,Magdala,1924
+DE.K.16073,Leutenberg,1919
+DE.K.12061,Teupitz,1902
+DE.K.09677,Rieneck,1868
+DE.K.08437,Hettingen,1861
+DE.K.09475,Schauenstein,1859
+DE.K.09476,Teuschnitz,1847
+DE.K.12073,Brüssow,1842
+DE.K.07336,Wolfstein,1835
+DE.K.03257,Sachsenhagen,1821
+DE.K.09675,Marktsteft,1813
+DE.K.16073,Gräfenthal,1806
+DE.K.08125,Widdern,1782
+DE.K.08127,Langenburg,1749
+DE.K.09571,Ornbau,1720
+DE.K.09574,Velden,1712
+DE.K.13075,Penkun,1707
+DE.K.09679,Röttingen,1681
+DE.K.16075,Ranis,1680
+DE.K.13073,Bad Sülze,1659
+DE.K.14522,Sayda,1659
+DE.K.13071,Neukalen,1649
+DE.K.12063,Rhinow,1603
+DE.K.09676,Stadtprozelten,1597
+DE.K.16066,Oberhof,1592
+DE.K.07339,Bacharach,1575
+DE.K.14628,Stadt Wehlen,1538
+DE.K.12064,Buckow (Märkische Schweiz),1513
+DE.K.13075,Usedom,1499
+DE.K.16073,Lehesten,1495
+DE.K.07231,Manderscheid,1434
+DE.K.15090,Arneburg,1402
+DE.K.07340,Hornbach,1387
+DE.K.09479,Hohenberg a.d.Eger,1384
+DE.K.16076,Hohenleuben,1373
+DE.K.09679,Aub,1370
+DE.K.15083,Kroppenstedt,1357
+DE.K.07232,Neuerburg,1344
+DE.K.12061,Lieberose,1330
+DE.K.13073,Richtenberg,1301
+DE.K.13073,Franzburg,1272
+DE.K.07141,"Sankt Goarshausen, Loreleystadt",1248
+DE.K.13075,Lassan,1224
+DE.K.14628,Liebstadt,1207
+DE.K.09374,Neustadt am Kulm,1160
+DE.K.06634,Schwarzenborn,1086
+DE.K.16074,Orlamünde,1081
+DE.K.07333,Obermoschel,1065
+DE.K.09477,Kupferberg,1049
+DE.K.15088,Schraplau,1020
+DE.K.16065,Clingen,985
+DE.K.09475,Lichtenberg,961
+DE.K.09677,Rothenfels,947
+DE.K.07232,Kyllburg,939
+DE.K.15090,Werben (Elbe),899
+DE.K.15084,Stößen,869
+DE.K.12061,Märkisch Buchholz,849
+DE.K.15090,Sandau (Elbe),796
+DE.K.07141,Kaub,788
+DE.K.16075,Ziegenrück,626
+DE.K.16071,Neumark,462
+DE.K.16069,Ummerstadt,455
+DE.K.03354,Schnackenburg,447
+DE.K.01059,Arnis,251
