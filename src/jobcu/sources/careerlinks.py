@@ -17,6 +17,11 @@ _READABLE: list[tuple[str, re.Pattern, str]] = [
     ("workday", re.compile(
         r"https?://([a-z0-9-]+)\.(wd\d+)\.myworkdayjobs\.com/(?:[a-z]{2}-[A-Z]{2}/)?"
         r"(?!wday\b)([A-Za-z0-9_-]+)"), "https://{0}.{1}.myworkdayjobs.com/{2}"),
+    # Workday's newer address names no server (NXP moved there in November 2026 and its old
+    # address answers 422 since).
+    ("workday", re.compile(
+        r"https?://(?!wd\d+\.)([a-z0-9-]+)\.myworkdayjobs\.com/(?:[a-z]{2}-[A-Z]{2}/)?"
+        r"(?!wday\b)([A-Za-z0-9_-]+)"), "https://{0}.myworkdayjobs.com/{1}"),
     ("oracle", re.compile(
         r"([a-z0-9-]+(?:\.[a-z0-9-]+)*\.oraclecloud\.com)/hcmUI/CandidateExperience/"
         r"[a-z]{2}(?:-[A-Z]{2})?/sites/([A-Za-z0-9_]+)"), "{0}/{1}"),

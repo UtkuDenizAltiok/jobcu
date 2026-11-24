@@ -15,6 +15,8 @@ Usage:
 
 A candidates file has the same shape as the directory:
     {"employers": [{"name": "Acme", "system": "greenhouse", "board": "acme"}]}
+A Workday entry may add "ads": the employer's own job sitemap whose pages carry the same vacancy
+numbers, read for an ad Workday won't serve (sources/workday.py). It is kept as written.
 
 Contacts only the career systems' public job lists, at Jobcu's polite pace. Run it now and then
 (and before releases) so the directory stays current.
@@ -32,6 +34,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
+from jobcu import places  # noqa: E402
 from jobcu.keystore import KeyStore  # noqa: E402
 from jobcu.placenames import OTHER  # noqa: E402
 from jobcu.sources import career_sources  # noqa: E402
@@ -114,6 +117,11 @@ def main() -> int:
                         dropped.append(f"{system:10} {entry['name']}: {exc or type(exc).__name__}")
                 continue
             countries = sorted(code for code in counts if code not in (OTHER, "unknown"))
+            # Only towns the town list knows tell where a company hires (careers.hires_near): a
+            # village a career site names (Teveren) can't be measured from.
+            towns = {code: sorted(town for town in survey.towns.get(code, ())
+                                  if places.find(town, code) is not None)[:MAX_TOWNS]
+                     for code in countries}
             line = (f"{system:10} {entry['name']:35} " +
                     " ".join(f"{code}:{counts[code]}" for code in countries) +
                     (f"  elsewhere:{counts[OTHER]}" if counts[OTHER] else ""))
@@ -122,8 +130,9 @@ def main() -> int:
                     kept.append({"name": entry["name"], "system": system,
                                  "board": entry["board"], "countries": countries,
                                  "elsewhere": bool(counts[OTHER]),
-                                 "towns": {code: sorted(survey.towns.get(code, ()))[:MAX_TOWNS]
-                                           for code in countries if survey.towns.get(code)},
+                                 "towns": {code: found for code, found in towns.items() if found},
+                                 # Set by hand: the employer's own job sitemap (Employer.ads).
+                                 **({"ads": entry["ads"]} if entry.get("ads") else {}),
                                  **({"checked": today} if checked != today else {})})
                     print(line, flush=True)
                 else:

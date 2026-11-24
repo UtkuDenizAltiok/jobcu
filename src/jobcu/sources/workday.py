@@ -10,6 +10,13 @@ filters such as the job's country with an ID each. A job's full ad and exact day
 
 Because the address isn't documented, Jobcu checks each site's robots.txt first and skips the
 company if it disallows these addresses.
+
+Since November 2026 the ads on Workday's wd1 and wd5 servers are behind a human check, which Jobcu
+never passes (the lists still answer). Some employers publish every vacancy on their own career
+site too, under the same vacancy number ("R5049393" on Workday and in
+`careers.gevernova.com/automation-engineer/job/R5049393`). For those the directory names that
+site's job sitemap (`Employer.ads`), and an ad Workday won't serve is read from the employer's
+page with the same number and title.
 """
 
 import dataclasses
@@ -18,8 +25,11 @@ from collections.abc import Iterator
 from datetime import UTC, date, datetime, timedelta
 from urllib.parse import urlsplit
 
+from rapidfuzz import fuzz
+
 from jobcu import places as place_list
 from jobcu.freshness import day_at_utc, freshness
+from jobcu.jobposting import find_job_posting
 from jobcu.placenames import OTHER, countries_in
 from jobcu.sources.base import FoundJob, SourceContext, SourceError
 from jobcu.sources.budget import BudgetExhausted
@@ -30,12 +40,23 @@ from jobcu.sources.careers import (
     job_types_from_text,
     work_mode_from_text,
 )
+from jobcu.sources.http import Blocked
+from jobcu.sources.sitemaps import country_code, job_pages
 from jobcu.text import html_to_text
 
 PAGE_SIZE = 20
 MAX_PAGES_PER_COUNTRY = 25
 HEADERS = {"Accept": "application/json", "Accept-Language": "en-US"}
 _POSTED = re.compile(r"posted\s+(today|yesterday|(\d+)\+?\s+days?\s+ago)", re.IGNORECASE)
+# A vacancy number as Workday lists show it ("R5045614", "R-01376627", "JR000678", "01883090"):
+# at most four letters, then at least five digits, so it can't be mistaken for another number.
+_NUMBER = re.compile(r"^[A-Za-z]{0,4}-?\d{5,}$")
+# An address under a language's own path ("/fr/..."): an employer's site can list one vacancy
+# once per language, and the version without one (usually English) is read first.
+_LANGUAGE_PATH = re.compile(r"^/[a-z]{2}(?:-[a-z]{2})?/", re.IGNORECASE)
+# How alike the employer's page title must be (0-100, every word of the shorter title found in
+# the longer): a page with the same number and another title is not taken.
+SAME_TITLE = 80
 
 
 @dataclasses.dataclass(frozen=True)
@@ -146,10 +167,17 @@ class WorkdaySource(CareerSystemSource):
         try:
             info = self.get_json(job.source_job_id, ctx, headers=HEADERS).get(
                 "jobPostingInfo") or {}
-        except (SourceError, BudgetExhausted, ValueError):
+        except Blocked:
+            # The ad behind a human check (never passed): the employer's own site may show it.
+            if (own := self._from_own_site(job, ctx)) is None:
+                raise
+            return own
+        except BudgetExhausted:
             return job
+        except (SourceError, ValueError):
+            return self._from_own_site(job, ctx) or job
         if not info:
-            return job
+            return self._from_own_site(job, ctx) or job
         description = html_to_text(info.get("jobDescription"))
         additional = info.get("additionalLocations")
         locations = [info.get("location"), *(additional if isinstance(additional, list) else [])]
@@ -168,6 +196,60 @@ class WorkdaySource(CareerSystemSource):
             job_types=job_types_from_text(info.get("timeType")) or job.job_types,
             work_mode=work_mode_from_text(info.get("remoteType")) or job.work_mode,
         )
+
+    def _from_own_site(self, job: FoundJob, ctx: SourceContext) -> FoundJob | None:
+        """The same vacancy's ad on the employer's own career site (`Employer.ads`): the page its
+        job sitemap names with the vacancy's number, when that page's job data has the job's
+        title and a full ad. None when there is no such page."""
+        # Imported here: the duplicate rules import the sources.
+        from jobcu.dedupe import normal_title
+
+        address, number = job.source_context.get("ads"), job.source_context.get("number")
+        if not address or not number:
+            return None
+        named = re.compile(rf"(?<![a-z0-9]){re.escape(number.lower())}(?![0-9])")
+        pages = [page for page in self._own_pages(address, ctx)
+                 if named.search(urlsplit(page).path.lower())]
+        pages.sort(key=lambda page: bool(_LANGUAGE_PATH.match(urlsplit(page).path)))
+        for page in pages[:2]:
+            try:
+                if not self.allowed(page, ctx):
+                    return None
+                posting = find_job_posting(self.get(page, ctx).text)
+            except (SourceError, BudgetExhausted, Blocked):
+                return None
+            if (posting is None or not (posting.description or "").strip()
+                    or fuzz.token_set_ratio(normal_title(posting.title),
+                                            normal_title(job.title)) < SAME_TITLE):
+                continue
+            posted, precision = job.posted_at, job.date_precision
+            if posting.date_posted and (posted is None or posting.date_posted < posted):
+                # An earlier date shows the job is older; a later one can be the page's update.
+                posted = posting.date_posted
+                precision = "exact" if posting.date_has_time else "day"
+            return dataclasses.replace(
+                job,
+                description=posting.description,
+                description_is_complete=posting.description_is_complete,
+                location_text=posting.location_text or job.location_text,
+                country=job.country or country_code(posting.country),
+                posted_at=posted,
+                date_precision=precision,
+                job_types=posting.job_types or job.job_types,
+                work_mode="remote" if posting.remote else job.work_mode,
+                closes_at=posting.valid_through or job.closes_at,
+            )
+        return None
+
+    def _own_pages(self, address: str, ctx: SourceContext) -> list[str]:
+        """The job pages an employer's own sitemap lists, read once a search."""
+        read: dict[str, list[str]] = self.__dict__.setdefault("_own_pages_read", {})
+        if address not in read:
+            try:
+                read[address] = [page for page, _ in job_pages(self, address, ctx)]
+            except (SourceError, BudgetExhausted, Blocked):
+                read[address] = []
+        return read[address]
 
     finds_by_title = True
 
@@ -233,6 +315,16 @@ def country_facets(data: dict) -> dict[str, set[str]]:
             for value in _country_facet(data.get("facets"))[1] if value.get("id")}
 
 
+def vacancy_number(item: dict) -> str | None:
+    """The vacancy number a Workday list shows (its first "bulletField" on the sites checked),
+    else the one its address ends with ("..._R5045614-2", the vacancy's second posting)."""
+    for value in item.get("bulletFields") or []:
+        if isinstance(value, str) and _NUMBER.match(value.strip()):
+            return value.strip()
+    tail = re.sub(r"-\d{1,2}$", "", (item.get("externalPath") or "").rsplit("_", 1)[-1])
+    return tail if _NUMBER.match(tail) else None
+
+
 def to_found_job(item: dict, site: Site, employer: Employer, country: str | None,
                  today: date) -> FoundJob:
     path = item.get("externalPath") or ""
@@ -240,6 +332,7 @@ def to_found_job(item: dict, site: Site, employer: Employer, country: str | None
     location = item.get("locationsText")
     if location and re.fullmatch(r"\d+ Locations?", location):
         location = None  # "5 Locations": the country filter tells the country
+    number = vacancy_number(item) if employer.ads else None
     return FoundJob(
         source="workday",
         source_job_id=f"{site.api}{path}",
@@ -251,4 +344,6 @@ def to_found_job(item: dict, site: Site, employer: Employer, country: str | None
         posted_at=day_at_utc(day) if day else None,
         date_precision="day" if day else "unknown",
         work_mode=work_mode_from_text(location),
+        # Where the ad can be read when Workday won't serve it (_from_own_site).
+        source_context={"number": number, "ads": employer.ads} if number else {},
     )

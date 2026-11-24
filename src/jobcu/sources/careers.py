@@ -62,6 +62,9 @@ class Employer:
     elsewhere: bool = False  # it also hires outside the supported countries
     towns: dict[str, tuple[str, ...]] = field(default_factory=dict)  # per country, when known
     found_by_ai: bool = False  # found for this person by their AI, not in the directory
+    # The employer's own job sitemap, whose job pages are named by the same vacancy numbers as
+    # its career system's: read for an ad the career system itself won't serve (workday.py).
+    ads: str | None = None
 
 
 @dataclass
@@ -89,6 +92,7 @@ def load_directory(path: Path = DIRECTORY) -> tuple[Employer, ...]:
             elsewhere=bool(entry.get("elsewhere")),
             towns={country: tuple(towns)
                    for country, towns in (entry.get("towns") or {}).items()},
+            ads=entry.get("ads"),
         )
         for entry in data["employers"]
     )

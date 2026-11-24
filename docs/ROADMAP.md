@@ -39,6 +39,11 @@ done. Implementation details belong in pull requests; current behavior is descri
 - Workday's wd1 and wd5 servers (85 employers, Analog Devices and Medtronic among them) are read
   again: a robots.txt behind a human check sets no rules, as the robots standard says, while a check
   on the ads is never passed, so those jobs come with title, place, date and the employer's link.
+  Where the employer's own career site lists the same vacancy number (GE Vernova, Johnson &
+  Johnson, Thermo Fisher, Danaher, RTX), the full ad is read there instead.
+- More employers read directly: Woodward, BorgWarner, Evolito, Altera, Leidos, Emerson, and Micron's
+  and HP's own Eightfold sites; NXP at Workday's newer address (its old one stopped answering) and
+  Dell on its new Oracle site.
 - Stop keeps what is scored: once jobs are scored, stopping a search builds the list from them,
   and "Retry incomplete checks" finishes the rest.
 - Only web searches the provider bills count against the free monthly searches and a search's
