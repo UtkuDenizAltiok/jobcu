@@ -224,6 +224,7 @@ class PoliteClient:
                 before_attempt: Callable[[], None] | None = None,
                 retry_response: Callable[[httpx.Response], bool] | None = None,
                 retry_transport: bool = True,
+                blocks_host: bool = True,
                 **kwargs) -> httpx.Response:
         self._check_stop()
         key = (method, url, repr(sorted((kwargs.get("params") or {}).items())),
@@ -256,8 +257,11 @@ class PoliteClient:
                 with self._lock:
                     self.request_count[host] = self.request_count.get(host, 0) + 1
             if response.status_code in (401, 403, 429) and _looks_like_bot_protection(response):
-                with self._lock:
-                    self._blocked_hosts.add(host)
+                # A check on one address (a site's robots.txt, `blocks_host=False`) says nothing
+                # of the others; a check on what Jobcu reads ends reading that server.
+                if blocks_host:
+                    with self._lock:
+                        self._blocked_hosts.add(host)
                 raise Blocked(host)
             if response.status_code == 429 or response.status_code >= 500:
                 wait = _retry_after(response, now=self._wall_clock())

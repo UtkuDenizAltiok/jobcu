@@ -192,30 +192,61 @@ CHALLENGE = ("<html><title>Security Check</title><div class='captcha-box'>Enable
              "cookies to continue</div></html>")
 
 
-def test_a_company_whose_robots_txt_is_behind_a_human_check_is_skipped_and_no_other(monkeypatch):
-    # November 2026: Cloudflare put robots.txt of half of Workday's servers (wd1, wd5) behind a
-    # challenge. Jobcu doesn't get past it, so that company isn't read; reading every other
-    # company on its own server goes on (it used to stop all 175).
+@pytest.mark.parametrize("list_checked", [False, True])
+def test_a_robots_txt_behind_a_human_check_sets_no_rules_but_a_checked_list_is_never_read(
+        monkeypatch, list_checked):
+    # November 2026: Cloudflare put robots.txt and the web pages of half of Workday's servers
+    # (wd1, wd5) behind a check, while the job lists Jobcu reads answered as before. A robots.txt
+    # answered with a 4xx status sets no rules (RFC 9309). Jobcu never gets past a check: where
+    # the list itself shows one, that company isn't read, and every other company still is.
     first = employer("workday", "https://checked.wd1.myworkdayjobs.com/External", name="Checked")
     second = employer("workday", "https://open.wd3.myworkdayjobs.com/External", name="Open")
     monkeypatch.setattr(careers, "load_directory", lambda: (first, second))
     fresh = [posting("Hardware Engineer", "Posted Today", "/job/Limerick/H_1")]
-    open_site = workday_handler([fresh])
+    sites = {"checked": workday_handler([fresh]), "open": workday_handler([fresh])}
     asked = []
 
     def handler(request):
         asked.append((request.url.host, request.url.path))
-        if request.url.host.startswith("checked."):
+        site = request.url.host.split(".")[0]
+        if site == "checked" and (request.url.path == "/robots.txt" or list_checked):
             return httpx.Response(429, text=CHALLENGE, headers={"cf-mitigated": "challenge"})
-        return open_site(request)
+        return sites[site](request)
 
     source = wd.WorkdaySource()
     source.parallel = 1
     ctx = context(handler, "workday")
     jobs = list(source.search(query(["IE"]), ctx))
-    assert [job.company for job in jobs] == ["Open"]
-    assert [path for host, path in asked if host.startswith("checked.")] == ["/robots.txt"]
-    assert ctx.report.status == "partial" and "Checked" in ctx.report.message
+    checked_paths = [path for host, path in asked if host.startswith("checked.")]
+    if list_checked:
+        assert [job.company for job in jobs] == ["Open"]
+        assert checked_paths[0] == "/robots.txt" and len(checked_paths) == 2
+        assert ctx.report.status == "partial" and "Checked" in ctx.report.message
+    else:
+        assert sorted(job.company for job in jobs) == ["Checked", "Open"]
+
+
+def test_robots_txt_follows_the_standard_for_each_answer():
+    from jobcu.sources.base import SourceReport
+    from jobcu.sources.http import PoliteClient
+
+    answers = {"missing.example": httpx.Response(404), "refused.example": httpx.Response(403),
+               "failing.example": httpx.Response(503),
+               "rules.example": httpx.Response(200, text="User-agent: *\nDisallow: /private/\n")}
+
+    def handler(request):
+        return answers[request.url.host]
+
+    http = PoliteClient(min_intervals={}, sleep=lambda s: None,
+                        transport=httpx.MockTransport(handler))
+    ctx = SourceContext(http, KeyStore(), SourceReport("workday", "Workday"), lambda: False,
+                        lambda m: None)
+    source = wd.WorkdaySource()
+    assert source.allowed("https://missing.example/jobs", ctx)
+    assert source.allowed("https://refused.example/jobs", ctx)  # 4xx: no rules (RFC 9309)
+    assert not source.allowed("https://failing.example/jobs", ctx)  # unreachable: nothing
+    assert source.allowed("https://rules.example/jobs", ctx)
+    assert not source.allowed("https://rules.example/private/x", ctx)
 
 
 def test_a_system_whose_shared_server_refuses_jobcu_is_asked_once(monkeypatch):

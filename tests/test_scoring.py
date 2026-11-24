@@ -413,6 +413,16 @@ def test_scoring_prompt_includes_the_profile_and_marks_short_ads():
     assert "only the start of the ad is available" in prompt
 
 
+def test_a_job_known_only_by_its_title_says_so_in_the_prompt():
+    # A career site may list its jobs but keep their ads behind a human check.
+    adapter = Scripted(lambda r: {"scores": [score_json("J0")]})
+    found = group_duplicates([FoundJob(source="s", source_job_id="0", url="https://x",
+                                       title="Graduate Electronics Engineer", company="C0")],
+                             {"s": "employer"})
+    score_groups(client(adapter), PROFILE, PLAN, found, [0])
+    assert "only the title, employer and place are known" in adapter.prompts[0]
+
+
 def test_a_clipped_full_ad_is_an_excerpt_not_complete_evidence():
     from jobcu.scoring import MAX_DESCRIPTION_CHARS
 

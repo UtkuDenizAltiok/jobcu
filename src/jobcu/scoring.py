@@ -991,7 +991,11 @@ def _job_block(job_id: str, group: JobGroup) -> str:
     main = group.main
     best = group.best_description_copy
     description, complete = _description(group)
-    note = "" if complete else " (only the start of the ad is available)"
+    # A career site may show its list but keep its ads behind a human check (Workday's wd1 and
+    # wd5 servers since November 2026): such a job is known by its title, employer and place.
+    note = ("" if complete else " (only the start of the ad is available)" if description.strip()
+            else " (the ad couldn't be read: only the title, employer and place are known, so "
+                 "every requirement is unknown)")
     stated_types = sorted({t for c in group.copies for t in c.job_types})
     return (
         f"JOB {job_id}\n"
