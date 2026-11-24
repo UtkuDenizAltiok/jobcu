@@ -532,6 +532,34 @@ def test_successfactors_address_lists_open_only_pages_whose_title_matches(monkey
     assert survey.counts["DE"] == 2 and "Bühl" in survey.towns["DE"]
 
 
+def test_a_job_posted_for_several_towns_takes_the_town_its_address_names(monkeypatch):
+    # The page lists every town, in no set order; the address names the job's main town.
+    sitemap = ('<?xml version="1.0" encoding="UTF-8"?><urlset '
+               'xmlns="http://www.google.com/schemas/sitemap/0.9"><url><loc>'
+               'https://jobs.fake.example/job/Hamburg-Hardware-Engineer-22419/888/'
+               '</loc></url></urlset>')
+    page = sf_full_page("Hardware Engineer", "Sarriguren, ES, 31621",
+                        NOW - timedelta(days=1)).replace(
+        '</span></span>', '</span></span><span itemprop="jobLocation"><span itemprop="address">'
+        '<meta itemprop="streetAddress" content="Rostock, DE, 18057"></span></span>'
+        '<span itemprop="jobLocation"><span itemprop="address"><meta itemprop="streetAddress" '
+        'content="Hamburg, DE, 22419"></span></span>', 1)
+
+    def handler(request):
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+        if request.url.path == "/sitemap.xml":
+            return httpx.Response(200, content=sitemap.encode(),
+                                  headers={"content-type": "text/xml"})
+        return httpx.Response(200, text=page)
+
+    fake = employer("successfactors", board="jobs.fake.example", countries=("DE",))
+    monkeypatch.setattr(careers, "load_directory", lambda: (fake,))
+    jobs = list(successfactors.SuccessFactorsSource().search(
+        query(["DE"], hours=72), context(handler, "successfactors")))
+    assert [(job.location_text, job.country) for job in jobs] == [("Hamburg, Germany", "DE")]
+
+
 def test_successfactors_respects_robots_txt(monkeypatch):
     def handler(request):
         if request.url.path == "/robots.txt":

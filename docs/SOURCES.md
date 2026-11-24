@@ -500,6 +500,16 @@ keeps it. Same sitemap and job pages, robots check and request budget; no page i
 the earlier rule wouldn't have opened for a matching title. A list's first reading dates
 nothing, so the first search after a pause sends no such titles.
 
+### SuccessFactors jobs posted for several towns — 2026-11-24
+
+A job page can list several workplaces, in no set order: Nordex's power-electronics job listed
+Sarriguren (Spain), Rostock and Hamburg. Jobcu took the first, so the job was in Spain on one reading
+(and left out as outside the countries searched) and in Rostock on another, never matching the Hamburg
+copy a job site had; that card linked to a middleman page with a 400-character excerpt instead of the
+employer's 4,460-character ad. The site's own address for a job names its main town
+(`/job/Hamburg-Power-Electronics-Engineer-...`), so Jobcu now takes the listed place in that town and
+keeps the first place only when the address names none of them.
+
 ### SuccessFactors job layouts without a type or a date — 2026-11-14
 
 **Checked:** one sitemap and one job page of each of the directory's 49 SuccessFactors
