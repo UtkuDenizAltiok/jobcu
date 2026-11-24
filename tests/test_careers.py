@@ -752,7 +752,7 @@ def test_a_new_successfactors_title_the_search_words_miss_goes_to_the_title_chec
         query(["DE"], hours=24), context(handler, "successfactors"))}
     assert set(jobs) == {"jobs.fake.example/555", "jobs.fake.example/777"}
     new = jobs["jobs.fake.example/777"]
-    assert new.title_unmatched and new.title == "Controller (mwd)" and not new.description
+    assert new.title_unmatched and new.title == "Controller" and not new.description
     assert (new.posted_at.date(), new.date_precision) == (datetime.now(UTC).date(), "day")
     assert not any(path.endswith("/777/") for path in requested)  # its page waits for the AI
     # Kept by the title check, its page is read; with no date of its own, the first sight stays.

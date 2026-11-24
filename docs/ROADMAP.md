@@ -70,7 +70,7 @@ done. Implementation details belong in pull requests; current behavior is descri
   window while a job site dated it again inside it, is listed as reposted, with the day the
   employer first posted it and the employer's page as its link. Before, such jobs were hidden
   where Jobcu read the employer's older entries and shown as new where it didn't.
-- A job only job sites listed, of an employer whose Workday or Oracle career site Jobcu reads,
+- A job only job sites listed, of an employer whose Workday, Oracle or SuccessFactors career site Jobcu reads,
   gets the employer's own posting from that site's search: the employer's link, full ad and
   date (an older posting makes it a labelled repost). The posting joins only when the duplicate rules
   take it for the same job.
@@ -136,7 +136,7 @@ done. Implementation details belong in pull requests; current behavior is descri
    weren't. Measured on Gemini: its sources are redirect links that name no page, so no posting
    could be confirmed and each look-up used about 30 web searches; Jobcu now skips these look-ups
    for a provider whose sources name no pages and tries again after two weeks. Started for such
-   providers: a job only job sites listed, of an employer Jobcu reads on Workday or Oracle, gets
+   providers: a job only job sites listed, of an employer Jobcu reads on Workday, Oracle or SuccessFactors, gets
    the employer's own posting from the employer's list search. Next: Eightfold lists (also read
    newest first).
 7. **Free source allowances.** Make sure monthly free allowances, such as JSearch credits, are

@@ -488,6 +488,17 @@ although its robots file allows job pages. Advantest's jobs are on ADP Recruitin
 reader for. Saab's job pages are in its sitemap without JobPosting data. Bosch, Brainlab, AECOM and
 ALTEN use SmartRecruiters, whose restrictions remain held.
 
+### SuccessFactors lists for the employer's own posting — 2026-11-24
+
+A search reads each SuccessFactors site's whole list (its sitemap), and every address names the job's town
+and title. A job only job sites listed, of such an employer, is matched against that list for the
+employer's own posting (no extra request; a list the search didn't read is read once), and only the
+closest titles' pages are opened. A replay on a copy of one saved search, reading today's lists, joined
+Hensoldt's "Hardwareentwickler" (the card scored 80) and Advanced Energy's Cork design role (first posted
+by the employer two weeks before a job site's date, so labelled a repost). A page that shows no ad (a
+closed job still listed) is never taken for the posting. Addresses drop the slashes of "(m/w/d)", so the
+title after the town is read without them.
+
 ### SuccessFactors titles the search words miss — 2026-11-21
 
 The reader opened only pages whose address matched the search words, so a SuccessFactors title
