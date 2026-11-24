@@ -3,7 +3,8 @@
 Job sources with their own location filter (Adzuna, Reed, the Bundesagentur) do the distance
 work themselves. Company career sites and some job boards only say "Garching" or "Ireland,
 Limerick", so Jobcu looks the town up in the list it ships (`data/places.csv.gz`, from GeoNames)
-and measures the distance itself.
+and measures the distance itself. Where a statistics office publishes official populations
+(`data/official_people.csv`, every German town with town rights), they replace GeoNames' figures.
 
 The list holds the towns with at least 1,000 inhabitants in the supported countries. Germany, the
 UK and Ireland also have a list of smaller and unmeasured places (`data/villages.csv.gz`: Parsdorf,
@@ -29,6 +30,7 @@ DATA = Path(__file__).resolve().parent / "data" / "places.csv.gz"
 VILLAGES = Path(__file__).resolve().parent / "data" / "villages.csv.gz"
 REGIONS = Path(__file__).resolve().parent / "data" / "regions.csv.gz"
 POSTCODES = Path(__file__).resolve().parent / "data" / "postcodes.csv.gz"
+OFFICIAL_PEOPLE = Path(__file__).resolve().parent / "data" / "official_people.csv"
 STATIONS = Path(__file__).resolve().parent / "data" / "stations.csv"
 MAX_NAME_WORDS = 4  # "Frankfurt am Main", "'s-Hertogenbosch"
 EARTH_RADIUS_KM = 6371.0
@@ -159,18 +161,65 @@ def lookup_names(spellings) -> set[str]:
         re.sub(r"\bst\b", "sankt", name) for name in names}
 
 
+# The official list abbreviates what GeoNames writes out: "Garching b.München".
+_OFFICIAL_SHORT = ((re.compile(r"\bb\.\s*"), "bei "), (re.compile(r"\ba\.\s*d\.\s*"), "an der "),
+                   (re.compile(r"\bi\.\s*"), "im "), (re.compile(r"\bv\.\s*d\.\s*"), "vor der "))
+
+
 @cache
-def _towns(path: Path = DATA) -> dict[str, tuple[Town, ...]]:
+def _official_people(path: Path = OFFICIAL_PEOPLE) -> dict[str, tuple[tuple[set[str], int], ...]]:
+    """Official populations by district code ("DE.K.03101"), each with its full names written
+    out. GeoNames' figures are of mixed age: Braunschweig had 244,715 people where the official
+    figure is 252,962, which decides "a city with at least 0.3% of the country's people"."""
+    found: dict[str, list[tuple[set[str], int]]] = {}
+    if not path.exists():
+        return {}
+    with path.open(encoding="utf-8") as file:
+        for district, name, people in csv.reader(line for line in file
+                                                 if not line.startswith("#")):
+            written = name
+            for short, long in _OFFICIAL_SHORT:
+                written = short.sub(long, written)
+            found.setdefault(district, []).append(({normalise(name), normalise(written)},
+                                                   int(people)))
+    return {district: tuple(towns) for district, towns in found.items()}
+
+
+def _official_figures(rows: list[list[str]], official) -> dict[int, int]:
+    """Row number -> official population. A town takes its district's official figure for a
+    town of its full name (a shortened one is ambiguous: Neustadt am Kulm and Neustadt an der
+    Waldnaab share a district); where several match, the biggest is the town itself (a city's
+    parts list the city among their names, as Wittenau lists Berlin)."""
+    best: dict[tuple[str, int], tuple[int, int]] = {}  # official town -> (row, GeoNames people)
+    for number, (names, _country, _lat, _lon, people, *codes) in enumerate(rows):
+        district = codes[1] if len(codes) > 1 else ""
+        entries = official.get(district)
+        if not entries:
+            continue
+        spelled = {normalise(spelling) for spelling in names.split("|")}
+        for entry, (official_names, _) in enumerate(entries):
+            if official_names & spelled:
+                if (district, entry) not in best or best[district, entry][1] < int(people):
+                    best[district, entry] = (number, int(people))
+                break
+    return {number: official[district][entry][1]
+            for (district, entry), (number, _) in best.items()}
+
+
+@cache
+def _towns(path: Path = DATA, official_path: Path = OFFICIAL_PEOPLE) -> dict[str, tuple[Town, ...]]:
     """Every town by its normalised name, biggest first ("Berlin" is the German capital)."""
     index: dict[str, list[Town]] = {}
     with gzip.open(path, "rt", encoding="utf-8") as file:
-        for row in csv.reader(line for line in file if not line.startswith("#")):
-            names, country, latitude, longitude, people, *codes = row
-            spellings = names.split("|")
-            town = Town(spellings[0], country, float(latitude), float(longitude), int(people),
-                        *codes)
-            for spelling in lookup_names(spellings):
-                index.setdefault(spelling, []).append(town)
+        rows = list(csv.reader(line for line in file if not line.startswith("#")))
+    figures = _official_figures(rows, _official_people(official_path))
+    for number, row in enumerate(rows):
+        names, country, latitude, longitude, people, *codes = row
+        spellings = names.split("|")
+        town = Town(spellings[0], country, float(latitude), float(longitude),
+                    figures.get(number, int(people)), *codes)
+        for spelling in lookup_names(spellings):
+            index.setdefault(spelling, []).append(town)
     return {name: tuple(sorted(towns, key=lambda t: -t.people))
             for name, towns in index.items()}
 
