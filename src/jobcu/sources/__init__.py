@@ -13,6 +13,7 @@ from jobcu.sources.eightfold import EightfoldSource
 from jobcu.sources.euraxess import EuraxessSource
 from jobcu.sources.freehire import FreeHireSource
 from jobcu.sources.greenhouse import GreenhouseSource
+from jobcu.sources.jibe import JibeSource
 from jobcu.sources.jobsacuk import JobsAcUkSource
 from jobcu.sources.jobsireland import JobsIrelandSource
 from jobcu.sources.jobtech import JobTechSource
@@ -73,10 +74,10 @@ def accepted_terms(settings: Settings) -> frozenset[str]:
 def career_sources() -> list[CareerSystemSource]:
     """Company career systems, read for the employers in the employer directory."""
     return [AshbySource(), AvatureSource(), DvinciSource(), EightfoldSource(),
-            GreenhouseSource(), LeverSource(), OracleSource(), PersonioSource(), PhenomSource(),
-            ProspectiveSource(), RecruiteeSource(), SitemapSource(), SmartRecruitersSource(),
-            SoftgardenSource(), SuccessFactorsSource(), TeamtailorSource(), WorkableSource(),
-            WorkdaySource()]
+            GreenhouseSource(), JibeSource(), LeverSource(), OracleSource(), PersonioSource(),
+            PhenomSource(), ProspectiveSource(), RecruiteeSource(), SitemapSource(),
+            SmartRecruitersSource(), SoftgardenSource(), SuccessFactorsSource(),
+            TeamtailorSource(), WorkableSource(), WorkdaySource()]
 
 
 def all_sources() -> list[JobSource]:

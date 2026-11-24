@@ -78,7 +78,7 @@ Countries below describe the adapter's scope, not complete market coverage.
 | Employer career systems | Directory plus discovered employers; public lists, feeds or sitemaps | Check each employer host's permission and full-ad evidence. |
 
 Career adapters: Ashby, Avature (opt-in, [Siemens' terms](#avature-siemens-and-siemens-energy--2026-11-24)),
-d.vinci, Eightfold, Greenhouse, Lever, Oracle, Personio, Phenom (opt-in,
+d.vinci, Eightfold, Greenhouse, Jibe, Lever, Oracle, Personio, Phenom (opt-in,
 [ABB's terms](#phenom-career-sites--2026-11-24)), Prospective, Recruitee, generic job
 sitemaps, SmartRecruiters (opt-in, [its terms](#smartrecruiters-career-pages--2026-11-24)),
 Softgarden, SuccessFactors, Teamtailor, Workable and Workday.
@@ -462,6 +462,28 @@ request and one to four list requests per searched country and employer, and job
 still in the running, one request a second, with Jobcu's own name, robots.txt respected. So the
 source is off by default and read only for a person who switches "Company career sites (Phenom)" on
 in Settings, accepting those terms for their own job search (`sources.TERMS_NOTES`).
+
+### Jibe career sites and Arm's own site — 2026-11-24
+
+Schneider Electric (`careers.se.com`) and AMD (`careers.amd.com`) put a Jibe career site in front of
+iCIMS, whose hosts' robots.txt closes everything (`careers-se.icims.com`, `careers-amd.icims.com`,
+also Arm's `experienced-arm.icims.com`); TT Electronics' iCIMS host allows its job pages, but they
+carry no job data (the ad sits in a frame). The Jibe sites' robots.txt closes nothing, their
+sitemaps list `/jobs/{number}?lang=en-us` without titles or dates, and the site's own search,
+`GET /api/jobs?location=Germany&page=1&limit=100&sortBy=posted_date&descending=true`, answers newest
+first with each job's title, places, posting day (Schneider "November 23, 2026", AMD an ISO time),
+employment type and the full ad (description, responsibilities, qualifications), and the number of
+matching jobs. Schneider had 100 jobs in Germany, 67 in the UK and 16 in Ireland; AMD 6, 21 and 17.
+A live read of Schneider's three lists took 4 requests (13 jobs posted within the week). Neither
+site's terms has a clause about automated reading (Schneider's terms of use; AMD's allow personal,
+informational use), and no legal action against readers of job lists was found, so the source runs
+by default. Arm's own site (`careers.arm.com`, Radancy) lists its jobs in a sitemap with dates whose
+addresses name town and title, and its pages carry JobPosting data: it is read as a job sitemap.
+So is BAE Systems' UK job search (`jobsearch.baesystems.com`, run with its recruitment partner; the
+applications go to an Avature site): robots.txt allows everything, its `jobs-sitemap.xml` lists 441
+dated job addresses with their titles, and each page carries JobPosting data with the town, country
+and full ad ("Graduate Electrical Engineer", Cowes). No terms page could be read (BAE's main site
+refuses Jobcu, the job site has none) and no legal action against job readers was found.
 
 ### Broad boards and web discovery — 2026-10-10
 
