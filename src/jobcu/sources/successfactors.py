@@ -177,7 +177,7 @@ class SuccessFactorsSource(CareerSystemSource):
         found = read_page(page)
         if found.get("gone"):
             return None
-        location, code = place(found.get("place") or "")
+        location, code = place(_main_place(found, job.location_text))
         posted = date_posted(page)
         return dataclasses.replace(
             job,
@@ -191,6 +191,22 @@ class SuccessFactorsSource(CareerSystemSource):
             description=found.get("description") or "",
             description_is_complete=bool(found.get("has_description")),
         )
+
+
+def _main_place(found: dict[str, str], address_town: str | None) -> str:
+    """The page's place for the job. A job posted for several towns lists each, in no set
+    order: one Nordex job listed "Sarriguren, ES", "Rostock, DE" and "Hamburg, DE", and the
+    first was taken, so the job was in Spain on one reading (outside the countries searched)
+    and in Rostock on another, never matching the Hamburg copy job sites had. The site's own
+    address for the job names its main town ("/job/Hamburg-Power-Electronics-Engineer-...")."""
+    listed = [line for line in (found.get("places") or "").split("\n") if line]
+    town = (address_town or "").casefold()
+    if town and len(listed) > 1:
+        for candidate in listed:
+            name, _ = place(candidate)
+            if name and name.split(",")[0].strip().casefold() == town:
+                return candidate
+    return found.get("place") or ""
 
 
 # A job page's address on sites that number their vacancies: ".../job/Town-Title/3387-de_DE/".
@@ -378,15 +394,19 @@ def read_page(page: str) -> dict[str, str]:
             if text:
                 fields.setdefault(prop, []).append(text)
 
-    def first(prop: str) -> str:
+    def every(prop: str) -> list[str]:
+        found = []
         for node in scope.iter():
             if prop not in (node.get('itemprop') or '').split():
                 continue
             if any(is_job_scope(a) and a is not scope for a in node.iterancestors()):
                 continue
             if content := (node.get('content') or '').strip():
-                return content
-        return ""
+                found.append(content)
+        return list(dict.fromkeys(found))
+
+    def first(prop: str) -> str:
+        return next(iter(every(prop)), "")
 
     posting = find_job_posting(page)
     description = "\n\n".join(dict.fromkeys(fields.get('description', [])))
@@ -409,6 +429,8 @@ def read_page(page: str) -> dict[str, str]:
         "title": " ".join(dict.fromkeys(fields.get('title', [])))
                  or (posting.title if posting else ""),
         "place": first('streetAddress') or first('addressLocality') or fallback_place,
+        # A job posted for several towns lists each, in no set order (one line each).
+        "places": "\n".join(every('streetAddress') or every('addressLocality')),
         "company": first('hiringOrganization')
                    or (posting.company if posting else ""),
         "description": description,
