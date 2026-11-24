@@ -78,7 +78,8 @@ Countries below describe the adapter's scope, not complete market coverage.
 | Employer career systems | Directory plus discovered employers; public lists, feeds or sitemaps | Check each employer host's permission and full-ad evidence. |
 
 Career adapters: Ashby, Avature (opt-in, [Siemens' terms](#avature-siemens-and-siemens-energy--2026-11-24)),
-d.vinci, Eightfold, Greenhouse, Lever, Oracle, Personio, Prospective, Recruitee, generic job
+d.vinci, Eightfold, Greenhouse, Lever, Oracle, Personio, Phenom (opt-in,
+[ABB's terms](#phenom-career-sites--2026-11-24)), Prospective, Recruitee, generic job
 sitemaps, SmartRecruiters (opt-in, [its terms](#smartrecruiters-career-pages--2026-11-24)),
 Softgarden, SuccessFactors, Teamtailor, Workable and Workday.
 Recruitee, SuccessFactors and Teamtailor career sites are also recognised on an employer's own
@@ -433,6 +434,34 @@ remembered once read; robots.txt respected, reading stopped at the first refusal
 clause the source is off by default and read only for a person who switches "Company career sites
 (SmartRecruiters)" on in Settings, accepting the terms for their own job search
 (`sources.TERMS_NOTES`).
+
+### Phenom career sites — 2026-11-24
+
+**Access.** A Phenom career site's search page asks the site's own interface,
+`POST https://{host}/widgets` with `{"ddoKey": "refineSearch", "selected_fields": {"country":
+[...]}, "from": 0, "size": 50, ...}` (the section's `lang`, e.g. `en_global`, and region), which
+answers with the chosen countries' jobs (title, places, posting day, number) and each country's
+job count. Their robots.txt closes only `*/px-widgets`, the apply pages, chat and tracking; job
+pages (`/{region}/{language}/job/{number}`) carry JobPosting data with the full ad. Address
+parameters (`?country=`) and the sort order are ignored by the search page itself, so the
+interface is used, read whole for each searched country (it gives each job's day, so nothing is
+opened until a job is still in the running). Counts on 24 November: ABB 129 jobs in Germany, 39
+UK, 6 Ireland (7 requests for all three lists in a live read, 57 posted within the week); Siemens
+Healthineers 107 Germany, 46 UK, 13 Ireland; Thermo Fisher 104, 176, 40; Danaher 53, 93, 10; RTX
+28, 139, 3; GE Aerospace 6 Germany, 25 UK; Exyte 228 Germany, 19 Ireland, 13 UK. A job in several
+places is on each of their countries' lists, with all its places. RTX, Danaher, Thermo Fisher and
+GE Aerospace are also read on Workday, whose ads are behind the check; the duplicate rules join
+the two copies. FERCHAU's Phenom site uses another address form and isn't read yet.
+
+**Terms and risk.** [ABB's terms of use](https://www.abb.com/global/en/company/provider-information)
+require ABB's prior written permission to scrape its sites (another version limits automated access
+to what a person could request). ABB's Workday list asks robots not to read it, which is respected;
+its Phenom site allows the job lists and pages. No lawsuit or legal threat by ABB or by Phenom against
+readers of job lists was found (web searches, 24 November). What Jobcu reads per search: one count
+request and one to four list requests per searched country and employer, and job pages only for jobs
+still in the running, one request a second, with Jobcu's own name, robots.txt respected. So the
+source is off by default and read only for a person who switches "Company career sites (Phenom)" on
+in Settings, accepting those terms for their own job search (`sources.TERMS_NOTES`).
 
 ### Broad boards and web discovery — 2026-10-10
 
@@ -860,7 +889,7 @@ outdated acquired companies; independently verify identity and country.
 | Ireland: microelectronics ecosystem | [MIDAS industry members](https://www.midasireland.ie/about-us/midas-company-members/) identifies design/research/manufacturing firms such as Emdalo, Icergi, Farran and Firecomms. A stronger sector-discovery reference than relying only on a general national board; no current relevant-job count inferred. |
 | UK: electronics supply chain | [TechWorks member search](https://techworks.org.uk/members-searchable/) covers semiconductors, electronic systems and power electronics as well as other sectors/agencies. Candidate employer reference; no automatic collection right inferred. |
 | Netherlands and Italy | [High Tech NL](https://www.hightechnl.nl/onzeleden/) separates semiconductor, energy and other clusters; [ANIE](https://anie.it/) represents electrotechnical/electronic industry. Candidate references, pending individual career-site checks and contribution evidence. Switzerland/Belgium need equally specific verified references, not guessed parity. |
-| Original career-system gaps | [Bosch's FAQ](https://www.bosch.com/careers/faq/) confirms SmartRecruiters; Bosch's page there leads to jobs.bosch.com, whose robots.txt closes its job pages (2026-11-24). [ABB's application guide](https://careers.abb/global/en/how-to-apply) identifies Workday; its board (`abb.wd3`, External_Career_Page) asks automated tools not to read it (2026-11-24). [Keysight's current career landing](https://jobs.keysight.com/external) is public; reachability does not establish an API/reader entitlement. Siemens' Avature site is read only for a person who accepts its terms in Settings ([2026-11-24](#avature-siemens-and-siemens-energy--2026-11-24)). |
+| Original career-system gaps | [Bosch's FAQ](https://www.bosch.com/careers/faq/) confirms SmartRecruiters; Bosch's page there leads to jobs.bosch.com, whose robots.txt closes its job pages (2026-11-24). [ABB's application guide](https://careers.abb/global/en/how-to-apply) identifies Workday; its board (`abb.wd3`, External_Career_Page) asks automated tools not to read it (2026-11-24); its own Phenom site, careers.abb, allows job lists and pages and is read for those who accept ABB's terms ([2026-11-24](#phenom-career-sites--2026-11-24)). [Keysight's current career landing](https://jobs.keysight.com/external) is public; reachability does not establish an API/reader entitlement. Siemens' Avature site is read only for a person who accepts its terms in Settings ([2026-11-24](#avature-siemens-and-siemens-energy--2026-11-24)). |
 | Specialist boards | [Engineers Ireland terms](https://www.engineersireland.ie/Terms-of-use) do not establish an automated vacancy licence. [Jobvector's legal page](https://www.jobvector.de/impressum.html) links separate terms; no permitted Jobcu feed established. IET's [platform terms](https://www.theiet.org/media/9621/iet-platform-general-terms.pdf) contain extraction restrictions; the applicable job-board terms/permission remain a dependency. Suitable public manual benchmarks need original dates and employer IDs. |
 | Broader portals | [StepStone XML documentation](https://api.stepstone.com/knowledge-base/xml-guide-stepstone-de/) describes publishing ads, not a general vacancy-reading licence. [jobs.ch terms](https://www.jobs.ch/en/terms/) expressly restrict scraping and automation outside official tools. LinkedIn/Indeed and EURES dependencies above remain; no internal endpoint, cookies or blocked-host bypass is introduced. |
 
