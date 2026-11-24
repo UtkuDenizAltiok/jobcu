@@ -105,7 +105,7 @@ def main() -> None:
                    "# Gemeindeverzeichnis; copying and passing on with the source named is\n"
                    "# permitted. Rebuilt by tools/update_official_people.py.\n"
                    "# Columns: district, town, people.\n")
-        writer = csv.writer(file)
+        writer = csv.writer(file, lineterminator="\n")
         for district, name, people in sorted(towns, key=lambda town: -town[2]):
             writer.writerow([district, name, people])
     print(f"Saved {len(towns)} towns to {OUT.relative_to(ROOT)}")
