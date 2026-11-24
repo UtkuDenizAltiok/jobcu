@@ -79,7 +79,8 @@ Countries below describe the adapter's scope, not complete market coverage.
 
 Career adapters: Ashby, Avature (opt-in, [Siemens' terms](#avature-siemens-and-siemens-energy--2026-11-24)),
 d.vinci, Eightfold, Greenhouse, Lever, Oracle, Personio, Prospective, Recruitee, generic job
-sitemaps, Softgarden, SuccessFactors, Teamtailor, Workable and Workday.
+sitemaps, SmartRecruiters (opt-in, [its terms](#smartrecruiters-career-pages--2026-11-24)),
+Softgarden, SuccessFactors, Teamtailor, Workable and Workday.
 Recruitee, SuccessFactors and Teamtailor career sites are also recognised on an employer's own
 address (Recruitee's answers the same public `/api/offers/` there).
 `src/jobcu/data/employers.json` is the directory; `tools/check_employers.py` is its maintenance tool.
@@ -299,9 +300,9 @@ merged. On 2026-11-02 its facets counted 229,817 open ads in Germany, 124,731 in
 - **Copies.** Ads from boards (Adzuna, Reed, EURES, XING and others) carry the board's link and
   can hold only the start of the ad (Adzuna's 500 characters). Only ads from the sources the
   facets list under `source_type=ats|company` count as complete ads on the employer's own page.
-  Some of those systems Jobcu doesn't read itself (SmartRecruiters' robots.txt admits only
-  LinkedIn's crawler): Jobcu reads FreeHire's copy, never those systems, and a click on such a
-  link opens it as it is.
+  Some of those systems Jobcu doesn't read itself (SmartRecruiters' interface admits only
+  LinkedIn's crawler; its career pages are read for those who switch them on, below): Jobcu reads
+  FreeHire's copy, and a click on such a link opens it as it is.
 - **EURES titles.** German EURES copies are the Bundesagentur's vacancies with the agency's
   occupation added in brackets ("Senior Engineer (m/w/d) (Hardwareentwickler/in)": all 100 of a
   day's sample). Jobcu removes that bracket, so the copy matches the agency's own ad.
@@ -333,7 +334,9 @@ merged. On 2026-11-02 its facets counted 229,817 open ads in Germany, 124,731 in
   connection, to an ordinary browser there and to an outside fetcher, from 2026-10-29 evening.
   Jobcu sends it 1-4 requests a day, so this is the site's refusal, now reported as one.
 - **SmartRecruiters** (Bosch, ETAS, Delta Electronics): `api.smartrecruiters.com/robots.txt`
-  allows only LinkedInBot; Jobcu stays out (see the access boundaries below).
+  allows only LinkedInBot, so its interface is never used. Since 2026-11-24 the companies' public
+  career pages are read for those who switch them on
+  ([record](#smartrecruiters-career-pages--2026-11-24)).
 
 ### Bundesagentur opt-in — 2026-10-30
 
@@ -396,6 +399,40 @@ the first refusal; no account, no check passed. So the source is off by default 
 person who switches "Company career sites (Avature)" on in Settings, accepting Siemens' terms for
 their own job search (`sources.TERMS_NOTES`), like the Bundesagentur; Siemens Energy is read under the
 same switch.
+
+### SmartRecruiters career pages — 2026-11-24
+
+**Access.** `api.smartrecruiters.com/robots.txt` admits only LinkedInBot, so SmartRecruiters' posting
+interface is never used. A company's public career page, `careers.smartrecruiters.com/{Company}`, has
+no robots rules of its own (its robots.txt address leads to the job search's home page) and nor do
+the job pages on `jobs.smartrecruiters.com` (404). The career page lists every open job grouped by
+place, the groups in alphabetical order, the first page of groups in the page and the others at
+`/{Company}/api/groups?page=N` (`data-groups-pages`: Continental 34, AECOM 77). The lists give no
+dates; each job page carries the standard job data as page markup (schema.org JobPosting: exact
+posting time, town and country, employment type, full ad), which the SuccessFactors markup reader
+reads as it is. A job listed in several places has its main one on its page, which is kept only in
+the country it was listed for; Continental puts a street in the town field, so the list's town is kept
+when the page's isn't a known town. Bosch's page (`BoschGroup`) leads to jobs.bosch.com, whose
+robots.txt closes `/en/` to robots other than a few named ones: the reader asks for the career page
+without following redirects, so Bosch isn't read there. Read once each with
+`tools/check_employers.py`: Continental (103 jobs in Germany), Aumovio (49 in Germany), Renesas
+Electronics (40 Germany, 28 UK), ALTEN (112 Germany, 89 UK), Ramboll (115 Germany, 55 UK, 15
+Ireland), AECOM (287 UK, 19 Ireland, 37 Germany), Wabtec (34 Germany, 27 UK), Assystem (123 UK),
+Brainlab (14 Germany), XP Power (11 Germany), Averna (5 UK, 3 Ireland), Segula Technologies (France).
+A live read with electronics search words: Renesas gave a "Graduate Digital Design Engineer" in
+Edinburgh posted the day before and a junior technical sales engineer's job in Munich.
+
+**Terms and risk.** SmartRecruiters' [terms for job seekers](https://www.smartrecruiters.com/legal/terms-of-use/)
+forbid to "use automatic means to access content or data from other users" (among the rules for its
+candidate portal and services). No lawsuit or legal threat by SmartRecruiters against readers of job
+pages or job aggregators was found (web searches, 24 November); tools that read its public job pages
+are openly offered. What Jobcu reads per search: the lists of the directory's SmartRecruiters
+companies that hire in the searched countries (a few hundred pages at most, one a second, Jobcu's
+own name) and at most 30 job pages a company of titles matching the person's search words, each
+remembered once read; robots.txt respected, reading stopped at the first refusal. Because of that
+clause the source is off by default and read only for a person who switches "Company career sites
+(SmartRecruiters)" on in Settings, accepting the terms for their own job search
+(`sources.TERMS_NOTES`).
 
 ### Broad boards and web discovery — 2026-10-10
 
@@ -594,8 +631,9 @@ behind the human check above). [Siemens' terms of use](https://www.siemens.com/g
 forbid "text or data mining", including "any automated scraping": its Avature site is read only for a
 person who accepts that in Settings ([its record](#avature-siemens-and-siemens-energy--2026-11-24)).
 Advantest's jobs are on ADP Recruiting, which Jobcu has no
-reader for. Saab's job pages are in its sitemap without JobPosting data. Bosch, Brainlab, AECOM and
-ALTEN use SmartRecruiters, whose restrictions remain held.
+reader for. Saab's job pages are in its sitemap without JobPosting data. Brainlab, AECOM and ALTEN
+use SmartRecruiters, read since 2026-11-24 for those who switch it on; Bosch's SmartRecruiters page
+leads to its own site, whose robots.txt closes its job pages.
 
 ### SuccessFactors lists for the employer's own posting — 2026-11-24
 
@@ -822,7 +860,7 @@ outdated acquired companies; independently verify identity and country.
 | Ireland: microelectronics ecosystem | [MIDAS industry members](https://www.midasireland.ie/about-us/midas-company-members/) identifies design/research/manufacturing firms such as Emdalo, Icergi, Farran and Firecomms. A stronger sector-discovery reference than relying only on a general national board; no current relevant-job count inferred. |
 | UK: electronics supply chain | [TechWorks member search](https://techworks.org.uk/members-searchable/) covers semiconductors, electronic systems and power electronics as well as other sectors/agencies. Candidate employer reference; no automatic collection right inferred. |
 | Netherlands and Italy | [High Tech NL](https://www.hightechnl.nl/onzeleden/) separates semiconductor, energy and other clusters; [ANIE](https://anie.it/) represents electrotechnical/electronic industry. Candidate references, pending individual career-site checks and contribution evidence. Switzerland/Belgium need equally specific verified references, not guessed parity. |
-| Original career-system gaps | [Bosch's FAQ](https://www.bosch.com/careers/faq/) confirms SmartRecruiters; its restrictions remain held. [ABB's application guide](https://careers.abb/global/en/how-to-apply) identifies Workday; its board (`abb.wd3`, External_Career_Page) asks automated tools not to read it (2026-11-24). [Keysight's current career landing](https://jobs.keysight.com/external) is public; reachability does not establish an API/reader entitlement. Siemens' Avature site is read only for a person who accepts its terms in Settings ([2026-11-24](#avature-siemens-and-siemens-energy--2026-11-24)). |
+| Original career-system gaps | [Bosch's FAQ](https://www.bosch.com/careers/faq/) confirms SmartRecruiters; Bosch's page there leads to jobs.bosch.com, whose robots.txt closes its job pages (2026-11-24). [ABB's application guide](https://careers.abb/global/en/how-to-apply) identifies Workday; its board (`abb.wd3`, External_Career_Page) asks automated tools not to read it (2026-11-24). [Keysight's current career landing](https://jobs.keysight.com/external) is public; reachability does not establish an API/reader entitlement. Siemens' Avature site is read only for a person who accepts its terms in Settings ([2026-11-24](#avature-siemens-and-siemens-energy--2026-11-24)). |
 | Specialist boards | [Engineers Ireland terms](https://www.engineersireland.ie/Terms-of-use) do not establish an automated vacancy licence. [Jobvector's legal page](https://www.jobvector.de/impressum.html) links separate terms; no permitted Jobcu feed established. IET's [platform terms](https://www.theiet.org/media/9621/iet-platform-general-terms.pdf) contain extraction restrictions; the applicable job-board terms/permission remain a dependency. Suitable public manual benchmarks need original dates and employer IDs. |
 | Broader portals | [StepStone XML documentation](https://api.stepstone.com/knowledge-base/xml-guide-stepstone-de/) describes publishing ads, not a general vacancy-reading licence. [jobs.ch terms](https://www.jobs.ch/en/terms/) expressly restrict scraping and automation outside official tools. LinkedIn/Indeed and EURES dependencies above remain; no internal endpoint, cookies or blocked-host bypass is introduced. |
 
@@ -1143,7 +1181,7 @@ These retained access observations were recorded in September–October 2026. Ad
 and request budgets are defined in `src/jobcu/sources/`; public accessibility alone does not
 establish collection permission.
 
-Recorded access boundaries also cover SmartRecruiters' API and iCIMS hosts whose robots rules
+Recorded access boundaries also cover SmartRecruiters' API (its career pages: see their record) and iCIMS hosts whose robots rules
 refused Jobcu, Hays/Rise Technical terms that restricted collection, EURES' partner route,
 and blocked publicjobs.ie, UK Civil Service Jobs and DWP Find a Job interfaces. These were not
 implemented as bypasses. Historical employer/board counts are not current vacancy coverage.
