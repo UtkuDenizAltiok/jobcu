@@ -34,8 +34,9 @@ from jobcu.sources.matching import matches_terms
 MAX_PAGES = 60
 # Pages looked at to tell which countries a site's jobs are in (the directory check).
 SURVEY_PAGES = 20
-# Job sitemaps a sitemap index may lead to.
-MAX_SITEMAPS = 5
+# Job sitemaps a sitemap index may lead to: a Phenom career site splits a few thousand jobs over
+# nine (careers.rtx.com, 2026-11-24).
+MAX_SITEMAPS = 12
 
 _URL = re.compile(r"<url>\s*<loc>\s*([^<\s]+)\s*</loc>(?:\s*<lastmod>\s*([^<\s]+)\s*</lastmod>)?",
                   re.S)
@@ -78,29 +79,7 @@ class SitemapSource(CareerSystemSource):
         return False
 
     def _entries(self, board: str, ctx: SourceContext) -> list[tuple[str, datetime | None]]:
-        """The sitemap's job pages with their last change, newest first (undated ones last)."""
-        if not self.allowed(board, ctx):
-            raise SourceError(f"{self.name}: {urlsplit(board).hostname} asks automated tools "
-                              "not to read its job list.")
-        text = self._read(board, ctx)
-        children = _INDEX.findall(text)
-        if children:
-            jobs = [child for child in children if _JOB_WORDS.search(urlsplit(child).path)]
-            text = " ".join(self._read(child, ctx) for child in (jobs or children)[:MAX_SITEMAPS]
-                            if self.allowed(child, ctx))
-        entries = [(unescape(address), parse_iso(changed) if changed else None)
-                   for address, changed in _URL.findall(text)]
-        entries = [(address, changed) for address, changed in entries
-                   if _JOB_WORDS.search(urlsplit(address).path)]
-        return sorted(dict(entries).items(),
-                      key=lambda entry: (entry[1] is not None, entry[1] or _LONG_AGO),
-                      reverse=True)
-
-    def _read(self, address: str, ctx: SourceContext) -> str:
-        body = self.get(address, ctx).content
-        if body[:2] == b"\x1f\x8b":
-            body = gzip.decompress(body)
-        return body.decode("utf-8", "replace")
+        return job_pages(self, board, ctx)
 
     def _from_page(self, address: str, employer: Employer, ctx: SourceContext) -> FoundJob | None:
         """The job from memory or from its page's JobPosting data; None without such data."""
@@ -146,6 +125,36 @@ def to_found_job(address: str, page: str, employer: Employer) -> FoundJob | None
         employer_url=address,
         closes_at=posting.valid_through,
     )
+
+
+def job_pages(source: CareerSystemSource, board: str, ctx: SourceContext
+              ) -> list[tuple[str, datetime | None]]:
+    """A job sitemap's job pages with their last change, newest first (undated ones last); a
+    sitemap index leads to its job sitemaps. Read through `source`: its robots check, request
+    budget and report (the Workday reader looks an ad up on the employer's own site this way)."""
+    if not source.allowed(board, ctx):
+        raise SourceError(f"{source.name}: {urlsplit(board).hostname} asks automated tools "
+                          "not to read its job list.")
+    text = _read(source, board, ctx)
+    children = _INDEX.findall(text)
+    if children:
+        jobs = [child for child in children if _JOB_WORDS.search(urlsplit(child).path)]
+        text = " ".join(_read(source, child, ctx) for child in (jobs or children)[:MAX_SITEMAPS]
+                        if source.allowed(child, ctx))
+    entries = [(unescape(address), parse_iso(changed) if changed else None)
+               for address, changed in _URL.findall(text)]
+    entries = [(address, changed) for address, changed in entries
+               if _JOB_WORDS.search(urlsplit(address).path)]
+    return sorted(dict(entries).items(),
+                  key=lambda entry: (entry[1] is not None, entry[1] or _LONG_AGO),
+                  reverse=True)
+
+
+def _read(source: CareerSystemSource, address: str, ctx: SourceContext) -> str:
+    body = source.get(address, ctx).content
+    if body[:2] == b"\x1f\x8b":
+        body = gzip.decompress(body)
+    return body.decode("utf-8", "replace")
 
 
 def country_code(written: str | None) -> str | None:

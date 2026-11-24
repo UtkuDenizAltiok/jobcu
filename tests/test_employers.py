@@ -35,6 +35,10 @@ NURSE = Profile.model_validate({
     ("https://moog.wd5.myworkdayjobs.com/en-US/MOOG_External_Career_Site/job/x",
      ("workday", "https://moog.wd5.myworkdayjobs.com/MOOG_External_Career_Site")),
     ("https://acme.wd3.myworkdayjobs.com/wday/cxs/acme/Careers/jobs", None),
+    # Workday's newer address names no server.
+    ("https://acme.myworkdayjobs.com/en-US/careers/job/Hamburg/x_R1",
+     ("workday", "https://acme.myworkdayjobs.com/careers")),
+    ("https://acme.myworkdayjobs.com/wday/cxs/acme/careers/jobs", None),
     ("https://edbz.fa.us2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX/jobs",
      ("oracle", "edbz.fa.us2.oraclecloud.com/CX")),
     ("https://job-boards.eu.greenhouse.io/acme/jobs/1", ("greenhouse", "acme")),

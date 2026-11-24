@@ -1,5 +1,6 @@
 """Company career systems and the employer directory, with made-up companies and answers."""
 
+import dataclasses
 import json
 from datetime import UTC, date, datetime, timedelta
 
@@ -275,6 +276,9 @@ def test_the_shipped_directory_is_valid():
     for entry in entries:
         assert entry.system in systems
         assert entry.countries and set(entry.countries) <= set(careers.COUNTRIES)
+        # Only the Workday reader reads an employer's own copy of an ad (workday.py).
+        assert entry.ads is None or (entry.system == "workday"
+                                     and entry.ads.startswith("https://"))
     boards = [(e.system, e.board.lower()) for e in entries]
     assert len(boards) == len(set(boards))
 
@@ -1152,6 +1156,89 @@ def test_workday_respects_robots_txt():
     board = employer("workday", "https://fakeco.wd1.myworkdayjobs.com/External")
     with pytest.raises(SourceError):
         list(source.list_jobs(board, ctx, countries=["IE"]))
+
+
+@pytest.mark.parametrize(("item", "number"), [
+    ({"bulletFields": ["R5045614"], "externalPath": "/job/Cork/X_R5045614-2"}, "R5045614"),
+    ({"bulletFields": ["R-01376627", "Fictional Division"]}, "R-01376627"),
+    ({"bulletFields": ["Full time"], "externalPath": "/job/Cork/X_JR000678"}, "JR000678"),
+    ({"externalPath": "/job/Cork/X_R5045614-2"}, "R5045614"),
+    ({"bulletFields": ["1234"], "externalPath": "/job/Cork/Nurse"}, None),
+])
+def test_workday_vacancy_numbers_come_from_the_list_or_the_address(item, number):
+    assert wd.vacancy_number(item) == number
+
+
+def own_site_handler(listed_title, page_title=None, number_in_sitemap=True, robots_own="",
+                     pages=None):
+    """A wd5 site whose ads are behind a check, and the employer's own site listing the same
+    vacancy (R1234567) in its job sitemap, once in English and once under /fr/."""
+    pages = [] if pages is None else pages
+    listed = "R1234567" if number_in_sitemap else "R7654321"
+    sitemap = ("<urlset>"
+               f"<url><loc>https://own.example/fr/poste/job/{listed}</loc></url>"
+               f"<url><loc>https://own.example/the-job/job/{listed}</loc></url>"
+               "<url><loc>https://own.example/another/job/R1234567999</loc></url>"
+               "</urlset>")
+    page = ('<script type="application/ld+json">' + json.dumps({
+        "@type": "JobPosting", "title": page_title or listed_title, "datePosted": "2026-09-01",
+        "description": "<p>The full fictional ad: duties and requirements.</p>",
+        "jobLocation": {"address": {"addressLocality": "Limerick", "addressCountry": "IE"}},
+    }) + "</script>")
+    listing = [dict(posting(listed_title, "Posted 3 Days Ago", "/job/Limerick/The-Job_R1234567-2"),
+                    bulletFields=["R1234567"])]
+
+    def handler(request):
+        host, path = request.url.host, request.url.path
+        if host == "own.example":
+            if path == "/robots.txt":
+                return httpx.Response(200 if robots_own else 404, text=robots_own)
+            if path == "/sitemap.xml":
+                return httpx.Response(200, text=sitemap)
+            pages.append(path)
+            return httpx.Response(200, text=page)
+        if request.method == "GET" and path.startswith("/wday/"):
+            return httpx.Response(429, text=CHALLENGE, headers={"cf-mitigated": "challenge"})
+        return workday_handler([listing])(request)
+
+    return handler
+
+
+@pytest.mark.parametrize("title", ["Hardware Engineer", "Community Nurse"])
+def test_workday_reads_an_ad_behind_a_check_from_the_employers_own_page(title):
+    # November 2026: the ads on Workday's wd1 and wd5 servers are behind a human check, never
+    # passed. GE Vernova's own site lists every vacancy under the same number, with the full ad.
+    pages = []
+    ctx = context(own_site_handler(title, pages=pages), "workday")
+    board = dataclasses.replace(employer("workday", "https://fakeco.wd5.myworkdayjobs.com/External"),
+                                ads="https://own.example/sitemap.xml")
+    source = wd.WorkdaySource()
+    [listed] = source.list_jobs(board, ctx, countries=["IE"], start=NOW - timedelta(days=7))
+    assert listed.source_context == {"number": "R1234567", "ads": board.ads}
+    full = source.load_details(listed, ctx)
+    assert full.description == "The full fictional ad: duties and requirements."
+    assert full.description_is_complete
+    assert pages == ["/the-job/job/R1234567"]  # the version without a language path
+    assert full.location_text == "Limerick" and full.country == "IE"
+    # The employer's earlier date shows the job is older than Workday's list says.
+    assert full.posted_at.date() == date(2026, 9, 1)
+
+
+@pytest.mark.parametrize("case", ["another title", "not listed", "robots", "no own site"])
+def test_workday_keeps_an_ad_behind_a_check_unread_without_the_same_vacancy_on_its_own_site(
+        case):
+    ctx = context(own_site_handler("Hardware Engineer",
+                                   page_title="Barista" if case == "another title" else None,
+                                   number_in_sitemap=case != "not listed",
+                                   robots_own="User-agent: *\nDisallow: /\n"
+                                   if case == "robots" else ""), "workday")
+    board = employer("workday", "https://fakeco.wd5.myworkdayjobs.com/External")
+    if case != "no own site":
+        board = dataclasses.replace(board, ads="https://own.example/sitemap.xml")
+    source = wd.WorkdaySource()
+    [listed] = source.list_jobs(board, ctx, countries=["IE"], start=NOW - timedelta(days=7))
+    with pytest.raises(Blocked):
+        source.load_details(listed, ctx)
 
 
 def test_workday_finds_the_country_filter_whatever_it_is_called():

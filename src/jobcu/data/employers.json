@@ -1746,6 +1746,98 @@
    "checked": "2026-10-30"
   },
   {
+   "name": "HP",
+   "system": "eightfold",
+   "board": "apply.hp.com/hp.com",
+   "countries": [
+    "AT",
+    "BE",
+    "CH",
+    "CZ",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "GR",
+    "IE",
+    "IT",
+    "NL",
+    "NO",
+    "PL",
+    "PT",
+    "RO",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Baden",
+     "Vienna"
+    ],
+    "BE": [
+     "Diegem"
+    ],
+    "CH": [
+     "Geneva",
+     "Zürich"
+    ],
+    "CZ": [
+     "Prague"
+    ],
+    "DE": [
+     "Böblingen",
+     "Eschborn",
+     "Munich",
+     "Ratingen"
+    ],
+    "ES": [
+     "Barcelona",
+     "Las Rozas de Madrid",
+     "Sant Cugat del Vallès"
+    ],
+    "FR": [
+     "Grenoble",
+     "Meudon"
+    ],
+    "GB": [
+     "Bristol",
+     "Cambridge",
+     "Glasgow",
+     "London",
+     "Reading"
+    ],
+    "GR": [
+     "Athens"
+    ],
+    "IE": [
+     "Dublin"
+    ],
+    "IT": [
+     "Milan"
+    ],
+    "NL": [
+     "Amstelveen"
+    ],
+    "NO": [
+     "Oslo"
+    ],
+    "PL": [
+     "Warsaw",
+     "Wrocław"
+    ],
+    "PT": [
+     "Lisbon"
+    ],
+    "RO": [
+     "Bucharest"
+    ],
+    "SK": [
+     "Bratislava"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
    "name": "Infineon",
    "system": "eightfold",
    "board": "jobs.infineon.com/infineon.com",
@@ -1810,6 +1902,27 @@
      "Iaşi"
     ]
    }
+  },
+  {
+   "name": "Micron",
+   "system": "eightfold",
+   "board": "careers.micron.com/micron.com",
+   "countries": [
+    "DE",
+    "IT"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Munich"
+    ],
+    "IT": [
+     "L'Aquila",
+     "Monza",
+     "Naples"
+    ]
+   },
+   "checked": "2026-11-24"
   },
   {
    "name": "Qualcomm",
@@ -5574,6 +5687,198 @@
      "Świętochłowice"
     ]
    }
+  },
+  {
+   "name": "Dell",
+   "system": "oracle",
+   "board": "enterpriseplatform.dell.com/CX_1001",
+   "countries": [
+    "CZ",
+    "DE",
+    "DK",
+    "ES",
+    "FI",
+    "FR",
+    "GB",
+    "IE",
+    "IT",
+    "NL",
+    "NO",
+    "PL",
+    "PT",
+    "RO",
+    "SE",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Halle (Saale)",
+     "Hamburg",
+     "Munich"
+    ],
+    "ES": [
+     "Madrid"
+    ],
+    "FI": [
+     "Helsinki"
+    ],
+    "FR": [
+     "Paris"
+    ],
+    "GB": [
+     "London"
+    ],
+    "IE": [
+     "Cork",
+     "Dublin"
+    ],
+    "IT": [
+     "Milan",
+     "Rome"
+    ],
+    "NL": [
+     "Amsterdam"
+    ],
+    "NO": [
+     "Oslo"
+    ],
+    "PL": [
+     "Łódź"
+    ],
+    "PT": [
+     "Lisbon"
+    ],
+    "RO": [
+     "Bucharest"
+    ],
+    "SE": [
+     "Stockholm"
+    ],
+    "SK": [
+     "Bratislava"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
+   "name": "Emerson",
+   "system": "oracle",
+   "board": "hdjq.fa.us2.oraclecloud.com/CX_1",
+   "countries": [
+    "AT",
+    "BE",
+    "CH",
+    "DE",
+    "DK",
+    "ES",
+    "FR",
+    "GB",
+    "GR",
+    "HU",
+    "IT",
+    "NL",
+    "NO",
+    "PL",
+    "RO",
+    "SE",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Kirchbichl",
+     "Linz",
+     "Vienna",
+     "Wiener Neudorf"
+    ],
+    "BE": [
+     "Diegem"
+    ],
+    "CH": [
+     "Sissach"
+    ],
+    "DE": [
+     "Augsburg",
+     "Berlin",
+     "Dresden",
+     "Hamburg",
+     "Korschenbroich",
+     "Laatzen",
+     "Langenfeld",
+     "Munich",
+     "Remscheid",
+     "Selmsdorf",
+     "Ölbronn-Dürrn"
+    ],
+    "DK": [
+     "Copenhagen",
+     "Næstved"
+    ],
+    "ES": [
+     "Madrid"
+    ],
+    "FR": [
+     "Aix-en-Provence",
+     "Bordeaux",
+     "Calais",
+     "Cernay",
+     "Colombes",
+     "Saint-Priest"
+    ],
+    "GB": [
+     "Aberdeen",
+     "Cumbernauld",
+     "Glasgow",
+     "Manchester",
+     "Reading",
+     "Stockport"
+    ],
+    "GR": [
+     "Athens"
+    ],
+    "HU": [
+     "Budapest",
+     "Debrecen",
+     "Eger",
+     "Székesfehérvár"
+    ],
+    "IT": [
+     "Assago",
+     "Bussero",
+     "Fiorenzuola d'Arda",
+     "Lugagnano Val d'Arda",
+     "Milan",
+     "Padua",
+     "Seregno"
+    ],
+    "NL": [
+     "Breda",
+     "Ede",
+     "Rijswijk"
+    ],
+    "NO": [
+     "Bergen",
+     "Oslo"
+    ],
+    "PL": [
+     "Warsaw",
+     "Łódź"
+    ],
+    "RO": [
+     "Bucharest",
+     "Cluj-Napoca"
+    ],
+    "SE": [
+     "Linköping",
+     "Mölnlycke",
+     "Stockholm"
+    ],
+    "SK": [
+     "Nové Mesto nad Váhom"
+    ]
+   },
+   "checked": "2026-11-24"
   },
   {
    "name": "Heathrow",
@@ -11293,6 +11598,27 @@
    "checked": "2026-11-03"
   },
   {
+   "name": "Altera",
+   "system": "workday",
+   "board": "https://altera.wd1.myworkdayjobs.com/Altera",
+   "countries": [
+    "GB",
+    "RO"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Basingstoke",
+     "Marlow",
+     "Portsmouth"
+    ],
+    "RO": [
+     "Iaşi"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
    "name": "Amgen",
    "system": "workday",
    "board": "https://amgen.wd1.myworkdayjobs.com/Careers",
@@ -12153,6 +12479,58 @@
    }
   },
   {
+   "name": "BorgWarner",
+   "system": "workday",
+   "board": "https://borgwarner.wd5.myworkdayjobs.com/BorgWarner_Careers",
+   "countries": [
+    "DE",
+    "GB",
+    "HU",
+    "IT",
+    "LU",
+    "PL",
+    "PT",
+    "RO"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Darmstadt",
+     "Frankfurt am Main",
+     "Heidelberg",
+     "Kirchheimbolanden",
+     "Markdorf"
+    ],
+    "GB": [
+     "Bradford"
+    ],
+    "HU": [
+     "Oroszlány"
+    ],
+    "IT": [
+     "Arcore",
+     "Monza"
+    ],
+    "LU": [
+     "Luxembourg"
+    ],
+    "PL": [
+     "Błonie",
+     "Kraków",
+     "Rzeszów"
+    ],
+    "PT": [
+     "Seixal",
+     "Setúbal",
+     "Viana do Castelo"
+    ],
+    "RO": [
+     "Bucharest"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
    "name": "Bristol Myers Squibb",
    "system": "workday",
    "board": "https://bristolmyerssquibb.wd5.myworkdayjobs.com/BMS",
@@ -12643,7 +13021,8 @@
     "PT": [
      "Lisbon"
     ]
-   }
+   },
+   "ads": "https://jobs.danaher.com/global/en/sitemap_index.xml"
   },
   {
    "name": "DATEV (Datev_Careers)",
@@ -13007,7 +13386,7 @@
    }
   },
   {
-   "name": "Emerson (Emerson_College_Affiliated_Faculty)",
+   "name": "Emerson College",
    "system": "workday",
    "board": "https://emerson.wd5.myworkdayjobs.com/Emerson_College_Affiliated_Faculty",
    "countries": [
@@ -13035,6 +13414,21 @@
      "Łeba"
     ]
    }
+  },
+  {
+   "name": "Evolito",
+   "system": "workday",
+   "board": "https://evolito.wd3.myworkdayjobs.com/Evolito_Career_Site",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Bicester"
+    ]
+   },
+   "checked": "2026-11-24"
   },
   {
    "name": "Finnair (finnair)",
@@ -13625,7 +14019,8 @@
     "RO": [
      "Bucharest"
     ]
-   }
+   },
+   "ads": "https://careers.gevernova.com/sitemap.xml"
   },
   {
    "name": "GEA (equest)",
@@ -14920,7 +15315,8 @@
     "SI": [
      "Ljubljana"
     ]
-   }
+   },
+   "ads": "https://www.careers.jnj.com/sitemap.xml"
   },
   {
    "name": "Johnson Controls",
@@ -15611,6 +16007,58 @@
      "Porto Salvo"
     ]
    }
+  },
+  {
+   "name": "Leidos",
+   "system": "workday",
+   "board": "https://leidos.wd5.myworkdayjobs.com/External",
+   "countries": [
+    "AT",
+    "BE",
+    "DE",
+    "ES",
+    "GB",
+    "IT",
+    "NL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Vienna"
+    ],
+    "BE": [
+     "Brussels"
+    ],
+    "DE": [
+     "Kaiserslautern",
+     "Stuttgart",
+     "Vilseck"
+    ],
+    "ES": [
+     "Cadiz"
+    ],
+    "GB": [
+     "Brandon",
+     "Bristol",
+     "Chester",
+     "Farnborough",
+     "Glasgow",
+     "Huntingdon",
+     "Leominster",
+     "London",
+     "Manchester"
+    ],
+    "IT": [
+     "Aviano",
+     "Catania",
+     "Gricignano di Aversa",
+     "Vicenza"
+    ],
+    "NL": [
+     "The Hague"
+    ]
+   },
+   "checked": "2026-11-24"
   },
   {
    "name": "Leonardo",
@@ -16961,7 +17409,7 @@
   {
    "name": "NXP Semiconductors",
    "system": "workday",
-   "board": "https://nxp.wd3.myworkdayjobs.com/careers",
+   "board": "https://nxp.myworkdayjobs.com/careers",
    "countries": [
     "AT",
     "BE",
@@ -16971,7 +17419,6 @@
     "FR",
     "GB",
     "HR",
-    "HU",
     "IT",
     "NL",
     "RO"
@@ -17011,9 +17458,6 @@
     "HR": [
      "Osijek"
     ],
-    "HU": [
-     "Budapest"
-    ],
     "IT": [
      "Catania",
      "Milan"
@@ -17026,7 +17470,8 @@
      "Bucharest",
      "Sibiu"
     ]
-   }
+   },
+   "checked": "2026-11-24"
   },
   {
    "name": "Orange",
@@ -17916,7 +18361,8 @@
      "Warsaw",
      "Wrocław"
     ]
-   }
+   },
+   "ads": "https://careers.rtx.com/global/en/sitemap_index.xml"
   },
   {
    "name": "Salesforce",
@@ -19131,7 +19577,8 @@
      "Bratislava",
      "Šamorín"
     ]
-   }
+   },
+   "ads": "https://jobs.thermofisher.com/global/en/sitemap_index.xml"
   },
   {
    "name": "Trimble",
@@ -19738,6 +20185,33 @@
     ]
    },
    "checked": "2026-10-30"
+  },
+  {
+   "name": "Woodward",
+   "system": "workday",
+   "board": "https://woodward.wd5.myworkdayjobs.com/woodward",
+   "countries": [
+    "DE",
+    "GB",
+    "PL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Aken",
+     "Glatten",
+     "Stuttgart",
+     "Wolfratshausen"
+    ],
+    "GB": [
+     "Lincoln",
+     "Prestwick"
+    ],
+    "PL": [
+     "Niepołomice"
+    ]
+   },
+   "checked": "2026-11-24"
   },
   {
    "name": "Workday",

@@ -149,6 +149,10 @@ cover that continuation, while usage is cumulative.
   without the employer's link, full ad or date; with its posting it leads to the employer's page,
   is scored on the employer's ad, and an older posting makes it a labelled repost. Same public
   list, polite client and request budget as the search; no job site is asked and no AI.
+- A Workday ad behind a human check (never passed) is read from the employer's own career site
+  when the directory names that site's job sitemap (`Employer.ads`): the page whose address names
+  the same vacancy number, taken only with the job's title and a full ad; its date only when
+  earlier than the list's (`WorkdaySource._from_own_site`, `sitemaps.job_pages`).
 - Direct links: the employer's own page (an employer source's page, a supplied employer address, a
   page of an employer's application system, or the employer's posting found online) is marked
   `direct` and opens as it is. A good job (60 or more) whose links all lead through job sites gets

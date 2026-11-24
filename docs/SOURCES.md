@@ -466,6 +466,44 @@ same job where there are some, and a job known only by its title is scored as su
 read"). In search 21 (72 hours) these servers gave 89 jobs of 33 employers, four of them at 60+
 (Analog Devices 84, Medtronic 75, Littelfuse 71).
 
+### Workday ads read from the employer's own site — 2026-11-24
+
+Some employers on wd1/wd5 publish every vacancy on their own career site too, under the vacancy
+number their Workday list shows (the list's first `bulletFields` entry, e.g. `R5049393`, also at the
+end of the Workday address, `..._R5049393-2`). GE Vernova's site (`careers.gevernova.com`, robots.txt
+allows everything and names its sitemap) lists each in its job sitemap as
+`/automation-engineer/job/R5049393`, and the page carries the standard job data (JobPosting: title,
+full ad, exact posting time, place). Measured on the 80 newest jobs of each Workday list, by number:
+GE Vernova 79 (all 64 of that day), Johnson & Johnson 61 (`careers.jnj.com`), Thermo Fisher 13 of 20
+and Danaher 15 of 20 (Phenom sites, `/global/en/sitemap_index.xml`), RTX 14 (Phenom; its sitemap
+lists part of the jobs); Abbott, GE Aerospace and Agilent 0, and Hitachi Energy's site uses its own
+numbers (`JID3-...`), so none of them is used.
+
+The directory names such a site's job sitemap for the Workday entry (`ads`). When Workday answers an
+ad with its check, the reader reads that sitemap once per search, opens the page whose address names
+the same number (the version without a language path first, at most two), and takes it only when its
+JobPosting has a full ad and the job's title (`workday.SAME_TITLE`); otherwise the job stays as it
+was. The page's place is kept (RTX's and Workday's are the same building code where both name one;
+"4 Locations" on Workday becomes the four towns), and its date only when it is earlier than the list's
+(a later one can be an update). Same robots check, polite client and request budget as the list; the
+Workday check itself is never passed. A live read through the reader: GE Vernova 12 of 12 jobs, Thermo
+Fisher, RTX and J&J 6 of 6 in Germany, Danaher 3 of 6 (the others aren't in its sitemap).
+
+### Employers added and moved — 2026-11-24
+
+Read once each with `tools/check_employers.py`: Woodward (Workday wd5, 41 jobs in Germany),
+BorgWarner (wd5, 13 in Germany), Evolito (wd3, 38 in the UK), Altera (wd1, 10 in the UK), Leidos (wd5,
+47 in the UK, 10 in Germany), and the Eightfold sites of Micron (`careers.micron.com`, robots allows
+`/careers`; its terms limit only the request rate) and HP (`apply.hp.com`, 24 jobs in Germany, 19 in
+the UK). NXP moved to Workday's newer address without a server number (`nxp.myworkdayjobs.com`,
+linked from nxp.com; 43 jobs in Germany, 12 in the UK); its old wd3 address answers 422 for every
+request. Dell left Workday for Oracle Recruiting on its own address
+(`enterpriseplatform.dell.com/CX_1001`, no robots.txt; 9 jobs each in Germany, the UK and Ireland).
+The directory's "Emerson" Workday site is Emerson College's and is named so; Emerson's own jobs are on
+Oracle (`hdjq.fa.us2.oraclecloud.com/CX_1`, linked from emerson.com; 36 jobs in Germany, 17 in the UK).
+The directory check now keeps a town only when the town list knows it (Teveren, Molesworth and
+Whiteley were villages or bases).
+
 ### Workday detail workplaces — 2026-10-23
 
 A bounded check through the existing Workday reader's terms, robots and polite-request gates
