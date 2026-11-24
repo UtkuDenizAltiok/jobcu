@@ -31,6 +31,8 @@ done. Implementation details belong in pull requests; current behavior is descri
 - A job site's short summary or cut-off text is treated as part of the ad, not the whole ad,
   without buying JSearch details that would repeat it: one search had five jobs at 70 or more
   judged from such fragments as if every requirement had been seen.
+- A company written without its spaces (FreeHire names some by their career site's address,
+  "riedelcommunications") is the same company: one saved search had two such jobs as extra cards.
 - Stop keeps what is scored: once jobs are scored, stopping a search builds the list from them,
   and "Retry incomplete checks" finishes the rest.
 - Only web searches the provider bills count against the free monthly searches and a search's

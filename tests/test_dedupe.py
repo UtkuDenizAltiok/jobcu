@@ -485,3 +485,15 @@ def test_one_ad_listed_for_several_towns_names_the_other_towns_and_stays_separat
     groups = group_duplicates([munich, hamburg, template, other_title, other_poster], KINDS)
     assert len(groups) == 5
     assert same_ad_elsewhere(groups, list(range(5))) == {0: [1], 1: [0]}
+
+
+@pytest.mark.parametrize("written", ["riedelcommunications", "RiedelCommunications GmbH"])
+def test_a_company_written_without_its_spaces_is_the_same_company(written):
+    # FreeHire names some employers by their career site's address.
+    text = "Develop analogue circuits for broadcast intercoms. " * 20
+    own = job("softgarden", "7", company="Riedel Communications GmbH", city="Wuppertal",
+              description=text, description_is_complete=True)
+    copy = job("freehire", "f7", company=written, city="Wuppertal", description=text,
+               description_is_complete=True)
+    groups = group_duplicates([own, copy], {"softgarden": "employer", "freehire": "aggregator"})
+    assert len(groups) == 1 and groups[0].main is own

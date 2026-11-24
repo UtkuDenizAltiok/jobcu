@@ -47,7 +47,11 @@ def employer_of(group: JobGroup, employers: dict[str, Employer]) -> Employer | N
     company = dedupe.normal_company(group.main.company)
     if not company:
         return None
+    # A company written without its spaces ("advancedenergy") is the same company.
+    spaceless = company.replace(" ", "")
     return employers.get(company) or next(
+        (employer for name, employer in employers.items()
+         if name.replace(" ", "") == spaceless), None) or next(
         (employer for name, employer in employers.items()
          if len(name) > 4 and re.search(rf"\b{re.escape(name)}\b", company)), None)
 

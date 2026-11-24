@@ -8,6 +8,8 @@
   career site itself gives one vacancy number (one job listed once per language) are one job.
 - Ads from staffing agencies that hide the employer are tagged "possible duplicate"
   instead of being merged, because they may or may not be the same job.
+- A company written with and without its spaces ("riedelcommunications", a career site's
+  address that FreeHire gives as the name) is one company.
 - The same ad under a shorter and a longer employer name ("Acme" and "Acme Robotics GmbH
   Leeds") is one job when place and title agree and the texts match: two full ads alike, or one
   a job site's summary of the other.
@@ -271,7 +273,7 @@ def group_duplicates(jobs: list[FoundJob], source_kinds: dict[str, str]) -> list
         employer_ids[a].clear()
         complete_texts[a].clear()
 
-    companies = [normal_company(j.company) for j in jobs]
+    companies = same_company_spacing([normal_company(j.company) for j in jobs])
     contexts = [_title_context(j) for j in jobs]
     titles = [title for title, _ in contexts]
     decorated = [title != normal_title(j.title)
@@ -413,6 +415,21 @@ def _town_part(location: str | None, country: str | None) -> str:
     if countries_in(first) and place_list.locate(first, country) is None:
         return ""
     return normal_city(location)
+
+
+def same_company_spacing(companies: list[str]) -> list[str]:
+    """One name for a company written with and without its spaces: FreeHire names some
+    employers by their career site's address ("riedelcommunications", "advancedenergy"), which
+    the employer's own list writes "Riedel Communications". The spaced name is kept, so a
+    division's longer name still begins with it."""
+    spaced: dict[str, str] = {}
+    for company in companies:
+        if company:
+            key = company.replace(" ", "")
+            if key not in spaced or company.count(" ") > spaced[key].count(" "):
+                spaced[key] = company
+    return [spaced.get(company.replace(" ", ""), company) if company else company
+            for company in companies]
 
 
 def _same_place(a: FoundJob, b: FoundJob, city_a: str, city_b: str,
