@@ -124,13 +124,22 @@ def test_a_job_with_its_employers_copy_or_of_another_company_is_not_looked_up(mo
     assert asked == []
 
 
-def test_a_site_that_refuses_jobcu_is_left_alone(monkeypatch):
+def test_a_site_whose_ads_are_behind_a_human_check_gives_no_posting(monkeypatch):
+    # Workday's wd1 and wd5 servers: robots.txt and the ads behind a check, the list open.
     asked = []
     challenge = httpx.Response(429, text="<div class='captcha-box'>Security Check</div>")
+    listed = site([listing("Graduate Electronics Engineer")], robots=challenge, asked=asked)
+
+    def handler(request):
+        if request.method == "GET" and request.url.path != "/robots.txt":
+            asked.append((request.method, request.url.path))
+            return challenge
+        return listed(request)
+
     job = group(board_copy())
-    assert find([job], site([listing("Graduate Electronics Engineer")], robots=challenge,
-                            asked=asked), monkeypatch) == 0
-    assert asked == [("GET", "/robots.txt")] and len(job.copies) == 1
+    assert find([job], handler, monkeypatch) == 0
+    assert len(job.copies) == 1
+    assert [method for method, _ in asked] == ["GET", "POST", "GET"]  # robots, list, one ad
 
 
 def test_a_title_found_in_another_country_is_not_read(monkeypatch):

@@ -442,18 +442,29 @@ a saved search's pool (free, Jobcu's own reader): 8 postings joined, all the rig
 (Leonardo's three graduate and academy jobs, first posted 25 August to 26 October and listed
 again by a job site on 10 November; Vishay, Airbus, MBDA); ADI's and Microchip's servers were
 behind the robots.txt challenge recorded the same day and weren't asked.
-### Workday robots.txt behind a human check — 2026-11-21
+### Workday robots.txt behind a human check — 2026-11-21, revised 2026-11-24
 
-Fetched once each with Jobcu's own identity: `robots.txt` on Workday's `wd1` and `wd5` servers
-(46 and 41 of the directory's 175 Workday companies, e.g. iqvia.wd1, analogdevices.wd1,
-emerson.wd5, microchiphr.wd5) answered 429 with Cloudflare's "Security Check: enable JavaScript
-and cookies" page (`cf-mitigated: challenge`); `wd3` servers (80) answered their usual file.
-The job-list address itself still answered. Jobcu does not get past a human check, and a
-`robots.txt` it isn't shown allows nothing, so those companies are not read while it lasts
-(`careers.CareerSystemSource.allowed`); their jobs still arrive through other sources. A refused
-company no longer stops reading the others: before, the first such server ended reading for
-every Workday company of the search. A search read 160 of 161 Workday companies on 12-13
-November, so the challenge is newer than that.
+Fetched with Jobcu's own identity: `robots.txt` on Workday's `wd1` and `wd5` servers (85 of the
+directory's Workday companies, e.g. analogdevices.wd1, medtronic.wd1, microchiphr.wd5, gevernova.wd5)
+answered 429 with Cloudflare's "Security Check" page (`cf-mitigated: challenge`); `wd3` servers
+answered their usual file. On 24 November the check also covered the career pages and sitemaps and
+the job-ad address (`GET /wday/cxs/.../job/...`), whether or not the request asked for JSON or was
+spaced a minute apart, while the job list (`POST /wday/cxs/.../jobs`) answered as before (778 jobs at
+Analog Devices); robots.txt itself answered normally on one later try.
+
+The robots standard ([RFC 9309, 2.3.1.3](https://www.rfc-editor.org/rfc/rfc9309.html)) says a
+robots.txt answered with a 4xx status is "unavailable" and a crawler "MAY access any resources";
+[Google](https://developers.google.com/search/docs/crawling-indexing/robots/robots_txt) treats
+4xx except 429 that way and a 429 like a server error, assuming no restrictions once it lasts with
+no saved copy. From 2026-11-24 Jobcu follows the standard (the owner: Workday is essential in their
+field): a 4xx robots.txt sets no rules, a 5xx or network failure allows nothing for that search, and
+a check on robots.txt alone no longer counts as the server refusing Jobcu. Jobcu still never gets past
+a check: an address that shows one is not read, and once a list or ad Jobcu needs shows one, that
+server isn't asked again in the search. So the wd1/wd5 lists give each job's title, place, date and
+the employer's link (which a person opens in a browser); their ads come from other sites' copies of the
+same job where there are some, and a job known only by its title is scored as such ("the ad couldn't be
+read"). In search 21 (72 hours) these servers gave 89 jobs of 33 employers, four of them at 60+
+(Analog Devices 84, Medtronic 75, Littelfuse 71).
 
 ### Workday detail workplaces — 2026-10-23
 

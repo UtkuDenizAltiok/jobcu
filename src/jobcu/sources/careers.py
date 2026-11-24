@@ -288,30 +288,35 @@ class CareerSystemSource(JobSource):
         return response
 
     def allowed(self, url: str, ctx: SourceContext) -> bool:
-        """Whether the site's robots.txt lets automated tools read this address. Asked once per
-        site and search; a site without robots.txt allows everything, one that refuses to show
-        it allows nothing."""
+        """Whether the site's robots.txt lets automated tools read this address, as the robots
+        standard says (RFC 9309, 2.3.1). Asked once per site and search: a file the server shows
+        gives the rules; one it answers with a 4xx status ("unavailable": missing, refused, or
+        behind a human check) sets none; one it can't serve (5xx after retries, or a network
+        failure: "unreachable") allows nothing this time."""
         _check_terms(url)
         host = urlsplit(url).hostname or ""
         robots: dict[str, RobotsRules] = self.__dict__.setdefault("_robots", {})
         if host not in robots:
-            refused = False
+            unavailable = False
             try:
-                response = ctx.http.get(f"https://{host}/robots.txt")
+                response = ctx.http.get(f"https://{host}/robots.txt", blocks_host=False)
                 ctx.report.requests += 1
             except Blocked:
-                # Behind a human check (Cloudflare's challenge on half of Workday's servers in
-                # November 2026): it isn't shown to Jobcu, so nothing there may be read.
+                # Cloudflare's check on Workday's wd1 and wd5 servers (since November 2026) guards
+                # robots.txt and the web pages with a 429, not the job lists Jobcu reads: a 4xx
+                # robots.txt sets no rules (RFC 9309 2.3.1.3; Google too, once a 429 lasts over 12
+                # hours with no saved copy). Jobcu never gets past a check: a list or ad that
+                # shows one itself ends all reading of that server (http.Blocked).
                 ctx.report.requests += 1
-                response, refused = None, True
+                response, unavailable = None, True
             except Exception:
                 response = None
-            if refused or response is not None and response.status_code in (401, 403):
-                robots[host] = RobotsRules(disallow_all=True)
-            elif response is not None and response.status_code == 200:
+            if response is not None and response.status_code == 200:
                 robots[host] = RobotsRules(response.text)
-            else:
+            elif unavailable or response is not None and 400 <= response.status_code < 500:
                 robots[host] = RobotsRules(allow_all=True)
+            else:
+                robots[host] = RobotsRules(disallow_all=True)
         return robots[host].allows(url)
 
     def get_json(self, url: str, ctx: SourceContext, **kwargs):

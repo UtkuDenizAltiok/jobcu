@@ -36,6 +36,9 @@ done. Implementation details belong in pull requests; current behavior is descri
 - Town sizes in Germany come from official statistics (Destatis, 2,059 towns) instead of
   GeoNames' mixed-age figures: Braunschweig had wrongly fallen below "0.3% of the country's
   people", so its jobs were measured against Hannover, 79 minutes away.
+- Workday's wd1 and wd5 servers (85 employers, Analog Devices and Medtronic among them) are read
+  again: a robots.txt behind a human check sets no rules, as the robots standard says, while a check
+  on the ads is never passed, so those jobs come with title, place, date and the employer's link.
 - Stop keeps what is scored: once jobs are scored, stopping a search builds the list from them,
   and "Retry incomplete checks" finishes the rest.
 - Only web searches the provider bills count against the free monthly searches and a search's
