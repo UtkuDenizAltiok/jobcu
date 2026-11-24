@@ -61,6 +61,13 @@ def test_a_closing_day_lasts_until_its_end():
     assert parse_closing("") is None and parse_closing("soon") is None
 
 
+def test_a_closing_date_at_midnight_means_the_whole_day():
+    # Many sites write the closing day as midnight; the job stays open until that day ends.
+    assert parse_closing("2026-12-01T00:00:00Z") == datetime(2026, 12, 1, 23, 59, tzinfo=UTC)
+    assert parse_closing("2026-12-01T00:00:00+01:00") == datetime(2026, 12, 1, 22, 59, tzinfo=UTC)
+    assert parse_closing("2026-12-01T09:00:00Z") == datetime(2026, 12, 1, 9, 0, tzinfo=UTC)
+
+
 def test_the_standard_job_data_gives_the_closing_date():
     page = ('<script type="application/ld+json">{"@type": "JobPosting", "title": "Teacher", '
             '"datePosted": "2026-09-24", "validThrough": "2026-10-16", '
