@@ -28,6 +28,7 @@ from jobcu.sources.recruitee import RecruiteeSource
 from jobcu.sources.reed import ReedSource
 from jobcu.sources.servicebund import ServiceBundSource
 from jobcu.sources.sitemaps import SitemapSource
+from jobcu.sources.smartrecruiters import SmartRecruitersSource
 from jobcu.sources.softgarden import SoftgardenSource
 from jobcu.sources.successfactors import SuccessFactorsSource
 from jobcu.sources.teachingvacancies import TeachingVacanciesSource
@@ -46,6 +47,11 @@ TERMS_NOTES = {
     # record of Siemens acting against readers of its job lists was found (SOURCES).
     "avature": "Siemens' website terms don't allow automated reading (text and data mining). "
                "Switch it on only if you accept that for your own job search.",
+    # SmartRecruiters' terms for job seekers forbid "automatic means to access content or data
+    # from other users" (2026-11-24); no legal action against readers of job pages was found.
+    "smartrecruiters": "SmartRecruiters' terms for job seekers don't allow automatic means to "
+                       "read its pages. Switch it on only if you accept that for your own job "
+                       "search.",
 }
 OPT_IN_SOURCES = frozenset({"jsearch", *TERMS_NOTES})
 
@@ -63,8 +69,9 @@ def career_sources() -> list[CareerSystemSource]:
     """Company career systems, read for the employers in the employer directory."""
     return [AshbySource(), AvatureSource(), DvinciSource(), EightfoldSource(),
             GreenhouseSource(), LeverSource(), OracleSource(), PersonioSource(),
-            ProspectiveSource(), RecruiteeSource(), SitemapSource(), SoftgardenSource(),
-            SuccessFactorsSource(), TeamtailorSource(), WorkableSource(), WorkdaySource()]
+            ProspectiveSource(), RecruiteeSource(), SitemapSource(), SmartRecruitersSource(),
+            SoftgardenSource(), SuccessFactorsSource(), TeamtailorSource(), WorkableSource(),
+            WorkdaySource()]
 
 
 def all_sources() -> list[JobSource]:

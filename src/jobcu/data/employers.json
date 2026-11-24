@@ -7169,6 +7169,955 @@
    }
   },
   {
+   "name": "AECOM",
+   "system": "smartrecruiters",
+   "board": "AECOM2",
+   "countries": [
+    "BE",
+    "CH",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "IE",
+    "IT",
+    "NL",
+    "NO",
+    "PL",
+    "RO",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "BE": [
+     "Leuven"
+    ],
+    "CH": [
+     "Zug"
+    ],
+    "DE": [
+     "Berlin",
+     "Essen",
+     "Frankfurt am Main",
+     "Kaiserslautern",
+     "Munich"
+    ],
+    "ES": [
+     "Barcelona",
+     "Leioa",
+     "Madrid",
+     "Zaragoza"
+    ],
+    "FR": [
+     "Aix-en-Provence",
+     "Grenoble",
+     "La Garenne-Colombes",
+     "Paris"
+    ],
+    "GB": [
+     "Barrow in Furness",
+     "Basingstoke",
+     "Belfast",
+     "Birmingham",
+     "Bridgwater",
+     "Bristol",
+     "Cambridge",
+     "Cardiff",
+     "Chesterfield",
+     "Croydon",
+     "Derby",
+     "Derry",
+     "Dunbar",
+     "Dunfermline",
+     "Edinburgh",
+     "Exeter",
+     "Glasgow",
+     "Inverness",
+     "Ipswich",
+     "Leeds",
+     "Liverpool",
+     "London",
+     "Manchester",
+     "Newcastle upon Tyne",
+     "Norwich",
+     "Nottingham",
+     "Oxford",
+     "Plymouth",
+     "Reading",
+     "Sheffield",
+     "Southampton",
+     "St Albans",
+     "Swindon",
+     "Warrington",
+     "Whitehaven"
+    ],
+    "IE": [
+     "Cork",
+     "Dublin",
+     "Limerick"
+    ],
+    "IT": [
+     "Milan"
+    ],
+    "NL": [
+     "The Hague"
+    ],
+    "NO": [
+     "Oslo"
+    ],
+    "PL": [
+     "Kraków",
+     "Międzyrzec Podlaski",
+     "Poznań",
+     "Warsaw",
+     "Wrocław"
+    ],
+    "RO": [
+     "Bucharest"
+    ],
+    "SE": [
+     "Stockholm"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
+   "name": "ALTEN",
+   "system": "smartrecruiters",
+   "board": "ALTEN",
+   "countries": [
+    "AT",
+    "BE",
+    "DE",
+    "ES",
+    "FR",
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Graz",
+     "Innsbruck",
+     "Linz",
+     "Schwaz",
+     "Vienna",
+     "Weiz"
+    ],
+    "BE": [
+     "Brussels",
+     "Charleroi"
+    ],
+    "DE": [
+     "Augsburg",
+     "Berlin",
+     "Bielefeld",
+     "Bremen",
+     "Böblingen",
+     "Cottbus",
+     "Donauwörth",
+     "Erlangen",
+     "Finkenwerder",
+     "Frankfurt am Main",
+     "Friedrichshafen",
+     "Hamburg",
+     "Hansestadt Stade",
+     "Jena",
+     "Kelberg",
+     "Köln",
+     "Lemwerder",
+     "Manching",
+     "Mannheim",
+     "Munich",
+     "Münster",
+     "Nordenham",
+     "Nuremberg",
+     "Ottobrunn bei München",
+     "Salzgitter",
+     "Stuttgart",
+     "Wolfsburg"
+    ],
+    "ES": [
+     "Zaragoza"
+    ],
+    "FR": [
+     "Aix-en-Provence",
+     "Albi",
+     "Amiens",
+     "Ancenis",
+     "Angoulême",
+     "Antony",
+     "Belfort",
+     "Bezons",
+     "Blois",
+     "Bordeaux",
+     "Boulogne-Billancourt",
+     "Bourg-en-Bresse",
+     "Bourges",
+     "Brest",
+     "Brive-la-Gaillarde",
+     "Caen",
+     "Cannes",
+     "Castres",
+     "Cherbourg",
+     "Cholet",
+     "Château-Renault",
+     "Châteaudun",
+     "Créteil",
+     "Dijon",
+     "Douai",
+     "Figeac",
+     "Fougères",
+     "Gennevilliers",
+     "Grenoble",
+     "Guyancourt",
+     "Issoudun",
+     "La Rochelle",
+     "Laval",
+     "Le Creusot",
+     "Le Havre",
+     "Lille",
+     "Limoges",
+     "Lorient",
+     "Lyon",
+     "Marseille"
+    ],
+    "GB": [
+     "Belfast",
+     "Bicester",
+     "Bournemouth",
+     "Bridgwater",
+     "Bristol",
+     "Broughton",
+     "Coventry",
+     "Crawley",
+     "Derby",
+     "Dunbar",
+     "Fareham",
+     "Glasgow",
+     "Gloucester",
+     "Guildford",
+     "London",
+     "Loughborough",
+     "Luton",
+     "Maidenhead",
+     "Manchester",
+     "Oxford",
+     "Peterborough",
+     "Portsmouth",
+     "Preston",
+     "Reading",
+     "Rugby",
+     "Solihull",
+     "Southampton",
+     "Stevenage",
+     "Taunton",
+     "Templecombe",
+     "Warton"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
+   "name": "Assystem",
+   "system": "smartrecruiters",
+   "board": "Assystem",
+   "countries": [
+    "CH",
+    "FR",
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "CH": [
+     "Meyrin"
+    ],
+    "FR": [
+     "Avignon",
+     "Avoine",
+     "Bagnols-sur-Cèze",
+     "Bois-Colombes",
+     "Bordeaux",
+     "Bourges",
+     "Brest",
+     "Bruyères-le-Châtel",
+     "Carquefou",
+     "Cattenom",
+     "Chambéry",
+     "Cherbourg",
+     "Chessy",
+     "Courbevoie",
+     "Cruas",
+     "Dieppe",
+     "Dijon",
+     "Gravelines",
+     "Le Petit-Quevilly",
+     "Lognes",
+     "Lorient",
+     "Lyon",
+     "Marseille",
+     "Montigny-le-Bretonneux",
+     "Montpellier",
+     "Montrouge",
+     "Mérignac",
+     "Nantes",
+     "Nogent-sur-Seine",
+     "Orange",
+     "Paris",
+     "Pierrelatte",
+     "Romans-sur-Isère",
+     "Saint-Denis",
+     "Saint-Genis-Pouilly",
+     "Saint-Maurice",
+     "Saint-Paul",
+     "Saint-Valery-en-Caux",
+     "Toulon",
+     "Toulouse"
+    ],
+    "GB": [
+     "Birmingham",
+     "Bolton",
+     "Bridgwater",
+     "Bristol",
+     "Bury St Edmunds",
+     "Cardiff",
+     "Crawley",
+     "Derby",
+     "Glasgow",
+     "Helensburgh",
+     "Ipswich",
+     "Leiston",
+     "London",
+     "Newcastle upon Tyne",
+     "Sunderland",
+     "Warrington",
+     "Whitehaven",
+     "York"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
+   "name": "Aumovio",
+   "system": "smartrecruiters",
+   "board": "Aumovio",
+   "countries": [
+    "AT",
+    "BE",
+    "CZ",
+    "DE",
+    "FR",
+    "GB",
+    "HU",
+    "IT",
+    "PT",
+    "RO",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Vienna"
+    ],
+    "BE": [
+     "Mechelen"
+    ],
+    "CZ": [
+     "Jičín"
+    ],
+    "DE": [
+     "Alzenau in Unterfranken",
+     "Babenhausen",
+     "Frankfurt am Main",
+     "Hannover",
+     "Ingolstadt",
+     "Lindau",
+     "Regensburg",
+     "Ulm",
+     "Villingen-Schwenningen"
+    ],
+    "FR": [
+     "Rambouillet",
+     "Toulouse"
+    ],
+    "GB": [
+     "Birmingham",
+     "Ebbw Vale"
+    ],
+    "HU": [
+     "Budapest",
+     "Veszprém"
+    ],
+    "IT": [
+     "Cinisello Balsamo"
+    ],
+    "PT": [
+     "Vila Real"
+    ],
+    "RO": [
+     "Sibiu",
+     "Timişoara"
+    ],
+    "SK": [
+     "Zvolen"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
+   "name": "Averna",
+   "system": "smartrecruiters",
+   "board": "Averna1",
+   "countries": [
+    "CZ",
+    "DE",
+    "FR",
+    "GB",
+    "IE",
+    "PL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "CZ": [
+     "Brno",
+     "Ostrava",
+     "Prague"
+    ],
+    "DE": [
+     "Landau in der Pfalz"
+    ],
+    "FR": [
+     "Colomiers",
+     "Toulouse"
+    ],
+    "GB": [
+     "Christchurch"
+    ],
+    "IE": [
+     "Cork",
+     "Galway",
+     "Limerick"
+    ],
+    "PL": [
+     "Kraków",
+     "Wrocław"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
+   "name": "Brainlab",
+   "system": "smartrecruiters",
+   "board": "Brainlab",
+   "countries": [
+    "AT",
+    "DE",
+    "ES",
+    "FI",
+    "FR",
+    "IT",
+    "PL",
+    "RO",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Salzburg"
+    ],
+    "DE": [
+     "Frankfurt am Main",
+     "Freiburg",
+     "Munich",
+     "Waldkirch"
+    ],
+    "ES": [
+     "Madrid"
+    ],
+    "FI": [
+     "Jyväskylä"
+    ],
+    "FR": [
+     "Marseille"
+    ],
+    "IT": [
+     "Rome"
+    ],
+    "PL": [
+     "Warsaw"
+    ],
+    "RO": [
+     "Bucharest"
+    ],
+    "SE": [
+     "Stockholm"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
+   "name": "Continental",
+   "system": "smartrecruiters",
+   "board": "Continental",
+   "countries": [
+    "AT",
+    "BE",
+    "CH",
+    "CZ",
+    "DE",
+    "ES",
+    "FR",
+    "IT",
+    "LT",
+    "PT",
+    "RO",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Amstetten",
+     "Ansfelden",
+     "Brunn am Gebirge",
+     "Dornbirn",
+     "Eisenstadt",
+     "Feldkirch",
+     "Gmunden",
+     "Graz",
+     "Gröbming",
+     "Hard",
+     "Innsbruck",
+     "Klagenfurt am Wörthersee",
+     "Kufstein",
+     "Leibnitz",
+     "Leitendorf",
+     "Leoben",
+     "Linz",
+     "Perg",
+     "Salzburg",
+     "Schlitters",
+     "Schwechat",
+     "Steyr",
+     "Strasshof an der Nordbahn",
+     "Traiskirchen",
+     "Vienna",
+     "Villach",
+     "Wels",
+     "Wiener Neudorf",
+     "Wiener Neustadt",
+     "Wolfsberg"
+    ],
+    "BE": [
+     "Machelen"
+    ],
+    "CH": [
+     "Dietikon"
+    ],
+    "CZ": [
+     "Horšovský Týn",
+     "Otrokovice"
+    ],
+    "DE": [
+     "Amberg",
+     "Aschaffenburg",
+     "Bad Driburg",
+     "Bad Hersfeld",
+     "Bad Nauheim",
+     "Bautzen",
+     "Berlin",
+     "Bernburg",
+     "Bielefeld",
+     "Bischofswiesen",
+     "Bramsche",
+     "Bremen",
+     "Burghausen",
+     "Bückeburg",
+     "Eichendorf",
+     "Emden",
+     "Erfurt",
+     "Frankfurt am Main",
+     "Freiburg",
+     "Freilassing",
+     "Friedberg",
+     "Friedrichshafen",
+     "Fulda",
+     "Garching",
+     "Gießen",
+     "Hameln",
+     "Hamm",
+     "Hannover",
+     "Hildesheim",
+     "Kaiserslautern",
+     "Karlsruhe",
+     "Kassel",
+     "Kaufbeuren",
+     "Kolbermoor",
+     "Korbach",
+     "Magdeburg",
+     "Mainz",
+     "Melle",
+     "Memmingen",
+     "Munich"
+    ],
+    "ES": [
+     "Bilbao",
+     "Madrid",
+     "San Fernando de Henares"
+    ],
+    "FR": [
+     "Lacroix-Saint-Ouen",
+     "Sarreguemines"
+    ],
+    "IT": [
+     "Milan"
+    ],
+    "PT": [
+     "Palmela",
+     "Ribeirão"
+    ],
+    "RO": [
+     "Timişoara"
+    ],
+    "SK": [
+     "Púchov"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
+   "name": "Ramboll",
+   "system": "smartrecruiters",
+   "board": "Ramboll3",
+   "countries": [
+    "DE",
+    "DK",
+    "ES",
+    "FI",
+    "FR",
+    "GB",
+    "IE",
+    "IT",
+    "NL",
+    "NO",
+    "PL",
+    "RO",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Bad Kreuznach",
+     "Berlin",
+     "Braunschweig",
+     "Dresden",
+     "Düsseldorf",
+     "Erlangen",
+     "Essen",
+     "Frankfurt am Main",
+     "Hamburg",
+     "Hannover",
+     "Karlsruhe",
+     "Kassel",
+     "Kelkheim",
+     "Mannheim",
+     "Munich",
+     "Rostock"
+    ],
+    "DK": [
+     "Aalborg",
+     "Copenhagen",
+     "Esbjerg",
+     "Odense",
+     "Roskilde",
+     "Vejle",
+     "Århus"
+    ],
+    "ES": [
+     "Barcelona",
+     "Madrid"
+    ],
+    "FI": [
+     "Espoo",
+     "Lahti",
+     "Oulu",
+     "Pori",
+     "Tampere",
+     "Turku",
+     "Vaasa"
+    ],
+    "FR": [
+     "Aix-en-Provence",
+     "Bordeaux",
+     "Paris",
+     "Vaulx-en-Velin"
+    ],
+    "GB": [
+     "Birmingham",
+     "Bristol",
+     "Cambridge",
+     "Cardiff",
+     "Chester",
+     "Corsham",
+     "Edinburgh",
+     "Glasgow",
+     "Leeds",
+     "London",
+     "Manchester",
+     "Newcastle upon Tyne",
+     "Southampton"
+    ],
+    "IE": [
+     "Dublin",
+     "Swords"
+    ],
+    "IT": [
+     "Milan",
+     "Rome"
+    ],
+    "NL": [
+     "Rotterdam"
+    ],
+    "NO": [
+     "Alta",
+     "Arendal",
+     "Bergen",
+     "Bodø",
+     "Drammen",
+     "Kristiansand",
+     "Lillehammer",
+     "Oslo",
+     "Porsgrunn",
+     "Sandefjord",
+     "Sandnes",
+     "Trondheim",
+     "Tønsberg"
+    ],
+    "PL": [
+     "Gdynia",
+     "Kraków",
+     "Poznań",
+     "Warsaw"
+    ],
+    "RO": [
+     "Bucharest"
+    ],
+    "SE": [
+     "Falun",
+     "Gothenburg",
+     "Karlstad",
+     "Linköping",
+     "Luleå",
+     "Malmö",
+     "Stockholm",
+     "Umeå",
+     "Uppsala",
+     "Västerås"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
+   "name": "Renesas Electronics",
+   "system": "smartrecruiters",
+   "board": "RenesasElectronics",
+   "countries": [
+    "AT",
+    "CH",
+    "CZ",
+    "DE",
+    "FR",
+    "GB",
+    "GR",
+    "IT",
+    "NL",
+    "PL",
+    "PT",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Graz"
+    ],
+    "CH": [
+     "Zürich"
+    ],
+    "CZ": [
+     "Prague"
+    ],
+    "DE": [
+     "Bingen am Rhein",
+     "Dresden",
+     "Düsseldorf",
+     "Germering",
+     "Karlsruhe",
+     "Mainz",
+     "Munich",
+     "Stuttgart"
+    ],
+    "FR": [
+     "Paris",
+     "Sophia Antipolis"
+    ],
+    "GB": [
+     "Bourne End",
+     "Cambridge",
+     "Edinburgh",
+     "Swindon"
+    ],
+    "GR": [
+     "Athens",
+     "Kallithéa",
+     "Pátra"
+    ],
+    "IT": [
+     "Catania",
+     "Milan"
+    ],
+    "NL": [
+     "'s-Hertogenbosch"
+    ],
+    "PL": [
+     "Katowice",
+     "Wrocław"
+    ],
+    "PT": [
+     "Lisbon"
+    ],
+    "SE": [
+     "Kista"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
+   "name": "Segula Technologies",
+   "system": "smartrecruiters",
+   "board": "SegulaTechnologies",
+   "countries": [
+    "FR"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "FR": [
+     "Paris"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
+   "name": "Wabtec",
+   "system": "smartrecruiters",
+   "board": "Wabtec",
+   "countries": [
+    "AT",
+    "BE",
+    "CH",
+    "CZ",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "IT",
+    "NL",
+    "PL",
+    "SE",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Schärding",
+     "Vienna"
+    ],
+    "BE": [
+     "Brugge"
+    ],
+    "CH": [
+     "Basel",
+     "Bern",
+     "Fribourg",
+     "Luzern",
+     "Schaffhausen",
+     "Zürich"
+    ],
+    "CZ": [
+     "Pilsen"
+    ],
+    "DE": [
+     "Dortmund",
+     "Düsseldorf",
+     "Erfurt",
+     "Frankfurt am Main",
+     "Hamburg",
+     "Leipzig",
+     "Munich",
+     "Recklinghausen",
+     "Schüttorf"
+    ],
+    "ES": [
+     "Bilbao",
+     "Derio",
+     "Donostia / San Sebastián",
+     "Madrid",
+     "Urnieta"
+    ],
+    "FR": [
+     "Amiens",
+     "Gennevilliers",
+     "Lille",
+     "Paris",
+     "Sablé-sur-Sarthe",
+     "Tours"
+    ],
+    "GB": [
+     "Aberdeen",
+     "Burton upon Trent",
+     "Derby",
+     "Dundee",
+     "Edinburgh",
+     "Glasgow",
+     "Lincoln",
+     "London",
+     "Northampton"
+    ],
+    "IT": [
+     "Piossasco",
+     "Rome",
+     "Turin"
+    ],
+    "NL": [
+     "Ede"
+    ],
+    "PL": [
+     "Katowice",
+     "Kąty Wrocławskie"
+    ],
+    "SE": [
+     "Landskrona"
+    ],
+    "SK": [
+     "Topoľčany"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
+   "name": "XP Power",
+   "system": "smartrecruiters",
+   "board": "XPPower2",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Salach",
+     "Schechen"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
    "name": "Elmos",
    "system": "softgarden",
    "board": "elmos",
