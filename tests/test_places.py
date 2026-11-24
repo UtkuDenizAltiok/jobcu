@@ -333,3 +333,40 @@ def test_a_card_adds_the_town_to_a_bare_postcode():
     assert card_place("Burnley BB11 3BP") == "Burnley BB11 3BP"
     assert card_place("Burnley, Lancashire") == "Burnley, Lancashire"
     assert card_place(None) is None
+
+
+def test_official_populations_replace_older_figures_for_the_town_itself(tmp_path):
+    import gzip
+
+    towns = tmp_path / "places.csv.gz"
+    with gzip.open(towns, "wt", encoding="utf-8") as file:
+        file.write("Braunschweig,DE,52.27,10.52,244715,DE.06,DE.K.03101,\n"
+                   "Berlin,DE,52.52,13.41,3426354,DE.16,DE.K.11000,\n"
+                   # A city's part lists the city among its names.
+                   "Wittenau|Berlin,DE,52.59,13.33,24726,DE.16,DE.K.11000,\n"
+                   # Two towns of one district that shorten to the same word.
+                   "Neustadt am Kulm,DE,49.83,11.83,1145,DE.02,DE.K.09374,\n"
+                   "Neustadt an der Waldnaab,DE,49.73,12.17,5900,DE.02,DE.K.09374,\n"
+                   "Braunschweig,DE,48.00,9.00,3000,DE.01,DE.K.08999,\n")
+    official = tmp_path / "official_people.csv"
+    official.write_text("# Columns: district, town, people.\n"
+                        "DE.K.11000,Berlin,3685265\n"
+                        "DE.K.03101,Braunschweig,252962\n"
+                        "DE.K.09374,Neustadt a.d.Waldnaab,6057\n", encoding="utf-8")
+    loaded = places._towns(towns, official)
+    people = {(town.name, town.district): town.people
+              for entries in loaded.values() for town in entries}
+    assert people[("Braunschweig", "DE.K.03101")] == 252962
+    assert people[("Berlin", "DE.K.11000")] == 3685265
+    assert people[("Wittenau", "DE.K.11000")] == 24726
+    assert people[("Neustadt an der Waldnaab", "DE.K.09374")] == 6057
+    assert people[("Neustadt am Kulm", "DE.K.09374")] == 1145
+    # Another district's town of the same name keeps its own figure.
+    assert people[("Braunschweig", "DE.K.08999")] == 3000
+
+
+def test_braunschweig_counts_as_a_city_with_a_fair_share_of_germanys_people():
+    # 0.3% of Germany is about 250,500 people; the official figure is 252,962.
+    smallest = places.people_for_share(0.003, COUNTRIES["DE"].people)
+    assert places.find("Braunschweig", "DE").people >= smallest
+    assert places.find("Chemnitz", "DE").people < smallest

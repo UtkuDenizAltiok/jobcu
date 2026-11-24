@@ -33,6 +33,9 @@ done. Implementation details belong in pull requests; current behavior is descri
   judged from such fragments as if every requirement had been seen.
 - A company written without its spaces (FreeHire names some by their career site's address,
   "riedelcommunications") is the same company: one saved search had two such jobs as extra cards.
+- Town sizes in Germany come from official statistics (Destatis, 2,059 towns) instead of
+  GeoNames' mixed-age figures: Braunschweig had wrongly fallen below "0.3% of the country's
+  people", so its jobs were measured against Hannover, 79 minutes away.
 - Stop keeps what is scored: once jobs are scored, stopping a search builds the list from them,
   and "Retry incomplete checks" finishes the rest.
 - Only web searches the provider bills count against the free monthly searches and a search's

@@ -478,6 +478,21 @@ returned listed jobs with full descriptions. The API host's robots file returned
 no HTML crawling permission is inferred. Existing documented posting-API use, access decisions
 and request budgets remain. This verifies board identity, not market coverage or fresh-job recall.
 
+### Official town populations — 2026-11-24
+
+Conditions about a town's size ("a city with at least 0.3% of the country's people") used GeoNames'
+figures, which are of mixed age. Braunschweig had 244,715 people and Kiel 252,668, so with 0.3% of
+Germany at about 250,500 Kiel counted and Braunschweig didn't. Destatis's official figures for
+31.12.2024 (2022 census basis) are 252,962 and 252,668, so both count. GeoNames also gave Berlin
+3,426,354 (official 3,685,265) and Frankfurt am Main 650,000 (official 756,021). Jobcu now ships
+[Destatis's list of towns with town rights](https://www.destatis.de/DE/Themen/Laender-Regionen/Regionales/Gemeindeverzeichnis/Administrativ/05-staedte.html)
+(`data/official_people.csv`, 2,059 towns; its cover sheet permits copying and passing it on with
+the source named). Each figure goes to the town of the same full name in the same district (the
+first five digits of the official key; the town list records the district), and to the biggest such
+town (a city's parts list the city among their names). 1,720 German towns take the official figure.
+Braunschweig now passes 0.3%; Gütersloh and Kaiserslautern pass 100,000, and Gera and Hildesheim fall
+below it. `tools/update_official_people.py` rebuilds the file.
+
 ### Employers found through saved results — 2026-11-24
 
 The saved result lists (2,145 different cards) were checked for employers with good matches whose own
