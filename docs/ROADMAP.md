@@ -72,6 +72,9 @@ done. Implementation details belong in pull requests; current behavior is descri
   gets the employer's own posting from that site's search: the employer's link, full ad and
   date (an older posting makes it a labelled repost). The posting joins only when the duplicate rules
   take it for the same job.
+- Six more employers' own career sites are read (Agile Robots, Riedel Communications, Mynaric,
+  planqc, STABL Energy, Delta Energy Systems), found where saved results had good matches only
+  through job sites.
 - Scoring: a language wished for in the ad's own language counts like a required one; lead, head,
   principal and staff titles are capped for early-career profiles; the sponsorship penalty
   applies to UK jobs only. Roles are graded by closeness to the person's own specialist field,

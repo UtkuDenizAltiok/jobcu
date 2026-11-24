@@ -2169,6 +2169,23 @@
    "towns": {}
   },
   {
+   "name": "Agile Robots",
+   "system": "greenhouse",
+   "board": "agilerobotsse",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Fürstenfeldbruck",
+     "Kaufbeuren",
+     "Munich"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
    "name": "Airbnb",
    "system": "greenhouse",
    "board": "airbnb",
@@ -5975,6 +5992,45 @@
    }
   },
   {
+   "name": "Mynaric",
+   "system": "personio",
+   "board": "mynaric",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Munich",
+     "Weßling"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
+   "name": "planqc",
+   "system": "personio",
+   "board": "planqc-gmbh",
+   "countries": [
+    "AT",
+    "DE",
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "AT": [
+     "Innsbruck"
+    ],
+    "DE": [
+     "Garching"
+    ],
+    "GB": [
+     "Cambridge"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
    "name": "ROHM Semiconductor",
    "system": "personio",
    "board": "rohm-semiconductor",
@@ -5988,6 +6044,21 @@
     ]
    },
    "checked": "2026-11-03"
+  },
+  {
+   "name": "STABL Energy",
+   "system": "personio",
+   "board": "stabl-energy-gmbh",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Munich"
+    ]
+   },
+   "checked": "2026-11-24"
   },
   {
    "name": "Sungrow EMEA",
@@ -6534,6 +6605,23 @@
    }
   },
   {
+   "name": "Delta Energy Systems",
+   "system": "sitemap",
+   "board": "https://application.delta-emea.com/sitemap.xml.gz",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Emmendingen",
+     "Soest",
+     "Teningen"
+    ]
+   },
+   "checked": "2026-11-24"
+  },
+  {
    "name": "ECM Selection",
    "system": "sitemap",
    "board": "https://www.ecmselection.co.uk/sitemap.xml",
@@ -6670,6 +6758,39 @@
      "Munich"
     ]
    }
+  },
+  {
+   "name": "Riedel Communications",
+   "system": "softgarden",
+   "board": "riedelcommunications",
+   "countries": [
+    "AT",
+    "DE",
+    "FR",
+    "HU",
+    "NL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Vienna"
+    ],
+    "DE": [
+     "Berlin",
+     "Butzbach",
+     "Wuppertal"
+    ],
+    "FR": [
+     "Laval"
+    ],
+    "HU": [
+     "Budapest"
+    ],
+    "NL": [
+     "Hilversum"
+    ]
+   },
+   "checked": "2026-11-24"
   },
   {
    "name": "Advanced Energy",
