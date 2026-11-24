@@ -8,8 +8,9 @@ the job site's date. In one saved list, six of the person's best cards were such
 and more days old on the employers' own lists.
 
 Before the full ads are read, each job still in the running that has no employer copy, and whose
-employer Jobcu reads on a system with its own title search (Workday, Oracle), is looked up
-there: the site's search for the job's title, the full ads of the closest titles it lists in
+employer Jobcu reads on a system that can find a title (Workday's and Oracle's own search; the
+whole SuccessFactors list a search reads anyway, every title in its addresses), is looked up
+there: the listed jobs for the job's title, the full ads of the closest titles in
 the job's country (at most MAX_READ), and the first that Jobcu's duplicate rules take for the
 same job (`dedupe.group_duplicates`: the same company, place and title, and matching text) joins
 it as its employer copy. The card then leads to the employer's page, scoring reads the
@@ -139,6 +140,8 @@ def _posting(group: JobGroup, employer: Employer, source: CareerSystemSource,
         if similarity < dedupe.TITLE_MATCH_WITH_TEXT:
             break
         full = source.load_details(dataclasses.replace(job, job_types=list(job.job_types)), ctx)
+        if not (full.description or "").strip():
+            continue  # a page without the ad (the job closed, or it didn't load) proves nothing
         places = job_countries(dataclasses.replace(full, country=None))
         if country and country not in places:
             continue  # the same title in another country is another vacancy

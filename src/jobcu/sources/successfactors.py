@@ -58,6 +58,7 @@ class SuccessFactorsSource(CareerSystemSource):
     id = "successfactors"
     name = "Company career sites (SuccessFactors)"
     system = "successfactors"
+    finds_by_title = True  # from the whole list a search reads anyway (find_by_title)
     detail_cache_version = 2  # older readers retained only the first description block
     # Every company has its own address, so a few can be read at once.
     parallel = 4
@@ -76,16 +77,21 @@ class SuccessFactorsSource(CareerSystemSource):
         for code in countries or ():
             languages.update(COUNTRIES[code].ad_languages)
         if root.tag == "rss":
+            titles = []
             for item in root.iterfind("channel/item"):
                 job = from_feed(item, employer)
+                titles.append(dataclasses.replace(job, description="",
+                                                  description_is_complete=False))
                 if terms is None:
                     yield job  # the directory check: every job, no pages opened
                 elif (not countries or job.country in countries) and matches_terms(
                         terms, languages, job.title, job.description):
                     yield self._dated(job, ctx)
+            self._lists[employer.board] = titles
             return
         listed = [job for loc in root.iterfind(f"{SITEMAP}url/{SITEMAP}loc")
                   if (job := from_page_address((loc.text or "").strip(), employer)) is not None]
+        self._lists[employer.board] = listed
         if terms is None:
             yield from listed
             return
@@ -110,6 +116,24 @@ class SuccessFactorsSource(CareerSystemSource):
         # Such titles gave four of one search's cards at 70 or more on other career sites, the
         # best match of the list among them, while this site's were never looked at.
         yield from unread
+
+    @property
+    def _lists(self) -> dict[str, list[FoundJob]]:
+        """Each site's whole list as this search read it: titles and addresses, no ads."""
+        if not hasattr(self, "_read_lists"):
+            self._read_lists = {}
+        return self._read_lists
+
+    def find_by_title(self, employer: Employer, title: str, ctx: SourceContext) -> list[FoundJob]:
+        """The site's listed jobs, for the employer's own posting of a job only job sites had
+        (employerpostings.py picks the closest titles and opens only their pages). Every job's
+        title is in its address or the feed, and the search has already read the whole list,
+        so this costs no request; a list the search didn't read is read once."""
+        if employer.board not in self._lists:
+            for _ in self.list_jobs(employer, ctx):
+                pass
+        return [dataclasses.replace(job, title=_title_after_town(job.title))
+                for job in self._lists.get(employer.board, ())]
 
     def load_details(self, job: FoundJob, ctx: SourceContext) -> FoundJob:
         """A job listed only by its address (a title the search words missed): its page's
@@ -521,7 +545,19 @@ def _new_in_searched_country(job: FoundJob, sights: dict, countries, start) -> F
     if precision != "day" or (start is not None
                               and freshness(posted, precision, start) != "fresh"):
         return None
-    words = job.title.split()
+    return dataclasses.replace(job, title=_title_after_town(job.title), posted_at=posted,
+                               date_precision=precision)
+
+
+# Addresses drop the slashes of "(m/w/d)", which the duplicate rules then took for a word of
+# the title.
+_ADDRESS_GENDER = re.compile(r"\s*\((?:[mwdfxi]){2,4}\)\s*$", re.IGNORECASE)
+
+
+def _title_after_town(title: str) -> str:
+    """The title an address spells after its town ("München Hardware Engineer" from
+    "/job/München-Hardware-Engineer-%28mwd%29-80331/1/"); the whole words where no town leads."""
+    words = title.split()
     found = _town_and_length(words)
-    title = " ".join(words[found[1]:]) if found and words[found[1]:] else job.title
-    return dataclasses.replace(job, title=title, posted_at=posted, date_precision=precision)
+    title = " ".join(words[found[1]:]) if found and words[found[1]:] else title
+    return _ADDRESS_GENDER.sub("", title) or title

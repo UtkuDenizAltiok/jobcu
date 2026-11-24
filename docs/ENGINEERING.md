@@ -140,7 +140,8 @@ cover that continuation, while usage is cumulative.
   can use another verified copy; opaque redirect destinations are not guessed or bypassed.
 - The employer's own posting from its career site: before the full ads are read, a job still in
   the running that only job sites listed, of an employer Jobcu reads on a system with its own
-  title search (the list's own search on Workday and Oracle), is looked up there (`employerpostings.py`): the site's
+  title search (the list's own search on Workday and Oracle; on SuccessFactors the whole list the search read,
+  whose addresses name every title), is looked up there (`employerpostings.py`): the site's
   search for the title, the full ads of the closest titles in the job's country (at most three), and the first that
   the duplicate rules take for the same job (company, place, title and matching text) joins it
   as its employer copy. Workday lists are read newest first and stop at the first page older
