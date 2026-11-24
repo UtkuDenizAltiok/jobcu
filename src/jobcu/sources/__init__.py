@@ -23,6 +23,7 @@ from jobcu.sources.nav import NavSource
 from jobcu.sources.nhsjobs import NhsJobsSource
 from jobcu.sources.oracle import OracleSource
 from jobcu.sources.personio import PersonioSource
+from jobcu.sources.phenom import PhenomSource
 from jobcu.sources.prospective import ProspectiveSource
 from jobcu.sources.recruitee import RecruiteeSource
 from jobcu.sources.reed import ReedSource
@@ -52,6 +53,10 @@ TERMS_NOTES = {
     "smartrecruiters": "SmartRecruiters' terms for job seekers don't allow automatic means to "
                        "read its pages. Switch it on only if you accept that for your own job "
                        "search.",
+    # ABB's website terms require its written permission for scraping (2026-11-24); no legal
+    # action against readers of job lists was found.
+    "phenom": "ABB's website terms don't allow scraping without its written permission. Switch "
+              "it on only if you accept that for your own job search.",
 }
 OPT_IN_SOURCES = frozenset({"jsearch", *TERMS_NOTES})
 
@@ -68,7 +73,7 @@ def accepted_terms(settings: Settings) -> frozenset[str]:
 def career_sources() -> list[CareerSystemSource]:
     """Company career systems, read for the employers in the employer directory."""
     return [AshbySource(), AvatureSource(), DvinciSource(), EightfoldSource(),
-            GreenhouseSource(), LeverSource(), OracleSource(), PersonioSource(),
+            GreenhouseSource(), LeverSource(), OracleSource(), PersonioSource(), PhenomSource(),
             ProspectiveSource(), RecruiteeSource(), SitemapSource(), SmartRecruitersSource(),
             SoftgardenSource(), SuccessFactorsSource(), TeamtailorSource(), WorkableSource(),
             WorkdaySource()]

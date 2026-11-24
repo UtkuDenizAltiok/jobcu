@@ -364,9 +364,9 @@ Retry-After. Each source reports status independently. `sources/budget.py` count
 collection/detail budgets and hosted AI tool allowances are distinct.
 
 Blocked access remains blocked. Sources whose site terms forbid automated reading (the
-Bundesagentur portal, Siemens' Avature site, SmartRecruiters' career pages) run only for a
-person who switches them on in Settings, accepting those terms (`sources.TERMS_NOTES`); they
-are off by default.
+Bundesagentur portal, Siemens' Avature site, SmartRecruiters' career pages, ABB's Phenom site)
+run only for a person who switches them on in Settings, accepting those terms
+(`sources.TERMS_NOTES`); they are off by default.
 Employer feeds and original pages can change; their directory and permitted interfaces are
 recorded in [SOURCES](SOURCES.md). Offline source tests validate parsing and failure handling,
 not current availability or complete market coverage.
