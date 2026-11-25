@@ -7,6 +7,9 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- A directory employer's job list that is gone (moved or closed) in searches a week apart rests
+  instead of costing a request and a note in every search; it is asked again monthly and read as
+  before once it answers, while Jobcu finds the employer's new list by itself.
 - Mercedes-Benz's jobs are read from its job sitemap (967 jobs, each once in the searched
   country's language). A sitemap whose job addresses don't say "job" is read by the pattern the
   directory gives; pages new on a list are opened first, and the directory check samples the

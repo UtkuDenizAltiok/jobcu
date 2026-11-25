@@ -12,7 +12,7 @@ itself as a newly edited checkout. State-changing routes require `X-Jobcu: 1`; C
 binding constrain browser access.
 
 `paths.py` locates private data outside every checkout. SQLite migrations are additive and
-numbered; `db.py` currently includes migration 27. Keys, settings, uploaded documents, logs,
+numbered; `db.py` currently includes migration 28. Keys, settings, uploaded documents, logs,
 reviews and capture files stay private. Reset actions are explicit, scoped and protect usage
 counters, settings and keys. Secure deletion/compaction is app-file behavior, not a promise
 about SSD snapshots or external backups.
@@ -383,6 +383,14 @@ all of a server's sites take turns at one pace; such a server that refuses three
 row, with nothing answered in between, isn't asked again in that search, while one site refusing
 alone doesn't stop the others. The search's notes say how many companies asked for a human check. `sources/budget.py` counts source usage;
 collection/detail budgets and hosted AI tool allowances are distinct.
+
+A directory employer's list that answers "not found" is remembered (`gone_lists`); gone in
+searches at least a week apart with no answer in between, it has moved or closed and rests: it
+isn't asked for a month after it was last found gone, then once more, and it is read as before the
+moment it answers. The source's notes name the resting lists. Its new list, wherever it moved, is
+found through job sites' links and the person's AI's employer look-up (`employers.py`), so Jobcu
+keeps up with moves without the directory being updated; a list the person's AI found is
+forgotten at once, as before.
 
 Blocked access remains blocked. Sources whose site terms forbid automated reading (the
 Bundesagentur portal, Siemens' Avature site, SmartRecruiters' career pages, ABB's Phenom site,
