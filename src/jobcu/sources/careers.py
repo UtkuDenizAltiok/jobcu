@@ -119,7 +119,7 @@ def found_employers() -> tuple[Employer, ...]:
         Employer(row["name"], row["system"], row["board"], tuple(json.loads(row["countries"])),
                  bool(row["elsewhere"]),
                  {code: tuple(towns) for code, towns in json.loads(row["towns"]).items()},
-                 found_by_ai=True)
+                 found_by_ai=True, jobs=row["jobs"])
         for row in rows)
 
 
@@ -127,12 +127,12 @@ def save_found_employer(employer: Employer, found_at: datetime) -> None:
     with db.connect() as conn:
         conn.execute(
             """INSERT OR REPLACE INTO found_employers
-               (system, board, name, countries, elsewhere, towns, found_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+               (system, board, name, countries, elsewhere, towns, found_at, jobs)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
             (employer.system, employer.board, employer.name, json.dumps(list(employer.countries)),
              int(employer.elsewhere),
              json.dumps({code: list(towns) for code, towns in employer.towns.items()}),
-             found_at.isoformat(timespec="seconds")))
+             found_at.isoformat(timespec="seconds"), employer.jobs))
 
 
 def forget_found_employer(employer: Employer) -> None:

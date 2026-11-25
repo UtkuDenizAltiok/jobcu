@@ -53,7 +53,7 @@ def populated(temporary_data_dir):
         conn.execute("INSERT INTO repairs_done (name) VALUES ('example')")
         conn.execute("INSERT INTO travel_memory VALUES ('a','b','train','ai',12,'2026-10-09')")
         conn.execute("INSERT INTO found_employers VALUES "
-                     "('example','board','Fictional Clinic','DE',0,'Town','2026-10-09')")
+                     "('example','board','Fictional Clinic','DE',0,'Town','2026-10-09',NULL)")
         conn.execute("INSERT INTO employer_searches (subject,country,searched_at,complete) "
                      "VALUES ('nursing','DE','2026-10-09',1)")
         conn.execute("INSERT INTO learned_sites VALUES "
