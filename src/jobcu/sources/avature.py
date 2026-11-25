@@ -61,7 +61,12 @@ _LINK = re.compile(r'href="(https?://[^"]+/(?:JobDetail|FolderDetail)/(?:[^"/?]+
 _TITLE = re.compile(r"<h3[^>]*>\s*<a[^>]*>(.*?)</a>", re.S)
 _SUBTITLE = re.compile(r'class="[^"]*article__header__text__subtitle[^"]*"[^>]*>(.*?)</div>', re.S)
 _TOTAL = re.compile(r"(\d[\d,.]*)\s*results\b", re.I)
-_DATE_FORMATS = ("%d-%b-%Y", "%d.%m.%Y", "%Y-%m-%d", "%d/%m/%Y", "%B %d, %Y", "%d %B %Y")
+_DATE_FORMATS = ("%d-%b-%Y", "%d.%m.%Y", "%Y-%m-%d", "%d/%m/%Y", "%B %d, %Y", "%d %B %Y",
+                 "%A, %B %d, %Y")  # McLaren's "Friday, November 20, 2026"
+# A labelled field this long holds a part of the ad, under its own heading: McLaren splits its
+# ad into "What to Expect", "What You'll Do", "What You'll Bring" and "Who Are We?"
+# (2026-11-26). A reference, a department or a salary band is much shorter.
+AD_SECTION = 150
 
 
 class AvatureSource(CareerSystemSource):
@@ -69,6 +74,9 @@ class AvatureSource(CareerSystemSource):
     name = "Company career sites (Avature)"
     system = "avature"
     parallel = 2  # every employer has its own host
+    # 2: an ad split into labelled sections is read whole (McLaren's); one remembered before
+    # holds only the standard job data's first sentences, so its page is read again.
+    detail_cache_version = 2
 
     def list_jobs(self, employer: Employer, ctx: SourceContext, *, countries=None, start=None,
                   terms=None) -> Iterator[FoundJob]:
@@ -250,12 +258,14 @@ class AvaturePage:
 
 def read_page(page: str) -> AvaturePage:
     """A job page's ad, places, day, job type and work mode, from Avature's label and value fields
-    (an unlabelled field holds the ad) and the standard job data (JobPosting) where the site adds
-    it: Siemens Energy's gives only the title and the posting day."""
+    (unlabelled fields and long labelled ones hold the ad) and the standard job data
+    (JobPosting) where the site adds it: Siemens Energy's gives only the title and the posting
+    day, McLaren's the ad's first sentences. The longer ad of the two is kept."""
     found = _fields(page)
     posting = find_job_posting(page)
     if posting is not None:
-        found.description = found.description or (posting.description or "").strip()
+        if len(posted_ad := (posting.description or "").strip()) > len(found.description):
+            found.description = posted_ad
         found.places = found.places or posting.location_text
         found.posted = found.posted or posting.date_posted
         found.job_types = found.job_types or posting.job_types
@@ -312,6 +322,8 @@ def _fields(page: str) -> AvaturePage:
             found.work_mode = work_mode_from_text(text)
         elif re.search(r"job type|employment type|full / part time|contract|vertragsart", name):
             types.append(text)
+        elif len(text) >= AD_SECTION:
+            ad.append(f"{label}\n\n" + html_to_text(lxml_html.tostring(value, encoding="unicode")))
     found.description = "\n\n".join(part.strip() for part in ad if part.strip())
     found.job_types = job_types_from_text(" ".join(types))
     return found
