@@ -41,6 +41,10 @@ done. Implementation details belong in pull requests; current behavior is descri
   on the ads is never passed, so those jobs come with title, place, date and the employer's link.
   Where the employer's own career site lists the same vacancy number (GE Vernova, Johnson &
   Johnson, Thermo Fisher, Danaher, RTX), the full ad is read there instead.
+- Workday is read at one polite pace per Workday server rather than per company: its servers ask
+  one computer for a human check once it has sent them a lot, and then refuse every company for a
+  while. A server that refuses three companies in a row isn't asked again in that search (one
+  company refusing alone doesn't stop the others), and the search's notes say how many asked.
 - Siemens' and Siemens Energy's own career sites (Avature) can be read, country by country: Siemens
   had 381 jobs in Germany, 155 in the UK and 15 in Ireland; few of them reached Jobcu through job sites.
   Siemens' terms forbid automated reading, so the source is off until the person switches it on.

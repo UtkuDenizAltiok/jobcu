@@ -360,7 +360,11 @@ from an older run.
 ## Source reliability
 
 Adapters use `sources/http.py` for robots rules, polite request timing, bounded retries and
-Retry-After. Each source reports status independently. `sources/budget.py` counts source usage;
+Retry-After. Each source reports status independently. The polite pace is kept per site, except
+on servers shared by many companies' sites (Workday's wd1, wd3, wd5...: `http.server_of`), where
+all of a server's sites take turns at one pace; such a server that refuses three of its sites in a
+row, with nothing answered in between, isn't asked again in that search, while one site refusing
+alone doesn't stop the others. The search's notes say how many companies asked for a human check. `sources/budget.py` counts source usage;
 collection/detail budgets and hosted AI tool allowances are distinct.
 
 Blocked access remains blocked. Sources whose site terms forbid automated reading (the

@@ -223,6 +223,8 @@ class CareerSystemSource(JobSource):
             ctx.report.message = (
                 f"{self.name}: {len(failed)} of {len(employers)} companies' job lists couldn't "
                 f"be read ({', '.join(failed[:5])}{'…' if len(failed) > 5 else ''})."
+                + (f" {len(refused)} of them asked for a human check, which Jobcu never "
+                   "answers; it tries them again in the next search." if refused else "")
             )
 
     def list_jobs(

@@ -227,6 +227,66 @@ def test_a_robots_txt_behind_a_human_check_sets_no_rules_but_a_checked_list_is_n
         assert sorted(job.company for job in jobs) == ["Checked", "Open"]
 
 
+@pytest.mark.parametrize("pattern", ["refused in a row", "one refusal among answers"])
+def test_a_workday_server_that_refuses_three_companies_in_a_row_is_not_asked_again(
+        monkeypatch, pattern):
+    # Workday's wd1 refused every company once this computer had sent it too much (2026-11-25):
+    # after three refusals in a row the server isn't asked again in that search. A company that
+    # refuses alone (a list that moved gets the same check page) doesn't stop the others.
+    names = ["A", "B", "C", "D", "E"]
+    directory = tuple(employer("workday", f"https://{name.lower()}.wd1.myworkdayjobs.com/Jobs",
+                               name=name) for name in names) + (
+        employer("workday", "https://f.wd3.myworkdayjobs.com/Jobs", name="F"),)
+    monkeypatch.setattr(careers, "load_directory", lambda: directory)
+    fresh = [posting("Hardware Engineer", "Posted Today", "/job/Limerick/H_1")]
+    refusing = {"a", "b", "c"} if pattern == "refused in a row" else {"b"}
+    asked = []
+
+    def handler(request):
+        site = request.url.host.split(".")[0]
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+        asked.append(site)
+        if site in refusing:
+            return httpx.Response(429, text=CHALLENGE, headers={"cf-mitigated": "challenge"})
+        return workday_handler([fresh])(request)
+
+    source = wd.WorkdaySource()
+    source.parallel = 1
+    ctx = context(handler, "workday")
+    jobs = list(source.search(query(["IE"]), ctx))
+    if pattern == "refused in a row":
+        assert [job.company for job in jobs] == ["F"]  # another server is still read
+        assert "d" not in asked and "e" not in asked
+        assert ctx.http.refused_server("x.wd1.myworkdayjobs.com")
+    else:
+        assert sorted(job.company for job in jobs) == ["A", "C", "D", "E", "F"]
+        assert not ctx.http.refused_server("x.wd1.myworkdayjobs.com")
+        assert "1 of them asked for a human check" in ctx.report.message
+
+
+def test_companies_on_one_workday_server_share_its_polite_pace():
+    from jobcu.sources.http import PoliteClient, server_of
+
+    assert server_of("acme.wd1.myworkdayjobs.com") == "wd1.myworkdayjobs.com"
+    assert server_of("nxp.myworkdayjobs.com") == "myworkdayjobs.com"
+    assert server_of("boards-api.greenhouse.io") == "boards-api.greenhouse.io"
+    now, sleeps = [100.0], []
+
+    def sleep(seconds):
+        sleeps.append(seconds)
+        now[0] += seconds
+
+    http = PoliteClient(min_intervals={"wd1.myworkdayjobs.com": 2.0, "x.wd3.myworkdayjobs.com": 0,
+                                       "wd3.myworkdayjobs.com": 0},
+                        sleep=sleep, clock=lambda: now[0],
+                        transport=httpx.MockTransport(lambda request: httpx.Response(200)))
+    http.get("https://a.wd1.myworkdayjobs.com/x")
+    http.get("https://b.wd1.myworkdayjobs.com/x")  # another company on the same server waits
+    http.get("https://c.wd3.myworkdayjobs.com/x")  # another server doesn't
+    assert sleeps == [2.0]
+
+
 def test_robots_txt_follows_the_standard_for_each_answer():
     from jobcu.sources.base import SourceReport
     from jobcu.sources.http import PoliteClient
