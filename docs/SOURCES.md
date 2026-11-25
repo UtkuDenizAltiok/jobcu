@@ -131,9 +131,15 @@ were outside electronics (construction, utilities, retail).
 Not added: PA Consulting's and Western Digital's SmartRecruiters pages listed no job in the
 supported countries; NewTec's and Burmester's Softgarden sites use Softgarden's newer layout,
 which has no list at `/de/vacancies`; both publish a sitemap of their job pages, which carry
-JobPosting data, and are read as job sitemaps (NewTec 59 pages, Burmester 6 jobs in Germany). Five Workday sites on the wd1 and wd5 servers (BD's German
-and Irish sites, Frazer-Nash on KBR's, NCR Atleos, Videojet) answered with Workday's human check
-while the first one read on that server (Spellman) answered: Workday was then left alone. Seen on
+JobPosting data, and are read as job sitemaps (NewTec 59 pages, Burmester 6 jobs in Germany).
+Five Workday sites on the wd1 and wd5 servers (BD's German and Irish sites, Frazer-Nash on KBR's,
+NCR Atleos, Videojet on Veralto's) answered with Workday's human check while the first one read on
+that server (Spellman) answered: Workday was then left alone. The same evening (18:57-19:06 UTC+1)
+Analog Devices' wd1 robots.txt still answered with the check while its list answered (762 jobs),
+and each of the five, asked once and minutes apart at their real addresses (FreeHire's links to
+their jobs), answered: they are read since. BD has 35 jobs in Germany and 20 in Ireland (two sites
+of its own), Frazer-Nash 72 in the UK, NCR Atleos 37 in the UK (hardware engineering in Dundee) and
+Videojet 8 in Germany and 13 in the UK. Seen on
 systems Jobcu doesn't read: Cornerstone (OHB, 11 ads; Weller's owner Apex Tool; Spirax-Sarco),
 Rippling (MBRYONICS), umantis (pro-beam), HiBob (Cambridge Aerospace), Zoho Recruit (ePropelled),
 digitalrecruiters (AES Aerospace Embedded Solutions), ADP (Advantest, Diodes), beesite
@@ -792,8 +798,9 @@ With Jobcu's own identity, one request at a time: the lists and the ads of 11 wd
 answered normally, full ads included; robots.txt still answered with the check. About half an hour
 later, after some 40 more Workday requests that included about ten to addresses that don't exist (a
 wrong site name; Workday answers those with the same check page, not 404), every wd1 and wd5 list
-answered this computer with the check, Analog Devices' and Microchip's included, for at least 20
-minutes (one request every three minutes, still refused at 09:12 UTC+3), while wd3 lists answered.
+answered this computer with the check, Analog Devices' and Microchip's included, for about 35 to 40
+minutes (one request every three minutes: refused from about 08:50 to after 09:24 UTC+3, answered
+again at 09:30), while wd3 lists answered.
 So the check depends on what one address has sent, not on the list: a search reading about 90
 wd1/wd5 companies, four at a time at each site's own pace, can meet it midway, and from then on each
 further company only adds a refused request.
