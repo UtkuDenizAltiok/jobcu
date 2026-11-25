@@ -116,7 +116,8 @@ were outside electronics (construction, utilities, retail).
 
 Not added: PA Consulting's and Western Digital's SmartRecruiters pages listed no job in the
 supported countries; NewTec's and Burmester's Softgarden sites use Softgarden's newer layout,
-which has no list at `/de/vacancies`. Five Workday sites on the wd1 and wd5 servers (BD's German
+which has no list at `/de/vacancies`; both publish a sitemap of their job pages, which carry
+JobPosting data, and are read as job sitemaps (NewTec 59 pages, Burmester 6 jobs in Germany). Five Workday sites on the wd1 and wd5 servers (BD's German
 and Irish sites, Frazer-Nash on KBR's, NCR Atleos, Videojet) answered with Workday's human check
 while the first one read on that server (Spellman) answered: Workday was then left alone. Seen on
 systems Jobcu doesn't read: Cornerstone (OHB, 11 ads; Weller's owner Apex Tool; Spirax-Sarco),
