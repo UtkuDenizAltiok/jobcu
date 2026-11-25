@@ -3787,6 +3787,21 @@
    }
   },
   {
+   "name": "Graphcore (early careers)",
+   "system": "greenhouse",
+   "board": "graphcore-early-careers",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Bristol",
+     "London"
+    ]
+   }
+  },
+  {
    "name": "HelloFresh",
    "system": "greenhouse",
    "board": "hellofresh",
@@ -10196,6 +10211,62 @@
    }
   },
   {
+   "name": "Babcock",
+   "system": "successfactors",
+   "board": "jobs.babcockinternational.com",
+   "countries": [
+    "GB",
+    "IE",
+    "RO"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Barrow in Furness",
+     "Belfast",
+     "Bordon",
+     "Bristol",
+     "Camberley",
+     "Corsham",
+     "Darlington",
+     "Glasgow",
+     "Gloucester",
+     "Halifax",
+     "Harrogate",
+     "Helensburgh",
+     "Holyhead",
+     "Kensington",
+     "Kingston upon Hull",
+     "Leicester",
+     "Lincoln",
+     "London",
+     "Lyneham",
+     "Newbridge",
+     "Nottingham",
+     "Peterborough",
+     "Richmond",
+     "Rosyth",
+     "Salisbury",
+     "Shrewsbury",
+     "Stevenage",
+     "Swindon",
+     "Taunton",
+     "Telford",
+     "Walsall",
+     "Wareham",
+     "Warminster",
+     "Warrington",
+     "Wolverhampton"
+    ],
+    "IE": [
+     "Crumlin"
+    ],
+    "RO": [
+     "Victoria"
+    ]
+   }
+  },
+  {
    "name": "Bertrandt",
    "system": "successfactors",
    "board": "bertrandt.jobs.hr.cloud.sap",
@@ -11119,6 +11190,40 @@
      "Kaiserslautern",
      "Karlsruhe",
      "Kassel"
+    ]
+   }
+  },
+  {
+   "name": "Goldwind",
+   "system": "successfactors",
+   "board": "careers.goldwind.com",
+   "countries": [
+    "DE",
+    "DK",
+    "GB",
+    "IT",
+    "PT",
+    "RO"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Frankfurt am Main"
+    ],
+    "DK": [
+     "Århus"
+    ],
+    "GB": [
+     "Melbourne"
+    ],
+    "IT": [
+     "Milan"
+    ],
+    "PT": [
+     "São Paulo de Frades"
+    ],
+    "RO": [
+     "Bucharest"
     ]
    }
   },

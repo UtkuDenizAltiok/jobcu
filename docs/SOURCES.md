@@ -109,6 +109,10 @@ Cambridge GaN Devices, Mesa Quantum Systems, Oxford Quantum Circuits. Recruitee:
 (151). SmartRecruiters (read for those who accept its terms): Integral Powertrain (with a graduate
 electronics role), General Dynamics UK, Elatec, Delta Electronics, Energym, White Lab, Pektron, TTP.
 List pages: VACUUMSCHMELZE and JAT (both rexx; [record](#employers-own-job-list-pages-and-german-application-systems--2026-11-25)).
+A second pass with graduate and junior words added Babcock (182 jobs in the UK, an electrical
+engineering graduate programme among them), Goldwind (wind power; a graduate programme in
+Frankfurt) and Graphcore's early-careers board (27 in the UK); most other employers it named
+were outside electronics (construction, utilities, retail).
 
 Not added: PA Consulting's and Western Digital's SmartRecruiters pages listed no job in the
 supported countries; NewTec's and Burmester's Softgarden sites use Softgarden's newer layout,
