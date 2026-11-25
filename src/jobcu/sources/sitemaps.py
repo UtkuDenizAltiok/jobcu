@@ -8,25 +8,30 @@ gives dates, and opens only those whose address spells words matching the search
 ("/jobs/27724/graduate-electronics-engineer"), newest first. Each page's JobPosting data gives
 the title, the full ad, the exact posting date, the town and country, the company and the job
 type. Pages are remembered for a few days (`jobstore`), so later searches don't open them again.
+A job listed in several languages counts once, in the searched countries' ad language. Jobs new
+on the list since its last reading whose address misses the search words go to the person's AI
+by the title their address spells; a page is opened only for a title it keeps (`load_details`).
 
 Only sites whose terms allow it are in the directory: a recruiter's own copy of an ad that Adzuna
 shows as a 500-character summary gives the full ad for scoring (search 11: 204 of 349 cards were
 Adzuna summaries, Redline Group's about 20 of them).
 """
 
+import dataclasses
 import gzip
 import re
 from collections.abc import Iterator
 from datetime import UTC, datetime, timedelta
 from urllib.parse import unquote, urlsplit
 
+from jobcu import listmemory
 from jobcu.countries import COUNTRIES
-from jobcu.freshness import parse_iso
+from jobcu.freshness import freshness, parse_iso
 from jobcu.jobposting import find_job_posting
 from jobcu.placenames import OTHER, countries_in
 from jobcu.sources.base import FoundJob, SourceContext, SourceError
 from jobcu.sources.budget import BudgetExhausted
-from jobcu.sources.careers import CareerSystemSource, Employer
+from jobcu.sources.careers import CareerSystemSource, Employer, Survey
 from jobcu.sources.matching import matches_terms
 
 # Job pages opened per site in one search, newest first: enough for every fresh match on the
@@ -42,6 +47,9 @@ _URL = re.compile(r"<url>\s*<loc>\s*([^<\s]+)\s*</loc>(?:\s*<lastmod>\s*([^<\s]+
                   re.S)
 _INDEX = re.compile(r"<sitemap>\s*<loc>\s*([^<\s]+)\s*</loc>", re.S)
 _JOB_WORDS = re.compile(r"job|stelle|vacanc|position|career|karriere|vacature|offre", re.I)
+# An address of one job rather than of a careers page about working there: only such pages are
+# remembered on the list and their titles screened unopened.
+_JOB_PAGE = re.compile(r"job|stelle|vacanc|position|vacature|offre", re.I)
 _LONG_AGO = datetime.min.replace(tzinfo=UTC)
 
 
@@ -54,29 +62,89 @@ class SitemapSource(CareerSystemSource):
 
     def list_jobs(self, employer: Employer, ctx: SourceContext, *, countries=None, start=None,
                   terms=None) -> Iterator[FoundJob]:
-        entries = self._entries(employer.board, ctx)
         since = start - timedelta(days=1) if start else None
-        languages = {"en"}
-        for code in countries or ():
-            languages.update(COUNTRIES[code].ad_languages)
-        opened = 0
+        # The searched countries' ad languages first, then English: the page a job is
+        # advertised on in its own country says best which languages it needs.
+        wanted = [language for code in countries or () for language in COUNTRIES[code].ad_languages]
+        wanted = list(dict.fromkeys([*wanted, "en"]))
+        entries = one_address_per_job(self._entries(employer.board, ctx), wanted)
+        if terms is None:  # the directory check: the newest pages, whatever they are
+            opened = 0
+            for address, _changed in entries:
+                if opened >= SURVEY_PAGES:
+                    return
+                if self.allowed(address, ctx):
+                    opened += 1
+                    if (job := self._from_page(address, employer, ctx)) is not None:
+                        yield job
+            return
+        # The whole list, matching or not: a job new on it since its last reading is dated by
+        # its first sight (listmemory), whatever language its address is in this time.
+        sights = listmemory.note(self.id, employer.board,
+                                 [job_key(address) for address, _ in entries
+                                  if _JOB_PAGE.search(urlsplit(address).path)])
+        opened, unread = 0, []
         for address, changed in entries:
-            if opened >= (MAX_PAGES if terms is not None else SURVEY_PAGES):
-                return
-            if since is not None and changed is not None and changed < since:
+            if not matches_terms(terms, set(wanted), words_of(address)):
+                # Titles the search words miss go to the person's AI like other career sites'
+                # (a page is opened only for a title it keeps, `load_details`); only jobs new
+                # since the list's last reading, as on SuccessFactors. Rheinmetall's
+                # "Entwicklungsingenieur Elektrotechnik" and "Elektrischer Entwickler" spell
+                # none of an electronics engineer's search words (2026-11-25).
+                if (new := self._new_title(address, sights, start, ctx)) is not None:
+                    unread.append(new)
                 continue
-            if terms is not None and not matches_terms(terms, languages, words_of(address)):
+            if opened >= MAX_PAGES or (since is not None and changed is not None
+                                       and changed < since):
+                continue
+            # A page the site's robots.txt closes is never opened, nor counted among the pages
+            # a search opens (Rheinmetall closes 11 of the 13 languages its sitemap lists).
+            if not self.allowed(address, ctx):
                 continue
             opened += 1
             job = self._from_page(address, employer, ctx)
             if job is not None:
                 yield job
+        yield from unread
+
+    def _new_title(self, address: str, sights: dict, start: datetime | None,
+                   ctx: SourceContext) -> FoundJob | None:
+        """A job page new on the list since its last reading, dated to its first sight and
+        named by the title its address spells; None for any other page."""
+        if not _JOB_PAGE.search(urlsplit(address).path) or not (title := title_of(address)):
+            return None
+        posted, precision = listmemory.posted(sights.get(job_key(address)), start)
+        if precision != "day" or (start is not None
+                                  and freshness(posted, precision, start) != "fresh"):
+            return None
+        if not self.allowed(address, ctx):
+            return None
+        return FoundJob(source=self.id, source_job_id=address, url=address, title=title,
+                        posted_at=posted, date_precision=precision, employer_url=address)
+
+    def load_details(self, job: FoundJob, ctx: SourceContext) -> FoundJob:
+        """A job listed by its address only (a title the search words missed): its page's
+        title, place, ad and date; where the page gives no date, its first sight stands."""
+        full = self._from_page(job.url, Employer(job.company or "", self.system, "", ()), ctx)
+        if full is None:
+            return job
+        if full.posted_at is None:
+            full = dataclasses.replace(full, posted_at=job.posted_at,
+                                       date_precision=job.date_precision)
+        return full
 
     def readable(self, employer: Employer, ctx: SourceContext) -> bool:
         """One job page must carry JobPosting data with its posting date."""
         for job in self.list_jobs(employer, ctx):
             return job.posted_at is not None
         return False
+
+    def survey(self, employer: Employer, ctx: SourceContext) -> Survey:
+        """The countries of the newest pages (SURVEY_PAGES): a sample, so their towns aren't
+        recorded as all the towns the site's jobs are in."""
+        survey = super().survey(employer, ctx)
+        survey.sample = True
+        return survey
 
     def _entries(self, board: str, ctx: SourceContext) -> list[tuple[str, datetime | None]]:
         return job_pages(self, board, ctx)
@@ -150,6 +218,33 @@ def job_pages(source: CareerSystemSource, board: str, ctx: SourceContext
                   reverse=True)
 
 
+# A language (and maybe a region) as an address's first part: "/de/", "/en-gb/", "/pt_br/".
+_LANGUAGE_PART = re.compile(r"^/([a-z]{2})(?:[_-][a-z]{2,4})?(?=/)", re.IGNORECASE)
+
+
+def one_address_per_job(entries: list[tuple[str, datetime | None]], languages: list[str]
+                        ) -> list[tuple[str, datetime | None]]:
+    """One address for each job a sitemap lists under several languages ("/de/job/x/1",
+    "/en/job/x/1"...; Rheinmetall's lists each of its 1,423 jobs in 13): the page in the first
+    of `languages` it has, else the first listed, at the place of its newest listing. Without
+    this a search opened the same job once per language. `entries` come newest first."""
+    chosen: dict[tuple[str, str], list] = {}
+    for address, changed in entries:
+        parts = urlsplit(address)
+        rank = 0
+        rest = parts.path
+        if (language := _LANGUAGE_PART.match(parts.path)) is not None:
+            code = language.group(1).lower()
+            rank = languages.index(code) if code in languages else len(languages)
+            rest = parts.path[language.end():]
+        key = (parts.netloc.lower(), f"{rest}?{parts.query}")
+        if key not in chosen:
+            chosen[key] = [rank, address, changed]
+        elif rank < chosen[key][0]:
+            chosen[key][:2] = [rank, address]
+    return [(address, changed) for _rank, address, changed in chosen.values()]
+
+
 def _read(source: CareerSystemSource, address: str, ctx: SourceContext) -> str:
     body = source.get(address, ctx).content
     if body[:2] == b"\x1f\x8b":
@@ -173,6 +268,29 @@ def country_code(written: str | None) -> str | None:
 def words_of(address: str) -> str:
     """The words a job page's address spells, for matching the search words before opening it."""
     return " ".join(re.split(r"[/_\-.?=&+%]+", unquote(urlsplit(address).path)))
+
+
+def job_key(address: str) -> str:
+    """A job page's address without its language part: the same job whichever language's page
+    a search picks (`one_address_per_job`)."""
+    parts = urlsplit(address)
+    language = _LANGUAGE_PART.match(parts.path)
+    path = parts.path[language.end():] if language else parts.path
+    return f"{parts.netloc.lower()}{path}" + (f"?{parts.query}" if parts.query else "")
+
+
+# A gender note in a title's address ("m_w_d", "m-f-d", "w-m-d", "all-genders").
+_GENDER = re.compile(r"\b(?:[mwfdx] ){1,3}[mwfdx]\b|\ball genders?\b", re.IGNORECASE)
+
+
+def title_of(address: str) -> str:
+    """The title a job page's address spells, from its longest wordy part
+    ("/de/job/elektrischer_entwickler__m_w_d_/1191311" -> "elektrischer entwickler")."""
+    parts = [part for part in unquote(urlsplit(address).path).split("/") if part]
+    wordy = max(parts, key=lambda part: len(re.findall(r"[^\W\d_]", part)), default="")
+    words = " ".join(word for word in re.split(r"[_\-.+%\s()\[\],]+", wordy)
+                     if word and not word.isdigit())
+    return " ".join(_GENDER.sub(" ", words).split())
 
 
 def unescape(address: str) -> str:

@@ -47,6 +47,16 @@ def test_job_data_with_an_encoded_type_and_raw_line_breaks_is_read():
     assert found.location_text == "Nottingham" and "Test them" in found.description
 
 
+def test_an_address_naming_several_towns_and_countries_as_lists_is_read_as_places():
+    # A defence group's pages write one address for a job in two towns this way.
+    found = find_job_posting(page({
+        "@type": "JobPosting", "title": "Systems Engineer", "datePosted": "2026-01-09 00:00:00",
+        "jobLocation": {"@type": "Place", "address": {
+            "addressLocality": ["Unterlüß", "Kiel", "Kiel"], "addressCountry": ["Germany"]}}}))
+    assert found.location_text == "Unterlüß, Kiel" and found.country == "Germany"
+    assert found.date_posted == datetime(2026, 1, 9, tzinfo=UTC) and not found.date_has_time
+
+
 def test_pages_without_job_data_give_nothing():
     assert find_job_posting("<html><script type='application/ld+json'>{bad json</script>") is None
     assert find_job_posting(page({"@type": "Organization"})) is None

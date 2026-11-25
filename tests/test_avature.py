@@ -179,6 +179,7 @@ def test_the_directory_check_counts_each_country_s_list_but_not_jobs_on_every_li
         return httpx.Response(200, text=list_page([item(1, "Engineer"), item(2, "Nurse")], 0, 37))
     survey = avature.AvatureSource().survey(EMPLOYER, context(handler))
     assert dict(survey.counts) == {"DE": 37} and survey.towns == {"DE": {"Erlangen"}}
+    assert survey.sample  # the first page's towns: the directory records none of them
 
 
 def test_it_is_read_only_for_a_person_who_accepts_the_site_terms():

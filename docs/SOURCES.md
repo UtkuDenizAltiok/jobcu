@@ -90,6 +90,37 @@ Directory membership does not establish reachable vacancies or engineering recal
 
 ## Access and protocol records
 
+### Rheinmetall's job sitemap, and sitemaps in many languages — 2026-11-25
+
+**Access.** Rheinmetall publishes its jobs on its own site (`www.rheinmetall.com/{language}/job/
+{title}/{number}`, run by HR4you behind the scenes). Its robots.txt names its sitemap
+(`sitemap.site_1.xml`, 4.9 MB) and allows the German and English job pages while closing the other
+eleven languages. The sitemap lists 1,423 jobs (25 November), each in 13 languages, every entry with
+its last change; each job page carries JobPosting data with the full ad, the posting day and its
+places (as lists: `"addressLocality": ["Unterlüß", "Kiel"]`, `"addressCountry": ["Germany"]`, now
+read as two towns in Germany). Its legal notice (Impressum) has no clause on automated reading, it
+publishes no terms of use for the public site, and no legal action by Rheinmetall against readers of
+job lists or aggregators was found (web search, 25 November). Read as a job sitemap: one request for
+the sitemap per search, pages only as below, at Jobcu's polite pace with its own name.
+
+**Changes to the sitemap reader.** (a) A job listed under several languages (`/de/job/x/1`,
+`/en/job/x/1`...) is one job: Jobcu keeps the page in the searched countries' ad language, else
+English, so a German search opens Rheinmetall's German page once instead of every copy. (b) A page
+robots.txt closes is neither opened nor counted among the 60 pages a search may open. (c) Titles the
+search words miss: address words matched 2 of about 73 electronics jobs changed in one week
+("Entwicklungsingenieur Elektrotechnik", "Elektrischer Entwickler", "Systemingenieur
+Missionselektronik" spell none of an electronics engineer's search words). Now, as on SuccessFactors
+([2026-11-21](#successfactors-titles-the-search-words-miss--2026-11-21)), the whole list is
+remembered at each reading (`listmemory`, language-free addresses), and a job new on it since the
+last reading goes to the title check with the title its address spells, dated to its first sight;
+its page is opened only if the check keeps it. A list's first reading dates nothing. Checked live on
+a copy of the data: the second reading of Rheinmetall's sitemap with 40 jobs new since the first
+passed those 40 titles on with 2 requests (robots.txt and the sitemap). (d) A directory check of a
+sitemap or an Avature list sees only some jobs (the newest 20 pages; a list's first page), so it no
+longer records their towns: twenty pages named 6 of Rheinmetall's German towns, and recorded towns
+make a search around a city skip an employer whose known towns are all far away. The directory's
+sitemap and Avature entries (BAE Systems, Arm, Redline Group, Siemens and others) lost such towns.
+
 ### Gradcracker — 2026-11-25
 
 Gradcracker (gradcracker.com) is the UK's main board for engineering and technology graduate jobs,

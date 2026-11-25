@@ -77,6 +77,11 @@ class Survey:
 
     counts: Counter = field(default_factory=Counter)
     towns: dict[str, set[str]] = field(default_factory=dict)
+    # Whether only some of the jobs were looked at (a sitemap's newest pages, an Avature list's
+    # first page): their towns don't say where else the employer hires, so none are recorded
+    # and the employer is asked in every search of its countries (hires_near). Twenty pages of
+    # Rheinmetall's 1,423 jobs named 6 of its German towns (2026-11-25).
+    sample: bool = False
 
     def add(self, country: str, town: str | None = None) -> None:
         self.counts[country] += 1
