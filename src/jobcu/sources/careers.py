@@ -69,8 +69,12 @@ class Employer:
     # The address of its job list per country, where a system lists each country apart and has
     # no filter Jobcu can name (avature.py).
     lists: dict[str, str] = field(default_factory=dict)
-    # The pattern of its job pages' addresses on its own list page (listpages.py).
+    # The pattern of its job pages' addresses on its own list page (listpages.py), or in its
+    # job sitemap where those addresses don't say "job" (sitemaps.py).
     jobs: str | None = None
+    # Whether those addresses spell the job's title. BMW's and Porsche's name only a number:
+    # their pages are opened for jobs new on the list, to read the titles (sitemaps.py).
+    titles: bool = True
 
 
 @dataclass
@@ -106,6 +110,7 @@ def load_directory(path: Path = DIRECTORY) -> tuple[Employer, ...]:
             ads=entry.get("ads"),
             lists=dict(entry.get("lists") or {}),
             jobs=entry.get("jobs"),
+            titles=entry.get("titles") is not False,
         )
         for entry in data["employers"]
     )
