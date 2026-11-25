@@ -81,7 +81,8 @@ Countries below describe the adapter's scope, not complete market coverage.
 Career adapters: Ashby, Avature (opt-in, [Siemens' terms](#avature-siemens-and-siemens-energy--2026-11-24)),
 d.vinci, Eightfold, Greenhouse, Jibe, Lever, Oracle, Personio, Phenom (opt-in,
 [ABB's terms](#phenom-career-sites--2026-11-24)), Prospective, Recruitee, generic job
-sitemaps, SmartRecruiters (opt-in, [its terms](#smartrecruiters-career-pages--2026-11-24)),
+sitemaps, employers' own job list pages ([2026-11-25](#employers-own-job-list-pages-and-german-application-systems--2026-11-25)),
+SmartRecruiters (opt-in, [its terms](#smartrecruiters-career-pages--2026-11-24)),
 Softgarden, SuccessFactors, Teamtailor, Workable and Workday.
 Recruitee, SuccessFactors and Teamtailor career sites are also recognised on an employer's own
 address (Recruitee's answers the same public `/api/offers/` there).
@@ -89,6 +90,45 @@ address (Recruitee's answers the same public `/api/offers/` there).
 Directory membership does not establish reachable vacancies or engineering recall.
 
 ## Access and protocol records
+
+### Employers' own job list pages, and German application systems — 2026-11-25
+
+**Which German application systems to read.** FreeHire's public facets (its catalogue reads
+employers' own systems, rexx, coveto and JOIN among them) counted open German ads per system in
+its hardware, embedded and engineering-design categories. Systems Jobcu didn't read: coveto 244
+(mostly staffing agencies: Leasotec, Neo Temp, Personalhaus), JOIN 175 (small firms and agencies),
+rexx 139 (mostly building and planning firms' draughtsman and TGA jobs), helixjobs 40, Cornerstone
+15, umantis 7, onlyfy 7, HR4you none listed. In three days FreeHire first saw 4 coveto, 4 rexx and
+1 umantis ads in those categories in all of Germany, and these reach Jobcu through FreeHire
+already. So none of these systems got a reader of its own. The employers in electronics that use
+them have pages Jobcu can read in other ways: Rheinmetall's HR4you jobs are on its own site and in
+its sitemap ([record](#rheinmetalls-job-sitemap-and-sitemaps-in-many-languages--2026-11-25)),
+and Würth Elektronik's rexx site lists its jobs on plain pages. Diehl (umantis: its job pages lead
+back to its career site) and TDK Electronics (own pages without JobPosting data) are left for now.
+
+**Reader.** Many employers publish a list page of their jobs whose job pages carry JobPosting
+data for search engines, whatever system runs behind it. The directory gives such an employer's
+list page and the pattern of its job pages' addresses (`jobs`); Jobcu reads the list page and the
+further pages it links to for paging (same address, a page in the query; at most ten, and none
+after a page that brings no new job), takes each job page's address from links or from the page's
+own data, its title from the link's text, its label or that data, and its place from that data or
+the text beside the link. Session numbers in addresses (rexx's `sid=`) are left out. Then it works
+like a job sitemap: matching titles have their page read, titles new since the list's last reading
+go to the title check, the list's first sight dates a page without a date. Where a list's data
+names a job's place, that place stands: dSPACE's job pages give the head office (Paderborn,
+Germany) for every job, its jobs in Zagreb and Trivandrum included.
+
+**Employers added** (robots.txt allows the list and job pages; legal notices read on 25 November
+have no clause on automated reading; one list page and the matching or kept job pages per search):
+- **dSPACE** (`www.dspace.com/de/gmb/home/career/jobfinder/stellen.cfm`, job pages
+  `fuseaction=einzel&jid=`): 62 jobs in the page's data, in Germany (Paderborn and other sites),
+  France, Croatia, India and elsewhere; JobPosting with exact posting times.
+- **Würth Elektronik** (rexx, `jobs.we-online.com/stellenangebote.html`, job pages `-j{number}.html`):
+  100 jobs a page, two pages; JobPosting with posting day, place and the group company's name.
+- **Pfisterer** (its list on `www.pfisterer.com/de/stellenangebote` links MHM eRecruiting pages,
+  `pfisterer.mhm.jobs/{number}-...`): 51 jobs; the links are icons whose label names the job.
+A live read with an electronics engineer's search words over 30 days found one open
+power-electronics development job each at dSPACE and Würth Elektronik (posted in June and August).
 
 ### Rheinmetall's job sitemap, and sitemaps in many languages — 2026-11-25
 

@@ -7,6 +7,15 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- Employers' own job list pages can be read, whatever application system runs behind them, when
+  their job pages carry the standard job data: dSPACE, Würth Elektronik (rexx) and Pfisterer (MHM)
+  to start with. The German application systems without a reader (coveto, JOIN, rexx, umantis,
+  HR4you, onlyfy) were counted first: in electronics their ads are few and mostly agencies' and
+  building firms', and they reach Jobcu through FreeHire already, so they got no readers of their own.
+- Rheinmetall's jobs are read from its own site's sitemap (1,423 jobs). A sitemap listing each
+  job in many languages counts it once, in the searched country's language; titles the search
+  words miss reach the person's AI when the job is new on the list, as on SuccessFactors.
+
 - A job leaves the list only when its removal is certain: a route that accepts only UK residents
   (CV-Library) or a link the person marks unusable. A page that is gone or refuses the person's
   country is explained on click with a web search, and the job stays. For good jobs whose links

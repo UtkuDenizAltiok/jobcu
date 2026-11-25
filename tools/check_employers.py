@@ -19,7 +19,8 @@ A candidates file has the same shape as the directory:
     {"employers": [{"name": "Acme", "system": "greenhouse", "board": "acme"}]}
 A Workday entry may add "ads": the employer's own job sitemap whose pages carry the same vacancy
 numbers, read for an ad Workday won't serve (sources/workday.py). An Avature entry gives "lists":
-its job list's address per country (sources/avature.py). Both are kept as written.
+its job list's address per country (sources/avature.py). A list page's entry ("listpage") gives
+"jobs": the pattern of its job pages' addresses (sources/listpages.py). All are kept as written.
 
 Contacts only the career systems' public job lists, at Jobcu's polite pace. Run it now and then
 (and before releases) so the directory stays current.
@@ -106,7 +107,7 @@ def main() -> int:
             if key[0] != system:
                 continue
             employer = Employer(entry["name"], system, entry["board"], (),
-                                lists=dict(entry.get("lists") or {}))
+                                lists=dict(entry.get("lists") or {}), jobs=entry.get("jobs"))
             report = SourceReport(source.id, source.name)
             ctx = SourceContext(http, KeyStore(), report, lambda: False, lambda message: None)
             try:
@@ -148,10 +149,12 @@ def main() -> int:
                                  "board": entry["board"], "countries": countries,
                                  "elsewhere": bool(counts[OTHER]),
                                  "towns": {code: found for code, found in towns.items() if found},
-                                 # Set by hand: the employer's own job sitemap (Employer.ads)
-                                 # and its list per country (Employer.lists).
+                                 # Set by hand: the employer's own job sitemap (Employer.ads),
+                                 # its list per country (Employer.lists) and its job pages'
+                                 # address pattern (Employer.jobs).
                                  **({"ads": entry["ads"]} if entry.get("ads") else {}),
                                  **({"lists": entry["lists"]} if entry.get("lists") else {}),
+                                 **({"jobs": entry["jobs"]} if entry.get("jobs") else {}),
                                  **({"checked": today} if checked != today else {})})
                     print(line, flush=True)
                 elif key in existing and entry.get("countries"):
