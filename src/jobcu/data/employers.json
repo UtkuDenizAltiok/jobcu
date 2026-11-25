@@ -16886,6 +16886,48 @@
    }
   },
   {
+   "name": "BD (Becton Dickinson)",
+   "system": "workday",
+   "board": "https://bdx.wd1.myworkdayjobs.com/EXTERNAL_CAREER_SITE_GERMANY",
+   "countries": [
+    "AT",
+    "DE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Vienna"
+    ],
+    "DE": [
+     "Berlin",
+     "Brandenburg an der Havel",
+     "Bremen",
+     "Bruchsal",
+     "Frankfurt am Main",
+     "Hamburg",
+     "Heidelberg",
+     "Karlsruhe",
+     "Sachsen bei Ansbach"
+    ]
+   }
+  },
+  {
+   "name": "BD (Becton Dickinson)",
+   "system": "workday",
+   "board": "https://bdx.wd1.myworkdayjobs.com/EXTERNAL_CAREER_SITE_IRELAND",
+   "countries": [
+    "IE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "IE": [
+     "Limerick",
+     "South Dublin",
+     "Wexford"
+    ]
+   }
+  },
+  {
    "name": "Benchmark Electronics (PGH_Careers)",
    "system": "workday",
    "board": "https://benchmark.wd1.myworkdayjobs.com/PGH_Careers",
@@ -18368,6 +18410,28 @@
     ],
     "SE": [
      "Stockholm"
+    ]
+   }
+  },
+  {
+   "name": "Frazer-Nash Consultancy",
+   "system": "workday",
+   "board": "https://kbr.wd5.myworkdayjobs.com/Frazer_Nash_Careers",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Bristol",
+     "Burton upon Trent",
+     "Glasgow",
+     "Gloucester",
+     "Leatherhead",
+     "Manchester",
+     "Plymouth",
+     "Portsmouth",
+     "Warrington"
     ]
    }
   },
@@ -22487,6 +22551,30 @@
    }
   },
   {
+   "name": "NCR Atleos",
+   "system": "workday",
+   "board": "https://ncratleos.wd1.myworkdayjobs.com/ext_non_usalteos",
+   "countries": [
+    "CY",
+    "DE",
+    "ES",
+    "GB",
+    "GR",
+    "HU",
+    "IT",
+    "PL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Warrington"
+    ],
+    "IT": [
+     "Monza"
+    ]
+   }
+  },
+  {
    "name": "Nexperia",
    "system": "workday",
    "board": "https://nexperia.wd3.myworkdayjobs.com/careers",
@@ -25714,6 +25802,50 @@
     ],
     "RO": [
      "Bucharest"
+    ]
+   }
+  },
+  {
+   "name": "Videojet (Veralto)",
+   "system": "workday",
+   "board": "https://veralto.wd1.myworkdayjobs.com/VideojetJobs",
+   "countries": [
+    "DE",
+    "FR",
+    "GB",
+    "IT",
+    "NL",
+    "PL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Düsseldorf",
+     "Kempten (Allgäu)",
+     "Kiel",
+     "Limburg an der Lahn",
+     "Lübeck"
+    ],
+    "FR": [
+     "Clermont-Ferrand",
+     "Saint-Étienne",
+     "Villebon-sur-Yvette"
+    ],
+    "GB": [
+     "Huntingdon",
+     "Nottingham"
+    ],
+    "IT": [
+     "Alessandria",
+     "Milan",
+     "Piacenza",
+     "Turin"
+    ],
+    "NL": [
+     "De Meern"
+    ],
+    "PL": [
+     "Warsaw"
     ]
    }
   },
