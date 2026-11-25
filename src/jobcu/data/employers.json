@@ -8472,6 +8472,19 @@
    "towns": {}
   },
   {
+   "name": "Daimler Truck",
+   "system": "sitemap",
+   "board": "https://jobsearch.daimlertruck.com/sitemap.xml",
+   "countries": [
+    "DE",
+    "FR"
+   ],
+   "elsewhere": true,
+   "towns": {},
+   "jobs": "/index\\.php\\?ac=jobad&id=(\\d+)$",
+   "titles": false
+  },
+  {
    "name": "Delta Energy Systems",
    "system": "sitemap",
    "board": "https://application.delta-emea.com/sitemap.xml.gz",

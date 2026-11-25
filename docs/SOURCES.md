@@ -158,6 +158,12 @@ A page without job data is read as text only where the directory names the site'
 only when its address still names a job page after redirects. Titles the search words miss go to
 the person's AI's title check like other career sites' titles. A first reading opens nothing.
 
+Daimler Truck's job search (`jobsearch.daimlertruck.com`) runs on the same platform as Porsche's:
+robots.txt names only its sitemap (358 jobs, `//index.php?ac=jobad&id=<number>`, no titles), and
+its group's [legal notice](https://www.daimlertruck.com/anbieter-rechtliche-hinweise) says nothing
+about reading job ads. Its pages do carry JobPosting data, so only the opening of new pages applies;
+the directory check found 9 of its sampled pages in Germany.
+
 **Measured** (a copy of the data folder, the saved search words of an electronics engineer, the
 newest 25 of BMW's and 12 of Porsche's jobs made new): BMW 26 requests in 26 seconds, 13 jobs in
 Germany (Munich, Regensburg, Landshut, Leipzig; that day mostly internships), each with title,
