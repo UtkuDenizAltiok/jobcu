@@ -500,13 +500,47 @@ def test_the_frame_a_page_embeds_from_its_own_site():
                  "<iframe class='x' src='/jobs/5/x/job?in_iframe=1'></iframe>")
     assert sitemaps.own_frame(page_text, "https://a.test/jobs/5/x/job") == (
         "https://a.test/jobs/5/x/job?in_iframe=1")
-    assert sitemaps.own_frame('<iframe src="https://a.test/p"></iframe>', "https://a.test/p") is None
+    assert sitemaps.own_frame('<iframe src="https://a.test/p"></iframe>',
+                              "https://a.test/p") is None
     assert sitemaps.own_frame("<p>No frames.</p>", "https://a.test/p") is None
+
+
+def posting_page(*countries, town="Olathe"):
+    places = [{"address": {"addressLocality": town, "addressCountry": country}}
+              for country in countries]
+    return ('<script type="application/ld+json">' + json.dumps(
+        {"@type": "JobPosting", "title": "Power Electronics Engineer", "datePosted":
+         NOW.date().isoformat(), "description": "Design fictional converters.",
+         "jobLocation": places}) + "</script>")
+
+
+def test_a_job_whose_page_names_a_country_outside_the_supported_ones_is_abroad():
+    # A UK employer's site also lists its American jobs: one in Olathe ("US") isn't placed in
+    # the UK because the employer's directory entry names only the UK.
+    uk_only = Employer("Example Modules", "sitemap", "https://modules.test/sitemap.xml",
+                       ("GB",), jobs=r"/jobs/(\d+)/[^/]+/job$")
+    address = "https://modules.test/jobs/6294/power-electronics-engineer/job"
+    for written in ("US", "USA", "United States", "MX"):
+        job = sitemaps.to_found_job(address, posting_page(written), uk_only)
+        assert job.country == OTHER
+        query = JobQuery(["GB"], [], [SearchTerm(text="Power Electronics Engineer",
+                                                 language="en", kind="job_title")], 24, NOW)
+        assert careers.keep_job(job, uk_only, query, NOW - DAY) is None
+    # A job offered in several places is in the first supported one they name; three-letter
+    # codes name supported countries too; no country, or none as a country, decides nothing.
+    assert sitemaps.to_found_job(address, posting_page("US", "GB", town="Bedlington"),
+                                 uk_only).country == "GB"
+    assert sitemaps.to_found_job(address, posting_page("DEU"), uk_only).country == "DE"
+    assert sitemaps.to_found_job(address, posting_page("EMEA"), uk_only).country is None
+    assert sitemaps.to_found_job(address, posting_page(), uk_only).country is None
 
 
 def test_countries_and_address_words():
     assert sitemaps.country_code("UK") == "GB" and sitemaps.country_code("Deutschland") == "DE"
+    assert sitemaps.country_code("GBR") == "GB" and sitemaps.country_code("IRL") == "IE"
     assert sitemaps.country_code("Atlantis") is None and sitemaps.country_code(None) is None
+    assert sitemaps.abroad("US") and sitemaps.abroad("Mexico") and not sitemaps.abroad("Remote")
+    assert not sitemaps.abroad("NA")  # written for "not available" more often than for Namibia
     assert "graduate electronics engineer" in sitemaps.words_of(
         "https://recruit.test/jobs/27724/graduate-electronics-engineer")
     assert "Hardwareentwickler" in sitemaps.words_of(

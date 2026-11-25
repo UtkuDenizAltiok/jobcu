@@ -45,7 +45,7 @@ from jobcu.sources.careers import (
     work_mode_from_text,
 )
 from jobcu.sources.http import Blocked
-from jobcu.sources.sitemaps import country_code, job_pages
+from jobcu.sources.sitemaps import job_pages, posting_country
 from jobcu.text import html_to_text
 
 PAGE_SIZE = 20
@@ -246,7 +246,7 @@ class WorkdaySource(CareerSystemSource):
                 description=posting.description,
                 description_is_complete=posting.description_is_complete,
                 location_text=posting.location_text or job.location_text,
-                country=job.country or country_code(posting.country),
+                country=job.country or posting_country(posting),
                 posted_at=posted,
                 date_precision=precision,
                 job_types=posting.job_types or job.job_types,

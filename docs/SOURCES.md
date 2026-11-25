@@ -114,6 +114,33 @@ power-electronics and controls graduate roles in Leamington Spa and Shoreham:
 over 30 days gave Bruker's "Hardwareentwickler Elektronik" (Leipzig) with its full ad. The
 iCIMS sites of Schneider Electric, Arm and AMD stay unread: their robots.txt closes them.
 
+### A job page's country outside the supported ones — 2026-11-26
+
+TT Electronics' job pages (iCIMS) name each job's country in their JobPosting data, and its site
+lists jobs in the UK, the US, Mexico, China and India. A page for a power-electronics job in
+Olathe, Kansas, says `"addressCountry": "US"`. Jobcu read only the supported countries from that
+field, so "US" counted as no country written; the directory check then saw the employer's jobs as
+UK jobs and jobs of unknown place ("elsewhere" false), and a search placed the Kansas job in the
+UK, the one country the employer's entry names. Now a JobPosting country outside the supported
+ones (any ISO 3166 two- or three-letter code, or a country's name such as "Mexico") marks the job
+abroad, and the job leaves the search as other foreign jobs do; a job offered in several places
+is in the first supported country they name; three-letter codes of supported countries ("DEU",
+"GBR", "IRL") are read too. Words that name no country ("EMEA", "Remote") and "NA" (written for
+"not available") still decide nothing. The same applies to the employer's own pages the Workday
+reader opens.
+
+### Crawl delays in robots.txt — 2026-11-26
+
+Maschinenfabrik Reinhausen's application portal (`career.reinhausen.com`; power-electronics
+development in Regensburg) asks every robot for `Crawl-delay: 10` in its robots.txt. Jobcu kept
+such pauses only where they were written into its own table (service.bund.de's 30 seconds,
+Lever's 1 second), so a new site's request was honoured only if someone added it by hand. Now a
+career site's robots.txt, read once a search, sets that site's pace when it asks for a delay:
+the delay of the group for Jobcu or, without one, for every robot, at most a minute between
+requests. Reading the file also changed in one way: a group whose rules are only an empty
+`Disallow:` (allowing everything) or a `Crawl-delay` now ends at the next `User-agent` line, as
+the standard says; before, the next robot's `Disallow: /` was taken as Jobcu's too.
+
 ### Electronics and power employers read from their own sites — 2026-11-26
 
 Nineteen employers in electronics, power conversion, drives and automation in Germany and the UK
