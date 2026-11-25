@@ -12,6 +12,7 @@ from jobcu.sources.dvinci import DvinciSource
 from jobcu.sources.eightfold import EightfoldSource
 from jobcu.sources.euraxess import EuraxessSource
 from jobcu.sources.freehire import FreeHireSource
+from jobcu.sources.gradcracker import GradcrackerSource
 from jobcu.sources.greenhouse import GreenhouseSource
 from jobcu.sources.jibe import JibeSource
 from jobcu.sources.jobsacuk import JobsAcUkSource
@@ -58,6 +59,11 @@ TERMS_NOTES = {
     # action against readers of job lists was found.
     "phenom": "ABB's website terms don't allow scraping without its written permission. Switch "
               "it on only if you accept that for your own job search.",
+    # Gradcracker's legal page forbids scraping and allows copies for reading or browsing and
+    # for personal use (2026-11-25); no legal action against readers was found.
+    "gradcracker": "Gradcracker's legal page doesn't allow scraping (it allows copies for "
+                   "reading and for your personal use). Switch it on only if you accept that "
+                   "for your own job search.",
 }
 OPT_IN_SOURCES = frozenset({"jsearch", *TERMS_NOTES})
 
@@ -84,6 +90,6 @@ def all_sources() -> list[JobSource]:
     """Fresh source objects for one search, in the order they're shown."""
     return [AdzunaSource(), JSearchSource(), ArbeitnowSource(), FreeHireSource(), JobTechSource(),
             BundesagenturSource(), ServiceBundSource(), EuraxessSource(), JobsAcUkSource(),
-            JobsIrelandSource(),
+            GradcrackerSource(), JobsIrelandSource(),
             ReedSource(), TeachingVacanciesSource(), NhsJobsSource(), LeForemSource(),
             WerkenVoorNederlandSource(), NavSource(), *career_sources()]
