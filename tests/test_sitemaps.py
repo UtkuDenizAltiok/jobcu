@@ -2,12 +2,13 @@
 
 import dataclasses
 import json
+import re
 import sys
 from datetime import UTC, datetime, timedelta
 
 import httpx
 
-from jobcu import jobstore, scoring
+from jobcu import jobstore, listmemory, scoring
 from jobcu.dedupe import JobGroup
 from jobcu.keystore import KeyStore
 from jobcu.keywords import SearchTerm
@@ -182,6 +183,99 @@ def test_a_new_job_whose_address_misses_the_search_words_goes_to_the_title_check
     assert full.title == "Elektronikentwickler" and full.location_text == "Kiel"
     assert full.source_job_id == new.source_job_id and full.description_is_complete
     assert requested[-1] == "/de/job/elektrischer_entwickler__m_w_d_/103"
+
+
+MOTORS_PATTERN = r"/[^/?#]+-\d{4,}-([0-9a-z]{6,})$"
+MOTORS_INDEX = """<?xml version="1.0"?><sitemapindex>
+<sitemap><loc>https://jobs.motors.test/de-sitemap.xml</loc></sitemap>
+<sitemap><loc>https://jobs.motors.test/en-sitemap.xml</loc></sitemap></sitemapindex>"""
+
+
+def motors_sitemap(language, written):
+    # Each language's page has its own number; the vacancy's code is the same in all of them.
+    jobs = [("payroll-assistant", 1002, "abc0001x2"),
+            ("hardware-engineer-power-electronics", 1001, "abc0001x1")]
+    return ("<?xml version='1.0'?><urlset>"
+            f"<url><loc>https://jobs.motors.test/{language}</loc><lastmod>{written}</lastmod></url>"
+            + "".join(f"<url><loc>https://jobs.motors.test/{language}/{slug}-"
+                      f"{number + (7 if language == 'en' else 0)}-{code}</loc>"
+                      f"<lastmod>{written}</lastmod></url>" for slug, number, code in jobs)
+            + "</urlset>")
+
+
+def motors_site(requested):
+    written = NOW.isoformat()  # every page dated to the moment the sitemap was written
+
+    def handler(request):
+        path = request.url.path
+        requested.append(path)
+        if path == "/robots.txt":
+            return httpx.Response(200, text="User-agent: *\nAllow: /\n")
+        if path == "/sitemap.xml":
+            return httpx.Response(200, text=MOTORS_INDEX)
+        if path.endswith("-sitemap.xml"):
+            return httpx.Response(200, text=motors_sitemap(path[1:3], written))
+        if path.endswith("abc0001x1"):
+            return httpx.Response(200, text=page("Hardware Engineer Power Electronics",
+                                                 "Stuttgart", "DE", NOW - timedelta(hours=6)))
+        return httpx.Response(404)
+
+    http = PoliteClient(min_intervals={}, sleep=lambda s: None,
+                        transport=httpx.MockTransport(handler))
+    return SourceContext(http, KeyStore(), SourceReport("sitemap", "Sitemaps"), lambda: False,
+                         lambda message: None)
+
+
+def test_a_site_whose_job_addresses_speak_of_no_job_is_read_by_its_pattern(monkeypatch):
+    motors = Employer("Example Motors", "sitemap", "https://jobs.motors.test/sitemap.xml",
+                      ("DE",), jobs=MOTORS_PATTERN)
+    monkeypatch.setattr(careers, "load_directory", lambda: (motors,))
+    terms = [SearchTerm(text="Hardware Engineer", language="en", kind="job_title")]
+    requested = []
+    jobs = list(sitemaps.SitemapSource().search(JobQuery(["DE"], [], terms, 24, NOW),
+                                                motors_site(requested)))
+    # Its job pages say nothing of jobs in their addresses: the pattern finds them. The
+    # vacancy is opened once, in the searched country's language, and its code names it.
+    assert [job.title for job in jobs] == ["Hardware Engineer Power Electronics"]
+    assert jobs[0].country == "DE"
+    opened = [path for path in requested if not path.endswith((".xml", ".txt"))]
+    assert opened == ["/de/hardware-engineer-power-electronics-1001-abc0001x1"]
+    pattern = re.compile(MOTORS_PATTERN)
+    address = "https://jobs.motors.test/en/payroll-assistant-1009-abc0001x2"
+    assert sitemaps.job_key(address, pattern) == "jobs.motors.test#abc0001x2"
+    assert sitemaps.title_of(address, pattern) == "payroll assistant"
+
+
+def test_the_directory_check_samples_the_whole_list_when_its_dates_cant_order_it(monkeypatch):
+    motors = Employer("Example Motors", "sitemap", "https://jobs.motors.test/sitemap.xml", (),
+                      jobs=MOTORS_PATTERN)
+    monkeypatch.setattr(sitemaps, "SURVEY_PAGES", 1)
+    requested = []
+    survey = sitemaps.SitemapSource().survey(motors, motors_site(requested))
+    # The list's first page (the payroll job's, gone) isn't the only one looked at: the page
+    # from the middle of the list shows the German job.
+    assert survey.counts["DE"] == 1
+    assert [path for path in requested if not path.endswith((".xml", ".txt"))] == [
+        "/en/hardware-engineer-power-electronics-1008-abc0001x1"]
+
+
+def test_pages_new_on_the_list_are_opened_first_when_the_sitemap_dates_them_all_alike(
+        monkeypatch):
+    motors = Employer("Example Motors", "sitemap", "https://jobs.motors.test/sitemap.xml",
+                      ("DE",), jobs=MOTORS_PATTERN)
+    monkeypatch.setattr(careers, "load_directory", lambda: (motors,))
+    monkeypatch.setattr(sitemaps, "MAX_PAGES", 1)
+    # The list had the payroll job three days ago; the engineer's job is new on it.
+    listmemory.note("sitemap", motors.board, ["jobs.motors.test#abc0001x2"],
+                    now=NOW - 3 * DAY)
+    terms = [SearchTerm(text="Hardware Engineer", language="en", kind="job_title"),
+             SearchTerm(text="Payroll Assistant", language="en", kind="job_title")]
+    requested = []
+    jobs = list(sitemaps.SitemapSource().search(JobQuery(["DE"], [], terms, 24, NOW),
+                                                motors_site(requested)))
+    # In the sitemap's own order the old payroll job's page came first and took the one page.
+    assert [job.title for job in jobs] == ["Hardware Engineer Power Electronics"]
+    assert not any("payroll" in path for path in requested)
 
 
 def test_the_title_an_address_spells():

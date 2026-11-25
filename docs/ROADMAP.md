@@ -7,6 +7,10 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- Mercedes-Benz's jobs are read from its job sitemap (967 jobs, each once in the searched
+  country's language). A sitemap whose job addresses don't say "job" is read by the pattern the
+  directory gives; pages new on a list are opened first, and the directory check samples the
+  whole list when its dates can't order it.
 - Five more Workday sites are read: BD's in Germany and Ireland, Frazer-Nash (UK), NCR Atleos
   (hardware engineering in Dundee) and Videojet (Germany, UK). They had answered with Workday's
   human check during a directory check and answered normally when asked again, one at a time.
