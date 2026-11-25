@@ -71,6 +71,9 @@ class ListPageSource(SitemapSource):
     name = "Employers' own job pages"
     system = "listpage"
     parallel = 4  # every employer has its own address
+    # A list's own text beside each link names the job's place; its addresses often end in a
+    # language or a number ("-de-j1507.html"), not a town.
+    towns_in_addresses = False
 
     def _listing(self, employer: Employer, ctx: SourceContext, languages: list[str]
                  ) -> list[Listed]:

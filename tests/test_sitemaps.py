@@ -12,6 +12,7 @@ from jobcu import jobstore, listmemory, scoring
 from jobcu.dedupe import JobGroup
 from jobcu.keystore import KeyStore
 from jobcu.keywords import SearchTerm
+from jobcu.placenames import OTHER
 from jobcu.sources import careers, sitemaps
 from jobcu.sources.base import JobQuery, SourceContext, SourceReport
 from jobcu.sources.careers import Employer
@@ -387,6 +388,64 @@ def test_the_directory_check_looks_at_a_few_pages_for_the_countries():
     survey = source.survey(recruiter, ctx)
     assert survey.counts["GB"] == 4 and survey.sample  # its towns aren't all the towns
     assert source.readable(recruiter, ctx)
+
+
+LIGHTS = f"""<?xml version="1.0"?><urlset>
+<url><loc>https://jobs.lights.test/en/job/Process-Engineer-d_m_f-Shanghai/31</loc>
+<lastmod>{stamp(NOW)}</lastmod></url>
+<url><loc>https://jobs.lights.test/en/job/Design-Engineer-d_m_f-Regensburg/30</loc>
+<lastmod>{stamp(NOW - 2 * DAY)}</lastmod></url>
+<url><loc>https://jobs.lights.test/en/job/Test-Technician-Exeter/29</loc>
+<lastmod>{stamp(NOW - 3 * DAY)}</lastmod></url>
+<url><loc>https://jobs.lights.test/en/job/Buyer-Shanghai/28</loc>
+<lastmod>{stamp(NOW - 4 * DAY)}</lastmod></url>
+</urlset>"""
+
+
+def test_the_directory_check_counts_countries_only_the_ends_of_job_addresses_name(monkeypatch):
+    # A large site's newest pages can all be abroad; the addresses of its other job pages end
+    # in their towns, so the check sees the employer hires in Germany and the UK too without
+    # opening those pages.
+    monkeypatch.setattr(sitemaps, "SURVEY_PAGES", 1)
+    requested = []
+
+    def handler(request):
+        requested.append(request.url.path)
+        if request.url.path == "/robots.txt":
+            return httpx.Response(200, text="User-agent: *\nAllow: /\n")
+        if request.url.path == "/sitemap.xml":
+            return httpx.Response(200, text=LIGHTS)
+        if request.url.path.endswith("/31"):
+            return httpx.Response(200, text=page("Process Engineer", "Shanghai", "CN", NOW))
+        return httpx.Response(404)
+
+    ctx = SourceContext(PoliteClient(min_intervals={}, sleep=lambda s: None,
+                                     transport=httpx.MockTransport(handler)),
+                        KeyStore(), SourceReport("sitemap", "Sitemaps"), lambda: False,
+                        lambda message: None)
+    lights = Employer("Example Lights", "sitemap", "https://jobs.lights.test/sitemap.xml", ())
+    survey = sitemaps.SitemapSource().survey(lights, ctx)
+    assert survey.counts["DE"] == 1 and survey.counts["GB"] == 1
+    assert survey.counts[OTHER] == 1  # the page abroad; the addresses abroad add nothing more
+    assert survey.sample and not survey.towns
+    assert requested.count("/sitemap.xml") == 1  # read once
+    assert [path for path in requested if "/job/" in path] == [
+        "/en/job/Process-Engineer-d_m_f-Shanghai/31"]
+
+
+def test_the_country_the_end_of_a_job_address_names():
+    assert sitemaps.address_countries(
+        "https://jobs.test/en/job/Design-Engineer-d_m_f-Regensburg/24800") == {"DE"}
+    assert sitemaps.address_countries(
+        "https://recruit.test/job-details/power-electronics-engineer-london") == {"GB"}
+    assert sitemaps.address_countries(
+        "https://jobs.test/en/job/Senior-Engineer-Frankfurt-am-Main/1") == {"DE"}
+    assert sitemaps.address_countries(
+        "https://jobs.test/en/job/Sales-Engineer-Mexico-City/2") == {OTHER}
+    # No town at its end, or nothing but a town: no country.
+    assert not sitemaps.address_countries(
+        "https://recruit.test/jobs/27724/graduate-electronics-engineer")
+    assert not sitemaps.address_countries("https://jobs.test/en/job/Regensburg/5")
 
 
 def test_countries_and_address_words():
