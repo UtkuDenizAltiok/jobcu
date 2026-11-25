@@ -8447,6 +8447,21 @@
    "towns": {}
   },
   {
+   "name": "BMW Group",
+   "system": "sitemap",
+   "board": "https://www.bmwgroup.jobs/sitemap.xml",
+   "countries": [
+    "DE",
+    "GB",
+    "GR",
+    "HU"
+   ],
+   "elsewhere": true,
+   "towns": {},
+   "jobs": "/jobfinder/job-description-copy\\.(\\d+)\\.html$",
+   "titles": false
+  },
+  {
    "name": "Burmester",
    "system": "sitemap",
    "board": "https://www.burmester.jobs/sitemap.xml",
@@ -8507,6 +8522,20 @@
    ],
    "elsewhere": false,
    "towns": {}
+  },
+  {
+   "name": "Porsche",
+   "system": "sitemap",
+   "board": "https://jobs.porsche.com/sitemap.xml",
+   "countries": [
+    "CH",
+    "DE",
+    "RO"
+   ],
+   "elsewhere": true,
+   "towns": {},
+   "jobs": "/index\\.php\\?ac=jobad&id=(\\d+)$",
+   "titles": false
   },
   {
    "name": "Redline Group",

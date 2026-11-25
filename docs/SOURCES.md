@@ -125,7 +125,45 @@ programme among the rest. A repeat reading takes 6 requests (pages are remembere
 Porsche's job sitemap (`jobs.porsche.com`, 759 pages, robots open) dates its pages, but the pages
 carry no JobPosting data and their addresses no title (`index.php?ac=jobad&id=22236`); BMW's
 (`bmwgroup.jobs`, robots open, 748 job pages) gives neither dates nor titles and no JobPosting data.
-Neither is read yet.
+Both are read since the same day: [record](#bmws-and-porsches-job-pages-without-job-data--2026-11-25).
+
+### BMW's and Porsche's job pages without job data — 2026-11-25
+
+**Why.** In every saved search (search 21: 2,097 job copies over 72 hours) not one job of BMW,
+Porsche or Mercedes-Benz arrived: their own sites are where they advertise, and BMW's and Porsche's
+pages carry no JobPosting data, so search engines' job listings (and JSearch) don't show them either.
+
+**Access.** BMW: `www.bmwgroup.jobs/robots.txt` names only its sitemap (no rule), and the site's
+[terms of use](https://www.bmwgroup.jobs/en/general/terms-of-use.html) cover the career pages'
+legal owners and the application system, nothing about reading job ads. Its sitemap (2.7 MB, one
+request) lists 748 job pages, `/en/jobfinder/job-description-copy.<number>.html`, without dates.
+The site loads a bot-detection script; its pages answered Jobcu's client normally. Porsche:
+`jobs.porsche.com/robots.txt` names only its sitemap; the portal links no terms of use, only its
+privacy pages. Its sitemap lists 745 job pages, `/index.php?ac=jobad&id=<number>`, with the dates
+they were last changed (which don't establish a posting day). No legal action by either against
+readers of job ads or scrapers was found (web search, 2026-11-25).
+
+**What the pages give.** A heading with the title, the ad in the page's `<main>`, the place under a
+label ("Location: Munich" on BMW's, "Einsatzort: Stuttgart" on Porsche's; BMW's also put department,
+town and day above the title) and the hiring company under a label ("Company: BMW AG",
+"Gesellschaft: Porsche Zentrum Bensberg"). Porsche's places are often districts and small towns
+(Zuffenhausen, Weissach, Bensberg) whose names alone don't tell the country; they are placed in
+the one of the employer's countries that has them.
+
+**Reader.** The directory gives both sites the pattern of their job pages (`jobs`) and says that the
+addresses name no title (`"titles": false`). A search reads the sitemap whole (list memory) and
+opens only the pages of jobs new on it since its last reading, at most 60 a site, which their first
+sight dates (as on SuccessFactors sites without dates); jobs listed before are older than the window.
+A page without job data is read as text only where the directory names the site's job pages, and
+only when its address still names a job page after redirects. Titles the search words miss go to
+the person's AI's title check like other career sites' titles. A first reading opens nothing.
+
+**Measured** (a copy of the data folder, the saved search words of an electronics engineer, the
+newest 25 of BMW's and 12 of Porsche's jobs made new): BMW 26 requests in 26 seconds, 13 jobs in
+Germany (Munich, Regensburg, Landshut, Leipzig; that day mostly internships), each with title,
+town, company, its first-sight day and a full ad of 2,700 to 4,200 characters; Porsche 9 jobs in
+Germany, its pages remembered from the directory check. The directory check samples 20 pages
+spread over BMW's list (no dates): 12 in Germany, one each in the UK, Greece and Hungary.
 
 ### Plain job lists recognised by themselves — 2026-11-25
 

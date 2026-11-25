@@ -24,7 +24,8 @@ from collections.abc import Iterator
 from datetime import UTC, datetime, timedelta
 from urllib.parse import unquote, urlsplit
 
-from jobcu import listmemory
+from jobcu import jobpage, listmemory
+from jobcu import places as place_list
 from jobcu.countries import COUNTRIES
 from jobcu.freshness import freshness, parse_iso
 from jobcu.jobposting import find_job_posting
@@ -104,6 +105,19 @@ class SitemapSource(CareerSystemSource):
                                                                        start))
         opened, unread = 0, []
         for entry in entries:
+            if not entry.titled:
+                # An address that names no title (BMW's, Porsche's): the page is opened only for
+                # a job new on the list since its last reading, which its first sight dates; it
+                # gives the title, and one the search words miss goes to the person's AI like
+                # other career sites' titles (`keep_job`).
+                if (opened >= MAX_PAGES
+                        or (sight := self._fresh_sight(entry, sights, start)) is None
+                        or not self.allowed(entry.address, ctx)):
+                    continue
+                opened += 1
+                if (job := self._from_page(entry.address, employer, ctx)) is not None:
+                    yield _dated(job, *sight)
+                continue
             if not matches_terms(terms, set(wanted), entry.title or words_of(entry.address)):
                 # Titles the search words miss go to the person's AI like other career sites'
                 # (a page is opened only for a title it keeps, `load_details`); only jobs new
@@ -111,7 +125,7 @@ class SitemapSource(CareerSystemSource):
                 # "Entwicklungsingenieur Elektrotechnik" and "Elektrischer Entwickler" spell
                 # none of an electronics engineer's search words (2026-11-25).
                 if (new := self._new_title(entry, sights, start, ctx)) is not None:
-                    unread.append(new)
+                    unread.append(_with_job_pages(new, employer))
                 continue
             if opened >= MAX_PAGES or (since is not None and entry.changed is not None
                                        and entry.changed < since):
@@ -147,9 +161,11 @@ class SitemapSource(CareerSystemSource):
         list pages): only addresses it finds are job pages, and its first group, when it has
         one, names the job in every language and is no part of its title."""
         pattern = re.compile(employer.jobs) if employer.jobs else None
+        titled = pattern is None or employer.titles
         return [Listed(address, changed, key=job_key(address, pattern),
-                       title=(title_of(address, pattern) or None) if pattern else None,
-                       job=pattern is not None or bool(_JOB_PAGE.search(urlsplit(address).path)))
+                       title=(title_of(address, pattern) or None) if pattern and titled else None,
+                       job=pattern is not None or bool(_JOB_PAGE.search(urlsplit(address).path)),
+                       titled=titled)
                 for address, changed in one_address_per_job(
                     self._entries(employer.board, ctx, pattern), languages, pattern)]
 
@@ -159,10 +175,9 @@ class SitemapSource(CareerSystemSource):
         named by the title the list gives or its address spells; None for any other page."""
         if not entry.job or not (title := entry.title or title_of(entry.address)):
             return None
-        posted, precision = listmemory.posted(sights.get(entry.key), start)
-        if precision != "day" or (start is not None
-                                  and freshness(posted, precision, start) != "fresh"):
+        if (sight := self._fresh_sight(entry, sights, start)) is None:
             return None
+        posted, precision = sight
         if entry.posted is not None:
             posted = entry.posted  # the employer's own day beats Jobcu's first sight
         if not self.allowed(entry.address, ctx):
@@ -172,10 +187,22 @@ class SitemapSource(CareerSystemSource):
                         date_precision=precision, employer_url=entry.address,
                         source_context={"listed_place": entry.place} if entry.place else {})
 
+    @staticmethod
+    def _fresh_sight(entry: "Listed", sights: dict, start: datetime | None
+                     ) -> tuple[datetime, str] | None:
+        """The day a job new on the list since its last reading was posted, as its first sight
+        proves it (`listmemory.posted`), when that is inside the window; else None."""
+        posted, precision = listmemory.posted(sights.get(entry.key), start)
+        if precision != "day" or (start is not None
+                                  and freshness(posted, precision, start) != "fresh"):
+            return None
+        return posted, precision
+
     def load_details(self, job: FoundJob, ctx: SourceContext) -> FoundJob:
         """A job listed by its address only (a title the search words missed): its page's
         title, place, ad and date; where the page gives no date, its first sight stands."""
-        full = self._from_page(job.url, Employer(job.company or "", self.system, "", ()), ctx)
+        full = self._from_page(job.url, Employer(job.company or "", self.system, "", (),
+                                                 jobs=job.source_context.get("job_pages")), ctx)
         if full is None:
             return job
         if full.posted_at is None:
@@ -190,9 +217,11 @@ class SitemapSource(CareerSystemSource):
         return full
 
     def readable(self, employer: Employer, ctx: SourceContext) -> bool:
-        """One job page must carry JobPosting data with its posting date."""
+        """One job page must carry JobPosting data with its posting date, or, where the
+        directory names the site's job pages, an ad its text gives (the list's first sight
+        dates such jobs)."""
         for job in self.list_jobs(employer, ctx):
-            return job.posted_at is not None
+            return job.posted_at is not None or bool(employer.jobs and job.description)
         return False
 
     def survey(self, employer: Employer, ctx: SourceContext) -> Survey:
@@ -215,17 +244,22 @@ class SitemapSource(CareerSystemSource):
         known = jobstore.remembered_ad(
             stub, reader_version=self.detail_cache_version)
         if known is not None and known.title:
-            return known
+            return _in_own_country(known, employer)
         if not self.allowed(address, ctx):
             return None
         try:
-            page = self.get(address, ctx, cache=False).text
+            response = self.get(address, ctx, cache=False)
         except (SourceError, BudgetExhausted):
             return None
-        job = to_found_job(address, page, employer, source=self.id)
+        job = to_found_job(address, response.text, employer, source=self.id)
+        # A page without job data is read as text only where the directory names the site's job
+        # pages, and only if the address still names one after redirects (Diehl's job pages lead
+        # back to its list).
+        if job is None and employer.jobs and re.search(employer.jobs, str(response.url)):
+            job = page_job(address, response.text, employer, source=self.id)
         if job is not None:
             jobstore.remember_ad(job, reader_version=self.detail_cache_version)
-        return job
+        return _in_own_country(job, employer) if job is not None else None
 
 
 @dataclasses.dataclass(frozen=True)
@@ -242,6 +276,7 @@ class Listed:
     job: bool = True  # a job's page rather than a careers page about working there
     place: str | None = None  # the place the list's own data gives the job ("Paderborn")
     posted: datetime | None = None  # the day the list says the job was published
+    titled: bool = True  # whether the address spells the job's title (BMW's names a number)
 
 
 def to_found_job(address: str, page: str, employer: Employer,
@@ -267,6 +302,47 @@ def to_found_job(address: str, page: str, employer: Employer,
         employer_url=address,
         closes_at=posting.valid_through,
     )
+
+
+def page_job(address: str, page: str, employer: Employer, source: str = "sitemap"
+             ) -> FoundJob | None:
+    """A job page without job data, read as text (`jobpage.read`): its title, its place and
+    the ad. It gives no posting day; the list's first sight dates it."""
+    if (ad := jobpage.read(page)) is None:
+        return None
+    return FoundJob(source=source, source_job_id=address, url=address, title=ad.title,
+                    company=ad.company or employer.name or None, location_text=ad.place,
+                    country=ad.country,
+                    description=ad.text, description_is_complete=True, employer_url=address)
+
+
+def _in_own_country(job: FoundJob, employer: Employer) -> FoundJob:
+    """A job of a page the directory names, without a country, placed in the one of the
+    employer's countries whose town or village its place names. A small town's name alone
+    doesn't tell the country (a village abroad may share it), but the employer hires only in
+    its own countries: Porsche's "Weissach", "Zuffenhausen" and "Bensberg" are in Germany
+    (2026-11-25). Applied to a remembered job too, which a directory check may have read
+    without the employer's countries."""
+    if job.country or not job.location_text or not employer.jobs:
+        return job
+    found = {code for code in employer.countries if code in COUNTRIES
+             and place_list.locate(job.location_text, code) is not None}
+    return dataclasses.replace(job, country=found.pop()) if len(found) == 1 else job
+
+
+def _dated(job: FoundJob, posted: datetime, precision: str) -> FoundJob:
+    """The job dated by its first sight on its list where its page gives no day."""
+    if job.posted_at is not None:
+        return job
+    return dataclasses.replace(job, posted_at=posted, date_precision=precision)
+
+
+def _with_job_pages(job: FoundJob, employer: Employer) -> FoundJob:
+    """A job listed by its address only remembers the pattern of its site's job pages, so its
+    page can be read as text later (`load_details`)."""
+    if employer.jobs:
+        job.source_context = {**job.source_context, "job_pages": employer.jobs}
+    return job
 
 
 def job_pages(source: CareerSystemSource, board: str, ctx: SourceContext,
