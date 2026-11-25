@@ -25,8 +25,8 @@ happens before a new search is created or source collection begins, including wi
 1. Parse documents into a profile, interpret geography/conditions, generate multilingual
    search words, and refresh discovered employers when due.
 2. Collect independent sources in parallel. The employers' own career sites that job sites'
-   copies link to (a Workday, Oracle, Greenhouse, SmartRecruiters or SuccessFactors address of
-   the job) and that Jobcu doesn't read yet are checked beside the later steps, the most linked
+   copies link to (a Workday, Oracle, Greenhouse, SmartRecruiters, Pinpoint or SuccessFactors
+   address of the job) and that Jobcu doesn't read yet are checked beside the later steps, the most linked
    first, at most twelve a search, on the readers the person uses (one whose site's terms restrict
    automated reading only for a person who accepted them; the employer look-up likewise reads a
    named employer's list to check it only on those readers); usable ones are read
@@ -35,7 +35,7 @@ happens before a new search is created or source collection begins, including wi
    So the employers read keep up with lists that move and with new employers, for free and
    without anyone updating the directory. On systems whose one answer lists every job (Workday's
    first page with its country filter, Greenhouse, Lever, Ashby, Workable, Teamtailor, Recruitee,
-   Personio) every directory employer is asked, also one not known to hire in the countries
+   Personio, Pinpoint) every directory employer is asked, also one not known to hire in the countries
    searched: an employer that starts hiring there is read from that day on. Systems read country
    by country ask only employers known there. Career-title screening rejects only explicitly
    unrelated titles; unseen titles survive its preliminary request bound. SuccessFactors sites,
