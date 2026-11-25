@@ -16,7 +16,7 @@ import time
 from collections import Counter
 from collections.abc import Callable
 from contextlib import contextmanager
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from datetime import UTC, datetime, timedelta
 from typing import Literal
 
@@ -61,7 +61,7 @@ from jobcu.location import (
 from jobcu.profile import Profile, progress_detail, read_profile_reusing
 from jobcu.relevance import quick_pass, screen_titles
 from jobcu.settings import SearchForm, load_settings, save_settings
-from jobcu.sources import accepted_terms, disabled_sources
+from jobcu.sources import TERMS_NOTES, accepted_terms, career_sources, disabled_sources
 from jobcu.sources.base import JobQuery
 from jobcu.sources.budget import share
 from jobcu.sources.http import PoliteClient, RequestStopped
@@ -160,6 +160,8 @@ class SearchRun:
     capture: review_capture.Capture | None = field(default=None, repr=False)
 
     collected_evidence: dict | None = field(default=None, repr=False)
+    # Career sites learned from this search's job links, checked beside the later steps.
+    learning: threading.Thread | None = field(default=None, repr=False)
 
     def step(self, step_id: str) -> Step:
         return next(s for s in self.steps if s.id == step_id)
@@ -524,6 +526,8 @@ def run_search(run: SearchRun) -> None:
     try:
         _find_and_score(run, settings, client, keys, http, profile, plan, query, checkpoint)
     finally:
+        if run.learning is not None:
+            run.learning.join(timeout=LEARN_WAIT_SECONDS)
         http.close()
         _save_usage(run)
 
@@ -615,12 +619,44 @@ def _listed(names: list[str], most: int = 5) -> str:
     return shown + (f" and {len(names) - most} more" if len(names) > most else "")
 
 
+# How long the end of a search waits for the career sites learned from its job links: the
+# check runs beside the later steps and is usually done long before (employers.learn).
+LEARN_WAIT_SECONDS = 120
+
+
+def _learn_career_sites(run, settings, jobs, http) -> None:
+    """Checks the employers' own career sites that this search's job links name, beside the later
+    steps; usable ones are read from the next search on. Never on systems the person switched off
+    or whose terms they haven't accepted, and a problem here never touches the search."""
+    off = set(disabled_sources(settings)) | set(TERMS_NOTES)
+    systems = {source.system for source in career_sources() if source.id not in off}
+    # The search goes on with its jobs meanwhile: the check reads its own copies of the links.
+    links = [replace(job, application_options=list(job.application_options)) for job in jobs]
+
+    def learn() -> None:
+        try:
+            added = employers.learn(links, http, systems)
+        except RequestStopped:
+            return
+        except Exception:  # noqa: BLE001 - learning is extra; the search goes on without it
+            log.exception("Learning career sites from job links failed")
+            return
+        if added:
+            run.note(f"Jobcu found {len(added)} more employer{'s' if len(added) != 1 else ''}' "
+                     f"own job lists in the links of this search's jobs ({_listed(added)}). "
+                     "They are read from your next search on.")
+
+    run.learning = threading.Thread(target=learn, name="learn-sites", daemon=True)
+    run.learning.start()
+
+
 def _find_and_score(run, settings, client, keys, http, profile, plan, query, checkpoint) -> None:
     form = run.form
     _find_employers(run, settings, client, http, profile, plan)
     checkpoint()
     run.update("sources", "running")
     collected = pipeline.collect(query, http, keys, disabled_sources(settings), run)
+    _learn_career_sites(run, settings, collected.jobs, http)
     if run.capture:
         run.capture.event("collected", jobs=collected.jobs, reports=collected.reports)
     run.collected_evidence = {

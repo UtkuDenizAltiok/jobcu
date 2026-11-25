@@ -12,7 +12,7 @@ itself as a newly edited checkout. State-changing routes require `X-Jobcu: 1`; C
 binding constrain browser access.
 
 `paths.py` locates private data outside every checkout. SQLite migrations are additive and
-numbered; `db.py` currently includes migration 22. Keys, settings, uploaded documents, logs,
+numbered; `db.py` currently includes migration 26. Keys, settings, uploaded documents, logs,
 reviews and capture files stay private. Reset actions are explicit, scoped and protect usage
 counters, settings and keys. Secure deletion/compaction is app-file behavior, not a promise
 about SSD snapshots or external backups.
@@ -24,7 +24,14 @@ happens before a new search is created or source collection begins, including wi
 
 1. Parse documents into a profile, interpret geography/conditions, generate multilingual
    search words, and refresh discovered employers when due.
-2. Collect independent sources in parallel. Career-title screening rejects only explicitly
+2. Collect independent sources in parallel. The employers' own career sites that job sites'
+   copies link to (a Workday, Oracle, Greenhouse or SuccessFactors address of the job) and that
+   Jobcu doesn't read yet are checked beside the later steps, the most linked first, at most
+   twelve a search, on the person's enabled readers without terms to accept; usable ones are read
+   from the next search on, like the employers the person's AI finds (`employers.learn`). A site
+   checked stays checked for a month, or a week when it only refused for now (`learned_sites`).
+   So the employers read keep up with lists that move and with new employers, for free and
+   without anyone updating the directory. Career-title screening rejects only explicitly
    unrelated titles; unseen titles survive its preliminary request bound. SuccessFactors sites
    list job pages by address only, so of the titles there the search words miss, only jobs new
    on the list since its last reading (`listmemory.py`), in a country searched, are screened;
@@ -389,7 +396,7 @@ CLAUDE.md imports it), LICENSE and Python/tool configuration.
 | Search preparation | `preparation.py`; bounded private reuse of exact-input location readings, search-word groups and verified reference-city facts, excluding other research, scores and journeys. |
 | Search coordination | `search.py`, `search_api.py`, `pipeline.py`, `pool.py`; progress, collection, decisions, cards and condition reapplication. |
 | Places/criteria | `countries.py`, `location.py`, `reference_places.py`, `reference_sources.py`, `reference_tables.py`, `places.py`, `placenames.py`, `travel.py`; supported geography, query interpretation, finite reference-city evidence, exact table calculations and measurements. |
-| Discovery | `keywords.py`, `employers.py`; multilingual words and periodically discovered employers. |
+| Discovery | `keywords.py`, `employers.py`; multilingual words, employers the person's AI finds every few weeks, and employers' career sites learned from the links of each search's jobs. |
 | Evidence/matching | `text.py`, `jobposting.py`, `dedupe.py`, `filters.py`, `freshness.py`, `listmemory.py`, `relevance.py`, `jobplace.py`, `requirements.py`, `recheck.py`, `scoring.py`; text extraction, filtering, dates (also from a job's first sight on its employer's list), research, grounded requirements, saved-ad recovery and fit. |
 | Results/evaluation | `applications.py`, `applylink.py`, `employerpostings.py`, `livepostings.py`, `vacancy_evidence.py`, `jobidentity.py`, `jobstore.py`, `quality.py`, `quality_api.py`; application routes, apply links found on a click, employers' own postings of board-only jobs, verified original facts, remembered jobs, saved results and independent score checks. |
 | Private comparison capture | `review_capture.py`; explicitly armed one-run document/candidate/request/response evidence outside Git, without searches, timers or paid replay. |

@@ -307,6 +307,18 @@ MIGRATIONS: list[str] = [
         PRIMARY KEY (source, board)
     );
     """,
+    # 26: Career sites learned from the links of the jobs a search finds (employers.learn): each
+    # checked once, when, whether it could be used, and when it may be looked at again.
+    """
+    CREATE TABLE learned_sites (
+        system TEXT NOT NULL,
+        board TEXT NOT NULL,
+        checked_at TEXT NOT NULL,
+        usable INTEGER NOT NULL,
+        again_at TEXT NOT NULL,
+        PRIMARY KEY (system, board)
+    );
+    """,
 ]
 
 

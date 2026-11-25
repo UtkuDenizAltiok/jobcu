@@ -16,6 +16,7 @@ independently checked career lists are kept; an AI-written address is not proof 
 import logging
 import re
 import threading
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
@@ -39,10 +40,15 @@ from jobcu.location import Place
 from jobcu.placenames import OTHER
 from jobcu.profile import Profile
 from jobcu.sources import career_sources
-from jobcu.sources.base import SourceContext, SourceReport
-from jobcu.sources.careerlinks import board_in, own_address_board, system_not_read
-from jobcu.sources.careers import Employer, all_employers, save_found_employer
-from jobcu.sources.http import PoliteClient, RobotsRules
+from jobcu.sources.base import FoundJob, SourceContext, SourceReport
+from jobcu.sources.careerlinks import (
+    board_in,
+    board_in_job_link,
+    own_address_board,
+    system_not_read,
+)
+from jobcu.sources.careers import Employer, EmployerNotFound, all_employers, save_found_employer
+from jobcu.sources.http import PoliteClient, RequestStopped, RobotsRules
 from jobcu.text import normalise
 
 log = logging.getLogger(__name__)
@@ -274,22 +280,118 @@ def _check(http: PoliteClient, named: list[tuple[str, str, str]],
 def _verified(source, employer: Employer, http: PoliteClient) -> Employer | None:
     """The employer with the countries and towns its list shows, or None when the list can't be
     read or has no job in a supported country."""
+    return _checked(source, employer, http)[0]
+
+
+def _checked(source, employer: Employer, http: PoliteClient) -> tuple[Employer | None, bool]:
+    """`_verified`'s answer, and whether it is final: a list that is gone, unreadable or without
+    a job in a supported country is; a refusal or a network problem may pass."""
     ctx = SourceContext(http, KeyStore(), SourceReport(source.id, source.name), lambda: False,
                         lambda message: None)
     try:
         survey = source.survey(employer, ctx)
         countries = sorted(c for c in survey.counts if c in COUNTRIES)
         if not countries or not source.readable(employer, ctx):
-            return None
+            return None, True
+    except EmployerNotFound:
+        log.info("Employer's list not found: %s (%s)", employer.name, employer.board)
+        return None, True
+    except RequestStopped:
+        raise  # the search was stopped: nothing was checked
     except Exception as exc:  # noqa: BLE001 - one employer's list never stops the others
-        log.info("Employer found by the AI not usable: %s (%s): %s", employer.name,
+        log.info("Employer's list not usable now: %s (%s): %s", employer.name,
                  employer.board, exc)
-        return None
+        return None, False
     return Employer(employer.name, employer.system, employer.board, tuple(countries),
                     bool(survey.counts[OTHER] or survey.counts["unknown"]),
                     {code: tuple(sorted(survey.towns.get(code, ()))[:MAX_TOWNS])
                      for code in countries if survey.towns.get(code)},
-                    found_by_ai=True)
+                    found_by_ai=True), True
+
+
+# Career sites learned from the jobs a search finds: job sites' copies of a job often link the
+# employer's own career site (a Workday, Greenhouse or SuccessFactors address), so each search
+# shows which employers hire for the person's kind of work and where their lists are, for free:
+# no AI and no web searches. Such a site Jobcu doesn't read yet is checked like the directory
+# check does (its list read once) and, when usable, read from the next search on, like the
+# employers the person's AI finds. So Jobcu keeps up by itself with employers whose lists move
+# (NXP and Dell moved theirs silently in November 2026) and with new ones, without anyone
+# updating the directory. A site that couldn't be used is looked at again after a month, or a
+# week when it only refused for now.
+LEARN_PER_SEARCH = 12
+LEARN_AGAIN_DAYS = 30  # after a final answer (no list, nothing in the supported countries)
+LEARN_RETRY_DAYS = 7  # after a refusal or a network problem, which may pass
+
+
+def learn(jobs: list[FoundJob], http: PoliteClient, systems: set[str],
+          now: datetime | None = None) -> list[str]:
+    """Checks the career sites that the links of job sites' jobs point to and that Jobcu doesn't
+    read yet, the most linked first (at most LEARN_PER_SEARCH), on the given systems only (the
+    person's enabled readers, without terms to accept), and remembers the usable ones as found
+    employers. Returns their names."""
+    now = now or datetime.now(UTC)
+    readers = {source.system: source for source in career_sources() if source.system in systems}
+    known = {_list_key(e.system, e.board) for e in all_employers()} | {
+        _list_key(*site) for site in _learned_recently(now)}
+    linked: Counter[tuple[str, str]] = Counter()
+    names: dict[tuple[str, str], Counter[str]] = {}
+    for job in jobs:
+        if job.source in _CAREER_SYSTEM_IDS:  # a career site's own jobs name a known list
+            continue
+        addresses = {job.url, job.employer_url,
+                     *(option.get("url") for option in job.application_options)}
+        boards = {board for address in addresses if address
+                  and (board := board_in_job_link(address)) is not None}
+        for board in boards:
+            if board[0] in readers and _list_key(*board) not in known:
+                linked[board] += 1
+                names.setdefault(board, Counter())[(job.company or "").strip()] += 1
+    added: list[str] = []
+    checked: set[tuple[str, str]] = set()
+    for (system, board), _ in linked.most_common():
+        # One list per search however many of its addresses the links name.
+        if _list_key(system, board) in checked or len(checked) >= LEARN_PER_SEARCH:
+            continue
+        checked.add(_list_key(system, board))
+        name = next((n for n, _ in names[(system, board)].most_common() if n), board)
+        employer, final = _checked(readers[system], Employer(name, system, board, ()), http)
+        if employer is not None:
+            save_found_employer(employer, now)
+            added.append(employer.name)
+        again = now + timedelta(days=LEARN_AGAIN_DAYS if final else LEARN_RETRY_DAYS)
+        with db.connect() as conn:
+            conn.execute(
+                "INSERT OR REPLACE INTO learned_sites (system, board, checked_at, usable, "
+                "again_at) VALUES (?, ?, ?, ?, ?)",
+                (system, board.lower(), now.isoformat(timespec="seconds"), int(bool(employer)),
+                 again.isoformat(timespec="seconds")))
+    if linked:
+        log.info("Career sites from job links: %d not read yet, %d checked, %d added (%s)",
+                 len(linked), len(checked), len(added), ", ".join(added) or "none")
+    return added
+
+
+def _list_key(system: str, board: str) -> tuple[str, str]:
+    """One employer's list however a link writes it: a Personio company at its .de or .com
+    address is one list, and so is an Oracle host's other site names (Texas Instruments' "CX"
+    and "jobsearch")."""
+    board = board.lower()
+    if system == "personio":
+        return system, board.removesuffix(".jobs.personio.com")
+    if system == "oracle":
+        return system, board.split("/", 1)[0]
+    return system, board
+
+
+def _learned_recently(now: datetime) -> set[tuple[str, str]]:
+    """Sites checked already and not due again: usable ones are read as found employers."""
+    with db.connect() as conn:
+        rows = conn.execute("SELECT system, board FROM learned_sites WHERE again_at > ?",
+                            (now.isoformat(timespec="seconds"),)).fetchall()
+    return {(row["system"], row["board"]) for row in rows}
+
+
+_CAREER_SYSTEM_IDS = frozenset(source.id for source in career_sources())
 
 
 def _board_from_page(http: PoliteClient, address: str, robots: dict[str, RobotsRules],
