@@ -278,6 +278,87 @@ def test_pages_new_on_the_list_are_opened_first_when_the_sitemap_dates_them_all_
     assert not any("payroll" in path for path in requested)
 
 
+CARS_PATTERN = r"job-description-copy\.(\d+)\.html$"
+CARS_AD = ("<p>You design power converters for electric drives, from the first circuit to the "
+           "validated board, and test them in our laboratory with the team.</p><ul><li>A degree in "
+           "electrical engineering</li><li>Experience with gate drivers and magnetics</li></ul>"
+           "<p>We offer flexible hours, a modern laboratory, training and a team that enjoys its "
+           "work. Apply with your CV; we answer every application within two weeks.</p>")
+
+
+def cars_page(title, town):
+    return (f"<html><body><nav>Jobs Benefits</nav><main><div>Drive Development</div><div>{town}"
+            f"</div><div>24.11.2026</div><h1>{title}</h1>{CARS_AD}</main></body></html>")
+
+
+def cars_site(requested, numbers):
+    def handler(request):
+        path = request.url.path
+        requested.append(path)
+        if path == "/robots.txt":
+            return httpx.Response(200, text="User-agent: *\nAllow: /\n")
+        if path == "/sitemap.xml":
+            return httpx.Response(200, text="<?xml version='1.0'?><urlset>" + "".join(
+                f"<url><loc>https://cars.test/en/jobfinder/job-description-copy.{n}.html</loc>"
+                "</url>" for n in numbers) + "<url><loc>https://cars.test/en/benefits.html</loc>"
+                "</url></urlset>")
+        if path.endswith(".103.html"):
+            return httpx.Response(200, text=cars_page("Hardware Engineer Power Electronics",
+                                                      "Munich"))
+        if path.endswith(".105.html"):
+            return httpx.Response(200, text=cars_page("Praktikum Marketing", "Munich"))
+        if path.endswith(".104.html"):  # a filled job's page leads back to the job finder
+            return httpx.Response(302, headers={"Location": "https://cars.test/en/jobfinder.html"})
+        if path == "/en/jobfinder.html":
+            return httpx.Response(200, text=cars_page("Job finder", "Munich"))
+        return httpx.Response(404)
+
+    http = PoliteClient(min_intervals={}, sleep=lambda s: None,
+                        transport=httpx.MockTransport(handler))
+    return SourceContext(http, KeyStore(), SourceReport("sitemap", "Sitemaps"), lambda: False,
+                         lambda message: None)
+
+
+def test_a_site_whose_addresses_name_no_title_opens_only_the_pages_new_on_its_list(monkeypatch):
+    cars = Employer("Example Cars", "sitemap", "https://cars.test/sitemap.xml", ("DE",),
+                    True, jobs=CARS_PATTERN, titles=False)
+    monkeypatch.setattr(careers, "load_directory", lambda: (cars,))
+    # The list's reading half a day ago had the first two jobs.
+    listmemory.note("sitemap", cars.board, ["cars.test#101", "cars.test#102"],
+                    now=NOW - timedelta(hours=12))
+    terms = [SearchTerm(text="Hardware Engineer", language="en", kind="job_title")]
+    requested = []
+    jobs = list(sitemaps.SitemapSource().search(JobQuery(["DE"], [], terms, 24, NOW),
+                                                cars_site(requested, range(101, 106))))
+    # The pages without job data were read as text: title, town and ad, dated by the list's
+    # first sight; the title the search words miss goes to the person's AI.
+    by_title = {job.title: job for job in jobs}
+    assert sorted(by_title) == ["Hardware Engineer Power Electronics", "Praktikum Marketing"]
+    engineer = by_title["Hardware Engineer Power Electronics"]
+    assert (engineer.location_text, engineer.country, engineer.company) == (
+        "Munich", "DE", "Example Cars")
+    assert engineer.date_precision == "day" and engineer.posted_at.date() == NOW.date()
+    assert engineer.description_is_complete and "gate drivers" in engineer.description
+    assert not engineer.title_unmatched and by_title["Praktikum Marketing"].title_unmatched
+    # The jobs listed before weren't opened; the page that led back to the job finder wasn't
+    # taken for an ad.
+    opened = [path for path in requested if "job-description" in path]
+    assert sorted(opened) == [f"/en/jobfinder/job-description-copy.{n}.html"
+                              for n in (103, 104, 105)]
+
+
+def test_a_page_read_as_text_takes_the_one_country_of_the_employer_where_its_place_is():
+    cars = Employer("Example Cars", "sitemap", "https://cars.test/sitemap.xml", ("CH", "DE"),
+                    True, jobs=CARS_PATTERN, titles=False)
+    # A district's name alone doesn't tell the country; among the employer's countries only
+    # Germany has it.
+    job = sitemaps.FoundJob(source="sitemap", source_job_id="x", url="x", title="Engineer",
+                            location_text="Zuffenhausen")
+    assert sitemaps._in_own_country(job, cars).country == "DE"
+    assert sitemaps._in_own_country(dataclasses.replace(job, location_text="Atlanta"),
+                                    cars).country is None
+
+
 def test_the_title_an_address_spells():
     assert sitemaps.title_of(
         "https://group.test/de/job/elektrischer_entwickler__m_w_d_/1191311") == (

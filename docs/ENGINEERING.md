@@ -45,7 +45,12 @@ happens before a new search is created or source collection begins, including wi
    once, in the searched countries' ad language (`sitemaps.one_address_per_job`). Where a
    sitemap's job addresses speak of no job, the directory gives their pattern, whose first group
    names the vacancy in every language. Pages new on a list since its last reading are opened
-   before older ones, as a sitemap may date every page to the moment it was written. Merge proven copies
+   before older ones, as a sitemap may date every page to the moment it was written. Where the
+   addresses name no title (BMW's, Porsche's: `"titles": false`), only the pages of jobs new on
+   the list since its last reading are opened, dated by their first sight; a page without job
+   data is read as text there (`jobpage.py`: the heading as title, a labelled place or the town
+   above the title, the main text as the ad), only where the directory names the site's job
+   pages and the address still names one after redirects. Merge proven copies
    and apply date, type, remote, country and dismissal rules before full-ad loading. A job
    leaves for its type only when the employer's own career system or the ad text says so (a
    job site's tag alone can keep a job, never remove it), and as remote only when no copy
@@ -416,7 +421,7 @@ CLAUDE.md imports it), LICENSE and Python/tool configuration.
 | Search coordination | `search.py`, `search_api.py`, `pipeline.py`, `pool.py`; progress, collection, decisions, cards and condition reapplication. |
 | Places/criteria | `countries.py`, `location.py`, `reference_places.py`, `reference_sources.py`, `reference_tables.py`, `places.py`, `placenames.py`, `travel.py`; supported geography, query interpretation, finite reference-city evidence, exact table calculations and measurements. |
 | Discovery | `keywords.py`, `employers.py`; multilingual words, employers the person's AI finds every few weeks (also those whose careers page lists jobs as plain links: `listpages.recognise` finds the links' shape, kept when a job page carries job data), and employers' career sites learned from the links of each search's jobs. |
-| Evidence/matching | `text.py`, `jobposting.py`, `dedupe.py`, `filters.py`, `freshness.py`, `listmemory.py`, `relevance.py`, `jobplace.py`, `requirements.py`, `recheck.py`, `scoring.py`; text extraction, filtering, dates (also from a job's first sight on its employer's list), research, grounded requirements, saved-ad recovery and fit. |
+| Evidence/matching | `text.py`, `jobposting.py`, `jobpage.py` (job pages without job data, read as text), `dedupe.py`, `filters.py`, `freshness.py`, `listmemory.py`, `relevance.py`, `jobplace.py`, `requirements.py`, `recheck.py`, `scoring.py`; text extraction, filtering, dates (also from a job's first sight on its employer's list), research, grounded requirements, saved-ad recovery and fit. |
 | Results/evaluation | `applications.py`, `applylink.py`, `employerpostings.py`, `livepostings.py`, `vacancy_evidence.py`, `jobidentity.py`, `jobstore.py`, `quality.py`, `quality_api.py`; application routes, apply links found on a click, employers' own postings of board-only jobs, verified original facts, remembered jobs, saved results and independent score checks. |
 | Private comparison capture | `review_capture.py`; explicitly armed one-run document/candidate/request/response evidence outside Git, without searches, timers or paid replay. |
 | `ai/` | `client.py` is the sole AI entry point; provider adapters, schemas, errors and token/web usage. |
