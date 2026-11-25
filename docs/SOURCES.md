@@ -713,7 +713,8 @@ sites). Eightfold: Northrop Grumman (`ngc.eightfold.ai`, 46 in the UK), Lam Rese
 Vertical Aerospace (11 in the UK). Oracle: Honeywell Aerospace (`icfcjb.fa.ocs.oraclecloud.com`, 21
 in the UK; Honeywell's other host stays), Socomec, Garrett Motion. Phenom (read for those who accept
 its terms): Leonardo UK (`careers.uk.leonardo.com/gb/en`, 374 jobs in the UK) and Arrow Electronics
-(24 in Germany, 13 in the UK).
+(24 in Germany, 13 in the UK). Workable, added the same day: ZeroAvia (hydrogen-electric aircraft
+propulsion in Kemble, power-electronics roles among them; 12 jobs in the UK).
 
 Looked at and not read: FERCHAU's site (`touch.ferchau.com`) says in its robots.txt "Please do not
 spider for jobs and projects from this website" and offers its jobs through an interface on request,
