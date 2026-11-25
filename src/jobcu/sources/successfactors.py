@@ -532,7 +532,18 @@ def _town_and_length(words: list[str]):
         towns = [town for code in COUNTRIES if (town := place_list.find(name, code))]
         if towns:
             return max(towns, key=lambda town: town.people), length
+    # An address drops the mark between the halves of a double name: Seagate's
+    # "/job/DerryLondonderry-…" for Derry~Londonderry, whose 11 jobs counted as nowhere.
+    halves = _JOINED_NAME.findall(words[0]) if words else []
+    if len(halves) > 1 and "".join(halves) == words[0]:
+        for half in halves:
+            towns = [town for code in COUNTRIES if (town := place_list.find(half, code))]
+            if towns:
+                return max(towns, key=lambda town: town.people), 1
     return None
+
+
+_JOINED_NAME = re.compile(r"[A-ZÄÖÜ][a-zäöüß]+")
 
 
 def _new_in_searched_country(job: FoundJob, sights: dict, countries, start) -> FoundJob | None:

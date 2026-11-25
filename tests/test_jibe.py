@@ -54,7 +54,7 @@ def test_a_country_s_list_is_read_newest_first_until_a_page_of_older_jobs(monkey
                                             countries=["DE"], start=NOW - timedelta(days=3)))
     assert [job.title for job in jobs] == ["Power Electronics Engineer", "Nurse", "Chef", "Teacher"]
     assert [params["page"] for params in asked] == ["1", "2"]
-    assert asked[0]["location"] == "Germany" and asked[0]["sortBy"] == "posted_date"
+    assert asked[0]["country"] == "Germany" and asked[0]["sortBy"] == "posted_date"
     first = jobs[0]
     assert first.country == "DE" and first.date_precision == "day"
     assert first.posted_at.date() == NOW.date()
@@ -85,7 +85,7 @@ def test_the_directory_check_counts_each_country_s_list():
     def handler(request):
         if request.url.path == "/robots.txt":
             return httpx.Response(404)
-        total = {"Germany": 12, "Ireland": 3}.get(request.url.params["location"], 0)
+        total = {"Germany": 12, "Ireland": 3}.get(request.url.params["country"], 0)
         return httpx.Response(200, json={"jobs": [], "totalCount": total})
     survey = jibe.JibeSource().survey(COMPANY, context(handler))
     assert dict(survey.counts) == {"DE": 12, "IE": 3}
