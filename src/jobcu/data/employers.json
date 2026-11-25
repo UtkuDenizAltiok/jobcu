@@ -6357,6 +6357,17 @@
    "jobs": "ats\\.rippling\\.com/mbryonics/jobs/([0-9a-f-]{36})"
   },
   {
+   "name": "Nidec Control Techniques",
+   "system": "listpage",
+   "board": "https://moen.nidec.com/drives/about-us/careers/current-vacancies",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "/Current-Vacancies/Job-Descriptions/([^/?#]+)$"
+  },
+  {
    "name": "Pfisterer",
    "system": "listpage",
    "board": "https://www.pfisterer.com/de/stellenangebote",
@@ -6377,6 +6388,17 @@
    "elsewhere": false,
    "towns": {},
    "jobs": "applytojob\\.com/apply/([A-Za-z0-9]{6,})/"
+  },
+  {
+   "name": "UKAEA",
+   "system": "listpage",
+   "board": "https://careers.ukaea.uk/current-vacancies/",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "careers\\.ukaea\\.uk/job/([^/?#]+)/?$"
   },
   {
    "name": "VACUUMSCHMELZE",
@@ -15018,6 +15040,20 @@
    }
   },
   {
+   "name": "IONATE",
+   "system": "workable",
+   "board": "ionate",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "London"
+    ]
+   }
+  },
+  {
    "name": "Mesa Quantum Systems",
    "system": "workable",
    "board": "mesa-quantum-systems",
@@ -15223,6 +15259,20 @@
      "London",
      "Milton Keynes",
      "Stansted Mountfitchet"
+    ]
+   }
+  },
+  {
+   "name": "Tokamak Energy",
+   "system": "workable",
+   "board": "tokamak-energy",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Abingdon"
     ]
    }
   },

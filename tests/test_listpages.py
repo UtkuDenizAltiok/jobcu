@@ -7,7 +7,7 @@ from datetime import UTC, datetime, timedelta
 
 import httpx
 
-from jobcu import db
+from jobcu import db, listmemory
 from jobcu.keystore import KeyStore
 from jobcu.keywords import SearchTerm
 from jobcu.sources import careers, listpages
@@ -221,6 +221,63 @@ def test_a_listed_job_whose_page_carries_no_job_data_comes_with_the_lists_title_
     # The directory check counts such jobs by the list's places too.
     survey = listpages.ListPageSource().survey(acme, scripted_site([]))
     assert survey.counts["IE"] == 2 and survey.sample
+
+
+FUSION_LIST = """<html><div class="job"><h3><a href="/job/electrical-engineer-power-supplies/">
+Electrical Engineer, Power Supplies</a></h3><div>Example Fusion Culham, Oxfordshire</div></div>
+<div class="job"><h3><a href="/job/graduate-electronics-engineer/">Graduate Electronics Engineer
+</a></h3><div>Example Fusion Culham, Oxfordshire</div></div></html>"""
+FUSION_AD = ("<p>You design the power supplies of our experiments, from the circuit to the "
+             "tested converter, with a team of engineers and physicists. You take part in "
+             "commissioning on site and write the test reports.</p><ul><li>A degree in "
+             "electrical engineering</li><li>Power electronics experience</li></ul><p>Site "
+             "Location:</p><p>Benefits</p><p>We offer a pension, flexible hours, training and a "
+             "modern laboratory. Apply with your CV; we answer every application within two "
+             "weeks.</p>")
+
+
+def fusion_site(requested):
+    def handler(request):
+        requested.append(request.url.path)
+        if request.url.path == "/robots.txt":
+            return httpx.Response(200, text="User-agent: *\nDisallow: /wp-admin/\n")
+        if request.url.path == "/current-vacancies/":
+            return httpx.Response(200, text=FUSION_LIST)
+        if request.url.path.startswith("/job/"):
+            title = request.url.path.split("/")[2].replace("-", " ").title()
+            return httpx.Response(200, text=f"<html><main><h1>{title}</h1>{FUSION_AD}</main>"
+                                            "</html>")
+        return httpx.Response(404)
+
+    http = PoliteClient(min_intervals={}, sleep=lambda s: None,
+                        transport=httpx.MockTransport(handler))
+    return SourceContext(http, KeyStore(), SourceReport("listpage", "Lists"), lambda: False,
+                         lambda message: None)
+
+
+def test_a_job_page_without_job_data_takes_the_lists_place_and_its_first_sight(monkeypatch):
+    fusion = Employer("Example Fusion", "listpage", "https://careers.fusion.test/current-vacancies/",
+                      ("GB",), jobs=r"careers\.fusion\.test/job/([^/?#]+)/?$")
+    monkeypatch.setattr(careers, "load_directory", lambda: (fusion,))
+    # The list had the first job three days ago and still half a day ago.
+    for hours in (72, 12):
+        listmemory.note("listpage", fusion.board,
+                        ["careers.fusion.test#electrical-engineer-power-supplies"],
+                        now=NOW - timedelta(hours=hours))
+    terms = [SearchTerm(text="Electronics Engineer", language="en", kind="job_title"),
+             SearchTerm(text="Electrical Engineer", language="en", kind="job_title")]
+    jobs = list(listpages.ListPageSource().search(JobQuery(["GB"], [], terms, 24, NOW),
+                                                  fusion_site([])))
+    by_title = {job.title: job for job in jobs}
+    graduate = by_title["Graduate Electronics Engineer"]
+    # Its page names no place (an empty label isn't followed into the next line) and no day:
+    # the list's text places it, its first sight dates it.
+    assert (graduate.location_text, graduate.country) == (
+        "Example Fusion Culham, Oxfordshire", "GB")
+    assert graduate.date_precision == "day" and graduate.posted_at.date() == NOW.date()
+    assert graduate.description_is_complete and "power supplies" in graduate.description
+    # The job the list had before the window began is an older copy, not a new job.
+    assert by_title["Electrical Engineer Power Supplies"].older_copy
 
 
 def test_a_next_page_named_only_in_a_data_attribute_is_followed():
