@@ -1225,6 +1225,27 @@ def test_workday_reads_the_searched_countries_newest_first_and_stops_at_old_jobs
     assert survey.counts == {"IE": 30, "other": 70}
 
 
+def test_a_workday_site_whose_places_name_no_country_still_records_its_towns():
+    # NCR Atleos-like: the location filter writes "DUNDEE-GBR" with no country's name.
+    facets = [{"facetParameter": "locationCountry", "values": [
+        {"descriptor": "United Kingdom", "id": "gb", "count": 37},
+        {"descriptor": "Germany", "id": "de", "count": 2}]},
+        {"facetParameter": "locations", "values": [
+            {"descriptor": "DUNDEE-GBR", "id": "dun", "count": 30},
+            {"descriptor": "Warrington, United Kingdom", "id": "war", "count": 7},
+            {"descriptor": "Office 2", "id": "o2", "count": 2}]}]
+
+    def handler(request):
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+        return httpx.Response(200, json={"total": 39, "jobPostings": [], "facets": facets})
+
+    board = employer("workday", "https://fakeco.wd1.myworkdayjobs.com/External")
+    survey = wd.WorkdaySource().survey(board, context(handler))
+    assert survey.counts == {"GB": 37, "DE": 2}
+    assert survey.towns == {"GB": {"Dundee", "Warrington"}}
+
+
 @pytest.mark.parametrize('title', ['Hardware Engineer', 'Community Nurse', 'Primary Teacher'])
 @pytest.mark.parametrize('body', ['<p>Complete fictional requirements</p>', None])
 def test_workday_reuses_workplaces_in_the_same_detail_response(title, body):

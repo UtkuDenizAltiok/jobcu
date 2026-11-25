@@ -31,6 +31,7 @@ from urllib.parse import urlsplit
 from rapidfuzz import fuzz
 
 from jobcu import places as place_list
+from jobcu.countries import COUNTRIES
 from jobcu.freshness import day_at_utc, freshness
 from jobcu.jobposting import find_job_posting
 from jobcu.placenames import OTHER, countries_in
@@ -157,12 +158,21 @@ class WorkdaySource(CareerSystemSource):
             codes = {c for c in countries_in(value.get("descriptor")) if c != OTHER}
             for code in codes or {OTHER}:
                 survey.counts[code] += int(value.get("count") or 0)
+        hiring = sorted(code for code in survey.counts if code in COUNTRIES)
         for name, entries in _all_facets(answer.get("facets")):
             if "location" not in name.lower():
                 continue
             for value in entries:  # "Germany, Munich" and the like
-                for code in countries_in(value.get("descriptor")) - {OTHER}:
-                    town = place_list.locate(value.get("descriptor"), code)
+                descriptor = value.get("descriptor")
+                # A place that names no country ("DUNDEE-GBR", NCR Atleos' sites, 2026-11-25)
+                # is the town of the one country of the site's own filter that has it; left out,
+                # the employer's towns there were only the ones that named their country.
+                codes = countries_in(descriptor) - {OTHER} or {
+                    code for code in hiring if place_list.locate(descriptor, code) is not None}
+                if len(codes) > 1 and not countries_in(descriptor) - {OTHER}:
+                    continue  # a town's name in several of its countries: not known which
+                for code in codes:
+                    town = place_list.locate(descriptor, code)
                     if town is not None:
                         survey.towns.setdefault(code, set()).add(town.name)
         return survey
