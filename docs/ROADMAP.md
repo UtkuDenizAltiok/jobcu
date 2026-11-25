@@ -7,6 +7,12 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- 55 more employers in electronics hardware are read directly, found through FreeHire's
+  catalogue of employers' own job systems: Neura Robotics, Quantum-Systems, Rocket Factory
+  Augsburg, Heraeus, STIHL, Enercon, AVL, Knorr-Bremse, SiTime, the Plath group, VACUUMSCHMELZE
+  in Germany; AMETEK, Pickering, Spellman, Cambridge GaN Devices, Filtronic, Oxford Quantum
+  Circuits, Integral Powertrain, Open Cosmos, Babcock's and Graphcore's graduate jobs and others in
+  the UK.
 - Employers' own job list pages can be read, whatever application system runs behind them, when
   their job pages carry the standard job data: dSPACE, Würth Elektronik (rexx) and Pfisterer (MHM)
   to start with. The German application systems without a reader (coveto, JOIN, rexx, umantis,

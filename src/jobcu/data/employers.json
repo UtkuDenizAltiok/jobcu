@@ -232,6 +232,24 @@
    }
   },
   {
+   "name": "Black Semiconductor",
+   "system": "ashby",
+   "board": "blacksemiconductor",
+   "countries": [
+    "DE",
+    "NL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Aachen"
+    ],
+    "NL": [
+     "Zoetermeer"
+    ]
+   }
+  },
+  {
    "name": "ClickHouse",
    "system": "ashby",
    "board": "clickhouse",
@@ -539,6 +557,20 @@
    }
   },
   {
+   "name": "Foundational",
+   "system": "ashby",
+   "board": "foundational",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "London"
+    ]
+   }
+  },
+  {
    "name": "Granola",
    "system": "ashby",
    "board": "granola",
@@ -673,6 +705,20 @@
     ],
     "SE": [
      "Stockholm"
+    ]
+   }
+  },
+  {
+   "name": "Lumai",
+   "system": "ashby",
+   "board": "lumai",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Oxford"
     ]
    }
   },
@@ -842,6 +888,37 @@
     ],
     "GB": [
      "London"
+    ]
+   }
+  },
+  {
+   "name": "Neura Robotics",
+   "system": "ashby",
+   "board": "neura-robotics-gmbh",
+   "countries": [
+    "CH",
+    "DE",
+    "ES",
+    "FR",
+    "IT"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "CH": [
+     "Zürich"
+    ],
+    "DE": [
+     "Aachen",
+     "Bielefeld",
+     "Hamburg",
+     "Heilbronn",
+     "Karlsruhe",
+     "Metzingen",
+     "Munich",
+     "Stuttgart"
+    ],
+    "FR": [
+     "Paris"
     ]
    }
   },
@@ -1395,6 +1472,20 @@
     ],
     "IE": [
      "Dublin"
+    ]
+   }
+  },
+  {
+   "name": "Tactilia Robotics",
+   "system": "ashby",
+   "board": "tactiliarobotics",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Munich"
     ]
    }
   },
@@ -3696,6 +3787,21 @@
    }
   },
   {
+   "name": "Graphcore (early careers)",
+   "system": "greenhouse",
+   "board": "graphcore-early-careers",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Bristol",
+     "London"
+    ]
+   }
+  },
+  {
    "name": "HelloFresh",
    "system": "greenhouse",
    "board": "hellofresh",
@@ -4569,6 +4675,24 @@
    }
   },
   {
+   "name": "Rocket Factory Augsburg",
+   "system": "greenhouse",
+   "board": "rocketfactoryaugsburgag",
+   "countries": [
+    "DE",
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Augsburg"
+    ],
+    "GB": [
+     "Inverness"
+    ]
+   }
+  },
+  {
    "name": "Rockstar Games",
    "system": "greenhouse",
    "board": "rockstargames",
@@ -4639,6 +4763,30 @@
      "Berlin",
      "Bonn",
      "Munich"
+    ]
+   }
+  },
+  {
+   "name": "SiTime",
+   "system": "greenhouse",
+   "board": "sitimecorporation",
+   "countries": [
+    "DE",
+    "FI",
+    "FR",
+    "GB",
+    "NL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Munich"
+    ],
+    "FI": [
+     "Espoo"
+    ],
+    "NL": [
+     "Rijswijk"
     ]
    }
   },
@@ -6174,6 +6322,17 @@
    "jobs": "fuseaction=einzel&jid=(\\d+)"
   },
   {
+   "name": "Jenaer Antriebstechnik (JAT)",
+   "system": "listpage",
+   "board": "https://job.jat-gmbh.de/de/stellenangebote.html",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "-j(\\d+)\\.html"
+  },
+  {
    "name": "Pfisterer",
    "system": "listpage",
    "board": "https://www.pfisterer.com/de/stellenangebote",
@@ -6183,6 +6342,17 @@
    "elsewhere": false,
    "towns": {},
    "jobs": "mhm\\.jobs/(\\d+)-"
+  },
+  {
+   "name": "VACUUMSCHMELZE",
+   "system": "listpage",
+   "board": "https://jobs.vacuumschmelze.de/stellenangebote.html",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "-j(\\d+)\\.html"
   },
   {
    "name": "Würth Elektronik",
@@ -7223,6 +7393,20 @@
    }
   },
   {
+   "name": "Hive Robotics",
+   "system": "personio",
+   "board": "hive-robotics.jobs.personio.com",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Munich"
+    ]
+   }
+  },
+  {
    "name": "Mynaric",
    "system": "personio",
    "board": "mynaric",
@@ -7260,6 +7444,38 @@
    }
   },
   {
+   "name": "Quantum Motion",
+   "system": "personio",
+   "board": "quantummotion.jobs.personio.com",
+   "countries": [
+    "ES",
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "ES": [
+     "Donostia / San Sebastián"
+    ],
+    "GB": [
+     "London"
+    ]
+   }
+  },
+  {
+   "name": "quantune technologies",
+   "system": "personio",
+   "board": "quantune.jobs.personio.com",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Berlin"
+    ]
+   }
+  },
+  {
    "name": "ROHM Semiconductor",
    "system": "personio",
    "board": "rohm-semiconductor",
@@ -7270,6 +7486,20 @@
    "towns": {
     "DE": [
      "Stuttgart"
+    ]
+   }
+  },
+  {
+   "name": "sivonic",
+   "system": "personio",
+   "board": "sivonic.jobs.personio.com",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Halle (Saale)"
     ]
    }
   },
@@ -7379,6 +7609,42 @@
     ],
     "SE": [
      "Stockholm"
+    ]
+   }
+  },
+  {
+   "name": "Swissbit",
+   "system": "personio",
+   "board": "swissbit",
+   "countries": [
+    "CH",
+    "DE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "CH": [
+     "Bronschhofen"
+    ],
+    "DE": [
+     "Berlin",
+     "Dresden",
+     "Hamburg",
+     "Konstanz",
+     "Munich"
+    ]
+   }
+  },
+  {
+   "name": "twentyfour industries",
+   "system": "personio",
+   "board": "twentyfour-industries.jobs.personio.com",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Munich"
     ]
    }
   },
@@ -8076,6 +8342,35 @@
     "GB": [
      "Leicester",
      "London"
+    ]
+   }
+  },
+  {
+   "name": "Quantum-Systems",
+   "system": "recruitee",
+   "board": "career.quantum-systems.com",
+   "countries": [
+    "DE",
+    "GB",
+    "RO"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Berlin",
+     "Bonn",
+     "Gilching",
+     "Göppingen",
+     "Munich",
+     "Rostock",
+     "Weßling"
+    ],
+    "GB": [
+     "London"
+    ],
+    "RO": [
+     "Braşov",
+     "Bucharest"
     ]
    }
   },
@@ -8779,6 +9074,136 @@
    }
   },
   {
+   "name": "Delta Electronics",
+   "system": "smartrecruiters",
+   "board": "DeltaElectronics",
+   "countries": [
+    "AT",
+    "DE",
+    "ES",
+    "GB",
+    "HR",
+    "IT",
+    "NL",
+    "PL",
+    "RO",
+    "SE",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Vienna"
+    ],
+    "DE": [
+     "Berlin",
+     "Frankfurt am Main",
+     "Soest",
+     "Stuttgart"
+    ],
+    "ES": [
+     "Madrid"
+    ],
+    "GB": [
+     "East Kilbride",
+     "Glasgow",
+     "Hemel Hempstead"
+    ],
+    "HR": [
+     "Zagreb"
+    ],
+    "IT": [
+     "Rome"
+    ],
+    "NL": [
+     "Helmond",
+     "Hoofddorp"
+    ],
+    "PL": [
+     "Warsaw"
+    ],
+    "RO": [
+     "Arad"
+    ],
+    "SE": [
+     "Stockholm"
+    ],
+    "SK": [
+     "Dubnica nad Váhom"
+    ]
+   }
+  },
+  {
+   "name": "Elatec",
+   "system": "smartrecruiters",
+   "board": "ElatecGmbH",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Puchheim"
+    ]
+   }
+  },
+  {
+   "name": "Energym",
+   "system": "smartrecruiters",
+   "board": "Energym1",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Shirley"
+    ]
+   }
+  },
+  {
+   "name": "General Dynamics UK",
+   "system": "smartrecruiters",
+   "board": "GDMSI",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Hastings"
+    ]
+   }
+  },
+  {
+   "name": "Integral Powertrain",
+   "system": "smartrecruiters",
+   "board": "IntegralPowertrainLimited",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Milton Keynes"
+    ]
+   }
+  },
+  {
+   "name": "Pektron",
+   "system": "smartrecruiters",
+   "board": "PektronGroupLtd",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Derby"
+    ]
+   }
+  },
+  {
    "name": "Ramboll",
    "system": "smartrecruiters",
    "board": "Ramboll3",
@@ -8998,6 +9423,21 @@
    }
   },
   {
+   "name": "TTP",
+   "system": "smartrecruiters",
+   "board": "TTP1",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Cambridge",
+     "Melbourn"
+    ]
+   }
+  },
+  {
    "name": "Wabtec",
    "system": "smartrecruiters",
    "board": "Wabtec",
@@ -9095,6 +9535,20 @@
    }
   },
   {
+   "name": "White Lab",
+   "system": "smartrecruiters",
+   "board": "WhiteLab",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "London"
+    ]
+   }
+  },
+  {
    "name": "XP Power",
    "system": "smartrecruiters",
    "board": "XPPower2",
@@ -9124,6 +9578,16 @@
      "Frankfurt (Oder)"
     ]
    }
+  },
+  {
+   "name": "F & S Prozessautomation",
+   "system": "softgarden",
+   "board": "fs-group",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {}
   },
   {
    "name": "Kontron",
@@ -9163,6 +9627,37 @@
     ],
     "SE": [
      "Stockholm"
+    ]
+   }
+  },
+  {
+   "name": "MagnoTherm",
+   "system": "softgarden",
+   "board": "magnotherm",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Darmstadt"
+    ]
+   }
+  },
+  {
+   "name": "Plath Group (Testwerk)",
+   "system": "softgarden",
+   "board": "careerplathgroup",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Gilching",
+     "Hamburg",
+     "Norderstedt",
+     "Pforzheim"
     ]
    }
   },
@@ -9404,6 +9899,174 @@
    }
   },
   {
+   "name": "AMETEK",
+   "system": "successfactors",
+   "board": "jobs.ametek.com",
+   "countries": [
+    "BE",
+    "CZ",
+    "DE",
+    "DK",
+    "ES",
+    "FR",
+    "GB",
+    "IT",
+    "PL",
+    "PT"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "BE": [
+     "Zele"
+    ],
+    "CZ": [
+     "Ostrava"
+    ],
+    "DE": [
+     "Bonndorf",
+     "Donaueschingen",
+     "Kamen",
+     "Kleve",
+     "Korntal",
+     "Leinfelden-Echterdingen",
+     "Linsengericht",
+     "Meerbusch",
+     "Neuwied"
+    ],
+    "DK": [
+     "Ballerup",
+     "Ringsted"
+    ],
+    "ES": [
+     "San Diego",
+     "Sant Lluís"
+    ],
+    "FR": [
+     "Campsas",
+     "Gennevilliers",
+     "Laval",
+     "Orange",
+     "Sales",
+     "Élancourt",
+     "Évry"
+    ],
+    "GB": [
+     "Bedford",
+     "Bognor Regis",
+     "Chelmsford",
+     "Dronfield",
+     "Durham",
+     "Exton",
+     "Holbrook",
+     "Horsham",
+     "Houston",
+     "Irvine",
+     "Lancaster",
+     "Leicester",
+     "Luton",
+     "Mansfield",
+     "Milford",
+     "Newark on Trent",
+     "Ramsgate",
+     "Richmond",
+     "Rochester",
+     "Sunbury-on-Thames",
+     "Torrance",
+     "Wallingford",
+     "Winston",
+     "Woodstock",
+     "Wrexham"
+    ],
+    "IT": [
+     "Aurora",
+     "Peschiera del Garda"
+    ],
+    "PL": [
+     "Siechnice",
+     "Warsaw"
+    ],
+    "PT": [
+     "Santa Clara"
+    ]
+   }
+  },
+  {
+   "name": "AVL",
+   "system": "successfactors",
+   "board": "jobs.avl.com",
+   "countries": [
+    "AT",
+    "CZ",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "HR",
+    "HU",
+    "IT",
+    "RO",
+    "SE",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Graz"
+    ],
+    "CZ": [
+     "Mladá Boleslav"
+    ],
+    "DE": [
+     "Cadolzburg",
+     "Großmehring",
+     "Ingolstadt",
+     "Mainz",
+     "Munich",
+     "Neuenstadt am Kocher",
+     "Neuss",
+     "Regensburg",
+     "Remscheid",
+     "Roding",
+     "Stuttgart",
+     "Wolfsburg"
+    ],
+    "ES": [
+     "Barcelona",
+     "Mataró",
+     "Valladolid"
+    ],
+    "FR": [
+     "Lardy",
+     "Palaiseau"
+    ],
+    "GB": [
+     "Plymouth"
+    ],
+    "HR": [
+     "Zagreb"
+    ],
+    "HU": [
+     "Budapest",
+     "Érd"
+    ],
+    "IT": [
+     "Cavriago",
+     "Turin"
+    ],
+    "RO": [
+     "Bucharest"
+    ],
+    "SE": [
+     "Gothenburg",
+     "Haninge",
+     "Stockholm"
+    ],
+    "SK": [
+     "Šaľa"
+    ]
+   }
+  },
+  {
    "name": "B. Braun",
    "system": "successfactors",
    "board": "jobs.bbraun.com",
@@ -9544,6 +10207,62 @@
     ],
     "SK": [
      "Bratislava"
+    ]
+   }
+  },
+  {
+   "name": "Babcock",
+   "system": "successfactors",
+   "board": "jobs.babcockinternational.com",
+   "countries": [
+    "GB",
+    "IE",
+    "RO"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Barrow in Furness",
+     "Belfast",
+     "Bordon",
+     "Bristol",
+     "Camberley",
+     "Corsham",
+     "Darlington",
+     "Glasgow",
+     "Gloucester",
+     "Halifax",
+     "Harrogate",
+     "Helensburgh",
+     "Holyhead",
+     "Kensington",
+     "Kingston upon Hull",
+     "Leicester",
+     "Lincoln",
+     "London",
+     "Lyneham",
+     "Newbridge",
+     "Nottingham",
+     "Peterborough",
+     "Richmond",
+     "Rosyth",
+     "Salisbury",
+     "Shrewsbury",
+     "Stevenage",
+     "Swindon",
+     "Taunton",
+     "Telford",
+     "Walsall",
+     "Wareham",
+     "Warminster",
+     "Warrington",
+     "Wolverhampton"
+    ],
+    "IE": [
+     "Crumlin"
+    ],
+    "RO": [
+     "Victoria"
     ]
    }
   },
@@ -9805,6 +10524,33 @@
    }
   },
   {
+   "name": "Bugatti Rimac",
+   "system": "successfactors",
+   "board": "careers.rimac-automobili.com",
+   "countries": [
+    "DE",
+    "FR",
+    "GB",
+    "HR"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Berlin"
+    ],
+    "FR": [
+     "Molsheim"
+    ],
+    "GB": [
+     "Witney"
+    ],
+    "HR": [
+     "Kerestinec",
+     "Zagreb"
+    ]
+   }
+  },
+  {
    "name": "Celestica",
    "system": "successfactors",
    "board": "careers.celestica.com",
@@ -9837,6 +10583,24 @@
     ],
     "RO": [
      "Oradea"
+    ]
+   }
+  },
+  {
+   "name": "Codan",
+   "system": "successfactors",
+   "board": "careers.codan.com.au",
+   "countries": [
+    "FR",
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "FR": [
+     "Sales"
+    ],
+    "GB": [
+     "Kingston upon Hull"
     ]
    }
   },
@@ -10147,6 +10911,102 @@
    }
   },
   {
+   "name": "Enercon",
+   "system": "successfactors",
+   "board": "career.enercon.de",
+   "countries": [
+    "AT",
+    "BE",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "GR",
+    "HR",
+    "IE",
+    "PT",
+    "RO",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Dürnstein",
+     "Halbturn",
+     "Parndorf"
+    ],
+    "BE": [
+     "Antwerp",
+     "Lokeren"
+    ],
+    "DE": [
+     "Alsfeld",
+     "Altentreptow",
+     "Alzey",
+     "Aurich",
+     "Bremen",
+     "Brilon",
+     "Dülmen",
+     "Gescher",
+     "Gotha",
+     "Hof",
+     "Issum",
+     "Kamen",
+     "Kettenkamp",
+     "Lichtenau",
+     "Magdeburg",
+     "Mainz",
+     "Marsberg",
+     "Ottobeuren",
+     "Paderborn",
+     "Waldbüttelbrunn",
+     "Waldkirch",
+     "Warburg",
+     "Wardenburg",
+     "Warendorf",
+     "Werl"
+    ],
+    "ES": [
+     "Barcelona",
+     "Las Palmas de Gran Canaria"
+    ],
+    "FR": [
+     "Montréal",
+     "Narbonne"
+    ],
+    "GB": [
+     "Edinburgh",
+     "Huntingdon",
+     "Inverurie",
+     "Keith",
+     "Perth",
+     "Swansea",
+     "Windsor"
+    ],
+    "GR": [
+     "Athens",
+     "Thívai",
+     "Ámfissa"
+    ],
+    "HR": [
+     "Šibenik"
+    ],
+    "IE": [
+     "Tralee"
+    ],
+    "PT": [
+     "Maia",
+     "Viana do Castelo"
+    ],
+    "RO": [
+     "Constanţa"
+    ],
+    "SE": [
+     "Eslöv"
+    ]
+   }
+  },
+  {
    "name": "ESB",
    "system": "successfactors",
    "board": "careers.esb.ie",
@@ -10334,6 +11194,40 @@
    }
   },
   {
+   "name": "Goldwind",
+   "system": "successfactors",
+   "board": "careers.goldwind.com",
+   "countries": [
+    "DE",
+    "DK",
+    "GB",
+    "IT",
+    "PT",
+    "RO"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Frankfurt am Main"
+    ],
+    "DK": [
+     "Århus"
+    ],
+    "GB": [
+     "Melbourne"
+    ],
+    "IT": [
+     "Milan"
+    ],
+    "PT": [
+     "São Paulo de Frades"
+    ],
+    "RO": [
+     "Bucharest"
+    ]
+   }
+  },
+  {
    "name": "HARTING",
    "system": "successfactors",
    "board": "jobs.harting.com",
@@ -10441,6 +11335,39 @@
    }
   },
   {
+   "name": "Heraeus",
+   "system": "successfactors",
+   "board": "mycareer.heraeus.com",
+   "countries": [
+    "CH",
+    "CZ",
+    "DE",
+    "ES"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "CH": [
+     "Mendrisio"
+    ],
+    "CZ": [
+     "Hradec Králové"
+    ],
+    "DE": [
+     "Bitterfeld-Wolfen",
+     "Dresden",
+     "Hanau am Main",
+     "Karlstein",
+     "Kleinostheim",
+     "Leverkusen",
+     "Wehrheim",
+     "Wurmberg"
+    ],
+    "ES": [
+     "Santa Fe de Mondújar"
+    ]
+   }
+  },
+  {
    "name": "Jaguar Land Rover",
    "system": "successfactors",
    "board": "www.jaguarlandrovercareers.com",
@@ -10486,6 +11413,25 @@
     "GB": [
      "Farnborough",
      "Rochester"
+    ]
+   }
+  },
+  {
+   "name": "Kannegiesser",
+   "system": "successfactors",
+   "board": "jobs.kannegiesser.com",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Augsburg",
+     "Bad Schlema",
+     "Hoya",
+     "Kalletal",
+     "Sarstedt",
+     "Vlotho"
     ]
    }
   },
@@ -10982,6 +11928,49 @@
    }
   },
   {
+   "name": "Mersen",
+   "system": "successfactors",
+   "board": "jobs.mersen.com",
+   "countries": [
+    "AT",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "HU"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Hittisau"
+    ],
+    "DE": [
+     "Bad Homburg vor der Höhe",
+     "Eggolsheim",
+     "Salem",
+     "Suhl"
+    ],
+    "ES": [
+     "Melilla"
+    ],
+    "FR": [
+     "Amiens",
+     "Bazet",
+     "Gennevilliers",
+     "La Mure",
+     "Pagny-sur-Moselle",
+     "Verrières"
+    ],
+    "GB": [
+     "Holytown",
+     "Rochester"
+    ],
+    "HU": [
+     "Kaposvár"
+    ]
+   }
+  },
+  {
    "name": "Murata",
    "system": "successfactors",
    "board": "jobs.murata.com",
@@ -11174,6 +12163,35 @@
     ],
     "SE": [
      "Stockholm"
+    ]
+   }
+  },
+  {
+   "name": "Power Electronics",
+   "system": "successfactors",
+   "board": "jobs.power-electronics.com",
+   "countries": [
+    "ES",
+    "GB",
+    "IT"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "ES": [
+     "Higueruelas",
+     "Llíria",
+     "Valencia",
+     "el Pla del Penedès"
+    ],
+    "GB": [
+     "Durham",
+     "Houston",
+     "Portland",
+     "Stockton",
+     "Washington"
+    ],
+    "IT": [
+     "Ferrara"
     ]
    }
   },
@@ -11718,6 +12736,35 @@
     "DE": [
      "Twistringen",
      "Wildpoldsried"
+    ]
+   }
+  },
+  {
+   "name": "STIHL",
+   "system": "successfactors",
+   "board": "jobs.stihl.com",
+   "countries": [
+    "DE",
+    "GB",
+    "IE",
+    "IT"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Fellbach",
+     "Ludwigsburg",
+     "Waiblingen",
+     "Weinsheim"
+    ],
+    "GB": [
+     "Hillsborough"
+    ],
+    "IE": [
+     "Virginia"
+    ],
+    "IT": [
+     "Aurora"
     ]
    }
   },
@@ -12754,6 +13801,98 @@
    }
   },
   {
+   "name": "Breathe Battery Technologies",
+   "system": "teamtailor",
+   "board": "breathebatterytechnologies",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "London"
+    ]
+   }
+  },
+  {
+   "name": "BYD Europe",
+   "system": "teamtailor",
+   "board": "careers.bydeurope.com",
+   "countries": [
+    "AT",
+    "CH",
+    "CZ",
+    "DE",
+    "DK",
+    "ES",
+    "FR",
+    "GB",
+    "HR",
+    "HU",
+    "IT",
+    "NL",
+    "NO",
+    "PL",
+    "RO"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "AT": [
+     "Vienna"
+    ],
+    "CH": [
+     "Zug"
+    ],
+    "CZ": [
+     "Prague"
+    ],
+    "DE": [
+     "Berlin",
+     "Dortmund",
+     "Frankfurt am Main",
+     "Hamburg",
+     "Munich",
+     "Offenbach",
+     "Sittensen"
+    ],
+    "DK": [
+     "Copenhagen"
+    ],
+    "ES": [
+     "Madrid"
+    ],
+    "FR": [
+     "Courbevoie",
+     "Paris"
+    ],
+    "GB": [
+     "Hounslow",
+     "Uxbridge"
+    ],
+    "HR": [
+     "Zagreb"
+    ],
+    "HU": [
+     "Budapest"
+    ],
+    "IT": [
+     "Milan"
+    ],
+    "NL": [
+     "Hoofddorp"
+    ],
+    "NO": [
+     "Oslo"
+    ],
+    "PL": [
+     "Warsaw"
+    ],
+    "RO": [
+     "Bucharest"
+    ]
+   }
+  },
+  {
    "name": "Combine",
    "system": "teamtailor",
    "board": "combine",
@@ -13126,6 +14265,47 @@
    }
   },
   {
+   "name": "Malloy Aeronautics",
+   "system": "teamtailor",
+   "board": "malloyaeronautics",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Maidenhead"
+    ]
+   }
+  },
+  {
+   "name": "Marshall",
+   "system": "teamtailor",
+   "board": "careers.marshall.com",
+   "countries": [
+    "DE",
+    "GB",
+    "PL",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Munich"
+    ],
+    "GB": [
+     "London",
+     "Milton Keynes"
+    ],
+    "PL": [
+     "Warsaw"
+    ],
+    "SE": [
+     "Stockholm"
+    ]
+   }
+  },
+  {
    "name": "neuefische",
    "system": "teamtailor",
    "board": "hrneuefische",
@@ -13152,6 +14332,34 @@
     "DE": [
      "Berlin",
      "Konstanz"
+    ]
+   }
+  },
+  {
+   "name": "Open Cosmos",
+   "system": "teamtailor",
+   "board": "careers.open-cosmos.com",
+   "countries": [
+    "ES",
+    "GB",
+    "GR",
+    "PT"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "ES": [
+     "Barcelona",
+     "La Laguna"
+    ],
+    "GB": [
+     "Didcot"
+    ],
+    "GR": [
+     "Pallíni"
+    ],
+    "PT": [
+     "Coimbra",
+     "Porto"
     ]
    }
   },
@@ -13374,6 +14582,20 @@
    }
   },
   {
+   "name": "Cambridge GaN Devices",
+   "system": "workable",
+   "board": "cambridge-gan-devices",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Cambridge"
+    ]
+   }
+  },
+  {
    "name": "Enjins",
    "system": "workable",
    "board": "enjins",
@@ -13442,6 +14664,23 @@
    }
   },
   {
+   "name": "Filtronic",
+   "system": "workable",
+   "board": "filtronic",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Cambridge",
+     "High Peak",
+     "Sedgefield",
+     "Yeadon"
+    ]
+   }
+  },
+  {
    "name": "Hugging Face",
    "system": "workable",
    "board": "huggingface",
@@ -13485,6 +14724,20 @@
    }
   },
   {
+   "name": "Mesa Quantum Systems",
+   "system": "workable",
+   "board": "mesa-quantum-systems",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "London"
+    ]
+   }
+  },
+  {
    "name": "Nua Manufacturing",
    "system": "workable",
    "board": "nuamanufacturing",
@@ -13509,6 +14762,25 @@
    "towns": {
     "GB": [
      "Belfast"
+    ]
+   }
+  },
+  {
+   "name": "Oxford Quantum Circuits",
+   "system": "workable",
+   "board": "oxford-quantum-circuits-8",
+   "countries": [
+    "ES",
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "ES": [
+     "Barcelona"
+    ],
+    "GB": [
+     "London",
+     "Reading"
     ]
    }
   },
@@ -16580,6 +17852,84 @@
    }
   },
   {
+   "name": "Dover",
+   "system": "workday",
+   "board": "https://dover.wd103.myworkdayjobs.com/Dover",
+   "countries": [
+    "BE",
+    "CH",
+    "CZ",
+    "DE",
+    "DK",
+    "ES",
+    "FR",
+    "GB",
+    "IT",
+    "NL",
+    "PL",
+    "RO",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "BE": [
+     "Turnhout"
+    ],
+    "CH": [
+     "Zürich"
+    ],
+    "CZ": [
+     "Pilsen"
+    ],
+    "DE": [
+     "Bremen",
+     "Duisburg",
+     "Finning",
+     "Gladenbach",
+     "Großostheim",
+     "Heppenheim an der Bergstrasse",
+     "Oberlungwitz",
+     "Xanten"
+    ],
+    "ES": [
+     "Cerdanyola del Vallès",
+     "Valencia"
+    ],
+    "FR": [
+     "Auxerre",
+     "Bourg-lès-Valence",
+     "Cachan",
+     "Dijon"
+    ],
+    "GB": [
+     "Dundee",
+     "Glasgow",
+     "Nottingham",
+     "Sheffield",
+     "Skelmersdale",
+     "Skipton",
+     "York"
+    ],
+    "IT": [
+     "Milan",
+     "Padua"
+    ],
+    "NL": [
+     "Bladel",
+     "Heerhugowaard",
+     "Nieuw-Vennep"
+    ],
+    "RO": [
+     "Bucharest"
+    ],
+    "SE": [
+     "Gothenburg",
+     "Kungsör",
+     "Landskrona"
+    ]
+   }
+  },
+  {
    "name": "Dyson (dyson_careers)",
    "system": "workday",
    "board": "https://dyson.wd3.myworkdayjobs.com/dyson_careers",
@@ -16706,6 +18056,20 @@
     "PT": [
      "Lisbon",
      "Porto"
+    ]
+   }
+  },
+  {
+   "name": "elobau",
+   "system": "workday",
+   "board": "https://elobau.wd502.myworkdayjobs.com/elobau",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Leutkirch"
     ]
    }
   },
@@ -21040,6 +22404,22 @@
    }
   },
   {
+   "name": "Multimatic",
+   "system": "workday",
+   "board": "https://multimatic.wd10.myworkdayjobs.com/MMEC",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Cambridge",
+     "Coventry",
+     "Thetford"
+    ]
+   }
+  },
+  {
    "name": "Nexperia",
    "system": "workday",
    "board": "https://nexperia.wd3.myworkdayjobs.com/careers",
@@ -21536,6 +22916,20 @@
     ],
     "SE": [
      "Stockholm"
+    ]
+   }
+  },
+  {
+   "name": "Pickering",
+   "system": "workday",
+   "board": "https://pickering.wd107.myworkdayjobs.com/Pickering_Portal",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Clacton-on-Sea"
     ]
    }
   },
@@ -23084,6 +24478,24 @@
    }
   },
   {
+   "name": "Spellman High Voltage Electronics",
+   "system": "workday",
+   "board": "https://spellmanhv.wd1.myworkdayjobs.com/SpellmanHVCareers",
+   "countries": [
+    "DE",
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Bochum"
+    ],
+    "GB": [
+     "Pulborough"
+    ]
+   }
+  },
+  {
    "name": "State Street",
    "system": "workday",
    "board": "https://statestreet.wd1.myworkdayjobs.com/Global",
@@ -23901,6 +25313,65 @@
    "towns": {
     "DE": [
      "Braunschweig"
+    ]
+   }
+  },
+  {
+   "name": "TTI Europe",
+   "system": "workday",
+   "board": "https://ttiemea.wd3.myworkdayjobs.com/TTI",
+   "countries": [
+    "AT",
+    "BE",
+    "CH",
+    "CZ",
+    "DE",
+    "DK",
+    "ES",
+    "GB",
+    "HR",
+    "HU",
+    "IT",
+    "NL",
+    "PL",
+    "PT",
+    "RO"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Vienna"
+    ],
+    "CH": [
+     "Zollikofen"
+    ],
+    "DE": [
+     "Hilden",
+     "Winnenden"
+    ],
+    "DK": [
+     "Hvidovre"
+    ],
+    "ES": [
+     "Madrid"
+    ],
+    "GB": [
+     "Droitwich",
+     "Maidenhead",
+     "Marlow"
+    ],
+    "HR": [
+     "Zagreb"
+    ],
+    "IT": [
+     "Cinisello Balsamo"
+    ],
+    "NL": [
+     "Dordrecht"
+    ],
+    "PL": [
+     "Blizne",
+     "Warsaw"
     ]
    }
   },
