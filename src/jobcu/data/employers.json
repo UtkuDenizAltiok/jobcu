@@ -8941,6 +8941,18 @@
    "towns": {}
   },
   {
+   "name": "Ricardo",
+   "system": "sitemap",
+   "board": "https://careers-ricardo.icims.com/sitemap.xml",
+   "countries": [
+    "CZ",
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "/jobs/(\\d+)/[^/]+/job$"
+  },
+  {
    "name": "TT Electronics",
    "system": "sitemap",
    "board": "https://global-portal-ttelectronics.icims.com/sitemap.xml",

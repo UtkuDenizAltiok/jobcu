@@ -91,6 +91,29 @@ Directory membership does not establish reachable vacancies or engineering recal
 
 ## Access and protocol records
 
+### Job pages that show their ad in a frame: iCIMS career sites — 2026-11-26
+
+An iCIMS career site (`{company}.icims.com`) lists its jobs in a sitemap
+(`/sitemap.xml`: `/jobs/{number}/{title}/job` with each job's last change) and its robots.txt
+closes only referral, login, candidate, reminder and "connect" pages. A job's page carries no
+job data itself: it embeds a frame from the same site (`/jobs/6336/manufacturing-engineer/job?in_iframe=1`),
+and that frame has the whole ad with JobPosting data (title, posting day, town, country, type).
+The sitemap and list-page readers now read the frame a page embeds from its own site when the
+page has no job data (as a browser shows it; one more request, only for such pages); the job
+keeps its page's address for the person's link. Frames of other sites (video, analytics) are
+never read.
+
+Added: **TT Electronics** (power modules and electronics manufacturing in Bedlington, Rochdale,
+Manchester and Eastleigh; `global-portal-ttelectronics.icims.com`, 65 jobs, 12 in the UK of the
+20 newest; its website terms, linked from the portal, say nothing of automated reading),
+**Bruker** (scientific instruments; electronics development in Berlin, Hamburg, Bremen,
+Karlsruhe, Leipzig: `germancareers-bruker.icims.com`, 47 jobs, and
+`internationalcareers-bruker.icims.com`, 150) and **Ricardo** (engineering consultancy;
+power-electronics and controls graduate roles in Leamington Spa and Shoreham:
+`careers-ricardo.icims.com`, 13 jobs). A live read with an electronics engineer's search words
+over 30 days gave Bruker's "Hardwareentwickler Elektronik" (Leipzig) with its full ad. The
+iCIMS sites of Schneider Electric, Arm and AMD stay unread: their robots.txt closes them.
+
 ### Electronics and power employers read from their own sites — 2026-11-26
 
 Nineteen employers in electronics, power conversion, drives and automation in Germany and the UK
