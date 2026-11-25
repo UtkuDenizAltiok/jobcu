@@ -91,6 +91,37 @@ Directory membership does not establish reachable vacancies or engineering recal
 
 ## Access and protocol records
 
+### Pinpoint career sites, and BambooHR — 2026-11-25
+
+**Pinpoint.** A company's feed, `https://{company}.pinpointhq.com/postings.json` (or the same
+address on a career site of the company's own that Pinpoint serves: Sagentia's
+`careers.sagentia.com`, OCU Group's `careers.ocugroup.com`), lists every published job with its
+title, place (town, county, postcode), type, workplace (on site, hybrid, remote), closing time and
+the whole ad as the career page shows it (description, responsibilities, skills, benefits). robots.txt
+closes only `/mydata`, `/admin` and `/companies`. The feed gives no posting date; each job's page
+carries JobPosting data with the exact posting time and the country. Pinpoint's own terms for
+visitors weren't found; the feed is what each company's career page itself loads. Jobcu reads the
+feed (one request a company and search), notes each job's first sight (`listmemory`), opens the
+pages of the jobs whose titles match the search words (at most 30 a company, remembered once read)
+for their posting time, and gives the titles the words miss to the person's AI when the job is new
+on the list. A UK postcode or an Eircode in the place gives the country. Pinpoint addresses in job
+sites' links are recognised, so more such employers are learned by themselves.
+
+FreeHire's catalogue (hardware, embedded and engineering-design ads on Pinpoint) named 13 UK
+employers, one in Ireland, none in Germany. Checked once each with `tools/check_employers.py`:
+Rowden Technologies (47 jobs in the UK; RF hardware), OCU Group (82; a graduate design engineer
+scheme), Alternative Heat (29 UK, 14 Ireland, 3 Germany; electrical design), Plessey (22), Sagentia
+(20; electronics engineers), AccelerComm (15), Aston Martin F1 (13), inMusic Brands (5), LiveLink
+Aerospace (2; an electronics engineer in Havant), OxTS (1; a senior electronics engineer). Thermon's
+robots.txt closes its feed: not read.
+
+**BambooHR not read.** A company's list (`{company}.bamboohr.com/careers/list`, JSON without dates,
+each job's `careers/{id}/detail` with its day) answers and robots.txt allows everything, but
+BambooHR's [terms of service](https://www.bamboohr.com/legal/terms-of-service) forbid using "any
+robot, spider, other automated device, or manual process to monitor or copy any content from the
+Service", and only one employer in the field was seen on it (OPAL-RT, power-electronics
+simulation, its UK jobs few). Not built; reconsider only with many more employers in the field.
+
 ### Mercedes-Benz's job sitemap, and sitemaps whose addresses name no job — 2026-11-25
 
 **Access.** `jobs.mercedes-benz.com/robots.txt` allows every robot everything and names its

@@ -7,6 +7,10 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- Pinpoint career sites are read (one request a company; full ads, the job page for the exact
+  posting time), and learned from job links: ten UK employers to start with, Rowden Technologies,
+  OCU Group's graduate design scheme, Alternative Heat, Plessey, Sagentia, AccelerComm, Aston
+  Martin F1, inMusic, LiveLink Aerospace and OxTS. BambooHR isn't read (its terms forbid robots).
 - Employers on SmartRecruiters are found by themselves, from job sites' links and the person's
   AI's employer look-up, for a person who accepted SmartRecruiters' terms; for anyone else their
   lists are never read, not even to check them.

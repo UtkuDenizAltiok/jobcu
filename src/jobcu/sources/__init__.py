@@ -27,6 +27,7 @@ from jobcu.sources.nhsjobs import NhsJobsSource
 from jobcu.sources.oracle import OracleSource
 from jobcu.sources.personio import PersonioSource
 from jobcu.sources.phenom import PhenomSource
+from jobcu.sources.pinpoint import PinpointSource
 from jobcu.sources.prospective import ProspectiveSource
 from jobcu.sources.recruitee import RecruiteeSource
 from jobcu.sources.reed import ReedSource
@@ -82,8 +83,8 @@ def career_sources() -> list[CareerSystemSource]:
     """Company career systems, read for the employers in the employer directory."""
     return [AshbySource(), AvatureSource(), DvinciSource(), EightfoldSource(),
             GreenhouseSource(), JibeSource(), LeverSource(), ListPageSource(), OracleSource(),
-            PersonioSource(), PhenomSource(), ProspectiveSource(), RecruiteeSource(),
-            SitemapSource(), SmartRecruitersSource(), SoftgardenSource(),
+            PersonioSource(), PhenomSource(), PinpointSource(), ProspectiveSource(),
+            RecruiteeSource(), SitemapSource(), SmartRecruitersSource(), SoftgardenSource(),
             SuccessFactorsSource(), TeamtailorSource(), WorkableSource(), WorkdaySource()]
 
 

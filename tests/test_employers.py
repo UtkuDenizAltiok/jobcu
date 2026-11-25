@@ -55,6 +55,7 @@ NURSE = Profile.model_validate({
      ("smartrecruiters", "AcmeGroup1")),
     ("https://careers.smartrecruiters.com/AcmeGroup1", ("smartrecruiters", "AcmeGroup1")),
     ("https://jobs.smartrecruiters.com/api/x", None),
+    ("https://acme-radio.pinpointhq.com/en/postings/0c1d2e3f", ("pinpoint", "acme-radio")),
     ("https://jobs.example.com/careers?domain=example.com",
      ("eightfold", "jobs.example.com/example.com")),
     ("https://www.example.com/careers", None),
