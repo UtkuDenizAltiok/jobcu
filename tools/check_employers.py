@@ -122,10 +122,13 @@ def main() -> int:
                 continue
             hiring = sorted(code for code in counts if code not in (OTHER, "unknown"))
             # Only towns the town list knows tell where a company hires (careers.hires_near): a
-            # village a career site names (Teveren) can't be measured from.
-            towns = {code: sorted(town for town in survey.towns.get(code, ())
-                                  if places.find(town, code) is not None)
-                     for code in hiring}
+            # village a career site names (Teveren) can't be measured from. A survey that saw
+            # only some jobs records none: they'd make searches near the employer's other sites
+            # skip it (careers.Survey.sample).
+            towns = {} if survey.sample else {
+                code: sorted(town for town in survey.towns.get(code, ())
+                             if places.find(town, code) is not None)
+                for code in hiring}
             countries = hiring
             if key in existing and hiring:
                 # A country or town the employer hired in before stays: with no job there on
@@ -133,7 +136,7 @@ def main() -> int:
                 # next day would otherwise go unread until the following check.
                 countries = sorted(set(hiring) | set(entry.get("countries") or ()))
                 for code, earlier in (entry.get("towns") or {}).items():
-                    if code in countries:
+                    if code in countries and not survey.sample:
                         towns[code] = sorted(set(towns.get(code, ())) | set(earlier))
             towns = {code: found[:MAX_TOWNS] for code, found in towns.items()}
             line = (f"{system:10} {entry['name']:35} " +

@@ -177,10 +177,13 @@ def _country(value) -> str | None:
     for place in value if isinstance(value, list) else [value]:
         address = place.get("address") if isinstance(place, dict) else None
         country = address.get("addressCountry") if isinstance(address, dict) else None
-        if isinstance(country, dict):
-            country = country.get("name")
-        if country:
-            return str(country).strip()
+        # One address can name several places as lists (Rheinmetall: "addressLocality":
+        # ["Unterlüß", "Kiel"], "addressCountry": ["Germany"]).
+        for one in country if isinstance(country, list) else [country]:
+            if isinstance(one, dict):
+                one = one.get("name")
+            if isinstance(one, str) and one.strip():
+                return one.strip()
     return None
 
 
@@ -190,7 +193,8 @@ def _location(value) -> str | None:
     for place in places:
         address = place.get("address") if isinstance(place, dict) else None
         if isinstance(address, dict):
-            town = address.get("addressLocality") or address.get("addressRegion")
-            if town and town not in names:
-                names.append(str(town))
+            towns = address.get("addressLocality") or address.get("addressRegion")
+            for town in towns if isinstance(towns, list) else [towns]:
+                if isinstance(town, str) and town.strip() and town.strip() not in names:
+                    names.append(town.strip())
     return ", ".join(names) or None

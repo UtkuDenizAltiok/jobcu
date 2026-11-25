@@ -1394,6 +1394,16 @@ def test_the_shipped_directory_towns_are_real_places():
                 assert places.find(town, country) is not None, f"{entry.name}: {town}"
 
 
+def test_systems_surveyed_from_a_sample_record_no_towns_so_no_search_skips_them():
+    # A sitemap's newest twenty pages named 6 of Rheinmetall's German towns: recorded, they
+    # made a search near its other sites skip it (hires_near).
+    assert all(not entry.towns for entry in careers.load_directory()
+               if entry.system in ("sitemap", "avature"))
+    group = Employer("Group", "sitemap", "https://group.test/sitemap.xml", ("DE",))
+    munich = Place(name="Munich", local_name="München", country="DE", kind="city", radius_km=None)
+    assert careers.hires_near(group, ["DE"], [munich])
+
+
 def test_a_recruitee_career_site_on_the_employers_own_address_is_read_there():
     from jobcu.sources.careerlinks import own_address_board
 

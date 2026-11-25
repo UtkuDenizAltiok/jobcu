@@ -2,6 +2,7 @@
 
 import dataclasses
 import json
+import sys
 from datetime import UTC, datetime, timedelta
 
 import httpx
@@ -107,12 +108,109 @@ def test_fresh_matching_job_pages_are_read_from_the_sitemap(monkeypatch):
     assert not any(path.startswith(("/job-details/", "/jobs/")) for path in requested)
 
 
+LANGUAGES = ("de", "en", "it", "fr", "pt_br")
+MULTILINGUAL = "<?xml version='1.0'?><urlset>" + "".join(
+    f"<url><loc>https://group.test/{language}/job/{slug}</loc><lastmod>{stamp(NOW)}</lastmod></url>"
+    for slug in ("hardwareentwickler_elektronik__m_w_d_/101", "elektronikentwickler__m_w_d_/102")
+    for language in LANGUAGES) + "</urlset>"
+
+
+def multilingual_site(requested):
+    def handler(request):
+        path = request.url.path
+        requested.append(path)
+        if path == "/robots.txt":
+            return httpx.Response(200, text="User-agent: *\nDisallow: /it/job/\nDisallow: /fr/job/"
+                                            "\nDisallow: /pt_br/job/\n")
+        if path == "/sitemap.xml":
+            return httpx.Response(200, text=MULTILINGUAL)
+        if "/job/" in path:
+            title = "Hardwareentwickler Elektronik" if "/101" in path else "Elektronikentwickler"
+            return httpx.Response(200, text=page(title, "Kiel", "Germany", NOW - DAY))
+        return httpx.Response(404)
+
+    http = PoliteClient(min_intervals={}, sleep=lambda s: None,
+                        transport=httpx.MockTransport(handler))
+    return SourceContext(http, KeyStore(), SourceReport("sitemap", "Sitemaps"), lambda: False,
+                         lambda message: None)
+
+
+def test_a_job_listed_in_many_languages_is_opened_once_in_the_searched_countrys_language(
+        monkeypatch):
+    group = Employer("Example Group", "sitemap", "https://group.test/sitemap.xml", ("DE",))
+    monkeypatch.setattr(careers, "load_directory", lambda: (group,))
+    monkeypatch.setattr(sitemaps, "MAX_PAGES", 2)
+    terms = [SearchTerm(text="Elektronikentwickler", language="de", kind="job_title"),
+             SearchTerm(text="Hardwareentwickler", language="de", kind="job_title")]
+    requested = []
+    jobs = list(sitemaps.SitemapSource().search(JobQuery(["DE"], [], terms, 72, NOW),
+                                                multilingual_site(requested)))
+    # Both jobs, each from its German page: the English copies weren't opened, and the
+    # languages robots.txt closes neither were opened nor used up the two pages allowed.
+    assert sorted(job.title for job in jobs) == ["Elektronikentwickler",
+                                                 "Hardwareentwickler Elektronik"]
+    opened = [path for path in requested if "/job/" in path]
+    assert sorted(opened) == ["/de/job/elektronikentwickler__m_w_d_/102",
+                              "/de/job/hardwareentwickler_elektronik__m_w_d_/101"]
+
+
+def test_a_new_job_whose_address_misses_the_search_words_goes_to_the_title_check(monkeypatch):
+    group = Employer("Example Group", "sitemap", "https://group.test/sitemap.xml", ("DE",))
+    monkeypatch.setattr(careers, "load_directory", lambda: (group,))
+    terms = [SearchTerm(text="Hardwareentwickler", language="de", kind="job_title")]
+    query = JobQuery(["DE"], [], terms, 24, NOW)
+    source = sitemaps.SitemapSource()
+    requested = []
+    # The first reading records the list: its jobs' first sight proves no posting day.
+    first = list(source.search(query, multilingual_site(requested)))
+    assert [job.title for job in first] == ["Hardwareentwickler Elektronik"]
+
+    newer = MULTILINGUAL.replace("</urlset>", "".join(
+        f"<url><loc>https://group.test/{language}/job/elektrischer_entwickler__m_w_d_/103</loc>"
+        f"<lastmod>{stamp(NOW)}</lastmod></url>" for language in ("de", "en")) + "</urlset>")
+    monkeypatch.setattr(sys.modules[__name__], "MULTILINGUAL", newer)
+    requested.clear()
+    ctx = multilingual_site(requested)
+    jobs = list(sitemaps.SitemapSource().search(query, ctx))
+    new = next(job for job in jobs if job.source_job_id.endswith("/103"))
+    # Named by its address, dated to its first sight, for the person's AI to look at; its
+    # page wasn't opened, nor the old unmatched job's.
+    assert new.title == "elektrischer entwickler" and new.title_unmatched
+    assert new.date_precision == "day" and new.country == "DE" and new.company == "Example Group"
+    assert not [path for path in requested if path.endswith(("/103", "/102"))]
+    full = sitemaps.SitemapSource().load_details(new, ctx)
+    assert full.title == "Elektronikentwickler" and full.location_text == "Kiel"
+    assert full.source_job_id == new.source_job_id and full.description_is_complete
+    assert requested[-1] == "/de/job/elektrischer_entwickler__m_w_d_/103"
+
+
+def test_the_title_an_address_spells():
+    assert sitemaps.title_of(
+        "https://group.test/de/job/elektrischer_entwickler__m_w_d_/1191311") == (
+        "elektrischer entwickler")
+    assert sitemaps.title_of(
+        "https://jobs.test/en-gb/job/Hardware%20Engineer%20(all%20genders)/9") == (
+        "Hardware Engineer")
+    assert sitemaps.job_key("https://group.test/de/job/x/1") == sitemaps.job_key(
+        "https://group.test/en/job/x/1") == "group.test/job/x/1"
+
+
+def test_one_address_per_job_keeps_the_most_wanted_language_at_its_newest_place():
+    entries = [("https://a.test/fr/job/x/1", NOW), ("https://a.test/en-gb/job/x/1", NOW - DAY),
+               ("https://a.test/careers/y", NOW - DAY), ("https://a.test/de/job/x/1", None),
+               ("https://b.test/de/job/x/1", None)]
+    assert sitemaps.one_address_per_job(entries, ["de", "en"]) == [
+        ("https://a.test/de/job/x/1", NOW), ("https://a.test/careers/y", NOW - DAY),
+        ("https://b.test/de/job/x/1", None)]
+    assert sitemaps.one_address_per_job(entries, ["en"])[0] == ("https://a.test/en-gb/job/x/1", NOW)
+
+
 def test_the_directory_check_looks_at_a_few_pages_for_the_countries():
     recruiter = Employer("Recruit Group", "sitemap", "https://recruit.test/sitemap.xml", ())
     source = sitemaps.SitemapSource()
     ctx = site([])
     survey = source.survey(recruiter, ctx)
-    assert survey.counts["GB"] == 4
+    assert survey.counts["GB"] == 4 and survey.sample  # its towns aren't all the towns
     assert source.readable(recruiter, ctx)
 
 

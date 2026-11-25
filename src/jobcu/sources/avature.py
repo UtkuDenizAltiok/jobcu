@@ -107,8 +107,9 @@ class AvatureSource(CareerSystemSource):
             yield from new_unmatched
 
     def survey(self, employer: Employer, ctx: SourceContext) -> Survey:
-        """How many jobs each country's list says it has, and the towns its first page names."""
-        survey = Survey()
+        """How many jobs each country's list says it has, and the towns its first page names
+        (a sample: not recorded as all the towns it hires in)."""
+        survey = Survey(sample=True)
         for code, address in employer.lists.items():
             if not self.allowed(address, ctx):
                 raise SourceError(f"{urlsplit(address).hostname} asks automated tools not to "

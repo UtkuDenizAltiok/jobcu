@@ -1561,89 +1561,7 @@
     "SK"
    ],
    "elsewhere": false,
-   "towns": {
-    "AT": [
-     "Graz",
-     "Hohenems",
-     "Vienna"
-    ],
-    "BE": [
-     "Beersel",
-     "Brussels"
-    ],
-    "CH": [
-     "Zug",
-     "Zürich"
-    ],
-    "CZ": [
-     "Ostrava",
-     "Prague"
-    ],
-    "DE": [
-     "Berlin",
-     "Erlangen",
-     "Karlsruhe",
-     "Munich",
-     "Nuremberg",
-     "Rastatt"
-    ],
-    "DK": [
-     "Copenhagen",
-     "Odense",
-     "Vejle"
-    ],
-    "FI": [
-     "Espoo"
-    ],
-    "FR": [
-     "Châtillon",
-     "Nantes",
-     "Saint-Priest",
-     "Toulouse"
-    ],
-    "GB": [
-     "Bedford",
-     "Chatham",
-     "London",
-     "Manchester"
-    ],
-    "HR": [
-     "Zagreb"
-    ],
-    "HU": [
-     "Budapest"
-    ],
-    "IT": [
-     "Milan",
-     "Turin"
-    ],
-    "LU": [
-     "Luxembourg"
-    ],
-    "NL": [
-     "The Hague",
-     "Utrecht"
-    ],
-    "NO": [
-     "Oslo"
-    ],
-    "PL": [
-     "Mirków"
-    ],
-    "PT": [
-     "Lisbon"
-    ],
-    "RO": [
-     "Cluj-Napoca",
-     "Sibiu"
-    ],
-    "SE": [
-     "Kiruna"
-    ],
-    "SK": [
-     "Žilina"
-    ]
-   },
+   "towns": {},
    "lists": {
     "AT": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812123&listFilterMode=1",
     "BE": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812131&listFilterMode=1",
@@ -8151,18 +8069,7 @@
     "HU"
    ],
    "elsewhere": true,
-   "towns": {
-    "FR": [
-     "Sophia Antipolis"
-    ],
-    "GB": [
-     "Bristol",
-     "Cambridge"
-    ],
-    "HU": [
-     "Budapest"
-    ]
-   }
+   "towns": {}
   },
   {
    "name": "BAE Systems",
@@ -8172,18 +8079,7 @@
     "GB"
    ],
    "elsewhere": true,
-   "towns": {
-    "GB": [
-     "Alton",
-     "Barrow in Furness",
-     "Cowes",
-     "Edinburgh",
-     "Frimley",
-     "Gloucester",
-     "Portsmouth",
-     "Warton"
-    ]
-   }
+   "towns": {}
   },
   {
    "name": "Delta Energy Systems",
@@ -8193,13 +8089,7 @@
     "DE"
    ],
    "elsewhere": false,
-   "towns": {
-    "DE": [
-     "Emmendingen",
-     "Soest",
-     "Teningen"
-    ]
-   }
+   "towns": {}
   },
   {
    "name": "ECM Selection",
@@ -8209,14 +8099,7 @@
     "GB"
    ],
    "elsewhere": false,
-   "towns": {
-    "GB": [
-     "Cambridge",
-     "Guildford",
-     "London",
-     "Nottingham"
-    ]
-   }
+   "towns": {}
   },
   {
    "name": "expertum",
@@ -8226,36 +8109,7 @@
     "DE"
    ],
    "elsewhere": false,
-   "towns": {
-    "DE": [
-     "Augsburg",
-     "Bad Schussenried",
-     "Biberach an der Riß",
-     "Blaufelden",
-     "Bochum",
-     "Bremen",
-     "Dessau",
-     "Eberbach",
-     "Ettlingen",
-     "Garching",
-     "Hamburg",
-     "Hude",
-     "Igersheim",
-     "Karlsruhe",
-     "Kempten (Allgäu)",
-     "Krumbach",
-     "Landsberg am Lech",
-     "Memmingen",
-     "Neckargerach",
-     "Neckarsteinach",
-     "Oldenburg",
-     "Schongau",
-     "Schwäbisch Hall",
-     "Waldenburg",
-     "Wilhelmshaven",
-     "Zschopau"
-    ]
-   }
+   "towns": {}
   },
   {
    "name": "Redline Group",
@@ -8267,26 +8121,18 @@
     "SE"
    ],
    "elsewhere": true,
-   "towns": {
-    "GB": [
-     "Cambridge",
-     "Eastbourne",
-     "Fareham",
-     "Gateshead",
-     "Guildford",
-     "Lincoln",
-     "London",
-     "Loughborough",
-     "Manchester",
-     "Norwich",
-     "Reading",
-     "Rochester",
-     "Stamford"
-    ],
-    "SE": [
-     "Stockholm"
-    ]
-   }
+   "towns": {}
+  },
+  {
+   "name": "Rheinmetall",
+   "system": "sitemap",
+   "board": "https://www.rheinmetall.com/sitemap.site_1.xml",
+   "countries": [
+    "DE",
+    "ES"
+   ],
+   "elsewhere": false,
+   "towns": {}
   },
   {
    "name": "AECOM",

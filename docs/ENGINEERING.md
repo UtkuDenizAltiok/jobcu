@@ -37,9 +37,11 @@ happens before a new search is created or source collection begins, including wi
    searched: an employer that starts hiring there is read from that day on. Systems read country
    by country ask only employers known there. Career-title screening rejects only explicitly
    unrelated titles; unseen titles survive its preliminary request bound. SuccessFactors sites
-   list job pages by address only, so of the titles there the search words miss, only jobs new
-   on the list since its last reading (`listmemory.py`), in a country searched, are screened;
-   a page is opened only for a title the screen keeps (`SuccessFactorsSource.load_details`). Merge proven copies
+   and job sitemaps list job pages by address only, so of the titles there the search words
+   miss, only jobs new on the list since its last reading (`listmemory.py`) are screened (on
+   SuccessFactors, in a country searched); a page is opened only for a title the screen keeps
+   (`load_details`). A sitemap listing each job in several languages counts it once, in the
+   searched countries' ad language (`sitemaps.one_address_per_job`). Merge proven copies
    and apply date, type, remote, country and dismissal rules before full-ad loading. A job
    leaves for its type only when the employer's own career system or the ad text says so (a
    job site's tag alone can keep a job, never remove it), and as remote only when no copy
