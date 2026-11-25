@@ -448,6 +448,62 @@ def test_the_country_the_end_of_a_job_address_names():
     assert not sitemaps.address_countries("https://jobs.test/en/job/Regensburg/5")
 
 
+FRAMED = f"""<?xml version="1.0"?><urlset>
+<url><loc>https://portal.frames.test/jobs/search</loc></url>
+<url><loc>https://portal.frames.test/jobs/12/power-electronics-engineer/job</loc>
+<lastmod>{stamp(NOW)}</lastmod></url></urlset>"""
+
+
+def test_a_job_page_showing_its_ad_in_a_frame_of_its_own_site_is_read_through_the_frame(
+        monkeypatch):
+    # An iCIMS-like career site: the job page has no job data and embeds a video and, from its
+    # own site, the frame that shows the ad with its JobPosting data.
+    requested = []
+
+    def handler(request):
+        requested.append(str(request.url))
+        path = request.url.path
+        if path == "/robots.txt":
+            return httpx.Response(200, text="User-agent: *\nDisallow: /jobs/*login\n")
+        if path == "/sitemap.xml":
+            return httpx.Response(200, text=FRAMED)
+        if path == "/jobs/12/power-electronics-engineer/job":
+            if request.url.params.get("in_iframe") == "1":
+                return httpx.Response(200, text=page("Power Electronics Engineer", "Bedlington",
+                                                     "UK", NOW - timedelta(hours=2)))
+            return httpx.Response(200, text=(
+                '<html><iframe src="//video.example/embed/1"></iframe><iframe src="https://'
+                'portal.frames.test/jobs/12/power-electronics-engineer/job?in_iframe=1&amp;x=1">'
+                "</iframe></html>"))
+        return httpx.Response(404)
+
+    framed = Employer("Example Frames", "sitemap", "https://portal.frames.test/sitemap.xml",
+                      ("GB",), jobs=r"/jobs/(\d+)/[^/]+/job$")
+    monkeypatch.setattr(careers, "load_directory", lambda: (framed,))
+    terms = [SearchTerm(text="Power Electronics Engineer", language="en", kind="job_title")]
+    ctx = SourceContext(PoliteClient(min_intervals={}, sleep=lambda s: None,
+                                     transport=httpx.MockTransport(handler)),
+                        KeyStore(), SourceReport("sitemap", "Sitemaps"), lambda: False,
+                        lambda message: None)
+    jobs = list(sitemaps.SitemapSource().search(JobQuery(["GB"], [], terms, 24, NOW), ctx))
+    assert [(job.title, job.country) for job in jobs] == [("Power Electronics Engineer", "GB")]
+    # The person's link is the job's page, not the frame.
+    assert jobs[0].url == "https://portal.frames.test/jobs/12/power-electronics-engineer/job"
+    assert "Design SMPS." in jobs[0].description
+    assert not any("video.example" in address for address in requested)
+    assert ("https://portal.frames.test/jobs/12/power-electronics-engineer/job?in_iframe=1&x=1"
+            in requested)
+
+
+def test_the_frame_a_page_embeds_from_its_own_site():
+    page_text = ('<iframe src="https://www.googletagmanager.com/ns.html"></iframe>'
+                 "<iframe class='x' src='/jobs/5/x/job?in_iframe=1'></iframe>")
+    assert sitemaps.own_frame(page_text, "https://a.test/jobs/5/x/job") == (
+        "https://a.test/jobs/5/x/job?in_iframe=1")
+    assert sitemaps.own_frame('<iframe src="https://a.test/p"></iframe>', "https://a.test/p") is None
+    assert sitemaps.own_frame("<p>No frames.</p>", "https://a.test/p") is None
+
+
 def test_countries_and_address_words():
     assert sitemaps.country_code("UK") == "GB" and sitemaps.country_code("Deutschland") == "DE"
     assert sitemaps.country_code("Atlantis") is None and sitemaps.country_code(None) is None

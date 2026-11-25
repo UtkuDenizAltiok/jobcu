@@ -8669,6 +8669,34 @@
    "titles": false
   },
   {
+   "name": "Bruker (German careers)",
+   "system": "sitemap",
+   "board": "https://germancareers-bruker.icims.com/sitemap.xml",
+   "countries": [
+    "CH",
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "/jobs/(\\d+)/[^/]+/job$"
+  },
+  {
+   "name": "Bruker (international careers)",
+   "system": "sitemap",
+   "board": "https://internationalcareers-bruker.icims.com/sitemap.xml",
+   "countries": [
+    "BE",
+    "CH",
+    "DE",
+    "FR",
+    "GB",
+    "PT"
+   ],
+   "elsewhere": true,
+   "towns": {},
+   "jobs": "/jobs/(\\d+)/[^/]+/job$"
+  },
+  {
    "name": "Burmester",
    "system": "sitemap",
    "board": "https://www.burmester.jobs/sitemap.xml",
@@ -8779,6 +8807,17 @@
    ],
    "elsewhere": false,
    "towns": {}
+  },
+  {
+   "name": "TT Electronics",
+   "system": "sitemap",
+   "board": "https://global-portal-ttelectronics.icims.com/sitemap.xml",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "/jobs/(\\d+)/[^/]+/job$"
   },
   {
    "name": "AECOM",
