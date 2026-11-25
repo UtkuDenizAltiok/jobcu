@@ -7,6 +7,10 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- BMW's, Porsche's and Daimler Truck's jobs are read from their own sites, whose addresses name
+  no title (and BMW's and Porsche's pages carry no job data): the jobs new on their lists are
+  opened and read as a person reads a page (title, place, company, the ad), dated by their first
+  sight. No saved search had ever shown a job of BMW, Porsche or Mercedes-Benz.
 - Mercedes-Benz's jobs are read from its job sitemap (967 jobs, each once in the searched
   country's language). A sitemap whose job addresses don't say "job" is read by the pattern the
   directory gives; pages new on a list are opened first, and the directory check samples the
