@@ -7,6 +7,9 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- Five more Workday sites are read: BD's in Germany and Ireland, Frazer-Nash (UK), NCR Atleos
+  (hardware engineering in Dundee) and Videojet (Germany, UK). They had answered with Workday's
+  human check during a directory check and answered normally when asked again, one at a time.
 - Jobcu recognises by itself an employer's own list of plain job links when the person's AI names
   that employer: the shape of the links (a job number in the same place) and one job page with
   job data are enough; such lists are read from the next search on, on any system.
