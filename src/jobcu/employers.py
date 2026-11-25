@@ -43,6 +43,7 @@ from jobcu.profile import Profile
 from jobcu.sources import career_sources
 from jobcu.sources.base import FoundJob, SourceContext, SourceReport
 from jobcu.sources.careerlinks import (
+    SYSTEM_NAMES,
     board_in,
     board_in_job_link,
     own_address_board,
@@ -117,9 +118,11 @@ def subject_of(profile: Profile) -> str:
 
 def find(client: AIClient, http: PoliteClient, profile: Profile, countries: list[str],
          places: list[Place], on_progress=lambda text: None,
-         now: datetime | None = None) -> Found:
+         now: datetime | None = None, systems: set[str] | None = None) -> Found:
     """Asks the person's AI for employers in the countries not looked at recently, checks what it
-    names and remembers the employers whose job lists Jobcu can read."""
+    names and remembers the employers whose job lists Jobcu can read: on `systems`, the readers
+    the person uses (all when not given), so a list on a system whose terms they haven't accepted
+    is never read to check it."""
     now = now or datetime.now(UTC)
     subject = subject_of(profile)
     last = _last_looked(subject, countries)
@@ -136,7 +139,7 @@ def find(client: AIClient, http: PoliteClient, profile: Profile, countries: list
             found.named += len(lookup.named)
             on_progress(f"Checking the job lists of {len(lookup.named)} employers "
                         f"your AI named in {COUNTRIES[lookup.country].name}")
-            added, known, not_read = _check(http, lookup.named, now)
+            added, known, not_read = _check(http, lookup.named, now, systems)
             found.new.extend(added)
             found.known += known
             for system, names in not_read.items():
@@ -233,11 +236,14 @@ def parse_lines(text: str, default_country: str) -> list[tuple[str, str, str]]:
 
 
 def _check(http: PoliteClient, named: list[tuple[str, str, str]],
-           now: datetime) -> tuple[list[str], int, dict[str, list[str]]]:
+           now: datetime, systems: set[str] | None = None
+           ) -> tuple[list[str], int, dict[str, list[str]]]:
     """Finds each named employer's career system and checks its list; saves the readable ones.
     Returns the names added, how many were read already, and the employers on systems Jobcu
-    doesn't read yet."""
+    doesn't read yet, or that the person doesn't use (`systems`)."""
     known = {(e.system, e.board.lower()) for e in all_employers()}
+    readers = {source.system: source for source in career_sources()
+               if systems is None or source.system in systems}
     not_read: dict[str, list[str]] = {}
     robots: dict[str, RobotsRules] = {}
     lock = threading.Lock()
@@ -261,14 +267,17 @@ def _check(http: PoliteClient, named: list[tuple[str, str, str]],
             continue
         if (board[0], board[1].lower()) in known:
             already += 1
+        elif board[0] not in readers:
+            # A reader the person switched off, or whose site's terms they haven't accepted:
+            # its list isn't read to check it.
+            not_read.setdefault(SYSTEM_NAMES.get(board[0], board[0]), []).append(name)
         else:
             candidates.setdefault(board, name)
-    sources = {source.system: source for source in career_sources()}
     added: list[str] = []
 
     def verify(item: tuple[tuple[str, ...], str]) -> None:
         (system, board, *jobs), name = item
-        employer = _verified(sources[system],
+        employer = _verified(readers[system],
                              Employer(name, system, board, (), jobs=jobs[0] if jobs else None),
                              http)
         if employer is not None:

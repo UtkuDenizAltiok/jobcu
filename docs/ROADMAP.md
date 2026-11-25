@@ -7,6 +7,9 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- Employers on SmartRecruiters are found by themselves, from job sites' links and the person's
+  AI's employer look-up, for a person who accepted SmartRecruiters' terms; for anyone else their
+  lists are never read, not even to check them.
 - A directory employer's job list that is gone (moved or closed) in searches a week apart rests
   instead of costing a request and a note in every search; it is asked again monthly and read as
   before once it answers, while Jobcu finds the employer's new list by itself.
