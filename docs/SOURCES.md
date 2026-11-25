@@ -91,6 +91,35 @@ Directory membership does not establish reachable vacancies or engineering recal
 
 ## Access and protocol records
 
+### Employers found through FreeHire's catalogue — 2026-11-25
+
+FreeHire's public search (`source_type=ats|company`, the last 60 days) was asked twelve
+electronics-hardware words in Germany, the UK and Ireland: 369 employers had ads on their own
+career systems; those missing from the directory whose list Jobcu can read were checked once with
+`tools/check_employers.py` and 52 added. Greenhouse: SiTime (13 jobs in Germany), Rocket Factory
+Augsburg (56). Ashby: Neura Robotics (399 in Germany), Black Semiconductor, Tactilia Robotics,
+Lumai, Foundational. SuccessFactors: AVL, Heraeus (155 in Germany), STIHL, Enercon, Kannegiesser,
+Knorr-Bremse, Mersen, AMETEK (107 in the UK), Bugatti Rimac, Codan, Power Electronics (Spanish
+inverter maker; 10 in the UK). Workday: Spellman High Voltage Electronics, TTI Europe, Pickering,
+Dover (54 in Germany: SIKORA among its companies), elobau, Multimatic. Personio: quantune, twentyfour
+industries, Hive Robotics, sivonic, Quantum Motion, Swissbit. Softgarden: the Plath group's site
+(81), F & S Prozessautomation (power converter projects), MagnoTherm. Teamtailor: BYD Europe, Open
+Cosmos, Breathe Battery Technologies, Malloy Aeronautics, Marshall, KNDS UK. Workable: Filtronic,
+Cambridge GaN Devices, Mesa Quantum Systems, Oxford Quantum Circuits. Recruitee: Quantum-Systems
+(151). SmartRecruiters (read for those who accept its terms): Integral Powertrain (with a graduate
+electronics role), General Dynamics UK, Elatec, Delta Electronics, Energym, White Lab, Pektron, TTP.
+List pages: VACUUMSCHMELZE and JAT (both rexx; [record](#employers-own-job-list-pages-and-german-application-systems--2026-11-25)).
+
+Not added: PA Consulting's and Western Digital's SmartRecruiters pages listed no job in the
+supported countries; NewTec's and Burmester's Softgarden sites use Softgarden's newer layout,
+which has no list at `/de/vacancies`. Five Workday sites on the wd1 and wd5 servers (BD's German
+and Irish sites, Frazer-Nash on KBR's, NCR Atleos, Videojet) answered with Workday's human check
+while the first one read on that server (Spellman) answered: Workday was then left alone. Seen on
+systems Jobcu doesn't read: Cornerstone (OHB, 11 ads; Weller's owner Apex Tool; Spirax-Sarco),
+Rippling (MBRYONICS), umantis (pro-beam), HiBob (Cambridge Aerospace), Zoho Recruit (ePropelled),
+digitalrecruiters (AES Aerospace Embedded Solutions), ADP (Advantest, Diodes), beesite
+(Mercedes-Benz, Porsche).
+
 ### Employers' own job list pages, and German application systems — 2026-11-25
 
 **Which German application systems to read.** FreeHire's public facets (its catalogue reads
