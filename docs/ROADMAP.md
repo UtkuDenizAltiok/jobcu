@@ -62,6 +62,12 @@ done. Implementation details belong in pull requests; current behavior is descri
 - SmartRecruiters career pages can be read: Continental, Aumovio, Renesas, ALTEN, Ramboll, AECOM,
   Wabtec, Assystem, Brainlab, XP Power and Averna. Its terms for job seekers forbid automatic
   access, so the source is off until the person switches it on.
+- The employer directory was read again in full and keeps every country an employer has hired
+  in, so a job it posts in a country with no opening on the day of the check is still read.
+  New: ZEISS, Freudenberg, Signify, Avnet (Silica, EBV), 3M, Rolls-Royce Power Systems' early
+  careers, Advanced Energy, Bertrandt, Teradyne, Skyworks, Lear, Celestica, Seagate, Keysight,
+  Northrop Grumman, Lam Research, Vertical Aerospace, Honeywell Aerospace, Socomec, Garrett, and
+  Leonardo UK and Arrow on their Phenom sites.
 - More employers read directly: Woodward, BorgWarner, Evolito, Altera, Leidos, Emerson, and Micron's
   and HP's own Eightfold sites; NXP at Workday's newer address (its old one stopped answering) and
   Dell on its new Oracle site.

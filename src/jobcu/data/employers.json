@@ -1,6 +1,6 @@
 {
  "about": "Employers in Jobcu's supported countries and the career system they use. General reference data from public career sites, never built from anyone's searches. Checked and updated with tools/check_employers.py; 'countries' are the supported countries the employer had jobs in when checked, 'elsewhere' means it also had jobs outside them.",
- "checked": "2026-10-03",
+ "checked": "2026-11-25",
  "employers": [
   {
    "name": "AeroVect",
@@ -137,11 +137,15 @@
    "system": "ashby",
    "board": "amplitude",
    "countries": [
+    "FR",
     "GB",
     "NL"
    ],
    "elsewhere": true,
    "towns": {
+    "FR": [
+     "Paris"
+    ],
     "GB": [
      "London"
     ],
@@ -201,6 +205,7 @@
    "system": "ashby",
    "board": "black-forest-labs",
    "countries": [
+    "CH",
     "DE",
     "FR",
     "GB",
@@ -208,6 +213,9 @@
    ],
    "elsewhere": true,
    "towns": {
+    "CH": [
+     "Zürich"
+    ],
     "DE": [
      "Berlin",
      "Freiburg"
@@ -228,6 +236,7 @@
    "system": "ashby",
    "board": "clickhouse",
    "countries": [
+    "CH",
     "DE",
     "DK",
     "ES",
@@ -235,11 +244,46 @@
     "GB",
     "IT",
     "NL",
+    "PL",
     "PT",
     "SE"
    ],
    "elsewhere": true,
-   "towns": {}
+   "towns": {
+    "CH": [
+     "Zürich"
+    ],
+    "DE": [
+     "Berlin"
+    ],
+    "DK": [
+     "Copenhagen"
+    ],
+    "ES": [
+     "Madrid"
+    ],
+    "FR": [
+     "Paris"
+    ],
+    "GB": [
+     "London"
+    ],
+    "IT": [
+     "Rome"
+    ],
+    "NL": [
+     "Amsterdam"
+    ],
+    "PL": [
+     "Warsaw"
+    ],
+    "PT": [
+     "Porto"
+    ],
+    "SE": [
+     "Stockholm"
+    ]
+   }
   },
   {
    "name": "ClickUp",
@@ -348,7 +392,8 @@
      "Vienna"
     ],
     "DE": [
-     "Berlin"
+     "Berlin",
+     "Munich"
     ],
     "GB": [
      "London"
@@ -426,6 +471,9 @@
     ],
     "NL": [
      "Amsterdam"
+    ],
+    "PL": [
+     "Warsaw"
     ],
     "SE": [
      "Stockholm"
@@ -547,6 +595,7 @@
    "system": "ashby",
    "board": "langchain",
    "countries": [
+    "DE",
     "GB",
     "NL",
     "SE"
@@ -554,7 +603,8 @@
    "elsewhere": true,
    "towns": {
     "GB": [
-     "London"
+     "London",
+     "York"
     ],
     "NL": [
      "Amsterdam"
@@ -580,13 +630,17 @@
    "system": "ashby",
    "board": "ledger",
    "countries": [
-    "FR"
+    "FR",
+    "GB"
    ],
    "elsewhere": false,
    "towns": {
     "FR": [
      "Montpellier",
      "Paris"
+    ],
+    "GB": [
+     "London"
     ]
    }
   },
@@ -662,6 +716,7 @@
    "board": "mistral.ai",
    "countries": [
     "AT",
+    "BE",
     "CH",
     "DE",
     "ES",
@@ -677,6 +732,9 @@
     "AT": [
      "Linz"
     ],
+    "BE": [
+     "Brussels"
+    ],
     "CH": [
      "Lausanne",
      "Zürich"
@@ -689,6 +747,7 @@
      "Madrid"
     ],
     "FR": [
+     "Bessé-sur-Braye",
      "Paris"
     ],
     "GB": [
@@ -704,6 +763,7 @@
      "Warsaw"
     ],
     "SE": [
+     "Borlänge",
      "Stockholm"
     ]
    }
@@ -747,6 +807,7 @@
    "countries": [
     "AT",
     "BE",
+    "CH",
     "CZ",
     "DE",
     "DK",
@@ -833,21 +894,27 @@
    "system": "ashby",
    "board": "openai",
    "countries": [
+    "BE",
     "CH",
     "DE",
     "ES",
     "FR",
     "GB",
     "IE",
+    "NL",
     "PL",
     "SE"
    ],
    "elsewhere": true,
    "towns": {
+    "BE": [
+     "Brussels"
+    ],
     "CH": [
      "Zürich"
     ],
     "DE": [
+     "Berlin",
      "Munich"
     ],
     "ES": [
@@ -861,6 +928,9 @@
     ],
     "IE": [
      "Dublin"
+    ],
+    "NL": [
+     "Amsterdam"
     ],
     "SE": [
      "Stockholm"
@@ -883,8 +953,7 @@
     "SE"
    ],
    "elsewhere": true,
-   "towns": {},
-   "checked": "2026-11-03"
+   "towns": {}
   },
   {
    "name": "Oyster",
@@ -909,10 +978,37 @@
    "elsewhere": true,
    "towns": {
     "ES": [
+     "Barcelona",
      "Cañada del Hoyo"
     ],
+    "GB": [
+     "London"
+    ],
+    "GR": [
+     "Athens"
+    ],
+    "HU": [
+     "Budapest"
+    ],
+    "IE": [
+     "Dublin"
+    ],
     "NL": [
-     "America"
+     "America",
+     "Amsterdam"
+    ],
+    "PL": [
+     "Warsaw"
+    ],
+    "PT": [
+     "Lisbon",
+     "São Paulo de Frades"
+    ],
+    "RO": [
+     "Bucharest"
+    ],
+    "SK": [
+     "Bratislava"
     ]
    }
   },
@@ -947,15 +1043,19 @@
    "countries": [
     "DE",
     "ES",
+    "FR",
     "GB"
    ],
-   "elsewhere": false,
+   "elsewhere": true,
    "towns": {
     "DE": [
      "Berlin"
     ],
     "ES": [
      "Madrid"
+    ],
+    "FR": [
+     "Paris"
     ],
     "GB": [
      "London"
@@ -978,53 +1078,67 @@
    "elsewhere": false,
    "towns": {
     "DE": [
-     "Berlin"
+     "Berlin",
+     "Düsseldorf",
+     "Munich"
     ],
     "ES": [
      "Barcelona",
      "Madrid"
     ],
     "FR": [
+     "Agen",
      "Aix-en-Provence",
+     "Albi",
+     "Alès",
      "Amiens",
      "Angers",
+     "Anglet",
+     "Angoulême",
      "Annecy",
      "Antibes",
      "Avignon",
      "Bayonne",
      "Beauvais",
+     "Bergerac",
+     "Besançon",
+     "Biarritz",
+     "Billère",
+     "Biscarrosse",
      "Bordeaux",
      "Boulogne-sur-Mer",
      "Bourg-en-Bresse",
      "Brest",
+     "Brive-la-Gaillarde",
+     "Béziers",
      "Caen",
+     "Carcassonne",
      "Challans",
      "Chambéry",
      "Cholet",
      "Colmar",
+     "Dax",
+     "Dijon",
      "Dunkirk",
      "Grenoble",
+     "Haguenau",
+     "Hendaye",
      "La Roche-sur-Yon",
      "La Rochelle",
      "Lamballe",
-     "Lannion",
-     "Laval",
-     "Le Havre",
-     "Le Mans",
-     "Lens",
-     "Les Sables-d'Olonne",
-     "Lille",
-     "Limoges",
-     "Lorient",
-     "Loudéac",
-     "Lyon",
-     "Marseille",
-     "Metz",
-     "Montpellier",
-     "Morlaix",
-     "Mulhouse",
-     "Nancy",
-     "Nantes"
+     "Lannion"
+    ],
+    "GB": [
+     "London"
+    ],
+    "IE": [
+     "Dublin"
+    ],
+    "IT": [
+     "Rome"
+    ],
+    "PT": [
+     "Lisbon"
     ]
    }
   },
@@ -1034,7 +1148,8 @@
    "board": "perplexity",
    "countries": [
     "DE",
-    "GB"
+    "GB",
+    "IE"
    ],
    "elsewhere": true,
    "towns": {
@@ -1043,6 +1158,9 @@
     ],
     "GB": [
      "London"
+    ],
+    "IE": [
+     "Dublin"
     ]
    }
   },
@@ -1067,8 +1185,12 @@
    "countries": [
     "GB"
    ],
-   "elsewhere": true,
-   "towns": {}
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "London"
+    ]
+   }
   },
   {
    "name": "PostHog",
@@ -1078,7 +1200,11 @@
     "GB"
    ],
    "elsewhere": true,
-   "towns": {}
+   "towns": {
+    "GB": [
+     "Cambridge"
+    ]
+   }
   },
   {
    "name": "Qonto",
@@ -1089,7 +1215,8 @@
     "ES",
     "FR",
     "IT",
-    "NL"
+    "NL",
+    "PT"
    ],
    "elsewhere": true,
    "towns": {
@@ -1097,7 +1224,8 @@
      "Berlin"
     ],
     "ES": [
-     "Barcelona"
+     "Barcelona",
+     "Madrid"
     ],
     "FR": [
      "Paris"
@@ -1107,6 +1235,9 @@
     ],
     "NL": [
      "Amsterdam"
+    ],
+    "PT": [
+     "Lisbon"
     ]
    }
   },
@@ -1122,6 +1253,9 @@
    "towns": {
     "GB": [
      "London"
+    ],
+    "SE": [
+     "Stockholm"
     ]
    }
   },
@@ -1134,10 +1268,15 @@
     "ES",
     "GB",
     "IE",
-    "PL"
+    "PL",
+    "PT"
    ],
    "elsewhere": true,
-   "towns": {}
+   "towns": {
+    "GB": [
+     "London"
+    ]
+   }
   },
   {
    "name": "Snowflake",
@@ -1153,6 +1292,7 @@
     "FI",
     "FR",
     "GB",
+    "IE",
     "NL",
     "NO",
     "PL",
@@ -1170,6 +1310,9 @@
     "DK": [
      "Copenhagen"
     ],
+    "ES": [
+     "Barcelona"
+    ],
     "FI": [
      "Helsinki"
     ],
@@ -1178,6 +1321,9 @@
     ],
     "GB": [
      "London"
+    ],
+    "IE": [
+     "Dublin"
     ],
     "NL": [
      "Amsterdam"
@@ -1229,7 +1375,8 @@
     "CH",
     "DE",
     "FR",
-    "GB"
+    "GB",
+    "IE"
    ],
    "elsewhere": true,
    "towns": {
@@ -1245,6 +1392,9 @@
     ],
     "GB": [
      "London"
+    ],
+    "IE": [
+     "Dublin"
     ]
    }
   },
@@ -1255,7 +1405,7 @@
    "countries": [
     "DE"
    ],
-   "elsewhere": false,
+   "elsewhere": true,
    "towns": {
     "DE": [
      "Munich"
@@ -1303,6 +1453,20 @@
    }
   },
   {
+   "name": "Vertical Aerospace",
+   "system": "ashby",
+   "board": "vertical-aerospace",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Bristol"
+    ]
+   }
+  },
+  {
    "name": "Vizzia",
    "system": "ashby",
    "board": "vizzia",
@@ -1325,11 +1489,15 @@
    "system": "ashby",
    "board": "wayflyer",
    "countries": [
+    "DE",
     "GB",
     "IE"
    ],
    "elsewhere": true,
    "towns": {
+    "DE": [
+     "Berlin"
+    ],
     "GB": [
      "London"
     ],
@@ -1408,11 +1576,15 @@
      "Zürich"
     ],
     "CZ": [
-     "Ostrava"
+     "Ostrava",
+     "Prague"
     ],
     "DE": [
      "Berlin",
+     "Erlangen",
      "Karlsruhe",
+     "Munich",
+     "Nuremberg",
      "Rastatt"
     ],
     "DK": [
@@ -1503,8 +1675,7 @@
     "SE": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812013&listFilterMode=1",
     "SI": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812144&listFilterMode=1",
     "SK": "https://jobs.siemens.com/en_US/externaljobs/SearchJobs/?42386%5B%5D=812026&listFilterMode=1"
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Siemens Energy",
@@ -1527,8 +1698,7 @@
     "SE": "https://jobs.siemens-energy.com/en_US/jobs/SearchJobsSweden",
     "DK": "https://jobs.siemens-energy.com/en_US/jobs/SearchJobsDenmark",
     "ES": "https://jobs.siemens-energy.com/en_US/jobs/SearchJobsSpain"
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "ADS-TEC Energy",
@@ -1663,8 +1833,7 @@
      "Schieder-Schwalenberg",
      "Velbert"
     ]
-   },
-   "checked": "2026-10-30"
+   }
   },
   {
    "name": "Eaton",
@@ -1693,15 +1862,18 @@
    "elsewhere": true,
    "towns": {
     "AT": [
+     "Schrems",
      "Vienna"
     ],
     "CH": [
+     "Baden",
      "Zürich"
     ],
     "CZ": [
      "Prague"
     ],
     "DE": [
+     "Berlin",
      "Bonn",
      "Bremen",
      "Gilching",
@@ -1724,8 +1896,11 @@
      "Nouan-le-Fuzelier"
     ],
     "GB": [
+     "Cambridge",
+     "Cheltenham",
      "London",
      "Luton",
+     "Manchester",
      "Nottingham",
      "Slough",
      "Sutton in Ashfield"
@@ -1740,6 +1915,7 @@
     "IT": [
      "Casalecchio di Reno",
      "Milan",
+     "Padua",
      "Rome",
      "Turin"
     ],
@@ -1755,6 +1931,7 @@
      "Wrocław"
     ],
     "PT": [
+     "Porto",
      "Porto Salvo"
     ],
     "RO": [
@@ -1777,6 +1954,8 @@
     "FI",
     "FR",
     "GB",
+    "GR",
+    "HR",
     "HU",
     "IE",
     "IT",
@@ -1785,11 +1964,14 @@
     "PL",
     "PT",
     "RO",
-    "SE"
+    "SE",
+    "SK"
    ],
    "elsewhere": true,
    "towns": {
     "DE": [
+     "Bonn",
+     "Hamburg",
      "Herzogenrath",
      "Rosenheim"
     ],
@@ -1807,7 +1989,14 @@
      "Massy"
     ],
     "GB": [
+     "London",
      "Reading"
+    ],
+    "GR": [
+     "Athens"
+    ],
+    "HR": [
+     "Zagreb"
     ],
     "HU": [
      "Budapest"
@@ -1837,8 +2026,12 @@
      "Bucharest"
     ],
     "SE": [
+     "Karlskrona",
      "Lund",
      "Stockholm"
+    ],
+    "SK": [
+     "Bratislava"
     ]
    }
   },
@@ -1880,6 +2073,7 @@
     ],
     "FR": [
      "Bavans",
+     "Custines",
      "Flers-en-Escrebieux",
      "Lyon",
      "Magny-Vernois",
@@ -1887,6 +2081,7 @@
      "Nanterre",
      "Nogent-sur-Vernisson",
      "Paris",
+     "Saint-Michel-sur-Meurthe",
      "Sales",
      "Villers-la-Montagne"
     ],
@@ -1903,7 +2098,8 @@
      "Feira",
      "Nelas",
      "Palmela",
-     "São João da Madeira"
+     "São João da Madeira",
+     "Vouzela"
     ],
     "RO": [
      "Craiova"
@@ -1916,8 +2112,7 @@
      "Košice",
      "Trnava"
     ]
-   },
-   "checked": "2026-10-30"
+   }
   },
   {
    "name": "HP",
@@ -2008,8 +2203,7 @@
     "SK": [
      "Bratislava"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Infineon",
@@ -2019,13 +2213,15 @@
     "AT",
     "CH",
     "DE",
+    "ES",
     "FR",
     "GB",
     "HU",
     "IE",
     "IT",
     "PT",
-    "RO"
+    "RO",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
@@ -2046,10 +2242,17 @@
      "Frankfurt am Main",
      "Hannover",
      "Ilmenau",
+     "Karlsruhe",
      "Munich",
      "Regensburg",
      "Stuttgart",
      "Warstein"
+    ],
+    "ES": [
+     "Valencia"
+    ],
+    "FR": [
+     "Rueil-Malmaison"
     ],
     "GB": [
      "Bristol",
@@ -2069,11 +2272,47 @@
      "Pavia"
     ],
     "PT": [
-     "Porto"
+     "Porto",
+     "Vila do Conde"
     ],
     "RO": [
      "Bucharest",
+     "Cluj-Napoca",
      "Iaşi"
+    ],
+    "SE": [
+     "Stockholm"
+    ]
+   }
+  },
+  {
+   "name": "Lam Research",
+   "system": "eightfold",
+   "board": "careers.lamresearch.com/lamresearch.com",
+   "countries": [
+    "AT",
+    "DE",
+    "FR",
+    "GB",
+    "IE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Salzburg",
+     "Villach"
+    ],
+    "DE": [
+     "Dresden"
+    ],
+    "FR": [
+     "Paris"
+    ],
+    "GB": [
+     "Bristol"
+    ],
+    "IE": [
+     "Dublin"
     ]
    }
   },
@@ -2095,8 +2334,25 @@
      "Monza",
      "Naples"
     ]
-   },
-   "checked": "2026-11-24"
+   }
+  },
+  {
+   "name": "Northrop Grumman",
+   "system": "eightfold",
+   "board": "ngc.eightfold.ai/ngc.com",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Cheltenham",
+     "Harrogate",
+     "London",
+     "Manchester",
+     "New Malden"
+    ]
+   }
   },
   {
    "name": "Qualcomm",
@@ -2106,6 +2362,7 @@
     "BE",
     "DE",
     "ES",
+    "FI",
     "FR",
     "GB",
     "GR",
@@ -2124,12 +2381,19 @@
      "Berlin",
      "Ingolstadt",
      "Munich",
+     "Nuremberg",
      "Sulzbach"
     ],
+    "FI": [
+     "Espoo"
+    ],
     "FR": [
+     "Colombes",
      "Grenoble",
      "Guyancourt",
-     "Issy-les-Moulineaux"
+     "Issy-les-Moulineaux",
+     "Sophia Antipolis",
+     "Strasbourg"
     ],
     "GB": [
      "Cambridge",
@@ -2154,7 +2418,8 @@
     ],
     "SE": [
      "Linköping",
-     "Malmö"
+     "Malmö",
+     "Stockholm"
     ]
    }
   },
@@ -2193,12 +2458,14 @@
      "Chargé",
      "Crolles",
      "Grenoble",
+     "La Conception",
      "Le Bourget-du-Lac",
      "Le Mans",
      "Paris",
      "Rennes",
      "Rousset",
      "Sophia Antipolis",
+     "Toulon",
      "Toulouse",
      "Tours"
     ],
@@ -2223,8 +2490,7 @@
     "SE": [
      "Jönköping"
     ]
-   },
-   "checked": "2026-10-30"
+   }
   },
   {
    "name": "Tektronix (Ralliant)",
@@ -2232,6 +2498,7 @@
    "board": "ralliant.eightfold.ai/ralliant.com",
    "countries": [
     "DE",
+    "FR",
     "GB",
     "IE",
     "IT",
@@ -2242,7 +2509,11 @@
     "DE": [
      "Aldingen",
      "Egg",
+     "Köln",
      "Viersen"
+    ],
+    "FR": [
+     "Paris"
     ],
     "GB": [
      "Belfast",
@@ -2309,10 +2580,12 @@
      "Hamburg",
      "Hannover",
      "Jena",
+     "Kabelsketal",
      "Kaiserslautern",
      "Karlsruhe",
      "Kassel",
      "Kerpen",
+     "Kiel",
      "Kleve",
      "Koblenz",
      "Konstanz",
@@ -2325,11 +2598,10 @@
      "Oldenburg",
      "Pforzheim",
      "Ratingen",
-     "Ravensburg",
-     "Regensburg",
-     "Reutlingen"
+     "Ravensburg"
     ],
     "ES": [
+     "Barcelona",
      "Madrid",
      "Málaga",
      "Valencia",
@@ -2338,29 +2610,50 @@
     "GB": [
      "Andover",
      "Ballymena",
+     "Bangor",
+     "Bracknell",
+     "Bristol",
      "Broadstairs",
+     "Canterbury",
      "Chester-le-Street",
      "Church Street",
+     "Coleraine",
+     "Corby",
      "Crewe",
+     "Croydon",
      "Farnborough",
      "Glasgow",
+     "Greenhithe",
+     "Hitchin",
+     "Kettering",
      "London",
+     "Luton",
      "Manchester",
+     "Newark on Trent",
      "Newbury",
      "Newcastle upon Tyne",
+     "Prestatyn",
      "Reading",
      "Sale",
+     "Salisbury",
      "Sheffield",
      "South Shields",
+     "Spalding",
+     "St Albans",
      "Stockport",
      "Stoke-on-Trent",
      "Swindon",
-     "Woking"
+     "Tamworth",
+     "Washington",
+     "Wellingborough",
+     "Wigan",
+     "Witney"
     ],
     "GR": [
      "Athens",
      "Irákleio",
      "Irákleion",
+     "Pátra",
      "Thessaloníki"
     ],
     "HU": [
@@ -2378,6 +2671,7 @@
      "Luxembourg"
     ],
     "PT": [
+     "Amadora",
      "Lisbon",
      "Porto"
     ],
@@ -2391,6 +2685,7 @@
      "Galaţi",
      "Giurgiu",
      "Iaşi",
+     "Sibiu",
      "Timişoara",
      "Târgu Jiu"
     ]
@@ -2401,6 +2696,7 @@
    "system": "greenhouse",
    "board": "adyen",
    "countries": [
+    "BE",
     "CZ",
     "DE",
     "ES",
@@ -2413,6 +2709,9 @@
    ],
    "elsewhere": true,
    "towns": {
+    "BE": [
+     "Brussels"
+    ],
     "CZ": [
      "Prague"
     ],
@@ -2453,7 +2752,11 @@
     "PL"
    ],
    "elsewhere": true,
-   "towns": {}
+   "towns": {
+    "GB": [
+     "London"
+    ]
+   }
   },
   {
    "name": "Agile Robots",
@@ -2469,28 +2772,33 @@
      "Kaufbeuren",
      "Munich"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Airbnb",
    "system": "greenhouse",
    "board": "airbnb",
    "countries": [
+    "BE",
     "DE",
     "ES",
     "FR",
     "GB",
     "IE",
-    "IT"
+    "IT",
+    "NL"
    ],
    "elsewhere": true,
    "towns": {
+    "BE": [
+     "Brussels"
+    ],
     "DE": [
      "Berlin"
     ],
     "ES": [
-     "Barcelona"
+     "Barcelona",
+     "Madrid"
     ],
     "FR": [
      "Orléans",
@@ -2499,8 +2807,14 @@
     "GB": [
      "London"
     ],
+    "IE": [
+     "Dublin"
+    ],
     "IT": [
      "Milan"
+    ],
+    "NL": [
+     "Amsterdam"
     ]
    }
   },
@@ -2511,7 +2825,8 @@
    "countries": [
     "DE",
     "FR",
-    "GB"
+    "GB",
+    "NL"
    ],
    "elsewhere": true,
    "towns": {
@@ -2547,11 +2862,13 @@
    "countries": [
     "GB",
     "IE",
-    "NL"
+    "NL",
+    "PL"
    ],
    "elsewhere": true,
    "towns": {
     "GB": [
+     "Llanbedr",
      "London",
      "Wales"
     ],
@@ -2560,6 +2877,9 @@
     ],
     "NL": [
      "Amsterdam"
+    ],
+    "PL": [
+     "Warsaw"
     ]
    }
   },
@@ -2618,8 +2938,7 @@
     "GB": [
      "London"
     ]
-   },
-   "checked": "2026-10-12"
+   }
   },
   {
    "name": "Asana",
@@ -2664,9 +2983,10 @@
     "DE",
     "ES",
     "FR",
+    "PL",
     "RO"
    ],
-   "elsewhere": false,
+   "elsewhere": true,
    "towns": {
     "AT": [
      "Vienna"
@@ -2679,6 +2999,9 @@
     ],
     "FR": [
      "Paris"
+    ],
+    "PL": [
+     "Kraków"
     ],
     "RO": [
      "Bucharest"
@@ -2713,7 +3036,8 @@
     "DE",
     "ES",
     "GB",
-    "IT"
+    "IT",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
@@ -2732,6 +3056,9 @@
     ],
     "IT": [
      "Milan"
+    ],
+    "SE": [
+     "Stockholm"
     ]
    }
   },
@@ -2740,14 +3067,17 @@
    "system": "greenhouse",
    "board": "celonis",
    "countries": [
+    "BE",
     "CH",
     "DE",
     "DK",
     "ES",
+    "FI",
     "FR",
     "GB",
     "IT",
     "NL",
+    "PT",
     "SE"
    ],
    "elsewhere": true,
@@ -2801,6 +3131,7 @@
    "system": "greenhouse",
    "board": "cockroachlabs",
    "countries": [
+    "DE",
     "GB"
    ],
    "elsewhere": true,
@@ -2816,14 +3147,18 @@
    "board": "cognism",
    "countries": [
     "DE",
+    "FR",
     "GB",
     "HR",
     "PL"
    ],
-   "elsewhere": true,
+   "elsewhere": false,
    "towns": {
     "DE": [
      "Köln"
+    ],
+    "FR": [
+     "Paris"
     ],
     "GB": [
      "London"
@@ -2863,7 +3198,8 @@
    "countries": [
     "DE",
     "ES",
-    "GB"
+    "GB",
+    "NL"
    ],
    "elsewhere": true,
    "towns": {
@@ -2884,12 +3220,25 @@
    "system": "greenhouse",
    "board": "contentful",
    "countries": [
-    "GB"
+    "DE",
+    "FR",
+    "GB",
+    "IE"
    ],
    "elsewhere": true,
    "towns": {
+    "DE": [
+     "Berlin",
+     "Munich"
+    ],
+    "FR": [
+     "Paris"
+    ],
     "GB": [
      "London"
+    ],
+    "IE": [
+     "Dublin"
     ]
    }
   },
@@ -2903,6 +3252,9 @@
    ],
    "elsewhere": true,
    "towns": {
+    "GB": [
+     "London"
+    ],
     "IE": [
      "Dublin"
     ]
@@ -2913,6 +3265,7 @@
    "system": "greenhouse",
    "board": "databricks",
    "countries": [
+    "BE",
     "CH",
     "DE",
     "DK",
@@ -2920,9 +3273,12 @@
     "FI",
     "FR",
     "GB",
+    "HR",
     "IE",
     "IT",
     "NL",
+    "NO",
+    "PT",
     "SE"
    ],
    "elsewhere": true,
@@ -2944,7 +3300,8 @@
      "Paris"
     ],
     "GB": [
-     "London"
+     "London",
+     "Washington"
     ],
     "IT": [
      "Milan"
@@ -3059,12 +3416,14 @@
     "NL",
     "PL",
     "PT",
-    "RO"
+    "RO",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
     "BE": [
-     "Antwerp"
+     "Antwerp",
+     "Brussels"
     ],
     "CH": [
      "Zürich"
@@ -3082,8 +3441,10 @@
     ],
     "ES": [
      "Barcelona",
+     "León",
      "Madrid",
      "Málaga",
+     "Santiago de Compostela",
      "Valencia"
     ],
     "FR": [
@@ -3117,7 +3478,8 @@
      "Amsterdam"
     ],
     "PL": [
-     "Katowice"
+     "Katowice",
+     "Warsaw"
     ],
     "PT": [
      "Lisbon",
@@ -3125,6 +3487,9 @@
     ],
     "RO": [
      "Bucharest"
+    ],
+    "SE": [
+     "Stockholm"
     ]
    }
   },
@@ -3133,6 +3498,7 @@
    "system": "greenhouse",
    "board": "elastic",
    "countries": [
+    "AT",
     "BE",
     "CH",
     "DE",
@@ -3229,12 +3595,15 @@
    "countries": [
     "CZ",
     "DE",
+    "ES",
+    "FR",
     "GB",
     "HR",
     "IT",
     "NL",
     "PL",
-    "PT"
+    "PT",
+    "RO"
    ],
    "elsewhere": true,
    "towns": {
@@ -3243,11 +3612,19 @@
     ],
     "DE": [
      "Berlin",
+     "Dortmund",
      "Frankfurt am Main",
      "Hamburg",
      "Leipzig",
      "Munich",
      "Stuttgart"
+    ],
+    "ES": [
+     "Madrid",
+     "Santiago de Compostela"
+    ],
+    "FR": [
+     "Paris"
     ],
     "GB": [
      "Leeds",
@@ -3269,6 +3646,9 @@
     ],
     "PT": [
      "Lisbon"
+    ],
+    "RO": [
+     "Bucharest"
     ]
    }
   },
@@ -3322,6 +3702,7 @@
    "board": "gitlab",
    "countries": [
     "AT",
+    "CH",
     "DE",
     "ES",
     "FR",
@@ -3329,7 +3710,8 @@
     "IE",
     "IT",
     "NL",
-    "PL"
+    "PL",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {}
@@ -3343,7 +3725,7 @@
     "LV",
     "PT"
    ],
-   "elsewhere": false,
+   "elsewhere": true,
    "towns": {
     "GB": [
      "Leeds",
@@ -3392,20 +3774,6 @@
     ],
     "PL": [
      "Gdańsk"
-    ]
-   }
-  },
-  {
-   "name": "HEADBORNE.AI",
-   "system": "greenhouse",
-   "board": "headborneai",
-   "countries": [
-    "DE"
-   ],
-   "elsewhere": true,
-   "towns": {
-    "DE": [
-     "Jena"
     ]
    }
   },
@@ -3522,6 +3890,9 @@
     "DE": [
      "Berlin"
     ],
+    "ES": [
+     "Madrid"
+    ],
     "FR": [
      "Paris"
     ],
@@ -3539,7 +3910,8 @@
    "board": "idnow",
    "countries": [
     "DE",
-    "FR"
+    "FR",
+    "RO"
    ],
    "elsewhere": false,
    "towns": {
@@ -3548,7 +3920,11 @@
      "Munich"
     ],
     "FR": [
+     "Paris",
      "Rennes"
+    ],
+    "RO": [
+     "Iaşi"
     ]
    }
   },
@@ -3670,7 +4046,8 @@
      "Madrid"
     ],
     "FR": [
-     "Paris"
+     "Paris",
+     "Toulouse"
     ],
     "GB": [
      "London"
@@ -3683,7 +4060,8 @@
    "board": "kayzen",
    "countries": [
     "DE",
-    "GB"
+    "GB",
+    "NL"
    ],
    "elsewhere": true,
    "towns": {
@@ -3692,6 +4070,9 @@
     ],
     "GB": [
      "London"
+    ],
+    "NL": [
+     "Amsterdam"
     ]
    }
   },
@@ -3710,12 +4091,15 @@
    "elsewhere": true,
    "towns": {
     "GB": [
-     "Glasgow"
+     "Glasgow",
+     "Inverurie",
+     "London"
     ],
     "IE": [
      "Dublin",
      "Galway",
-     "Limerick"
+     "Limerick",
+     "Portlaoise"
     ],
     "IT": [
      "Milan"
@@ -3808,6 +4192,7 @@
      "Dublin"
     ],
     "IT": [
+     "Milan",
      "Rome"
     ],
     "NL": [
@@ -3851,11 +4236,13 @@
    "countries": [
     "BE",
     "DE",
+    "DK",
     "ES",
     "FI",
     "FR",
     "GB",
     "NL",
+    "PL",
     "SE"
    ],
    "elsewhere": true,
@@ -3893,6 +4280,7 @@
    "system": "greenhouse",
    "board": "neo4j",
    "countries": [
+    "CZ",
     "DE",
     "GB",
     "IT",
@@ -3900,8 +4288,14 @@
    ],
    "elsewhere": true,
    "towns": {
+    "CZ": [
+     "Prague"
+    ],
     "GB": [
      "London"
+    ],
+    "IT": [
+     "Lecce"
     ],
     "SE": [
      "Malmö"
@@ -3924,7 +4318,8 @@
      "Berlin"
     ],
     "ES": [
-     "Barcelona"
+     "Barcelona",
+     "Madrid"
     ],
     "GB": [
      "London"
@@ -3979,6 +4374,7 @@
    "elsewhere": false,
    "towns": {
     "GB": [
+     "Glasgow",
      "London"
     ]
    }
@@ -3988,11 +4384,15 @@
    "system": "greenhouse",
    "board": "pagerduty",
    "countries": [
+    "ES",
     "GB",
     "PT"
    ],
    "elsewhere": true,
    "towns": {
+    "ES": [
+     "Santiago de Compostela"
+    ],
     "GB": [
      "London"
     ],
@@ -4002,43 +4402,22 @@
    }
   },
   {
-   "name": "Parloa",
-   "system": "greenhouse",
-   "board": "parloa",
-   "countries": [
-    "DE",
-    "FR",
-    "GB",
-    "IT"
-   ],
-   "elsewhere": true,
-   "towns": {
-    "DE": [
-     "Berlin"
-    ],
-    "FR": [
-     "Paris"
-    ],
-    "GB": [
-     "London"
-    ],
-    "IT": [
-     "Milan"
-    ]
-   }
-  },
-  {
    "name": "Pinterest",
    "system": "greenhouse",
    "board": "pinterest",
    "countries": [
+    "CH",
     "DE",
     "FR",
     "GB",
-    "IE"
+    "IE",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
+    "CH": [
+     "Zürich"
+    ],
     "DE": [
      "Hamburg"
     ],
@@ -4050,6 +4429,9 @@
     ],
     "IE": [
      "Dublin"
+    ],
+    "SE": [
+     "Stockholm"
     ]
    }
   },
@@ -4059,6 +4441,7 @@
    "board": "planetlabs",
    "countries": [
     "AT",
+    "BE",
     "DE",
     "FR",
     "GB",
@@ -4068,6 +4451,9 @@
    ],
    "elsewhere": true,
    "towns": {
+    "AT": [
+     "Graz"
+    ],
     "DE": [
      "Berlin"
     ],
@@ -4076,6 +4462,9 @@
     ],
     "NL": [
      "Haarlem"
+    ],
+    "SE": [
+     "Stockholm"
     ],
     "SI": [
      "Ljubljana"
@@ -4104,6 +4493,7 @@
    "countries": [
     "DE",
     "DK",
+    "IE",
     "IT",
     "PL"
    ],
@@ -4114,6 +4504,9 @@
     ],
     "DK": [
      "Copenhagen"
+    ],
+    "IE": [
+     "Dublin"
     ],
     "IT": [
      "Milan"
@@ -4158,6 +4551,9 @@
    ],
    "elsewhere": true,
    "towns": {
+    "DE": [
+     "Berlin"
+    ],
     "GB": [
      "London"
     ],
@@ -4173,6 +4569,7 @@
    "countries": [
     "DE",
     "ES",
+    "GB",
     "IE"
    ],
    "elsewhere": true,
@@ -4182,6 +4579,9 @@
     ],
     "ES": [
      "Barcelona"
+    ],
+    "GB": [
+     "London"
     ],
     "IE": [
      "Dublin"
@@ -4193,12 +4593,16 @@
    "system": "greenhouse",
    "board": "riverlane",
    "countries": [
-    "GB"
+    "GB",
+    "NL"
    ],
    "elsewhere": true,
    "towns": {
     "GB": [
      "Cambridge"
+    ],
+    "NL": [
+     "Delft"
     ]
    }
   },
@@ -4271,6 +4675,7 @@
     "DE",
     "FR",
     "GB",
+    "NL",
     "PL"
    ],
    "elsewhere": true,
@@ -4312,7 +4717,9 @@
      "Vienna"
     ],
     "DE": [
+     "Bad Neuenahr-Ahrweiler",
      "Berlin",
+     "Bonn",
      "Munich"
     ]
    }
@@ -4337,38 +4744,50 @@
    "system": "greenhouse",
    "board": "speechify",
    "countries": [
+    "AT",
     "BE",
     "CH",
     "CZ",
     "DE",
+    "DK",
     "ES",
     "FI",
     "FR",
     "GB",
     "GR",
+    "HR",
     "HU",
     "IE",
     "IS",
     "IT",
     "LT",
+    "LV",
     "NL",
     "NO",
     "PT",
     "RO",
-    "SE"
+    "SE",
+    "SI"
    ],
    "elsewhere": true,
    "towns": {
+    "AT": [
+     "Vienna"
+    ],
     "BE": [
+     "Antwerp",
+     "Brussels",
      "Gent"
     ],
     "CH": [
+     "Basel",
      "Geneva",
      "Lausanne",
      "Zürich"
     ],
     "CZ": [
-     "Brno"
+     "Brno",
+     "Prague"
     ],
     "DE": [
      "Berlin",
@@ -4376,19 +4795,27 @@
      "Frankfurt am Main",
      "Hamburg",
      "Köln",
-     "Munich"
+     "Munich",
+     "Stuttgart"
+    ],
+    "DK": [
+     "Copenhagen",
+     "Århus"
     ],
     "ES": [
      "Barcelona",
      "Bilbao",
      "Madrid",
-     "Málaga"
+     "Málaga",
+     "Sevilla",
+     "Valencia"
     ],
     "FI": [
      "Helsinki",
      "Tampere"
     ],
     "FR": [
+     "Bordeaux",
      "Lille",
      "Lyon",
      "Nantes",
@@ -4396,9 +4823,12 @@
      "Toulouse"
     ],
     "GB": [
+     "Belfast",
+     "Birmingham",
      "Brighton",
      "Bristol",
      "Cambridge",
+     "Cardiff",
      "Edinburgh",
      "Glasgow",
      "Leeds",
@@ -4406,10 +4836,16 @@
      "Manchester",
      "Newcastle upon Tyne",
      "Nottingham",
-     "Oxford"
+     "Oxford",
+     "Reading"
     ],
     "GR": [
-     "Athens"
+     "Athens",
+     "Thessaloníki"
+    ],
+    "HR": [
+     "Split",
+     "Zagreb"
     ],
     "HU": [
      "Budapest"
@@ -4425,15 +4861,20 @@
     "IT": [
      "Bologna",
      "Milan",
+     "Rome",
      "Turin"
     ],
     "LT": [
      "Kaunas",
      "Vilnius"
     ],
+    "LV": [
+     "Riga"
+    ],
     "NL": [
      "Amsterdam",
      "Eindhoven",
+     "Rotterdam",
      "The Hague",
      "Utrecht"
     ],
@@ -4442,15 +4883,23 @@
     ],
     "PT": [
      "Braga",
+     "Coimbra",
+     "Lisbon",
      "Porto"
     ],
     "RO": [
-     "Iaşi"
+     "Bucharest",
+     "Cluj-Napoca",
+     "Iaşi",
+     "Timişoara"
     ],
     "SE": [
      "Gothenburg",
      "Malmö",
      "Stockholm"
+    ],
+    "SI": [
+     "Ljubljana"
     ]
    }
   },
@@ -4527,7 +4976,8 @@
      "Munich"
     ],
     "GB": [
-     "Plymouth"
+     "Plymouth",
+     "Swindon"
     ],
     "GR": [
      "Thessaloníki"
@@ -4535,14 +4985,14 @@
     "SE": [
      "Stockholm"
     ]
-   },
-   "checked": "2026-10-12"
+   }
   },
   {
    "name": "Stripe",
    "system": "greenhouse",
    "board": "stripe",
    "countries": [
+    "BE",
     "DE",
     "ES",
     "FR",
@@ -4550,12 +5000,16 @@
     "IE",
     "IT",
     "LU",
+    "NL",
     "PL",
     "RO",
     "SE"
    ],
    "elsewhere": true,
    "towns": {
+    "BE": [
+     "Brussels"
+    ],
     "DE": [
      "Berlin"
     ],
@@ -4578,11 +5032,17 @@
     "LU": [
      "Luxembourg"
     ],
+    "NL": [
+     "Amsterdam"
+    ],
     "PL": [
      "Warsaw"
     ],
     "RO": [
      "Bucharest"
+    ],
+    "SE": [
+     "Stockholm"
     ]
    }
   },
@@ -4603,9 +5063,11 @@
     "IE",
     "IT",
     "LT",
+    "LU",
     "NL",
     "PL",
-    "PT"
+    "PT",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
@@ -4613,11 +5075,16 @@
      "Vienna"
     ],
     "BE": [
+     "Antwerp",
      "Brussels"
     ],
     "DE": [
+     "Aachen",
      "Berlin",
+     "Bonn",
      "Dortmund",
+     "Düsseldorf",
+     "Essen",
      "Hamburg",
      "Köln",
      "Münster"
@@ -4638,11 +5105,14 @@
      "Albi",
      "Amiens",
      "Andernos-les-Bains",
+     "Arcachon",
      "Avignon",
+     "Bagneux",
      "Bayonne",
      "Bergerac",
      "Biarritz",
      "Bordeaux",
+     "Boulogne-Billancourt",
      "Brest",
      "Béziers",
      "Caen",
@@ -4650,6 +5120,7 @@
      "Carcassonne",
      "Castres",
      "Cherbourg",
+     "Courbevoie",
      "Deauville",
      "Dijon",
      "Dunkirk",
@@ -4658,33 +5129,32 @@
      "Lacanau",
      "Le Havre",
      "Le Mans",
+     "Levallois-Perret",
      "Lille",
+     "Limoges",
      "Lyon",
      "Marseille",
      "Metz",
      "Mont-de-Marsan",
-     "Nantes",
-     "Narbonne",
-     "Nîmes",
-     "Orléans",
-     "Paris",
-     "Pau",
-     "Perpignan",
-     "Poitiers",
-     "Périgueux",
-     "Quimper",
-     "Reims"
+     "Montpellier",
+     "Montrouge",
+     "Mulhouse",
+     "Nancy",
+     "Nanterre"
     ],
     "GB": [
      "Belfast",
      "Blackpool",
+     "Bournemouth",
      "Bradford",
      "Brighton",
+     "Bristol",
      "Cambridge",
      "Canterbury",
      "Cardiff",
      "Carlisle",
      "Chelmsford",
+     "Chester",
      "Colchester",
      "Coventry",
      "Crewe",
@@ -4692,8 +5162,10 @@
      "Dartford",
      "Derby",
      "Derry",
+     "Durham",
      "Edinburgh",
      "Enfield Town",
+     "Exeter",
      "Glasgow",
      "Guildford",
      "Hemel Hempstead",
@@ -4706,16 +5178,11 @@
      "London",
      "Luton",
      "Maidstone",
+     "Manchester",
+     "Middlesbrough",
      "Newcastle upon Tyne",
-     "Northampton",
-     "Norwich",
-     "Nottingham",
-     "Oxford",
-     "Peterborough",
-     "Redhill",
-     "Sheffield",
-     "Southend-on-Sea",
-     "St Albans"
+     "Newry",
+     "Northampton"
     ],
     "HR": [
      "Zagreb"
@@ -4724,7 +5191,10 @@
      "Carlow",
      "Cork",
      "Dublin",
-     "Kilkenny"
+     "Kilkenny",
+     "Longford",
+     "Tipperary",
+     "Waterford"
     ],
     "IT": [
      "Alessandria",
@@ -4732,15 +5202,19 @@
      "Aosta",
      "Avellino",
      "Bari",
+     "Barletta",
      "Benevento",
      "Bergamo",
      "Bologna",
      "Bolzano",
+     "Campobasso",
      "Catania",
+     "Catanzaro",
      "Chieti",
      "Cosenza",
      "Cuneo",
      "Cusio",
+     "Florence",
      "Frosinone",
      "Genoa",
      "Imperia",
@@ -4752,24 +5226,23 @@
      "Mazara del Vallo",
      "Milan",
      "Modena",
+     "Naples",
      "Novara",
      "Padua",
      "Pavia",
      "Perugia",
      "Pescara",
+     "Piacenza",
      "Potenza",
      "Prato",
-     "Reggio Calabria",
-     "Rimini",
-     "Rome",
-     "Salerno",
-     "Savona",
-     "Siena",
-     "Trento",
-     "Trieste"
+     "Ravenna",
+     "Reggio Calabria"
     ],
     "LT": [
      "Vilnius"
+    ],
+    "LU": [
+     "Luxembourg"
     ],
     "NL": [
      "Amsterdam",
@@ -4780,6 +5253,9 @@
     ],
     "PT": [
      "Lisbon"
+    ],
+    "SE": [
+     "Stockholm"
     ]
    }
   },
@@ -4835,11 +5311,17 @@
    "system": "greenhouse",
    "board": "thetradedesk",
    "countries": [
+    "CH",
+    "DE",
     "GB"
    ],
    "elsewhere": true,
    "towns": {
+    "DE": [
+     "Hamburg"
+    ],
     "GB": [
+     "Irvine",
      "London"
     ]
    }
@@ -4852,7 +5334,8 @@
     "DE",
     "FR",
     "GB",
-    "LT"
+    "LT",
+    "LU"
    ],
    "elsewhere": true,
    "towns": {
@@ -4861,6 +5344,9 @@
     ],
     "FR": [
      "Paris"
+    ],
+    "LU": [
+     "Luxembourg"
     ]
    }
   },
@@ -4883,6 +5369,7 @@
    "system": "greenhouse",
    "board": "toast",
    "countries": [
+    "DE",
     "GB",
     "IE"
    ],
@@ -4890,7 +5377,10 @@
    "towns": {
     "GB": [
      "Birmingham",
-     "London"
+     "Edinburgh",
+     "Glasgow",
+     "London",
+     "Manchester"
     ],
     "IE": [
      "Dublin"
@@ -4908,24 +5398,6 @@
    "towns": {
     "DE": [
      "Berlin"
-    ]
-   }
-  },
-  {
-   "name": "TrueLayer",
-   "system": "greenhouse",
-   "board": "truelayer",
-   "countries": [
-    "GB",
-    "IE"
-   ],
-   "elsewhere": false,
-   "towns": {
-    "GB": [
-     "London"
-    ],
-    "IE": [
-     "Dublin"
     ]
    }
   },
@@ -5028,8 +5500,27 @@
     "SE"
    ],
    "elsewhere": false,
-   "towns": {},
-   "checked": "2026-11-24"
+   "towns": {}
+  },
+  {
+   "name": "Keysight",
+   "system": "jibe",
+   "board": "jobs.keysight.com",
+   "countries": [
+    "BE",
+    "CH",
+    "DE",
+    "ES",
+    "FI",
+    "FR",
+    "GB",
+    "IT",
+    "NL",
+    "RO",
+    "SE"
+   ],
+   "elsewhere": false,
+   "towns": {}
   },
   {
    "name": "Schneider Electric",
@@ -5068,8 +5559,7 @@
     "SK"
    ],
    "elsewhere": false,
-   "towns": {},
-   "checked": "2026-11-24"
+   "towns": {}
   },
   {
    "name": "Ajax Systems",
@@ -5088,6 +5578,7 @@
     "IE",
     "IT",
     "LT",
+    "LV",
     "PL",
     "RO",
     "SK"
@@ -5120,6 +5611,7 @@
      "Toulouse"
     ],
     "GB": [
+     "Birmingham",
      "Bristol",
      "Cardiff",
      "London",
@@ -5141,6 +5633,9 @@
     ],
     "LT": [
      "Vilnius"
+    ],
+    "LV": [
+     "Riga"
     ],
     "PL": [
      "Gdańsk",
@@ -5164,6 +5659,7 @@
     "AT",
     "BE",
     "DE",
+    "ES",
     "GB",
     "HR",
     "HU",
@@ -5172,7 +5668,8 @@
     "NL",
     "PL",
     "PT",
-    "RO"
+    "RO",
+    "SI"
    ],
    "elsewhere": true,
    "towns": {
@@ -5206,6 +5703,7 @@
      "Amsterdam"
     ],
     "PL": [
+     "Kraków",
      "Warsaw"
     ],
     "PT": [
@@ -5213,6 +5711,9 @@
     ],
     "RO": [
      "Bucharest"
+    ],
+    "SI": [
+     "Ljubljana"
     ]
    }
   },
@@ -5270,7 +5771,7 @@
     "GB",
     "IE"
    ],
-   "elsewhere": true,
+   "elsewhere": false,
    "towns": {
     "GB": [
      "London"
@@ -5286,6 +5787,7 @@
    "board": "eu/cirrus",
    "countries": [
     "GB",
+    "IT",
     "PT"
    ],
    "elsewhere": true,
@@ -5294,6 +5796,9 @@
      "Edinburgh",
      "London",
      "Newbury"
+    ],
+    "IT": [
+     "Pavia"
     ],
     "PT": [
      "Porto"
@@ -5343,6 +5848,7 @@
    "countries": [
     "BE",
     "DE",
+    "ES",
     "FR",
     "GB",
     "HR",
@@ -5354,6 +5860,9 @@
    "towns": {
     "DE": [
      "Berlin"
+    ],
+    "ES": [
+     "Madrid"
     ],
     "FR": [
      "Paris"
@@ -5377,6 +5886,8 @@
    "system": "lever",
    "board": "matchgroup",
    "countries": [
+    "BE",
+    "DE",
     "ES",
     "FR",
     "GB",
@@ -5384,6 +5895,12 @@
    ],
    "elsewhere": true,
    "towns": {
+    "BE": [
+     "Gent"
+    ],
+    "DE": [
+     "Berlin"
+    ],
     "ES": [
      "Madrid"
     ],
@@ -5479,6 +5996,7 @@
      "Oslo"
     ],
     "SE": [
+     "Gothenburg",
      "Stockholm"
     ]
    }
@@ -5498,15 +6016,18 @@
    "towns": {
     "DE": [
      "Berlin",
+     "Bonn",
      "Braunschweig",
      "Düsseldorf",
      "Köln",
      "Mannheim",
      "Munich",
+     "Münster",
      "Osnabrück",
      "Pforzheim",
      "Reutlingen",
      "Rüsselsheim am Main",
+     "Stuttgart",
      "Ulm"
     ],
     "ES": [
@@ -5521,12 +6042,16 @@
      "Rennes"
     ],
     "GB": [
+     "Birmingham",
      "Brighton",
      "Bristol",
      "Cardiff",
+     "Carlisle",
      "Coventry",
      "Croydon",
+     "Darlington",
      "Derby",
+     "Dorchester",
      "Edinburgh",
      "Enfield Town",
      "Glasgow",
@@ -5539,9 +6064,12 @@
      "Manchester",
      "Milton Keynes",
      "Newcastle upon Tyne",
+     "Nottingham",
      "Plymouth",
      "Portadown",
+     "Portsmouth",
      "Reading",
+     "Sheffield",
      "Slough",
      "Southampton",
      "Swansea",
@@ -5613,6 +6141,7 @@
    "countries": [
     "DE",
     "ES",
+    "FR",
     "GB"
    ],
    "elsewhere": true,
@@ -5623,6 +6152,9 @@
     "ES": [
      "Barcelona",
      "Madrid"
+    ],
+    "FR": [
+     "Paris"
     ],
     "GB": [
      "London"
@@ -5635,6 +6167,7 @@
    "board": "spotify",
    "countries": [
     "BE",
+    "DE",
     "FR",
     "GB",
     "SE"
@@ -5643,6 +6176,9 @@
    "towns": {
     "BE": [
      "Brussels"
+    ],
+    "DE": [
+     "Berlin"
     ],
     "FR": [
      "Paris"
@@ -5711,6 +6247,7 @@
    "system": "oracle",
    "board": "fa-extu-saasfaprod1.fa.ocs.oraclecloud.com/CX_1",
    "countries": [
+    "CH",
     "CZ",
     "DE",
     "DK",
@@ -5719,6 +6256,7 @@
     "GB",
     "IE",
     "IT",
+    "NL",
     "PL",
     "SE"
    ],
@@ -5748,28 +6286,40 @@
      "Antwerp",
      "Brussels",
      "Gent",
-     "Sint-Niklaas"
+     "Liège",
+     "Sint-Niklaas",
+     "Zelzate"
     ],
     "DE": [
      "Berlin",
+     "Braunschweig",
      "Darmstadt",
      "Dresden",
+     "Essen",
      "Frankfurt am Main",
      "Hamburg",
      "Hannover",
-     "Munich"
+     "Hildesheim",
+     "Köln",
+     "Munich",
+     "Nuremberg"
     ],
     "ES": [
+     "Barcelona",
      "Madrid"
     ],
     "FR": [
+     "Nantes",
      "Paris",
-     "Strasbourg"
+     "Strasbourg",
+     "Tours"
     ],
     "GB": [
+     "Belfast",
      "Birmingham",
      "Bristol",
      "Cambridge",
+     "Cardiff",
      "Edinburgh",
      "Glasgow",
      "Gloucester",
@@ -5788,7 +6338,8 @@
      "Dublin"
     ],
     "IT": [
-     "Milan"
+     "Milan",
+     "Rome"
     ],
     "NL": [
      "'s-Hertogenbosch",
@@ -5796,9 +6347,11 @@
      "Arnhem",
      "Groningen",
      "Rotterdam",
-     "Utrecht"
+     "Utrecht",
+     "Zwolle"
     ],
     "PL": [
+     "Gryfino",
      "Opole",
      "Warsaw",
      "Wrocław"
@@ -5831,6 +6384,7 @@
    "elsewhere": true,
    "towns": {
     "BE": [
+     "Antwerp",
      "Charleroi",
      "Genk",
      "Gent",
@@ -5846,10 +6400,12 @@
      "Halle",
      "Hamburg",
      "Köln",
+     "Linsengericht",
      "Lustadt",
      "Marktredwitz",
      "Neckarsulm",
      "Neu-Ulm",
+     "Neuwied",
      "Sandersdorf",
      "Schweinfurt",
      "Sennfeld",
@@ -5859,6 +6415,7 @@
     ],
     "ES": [
      "Avilés",
+     "Bilbao",
      "Gijón",
      "Madrid",
      "Olaberria",
@@ -5872,8 +6429,10 @@
      "Bruyères-sur-Oise",
      "Chambéry",
      "Cérons",
+     "Desvres",
      "Dunkirk",
      "Florange",
+     "Forbach",
      "Fos-sur-Mer",
      "Gandrange",
      "Indre",
@@ -5900,7 +6459,8 @@
     ],
     "GB": [
      "London",
-     "Sheffield"
+     "Sheffield",
+     "Solihull"
     ],
     "LU": [
      "Esch-sur-Alzette",
@@ -5913,6 +6473,7 @@
     "PL": [
      "Dąbrowa Górnicza",
      "Gdańsk",
+     "Katowice",
      "Kraków",
      "Sosnowiec",
      "Warsaw",
@@ -5964,7 +6525,8 @@
     ],
     "IE": [
      "Cork",
-     "Dublin"
+     "Dublin",
+     "Limerick"
     ],
     "IT": [
      "Milan",
@@ -5977,6 +6539,7 @@
      "Oslo"
     ],
     "PL": [
+     "Warsaw",
      "Łódź"
     ],
     "PT": [
@@ -5991,8 +6554,7 @@
     "SK": [
      "Bratislava"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Emerson",
@@ -6083,6 +6645,7 @@
      "Lugagnano Val d'Arda",
      "Milan",
      "Padua",
+     "Rome",
      "Seregno"
     ],
     "NL": [
@@ -6110,8 +6673,29 @@
     "SK": [
      "Nové Mesto nad Váhom"
     ]
-   },
-   "checked": "2026-11-24"
+   }
+  },
+  {
+   "name": "Garrett Motion",
+   "system": "oracle",
+   "board": "ehth.fa.em2.oraclecloud.com/CX_2001",
+   "countries": [
+    "CZ",
+    "RO",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "CZ": [
+     "Brno"
+    ],
+    "RO": [
+     "Bucharest"
+    ],
+    "SK": [
+     "Prešov"
+    ]
+   }
   },
   {
    "name": "Heathrow",
@@ -6139,21 +6723,29 @@
     "CZ",
     "DE",
     "ES",
+    "FI",
     "FR",
     "GB",
     "GR",
+    "HU",
     "IE",
     "IT",
     "NL",
     "NO",
     "PL",
     "RO",
+    "SE",
     "SK"
    ],
    "elsewhere": true,
    "towns": {
     "AT": [
+     "Innsbruck",
+     "Linz",
      "Vienna"
+    ],
+    "BE": [
+     "Brussels"
     ],
     "CH": [
      "Uster"
@@ -6177,20 +6769,29 @@
      "Wuppertal"
     ],
     "ES": [
+     "Barcelona",
      "Madrid",
      "Toledo"
+    ],
+    "FI": [
+     "Espoo",
+     "Helsinki"
     ],
     "FR": [
      "Dijon",
      "Guyancourt",
      "Lognes",
+     "Paris",
      "Saint-Germain-en-Laye"
     ],
     "GB": [
+     "Bootle",
      "Bracknell",
      "Eastbourne",
      "Horsham",
+     "Ipswich",
      "Leicester",
+     "London",
      "Manchester",
      "Poole",
      "Portsmouth",
@@ -6198,6 +6799,9 @@
     ],
     "GR": [
      "Athens"
+    ],
+    "HU": [
+     "Budapest"
     ],
     "IE": [
      "Dublin"
@@ -6207,6 +6811,7 @@
      "Monza",
      "Padua",
      "Rome",
+     "Sesto San Giovanni",
      "Trieste"
     ],
     "NL": [
@@ -6214,6 +6819,7 @@
      "Apeldoorn",
      "Delft",
      "Den Helder",
+     "Eindhoven",
      "Leiden",
      "Weert"
     ],
@@ -6233,8 +6839,49 @@
     "SK": [
      "Nové Mesto nad Váhom"
     ]
-   },
-   "checked": "2026-10-30"
+   }
+  },
+  {
+   "name": "Honeywell Aerospace",
+   "system": "oracle",
+   "board": "icfcjb.fa.ocs.oraclecloud.com/Aerospace",
+   "countries": [
+    "CH",
+    "CZ",
+    "DE",
+    "FR",
+    "GB",
+    "IT",
+    "PL",
+    "RO"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "CZ": [
+     "Brno",
+     "Olomouc",
+     "Prague"
+    ],
+    "FR": [
+     "Toulouse"
+    ],
+    "GB": [
+     "Bristol",
+     "Edinburgh",
+     "Redditch",
+     "Tewkesbury",
+     "Yeovil"
+    ],
+    "IT": [
+     "Porto Sant'Elpidio"
+    ],
+    "PL": [
+     "Kraków"
+    ],
+    "RO": [
+     "Bucharest"
+    ]
+   }
   },
   {
    "name": "Nokia",
@@ -6254,7 +6901,9 @@
     "NO",
     "PL",
     "PT",
-    "RO"
+    "RO",
+    "SE",
+    "SK"
    ],
    "elsewhere": true,
    "towns": {}
@@ -6269,6 +6918,8 @@
     "DE",
     "IE",
     "IT",
+    "PL",
+    "SE",
     "SI",
     "SK"
    ],
@@ -6291,10 +6942,17 @@
     "IT": [
      "Milan"
     ],
+    "PL": [
+     "Kraków"
+    ],
+    "SE": [
+     "Stockholm"
+    ],
     "SI": [
      "Ljubljana"
     ],
     "SK": [
+     "Bratislava",
      "Piešťany"
     ]
    }
@@ -6304,9 +6962,11 @@
    "system": "oracle",
    "board": "eeho.fa.us2.oraclecloud.com/jobsearch",
    "countries": [
+    "BE",
     "CZ",
     "DE",
     "DK",
+    "FI",
     "GB",
     "IE",
     "NL",
@@ -6321,12 +6981,15 @@
      "Prague"
     ],
     "DE": [
+     "Berlin",
      "Frankfurt am Main"
     ],
     "GB": [
      "Belfast",
      "Bristol",
-     "London"
+     "London",
+     "Reading",
+     "Slough"
     ],
     "IE": [
      "Dublin"
@@ -6371,11 +7034,13 @@
      "Herford",
      "Koblenz",
      "Munich",
+     "Stuttgart",
      "Zwickau"
     ],
     "FR": [
      "Brumath",
      "Haguenau",
+     "Lyon",
      "Paris"
     ],
     "IT": [
@@ -6389,8 +7054,58 @@
     "PL": [
      "Łódź"
     ]
-   },
-   "checked": "2026-10-30"
+   }
+  },
+  {
+   "name": "Socomec",
+   "system": "oracle",
+   "board": "iahxgs.fa.ocs.oraclecloud.com/CX_1",
+   "countries": [
+    "BE",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "IT",
+    "NL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "BE": [
+     "Brussels"
+    ],
+    "DE": [
+     "Mannheim"
+    ],
+    "ES": [
+     "Barcelona"
+    ],
+    "FR": [
+     "Benfeld",
+     "Décines-Charpieu",
+     "Fontenay-sous-Bois",
+     "Huttenheim",
+     "La Chapelle-sur-Erdre",
+     "Launaguet",
+     "Marly",
+     "Meylan",
+     "Meyreuil",
+     "Mérignac",
+     "Sauvigny-les-Bois",
+     "Strasbourg",
+     "Tours"
+    ],
+    "GB": [
+     "London"
+    ],
+    "IT": [
+     "Isola Vicentina"
+    ],
+    "NL": [
+     "Amsterdam",
+     "Utrecht"
+    ]
+   }
   },
   {
    "name": "Texas Instruments",
@@ -6400,10 +7115,14 @@
     "DE",
     "DK",
     "FI",
+    "FR",
+    "GB",
     "IT",
     "NL",
     "NO",
-    "PL"
+    "PL",
+    "RO",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
@@ -6415,6 +7134,9 @@
     "FI": [
      "Oulu"
     ],
+    "FR": [
+     "Issy-les-Moulineaux"
+    ],
     "NL": [
      "Eindhoven"
     ],
@@ -6423,6 +7145,12 @@
     ],
     "PL": [
      "Warsaw"
+    ],
+    "RO": [
+     "Timişoara"
+    ],
+    "SE": [
+     "Kista"
     ]
    }
   },
@@ -6436,11 +7164,13 @@
     "CH",
     "CZ",
     "DE",
+    "DK",
     "ES",
     "FI",
     "FR",
     "GB",
     "HR",
+    "HU",
     "IE",
     "IT",
     "NL",
@@ -6467,6 +7197,9 @@
      "Frankfurt am Main",
      "Munich"
     ],
+    "DK": [
+     "Copenhagen"
+    ],
     "ES": [
      "Madrid"
     ],
@@ -6480,20 +7213,27 @@
      "Bedford",
      "Derry",
      "Edenbridge",
+     "Glasgow",
      "London",
-     "Redhill"
+     "Redhill",
+     "Southampton"
     ],
     "HR": [
      "Rugvica",
      "Zagreb"
     ],
+    "HU": [
+     "Budapest"
+    ],
     "IE": [
+     "Dublin",
      "Letterkenny"
     ],
     "IT": [
      "Bologna",
      "Milan",
-     "Nove"
+     "Nove",
+     "Udine"
     ],
     "NL": [
      "Amsterdam"
@@ -6542,8 +7282,7 @@
      "Munich",
      "Weßling"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "planqc",
@@ -6565,8 +7304,7 @@
     "GB": [
      "Cambridge"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "ROHM Semiconductor",
@@ -6580,8 +7318,7 @@
     "DE": [
      "Stuttgart"
     ]
-   },
-   "checked": "2026-11-03"
+   }
   },
   {
    "name": "STABL Energy",
@@ -6595,8 +7332,7 @@
     "DE": [
      "Munich"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Sungrow EMEA",
@@ -6609,13 +7345,17 @@
     "CZ",
     "DE",
     "DK",
+    "EE",
     "ES",
     "FI",
+    "FR",
     "GB",
     "GR",
+    "HU",
     "IE",
     "IT",
     "LT",
+    "LV",
     "NL",
     "PL",
     "PT",
@@ -6650,11 +7390,17 @@
     "FI": [
      "Helsinki"
     ],
+    "FR": [
+     "Paris"
+    ],
     "GB": [
      "Milton Keynes"
     ],
     "GR": [
      "Athens"
+    ],
+    "HU": [
+     "Budapest"
     ],
     "IE": [
      "Dublin"
@@ -6681,8 +7427,7 @@
     "SE": [
      "Stockholm"
     ]
-   },
-   "checked": "2026-11-03"
+   }
   },
   {
    "name": "ABB",
@@ -6715,8 +7460,37 @@
     "SE"
    ],
    "elsewhere": true,
-   "towns": {},
-   "checked": "2026-11-24"
+   "towns": {}
+  },
+  {
+   "name": "Arrow Electronics",
+   "system": "phenom",
+   "board": "careers.arrow.com/us/en",
+   "countries": [
+    "AT",
+    "BE",
+    "CH",
+    "CZ",
+    "DE",
+    "DK",
+    "ES",
+    "FI",
+    "FR",
+    "GB",
+    "HU",
+    "IE",
+    "IT",
+    "NL",
+    "NO",
+    "PL",
+    "PT",
+    "RO",
+    "SE",
+    "SI",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {}
   },
   {
    "name": "Danaher",
@@ -6741,8 +7515,7 @@
     "SE"
    ],
    "elsewhere": true,
-   "towns": {},
-   "checked": "2026-11-24"
+   "towns": {}
   },
   {
    "name": "Exyte",
@@ -6760,8 +7533,7 @@
     "IT"
    ],
    "elsewhere": true,
-   "towns": {},
-   "checked": "2026-11-24"
+   "towns": {}
   },
   {
    "name": "GE Aerospace",
@@ -6779,8 +7551,17 @@
     "SE"
    ],
    "elsewhere": true,
-   "towns": {},
-   "checked": "2026-11-24"
+   "towns": {}
+  },
+  {
+   "name": "Leonardo UK",
+   "system": "phenom",
+   "board": "careers.uk.leonardo.com/gb/en",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {}
   },
   {
    "name": "RTX (Collins Aerospace, Pratt & Whitney, Raytheon)",
@@ -6796,8 +7577,7 @@
     "PL"
    ],
    "elsewhere": true,
-   "towns": {},
-   "checked": "2026-11-24"
+   "towns": {}
   },
   {
    "name": "Siemens Healthineers",
@@ -6826,8 +7606,7 @@
     "SK"
    ],
    "elsewhere": true,
-   "towns": {},
-   "checked": "2026-11-24"
+   "towns": {}
   },
   {
    "name": "Thermo Fisher",
@@ -6861,8 +7640,7 @@
     "SK"
    ],
    "elsewhere": true,
-   "towns": {},
-   "checked": "2026-11-24"
+   "towns": {}
   },
   {
    "name": "Canton of Basel-Landschaft",
@@ -6871,17 +7649,22 @@
    "countries": [
     "CH"
    ],
-   "elsewhere": true,
+   "elsewhere": false,
    "towns": {
     "CH": [
+     "Aesch",
      "Allschwil",
      "Arlesheim",
+     "Biel/Bienne",
+     "Binningen",
      "Birsfelden",
      "Bottmingen",
      "Diegten",
+     "Frenkendorf",
      "Füllinsdorf",
      "Gelterkinden",
      "Grellingen",
+     "Langenbruck",
      "Laufen",
      "Lausen",
      "Liestal",
@@ -6889,12 +7672,16 @@
      "Münchenstein",
      "Oberwil",
      "Ormalingen",
+     "Pfeffingen",
      "Pratteln",
+     "Reigoldswil",
      "Reinach",
      "Sissach",
      "Therwil",
      "Wahlen",
-     "Waldenburg"
+     "Waldenburg",
+     "Zunzgen",
+     "Zwingen"
     ]
    }
   },
@@ -6974,6 +7761,7 @@
    "towns": {
     "AT": [
      "Eferding",
+     "Obersiebenbrunn",
      "Sankt Pölten",
      "Vienna"
     ],
@@ -6986,6 +7774,7 @@
      "Sankt Margrethen",
      "Wallisellen",
      "Weinfelden",
+     "Wil",
      "Winterthur"
     ],
     "CZ": [
@@ -7012,7 +7801,9 @@
      "Helsinki"
     ],
     "GB": [
-     "Leicester"
+     "Leicester",
+     "Newcastle upon Tyne",
+     "Norwich"
     ],
     "IT": [
      "Piove di Sacco-Piovega"
@@ -7021,7 +7812,8 @@
      "Blerick"
     ],
     "NO": [
-     "Drammen"
+     "Drammen",
+     "Oslo"
     ],
     "PL": [
      "Białystok",
@@ -7044,46 +7836,46 @@
    "elsewhere": false,
    "towns": {
     "CH": [
+     "Aarau",
      "Alle",
      "Alpnach",
      "Altstätten",
      "Andermatt",
+     "Avenches",
      "Basel",
+     "Bellinzona",
+     "Belp",
      "Bern",
+     "Biel/Bienne",
      "Birmensdorf",
+     "Bière",
+     "Boudry",
      "Bremgarten",
      "Bronschhofen",
      "Brugg",
+     "Bülach",
      "Chiasso",
      "Chur",
+     "Conthey",
      "Dübendorf",
      "Emmen",
+     "Eschenbach",
      "Estavayer-le-Lac",
      "Frauenfeld",
      "Geneva",
      "Grolley",
      "Hinwil",
+     "Horgen / Oberdorf",
      "Ittigen",
      "Kloten",
      "Kriens",
      "Lausanne",
+     "Lenk",
+     "Lugano",
      "Luzern",
      "Meiringen",
-     "Nyon",
-     "Othmarsingen",
-     "Payerne",
-     "Romont",
-     "Rüti",
-     "Sankt Gallen",
-     "Sitten",
-     "Spiez",
-     "Stans",
-     "Thun",
-     "Wangen an der Aare",
-     "Winterthur",
-     "Wädenswil",
-     "Zofingen",
-     "Zollikofen"
+     "Neuchâtel",
+     "Nyon"
     ]
    }
   },
@@ -7107,6 +7899,7 @@
    "elsewhere": false,
    "towns": {
     "CH": [
+     "Dübendorf",
      "Schlieren",
      "Villigen",
      "Zürich"
@@ -7183,6 +7976,7 @@
    "elsewhere": false,
    "towns": {
     "GB": [
+     "London",
      "Manchester",
      "Reading"
     ]
@@ -7193,13 +7987,25 @@
    "system": "recruitee",
    "board": "bunq",
    "countries": [
+    "AT",
     "BE",
+    "FR",
+    "GB",
     "NL"
    ],
    "elsewhere": true,
    "towns": {
+    "AT": [
+     "Vienna"
+    ],
     "BE": [
      "Brussels"
+    ],
+    "FR": [
+     "Paris"
+    ],
+    "GB": [
+     "London"
     ],
     "NL": [
      "Amsterdam"
@@ -7233,6 +8039,7 @@
    "system": "recruitee",
    "board": "customssupport",
    "countries": [
+    "AT",
     "BE",
     "CH",
     "DE",
@@ -7240,17 +8047,22 @@
     "FI",
     "FR",
     "GB",
+    "IE",
     "IT",
     "NL",
     "PL"
    ],
    "elsewhere": true,
    "towns": {
+    "AT": [
+     "Vienna"
+    ],
     "BE": [
      "Antwerp",
      "Gent"
     ],
     "CH": [
+     "Basel",
      "Thayngen"
     ],
     "DE": [
@@ -7271,12 +8083,17 @@
      "Lyon"
     ],
     "GB": [
-     "Felixstowe"
+     "Felixstowe",
+     "Langford"
+    ],
+    "IE": [
+     "Waterford"
     ],
     "IT": [
      "La Spezia"
     ],
     "NL": [
+     "Capelle aan den IJssel",
      "Rotterdam",
      "Utrecht"
     ],
@@ -7304,6 +8121,7 @@
      "Copenhagen"
     ],
     "GB": [
+     "Leicester",
      "London"
     ]
    }
@@ -7318,6 +8136,7 @@
    "elsewhere": false,
    "towns": {
     "DE": [
+     "Erfurt",
      "Sigmaringen"
     ]
    }
@@ -7343,8 +8162,7 @@
     "HU": [
      "Budapest"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "BAE Systems",
@@ -7356,14 +8174,16 @@
    "elsewhere": true,
    "towns": {
     "GB": [
+     "Alton",
+     "Barrow in Furness",
      "Cowes",
      "Edinburgh",
      "Frimley",
+     "Gloucester",
      "Portsmouth",
      "Warton"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Delta Energy Systems",
@@ -7379,8 +8199,7 @@
      "Soest",
      "Teningen"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "ECM Selection",
@@ -7410,17 +8229,29 @@
    "towns": {
     "DE": [
      "Augsburg",
+     "Bad Schussenried",
      "Biberach an der Riß",
+     "Blaufelden",
      "Bochum",
      "Bremen",
+     "Dessau",
+     "Eberbach",
+     "Ettlingen",
      "Garching",
      "Hamburg",
      "Hude",
+     "Igersheim",
+     "Karlsruhe",
+     "Kempten (Allgäu)",
+     "Krumbach",
      "Landsberg am Lech",
      "Memmingen",
+     "Neckargerach",
+     "Neckarsteinach",
      "Oldenburg",
      "Schongau",
      "Schwäbisch Hall",
+     "Waldenburg",
      "Wilhelmshaven",
      "Zschopau"
     ]
@@ -7432,21 +8263,28 @@
    "board": "https://www.redlinegroup.com/sitemap_jobs.xml",
    "countries": [
     "GB",
-    "IT"
+    "IT",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
     "GB": [
+     "Cambridge",
      "Eastbourne",
      "Fareham",
      "Gateshead",
      "Guildford",
      "Lincoln",
+     "London",
      "Loughborough",
      "Manchester",
      "Norwich",
      "Reading",
-     "Rochester"
+     "Rochester",
+     "Stamford"
+    ],
+    "SE": [
+     "Stockholm"
     ]
    }
   },
@@ -7560,8 +8398,7 @@
     "SE": [
      "Stockholm"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "ALTEN",
@@ -7644,6 +8481,7 @@
      "Cholet",
      "Château-Renault",
      "Châteaudun",
+     "Colmar",
      "Créteil",
      "Dijon",
      "Douai",
@@ -7660,8 +8498,7 @@
      "Lille",
      "Limoges",
      "Lorient",
-     "Lyon",
-     "Marseille"
+     "Lyon"
     ],
     "GB": [
      "Belfast",
@@ -7696,8 +8533,7 @@
      "Templecombe",
      "Warton"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Assystem",
@@ -7775,8 +8611,7 @@
      "Whitehaven",
      "York"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Aumovio",
@@ -7842,8 +8677,7 @@
     "SK": [
      "Zvolen"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Averna",
@@ -7869,7 +8703,8 @@
     ],
     "FR": [
      "Colomiers",
-     "Toulouse"
+     "Toulouse",
+     "Voisins-le-Bretonneux"
     ],
     "GB": [
      "Christchurch"
@@ -7883,8 +8718,7 @@
      "Kraków",
      "Wrocław"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Brainlab",
@@ -7933,8 +8767,7 @@
     "SE": [
      "Stockholm"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Continental",
@@ -8034,11 +8867,11 @@
      "Kaufbeuren",
      "Kolbermoor",
      "Korbach",
+     "Leverkusen",
      "Magdeburg",
      "Mainz",
      "Melle",
-     "Memmingen",
-     "Munich"
+     "Memmingen"
     ],
     "ES": [
      "Bilbao",
@@ -8062,8 +8895,7 @@
     "SK": [
      "Púchov"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Ramboll",
@@ -8110,6 +8942,7 @@
      "Esbjerg",
      "Odense",
      "Roskilde",
+     "Silkeborg",
      "Vejle",
      "Århus"
     ],
@@ -8194,8 +9027,7 @@
      "Uppsala",
      "Västerås"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Renesas Electronics",
@@ -8268,8 +9100,7 @@
     "SE": [
      "Kista"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Segula Technologies",
@@ -8283,8 +9114,7 @@
     "FR": [
      "Paris"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Wabtec",
@@ -8375,13 +9205,13 @@
      "Kąty Wrocławskie"
     ],
     "SE": [
+     "Falun",
      "Landskrona"
     ],
     "SK": [
      "Topoľčany"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "XP Power",
@@ -8396,8 +9226,7 @@
      "Salach",
      "Schechen"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Elmos",
@@ -8413,8 +9242,7 @@
      "Düsseldorf",
      "Frankfurt (Oder)"
     ]
-   },
-   "checked": "2026-10-30"
+   }
   },
   {
    "name": "Kontron",
@@ -8425,6 +9253,7 @@
     "CH",
     "DE",
     "FR",
+    "PT",
     "SE"
    ],
    "elsewhere": true,
@@ -8448,11 +9277,13 @@
      "La Garde",
      "Montigny-le-Bretonneux"
     ],
+    "PT": [
+     "Lisbon"
+    ],
     "SE": [
      "Stockholm"
     ]
-   },
-   "checked": "2026-11-03"
+   }
   },
   {
    "name": "PULS",
@@ -8499,27 +9330,29 @@
     "NL": [
      "Hilversum"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Advanced Energy",
    "system": "successfactors",
    "board": "jobs.advanced-energy.com",
    "countries": [
+    "DE",
     "GB",
     "IE"
    ],
    "elsewhere": true,
    "towns": {
+    "DE": [
+     "Metzingen"
+    ],
     "GB": [
      "Littlehampton"
     ],
     "IE": [
      "Cork"
     ]
-   },
-   "checked": "2026-11-03"
+   }
   },
   {
    "name": "Alstom",
@@ -8532,6 +9365,7 @@
     "DE",
     "DK",
     "ES",
+    "FI",
     "FR",
     "GB",
     "GR",
@@ -8579,9 +9413,13 @@
      "Madrid",
      "Santa Perpètua de Mogoda"
     ],
+    "FI": [
+     "Helsinki"
+    ],
     "FR": [
      "Aix-en-Provence",
      "Belfort",
+     "Champigny-sur-Marne",
      "Crespin",
      "Gennevilliers",
      "Hangenbieten",
@@ -8604,6 +9442,7 @@
      "Villeurbanne"
     ],
     "GB": [
+     "Birmingham",
      "Brighton",
      "Derby",
      "East Ham",
@@ -8612,6 +9451,7 @@
      "Mansfield",
      "Milton Keynes",
      "Newcastle upon Tyne",
+     "Plymouth",
      "Wembley"
     ],
     "GR": [
@@ -8622,23 +9462,30 @@
      "Mátranovák"
     ],
     "IE": [
+     "Cork",
      "Dublin"
     ],
     "IT": [
+     "Ancona",
      "Bari",
      "Bologna",
      "Bolzano",
      "Florence",
      "Milan",
+     "Nola",
+     "Novara",
      "Reggio Calabria",
      "Rome",
      "Savigliano",
      "Sesto San Giovanni",
      "Vado Ligure",
+     "Valmadrera-Caserta",
      "Venice"
     ],
     "NL": [
+     "Amsterdam",
      "Nieuwegein",
+     "Ridderkerk",
      "Rotterdam"
     ],
     "NO": [
@@ -8653,7 +9500,8 @@
      "Wrocław"
     ],
     "PT": [
-     "Lisbon"
+     "Lisbon",
+     "Porto"
     ],
     "RO": [
      "Arad",
@@ -8688,6 +9536,7 @@
     "FR",
     "GB",
     "HU",
+    "IE",
     "IT",
     "PL",
     "PT",
@@ -8702,13 +9551,15 @@
     ],
     "CH": [
      "Escholzmatt",
-     "Sempach"
+     "Sempach",
+     "Urdorf"
     ],
     "CZ": [
      "Prague"
     ],
     "DE": [
      "Bad Arolsen",
+     "Bad Gottleuba-Berggießhübel",
      "Bad Kissingen",
      "Bad Lauterberg im Harz",
      "Bad Neustadt an der Saale",
@@ -8725,6 +9576,7 @@
      "Hilter",
      "Karlsruhe",
      "Kassel",
+     "Landau in der Pfalz",
      "Ludwigslust",
      "Mannheim",
      "Melsungen",
@@ -8741,26 +9593,30 @@
      "Roth",
      "Saarbrücken",
      "Schwerin",
+     "Sigmaringen",
      "Spangenberg",
      "Suhl",
      "Tuttlingen",
-     "Waldshut-Tiengen",
-     "Wilsdruff",
-     "Wolfenbüttel"
+     "Waldshut-Tiengen"
     ],
     "DK": [
      "Frederiksberg"
     ],
     "ES": [
+     "Alcobendas",
      "Barcelona",
      "Jaén",
-     "Rubí"
+     "Madrid",
+     "Rubí",
+     "Santa Oliva"
     ],
     "FR": [
      "Amilly",
      "Blois",
      "Carsac-Aillac",
+     "Chasseneuil-du-Poitou",
      "Hochfelden",
+     "Ludres",
      "Nogent-le-Rotrou",
      "Paris",
      "Saint-Cloud",
@@ -8768,6 +9624,7 @@
     ],
     "GB": [
      "Leeds",
+     "Llantrisant",
      "Newcastle upon Tyne",
      "Sheffield"
     ],
@@ -8778,7 +9635,11 @@
      "Kaposvár",
      "Kistarcsa",
      "Nyíregyháza",
+     "Siófok",
      "Székesfehérvár"
+    ],
+    "IE": [
+     "Portlaoise"
     ],
     "IT": [
      "Bra",
@@ -8791,6 +9652,7 @@
      "Radzyń Podlaski"
     ],
     "PT": [
+     "Mafra",
      "Matosinhos"
     ],
     "RO": [
@@ -8801,6 +9663,130 @@
     ],
     "SK": [
      "Bratislava"
+    ]
+   }
+  },
+  {
+   "name": "Bertrandt",
+   "system": "successfactors",
+   "board": "bertrandt.jobs.hr.cloud.sap",
+   "countries": [
+    "CH",
+    "CZ",
+    "DE",
+    "ES",
+    "FR",
+    "IT",
+    "MT",
+    "RO",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "CH": [
+     "Bern"
+    ],
+    "CZ": [
+     "Mladá Boleslav"
+    ],
+    "DE": [
+     "Ahlen",
+     "Altenstadt",
+     "Alzenau in Unterfranken",
+     "Amberg",
+     "Arnsberg",
+     "Arnstadt",
+     "Aschaffenburg",
+     "Augsburg",
+     "Backnang",
+     "Bad Homburg vor der Höhe",
+     "Bad Lauchstädt",
+     "Bad Saulgau",
+     "Baiersdorf",
+     "Bargteheide",
+     "Bautzen",
+     "Beckum",
+     "Bergedorf",
+     "Berlin",
+     "Biberach an der Riß",
+     "Bielefeld",
+     "Bietigheim-Bissingen",
+     "Bodelshausen",
+     "Brake (Unterweser)",
+     "Braunschweig",
+     "Bremen",
+     "Bremerhaven",
+     "Britz",
+     "Bruchsal",
+     "Böblingen",
+     "Bönen",
+     "Bönnigheim",
+     "Chemnitz",
+     "Coesfeld",
+     "Cottbus",
+     "Darmstadt",
+     "Ditzingen",
+     "Donauwörth",
+     "Dortmund",
+     "Dresden",
+     "Duisburg"
+    ],
+    "ES": [
+     "Albacete",
+     "Cartagena",
+     "Castellví de Rosanes",
+     "Getafe",
+     "Madrid",
+     "San Fernando",
+     "Valladolid",
+     "Vigo"
+    ],
+    "FR": [
+     "Amiens",
+     "Aubevoye",
+     "Bordeaux",
+     "Bourges",
+     "Buchelay",
+     "Caen",
+     "Chatou",
+     "Cherbourg",
+     "Dieppe",
+     "Douai",
+     "Flins-sur-Seine",
+     "Guyancourt",
+     "Lardy",
+     "Les Ulis",
+     "Lyon",
+     "Mantes-la-Ville",
+     "Massy",
+     "Maubeuge",
+     "Montataire",
+     "Plaisir",
+     "Roissy-en-France",
+     "Saclay",
+     "Toulouse",
+     "Versailles",
+     "Vitrolles",
+     "Vitry-sur-Seine",
+     "Vélizy-Villacoublay",
+     "Vénissieux",
+     "Élancourt",
+     "Éragny",
+     "Étupes"
+    ],
+    "IT": [
+     "Sant'Agata Bolognese",
+     "Turin"
+    ],
+    "MT": [
+     "Rabat"
+    ],
+    "RO": [
+     "Mioveni",
+     "Sibiu"
+    ],
+    "SE": [
+     "Gothenburg"
     ]
    }
   },
@@ -8820,7 +9806,9 @@
     "IE",
     "IT",
     "NL",
-    "PL"
+    "PL",
+    "PT",
+    "RO"
    ],
    "elsewhere": true,
    "towns": {
@@ -8828,6 +9816,7 @@
      "Diegem"
     ],
     "CH": [
+     "Bern",
      "Zürich"
     ],
     "CZ": [
@@ -8855,6 +9844,7 @@
     "GB": [
      "Bristol",
      "Hemel Hempstead",
+     "Manchester",
      "Middlesbrough",
      "Norwich"
     ],
@@ -8869,12 +9859,19 @@
     ],
     "NL": [
      "Kerkrade",
-     "Rotterdam"
+     "Rotterdam",
+     "Utrecht"
     ],
     "PL": [
      "Białystok",
      "Warsaw",
      "Wrocław"
+    ],
+    "PT": [
+     "Lisbon"
+    ],
+    "RO": [
+     "Bucharest"
     ]
    }
   },
@@ -8888,6 +9885,7 @@
     "DE",
     "GB",
     "HU",
+    "SE",
     "SK"
    ],
    "elsewhere": true,
@@ -8906,6 +9904,7 @@
      "Bremen",
      "Coburg",
      "Hallstadt",
+     "Oldenburg",
      "Wolfsburg",
      "Wuppertal",
      "Würzburg"
@@ -8916,8 +9915,47 @@
     "HU": [
      "Kecskemét"
     ],
+    "SE": [
+     "Torslanda"
+    ],
     "SK": [
      "Prievidza"
+    ]
+   }
+  },
+  {
+   "name": "Celestica",
+   "system": "successfactors",
+   "board": "careers.celestica.com",
+   "countries": [
+    "DE",
+    "DK",
+    "ES",
+    "GB",
+    "IE",
+    "RO"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Stuttgart"
+    ],
+    "DK": [
+     "Høng"
+    ],
+    "ES": [
+     "Sant Josep de sa Talaia",
+     "Valencia"
+    ],
+    "GB": [
+     "Newmarket",
+     "Portland"
+    ],
+    "IE": [
+     "Galway"
+    ],
+    "RO": [
+     "Oradea"
     ]
    }
   },
@@ -8951,7 +9989,8 @@
     ],
     "GB": [
      "Birmingham",
-     "Cambridge"
+     "Cambridge",
+     "Chatham"
     ],
     "HU": [
      "Győr"
@@ -8973,6 +10012,7 @@
    "countries": [
     "AT",
     "BE",
+    "CH",
     "CZ",
     "DE",
     "DK",
@@ -8981,6 +10021,7 @@
     "FR",
     "GB",
     "HR",
+    "HU",
     "IT",
     "NL",
     "PL",
@@ -8999,7 +10040,12 @@
      "Dilbeek",
      "Forest"
     ],
+    "CH": [
+     "Castel San Pietro",
+     "Frenkendorf"
+    ],
     "CZ": [
+     "Kostelec nad Orlicí",
      "Prague"
     ],
     "DE": [
@@ -9018,6 +10064,7 @@
      "Nordborg",
      "Rødekro",
      "Silkeborg",
+     "Sunds",
      "Sønderborg",
      "Tinglev"
     ],
@@ -9028,6 +10075,7 @@
      "Usurbil"
     ],
     "FI": [
+     "Helsinki",
      "Lappeenranta",
      "Vaasa"
     ],
@@ -9040,6 +10088,7 @@
     "GB": [
      "Dalkeith",
      "Durham",
+     "Gerrards Cross",
      "Havant",
      "Melbourne",
      "Uxbridge",
@@ -9047,6 +10096,9 @@
     ],
     "HR": [
      "Zagreb"
+    ],
+    "HU": [
+     "Budapest"
     ],
     "IT": [
      "Mestre",
@@ -9056,6 +10108,7 @@
      "Turin"
     ],
     "NL": [
+     "Eindhoven",
      "Gorinchem",
      "Rotterdam"
     ],
@@ -9066,10 +10119,12 @@
      "Caxias"
     ],
     "RO": [
-     "Bucharest"
+     "Bucharest",
+     "Tăşnad"
     ],
     "SE": [
-     "Gothenburg"
+     "Gothenburg",
+     "Stockholm"
     ],
     "SI": [
      "Kamnik",
@@ -9106,6 +10161,7 @@
      "Regensburg",
      "Stuttgart",
      "Ulm",
+     "Weingarten",
      "Wolfsburg"
     ]
    }
@@ -9125,7 +10181,9 @@
     "GR",
     "IE",
     "IT",
+    "LT",
     "NL",
+    "PL",
     "PT",
     "SE"
    ],
@@ -9147,12 +10205,17 @@
      "Frankfurt am Main",
      "Freiburg",
      "Gerlingen",
+     "Groß-Umstadt",
+     "Hamburg",
      "Hannover",
      "Ilmenau",
      "Jena",
      "Maulburg",
+     "Munich",
      "Nesselwang",
+     "Ratingen",
      "Stahnsdorf",
+     "Stuttgart",
      "Waldheim",
      "Weil am Rhein"
     ],
@@ -9161,9 +10224,13 @@
     ],
     "FR": [
      "Cernay",
-     "Saint-Priest"
+     "Montréal",
+     "Mérignac",
+     "Saint-Priest",
+     "Serris"
     ],
     "GB": [
+     "Edmonton",
      "Houston",
      "London",
      "Manchester",
@@ -9177,10 +10244,17 @@
      "Kill"
     ],
     "IT": [
+     "Rome",
      "Rubiera"
+    ],
+    "LT": [
+     "Kaunas"
     ],
     "NL": [
      "Naarden"
+    ],
+    "PL": [
+     "Wrocław"
     ],
     "PT": [
      "São Paulo de Frades"
@@ -9210,6 +10284,8 @@
      "Wilton"
     ],
     "IE": [
+     "Aghada",
+     "Donegal",
      "Dublin",
      "Finglas",
      "Tullamore"
@@ -9242,7 +10318,8 @@
      "Frederikshavn"
     ],
     "FR": [
-     "Chargé"
+     "Chargé",
+     "Saint-Nazaire"
     ]
    }
   },
@@ -9258,6 +10335,7 @@
    "elsewhere": true,
    "towns": {
     "DE": [
+     "Alzenau in Unterfranken",
      "Feldkirchen",
      "Göttingen",
      "Kelheim",
@@ -9265,7 +10343,8 @@
      "Regen"
     ],
     "GB": [
-     "Cambridge"
+     "Cambridge",
+     "Milford"
     ],
     "LU": [
      "Luxembourg"
@@ -9278,6 +10357,7 @@
    "board": "jobs.festo.com",
    "countries": [
     "BE",
+    "CH",
     "DE",
     "ES",
     "HU",
@@ -9291,9 +10371,13 @@
     "BE": [
      "Vilvoorde"
     ],
+    "CH": [
+     "Pieterlen"
+    ],
     "DE": [
      "Burg bei Magdeburg",
-     "Esslingen"
+     "Esslingen",
+     "Ostfildern"
     ],
     "ES": [
      "Barcelona"
@@ -9322,10 +10406,11 @@
    "countries": [
     "DE"
    ],
-   "elsewhere": true,
+   "elsewhere": false,
    "towns": {
     "DE": [
      "Aachen",
+     "Alzenau in Unterfranken",
      "Augsburg",
      "Bayreuth",
      "Berlin",
@@ -9354,6 +10439,8 @@
      "Göttingen",
      "Halle (Saale)",
      "Hamburg",
+     "Hanau am Main",
+     "Hannover",
      "Hansestadt Stade",
      "Heilbronn",
      "Ilmenau",
@@ -9361,10 +10448,7 @@
      "Jena",
      "Kaiserslautern",
      "Karlsruhe",
-     "Kassel",
-     "Leipzig",
-     "Lemgo",
-     "Leuna"
+     "Kassel"
     ]
    }
   },
@@ -9377,8 +10461,10 @@
     "CH",
     "DE",
     "ES",
+    "FR",
     "GB",
     "IT",
+    "PT",
     "RO",
     "SE"
    ],
@@ -9399,11 +10485,17 @@
      "Barcelona",
      "Los Angeles"
     ],
+    "FR": [
+     "Paris"
+    ],
     "GB": [
      "Elgin"
     ],
     "IT": [
      "Milan"
+    ],
+    "PT": [
+     "São Paulo de Frades"
     ],
     "RO": [
      "Agnita",
@@ -9423,6 +10515,7 @@
     "DE",
     "FR",
     "GB",
+    "NL",
     "NO"
    ],
    "elsewhere": true,
@@ -9432,8 +10525,10 @@
     ],
     "DE": [
      "Bückeburg",
+     "Friedberg",
      "Fürstenfeldbruck",
      "Hamburg",
+     "Herzberg am Harz",
      "Immenstaad am Bodensee",
      "Kiel",
      "Koblenz",
@@ -9446,13 +10541,18 @@
      "Ulm",
      "Wetzlar",
      "Wilhelmshaven",
-     "Wolfhagen"
+     "Wolfhagen",
+     "Wurster Nordseeküste"
     ],
     "FR": [
      "Toulouse"
     ],
     "GB": [
-     "Enfield Town"
+     "Enfield Town",
+     "Whitefield"
+    ],
+    "NL": [
+     "Rotterdam"
     ],
     "NO": [
      "Oslo"
@@ -9470,6 +10570,7 @@
    "elsewhere": true,
    "towns": {
     "GB": [
+     "Birmingham",
      "Ryton",
      "Solihull",
      "Wolverhampton"
@@ -9484,11 +10585,15 @@
    "system": "successfactors",
    "board": "careers.jenoptik.com",
    "countries": [
+    "AT",
     "DE",
     "GB"
    ],
    "elsewhere": true,
    "towns": {
+    "AT": [
+     "Vienna"
+    ],
     "DE": [
      "Berlin",
      "Dresden",
@@ -9501,8 +10606,7 @@
      "Farnborough",
      "Rochester"
     ]
-   },
-   "checked": "2026-10-30"
+   }
   },
   {
    "name": "KNDS Deutschland",
@@ -9525,8 +10629,7 @@
      "Mülheim",
      "Remscheid"
     ]
-   },
-   "checked": "2026-10-30"
+   }
   },
   {
    "name": "Knorr-Bremse",
@@ -9540,16 +10643,19 @@
     "FR",
     "GB",
     "HU",
-    "PL"
+    "PL",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
     "AT": [
+     "Kematen an der Ybbs",
      "Mödling"
     ],
     "CZ": [
      "Liberec",
-     "Modřice"
+     "Modřice",
+     "Stráž nad Nisou"
     ],
     "DE": [
      "Aldersbach",
@@ -9577,6 +10683,9 @@
      "Kraków",
      "Rzeszów",
      "Warsaw"
+    ],
+    "SE": [
+     "Lund"
     ]
    }
   },
@@ -9612,7 +10721,10 @@
      "Houthalen"
     ],
     "CH": [
-     "Buchs"
+     "Aarau",
+     "Buchs",
+     "Kaiseraugst",
+     "Zürich"
     ],
     "CZ": [
      "Zdiby"
@@ -9624,6 +10736,7 @@
      "Dortmund",
      "Gersthofen",
      "Hude",
+     "Magdeburg",
      "Siegen",
      "Westerstede"
     ],
@@ -9631,7 +10744,10 @@
      "Vilanova del Camí"
     ],
     "FR": [
-     "Sales"
+     "Lyon",
+     "Montigny-le-Bretonneux",
+     "Sales",
+     "Suresnes"
     ],
     "GB": [
      "Newport",
@@ -9640,6 +10756,7 @@
     "HU": [
      "Budapest",
      "Füzesgyarmat",
+     "Sáp",
      "Taksony"
     ],
     "IT": [
@@ -9662,7 +10779,90 @@
      "Setúbal"
     ],
     "SE": [
-     "Linköping"
+     "Gothenburg",
+     "Linköping",
+     "Partille"
+    ]
+   }
+  },
+  {
+   "name": "Lear",
+   "system": "successfactors",
+   "board": "jobs.lear.com",
+   "countries": [
+    "BE",
+    "CZ",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "HU",
+    "IT",
+    "MT",
+    "PL",
+    "PT",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "BE": [
+     "Vance"
+    ],
+    "CZ": [
+     "Ostrov",
+     "Pilsen"
+    ],
+    "DE": [
+     "Bersenbrück",
+     "Bremen",
+     "Kronach",
+     "Oberding",
+     "Remscheid",
+     "Sindelfingen"
+    ],
+    "ES": [
+     "El Paso",
+     "Martorell",
+     "Valladolid",
+     "Valls",
+     "Vigo"
+    ],
+    "FR": [
+     "Feignies"
+    ],
+    "GB": [
+     "Coventry",
+     "Flint",
+     "Hebron",
+     "Houghton-Le-Spring",
+     "Redditch",
+     "Rochester"
+    ],
+    "HU": [
+     "Győr",
+     "Kecskemét",
+     "Szolnok"
+    ],
+    "IT": [
+     "Grugliasco",
+     "Novi di Modena",
+     "Pozzo d'Adda"
+    ],
+    "MT": [
+     "Rabat"
+    ],
+    "PL": [
+     "Bieruń",
+     "Pruszków",
+     "Tychy"
+    ],
+    "PT": [
+     "Castelo Branco",
+     "Valenza"
+    ],
+    "SK": [
+     "Plavecký Štvrtok",
+     "Prešov"
     ]
    }
   },
@@ -9682,7 +10882,9 @@
     "IE",
     "IT",
     "NL",
-    "PL"
+    "PL",
+    "PT",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
@@ -9696,6 +10898,7 @@
      "Puch bei Hallein",
      "Rankweil",
      "Telfs",
+     "Vienna",
      "Wels"
     ],
     "BE": [
@@ -9714,10 +10917,12 @@
      "Deggendorf",
      "Dettingen an der Erms",
      "Dortmund",
+     "Ehingen",
      "Ettlingen",
      "Frankfurt am Main",
      "Friedrichshafen",
      "Hamburg",
+     "Hannover",
      "Kempten (Allgäu)",
      "Kirchdorf am Inn",
      "Köln",
@@ -9744,6 +10949,7 @@
     "FR": [
      "Bénesse-Maremne",
      "Campsas",
+     "Colmar",
      "Cugnaux",
      "Fontenay-Trésigny",
      "Gradignan",
@@ -9766,7 +10972,8 @@
      "Melbourne",
      "Newport",
      "Perth",
-     "Sheffield"
+     "Sheffield",
+     "Wigan"
     ],
     "HU": [
      "Vál"
@@ -9784,9 +10991,20 @@
      "Uithoorn"
     ],
     "PL": [
+     "Ełk",
      "Gdańsk",
      "Ruda Śląska",
-     "Rusiec"
+     "Rusiec",
+     "Warsaw"
+    ],
+    "PT": [
+     "São Paulo de Frades"
+    ],
+    "SE": [
+     "Eslöv",
+     "Gothenburg",
+     "Umeå",
+     "Västerås"
     ]
    }
   },
@@ -9807,7 +11025,8 @@
     "LU",
     "PL",
     "RO",
-    "SI"
+    "SI",
+    "SK"
    ],
    "elsewhere": true,
    "towns": {
@@ -9823,11 +11042,13 @@
     "DE": [
      "Eislingen",
      "Fellbach",
+     "Heinsdorfergrund",
      "Kornwestheim",
      "Lorch",
      "Markgröningen",
      "Mühlacker",
      "Rottweil",
+     "Schorndorf",
      "Stuttgart",
      "Vaihingen an der Enz",
      "Wölfersheim",
@@ -9835,6 +11056,7 @@
     ],
     "ES": [
      "El Paso",
+     "Lerma",
      "Montblanc",
      "Palencia",
      "Valencia"
@@ -9843,15 +11065,18 @@
      "Seboncourt"
     ],
     "GB": [
+     "Belmont",
      "Bilston",
      "Kilmarnock",
      "Melbourne",
+     "Northampton",
      "Tilbury"
     ],
     "HU": [
      "Balassagyarmat"
     ],
     "IT": [
+     "Parma",
      "Trento"
     ],
     "LU": [
@@ -9869,6 +11094,9 @@
      "Bovec",
      "Komen",
      "Šempeter pri Gorici"
+    ],
+    "SK": [
+     "Senica"
     ]
    }
   },
@@ -9924,15 +11152,19 @@
      "Vienna"
     ],
     "BE": [
-     "Belgrade"
+     "Belgrade",
+     "Gent"
     ],
     "CY": [
      "Livádia"
     ],
     "DE": [
      "Alsfeld",
+     "Eggebek",
      "Geilenkirchen",
      "Hamburg",
+     "Kist",
+     "Lehrte",
      "Leipzig",
      "Lubin",
      "Neumünster",
@@ -9943,8 +11175,11 @@
      "Seevetal",
      "Senftenberg",
      "Steinfurt",
+     "Straelen",
+     "Verden",
      "Wallenhorst",
-     "Warburg"
+     "Warburg",
+     "Wiedemar"
     ],
     "ES": [
      "Barásoain",
@@ -9959,15 +11194,23 @@
     ],
     "FR": [
      "Bonchamp-lès-Laval",
+     "Boufféré",
+     "Cholet",
      "Créhange",
      "Laon",
      "Montréal",
      "Pleyben",
+     "Péronne",
      "Saint-Dizier",
+     "Saint-Quentin",
      "Vienne"
     ],
     "GB": [
-     "Melbourne"
+     "Didsbury",
+     "Frodsham",
+     "Melbourne",
+     "Portland",
+     "Stirling"
     ],
     "GR": [
      "Kozáni",
@@ -9977,10 +11220,14 @@
     "IT": [
      "Ceva",
      "Policoro",
-     "Rome"
+     "Rome",
+     "Sassari",
+     "Villaurbana"
     ],
     "LT": [
-     "Mazeikiai"
+     "Kelmė",
+     "Mazeikiai",
+     "Taurage"
     ],
     "LV": [
      "Riga"
@@ -10005,7 +11252,9 @@
    "system": "successfactors",
    "board": "jobs.oxinst.com",
    "countries": [
+    "CH",
     "DE",
+    "ES",
     "FI",
     "FR",
     "GB",
@@ -10014,9 +11263,15 @@
    ],
    "elsewhere": true,
    "towns": {
+    "CH": [
+     "Zürich"
+    ],
     "DE": [
      "Ulm",
      "Wiesbaden"
+    ],
+    "ES": [
+     "Madrid"
     ],
     "FI": [
      "Espoo"
@@ -10075,6 +11330,7 @@
      "Ashford",
      "Benbecula",
      "Bristol",
+     "Coningsby",
      "Farnborough",
      "Gosport",
      "Lincoln",
@@ -10095,7 +11351,15 @@
    "countries": [
     "CZ",
     "DE",
-    "FR"
+    "DK",
+    "ES",
+    "FR",
+    "GB",
+    "HU",
+    "IT",
+    "PL",
+    "RO",
+    "SI"
    ],
    "elsewhere": true,
    "towns": {
@@ -10113,16 +11377,43 @@
      "Kiel",
      "Köln",
      "Leipzig",
+     "Mainhausen",
      "Meckenheim",
      "Memmingen",
      "Munich",
      "Oberursel",
      "Siegburg",
      "Stuttgart",
-     "Teisnach"
+     "Teisnach",
+     "Würselen"
+    ],
+    "DK": [
+     "Herlev"
+    ],
+    "ES": [
+     "Madrid"
     ],
     "FR": [
+     "La Ciotat",
      "Meudon-la-Forêt"
+    ],
+    "GB": [
+     "Fleet"
+    ],
+    "HU": [
+     "Budapest"
+    ],
+    "IT": [
+     "Rome"
+    ],
+    "PL": [
+     "Gdynia"
+    ],
+    "RO": [
+     "Bucharest"
+    ],
+    "SI": [
+     "Ljubljana"
     ]
    }
   },
@@ -10133,6 +11424,7 @@
    "countries": [
     "DE",
     "DK",
+    "ES",
     "GB",
     "IT",
     "NL",
@@ -10143,10 +11435,13 @@
     "DE": [
      "Bergheim",
      "Bernkastel-Kues",
+     "Biblis",
+     "Duisburg",
      "Essen",
      "Frechen",
      "Grevenbroich",
      "Hamburg",
+     "Hamm",
      "Hannover",
      "Helgoland",
      "Jemgum",
@@ -10159,6 +11454,10 @@
      "Copenhagen",
      "Rødby"
     ],
+    "ES": [
+     "Imperial",
+     "Madrid"
+    ],
     "GB": [
      "Carlton",
      "Coventry",
@@ -10167,6 +11466,7 @@
      "Great Yarmouth",
      "Grimsby",
      "King's Lynn",
+     "Little Barford",
      "London",
      "Lowestoft",
      "March",
@@ -10174,12 +11474,14 @@
      "Melbourne",
      "Mostyn",
      "Newhaven",
+     "Norwich",
      "Pembroke",
      "Swindon",
      "Workington"
     ],
     "IT": [
      "Morcone",
+     "Pontelandolfo",
      "Rome"
     ],
     "NL": [
@@ -10365,6 +11667,7 @@
      "Paris"
     ],
     "GB": [
+     "Birmingham",
      "Danbury",
      "Hereford",
      "Stratford"
@@ -10399,21 +11702,44 @@
    }
   },
   {
-   "name": "Sennheiser",
+   "name": "Seagate",
    "system": "successfactors",
-   "board": "jobs.sennheiser.com",
+   "board": "seagatecareers.com",
    "countries": [
-    "DE",
     "GB"
    ],
    "elsewhere": true,
    "towns": {
+    "GB": [
+     "Derry"
+    ]
+   }
+  },
+  {
+   "name": "Sennheiser",
+   "system": "successfactors",
+   "board": "jobs.sennheiser.com",
+   "countries": [
+    "BE",
+    "DE",
+    "GB",
+    "PL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "BE": [
+     "Brussels"
+    ],
     "DE": [
      "Berlin",
-     "Duisburg"
+     "Duisburg",
+     "Elze"
     ],
     "GB": [
      "Marlow"
+    ],
+    "PL": [
+     "Poznań"
     ]
    }
   },
@@ -10430,10 +11756,32 @@
      "Donaueschingen",
      "Düsseldorf",
      "Rahlstedt",
+     "Reute",
      "Waldkirch"
     ]
-   },
-   "checked": "2026-10-30"
+   }
+  },
+  {
+   "name": "Skyworks",
+   "system": "successfactors",
+   "board": "careers.skyworksinc.com",
+   "countries": [
+    "DE",
+    "ES",
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Munich"
+    ],
+    "ES": [
+     "Barcelona"
+    ],
+    "GB": [
+     "Reading"
+    ]
+   }
   },
   {
    "name": "SMA Solar",
@@ -10454,10 +11802,12 @@
      "Mechelen"
     ],
     "DE": [
-     "Kassel"
+     "Kassel",
+     "Niestetal"
     ],
     "ES": [
-     "Madrid"
+     "Madrid",
+     "Santiago de Compostela"
     ],
     "FR": [
      "Lyon",
@@ -10473,8 +11823,7 @@
      "Kraków",
      "Modlniczka"
     ]
-   },
-   "checked": "2026-10-30"
+   }
   },
   {
    "name": "sonnen",
@@ -10483,7 +11832,7 @@
    "countries": [
     "DE"
    ],
-   "elsewhere": true,
+   "elsewhere": false,
    "towns": {
     "DE": [
      "Twistringen",
@@ -10509,9 +11858,11 @@
     "IE",
     "IT",
     "NL",
+    "NO",
     "PL",
     "PT",
-    "RO"
+    "RO",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
@@ -10535,6 +11886,8 @@
      "Berlin",
      "Calw",
      "Dinkelsbühl",
+     "Dresden",
+     "Hamburg",
      "Munich",
      "Ottobrunn bei München",
      "Speyer",
@@ -10553,6 +11906,8 @@
      "Santiago de Compostela"
     ],
     "FR": [
+     "Cergy",
+     "Cergy-Pontoise",
      "Gevrey-Chambertin",
      "Grenoble",
      "Paris",
@@ -10560,6 +11915,7 @@
      "Saint-Égrève",
      "Sales",
      "Toulouse",
+     "Vernouillet",
      "Évreux"
     ],
     "GB": [
@@ -10567,16 +11923,20 @@
      "Cambridge",
      "Hampton",
      "Hastings",
+     "Irvine",
      "London",
      "Mansfield",
+     "Northborough",
      "Plymouth",
      "Rochester",
      "Swindon",
-     "Winston"
+     "Winston",
+     "Witham"
     ],
     "HU": [
      "Budapest",
-     "Esztergom"
+     "Esztergom",
+     "Tát"
     ],
     "IE": [
      "Fairview",
@@ -10591,6 +11951,9 @@
     "NL": [
      "'s-Hertogenbosch"
     ],
+    "NO": [
+     "Oslo"
+    ],
     "PL": [
      "Bydgoszcz",
      "Kraków",
@@ -10604,6 +11967,50 @@
     ],
     "RO": [
      "Timişoara"
+    ],
+    "SE": [
+     "Stockholm"
+    ]
+   }
+  },
+  {
+   "name": "Teradyne",
+   "system": "successfactors",
+   "board": "jobs.teradyne.com",
+   "countries": [
+    "DE",
+    "DK",
+    "ES",
+    "FR",
+    "GB",
+    "IT"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Munich",
+     "Regensburg"
+    ],
+    "DK": [
+     "Arden",
+     "Odense"
+    ],
+    "ES": [
+     "Laguna de Duero",
+     "San Diego",
+     "Sant Josep de sa Talaia",
+     "Santiago de Compostela"
+    ],
+    "FR": [
+     "Grenoble"
+    ],
+    "GB": [
+     "Irvine"
+    ],
+    "IT": [
+     "Catania",
+     "Milan",
+     "Turin"
     ]
    }
   },
@@ -10616,6 +12023,7 @@
     "BE",
     "CH",
     "DE",
+    "DK",
     "ES",
     "FR",
     "GB",
@@ -10628,9 +12036,12 @@
     "AT": [
      "Bruck an der Mur",
      "Deutschlandsberg",
+     "Eisenstadt",
      "Klagenfurt am Wörthersee",
      "Reutte",
      "Salzburg",
+     "Sankt Pölten",
+     "Traun",
      "Vienna",
      "Wels"
     ],
@@ -10643,6 +12054,7 @@
     "DE": [
      "Bergheim",
      "Berlin",
+     "Bielefeld",
      "Bremen",
      "Dortmund",
      "Dresden",
@@ -10657,15 +12069,27 @@
      "Stuttgart",
      "Ulm"
     ],
+    "DK": [
+     "Taastrup"
+    ],
     "ES": [
      "Alcobendas",
+     "Barcelona",
      "Gasteiz / Vitoria",
+     "Gijón",
+     "Girona",
+     "Granada",
      "Las Rozas de Madrid",
      "Madrid",
      "Pamplona",
      "Salamanca",
      "Segovia",
+     "Sevilla",
      "Toledo",
+     "Valencia",
+     "Valladolid",
+     "Zamudio",
+     "Zaragoza",
      "Ávila"
     ],
     "FR": [
@@ -10683,11 +12107,13 @@
     ],
     "PL": [
      "Katowice",
+     "Kraków",
      "Warsaw"
     ],
     "SK": [
      "Senica",
-     "Skalica"
+     "Skalica",
+     "Trenčín"
     ]
    }
   },
@@ -10714,8 +12140,7 @@
     "ES": [
      "Barcelona"
     ]
-   },
-   "checked": "2026-10-30"
+   }
   },
   {
    "name": "Vestas",
@@ -10724,6 +12149,7 @@
    "countries": [
     "AT",
     "BE",
+    "CZ",
     "DE",
     "DK",
     "EE",
@@ -10734,6 +12160,7 @@
     "GR",
     "IT",
     "NL",
+    "NO",
     "PL",
     "PT",
     "RO",
@@ -10744,15 +12171,22 @@
     "AT": [
      "Parndorf",
      "Vienna",
+     "Wiesen",
      "Zistersdorf"
     ],
     "BE": [
+     "Floreffe",
      "Houthalen",
      "Maldegem",
-     "Ostend"
+     "Ostend",
+     "Waterloo"
+    ],
+    "CZ": [
+     "Olomouc"
     ],
     "DE": [
      "Berlin",
+     "Bremen",
      "Dresden",
      "Düsseldorf",
      "Erfurt",
@@ -10764,6 +12198,8 @@
      "Magdeburg",
      "Munich",
      "Potsdam",
+     "Rheine",
+     "Sassnitz",
      "Schwerin",
      "Stuttgart",
      "Travemünde",
@@ -10774,6 +12210,7 @@
      "Esbjerg",
      "Munkebo",
      "Nakskov",
+     "Randers",
      "Ringkøbing",
      "Videbæk",
      "Århus"
@@ -10782,6 +12219,7 @@
      "Kohtla-Järve"
     ],
     "ES": [
+     "A Coruña",
      "Albacete",
      "Albolote",
      "Arbo",
@@ -10792,6 +12230,7 @@
      "Madrid",
      "Melilla",
      "Port de Pollença",
+     "Santiago de Compostela",
      "Santo Domingo de la Calzada",
      "Valladolid",
      "Viveiro"
@@ -10810,6 +12249,7 @@
      "Châteauroux",
      "Courtenay",
      "Fruges",
+     "Granville",
      "Langres",
      "Lay-Saint-Christophe",
      "Lussac-les-Châteaux",
@@ -10818,6 +12258,7 @@
      "Rennes",
      "Rivière",
      "Ruffec",
+     "Saint-Martin sous Mouzeuil",
      "Saint-Mathieu",
      "Torcy",
      "Trémuson",
@@ -10825,17 +12266,20 @@
     ],
     "GB": [
      "Aberdeen",
+     "Bow",
      "Brighton",
      "Chetwynd",
      "Dundee",
      "Edinburgh",
      "Glasgow",
      "Greenfield",
+     "Halkirk",
      "Hebron",
      "Houston",
      "Lincoln",
      "London",
      "Melbourne",
+     "Montrose",
      "Newport",
      "Portland",
      "Sheffield",
@@ -10858,8 +12302,10 @@
      "Bisaccia",
      "Campo di Marte",
      "Castellina Marittima",
+     "Foggia",
      "Palazzo San Gervasio",
      "Pietramontecorvino",
+     "Pisticci",
      "Rome",
      "San Marco",
      "Taranto",
@@ -10872,17 +12318,25 @@
      "IJmuiden",
      "Noord-Scharwoude"
     ],
+    "NO": [
+     "Trondheim"
+    ],
     "PL": [
      "Bartoszyce",
      "Błaszki",
+     "Elbląg",
      "Goleniów",
+     "Grudziądz",
      "Iłża",
      "Lubin",
+     "Pyrzyce",
      "Szczecin",
      "Toruń",
+     "Warsaw",
      "Łeba"
     ],
     "PT": [
+     "Câmara de Lobos",
      "Lajes",
      "Lisbon",
      "Maia",
@@ -10903,8 +12357,7 @@
      "Malmö",
      "Åseda"
     ]
-   },
-   "checked": "2026-10-30"
+   }
   },
   {
    "name": "Vitesco Technologies",
@@ -10914,6 +12367,7 @@
     "CZ",
     "DE",
     "FR",
+    "GB",
     "HU",
     "RO"
    ],
@@ -10929,11 +12383,15 @@
      "Dortmund",
      "Limbach-Oberfrohna",
      "Nuremberg",
-     "Regensburg"
+     "Regensburg",
+     "Schwalbach"
     ],
     "FR": [
      "Foix",
      "Toulouse"
+    ],
+    "GB": [
+     "Chatham"
     ],
     "HU": [
      "Debrecen"
@@ -10954,7 +12412,9 @@
     "AT",
     "DE",
     "IT",
-    "RO"
+    "PT",
+    "RO",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
@@ -10969,6 +12429,7 @@
      "Essen",
      "Heidenheim an der Brenz",
      "Kiel",
+     "Munich",
      "Mönchengladbach",
      "Sachsen bei Ansbach",
      "Salzgitter",
@@ -10979,8 +12440,14 @@
      "Reggio nell'Emilia",
      "Vicenza"
     ],
+    "PT": [
+     "Coimbra"
+    ],
     "RO": [
      "Bucharest"
+    ],
+    "SE": [
+     "Karlstad"
     ]
    }
   },
@@ -10999,6 +12466,7 @@
     "NL",
     "PL",
     "PT",
+    "SE",
     "SK"
    ],
    "elsewhere": true,
@@ -11006,6 +12474,7 @@
     "AT": [
      "Deutschlandsberg",
      "Graz",
+     "Hagenberg im Mühlkreis",
      "Hallein",
      "Innsbruck",
      "Kapfenberg",
@@ -11027,6 +12496,8 @@
      "Wörgl"
     ],
     "CZ": [
+     "Kvasiny",
+     "Mladá Boleslav",
      "Prague"
     ],
     "DE": [
@@ -11036,6 +12507,7 @@
      "Braunschweig",
      "Chemnitz",
      "Dresden",
+     "Elze",
      "Emden",
      "Hannover",
      "Ingolstadt",
@@ -11046,6 +12518,7 @@
      "Osnabrück",
      "Salzgitter",
      "Wolfsburg",
+     "Zell",
      "Zwickau"
     ],
     "ES": [
@@ -11067,12 +12540,17 @@
      "Tatabánya"
     ],
     "IT": [
+     "Bergamo",
+     "Bolzano",
      "Brescia",
      "Desenzano del Garda",
+     "Fidenza",
      "Florence",
      "Milan",
      "Parma",
+     "Sant'Agata Bolognese",
      "Trento",
+     "Treviglio",
      "Udine",
      "Verona"
     ],
@@ -11096,9 +12574,13 @@
      "Carnaxide",
      "Lisbon",
      "Loures",
+     "Oeiras",
      "Palmela",
      "Porto",
      "São Paulo de Frades"
+    ],
+    "SE": [
+     "Åre"
     ],
     "SK": [
      "Bratislava"
@@ -11150,8 +12632,7 @@
     "SK": [
      "Košice"
     ]
-   },
-   "checked": "2026-10-30"
+   }
   },
   {
    "name": "X-FAB",
@@ -11171,8 +12652,7 @@
     "FR": [
      "Corbeil-Essonnes"
     ]
-   },
-   "checked": "2026-11-03"
+   }
   },
   {
    "name": "ZF",
@@ -11186,6 +12666,7 @@
     "ES",
     "FR",
     "GB",
+    "HR",
     "HU",
     "IE",
     "IT",
@@ -11202,7 +12683,9 @@
      "Vienna"
     ],
     "BE": [
+     "Antwerp",
      "Brussels",
+     "Groot-Bijgaarden",
      "Ieper",
      "Lommel"
     ],
@@ -11216,11 +12699,13 @@
      "Staňkov"
     ],
     "DE": [
+     "Auerbach",
      "Bayreuth",
      "Berlin",
      "Bielefeld",
      "Bremen",
      "Diepholz",
+     "Düsseldorf",
      "Friedrichshafen",
      "Gronau",
      "Hannover",
@@ -11232,11 +12717,13 @@
      "Mannheim",
      "Munich",
      "Neuwied",
+     "Passau",
      "Pfungstadt",
      "Radolfzell",
      "Saarbrücken",
      "Schweinfurt",
-     "Urbach"
+     "Urbach",
+     "Witten"
     ],
     "ES": [
      "Alfaro",
@@ -11259,6 +12746,9 @@
      "Peterlee",
      "Solihull",
      "Woodstock"
+    ],
+    "HR": [
+     "Zagreb"
     ],
     "HU": [
      "Budapest",
@@ -11287,6 +12777,7 @@
     ],
     "PT": [
      "Campinas",
+     "Miramar",
      "São Domingos de Rana"
     ],
     "RO": [
@@ -11316,7 +12807,8 @@
      "Berlin",
      "Hamburg",
      "Köln",
-     "Leipzig"
+     "Leipzig",
+     "Munich"
     ],
     "SE": [
      "Stockholm"
@@ -11438,15 +12930,20 @@
    "board": "ethos",
    "countries": [
     "GB",
-    "IE"
+    "IE",
+    "LT"
    ],
    "elsewhere": false,
    "towns": {
     "GB": [
-     "Birmingham"
+     "Birmingham",
+     "London"
     ],
     "IE": [
      "Dublin"
+    ],
+    "LT": [
+     "Vilnius"
     ]
    }
   },
@@ -11456,19 +12953,25 @@
    "board": "hollis",
    "countries": [
     "GB",
+    "IE",
     "NL"
    ],
    "elsewhere": false,
    "towns": {
     "GB": [
+     "Belfast",
      "Birmingham",
      "Bristol",
      "Edinburgh",
      "Glasgow",
      "London",
      "Manchester",
+     "Milton Keynes",
      "Newcastle upon Tyne",
      "Nottingham"
+    ],
+    "IE": [
+     "Dublin"
     ],
     "NL": [
      "Amsterdam"
@@ -11485,10 +12988,12 @@
     "CH",
     "CY",
     "DE",
+    "DK",
     "ES",
     "FI",
     "FR",
     "GR",
+    "HR",
     "IE",
     "IT",
     "LT",
@@ -11496,7 +13001,8 @@
     "NO",
     "PL",
     "RO",
-    "SE"
+    "SE",
+    "SI"
    ],
    "elsewhere": true,
    "towns": {
@@ -11515,6 +13021,9 @@
      "Hamburg",
      "Munich"
     ],
+    "DK": [
+     "Copenhagen"
+    ],
     "ES": [
      "Barcelona"
     ],
@@ -11526,6 +13035,9 @@
     ],
     "GR": [
      "Maroúsi"
+    ],
+    "HR": [
+     "Zagreb"
     ],
     "IE": [
      "Dublin"
@@ -11548,6 +13060,9 @@
     ],
     "SE": [
      "Solna"
+    ],
+    "SI": [
+     "Ljubljana"
     ]
    }
   },
@@ -11608,6 +13123,7 @@
    "countries": [
     "CZ",
     "ES",
+    "FR",
     "GB",
     "IT"
    ],
@@ -11619,11 +13135,15 @@
     "ES": [
      "Altsasu",
      "Beasain",
+     "Berango",
      "Castelló de la Plana",
      "Madrid",
      "Ortuella",
      "Sesma",
      "Zamudio"
+    ],
+    "FR": [
+     "Labège"
     ],
     "GB": [
      "Bristol"
@@ -11687,8 +13207,7 @@
     "GB": [
      "Stockport"
     ]
-   },
-   "checked": "2026-10-30"
+   }
   },
   {
    "name": "Lotus",
@@ -11714,7 +13233,8 @@
      "Paris"
     ],
     "GB": [
-     "Coventry"
+     "Coventry",
+     "Norwich"
     ],
     "IT": [
      "Assago"
@@ -11734,7 +13254,8 @@
    "elsewhere": false,
    "towns": {
     "DE": [
-     "Berlin"
+     "Berlin",
+     "Köln"
     ]
    }
   },
@@ -11748,7 +13269,8 @@
    "elsewhere": false,
    "towns": {
     "DE": [
-     "Berlin"
+     "Berlin",
+     "Konstanz"
     ]
    }
   },
@@ -11776,6 +13298,7 @@
     "CZ",
     "DE",
     "DK",
+    "ES",
     "FR",
     "GB",
     "IE",
@@ -11791,6 +13314,7 @@
      "Vienna"
     ],
     "BE": [
+     "Brussels",
      "Machelen"
     ],
     "CZ": [
@@ -11806,7 +13330,8 @@
      "Issy-les-Moulineaux"
     ],
     "GB": [
-     "London"
+     "London",
+     "Milton Keynes"
     ],
     "IE": [
      "Dublin"
@@ -11861,22 +13386,28 @@
    "countries": [
     "IE"
    ],
-   "elsewhere": true,
+   "elsewhere": false,
    "towns": {
     "IE": [
+     "Athenry",
      "Athlone",
      "Castlebar",
      "Castlerea",
+     "Cluain Meala",
      "Cork",
      "Dublin",
      "Dundalk",
      "Galway",
      "Kildare",
+     "Killarney",
      "Limerick",
      "Listowel",
      "Macroom",
      "Nenagh",
      "Rathcoole",
+     "Shannon",
+     "Skerries",
+     "Swords",
      "Tipperary"
     ]
    }
@@ -11971,6 +13502,7 @@
    "elsewhere": false,
    "towns": {
     "NL": [
+     "Amsterdam",
      "Utrecht"
     ]
    }
@@ -11990,6 +13522,7 @@
     "GR",
     "IT",
     "LU",
+    "NL",
     "SE"
    ],
    "elsewhere": true,
@@ -12004,6 +13537,7 @@
      "Geneva"
     ],
     "ES": [
+     "Sevilla",
      "Valencia"
     ],
     "FR": [
@@ -12017,6 +13551,9 @@
     ],
     "LU": [
      "Luxembourg"
+    ],
+    "NL": [
+     "The Hague"
     ],
     "SE": [
      "Stockholm"
@@ -12099,17 +13636,32 @@
    "system": "workable",
    "board": "pubgenius-1",
    "countries": [
+    "AT",
+    "CZ",
+    "EE",
     "ES",
     "GR",
     "HU",
     "LT",
+    "MT",
     "PL",
+    "PT",
     "RO"
    ],
    "elsewhere": true,
    "towns": {
+    "AT": [
+     "Vienna"
+    ],
+    "CZ": [
+     "Prague"
+    ],
+    "EE": [
+     "Tallinn"
+    ],
     "ES": [
-     "Barcelona"
+     "Barcelona",
+     "Madrid"
     ],
     "GR": [
      "Athens"
@@ -12121,8 +13673,17 @@
     "LT": [
      "Vilnius"
     ],
+    "MT": [
+     "Valletta"
+    ],
     "PL": [
-     "Kraków"
+     "Kraków",
+     "Poznań",
+     "Warsaw",
+     "Wrocław"
+    ],
+    "PT": [
+     "Lisbon"
     ],
     "RO": [
      "Bucharest",
@@ -12146,13 +13707,18 @@
    "system": "workable",
    "board": "skroutz",
    "countries": [
+    "CY",
     "GR"
    ],
    "elsewhere": false,
    "towns": {
+    "CY": [
+     "Larnaca"
+    ],
     "GR": [
      "Asprópyrgos",
-     "Athens"
+     "Athens",
+     "Paianía"
     ]
    }
   },
@@ -12166,7 +13732,8 @@
    "elsewhere": false,
    "towns": {
     "IE": [
-     "Dublin"
+     "Dublin",
+     "Shannon"
     ]
    }
   },
@@ -12220,6 +13787,7 @@
     "GB",
     "GR",
     "HR",
+    "IE",
     "IT",
     "PL",
     "PT"
@@ -12228,6 +13796,35 @@
    "towns": {
     "GB": [
      "London"
+    ]
+   }
+  },
+  {
+   "name": "3M",
+   "system": "workday",
+   "board": "https://3m.wd1.myworkdayjobs.com/search",
+   "countries": [
+    "AT",
+    "BE",
+    "CH",
+    "CZ",
+    "DE",
+    "DK",
+    "ES",
+    "FR",
+    "GB",
+    "HU",
+    "IE",
+    "IT",
+    "NL",
+    "PL",
+    "SE",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "IT": [
+     "Milan"
     ]
    }
   },
@@ -12247,12 +13844,14 @@
     "FR",
     "GB",
     "GR",
+    "HR",
     "IE",
     "IT",
     "NL",
     "NO",
     "PL",
     "PT",
+    "RO",
     "SE",
     "SI"
    ],
@@ -12282,8 +13881,12 @@
     ],
     "DE": [
      "Aachen",
+     "Augsburg",
      "Berlin",
+     "Bielefeld",
+     "Bochum",
      "Bremen",
+     "Dortmund",
      "Dresden",
      "Düsseldorf",
      "Erfurt",
@@ -12335,6 +13938,8 @@
      "Limoges",
      "Lyon",
      "Marseille",
+     "Metz",
+     "Nancy",
      "Nantes",
      "Paris",
      "Rennes",
@@ -12347,7 +13952,11 @@
      "Birmingham",
      "Bournemouth",
      "Bristol",
+     "Cardiff",
+     "Chelmsford",
+     "Cheltenham",
      "Dundee",
+     "Durham",
      "Edinburgh",
      "Exeter",
      "Glasgow",
@@ -12359,17 +13968,26 @@
      "Loughton",
      "Maidenhead",
      "Manchester",
+     "Middlesbrough",
      "Nottingham",
      "Plymouth",
+     "Reading",
+     "Sheffield",
      "Sittingbourne",
      "Solihull",
+     "Sunderland",
+     "Swansea",
      "Swindon",
      "Wales",
      "Walsall",
-     "Witney"
+     "Witney",
+     "York"
     ],
     "GR": [
      "Álimos"
+    ],
+    "HR": [
+     "Slavonski Brod"
     ],
     "IE": [
      "Cluain Meala",
@@ -12392,6 +14010,7 @@
      "Milan",
      "Naples",
      "Novara",
+     "Padua",
      "Palermo",
      "Parma",
      "Pescara",
@@ -12399,9 +14018,16 @@
      "Rome",
      "Salerno",
      "Taranto",
-     "Turin"
+     "Trento",
+     "Treviso",
+     "Trieste",
+     "Turin",
+     "Udine",
+     "Venice",
+     "Verona"
     ],
     "NL": [
+     "Amsterdam",
      "Breda",
      "Heerlen",
      "Hoofddorp",
@@ -12413,7 +14039,14 @@
      "Oslo"
     ],
     "PL": [
+     "Kraków",
      "Warsaw"
+    ],
+    "PT": [
+     "Porto"
+    ],
+    "RO": [
+     "Bucharest"
     ],
     "SE": [
      "Solna",
@@ -12470,6 +14103,7 @@
      "Bern",
      "Geneva",
      "Lausanne",
+     "Lugano",
      "Zürich"
     ],
     "CZ": [
@@ -12483,17 +14117,27 @@
      "Braunschweig",
      "Bremen",
      "Böblingen",
+     "Donauwörth",
      "Dresden",
      "Düsseldorf",
      "Essen",
      "Frankfurt am Main",
+     "Freiburg",
      "Hamburg",
      "Hannover",
      "Jena",
      "Kaiserslautern",
+     "Karlsruhe",
+     "Koblenz",
      "Mannheim",
      "Munich",
+     "Nuremberg",
+     "Regensburg",
+     "Saarbrücken",
      "Stuttgart",
+     "Ulm",
+     "Villingen-Schwenningen",
+     "Wetzlar",
      "Wolfsburg",
      "Würzburg"
     ],
@@ -12526,11 +14170,14 @@
      "Tampere"
     ],
     "FR": [
+     "Bordeaux",
      "Brest",
      "Clermont-Ferrand",
      "Lyon",
      "Montoir-de-Bretagne",
-     "Paris"
+     "Nantes",
+     "Paris",
+     "Sophia Antipolis"
     ],
     "GB": [
      "Bath",
@@ -12543,6 +14190,7 @@
      "London",
      "Manchester",
      "Newcastle upon Tyne",
+     "Newport",
      "Portsmouth"
     ],
     "GR": [
@@ -12675,6 +14323,7 @@
      "Sevilla"
     ],
     "FR": [
+     "Bordeaux",
      "Clermont-Ferrand",
      "Issy-les-Moulineaux",
      "Lyon",
@@ -12713,6 +14362,7 @@
     ],
     "SE": [
      "Gothenburg",
+     "Malmö",
      "Stockholm"
     ]
    }
@@ -12722,6 +14372,7 @@
    "system": "workday",
    "board": "https://agilent.wd5.myworkdayjobs.com/Agilent_Careers",
    "countries": [
+    "AT",
     "BE",
     "CH",
     "DE",
@@ -12737,8 +14388,20 @@
    ],
    "elsewhere": true,
    "towns": {
+    "CH": [
+     "Basel",
+     "Lausanne",
+     "Luzern"
+    ],
     "DE": [
-     "Freiburg"
+     "Berlin",
+     "Freiburg",
+     "Hamburg",
+     "Hannover",
+     "Kiel",
+     "Mainz",
+     "Stuttgart",
+     "Waldbronn"
     ],
     "DK": [
      "Glostrup"
@@ -12763,11 +14426,15 @@
      "Dublin"
     ],
     "IT": [
+     "Catania",
+     "Messina",
      "Milan",
+     "Palermo",
      "Turin"
     ],
     "NL": [
-     "Amstelveen"
+     "Amstelveen",
+     "Middelburg"
     ]
    }
   },
@@ -12776,22 +14443,34 @@
    "system": "workday",
    "board": "https://agilent.wd5.myworkdayjobs.com/Agilent_Student_Careers",
    "countries": [
+    "CH",
     "DE",
     "DK",
     "ES",
+    "GB",
     "IT",
     "NL"
    ],
    "elsewhere": true,
    "towns": {
+    "CH": [
+     "Basel"
+    ],
+    "DE": [
+     "Waldbronn"
+    ],
     "DK": [
      "Glostrup"
     ],
     "ES": [
      "Barcelona"
     ],
+    "GB": [
+     "Cheadle"
+    ],
     "IT": [
      "Bologna",
+     "Florence",
      "Milan",
      "Turin"
     ],
@@ -12805,12 +14484,14 @@
    "system": "workday",
    "board": "https://aig.wd1.myworkdayjobs.com/aig",
    "countries": [
+    "AT",
     "BE",
     "CH",
     "CY",
     "DE",
     "DK",
     "ES",
+    "FI",
     "FR",
     "GB",
     "GR",
@@ -12821,6 +14502,9 @@
    ],
    "elsewhere": true,
    "towns": {
+    "AT": [
+     "Vienna"
+    ],
     "BE": [
      "Brussels"
     ],
@@ -12840,11 +14524,17 @@
     "ES": [
      "Madrid"
     ],
+    "FI": [
+     "Helsinki"
+    ],
     "FR": [
-     "Courbevoie"
+     "Courbevoie",
+     "Lyon"
     ],
     "GB": [
+     "Birmingham",
      "Church Street",
+     "Colchester",
      "Glasgow",
      "London",
      "Manchester"
@@ -12914,12 +14604,15 @@
      "Getafe",
      "Madrid",
      "San Pablo de la Moraleja",
-     "Sevilla"
+     "Sevilla",
+     "Tres Cantos"
     ],
     "FI": [
-     "Helsinki"
+     "Helsinki",
+     "Jyväskylä"
     ],
     "FR": [
+     "Aix-en-Provence",
      "Bordeaux",
      "Clermont-Ferrand",
      "Marseille",
@@ -12927,12 +14620,14 @@
      "Nantes",
      "Paris",
      "Rennes",
+     "Saint-Martin sous Mouzeuil",
      "Toulouse",
      "Tremblay-en-France"
     ],
     "GB": [
      "Belfast",
      "Bristol",
+     "Chester",
      "Chippenham",
      "Guildford",
      "London",
@@ -12955,6 +14650,7 @@
      "Amsterdam"
     ],
     "PL": [
+     "Gdańsk",
      "Kraków",
      "Łódź"
     ],
@@ -12999,8 +14695,7 @@
     "IT": [
      "Milan"
     ]
-   },
-   "checked": "2026-11-03"
+   }
   },
   {
    "name": "Altera",
@@ -13020,8 +14715,7 @@
     "RO": [
      "Iaşi"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Amgen",
@@ -13030,14 +14724,18 @@
    "countries": [
     "BE",
     "CH",
+    "CZ",
     "DE",
+    "DK",
     "ES",
     "FR",
     "GB",
     "GR",
     "IE",
     "IS",
+    "IT",
     "NL",
+    "PL",
     "PT",
     "RO",
     "SK"
@@ -13050,8 +14748,14 @@
     "CH": [
      "Rotkreuz"
     ],
+    "CZ": [
+     "Prague"
+    ],
     "DE": [
      "Munich"
+    ],
+    "DK": [
+     "Copenhagen"
     ],
     "ES": [
      "Barcelona",
@@ -13061,6 +14765,7 @@
      "Paris"
     ],
     "GB": [
+     "Aberdeen",
      "Cambridge",
      "Edinburgh",
      "London",
@@ -13076,6 +14781,9 @@
     ],
     "IS": [
      "Reykjavík"
+    ],
+    "IT": [
+     "Milan"
     ],
     "NL": [
      "Breda"
@@ -13106,7 +14814,10 @@
     "IE",
     "IT",
     "NL",
-    "RO"
+    "NO",
+    "PL",
+    "RO",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
@@ -13148,6 +14859,9 @@
     ],
     "RO": [
      "Cluj-Napoca"
+    ],
+    "SE": [
+     "Stockholm"
     ]
    }
   },
@@ -13181,7 +14895,8 @@
     ],
     "DE": [
      "Berlin",
-     "Dresden"
+     "Dresden",
+     "Munich"
     ],
     "FR": [
      "Grenoble"
@@ -13209,6 +14924,7 @@
    "system": "workday",
    "board": "https://aptiv.wd5.myworkdayjobs.com/APTIV_CAREERS",
    "countries": [
+    "AT",
     "CH",
     "DE",
     "ES",
@@ -13244,6 +14960,9 @@
     "PT": [
      "Braga",
      "Lisbon"
+    ],
+    "SE": [
+     "Gothenburg"
     ]
    }
   },
@@ -13278,6 +14997,8 @@
     "HR",
     "HU",
     "IE",
+    "IT",
+    "LT",
     "LV",
     "NL",
     "PL",
@@ -13339,6 +15060,15 @@
      "Athlone",
      "Dublin"
     ],
+    "IT": [
+     "Bologna",
+     "Milan",
+     "Trento",
+     "Turin"
+    ],
+    "LT": [
+     "Vilnius"
+    ],
     "LV": [
      "Riga"
     ],
@@ -13356,7 +15086,8 @@
      "Bucharest"
     ],
     "SE": [
-     "Gothenburg"
+     "Gothenburg",
+     "Stockholm"
     ],
     "SI": [
      "Ljubljana"
@@ -13412,6 +15143,7 @@
      "Oxford",
      "Peterborough",
      "Plymouth",
+     "Portsmouth",
      "Royal Tunbridge Wells",
      "Sheffield",
      "Southampton",
@@ -13425,7 +15157,8 @@
      "Cork",
      "Dublin",
      "Dundalk",
-     "Galway"
+     "Galway",
+     "Limerick"
     ],
     "RO": [
      "Bucharest"
@@ -13443,9 +15176,11 @@
     "DE",
     "DK",
     "ES",
+    "FI",
     "FR",
     "GB",
     "IT",
+    "NL",
     "NO",
     "PL",
     "SE"
@@ -13478,7 +15213,8 @@
      "Stavanger"
     ],
     "SE": [
-     "Malmö"
+     "Malmö",
+     "Sundsvall"
     ]
    }
   },
@@ -13492,6 +15228,7 @@
     "DK",
     "ES",
     "FR",
+    "GB",
     "IT",
     "PL"
    ],
@@ -13512,6 +15249,9 @@
     ],
     "FR": [
      "Grenoble"
+    ],
+    "GB": [
+     "Milton Keynes"
     ],
     "IT": [
      "Bergamo"
@@ -13557,12 +15297,18 @@
    "board": "https://aviva.wd1.myworkdayjobs.com/Aviva_Investors_External",
    "countries": [
     "GB",
+    "LU",
     "NL"
    ],
    "elsewhere": true,
    "towns": {
     "GB": [
-     "London"
+     "London",
+     "Manchester",
+     "Norwich"
+    ],
+    "LU": [
+     "Luxembourg"
     ],
     "NL": [
      "Amsterdam"
@@ -13575,6 +15321,7 @@
    "board": "https://aviva.wd1.myworkdayjobs.com/External",
    "countries": [
     "GB",
+    "LU",
     "NL",
     "PL"
    ],
@@ -13583,6 +15330,7 @@
     "GB": [
      "Birmingham",
      "Bristol",
+     "Cambridge",
      "Glasgow",
      "Leeds",
      "London",
@@ -13591,11 +15339,108 @@
      "Sheffield",
      "York"
     ],
+    "LU": [
+     "Luxembourg"
+    ],
     "NL": [
      "Amsterdam"
     ],
     "PL": [
      "Warsaw"
+    ]
+   }
+  },
+  {
+   "name": "Avnet (Avnet Silica, EBV Elektronik)",
+   "system": "workday",
+   "board": "https://avnet.wd1.myworkdayjobs.com/External",
+   "countries": [
+    "BE",
+    "CH",
+    "CZ",
+    "DE",
+    "DK",
+    "ES",
+    "FR",
+    "GB",
+    "HU",
+    "IT",
+    "MT",
+    "NL",
+    "PL",
+    "SI"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "BE": [
+     "Brussels",
+     "Tongeren"
+    ],
+    "CH": [
+     "Dietikon",
+     "Rothrist"
+    ],
+    "CZ": [
+     "Blansko",
+     "Prague"
+    ],
+    "DE": [
+     "Aachen",
+     "Berlin",
+     "Bernburg",
+     "Eschbach",
+     "Freiburg",
+     "Hamburg",
+     "Hannover",
+     "Ismaning",
+     "Karlsruhe",
+     "Leipzig",
+     "Leonberg",
+     "Munich",
+     "Neufahrn bei Freising",
+     "Nuremberg",
+     "Poing",
+     "Stutensee",
+     "Villingen-Schwenningen"
+    ],
+    "DK": [
+     "Herlev"
+    ],
+    "ES": [
+     "Madrid",
+     "Málaga"
+    ],
+    "FR": [
+     "Massy",
+     "Rennes",
+     "Toulouse"
+    ],
+    "GB": [
+     "Bolton",
+     "Leeds",
+     "Maidenhead",
+     "Stevenage"
+    ],
+    "HU": [
+     "Budapest"
+    ],
+    "IT": [
+     "Florence",
+     "Milan"
+    ],
+    "MT": [
+     "San Ġwann"
+    ],
+    "NL": [
+     "Utrecht"
+    ],
+    "PL": [
+     "Kraków",
+     "Warsaw",
+     "Wrocław"
+    ],
+    "SI": [
+     "Ljubljana"
     ]
    }
   },
@@ -13612,6 +15457,8 @@
     "GB",
     "IE",
     "IT",
+    "LU",
+    "MT",
     "NL",
     "SE"
    ],
@@ -13636,6 +15483,7 @@
     ],
     "GB": [
      "Aberdeen",
+     "Belfast",
      "Birmingham",
      "Bournemouth",
      "Canary Wharf",
@@ -13664,6 +15512,12 @@
     "IT": [
      "Milan"
     ],
+    "LU": [
+     "Luxembourg"
+    ],
+    "MT": [
+     "San Ġiljan"
+    ],
     "NL": [
      "Amsterdam"
     ],
@@ -13677,31 +15531,48 @@
    "system": "workday",
    "board": "https://baxter.wd1.myworkdayjobs.com/baxter",
    "countries": [
+    "AT",
     "BE",
     "CH",
+    "CZ",
     "DE",
+    "DK",
     "ES",
     "FR",
     "GB",
     "GR",
     "HU",
+    "IE",
     "IT",
     "MT",
     "NL",
     "PL",
-    "PT"
+    "PT",
+    "RO",
+    "SE",
+    "SI"
    ],
    "elsewhere": true,
    "towns": {
+    "AT": [
+     "Vienna"
+    ],
     "CH": [
      "Zürich"
     ],
+    "CZ": [
+     "Prague"
+    ],
     "DE": [
+     "Berlin",
+     "Bielefeld",
+     "Braunschweig",
      "Essen",
      "Munich",
      "Saalfeld"
     ],
     "ES": [
+     "Córdoba",
      "Madrid"
     ],
     "FR": [
@@ -13720,15 +15591,20 @@
     "HU": [
      "Budapest"
     ],
+    "IE": [
+     "Dublin"
+    ],
     "IT": [
      "Castel Maggiore",
-     "Rome"
+     "Rome",
+     "Sesto Fiorentino"
     ],
     "MT": [
      "Marsa",
      "San Ġwann"
     ],
     "NL": [
+     "Tilburg",
      "Utrecht"
     ],
     "PL": [
@@ -13737,6 +15613,16 @@
     "PT": [
      "Porto",
      "Porto Salvo"
+    ],
+    "RO": [
+     "Bucharest"
+    ],
+    "SE": [
+     "Luleå",
+     "Stockholm"
+    ],
+    "SI": [
+     "Ljubljana"
     ]
    }
   },
@@ -13758,7 +15644,8 @@
      "Zürich"
     ],
     "ES": [
-     "Madrid"
+     "Madrid",
+     "Santander"
     ],
     "GB": [
      "London"
@@ -13784,6 +15671,7 @@
      "Hannover"
     ],
     "GB": [
+     "Birmingham",
      "Manchester",
      "Newport"
     ],
@@ -13807,6 +15695,7 @@
     "GB",
     "IE",
     "IT",
+    "NL",
     "PL",
     "PT"
    ],
@@ -13835,6 +15724,9 @@
     "IT": [
      "Milan"
     ],
+    "NL": [
+     "Badhoevedorp"
+    ],
     "PL": [
      "Warsaw"
     ],
@@ -13854,6 +15746,7 @@
     "GB",
     "HU",
     "IE",
+    "LU",
     "NL",
     "SE"
    ],
@@ -13874,6 +15767,9 @@
     ],
     "IE": [
      "Dublin"
+    ],
+    "LU": [
+     "Luxembourg"
     ],
     "NL": [
      "Amsterdam"
@@ -13932,8 +15828,7 @@
     "RO": [
      "Bucharest"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Bristol Myers Squibb",
@@ -13942,11 +15837,15 @@
    "countries": [
     "AT",
     "DE",
+    "DK",
+    "FI",
     "GB",
     "IE",
     "NL",
+    "NO",
     "PL",
-    "RO"
+    "RO",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
@@ -13956,17 +15855,27 @@
     "DE": [
      "Augsburg",
      "Berlin",
+     "Bonn",
      "Braunschweig",
      "Dortmund",
      "Dresden",
      "Erlangen",
+     "Freiburg",
      "Hannover",
      "Heidelberg",
+     "Köln",
+     "Mannheim",
      "Munich",
      "Nuremberg",
      "Regensburg",
      "Stuttgart",
      "Würzburg"
+    ],
+    "DK": [
+     "Copenhagen"
+    ],
+    "FI": [
+     "Helsinki"
     ],
     "GB": [
      "Cambridge",
@@ -13979,8 +15888,15 @@
     "NL": [
      "Leiden"
     ],
+    "NO": [
+     "Lysaker",
+     "Oslo"
+    ],
     "PL": [
      "Warsaw"
+    ],
+    "SE": [
+     "Solna"
     ]
    }
   },
@@ -13992,6 +15908,7 @@
     "AT",
     "BE",
     "DE",
+    "FR",
     "GB"
    ],
    "elsewhere": true,
@@ -14074,21 +15991,29 @@
    "elsewhere": true,
    "towns": {
     "GB": [
+     "Bath",
      "Belfast",
      "Bolton",
+     "Brighton",
      "Chelmsford",
+     "Chester",
      "Colchester",
      "Coventry",
+     "Crawley",
      "Derby",
      "Exeter",
      "Glasgow",
+     "Gloucester",
      "Leeds",
      "Leicester",
      "Lincoln",
      "London",
      "Manchester",
+     "Middlesbrough",
      "Northampton",
+     "Norwich",
      "Nottingham",
+     "Oxford",
      "Peterborough",
      "Plymouth",
      "Portsmouth",
@@ -14097,6 +16022,7 @@
      "Royal Tunbridge Wells",
      "Stevenage",
      "Stoke-on-Trent",
+     "Swindon",
      "Winchester",
      "Woking",
      "Yeovil"
@@ -14143,7 +16069,9 @@
     "DE": [
      "Allendorf",
      "Berlin",
-     "Mörfelden-Walldorf"
+     "Frankfurt am Main",
+     "Mörfelden-Walldorf",
+     "Neuss"
     ],
     "FR": [
      "Culoz",
@@ -14155,6 +16083,9 @@
     ],
     "PL": [
      "Warsaw"
+    ],
+    "PT": [
+     "Matosinhos"
     ],
     "SK": [
      "Bratislava"
@@ -14186,7 +16117,11 @@
      "Brighton",
      "Bristol",
      "Cardiff",
+     "Cheltenham",
+     "Derby",
      "Edinburgh",
+     "Glasgow",
+     "Leeds",
      "Leicester",
      "London",
      "Manchester",
@@ -14194,12 +16129,17 @@
      "Oxford",
      "Peterborough",
      "Portsmouth",
+     "Reading",
+     "Shrewsbury",
      "Slough",
      "Stockport",
      "Swansea",
-     "Uxbridge"
+     "Uddingston",
+     "Uxbridge",
+     "Wolverhampton"
     ],
     "IE": [
+     "Athlone",
      "Cork",
      "Dublin"
     ]
@@ -14213,8 +16153,10 @@
     "CH",
     "DK",
     "ES",
+    "FI",
     "FR",
     "GB",
+    "GR",
     "HU",
     "IE",
     "IT",
@@ -14236,6 +16178,9 @@
     "ES": [
      "Madrid"
     ],
+    "FI": [
+     "Helsinki"
+    ],
     "FR": [
      "Paris"
     ],
@@ -14243,6 +16188,9 @@
      "Belfast",
      "Edinburgh",
      "London"
+    ],
+    "GR": [
+     "Athens"
     ],
     "HU": [
      "Budapest"
@@ -14282,11 +16230,14 @@
     "BE",
     "DE",
     "EE",
+    "ES",
     "FR",
     "GB",
     "GR",
+    "HU",
     "IE",
     "IT",
+    "NL",
     "PL",
     "RO"
    ],
@@ -14298,20 +16249,36 @@
    "system": "workday",
    "board": "https://cognex.wd1.myworkdayjobs.com/External_Career_Site",
    "countries": [
+    "AT",
     "CH",
     "DE",
+    "ES",
+    "FI",
+    "FR",
     "HU",
     "IE",
-    "IT"
+    "IT",
+    "NL",
+    "PL"
    ],
    "elsewhere": true,
    "towns": {
+    "AT": [
+     "Vienna"
+    ],
     "CH": [
      "Fribourg"
     ],
     "DE": [
      "Aachen",
-     "Jena"
+     "Jena",
+     "Karlsruhe"
+    ],
+    "ES": [
+     "Girona"
+    ],
+    "FR": [
+     "Lyon"
     ],
     "HU": [
      "Budapest"
@@ -14321,6 +16288,9 @@
     ],
     "IT": [
      "Milan"
+    ],
+    "PL": [
+     "Tychy"
     ]
    }
   },
@@ -14347,8 +16317,7 @@
     "IE": [
      "Galway"
     ]
-   },
-   "checked": "2026-10-30"
+   }
   },
   {
    "name": "Danaher",
@@ -14383,6 +16352,9 @@
     "BE": [
      "Antwerp",
      "Brussels"
+    ],
+    "CH": [
+     "Geneva"
     ],
     "DE": [
      "Berlin",
@@ -14499,11 +16471,13 @@
     "ES",
     "FR",
     "GB",
+    "HU",
     "IT",
     "LU",
     "NL",
     "PL",
-    "RO"
+    "RO",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
@@ -14511,10 +16485,12 @@
      "Brussels"
     ],
     "CH": [
-     "Geneva"
+     "Geneva",
+     "Zürich"
     ],
     "DE": [
      "Berlin",
+     "Bonn",
      "Essen",
      "Frankfurt am Main",
      "Hamburg",
@@ -14524,7 +16500,8 @@
      "Mannheim",
      "Munich",
      "Nuremberg",
-     "Stuttgart"
+     "Stuttgart",
+     "Wuppertal"
     ],
     "ES": [
      "Barcelona",
@@ -14537,8 +16514,14 @@
      "Birmingham",
      "London"
     ],
+    "IT": [
+     "Milan"
+    ],
     "LU": [
      "Luxembourg"
+    ],
+    "NL": [
+     "Amsterdam"
     ],
     "RO": [
      "Bucharest"
@@ -14550,20 +16533,28 @@
    "system": "workday",
    "board": "https://db.wd3.myworkdayjobs.com/DWSWebsite",
    "countries": [
+    "CH",
     "DE",
     "ES",
+    "FR",
     "GB",
     "IT",
     "LU"
    ],
    "elsewhere": true,
    "towns": {
+    "CH": [
+     "Zürich"
+    ],
     "DE": [
      "Berlin",
      "Frankfurt am Main"
     ],
     "ES": [
      "Madrid"
+    ],
+    "FR": [
+     "Paris"
     ],
     "GB": [
      "London"
@@ -14588,6 +16579,8 @@
     "DE": [
      "Aachen",
      "Aalen",
+     "Aschaffenburg",
+     "Augsburg",
      "Bad Homburg vor der Höhe",
      "Baden-Baden",
      "Berlin",
@@ -14596,8 +16589,10 @@
      "Bonn",
      "Braunschweig",
      "Bremen",
+     "Böblingen",
      "Chemnitz",
      "Darmstadt",
+     "Dortmund",
      "Dresden",
      "Duisburg",
      "Erfurt",
@@ -14605,8 +16600,10 @@
      "Frankfurt am Main",
      "Freiburg",
      "Friedrichshafen",
+     "Fürth",
      "Göttingen",
      "Gütersloh",
+     "Hagen",
      "Hamburg",
      "Hamm",
      "Hannover",
@@ -14619,13 +16616,7 @@
      "Koblenz",
      "Konstanz",
      "Köln",
-     "Leverkusen",
-     "Lörrach",
-     "Lübeck",
-     "Lüneburg",
-     "Magdeburg",
-     "Mainz",
-     "Mannheim"
+     "Landshut"
     ]
    }
   },
@@ -14636,10 +16627,13 @@
    "countries": [
     "CZ",
     "DE",
+    "ES",
+    "FR",
     "GB",
     "GR",
     "HU",
     "IE",
+    "NL",
     "PT",
     "RO"
    ],
@@ -14649,17 +16643,29 @@
      "Prague"
     ],
     "DE": [
-     "Hamburg"
+     "Berlin",
+     "Hamburg",
+     "Munich"
+    ],
+    "ES": [
+     "Barcelona",
+     "Bilbao",
+     "Madrid"
+    ],
+    "FR": [
+     "Paris"
     ],
     "GB": [
      "Alloa",
      "Belfast",
+     "Bishops Stortford",
      "Edinburgh",
      "Elgin",
      "Glasgow",
      "Leven",
      "London",
      "Menstrie",
+     "Muir of Ord",
      "Runcorn"
     ],
     "GR": [
@@ -14670,6 +16676,9 @@
     ],
     "IE": [
      "Dublin"
+    ],
+    "NL": [
+     "Amsterdam"
     ],
     "PT": [
      "Lisbon"
@@ -14691,7 +16700,8 @@
     "GB",
     "IE",
     "NL",
-    "PL"
+    "PL",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
@@ -14707,17 +16717,22 @@
      "Köln",
      "Metzingen",
      "Munich",
+     "Oberhausen",
      "Schleswig"
     ],
     "ES": [
      "Madrid"
     ],
     "FR": [
+     "Lyon",
      "Marseille",
      "Paris"
     ],
     "GB": [
      "Malmesbury"
+    ],
+    "IE": [
+     "Kildare"
     ],
     "NL": [
      "Amsterdam",
@@ -14735,6 +16750,7 @@
    "system": "workday",
    "board": "https://edwards.wd5.myworkdayjobs.com/EdwardsCareers",
    "countries": [
+    "AT",
     "BE",
     "CH",
     "CZ",
@@ -14746,10 +16762,14 @@
     "IE",
     "IT",
     "NL",
-    "PL"
+    "PL",
+    "PT"
    ],
    "elsewhere": true,
    "towns": {
+    "AT": [
+     "Vienna"
+    ],
     "BE": [
      "Brussels"
     ],
@@ -14769,6 +16789,7 @@
     ],
     "FR": [
      "Guyancourt",
+     "Lille",
      "Roussillon"
     ],
     "IE": [
@@ -14776,9 +16797,12 @@
      "Shannon"
     ],
     "IT": [
+     "Bari",
+     "Catania",
      "Florence",
      "Milan",
      "Naples",
+     "Palermo",
      "Rome"
     ],
     "NL": [
@@ -14787,6 +16811,10 @@
     ],
     "PL": [
      "Warsaw"
+    ],
+    "PT": [
+     "Lisbon",
+     "Porto"
     ]
    }
   },
@@ -14813,7 +16841,12 @@
    "towns": {
     "GB": [
      "Aberdeen",
-     "Great Yarmouth"
+     "Great Yarmouth",
+     "London"
+    ],
+    "NO": [
+     "Sandsli",
+     "Stavanger"
     ],
     "PL": [
      "Łeba"
@@ -14832,8 +16865,7 @@
     "GB": [
      "Bicester"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Finnair (finnair)",
@@ -14843,7 +16875,7 @@
     "EE",
     "FI"
    ],
-   "elsewhere": false,
+   "elsewhere": true,
    "towns": {
     "EE": [
      "Tartu"
@@ -14873,6 +16905,7 @@
    "board": "https://fiserv.wd5.myworkdayjobs.com/EXT",
    "countries": [
     "DE",
+    "ES",
     "GB",
     "IE",
     "IT",
@@ -14884,6 +16917,9 @@
      "Bad Homburg vor der Höhe",
      "Frankfurt am Main",
      "Nuremberg"
+    ],
+    "ES": [
+     "Madrid"
     ],
     "IE": [
      "Dublin",
@@ -14919,6 +16955,9 @@
     "AT": [
      "Althofen",
      "Vienna"
+    ],
+    "CH": [
+     "Hägglingen"
     ],
     "DE": [
      "Stuttgart"
@@ -14994,6 +17033,7 @@
      "Bristol",
      "Edinburgh",
      "Ipswich",
+     "Leicester",
      "London",
      "Newcastle upon Tyne",
      "Salisbury"
@@ -15019,10 +17059,12 @@
     "CH",
     "CZ",
     "DE",
+    "DK",
     "ES",
     "FR",
     "GB",
     "HR",
+    "HU",
     "IE",
     "IT",
     "NL",
@@ -15035,7 +17077,8 @@
    "elsewhere": true,
    "towns": {
     "AT": [
-     "Krems an der Donau"
+     "Krems an der Donau",
+     "Vienna"
     ],
     "BE": [
      "Willebroek"
@@ -15043,14 +17086,19 @@
     "CH": [
      "Basel",
      "Horgen / Oberdorf",
+     "Luzern",
      "Münchenstein",
      "Zürich"
     ],
     "CZ": [
      "Benešov",
      "Hlinsko",
+     "Kadaň",
      "Kladno",
+     "Kolín",
+     "Mariánské Lázně",
      "Nymburk",
+     "Pardubice",
      "Prague",
      "Sokolov"
     ],
@@ -15096,6 +17144,9 @@
      "Püttlingen",
      "Recklinghausen"
     ],
+    "DK": [
+     "Taastrup"
+    ],
     "ES": [
      "Almería",
      "Aranda de Duero",
@@ -15122,7 +17173,12 @@
      "Valencia"
     ],
     "FR": [
+     "Béziers",
+     "Castelnau-le-Lez",
      "Champigny-sur-Marne",
+     "Dourdan",
+     "Fresnes",
+     "Helfaut",
      "L'Arbresle",
      "Montpellier",
      "Sainte-Foy-lès-Lyon"
@@ -15130,19 +17186,25 @@
     "GB": [
      "Aberystwyth",
      "Barnstaple",
+     "Bathford",
      "Birmingham",
      "Bodmin",
      "Bridgend",
      "Bridlington",
+     "Brighton",
      "Bristol",
      "Cardiff",
      "Carmarthen",
      "Chelmsford",
      "Conwy",
      "Crewe",
+     "Ford",
+     "Grimsby",
      "Haverfordwest",
+     "Hereford",
      "Kingston upon Hull",
      "Lancaster",
+     "Leeds",
      "Liverpool",
      "Llandrindod Wells",
      "London",
@@ -15157,15 +17219,17 @@
      "Portsmouth",
      "Reading",
      "Rochdale",
+     "Scunthorpe",
      "Stockport",
      "Stratford-upon-Avon",
      "Taunton",
-     "Worksop",
-     "Wrexham",
-     "Yeovil"
+     "Worksop"
     ],
     "HR": [
      "Zagreb"
+    ],
+    "HU": [
+     "Budapest"
     ],
     "IE": [
      "Dublin",
@@ -15174,6 +17238,7 @@
      "Limerick"
     ],
     "IT": [
+     "Bergamo",
      "Cosenza",
      "Cremona",
      "Messina",
@@ -15184,7 +17249,8 @@
     ],
     "NL": [
      "'s-Hertogenbosch",
-     "Amsterdam"
+     "Amsterdam",
+     "Beverwijk"
     ],
     "PL": [
      "Chełm",
@@ -15199,6 +17265,8 @@
      "Kostrzyn nad Odrą",
      "Koszalin",
      "Kościan",
+     "Kraków",
+     "Krosno",
      "Kłodzko",
      "Lubań",
      "Lubin",
@@ -15224,8 +17292,7 @@
      "Wrocław",
      "Zabrze",
      "Zawiercie",
-     "Świdnica",
-     "Żywiec"
+     "Świdnica"
     ],
     "PT": [
      "Almada",
@@ -15236,6 +17303,7 @@
      "Grândola",
      "Lisbon",
      "Lumiar",
+     "Maia",
      "Portimão",
      "Porto",
      "Santarém",
@@ -15245,7 +17313,12 @@
      "Évora"
     ],
     "RO": [
+     "Braşov",
+     "Bucharest",
      "Drobeta-Turnu Severin",
+     "Hunedoara",
+     "Ploieşti",
+     "Satu Mare",
      "Sighetu Marmaţiei",
      "Suceava",
      "Târgovişte"
@@ -15254,9 +17327,89 @@
      "Celje"
     ],
     "SK": [
+     "Bratislava",
      "Košice",
      "Nové Zámky",
      "Trnava"
+    ]
+   }
+  },
+  {
+   "name": "Freudenberg",
+   "system": "workday",
+   "board": "https://freudenberg.wd3.myworkdayjobs.com/freudenberg-group",
+   "countries": [
+    "AT",
+    "BE",
+    "CZ",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "GR",
+    "HU",
+    "IE",
+    "IT",
+    "NL",
+    "PL",
+    "PT",
+    "RO",
+    "SE",
+    "SI",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Salzburg"
+    ],
+    "DE": [
+     "Berlin",
+     "Hamburg",
+     "Kaiserslautern",
+     "Munich",
+     "Norderstedt",
+     "Paderborn"
+    ],
+    "ES": [
+     "Madrid"
+    ],
+    "FR": [
+     "Nantes"
+    ],
+    "GB": [
+     "Aberdeen",
+     "Crewe",
+     "London"
+    ],
+    "GR": [
+     "Athens"
+    ],
+    "HU": [
+     "Kecskemét"
+    ],
+    "IE": [
+     "Carrick-on-Shannon"
+    ],
+    "IT": [
+     "Milan"
+    ],
+    "NL": [
+     "Arnhem"
+    ],
+    "PL": [
+     "Warsaw"
+    ],
+    "PT": [
+     "Lisbon",
+     "Porto"
+    ],
+    "RO": [
+     "Braşov"
+    ],
+    "SE": [
+     "Norrköping",
+     "Stockholm"
     ]
    }
   },
@@ -15311,8 +17464,7 @@
     "PL": [
      "Gliwice"
     ]
-   },
-   "checked": "2026-10-30"
+   }
   },
   {
    "name": "GE Aerospace",
@@ -15322,9 +17474,11 @@
     "CZ",
     "DE",
     "GB",
+    "HU",
     "IT",
     "PL",
-    "RO"
+    "RO",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
@@ -15340,16 +17494,29 @@
      "Chester",
      "Durham",
      "Gloucester",
-     "Norwich"
+     "London",
+     "Newark on Trent",
+     "Norwich",
+     "Prestwick"
+    ],
+    "HU": [
+     "Veresegyház"
     ],
     "IT": [
+     "Brindisi",
+     "Pomigliano d'Arco",
      "Rivalta di Torino"
     ],
     "PL": [
+     "Bielsko-Biala",
+     "Dzierżoniów",
      "Warsaw"
     ],
     "RO": [
      "Bucharest"
+    ],
+    "SE": [
+     "Mölndal"
     ]
    }
   },
@@ -15379,14 +17546,18 @@
     "GB",
     "HU",
     "IE",
+    "IT",
     "PL",
-    "RO"
+    "RO",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
     "DE": [
      "Berlin",
-     "Hamburg"
+     "Garching",
+     "Hamburg",
+     "Mönchengladbach"
     ],
     "ES": [
      "Barcelona",
@@ -15397,19 +17568,28 @@
      "Tampere"
     ],
     "FR": [
+     "Aix-les-Bains",
+     "Belfort",
      "Grenoble",
      "Issy-les-Moulineaux",
      "Massy",
-     "Montpellier"
+     "Montoir-de-Bretagne",
+     "Montpellier",
+     "Villeurbanne"
     ],
     "GB": [
+     "Bangor",
+     "Bedford",
      "Cambridge",
      "Edinburgh",
      "Inverness",
      "Leicester",
      "Lisburn",
      "Livingston",
-     "London"
+     "London",
+     "Rochester",
+     "Rugby",
+     "Stafford"
     ],
     "HU": [
      "Budapest"
@@ -15417,12 +17597,21 @@
     "IE": [
      "Birr"
     ],
+    "IT": [
+     "Carrara",
+     "Sesto San Giovanni"
+    ],
     "PL": [
+     "Elbląg",
      "Katowice",
-     "Warsaw"
+     "Warsaw",
+     "Wrocław"
     ],
     "RO": [
      "Bucharest"
+    ],
+    "SE": [
+     "Västerås"
     ]
    },
    "ads": "https://careers.gevernova.com/sitemap.xml"
@@ -15432,14 +17621,22 @@
    "system": "workday",
    "board": "https://gea.wd3.myworkdayjobs.com/equest",
    "countries": [
-    "DE"
+    "DE",
+    "LU"
    ],
    "elsewhere": false,
    "towns": {
     "DE": [
+     "Ahaus",
      "Berlin",
      "Düsseldorf",
-     "Osnabrück"
+     "Oelde",
+     "Osnabrück",
+     "Prenzlau",
+     "Sarstedt"
+    ],
+    "LU": [
+     "Kirchberg"
     ]
    }
   },
@@ -15448,39 +17645,62 @@
    "system": "workday",
    "board": "https://gea.wd3.myworkdayjobs.com/GEACareers",
    "countries": [
+    "BE",
     "CZ",
     "DE",
+    "DK",
     "ES",
     "FR",
     "GB",
     "HR",
     "IE",
     "IT",
+    "LU",
     "NL",
     "PL",
+    "PT",
     "RO"
    ],
    "elsewhere": true,
    "towns": {
+    "BE": [
+     "Kontich",
+     "Wommelgem"
+    ],
     "CZ": [
      "Prague"
     ],
     "DE": [
+     "Ahaus",
      "Berlin",
      "Düsseldorf",
-     "Osnabrück"
+     "Oelde",
+     "Osnabrück",
+     "Prenzlau",
+     "Sarstedt"
+    ],
+    "DK": [
+     "Skanderborg"
     ],
     "ES": [
      "A Coruña",
-     "Valladolid"
+     "Alcobendas",
+     "Valladolid",
+     "Úbeda"
     ],
     "FR": [
-     "Angers"
+     "Angers",
+     "Bouguenais",
+     "Montigny-le-Bretonneux"
     ],
     "GB": [
      "Belfast",
+     "Eastleigh",
      "Glasgow",
+     "Leeds",
      "Milton Keynes",
+     "Ross on Wye",
+     "Spalding",
      "Warrington",
      "York"
     ],
@@ -15491,17 +17711,27 @@
      "Naas"
     ],
     "IT": [
+     "Cinisello Balsamo",
+     "Modena",
      "Parma"
+    ],
+    "LU": [
+     "Kirchberg"
     ],
     "NL": [
      "'s-Hertogenbosch",
-     "Deventer"
+     "Deventer",
+     "Weert"
     ],
     "PL": [
      "Bydgoszcz",
      "Gdynia",
+     "Koszalin",
      "Warsaw",
      "Łódź"
+    ],
+    "PT": [
+     "Lisbon"
     ],
     "RO": [
      "Bucharest"
@@ -15532,6 +17762,8 @@
    "countries": [
     "BE",
     "DE",
+    "FR",
+    "IT",
     "NL",
     "NO"
    ],
@@ -15543,6 +17775,15 @@
     "DE": [
      "Dresden",
      "Munich"
+    ],
+    "FR": [
+     "Grenoble"
+    ],
+    "IT": [
+     "Pavia"
+    ],
+    "NL": [
+     "Eindhoven"
     ]
    }
   },
@@ -15559,10 +17800,12 @@
     "FI",
     "FR",
     "GB",
+    "GR",
     "HU",
     "IE",
     "IT",
     "NL",
+    "NO",
     "PL",
     "PT",
     "SE"
@@ -15579,11 +17822,13 @@
     ],
     "DE": [
      "Dresden",
+     "Hamburg",
      "Heidelberg",
      "Marburg an der Lahn",
      "Munich"
     ],
     "ES": [
+     "Córdoba",
      "Madrid",
      "Tres Cantos"
     ],
@@ -15607,10 +17852,14 @@
      "Ware",
      "Worthing"
     ],
+    "GR": [
+     "Athens"
+    ],
     "HU": [
      "Gödöllő"
     ],
     "IE": [
+     "Cork",
      "Dublin"
     ],
     "IT": [
@@ -15621,6 +17870,9 @@
     ],
     "NL": [
      "Amersfoort"
+    ],
+    "NO": [
+     "Oslo"
     ],
     "PL": [
      "Poznań",
@@ -15682,15 +17934,18 @@
     "CZ",
     "DE",
     "DK",
+    "EE",
     "ES",
     "FI",
     "FR",
     "GB",
     "GR",
     "HR",
+    "HU",
     "IE",
     "IT",
     "NL",
+    "NO",
     "PL",
     "PT",
     "RO",
@@ -15706,6 +17961,7 @@
    "board": "https://hp.wd5.myworkdayjobs.com/ExternalCareerSite",
    "countries": [
     "BE",
+    "CH",
     "CZ",
     "DE",
     "DK",
@@ -15727,6 +17983,9 @@
    "towns": {
     "BE": [
      "Diegem"
+    ],
+    "CH": [
+     "Zürich"
     ],
     "CZ": [
      "Prague"
@@ -15828,6 +18087,7 @@
      "Mechelen"
     ],
     "CH": [
+     "Basel",
      "Zürich"
     ],
     "CZ": [
@@ -15835,6 +18095,7 @@
     ],
     "DE": [
      "Frankfurt am Main",
+     "Hamburg",
      "Mannheim"
     ],
     "DK": [
@@ -15855,6 +18116,7 @@
      "Paris"
     ],
     "GB": [
+     "Cambridge",
      "Livingston",
      "London",
      "Reading",
@@ -15874,6 +18136,7 @@
      "Limerick"
     ],
     "IT": [
+     "Bari",
      "Florence",
      "Milan",
      "Rome"
@@ -15885,6 +18148,7 @@
      "Riga"
     ],
     "NL": [
+     "Amsterdam",
      "Assen",
      "Groningen",
      "Utrecht"
@@ -15936,6 +18200,9 @@
     ],
     "IT": [
      "Milan"
+    ],
+    "NL": [
+     "Eindhoven"
     ]
    }
   },
@@ -15947,7 +18214,7 @@
     "FR",
     "LU"
    ],
-   "elsewhere": false,
+   "elsewhere": true,
    "towns": {
     "FR": [
      "Paris"
@@ -15983,14 +18250,24 @@
      "Brussels",
      "Gent",
      "Hasselt",
-     "Leuven"
+     "Kortrijk",
+     "Leuven",
+     "Mechelen"
     ],
     "DE": [
+     "Berlin",
      "Frankfurt am Main",
-     "Munich"
+     "Hamburg",
+     "Munich",
+     "Nuremberg",
+     "Stuttgart"
     ],
     "ES": [
-     "Madrid"
+     "Alicante",
+     "Barcelona",
+     "Granada",
+     "Madrid",
+     "Valencia"
     ],
     "FR": [
      "Paris"
@@ -16011,6 +18288,7 @@
      "Amsterdam",
      "Eindhoven",
      "Nijmegen",
+     "Rotterdam",
      "The Hague",
      "Utrecht",
      "Zwolle"
@@ -16144,19 +18422,25 @@
      "Zürich"
     ],
     "CZ": [
+     "Pilsen",
      "Prague"
     ],
     "DE": [
      "Arnsberg",
      "Augsburg",
      "Bayreuth",
+     "Bergisch Gladbach",
      "Berlin",
+     "Bielefeld",
      "Bochum",
      "Bonn",
      "Brandenburg an der Havel",
      "Braunschweig",
      "Bremen",
      "Chemnitz",
+     "Cottbus",
+     "Darmstadt",
+     "Dessau",
      "Dortmund",
      "Dresden",
      "Duisburg",
@@ -16164,6 +18448,7 @@
      "Erfurt",
      "Erlangen",
      "Essen",
+     "Frankfurt (Oder)",
      "Frankfurt am Main",
      "Freiburg",
      "Fulda",
@@ -16179,14 +18464,8 @@
      "Heidelberg",
      "Heilbronn",
      "Kaiserslautern",
-     "Kempten (Allgäu)",
-     "Kiel",
-     "Koblenz",
-     "Köln",
-     "Leipzig",
-     "Lüneburg",
-     "Magdeburg",
-     "Mainz"
+     "Karlsruhe",
+     "Kempten (Allgäu)"
     ],
     "DK": [
      "Copenhagen",
@@ -16201,11 +18480,16 @@
     ],
     "ES": [
      "Barcelona",
+     "Cáceres",
+     "Girona",
+     "Jaén",
      "León",
      "Madrid",
      "Murcia",
+     "Málaga",
      "Sevilla",
-     "Toledo"
+     "Toledo",
+     "Valencia"
     ],
     "FI": [
      "Espoo",
@@ -16215,13 +18499,18 @@
     "FR": [
      "Bordeaux",
      "Boulogne-Billancourt",
+     "Caen",
      "Champagné",
+     "Grenoble",
      "Illkirch-Graffenstaden",
+     "Levallois-Perret",
      "Lyon",
      "Marseille",
+     "Montpellier",
      "Nice",
      "Paris",
      "Poitiers",
+     "Rennes",
      "Saint-Cloud",
      "Saint-Leu",
      "Strasbourg",
@@ -16229,7 +18518,9 @@
     ],
     "GB": [
      "Barnsley",
+     "Basingstoke",
      "Bath",
+     "Belfast",
      "Birmingham",
      "Blackpool",
      "Bolton",
@@ -16240,34 +18531,32 @@
      "Cardiff",
      "Chester",
      "Chesterfield",
+     "Colchester",
      "Coventry",
+     "Crawley",
      "Derby",
+     "Derry",
+     "Doncaster",
      "Dorchester",
      "Dumbarton",
+     "Durham",
      "Edinburgh",
      "Exeter",
      "Glasgow",
      "Ipswich",
+     "Kingston upon Hull",
+     "Lancaster",
      "Leeds",
+     "Leicester",
      "Liverpool",
      "Livingston",
      "London",
      "Manchester",
+     "Milton Keynes",
+     "Newbury",
+     "Newcastle upon Tyne",
      "Norwich",
-     "Nottingham",
-     "Oxford",
-     "Plymouth",
-     "Portishead",
-     "Portsmouth",
-     "Reading",
-     "Salford",
-     "Sheffield",
-     "Solihull",
-     "Southampton",
-     "Stafford",
-     "Stoke-on-Trent",
-     "Swindon",
-     "Warrington"
+     "Nottingham"
     ],
     "GR": [
      "Athens",
@@ -16282,7 +18571,8 @@
     ],
     "IE": [
      "Cork",
-     "Dublin"
+     "Dublin",
+     "Galway"
     ],
     "IT": [
      "Bari",
@@ -16291,11 +18581,16 @@
      "Catania",
      "Milan",
      "Modena",
+     "Naples",
+     "Padua",
+     "Pisa",
      "Rome",
-     "San Benedetto del Tronto"
+     "San Benedetto del Tronto",
+     "Verona"
     ],
     "LT": [
-     "Kaunas"
+     "Kaunas",
+     "Vilnius"
     ],
     "LU": [
      "Luxembourg"
@@ -16306,13 +18601,19 @@
     "NL": [
      "'s-Hertogenbosch",
      "Amsterdam",
+     "Arnhem",
      "Eindhoven",
+     "Groningen",
      "Heerlen",
+     "Hilversum",
      "Leiden",
      "Maastricht",
+     "Nijmegen",
+     "Noord",
      "Tilburg",
      "Utrecht",
-     "Venlo"
+     "Venlo",
+     "Zwolle"
     ],
     "NO": [
      "Oslo"
@@ -16363,10 +18664,14 @@
     "HU",
     "IE",
     "NL",
-    "PL"
+    "PL",
+    "SK"
    ],
    "elsewhere": true,
    "towns": {
+    "BE": [
+     "Hasselt"
+    ],
     "CH": [
      "Neuchâtel",
      "Solothurn"
@@ -16374,6 +18679,10 @@
     "DE": [
      "Augsburg",
      "Jena"
+    ],
+    "ES": [
+     "Madrid",
+     "Tarragona"
     ],
     "HR": [
      "Osijek"
@@ -16391,6 +18700,9 @@
     ],
     "PL": [
      "Wrocław"
+    ],
+    "SK": [
+     "Trnava"
     ]
    }
   },
@@ -16429,10 +18741,13 @@
     "BE": [
      "Aalst",
      "Antwerp",
-     "Brussels"
+     "Brussels",
+     "Gent"
     ],
     "CH": [
+     "Basel",
      "Geneva",
+     "Lausanne",
      "Zürich"
     ],
     "CZ": [
@@ -16440,12 +18755,15 @@
      "Prague"
     ],
     "DE": [
+     "Augsburg",
      "Berlin",
      "Brandenburg an der Havel",
+     "Böblingen",
      "Düsseldorf",
      "Frankfurt am Main",
      "Freiburg",
      "Hamburg",
+     "Hannover",
      "Heidelberg",
      "Köln",
      "Mannheim",
@@ -16464,13 +18782,15 @@
      "Madrid"
     ],
     "FI": [
-     "Helsinki"
+     "Helsinki",
+     "Tampere"
     ],
     "FR": [
      "Les Ulis",
      "Lille",
      "Lyon",
      "Marseille",
+     "Nice",
      "Paris"
     ],
     "GB": [
@@ -16483,23 +18803,29 @@
      "Edinburgh",
      "Glasgow",
      "Leeds",
+     "Liverpool",
      "London",
      "Maidenhead",
      "Manchester",
      "Milton Keynes",
+     "Newport",
      "Reading",
      "Slough",
      "Swansea"
     ],
     "HU": [
-     "Budapest"
+     "Budapest",
+     "Szeged"
     ],
     "IE": [
      "Cork",
-     "Dublin"
+     "Dublin",
+     "Kildare",
+     "Limerick"
     ],
     "IT": [
-     "Milan"
+     "Milan",
+     "Rome"
     ],
     "LU": [
      "Bertrange",
@@ -16507,7 +18833,9 @@
     ],
     "NL": [
      "Amsterdam",
+     "Eindhoven",
      "Leiden",
+     "Rotterdam",
      "The Hague"
     ],
     "NO": [
@@ -16516,10 +18844,17 @@
     ],
     "PL": [
      "Gdańsk",
+     "Katowice",
      "Kraków",
-     "Warsaw"
+     "Poznań",
+     "Rzeszów",
+     "Szczecin",
+     "Warsaw",
+     "Wrocław",
+     "Łódź"
     ],
     "PT": [
+     "Faro",
      "Lisbon"
     ],
     "RO": [
@@ -16548,6 +18883,7 @@
     "FI",
     "FR",
     "GB",
+    "GR",
     "HR",
     "HU",
     "IE",
@@ -16605,11 +18941,14 @@
      "Dessau",
      "Dortmund",
      "Dresden",
+     "Dülmen",
      "Düsseldorf",
      "Erfurt",
      "Frankfurt am Main",
+     "Freiburg",
      "Hamburg",
      "Hannover",
+     "Heidelberg",
      "Jena",
      "Karlsruhe",
      "Leipzig",
@@ -16641,6 +18980,7 @@
      "Murcia",
      "Málaga",
      "Sevilla",
+     "Toledo",
      "Valencia"
     ],
     "FI": [
@@ -16655,7 +18995,13 @@
      "Paris"
     ],
     "GB": [
+     "Bath",
+     "Birmingham",
      "Blackpool",
+     "Bristol",
+     "Coventry",
+     "Edinburgh",
+     "Glasgow",
      "High Wycombe",
      "Leeds",
      "London",
@@ -16663,6 +19009,9 @@
      "Southampton",
      "Stoke-on-Trent",
      "Wokingham"
+    ],
+    "GR": [
+     "Athens"
     ],
     "HR": [
      "Zagreb"
@@ -16673,9 +19022,11 @@
     "IE": [
      "Cork",
      "Dublin",
+     "Galway",
      "Limerick"
     ],
     "IT": [
+     "Imperia",
      "Latina",
      "Milan",
      "Rome"
@@ -16687,6 +19038,7 @@
      "Riga"
     ],
     "NL": [
+     "Amsterdam",
      "Breda",
      "Groningen",
      "Leiden",
@@ -16698,8 +19050,13 @@
      "Oslo"
     ],
     "PL": [
+     "Białystok",
+     "Bydgoszcz",
      "Katowice",
      "Lublin",
+     "Olsztyn",
+     "Rzeszów",
+     "Szczecin",
      "Warsaw"
     ],
     "PT": [
@@ -16709,6 +19066,7 @@
      "Bucharest"
     ],
     "SE": [
+     "Gothenburg",
      "Helsingborg",
      "Jönköping",
      "Kristianstad",
@@ -16745,6 +19103,7 @@
     "NO",
     "PL",
     "PT",
+    "RO",
     "SE",
     "SK"
    ],
@@ -16763,16 +19122,24 @@
     ],
     "CH": [
      "Basel",
+     "Bassersdorf",
      "Bern",
      "Brig",
+     "Egerkingen",
      "Geneva",
      "Glarus",
      "Hergiswil",
      "Lausanne",
      "Le Mont-sur-Lausanne",
+     "Meyrin",
+     "Neuhausen",
+     "Näfels",
+     "Pfäffikon",
+     "Pratteln",
      "Schaffhausen",
      "Schwyz",
      "Solothurn",
+     "Zollikofen",
      "Zürich"
     ],
     "CZ": [
@@ -16781,17 +19148,21 @@
      "Pilsen",
      "Prague",
      "Ráječko",
-     "Zlín"
+     "Zlín",
+     "Ústí nad Labem"
     ],
     "DE": [
+     "Aachen",
      "Augsburg",
      "Bergisch Gladbach",
      "Berlin",
      "Bonn",
      "Brandenburg an der Havel",
+     "Braunschweig",
      "Bremen",
      "Celle",
      "Cottbus",
+     "Crailsheim",
      "Dingolfing",
      "Donaueschingen",
      "Dresden",
@@ -16804,10 +19175,13 @@
      "Freiburg",
      "Gera",
      "Germering",
+     "Goslar",
      "Hamburg",
      "Hannover",
      "Heilbronn",
+     "Hildesheim",
      "Holzgerlingen",
+     "Isernhagen Farster Bauerschaft",
      "Isernhagen-Süd",
      "Ismaning",
      "Jena",
@@ -16816,34 +19190,35 @@
      "Kassel",
      "Kiel",
      "Koblenz",
-     "Köln",
-     "Ladenburg",
-     "Leipzig",
-     "Lüneburg",
-     "Magdeburg",
-     "Mannheim",
-     "Merseburg",
-     "Munich"
+     "Konstanz",
+     "Köln"
     ],
     "DK": [
      "Ballerup",
+     "Hornslet",
      "Roskilde",
      "Århus"
     ],
     "ES": [
      "A Coruña",
+     "Barcelona",
+     "Bilbao",
+     "Erandio",
      "Las Rozas de Madrid",
      "Madrid",
      "Sant Boi de Llobregat",
+     "Santa Cruz de Bezana",
      "Valencia"
     ],
     "FI": [
      "Helsinki"
     ],
     "FR": [
+     "Bordeaux",
      "Calais",
      "Carquefou",
      "Caudan",
+     "Chantepie",
      "Chassieu",
      "Colombes",
      "Dieppe",
@@ -16851,9 +19226,11 @@
      "Floirac",
      "Indre",
      "Meyzieu",
+     "Monnaie",
      "Montigny-le-Bretonneux",
      "Orléans",
      "Paris",
+     "Pavilly",
      "Reims",
      "Saint-Martin-Boulogne",
      "Soissons",
@@ -16862,6 +19239,7 @@
     ],
     "GB": [
      "Aberdeen",
+     "Addlestone",
      "Basildon",
      "Basingstoke",
      "Belfast",
@@ -16869,6 +19247,7 @@
      "Birmingham",
      "Bristol",
      "Cambridge",
+     "Cardiff",
      "Chester",
      "Coventry",
      "Craigavon",
@@ -16877,12 +19256,14 @@
      "Derry",
      "Didcot",
      "Droitwich",
+     "Edinburgh",
      "Exeter",
      "Glasgow",
      "Great Yarmouth",
      "Guildford",
      "Hounslow",
      "Leeds",
+     "Leicester",
      "Letchworth Garden City",
      "Liverpool",
      "London",
@@ -16896,14 +19277,11 @@
      "Reading",
      "Salisbury",
      "Sheffield",
-     "Slough",
-     "Solihull",
-     "Southampton",
-     "Stockport",
-     "Sunbury-on-Thames"
+     "Slough"
     ],
     "HU": [
      "Budapest",
+     "Debrecen",
      "Püspökladány"
     ],
     "IE": [
@@ -16912,7 +19290,9 @@
     ],
     "IT": [
      "Cinisello Balsamo",
-     "Cologno al Serio"
+     "Cologno al Serio",
+     "Rome",
+     "Zola Predosa"
     ],
     "NL": [
      "Amsterdam",
@@ -16931,17 +19311,25 @@
     ],
     "PL": [
      "Dębica",
+     "Gdańsk",
      "Kraków",
+     "Kąty Wrocławskie",
+     "Poznań",
      "Warsaw",
      "Zabierzów"
     ],
     "PT": [
      "Aveiro",
      "Braga",
+     "Carnaxide",
      "Lisbon",
      "São João da Madeira"
     ],
+    "RO": [
+     "Bucharest"
+    ],
     "SE": [
+     "Gothenburg",
      "Norrköping"
     ],
     "SK": [
@@ -17021,6 +19409,7 @@
     ],
     "BE": [
      "Antwerp",
+     "Leuven",
      "Wijnegem"
     ],
     "CH": [
@@ -17047,43 +19436,43 @@
      "Aschaffenburg",
      "Augsburg",
      "Baddeckenstedt",
+     "Bayreuth",
+     "Berlin",
      "Bielefeld",
      "Bingen am Rhein",
+     "Bockenem",
      "Borken",
      "Bramsche",
      "Braunschweig",
      "Bremen",
+     "Bremerhaven",
      "Buchholz in der Nordheide",
+     "Burgau",
+     "Celle",
+     "Cloppenburg",
+     "Coburg",
+     "Dingolfing",
      "Dortmund",
+     "Einbeck",
      "Ellwangen",
+     "Elze",
+     "Emsbüren",
+     "Erfurt",
+     "Erlensee",
      "Essen",
+     "Esslingen",
      "Flensburg",
      "Frankfurt am Main",
+     "Freiburg",
      "Garbsen",
+     "Germering",
+     "Gießen",
      "Goslar",
+     "Görlitz",
      "Göttingen",
+     "Günzburg",
      "Haan",
-     "Hamburg",
-     "Hamm",
-     "Hannover",
-     "Heidenheim an der Brenz",
-     "Heusenstamm",
-     "Hildesheim",
-     "Holle",
-     "Holzwickede",
-     "Kahl am Main",
-     "Kassel",
-     "Kerpen",
-     "Krefeld",
-     "Köln",
-     "Leer",
-     "Magdeburg",
-     "Mainz",
-     "Mannheim",
-     "Meppen",
-     "Nienburg",
-     "Nuremberg",
-     "Olpe"
+     "Hamburg"
     ],
     "DK": [
      "Horsens",
@@ -17098,28 +19487,38 @@
      "Nigrán",
      "Pallejà",
      "Sevilla",
+     "Valencia",
      "Valladolid",
      "Valles de Palenzuela"
     ],
     "FR": [
+     "Agen",
      "Aix-en-Provence",
+     "Albertville",
      "Arras",
+     "Aurillac",
      "Avignon",
      "Avrillé",
      "Beauvais",
      "Bourges",
      "Bussy-Saint-Georges",
+     "Béziers",
+     "Carcassonne",
      "Castelnau-d'Estrétefonds",
      "Cenon-sur-Vienne",
+     "Cestas",
      "Chambéry",
      "Changé",
      "Chaponnay",
      "Cholet",
      "Colmar",
+     "Coulommiers",
      "Dijon",
      "Eckbolsheim",
+     "Frouard",
      "Gond-Pontouvre",
      "Gonesse",
+     "Jaunay-Clan",
      "Kervignac",
      "Laval",
      "Le Mans",
@@ -17130,18 +19529,9 @@
      "Martigues",
      "Metz",
      "Mions",
-     "Mâcon",
-     "Noyal-Pontivy",
-     "Orange",
-     "Ormes",
-     "Orthez",
-     "Pacé",
-     "Perpignan",
-     "Reims",
-     "Rouen",
-     "Saint-Herblain",
-     "Saint-Jean",
-     "Saran"
+     "Montélimar",
+     "Mulhouse",
+     "Mâcon"
     ],
     "GB": [
      "Aberdeen",
@@ -17193,16 +19583,20 @@
     ],
     "IT": [
      "Bari",
+     "Bergamo",
      "Bologna",
      "Bolzano",
      "Brescia",
+     "Castel Maggiore",
      "Cernusco sul Naviglio",
+     "Chieti",
      "Como",
      "Florence",
      "Lainate",
      "Lodi",
      "Luzzara",
      "Mantua",
+     "Miglianico",
      "Milan",
      "Modena",
      "Montegalda",
@@ -17216,7 +19610,9 @@
      "Reggio nell'Emilia",
      "Rolo",
      "Rome",
+     "Rovigo",
      "San Giuliano Milanese",
+     "San Polo",
      "Trento",
      "Treviso",
      "Turin",
@@ -17236,13 +19632,17 @@
      "Katowice",
      "Kołbaskowo",
      "Kraków",
+     "Mirków",
      "Poznań",
      "Rokietnica",
+     "Sosnowiec",
+     "Szczecin",
      "Warsaw",
      "Wrocław",
      "Łódź"
     ],
     "PT": [
+     "Lisbon",
      "Porto",
      "Rio de Mouro"
     ],
@@ -17330,6 +19730,8 @@
    "countries": [
     "AT",
     "BE",
+    "CH",
+    "CY",
     "CZ",
     "DE",
     "ES",
@@ -17340,6 +19742,7 @@
     "IT",
     "LU",
     "NL",
+    "NO",
     "PL",
     "PT",
     "SK"
@@ -17351,6 +19754,12 @@
     ],
     "BE": [
      "Brussels"
+    ],
+    "CH": [
+     "Zürich"
+    ],
+    "CY": [
+     "Nicosia"
     ],
     "CZ": [
      "Brno",
@@ -17376,7 +19785,8 @@
      "Valencia"
     ],
     "FR": [
-     "Courbevoie"
+     "Courbevoie",
+     "Lille"
     ],
     "GB": [
      "Liverpool",
@@ -17400,6 +19810,9 @@
     ],
     "NL": [
      "Hoofddorp"
+    ],
+    "NO": [
+     "Oslo"
     ],
     "PL": [
      "Katowice",
@@ -17432,7 +19845,8 @@
      "Vienna"
     ],
     "BE": [
-     "Brussels"
+     "Brussels",
+     "Mons"
     ],
     "DE": [
      "Kaiserslautern",
@@ -17462,8 +19876,7 @@
     "NL": [
      "The Hague"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Leonardo",
@@ -17513,8 +19926,7 @@
      "Turin",
      "Venice"
     ]
-   },
-   "checked": "2026-10-30"
+   }
   },
   {
    "name": "Littelfuse",
@@ -17552,8 +19964,7 @@
     "NL": [
      "Hoofddorp"
     ]
-   },
-   "checked": "2026-10-30"
+   }
   },
   {
    "name": "Littelfuse (Littelfuse-University-Relations)",
@@ -17594,7 +20005,11 @@
    ],
    "elsewhere": true,
    "towns": {
+    "CH": [
+     "Geneva"
+    ],
     "DE": [
+     "Düsseldorf",
      "Frankfurt am Main"
     ],
     "DK": [
@@ -17608,6 +20023,7 @@
     ],
     "GB": [
      "Edinburgh",
+     "Exeter",
      "London",
      "Nottingham"
     ],
@@ -17651,7 +20067,8 @@
     ],
     "ES": [
      "Algeciras",
-     "Barcelona"
+     "Barcelona",
+     "Valencia"
     ],
     "HR": [
      "Rijeka"
@@ -17687,6 +20104,7 @@
    "system": "workday",
    "board": "https://maersk.wd3.myworkdayjobs.com/Maersk_Careers",
    "countries": [
+    "AT",
     "BE",
     "CH",
     "CZ",
@@ -17711,8 +20129,12 @@
    ],
    "elsewhere": true,
    "towns": {
+    "AT": [
+     "Vienna"
+    ],
     "BE": [
-     "Antwerp"
+     "Antwerp",
+     "Machelen"
     ],
     "CH": [
      "Pratteln",
@@ -17722,9 +20144,11 @@
      "Prague"
     ],
     "DE": [
+     "Bremen",
      "Bremerhaven",
      "Dornstadt",
      "Duisburg",
+     "Düsseldorf",
      "Frankfurt am Main",
      "Hamburg",
      "Herleshausen",
@@ -17742,9 +20166,11 @@
      "Århus"
     ],
     "ES": [
+     "Algeciras",
      "Barcelona",
      "Bilbao",
      "Cartagena",
+     "Los Barrios",
      "Madrid",
      "Valencia"
     ],
@@ -17753,15 +20179,18 @@
      "Le Havre",
      "Marseille",
      "Paris",
+     "Villeneuve",
      "Villeneuve-d'Ascq"
     ],
     "GB": [
+     "Aberdeen",
      "Derby",
      "Doncaster",
      "Felixstowe",
      "Grimsby",
      "Liverpool",
      "Maidenhead",
+     "Reading",
      "Slough",
      "Tamworth"
     ],
@@ -17779,6 +20208,8 @@
      "Dublin"
     ],
     "IT": [
+     "Genoa",
+     "Milan",
      "Savona"
     ],
     "NL": [
@@ -17796,8 +20227,10 @@
     "PL": [
      "Gdańsk",
      "Gdynia",
+     "Mszczonów",
      "Warsaw",
-     "Wrocław"
+     "Wrocław",
+     "Łódź"
     ],
     "PT": [
      "Lisbon"
@@ -17807,7 +20240,8 @@
      "Constanţa"
     ],
     "SE": [
-     "Gothenburg"
+     "Gothenburg",
+     "Strömstad"
     ],
     "SI": [
      "Koper",
@@ -17835,6 +20269,7 @@
     "PL",
     "RO",
     "SE",
+    "SI",
     "SK"
    ],
    "elsewhere": true,
@@ -17844,12 +20279,15 @@
      "Graz",
      "Ilz",
      "Klagenfurt am Wörthersee",
+     "Krottendorf bei Ligist",
      "Lannach",
      "Sankt Valentin",
      "Traiskirchen",
+     "Weikersdorf am Steinfelde",
      "Weiz"
     ],
     "CZ": [
+     "Chomutov",
      "Liberec",
      "Mladá Boleslav",
      "Pilsen",
@@ -17858,6 +20296,8 @@
     ],
     "DE": [
      "Assamstadt",
+     "Bietigheim-Bissingen",
+     "Dorfprozelten",
      "Elsendorf",
      "Hannover",
      "Heilbad Heiligenstadt",
@@ -17866,6 +20306,7 @@
      "Markt Schwaben",
      "Meerane",
      "Munich",
+     "Neuburg an der Donau",
      "Neuenstadt am Kocher",
      "Neuenstein",
      "Sailauf",
@@ -17883,7 +20324,8 @@
     "ES": [
      "Almussafes",
      "Polinyà",
-     "Porriño"
+     "Porriño",
+     "Valencia"
     ],
     "FR": [
      "Bièvres",
@@ -17898,9 +20340,14 @@
     ],
     "IT": [
      "Collesalvetti",
-     "La Loggia"
+     "La Loggia",
+     "Modugno",
+     "Moncalieri",
+     "Rivoli",
+     "Santena"
     ],
     "PL": [
+     "Kostrzyn nad Odrą",
      "Kędzierzyn-Koźle",
      "Tychy"
     ],
@@ -17909,7 +20356,8 @@
      "Timişoara"
     ],
     "SE": [
-     "Linköping"
+     "Linköping",
+     "Vårgårda"
     ]
    }
   },
@@ -17924,6 +20372,7 @@
     "GB",
     "NL",
     "PL",
+    "PT",
     "SE"
    ],
    "elsewhere": true,
@@ -17944,6 +20393,9 @@
     ],
     "PL": [
      "Warsaw"
+    ],
+    "PT": [
+     "Porto"
     ]
    }
   },
@@ -17952,6 +20404,7 @@
    "system": "workday",
    "board": "https://marvell.wd1.myworkdayjobs.com/MarvellCareers",
    "countries": [
+    "CH",
     "ES",
     "IT",
     "RO"
@@ -18001,6 +20454,7 @@
      "Vienna"
     ],
     "BE": [
+     "Brussels",
      "Waterloo"
     ],
     "CH": [
@@ -18013,7 +20467,8 @@
      "Copenhagen"
     ],
     "ES": [
-     "Madrid"
+     "Madrid",
+     "Port de Pollença"
     ],
     "FI": [
      "Helsinki"
@@ -18119,6 +20574,7 @@
     "AT": [
      "Graz",
      "Innsbruck",
+     "Klagenfurt am Wörthersee",
      "Linz",
      "Salzburg",
      "Vienna"
@@ -18171,9 +20627,12 @@
      "Weßling"
     ],
     "DK": [
-     "Copenhagen"
+     "Copenhagen",
+     "Hørsholm"
     ],
     "ES": [
+     "Alcalá de Henares",
+     "Alicante",
      "Barcelona",
      "Bilbao",
      "Donostia / San Sebastián",
@@ -18195,14 +20654,22 @@
     "FR": [
      "Claix",
      "Lille",
+     "Metz",
+     "Mulhouse",
+     "Nancy",
      "Paris",
+     "Pont de Vivaux",
      "Rillieux-la-Pape",
+     "Strasbourg",
      "Tours",
      "Trévoux"
     ],
     "GB": [
+     "Bristol",
+     "Cambridge",
      "Canterbury",
      "Edinburgh",
+     "Glasgow",
      "London",
      "Manchester",
      "Newcastle upon Tyne",
@@ -18219,11 +20686,22 @@
      "Budapest"
     ],
     "IE": [
+     "Athlone",
      "Dublin",
      "Galway"
     ],
     "IT": [
+     "Alessandria",
+     "Bologna",
+     "Florence",
      "Milan",
+     "Mirandola",
+     "Modena",
+     "Naples",
+     "Parma",
+     "Reggio nell'Emilia",
+     "Rolo",
+     "Turate",
      "Verona"
     ],
     "LT": [
@@ -18316,7 +20794,8 @@
      "Belfast",
      "Caldicot",
      "Cambridge",
-     "Winchester"
+     "Winchester",
+     "Wokingham"
     ],
     "IE": [
      "Cork",
@@ -18387,8 +20866,7 @@
      "Lisbon",
      "Porto"
     ]
-   },
-   "checked": "2026-11-03"
+   }
   },
   {
    "name": "Moog",
@@ -18478,6 +20956,7 @@
     "DE",
     "DK",
     "ES",
+    "FI",
     "FR",
     "GB",
     "IE",
@@ -18501,7 +20980,8 @@
      "Braunschweig"
     ],
     "DK": [
-     "Copenhagen"
+     "Copenhagen",
+     "Glostrup"
     ],
     "ES": [
      "Madrid"
@@ -18525,6 +21005,9 @@
     "IT": [
      "Milan",
      "Schio"
+    ],
+    "LT": [
+     "Vilnius"
     ],
     "NO": [
      "Oslo"
@@ -18557,13 +21040,17 @@
     "GB",
     "HU",
     "IE",
+    "IS",
     "IT",
     "LT",
     "LV",
     "NL",
+    "NO",
     "PL",
     "PT",
-    "RO"
+    "RO",
+    "SE",
+    "SI"
    ],
    "elsewhere": true,
    "towns": {
@@ -18583,9 +21070,16 @@
     ],
     "DE": [
      "Berlin",
+     "Bielefeld",
      "Brandenburg an der Havel",
+     "Burgwedel",
+     "Dortmund",
      "Friesoythe",
+     "Göttingen",
+     "Hannover",
+     "Köln",
      "Munich",
+     "Nienburg",
      "Schwabenheim",
      "Unterschleißheim"
     ],
@@ -18619,6 +21113,7 @@
      "Tipperary"
     ],
     "IT": [
+     "Milan",
      "Rome"
     ],
     "LT": [
@@ -18632,6 +21127,9 @@
      "De Bilt",
      "Haarlem"
     ],
+    "NO": [
+     "Bergen"
+    ],
     "PL": [
      "Warsaw",
      "Września"
@@ -18641,6 +21139,12 @@
     ],
     "RO": [
      "Bucharest"
+    ],
+    "SE": [
+     "Stockholm"
+    ],
+    "SI": [
+     "Ljubljana"
     ]
    }
   },
@@ -18674,8 +21178,7 @@
     "NL": [
      "Nijmegen"
     ]
-   },
-   "checked": "2026-11-03"
+   }
   },
   {
    "name": "Nidec",
@@ -18734,15 +21237,22 @@
     "CY",
     "CZ",
     "DE",
+    "DK",
+    "EE",
     "ES",
+    "FI",
     "FR",
     "GB",
     "IE",
     "IT",
+    "LT",
+    "LV",
     "NL",
+    "NO",
     "PL",
     "PT",
     "RO",
+    "SE",
     "SI",
     "SK"
    ],
@@ -18792,6 +21302,7 @@
      "Courbevoie"
     ],
     "GB": [
+     "Belfast",
      "Bristol",
      "Cambridge",
      "Reading"
@@ -18875,8 +21386,7 @@
      "Bucharest",
      "Sibiu"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Orange",
@@ -18899,7 +21409,8 @@
     "GB",
     "IE",
     "IT",
-    "LU"
+    "LU",
+    "NL"
    ],
    "elsewhere": true,
    "towns": {
@@ -18924,6 +21435,9 @@
     ],
     "LU": [
      "Luxembourg"
+    ],
+    "NL": [
+     "Amsterdam"
     ]
    }
   },
@@ -18936,7 +21450,10 @@
     "CH",
     "CZ",
     "DE",
+    "DK",
     "EE",
+    "ES",
+    "FI",
     "FR",
     "GB",
     "GR",
@@ -18944,15 +21461,19 @@
     "HU",
     "IE",
     "IT",
+    "NL",
+    "NO",
     "PL",
     "RO",
+    "SE",
     "SK"
    ],
    "elsewhere": true,
    "towns": {
     "BE": [
      "Anderlecht",
-     "Puurs"
+     "Puurs",
+     "Zaventem"
     ],
     "CH": [
      "Zug"
@@ -18964,8 +21485,17 @@
      "Berlin",
      "Freiburg"
     ],
+    "DK": [
+     "Ballerup"
+    ],
     "EE": [
      "Tallinn"
+    ],
+    "ES": [
+     "Madrid"
+    ],
+    "FI": [
+     "Helsinki"
     ],
     "FR": [
      "Paris"
@@ -18995,11 +21525,18 @@
     "IT": [
      "Ascoli Piceno"
     ],
+    "NO": [
+     "Oslo"
+    ],
     "PL": [
      "Warsaw"
     ],
     "RO": [
      "Bucharest"
+    ],
+    "SE": [
+     "Stockholm",
+     "Strängnäs"
     ],
     "SK": [
      "Bratislava"
@@ -19021,6 +21558,7 @@
     "FI",
     "FR",
     "GB",
+    "GR",
     "IT",
     "NL",
     "NO",
@@ -19050,6 +21588,8 @@
      "Böblingen",
      "Hamburg",
      "Kassel",
+     "Köln",
+     "Munich",
      "Unterschleißheim"
     ],
     "DK": [
@@ -19057,6 +21597,7 @@
     ],
     "ES": [
      "A Coruña",
+     "Barcelona",
      "Madrid",
      "Valencia"
     ],
@@ -19065,12 +21606,16 @@
     ],
     "FR": [
      "Bordeaux",
+     "Nantes",
      "Paris"
     ],
     "GB": [
      "City of London",
      "Farnborough",
      "London"
+    ],
+    "GR": [
+     "Athens"
     ],
     "IT": [
      "Genoa",
@@ -19137,15 +21682,18 @@
     "DE",
     "DK",
     "ES",
+    "FI",
     "FR",
     "GB",
     "GR",
+    "HR",
     "HU",
     "IT",
     "NL",
     "PL",
     "PT",
     "RO",
+    "SE",
     "SK"
    ],
    "elsewhere": true,
@@ -19177,23 +21725,38 @@
      "Alicante",
      "Barcelona",
      "Madrid",
+     "Valencia",
      "Zaragoza"
+    ],
+    "FI": [
+     "Espoo"
     ],
     "FR": [
      "Amiens",
+     "Asnières-sur-Seine",
+     "Bordeaux",
      "Dijon",
      "Grenoble",
      "Metz",
      "Paris",
-     "Saint-Ouen"
+     "Saint-Denis",
+     "Saint-Ouen",
+     "Toulouse"
     ],
     "GB": [
+     "Leeds",
      "Liverpool",
      "London",
-     "Manchester"
+     "Manchester",
+     "Newcastle upon Tyne",
+     "Reading"
     ],
     "GR": [
-     "Athens"
+     "Athens",
+     "Thessaloníki"
+    ],
+    "HR": [
+     "Zagreb"
     ],
     "HU": [
      "Budapest"
@@ -19207,6 +21770,8 @@
     ],
     "PL": [
      "Białystok",
+     "Bydgoszcz",
+     "Katowice",
      "Kraków",
      "Szczecin",
      "Warsaw",
@@ -19217,6 +21782,9 @@
     ],
     "RO": [
      "Bucharest"
+    ],
+    "SE": [
+     "Stockholm"
     ],
     "SK": [
      "Bratislava"
@@ -19231,14 +21799,20 @@
     "AT",
     "DE",
     "ES",
+    "FR",
     "GB",
     "IE",
+    "IT",
     "NL"
    ],
    "elsewhere": true,
    "towns": {
     "ES": [
-     "Madrid"
+     "Madrid",
+     "Santiago de Compostela"
+    ],
+    "FR": [
+     "Puteaux"
     ],
     "IE": [
      "Dublin",
@@ -19331,6 +21905,9 @@
    ],
    "elsewhere": true,
    "towns": {
+    "DE": [
+     "Düsseldorf"
+    ],
     "FR": [
      "Paris"
     ],
@@ -19358,7 +21935,8 @@
     "IE",
     "IT",
     "NL",
-    "PL"
+    "PL",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
@@ -19373,6 +21951,7 @@
      "Düsseldorf",
      "Frankfurt am Main",
      "Karlsruhe",
+     "Merseburg",
      "Munich"
     ],
     "DK": [
@@ -19389,8 +21968,10 @@
     "GB": [
      "Cambridge",
      "Cardiff",
+     "Exeter",
      "Leeds",
      "London",
+     "Newtownabbey",
      "Nottingham",
      "Oxford",
      "Richmond",
@@ -19400,6 +21981,7 @@
      "Dublin"
     ],
     "IT": [
+     "Gallarate",
      "Milan"
     ],
     "NL": [
@@ -19408,6 +21990,9 @@
     "PL": [
      "Warsaw",
      "Wrocław"
+    ],
+    "SE": [
+     "Stockholm"
     ]
    }
   },
@@ -19423,13 +22008,15 @@
     "IE",
     "IT",
     "NL",
-    "PL"
+    "PL",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
     "DE": [
      "Frankfurt am Main",
-     "Karlsruhe"
+     "Karlsruhe",
+     "Merseburg"
     ],
     "ES": [
      "Madrid"
@@ -19448,6 +22035,7 @@
      "Dublin"
     ],
     "IT": [
+     "Gallarate",
      "Milan"
     ],
     "NL": [
@@ -19456,6 +22044,9 @@
     "PL": [
      "Warsaw",
      "Wrocław"
+    ],
+    "SE": [
+     "Stockholm"
     ]
    }
   },
@@ -19492,8 +22083,7 @@
     "NL": [
      "Breda"
     ]
-   },
-   "checked": "2026-10-30"
+   }
   },
   {
    "name": "Roche (mysugr-ext)",
@@ -19517,13 +22107,18 @@
     "AT",
     "BE",
     "CH",
+    "CZ",
     "DE",
+    "DK",
     "ES",
     "FR",
+    "GB",
     "GR",
+    "HR",
     "HU",
     "IE",
     "LV",
+    "NL",
     "PL",
     "PT",
     "RO"
@@ -19537,20 +22132,36 @@
      "Basel",
      "Rotkreuz"
     ],
+    "CZ": [
+     "Prague"
+    ],
     "DE": [
      "Berlin",
      "Ludwigsburg",
      "Mannheim",
      "Penzberg"
     ],
+    "DK": [
+     "Copenhagen"
+    ],
     "ES": [
-     "Madrid"
+     "Madrid",
+     "Sant Cugat del Vallès"
     ],
     "FR": [
+     "Laval",
+     "Meylan",
      "Paris"
+    ],
+    "GB": [
+     "Birmingham",
+     "Burgess Hill"
     ],
     "GR": [
      "Athens"
+    ],
+    "HR": [
+     "Zagreb"
     ],
     "HU": [
      "Budapest"
@@ -19561,8 +22172,14 @@
     "LV": [
      "Riga"
     ],
+    "NL": [
+     "Almere Stad"
+    ],
     "PL": [
      "Warsaw"
+    ],
+    "PT": [
+     "Amadora"
     ],
     "RO": [
      "Bucharest"
@@ -19574,6 +22191,8 @@
    "system": "workday",
    "board": "https://rockwellautomation.wd1.myworkdayjobs.com/External_Rockwell_Automation",
    "countries": [
+    "AT",
+    "BE",
     "CH",
     "CZ",
     "DE",
@@ -19581,13 +22200,21 @@
     "ES",
     "FR",
     "GB",
+    "HU",
     "IT",
     "NL",
     "PL",
+    "PT",
     "SE"
    ],
    "elsewhere": true,
    "towns": {
+    "AT": [
+     "Linz"
+    ],
+    "BE": [
+     "Brussels"
+    ],
     "CH": [
      "Aarau",
      "Luzern",
@@ -19599,26 +22226,40 @@
     ],
     "DE": [
      "Düsseldorf",
-     "Karlsruhe"
+     "Hamburg",
+     "Ismaning",
+     "Karlsruhe",
+     "Munich"
     ],
     "DK": [
-     "Brønderslev"
+     "Ballerup",
+     "Brønderslev",
+     "Århus"
     ],
     "ES": [
      "Barcelona",
-     "Madrid"
+     "Madrid",
+     "Valencia",
+     "Vigo"
     ],
     "FR": [
+     "Clermont-Ferrand",
      "Lille",
      "Lyon",
      "Nantes",
-     "Paris"
+     "Paris",
+     "Strasbourg",
+     "Toulouse"
     ],
     "GB": [
-     "Aldridge"
+     "Aldridge",
+     "Maldon",
+     "Milton Keynes"
     ],
     "IT": [
      "Artegna",
+     "Bologna",
+     "Giussano",
      "Milan",
      "Verona"
     ],
@@ -19630,6 +22271,9 @@
      "Katowice",
      "Szczecin",
      "Warsaw"
+    ],
+    "PT": [
+     "Porto Salvo"
     ],
     "SE": [
      "Gothenburg",
@@ -19643,6 +22287,7 @@
    "system": "workday",
    "board": "https://rollsroyce.wd3.myworkdayjobs.com/Apprentice",
    "countries": [
+    "DE",
     "FR"
    ],
    "elsewhere": false,
@@ -19654,6 +22299,7 @@
    "board": "https://rollsroyce.wd3.myworkdayjobs.com/Intern_Graduate",
    "countries": [
     "DE",
+    "GB",
     "PL"
    ],
    "elsewhere": true,
@@ -19673,6 +22319,23 @@
    ],
    "elsewhere": true,
    "towns": {}
+  },
+  {
+   "name": "Rolls-Royce Power Systems (early careers)",
+   "system": "workday",
+   "board": "https://rollsroyce.wd3.myworkdayjobs.com/rrpowersystemsearlycareer",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Berlin",
+     "Friedrichshafen",
+     "Hamburg",
+     "Magdeburg"
+    ]
+   }
   },
   {
    "name": "Roquette",
@@ -19739,6 +22402,7 @@
      "Toulouse"
     ],
     "GB": [
+     "Barrow in Furness",
      "Birmingham",
      "Crawley",
      "Fareham",
@@ -19808,7 +22472,9 @@
      "Düsseldorf",
      "Frankfurt am Main",
      "Hamburg",
+     "Jena",
      "Mannheim",
+     "Maxdorf",
      "Munich",
      "Stuttgart"
     ],
@@ -19823,6 +22489,8 @@
      "Espoo"
     ],
     "FR": [
+     "Lyon",
+     "Marseille",
      "Paris"
     ],
     "GB": [
@@ -19857,6 +22525,7 @@
    "system": "workday",
    "board": "https://sec.wd3.myworkdayjobs.com/Samsung_Careers",
    "countries": [
+    "AT",
     "DE",
     "FR",
     "GB",
@@ -19865,12 +22534,16 @@
     "IE",
     "IT",
     "LT",
+    "LV",
     "NL",
     "PL",
     "RO"
    ],
    "elsewhere": true,
    "towns": {
+    "AT": [
+     "Vienna"
+    ],
     "DE": [
      "Düsseldorf",
      "Eschborn",
@@ -19902,6 +22575,9 @@
     "LT": [
      "Vilnius"
     ],
+    "LV": [
+     "Riga"
+    ],
     "NL": [
      "Amsterdam"
     ],
@@ -19919,6 +22595,7 @@
    "board": "https://sandvik.wd3.myworkdayjobs.com/dormerpramet-jobs",
    "countries": [
     "CZ",
+    "DE",
     "GB",
     "IT",
     "PL"
@@ -19929,6 +22606,9 @@
      "Chomutov",
      "Prague",
      "Šumperk"
+    ],
+    "DE": [
+     "Erlangen"
     ],
     "GB": [
      "Rotherham"
@@ -19951,6 +22631,7 @@
     "DE",
     "ES",
     "FR",
+    "GB",
     "IE",
     "IT",
     "NL",
@@ -19977,7 +22658,11 @@
      "Cornellà de Llobregat"
     ],
     "FR": [
-     "Bourges"
+     "Bourges",
+     "Bouxwiller"
+    ],
+    "GB": [
+     "Alcester"
     ],
     "IE": [
      "Kildare"
@@ -19989,6 +22674,7 @@
      "Lottum"
     ],
     "PL": [
+     "Ciechanów",
      "Katowice"
     ],
     "SE": [
@@ -20002,18 +22688,26 @@
    "board": "https://sandvik.wd3.myworkdayjobs.com/walter-jobs",
    "countries": [
     "AT",
+    "CZ",
     "DE",
     "ES",
     "FR",
-    "PL"
+    "GB",
+    "PL",
+    "PT",
+    "SK"
    ],
    "elsewhere": true,
    "towns": {
     "AT": [
      "Pasching"
     ],
+    "CZ": [
+     "Jičín"
+    ],
     "DE": [
      "Frankfurt am Main",
+     "Köln",
      "Münsingen",
      "Tübingen",
      "Zell"
@@ -20022,10 +22716,21 @@
      "El Prat de Llobregat"
     ],
     "FR": [
+     "Bouxwiller",
+     "Paris",
      "Soultz-sous-Forêts"
+    ],
+    "GB": [
+     "London"
     ],
     "PL": [
      "Warsaw"
+    ],
+    "PT": [
+     "Vila do Conde"
+    ],
+    "SK": [
+     "Nitra"
     ]
    }
   },
@@ -20038,6 +22743,7 @@
     "BE",
     "CZ",
     "DE",
+    "DK",
     "ES",
     "FR",
     "GB",
@@ -20067,7 +22773,8 @@
      "Frankfurt am Main"
     ],
     "ES": [
-     "Barcelona"
+     "Barcelona",
+     "Madrid"
     ],
     "FR": [
      "Lyon",
@@ -20116,12 +22823,14 @@
     "GB",
     "IT",
     "NL",
+    "NO",
     "PL",
     "PT"
    ],
    "elsewhere": true,
    "towns": {
     "AT": [
+     "Salzburg",
      "Vienna"
     ],
     "CH": [
@@ -20133,9 +22842,12 @@
      "Schleswig"
     ],
     "ES": [
+     "Castelló de la Plana",
      "Las Palmas de Gran Canaria",
      "Madrid",
-     "Málaga"
+     "Málaga",
+     "Santa Cruz de Tenerife",
+     "Valladolid"
     ],
     "FR": [
      "Paris"
@@ -20148,14 +22860,20 @@
      "Inverness",
      "London",
      "Manchester",
+     "Southampton",
      "Stirling",
-     "Swansea"
+     "Swansea",
+     "Telford"
     ],
     "IT": [
      "Milan",
      "Rome"
     ],
+    "NL": [
+     "Utrecht"
+    ],
     "PT": [
+     "Braga",
      "Lisbon",
      "Porto",
      "Setúbal"
@@ -20171,6 +22889,7 @@
     "DE",
     "FR",
     "GB",
+    "IT",
     "SE"
    ],
    "elsewhere": true,
@@ -20184,21 +22903,28 @@
     "GB": [
      "Bristol"
     ],
+    "IT": [
+     "Rome"
+    ],
     "SE": [
      "Stockholm"
     ]
-   },
-   "checked": "2026-11-03"
+   }
   },
   {
    "name": "Sensata",
    "system": "workday",
    "board": "https://sensata.wd1.myworkdayjobs.com/Sensata-Careers",
    "countries": [
-    "DE"
+    "DE",
+    "NL"
    ],
    "elsewhere": true,
-   "towns": {}
+   "towns": {
+    "NL": [
+     "Hengelo"
+    ]
+   }
   },
   {
    "name": "Servomex (Spectris)",
@@ -20222,6 +22948,7 @@
    "countries": [
     "DE",
     "DK",
+    "FR",
     "GB",
     "NL",
     "PL"
@@ -20233,7 +22960,9 @@
      "Köln"
     ],
     "DK": [
-     "Odense"
+     "Holsted",
+     "Odense",
+     "Trige"
     ],
     "GB": [
      "London",
@@ -20246,6 +22975,66 @@
     ],
     "PL": [
      "Warsaw"
+    ]
+   }
+  },
+  {
+   "name": "Signify",
+   "system": "workday",
+   "board": "https://lighting.wd3.myworkdayjobs.com/jobs-and-careers",
+   "countries": [
+    "BE",
+    "CZ",
+    "DE",
+    "DK",
+    "ES",
+    "FR",
+    "GB",
+    "IT",
+    "NL",
+    "PL",
+    "PT",
+    "RO"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "BE": [
+     "Brussels"
+    ],
+    "CZ": [
+     "Prague"
+    ],
+    "DE": [
+     "Hamburg"
+    ],
+    "DK": [
+     "Copenhagen"
+    ],
+    "ES": [
+     "Bilbao",
+     "Madrid",
+     "Valladolid"
+    ],
+    "GB": [
+     "Guildford"
+    ],
+    "IT": [
+     "Milan"
+    ],
+    "NL": [
+     "Amsterdam",
+     "Eindhoven",
+     "Noord"
+    ],
+    "PL": [
+     "Warsaw",
+     "Łódź"
+    ],
+    "PT": [
+     "Lisbon"
+    ],
+    "RO": [
+     "Bucharest"
     ]
    }
   },
@@ -20287,6 +23076,7 @@
      "Wommelgem"
     ],
     "CH": [
+     "Baar",
      "Basel",
      "Bern",
      "Crissier",
@@ -20297,6 +23087,8 @@
      "Zürich"
     ],
     "CZ": [
+     "Lovosice",
+     "Měšice",
      "Prague"
     ],
     "DE": [
@@ -20472,7 +23264,9 @@
    "elsewhere": true,
    "towns": {
     "AT": [
-     "Salzburg"
+     "Graz",
+     "Salzburg",
+     "Vienna"
     ],
     "BE": [
      "Brussels",
@@ -20480,11 +23274,15 @@
     ],
     "CH": [
      "Bern",
-     "Selzach"
+     "Geneva",
+     "Luzern",
+     "Selzach",
+     "Zürich"
     ],
     "DE": [
      "Augsburg",
      "Berlin",
+     "Dortmund",
      "Duisburg",
      "Freiburg",
      "Hannover",
@@ -20492,47 +23290,62 @@
      "Kiel",
      "Magdeburg",
      "Mainz",
+     "Munich",
      "Mühlheim am Main",
      "Schleswig",
      "Schönkirchen",
-     "Tuttlingen"
+     "Tuttlingen",
+     "Waghäusel"
     ],
     "ES": [
      "Alcobendas",
      "Barcelona",
      "Burgos",
      "Madrid",
-     "Valencia"
+     "Valencia",
+     "Vigo"
     ],
     "FI": [
      "Helsinki"
     ],
     "FR": [
+     "Amiens",
      "Bastia",
      "Bordeaux",
      "Brest",
+     "Caen",
      "Dijon",
      "Décines-Charpieu",
      "Grenoble",
+     "Lille",
      "Lyon",
      "Marseille",
+     "Metz",
      "Nancy",
      "Nantes",
      "Nice",
+     "Nîmes",
      "Paris",
      "Pusignan",
      "Reims",
      "Toulouse",
-     "Tours"
+     "Tours",
+     "Valence"
     ],
     "GB": [
      "Belfast",
      "Birmingham",
+     "Brighton",
      "Bristol",
+     "Cambridge",
+     "Derby",
      "Edinburgh",
+     "Leeds",
      "London",
      "Manchester",
-     "Newbury"
+     "Newbury",
+     "Newcastle upon Tyne",
+     "Oxford"
     ],
     "IE": [
      "Carrigtwohill",
@@ -20541,6 +23354,8 @@
     ],
     "IT": [
      "Bologna",
+     "Florence",
+     "Formello",
      "Milan",
      "Naples",
      "Rome"
@@ -20554,6 +23369,8 @@
      "Oslo"
     ],
     "PL": [
+     "Katowice",
+     "Kraków",
      "Poznań",
      "Skawina",
      "Warsaw"
@@ -20622,6 +23439,7 @@
    "elsewhere": true,
    "towns": {
     "BE": [
+     "Andrimont",
      "Marke"
     ],
     "CY": [
@@ -20643,6 +23461,8 @@
      "Grenoble"
     ],
     "GB": [
+     "Alton",
+     "Bodelwyddan",
      "Bromborough",
      "Chelmsford",
      "Cumbernauld",
@@ -20672,14 +23492,14 @@
      "Linköping",
      "Täby"
     ]
-   },
-   "checked": "2026-10-30"
+   }
   },
   {
    "name": "Thales",
    "system": "workday",
    "board": "https://thales.wd3.myworkdayjobs.com/Careers",
    "countries": [
+    "AT",
     "BE",
     "CH",
     "CZ",
@@ -20688,6 +23508,7 @@
     "ES",
     "FR",
     "GB",
+    "GR",
     "IT",
     "LU",
     "NL",
@@ -20698,11 +23519,17 @@
    ],
    "elsewhere": true,
    "towns": {
+    "AT": [
+     "Vienna"
+    ],
     "BE": [
-     "Charleroi"
+     "Brussels",
+     "Charleroi",
+     "Leuven"
     ],
     "CH": [
      "Aarau",
+     "Bern",
      "Thun",
      "Zürich"
     ],
@@ -20715,7 +23542,8 @@
      "Koblenz",
      "Munich",
      "Stuttgart",
-     "Ulm"
+     "Ulm",
+     "Wilhelmshaven"
     ],
     "DK": [
      "Copenhagen"
@@ -20730,6 +23558,7 @@
      "Aix-en-Provence",
      "Bordeaux",
      "Brest",
+     "Chambray-lès-Tours",
      "Châtellerault",
      "Grenoble",
      "Issy-les-Moulineaux",
@@ -20744,6 +23573,7 @@
      "Rouen",
      "Sophia Antipolis",
      "Toulouse",
+     "Tours",
      "Valbonne",
      "Vélizy-Villacoublay"
     ],
@@ -20756,6 +23586,9 @@
      "Glasgow",
      "Oxford",
      "Reading"
+    ],
+    "GR": [
+     "Athens"
     ],
     "IT": [
      "Florence",
@@ -20817,6 +23650,7 @@
     "PT",
     "RO",
     "SE",
+    "SI",
     "SK"
    ],
    "elsewhere": true,
@@ -20828,14 +23662,17 @@
     "BE": [
      "Brussels",
      "Geel",
+     "Gosselies",
      "Merelbeke",
      "Seneffe",
      "Vilvoorde",
-     "Zaventem"
+     "Zaventem",
+     "Zwijnaarde"
     ],
     "CH": [
      "Allschwil",
      "Basel",
+     "Cheseaux",
      "Lengnau",
      "Reinach",
      "Zürich"
@@ -20852,20 +23689,26 @@
      "Braunschweig",
      "Bremen",
      "Darmstadt",
+     "Dortmund",
      "Dreieich",
      "Dresden",
      "Düsseldorf",
      "Erlangen",
      "Frankfurt am Main",
      "Freiburg",
+     "Germering",
      "Halle (Saale)",
      "Hamburg",
      "Hannover",
      "Heidelberg",
+     "Hennigsdorf",
+     "Kandel",
      "Karlsruhe",
      "Langenselbold",
      "Leipzig",
+     "Ludwigshafen am Rhein",
      "Munich",
+     "Nuremberg",
      "Osterode am Harz",
      "Regensburg",
      "Rheinfelden",
@@ -20897,10 +23740,12 @@
      "Nîmes",
      "Paris",
      "Saint-Aubin",
+     "Saint-Égrève",
      "Toulouse"
     ],
     "GB": [
      "Basingstoke",
+     "Belfast",
      "Bellshill",
      "Birmingham",
      "Bishops Stortford",
@@ -20911,6 +23756,8 @@
      "Hemel Hempstead",
      "Heysham",
      "Horsham",
+     "Leeds",
+     "Liverpool",
      "London",
      "Loughborough",
      "Manchester",
@@ -20918,8 +23765,10 @@
      "Newport",
      "Oxford",
      "Paisley",
+     "Sheffield",
      "Stevenage",
      "Swindon",
+     "Ware",
      "Warrington",
      "Winsford"
     ],
@@ -20931,6 +23780,7 @@
     ],
     "IE": [
      "Athlone",
+     "Cork",
      "Dublin",
      "Limerick"
     ],
@@ -20939,6 +23789,7 @@
      "Ferentino",
      "Milan",
      "Monza",
+     "Parma",
      "Rome"
     ],
     "LT": [
@@ -20952,7 +23803,8 @@
      "Landsmeer",
      "Leiden",
      "Naarden",
-     "Tilburg"
+     "Tilburg",
+     "Utrecht"
     ],
     "NO": [
      "Lillestrøm",
@@ -20975,6 +23827,7 @@
     "SE": [
      "Gothenburg",
      "Stockholm",
+     "Umeå",
      "Uppsala",
      "Ängelholm"
     ],
@@ -20991,9 +23844,11 @@
    "board": "https://trimble.wd1.myworkdayjobs.com/TrimbleCareers",
    "countries": [
     "AT",
+    "BE",
     "CH",
     "DE",
     "DK",
+    "EE",
     "ES",
     "FI",
     "FR",
@@ -21002,6 +23857,7 @@
     "HU",
     "IE",
     "IT",
+    "LT",
     "LV",
     "NL",
     "NO",
@@ -21017,6 +23873,7 @@
     ],
     "DE": [
      "Berlin",
+     "Biberach an der Riß",
      "Bonn",
      "Braunschweig",
      "Jena",
@@ -21025,8 +23882,15 @@
      "Stuttgart",
      "Ulm"
     ],
+    "EE": [
+     "Tallinn",
+     "Tartu"
+    ],
     "FI": [
-     "Espoo"
+     "Espoo",
+     "Jyväskylä",
+     "Kouvola",
+     "Mikkeli"
     ],
     "FR": [
      "Joinville-le-Pont"
@@ -21042,6 +23906,9 @@
     ],
     "IE": [
      "Cork"
+    ],
+    "LT": [
+     "Vilnius"
     ],
     "NL": [
      "Best",
@@ -21065,6 +23932,7 @@
    "system": "workday",
    "board": "https://trumpf.wd3.myworkdayjobs.com/TRUMPF_Apprenticeships",
    "countries": [
+    "AT",
     "CH",
     "DE",
     "IT"
@@ -21088,7 +23956,8 @@
     "GB",
     "IT",
     "NL",
-    "PL"
+    "PL",
+    "PT"
    ],
    "elsewhere": true,
    "towns": {
@@ -21106,6 +23975,9 @@
     ],
     "PL": [
      "Warsaw"
+    ],
+    "PT": [
+     "Lisbon"
     ]
    }
   },
@@ -21120,7 +23992,12 @@
     "NL"
    ],
    "elsewhere": true,
-   "towns": {}
+   "towns": {
+    "DE": [
+     "Freiburg",
+     "Gerlingen"
+    ]
+   }
   },
   {
    "name": "TTI (CDA)",
@@ -21166,8 +24043,7 @@
      "Maidenhead",
      "Tring"
     ]
-   },
-   "checked": "2026-11-03"
+   }
   },
   {
    "name": "Ultra Intelligence & Communications",
@@ -21183,8 +24059,7 @@
      "Maidenhead",
      "Tring"
     ]
-   },
-   "checked": "2026-11-03"
+   }
   },
   {
    "name": "Unilever",
@@ -21193,15 +24068,19 @@
    "countries": [
     "BE",
     "CH",
+    "CZ",
     "DE",
     "DK",
     "FI",
     "FR",
     "GB",
+    "GR",
+    "HU",
     "IT",
     "NL",
     "PL",
-    "RO"
+    "RO",
+    "SE"
    ],
    "elsewhere": true,
    "towns": {
@@ -21211,9 +24090,13 @@
     "CH": [
      "Thayngen"
     ],
+    "CZ": [
+     "Prague"
+    ],
     "DE": [
      "Auerbach",
      "Buxtehude",
+     "Hamburg",
      "Heilbronn",
      "Mannheim"
     ],
@@ -21228,7 +24111,14 @@
      "Rueil-Malmaison"
     ],
     "GB": [
+     "Leeds",
      "Wales"
+    ],
+    "GR": [
+     "Athens"
+    ],
+    "HU": [
+     "Budapest"
     ],
     "IT": [
      "Casalpusterlengo",
@@ -21244,6 +24134,9 @@
     "RO": [
      "Iaşi",
      "Suceava"
+    ],
+    "SE": [
+     "Stockholm"
     ]
    }
   },
@@ -21253,14 +24146,19 @@
    "board": "https://fastretailing.wd3.myworkdayjobs.com/headquarters_eu_Uniqlo",
    "countries": [
     "DE",
+    "DK",
     "ES",
     "FR",
-    "GB"
+    "GB",
+    "NL"
    ],
    "elsewhere": true,
    "towns": {
     "DE": [
      "Berlin"
+    ],
+    "DK": [
+     "Copenhagen"
     ],
     "ES": [
      "Madrid"
@@ -21270,6 +24168,9 @@
     ],
     "GB": [
      "London"
+    ],
+    "NL": [
+     "Amsterdam"
     ]
    }
   },
@@ -21314,6 +24215,7 @@
     "DE",
     "ES",
     "FR",
+    "GB",
     "HU",
     "IE",
     "IT",
@@ -21328,7 +24230,9 @@
     ],
     "DE": [
      "Braunschweig",
+     "Erlangen",
      "Garching",
+     "Ingolstadt",
      "Munich",
      "Rüsselsheim am Main"
     ],
@@ -21397,6 +24301,7 @@
     "ES",
     "FR",
     "GB",
+    "HR",
     "IT",
     "LV",
     "NL",
@@ -21425,6 +24330,7 @@
      "Copenhagen"
     ],
     "ES": [
+     "Barcelona",
      "Madrid"
     ],
     "FR": [
@@ -21432,12 +24338,17 @@
     ],
     "GB": [
      "Basingstoke",
+     "Cambridge",
      "Cardiff",
      "London",
      "Reading"
     ],
+    "HR": [
+     "Zagreb"
+    ],
     "IT": [
-     "Milan"
+     "Milan",
+     "Rome"
     ],
     "LV": [
      "Riga"
@@ -21467,7 +24378,17 @@
     "AT",
     "CZ",
     "DE",
-    "GB"
+    "ES",
+    "FR",
+    "GB",
+    "HU",
+    "NL",
+    "NO",
+    "PL",
+    "PT",
+    "RO",
+    "SE",
+    "SK"
    ],
    "elsewhere": true,
    "towns": {
@@ -21480,8 +24401,40 @@
     "DE": [
      "Frankfurt am Main"
     ],
+    "ES": [
+     "Madrid"
+    ],
+    "FR": [
+     "Paris"
+    ],
     "GB": [
-     "Belfast"
+     "Belfast",
+     "Cambridge",
+     "Reading"
+    ],
+    "HU": [
+     "Budapest"
+    ],
+    "NL": [
+     "Amsterdam"
+    ],
+    "NO": [
+     "Oslo"
+    ],
+    "PL": [
+     "Warsaw"
+    ],
+    "PT": [
+     "Lisbon"
+    ],
+    "RO": [
+     "Bucharest"
+    ],
+    "SE": [
+     "Stockholm"
+    ],
+    "SK": [
+     "Bratislava"
     ]
    }
   },
@@ -21547,15 +24500,15 @@
     "PT": [
      "Famalicão"
     ]
-   },
-   "checked": "2026-11-03"
+   }
   },
   {
    "name": "Vossloh",
    "system": "workday",
    "board": "https://vossloh.wd3.myworkdayjobs.com/Vossloh_External_Careers",
    "countries": [
-    "DE"
+    "DE",
+    "FR"
    ],
    "elsewhere": true,
    "towns": {
@@ -21563,8 +24516,15 @@
      "Berlin",
      "Düsseldorf",
      "Hamburg",
+     "Hannover",
      "Leipzig",
-     "Nuremberg"
+     "Nuremberg",
+     "Werdohl"
+    ],
+    "FR": [
+     "Outreau",
+     "Rueil-Malmaison",
+     "Villeurbanne"
     ]
    }
   },
@@ -21588,8 +24548,7 @@
     "GB": [
      "Belfast"
     ]
-   },
-   "checked": "2026-10-30"
+   }
   },
   {
    "name": "Woodward",
@@ -21615,17 +24574,19 @@
     "PL": [
      "Niepołomice"
     ]
-   },
-   "checked": "2026-11-24"
+   }
   },
   {
    "name": "Workday",
    "system": "workday",
    "board": "https://workday.wd5.myworkdayjobs.com/Workday",
    "countries": [
+    "CH",
     "CZ",
     "DE",
+    "DK",
     "ES",
+    "FI",
     "FR",
     "GB",
     "IE",
@@ -21636,6 +24597,9 @@
    ],
    "elsewhere": true,
    "towns": {
+    "CH": [
+     "Zürich"
+    ],
     "CZ": [
      "Prague"
     ],
@@ -21645,8 +24609,14 @@
      "Hamburg",
      "Munich"
     ],
+    "DK": [
+     "Copenhagen"
+    ],
     "ES": [
      "Madrid"
+    ],
+    "FI": [
+     "Helsinki"
     ],
     "FR": [
      "Paris"
@@ -21695,13 +24665,16 @@
      "Dortmund",
      "Dresden",
      "Düsseldorf",
+     "Frankfurt am Main",
      "Freiburg",
      "Gießen",
      "Hamburg",
      "Hannover",
      "Köln",
+     "Munster",
      "Münster",
-     "Stuttgart"
+     "Stuttgart",
+     "Ulm"
     ],
     "FI": [
      "Helsinki"
@@ -21716,6 +24689,93 @@
      "Bucharest"
     ],
     "SE": [
+     "Stockholm"
+    ]
+   }
+  },
+  {
+   "name": "ZEISS",
+   "system": "workday",
+   "board": "https://zeissgroup.wd3.myworkdayjobs.com/External",
+   "countries": [
+    "AT",
+    "BE",
+    "CH",
+    "CZ",
+    "DE",
+    "DK",
+    "FR",
+    "GB",
+    "HR",
+    "HU",
+    "IT",
+    "NL",
+    "PL",
+    "PT",
+    "RO",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Vienna"
+    ],
+    "BE": [
+     "Leuven"
+    ],
+    "CH": [
+     "Zürich"
+    ],
+    "CZ": [
+     "Prague"
+    ],
+    "DE": [
+     "Aachen",
+     "Aalen",
+     "Berlin",
+     "Braunschweig",
+     "Dresden",
+     "Göttingen",
+     "Jena",
+     "Karlsruhe",
+     "Munich",
+     "Oberkochen",
+     "Wetzlar"
+    ],
+    "FR": [
+     "Besançon"
+    ],
+    "GB": [
+     "Birmingham",
+     "Cambridge",
+     "London"
+    ],
+    "HR": [
+     "Zagreb"
+    ],
+    "HU": [
+     "Budapest",
+     "Miskolc"
+    ],
+    "IT": [
+     "Milan"
+    ],
+    "NL": [
+     "Breda"
+    ],
+    "PL": [
+     "Poznań",
+     "Warsaw"
+    ],
+    "PT": [
+     "Lisbon",
+     "Setúbal"
+    ],
+    "RO": [
+     "Bucharest"
+    ],
+    "SE": [
+     "Malmö",
      "Stockholm"
     ]
    }

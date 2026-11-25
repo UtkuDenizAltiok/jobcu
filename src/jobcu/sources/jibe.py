@@ -1,7 +1,7 @@
 """Jibe career sites (Schneider Electric, AMD), checked 2026-11-24.
 
 A Jibe career site (`careers.se.com`) answers its own job search at `GET https://{host}/api/jobs`
-with `location` (a country's name), `page`, `limit` (up to 100), `sortBy=posted_date` and
+with `country` (a country's name), `page`, `limit` (up to 100), `sortBy=posted_date` and
 `descending=true`: the newest jobs first, each with its title, places, posting day, employment type
 and the full ad (`description`, `qualifications`, `responsibilities`), and how many jobs match
 (`totalCount`). A job's page is `https://{host}/jobs/{slug}`. Their robots.txt closes nothing of
@@ -11,6 +11,10 @@ visited during a search.
 
 A search reads each searched country's list newest first and stops at the first page of jobs
 older than the window, like Workday lists, so nothing else is opened.
+
+`country` is the filter: `location` is a text search on some sites (Keysight's matched 155 jobs
+for "Germany", most of them in the US, against 54 by country; 2026-11-25), and both give the
+same lists on Schneider's and AMD's.
 """
 
 from collections.abc import Iterator
@@ -76,7 +80,7 @@ class JibeSource(CareerSystemSource):
 
     def _page(self, host: str, code: str, page: int, ctx: SourceContext,
               limit: int = PAGE_SIZE) -> dict:
-        address = (f"https://{host}/api/jobs?location={quote(COUNTRIES[code].name)}&page={page}"
+        address = (f"https://{host}/api/jobs?country={quote(COUNTRIES[code].name)}&page={page}"
                    f"&limit={limit}&sortBy=posted_date&descending=true")
         if not self.allowed(address, ctx):
             raise SourceError(f"{host} asks automated tools not to read its job list.")

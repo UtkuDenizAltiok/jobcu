@@ -470,7 +470,7 @@ iCIMS, whose hosts' robots.txt closes everything (`careers-se.icims.com`, `caree
 also Arm's `experienced-arm.icims.com`); TT Electronics' iCIMS host allows its job pages, but they
 carry no job data (the ad sits in a frame). The Jibe sites' robots.txt closes nothing, their
 sitemaps list `/jobs/{number}?lang=en-us` without titles or dates, and the site's own search,
-`GET /api/jobs?location=Germany&page=1&limit=100&sortBy=posted_date&descending=true`, answers newest
+`GET /api/jobs?country=Germany&page=1&limit=100&sortBy=posted_date&descending=true`, answers newest
 first with each job's title, places, posting day (Schneider "November 23, 2026", AMD an ISO time),
 employment type and the full ad (description, responsibilities, qualifications), and the number of
 matching jobs. Schneider had 100 jobs in Germany, 67 in the UK and 16 in Ireland; AMD 6, 21 and 17.
@@ -655,6 +655,46 @@ was. The page's place is kept (RTX's and Workday's are the same building code wh
 (a later one can be an update). Same robots check, polite client and request budget as the list; the
 Workday check itself is never passed. A live read through the reader: GE Vernova 12 of 12 jobs, Thermo
 Fisher, RTX and J&J 6 of 6 in Germany, Danaher 3 of 6 (the others aren't in its sitemap).
+
+### Directory refresh and employers added — 2026-11-25
+
+`tools/check_employers.py` read every directory employer's list once (all 177 Workday employers
+answered at one request a second per Workday server). Three Greenhouse boards no longer exist
+(HEADBORNE.AI, Parloa, TrueLayer) and left. A country or town an employer hired in before now stays
+in its entry when its list has no job there on the day of the check: the snapshot of 3 October had
+left, for example, Rolls-Royce's graduate site (which posted its UK Engineering and Technology
+Graduate Programme on 5 October) out of UK searches, and this check would have removed Ireland from
+ZF and Endress+Hauser for the same reason (186 entries kept a country that way). A list that
+exists but has no job in the supported countries right now keeps its entry (Littelfuse's
+university site).
+
+Added after one read each: Workday: Signify (`lighting.wd3`, 11 jobs in Germany), Avnet (Avnet
+Silica and EBV Elektronik, `avnet.wd1`, 73 in Germany and 11 in the UK, with an EMEA engineering
+graduate programme), 3M (13 in Germany, 13 in the UK), ZEISS (`zeissgroup.wd3`, 433 in Germany, 26
+in the UK), Freudenberg (209 in Germany, 20 in the UK, 15 in Ireland, e-Power Systems among them),
+Rolls-Royce Power Systems' early-careers site (48 in Germany). SuccessFactors: Advanced Energy
+(power conversion; Germany, the UK and Ireland), Bertrandt (on SAP's hosting,
+`bertrandt.jobs.hr.cloud.sap`: a customer's career site there, not SAP's own website), Teradyne,
+Skyworks, Lear, Celestica (25 in the UK, 14 in Ireland) and Seagate (its Derry~Londonderry jobs:
+the address writes the town "DerryLondonderry", now read as Derry). Jibe: Keysight (Böblingen;
+its `location` filter is a text search that matched 155 jobs for Germany, most of them in the US,
+so Jibe lists are now asked by `country`, which gives the same lists on Schneider's and AMD's
+sites). Eightfold: Northrop Grumman (`ngc.eightfold.ai`, 46 in the UK), Lam Research. Ashby:
+Vertical Aerospace (11 in the UK). Oracle: Honeywell Aerospace (`icfcjb.fa.ocs.oraclecloud.com`, 21
+in the UK; Honeywell's other host stays), Socomec, Garrett Motion. Phenom (read for those who accept
+its terms): Leonardo UK (`careers.uk.leonardo.com/gb/en`, 374 jobs in the UK) and Arrow Electronics
+(24 in Germany, 13 in the UK).
+
+Looked at and not read: FERCHAU's site (`touch.ferchau.com`) says in its robots.txt "Please do not
+spider for jobs and projects from this website" and offers its jobs through an interface on request,
+so it isn't read; its jobs come through the Bundesagentur. b-ite (Vincorion and other employers)
+answers its job search only with each employer's own key from that employer's page, which Jobcu
+doesn't reuse. Brunel's robots.txt closes its German pages to AI crawlers and every page to Jooble's
+job robot; Orizon's closes its job pages; both reach Jobcu through the Bundesagentur. Arrow's and
+nVent's Workday addresses answered with Workday's check (a wrong or closed address gets the same
+page); Arrow is read on its Phenom site. Hensoldt's Workday site is an old one (its jobs are on its
+SuccessFactors site, read since October). IAV runs SuccessFactors' older portal, which Jobcu doesn't
+read; Qorvo's SuccessFactors site had 8 jobs, none in the supported countries.
 
 ### Employers added and moved — 2026-11-24
 

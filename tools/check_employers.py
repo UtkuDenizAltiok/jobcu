@@ -2,8 +2,10 @@
 
 For every employer it reads the company's job list once (one request for most career systems)
 and records the supported countries it has jobs in, and whether it also hires elsewhere.
-Employers without any job in the supported countries, or whose job list no longer exists, are
-dropped and listed.
+Employers whose job list no longer exists, and new candidates without any job in the supported
+countries, are dropped and listed. A directory employer keeps every country and town it hired in
+before, also when its list has nothing there right now (graduate sites fill each season, and a job
+posted the day after the check would otherwise go unread until the next one).
 
 Usage:
     uv run python tools/check_employers.py                      check the directory as it is
@@ -118,17 +120,27 @@ def main() -> int:
                     else:
                         dropped.append(f"{system:10} {entry['name']}: {exc or type(exc).__name__}")
                 continue
-            countries = sorted(code for code in counts if code not in (OTHER, "unknown"))
+            hiring = sorted(code for code in counts if code not in (OTHER, "unknown"))
             # Only towns the town list knows tell where a company hires (careers.hires_near): a
             # village a career site names (Teveren) can't be measured from.
             towns = {code: sorted(town for town in survey.towns.get(code, ())
-                                  if places.find(town, code) is not None)[:MAX_TOWNS]
-                     for code in countries}
+                                  if places.find(town, code) is not None)
+                     for code in hiring}
+            countries = hiring
+            if key in existing and hiring:
+                # A country or town the employer hired in before stays: with no job there on
+                # the day of the check (ZF in Ireland, 2026-11-25), a job it posts there the
+                # next day would otherwise go unread until the following check.
+                countries = sorted(set(hiring) | set(entry.get("countries") or ()))
+                for code, earlier in (entry.get("towns") or {}).items():
+                    if code in countries:
+                        towns[code] = sorted(set(towns.get(code, ())) | set(earlier))
+            towns = {code: found[:MAX_TOWNS] for code, found in towns.items()}
             line = (f"{system:10} {entry['name']:35} " +
-                    " ".join(f"{code}:{counts[code]}" for code in countries) +
+                    " ".join(f"{code}:{counts[code]}" for code in hiring) +
                     (f"  elsewhere:{counts[OTHER]}" if counts[OTHER] else ""))
             with lock:
-                if countries:
+                if hiring:
                     kept.append({"name": entry["name"], "system": system,
                                  "board": entry["board"], "countries": countries,
                                  "elsewhere": bool(counts[OTHER]),
@@ -139,6 +151,14 @@ def main() -> int:
                                  **({"lists": entry["lists"]} if entry.get("lists") else {}),
                                  **({"checked": today} if checked != today else {})})
                     print(line, flush=True)
+                elif key in existing and entry.get("countries"):
+                    # A list that exists but has nothing in the supported countries this time
+                    # keeps its earlier countries: graduate and university sites fill each
+                    # season (Littelfuse's was empty on 2026-11-24), and one request a search
+                    # costs little. Only a list that no longer exists leaves the directory.
+                    kept.append(entry)
+                    print(f"{system:10} {entry['name']:35} kept: no jobs in supported countries "
+                          f"now ({sum(counts.values())} elsewhere)", flush=True)
                 else:
                     dropped.append(f"{system:10} {entry['name']}: no jobs in supported countries "
                                    f"({sum(counts.values())} elsewhere)")

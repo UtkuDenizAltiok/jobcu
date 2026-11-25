@@ -11,6 +11,7 @@ from jobcu import db, listmemory
 from jobcu.keystore import KeyStore
 from jobcu.keywords import SearchTerm
 from jobcu.location import Place
+from jobcu.placenames import OTHER
 from jobcu.sources import (
     all_sources,
     ashby,
@@ -653,6 +654,24 @@ def test_a_job_posted_for_several_towns_takes_the_town_its_address_names(monkeyp
     jobs = list(successfactors.SuccessFactorsSource().search(
         query(["DE"], hours=72), context(handler, "successfactors")))
     assert [(job.location_text, job.country) for job in jobs] == [("Hamburg, Germany", "DE")]
+
+
+@pytest.mark.parametrize(("address", "town", "country", "title"), [
+    # The mark of a double name is dropped from the address (Derry~Londonderry).
+    ("https://jobs.fake.example/job/DerryLondonderry-Graduate-Process-Engineer/1/",
+     "Derry", "GB", "Graduate Process Engineer"),
+    ("https://jobs.fake.example/job/Bühl-Praktikum-HR-(dmw)-77815/2/",
+     "Bühl", "DE", "Praktikum HR"),
+    # A word made of capitalised pieces that are no town stays unplaced.
+    ("https://jobs.fake.example/job/FooBar-Hardware-Engineer/3/", None, OTHER,
+     "FooBar Hardware Engineer"),
+])
+def test_a_job_address_tells_its_town_also_when_a_double_name_is_joined(
+        address, town, country, title):
+    fake = employer("successfactors", board="jobs.fake.example", countries=("DE",))
+    job = successfactors.from_page_address(address, fake)
+    assert (job.location_text, job.country) == (town, country)
+    assert successfactors._title_after_town(job.title) == title
 
 
 def test_successfactors_respects_robots_txt(monkeypatch):
