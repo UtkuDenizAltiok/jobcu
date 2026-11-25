@@ -43,10 +43,24 @@ _READABLE: list[tuple[str, re.Pattern, str]] = [
     ("personio", re.compile(r"\b([a-z0-9-]+)\.jobs\.personio\.com"), "{0}.jobs.personio.com"),
     ("softgarden", re.compile(r"\b(?!www\b|api\b|static\b)([a-z0-9-]+)\.softgarden\.io"),
      "{0}"),
+    # Read only for a person who accepts SmartRecruiters' terms (sources.TERMS_NOTES): its links
+    # are recognised for them, and the readers a search may use decide (employers.learn, find).
+    ("smartrecruiters", re.compile(
+        r"(?:jobs|careers)\.smartrecruiters\.com/(?!api\b|static\b|privacy\b|legal\b)"
+        r"([A-Za-z0-9_-]+)"), "{0}"),
     ("eightfold", re.compile(
         r"https?://([a-z0-9.-]+)/careers\?(?:[^\"'\s<>]*&(?:amp;)?)?domain=([a-z0-9.-]+)"),
      "{0}/{1}"),
 ]
+
+# The systems' names as the person knows them, for the search's notes.
+SYSTEM_NAMES = {
+    "workday": "Workday", "oracle": "Oracle", "greenhouse": "Greenhouse", "lever": "Lever",
+    "ashby": "Ashby", "workable": "Workable", "recruitee": "Recruitee", "teamtailor": "Teamtailor",
+    "dvinci": "d.vinci", "personio": "Personio", "softgarden": "Softgarden",
+    "eightfold": "Eightfold", "smartrecruiters": "SmartRecruiters",
+    "successfactors": "SuccessFactors",
+}
 
 # Signs in a page that its own address is the career site of a system Jobcu reads.
 _OWN_ADDRESS: list[tuple[str, re.Pattern]] = [
@@ -59,7 +73,6 @@ _OWN_ADDRESS: list[tuple[str, re.Pattern]] = [
 
 # Systems Jobcu doesn't read yet, recognised so their use can be counted.
 _NOT_READ: list[tuple[str, re.Pattern]] = [
-    ("SmartRecruiters", re.compile(r"smartrecruiters\.com")),
     ("Softgarden", re.compile(r"softgarden\.de")),
     ("iCIMS", re.compile(r"icims\.com")),
     ("Avature", re.compile(r"avature\.net|/externaljobs\b")),

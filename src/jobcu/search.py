@@ -61,7 +61,7 @@ from jobcu.location import (
 from jobcu.profile import Profile, progress_detail, read_profile_reusing
 from jobcu.relevance import quick_pass, screen_titles
 from jobcu.settings import SearchForm, load_settings, save_settings
-from jobcu.sources import TERMS_NOTES, accepted_terms, career_sources, disabled_sources
+from jobcu.sources import accepted_terms, career_sources, disabled_sources
 from jobcu.sources.base import JobQuery
 from jobcu.sources.budget import share
 from jobcu.sources.http import PoliteClient, RequestStopped
@@ -585,7 +585,8 @@ def _find_employers(run, settings, client, http, profile, plan) -> None:
             run.update("employers", "skipped", reason)
             return
         found = employers.find(client, http, profile, plan.countries, plan.places,
-                               on_progress=lambda text: run.update("employers", "running", text))
+                               on_progress=lambda text: run.update("employers", "running", text),
+                               systems=_usable_systems(settings))
     except AIWebSearchUnavailable as exc:
         run.update("employers", "skipped", exc.message)
         return
@@ -624,12 +625,19 @@ def _listed(names: list[str], most: int = 5) -> str:
 LEARN_WAIT_SECONDS = 120
 
 
+def _usable_systems(settings) -> set[str]:
+    """The career systems whose readers this person uses: those not switched off, and of those
+    whose site terms restrict automated reading only the ones the person accepted (Settings).
+    Employers on them are found and learned by themselves too."""
+    off = set(disabled_sources(settings))
+    return {source.system for source in career_sources() if source.id not in off}
+
+
 def _learn_career_sites(run, settings, jobs, http) -> None:
     """Checks the employers' own career sites that this search's job links name, beside the later
     steps; usable ones are read from the next search on. Never on systems the person switched off
     or whose terms they haven't accepted, and a problem here never touches the search."""
-    off = set(disabled_sources(settings)) | set(TERMS_NOTES)
-    systems = {source.system for source in career_sources() if source.id not in off}
+    systems = _usable_systems(settings)
     # The search goes on with its jobs meanwhile: the check reads its own copies of the links.
     links = [replace(job, application_options=list(job.application_options)) for job in jobs]
 
