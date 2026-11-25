@@ -108,6 +108,8 @@ class JobPosting:
     remote: bool = False
     valid_through: datetime | None = None  # when applications close
     country: str | None = None  # the address's country as written ("GB", "Deutschland")
+    # Every address's country as written, in order (a job offered in several places).
+    countries: list[str] = field(default_factory=list)
     description_is_complete: bool = False
     original_description: str = field(default="", repr=False)
     sections: list[tuple[str, list[str]]] = field(default_factory=list, repr=False)
@@ -156,6 +158,7 @@ def _read(item: dict) -> JobPosting:
     description = html_to_text(item.get("description")) \
         if isinstance(item.get("description"), str) else ""
     sections = ad_sections(item)
+    countries = _countries(item.get("jobLocation"))
     return JobPosting(
         title=html_to_text(str(item.get("title") or "")),
         description=append_sections(description, sections),
@@ -166,14 +169,16 @@ def _read(item: dict) -> JobPosting:
         date_has_time="T" in posted_text,
         company=str(company) if company else None,
         location_text=_location(item.get("jobLocation")),
-        country=_country(item.get("jobLocation")),
+        country=countries[0] if countries else None,
+        countries=countries,
         job_types=types,
         remote=str(item.get("jobLocationType") or "").upper() == "TELECOMMUTE",
         valid_through=parse_closing(str(item.get("validThrough") or "")),
     )
 
 
-def _country(value) -> str | None:
+def _countries(value) -> list[str]:
+    found: list[str] = []
     for place in value if isinstance(value, list) else [value]:
         address = place.get("address") if isinstance(place, dict) else None
         country = address.get("addressCountry") if isinstance(address, dict) else None
@@ -182,9 +187,9 @@ def _country(value) -> str | None:
         for one in country if isinstance(country, list) else [country]:
             if isinstance(one, dict):
                 one = one.get("name")
-            if isinstance(one, str) and one.strip():
-                return one.strip()
-    return None
+            if isinstance(one, str) and one.strip() and one.strip() not in found:
+                found.append(one.strip())
+    return found
 
 
 def _location(value) -> str | None:

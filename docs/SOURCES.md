@@ -91,6 +91,21 @@ Directory membership does not establish reachable vacancies or engineering recal
 
 ## Access and protocol records
 
+### A job page's country outside the supported ones — 2026-11-26
+
+TT Electronics' job pages (iCIMS) name each job's country in their JobPosting data, and its site
+lists jobs in the UK, the US, Mexico, China and India. A page for a power-electronics job in
+Olathe, Kansas, says `"addressCountry": "US"`. Jobcu read only the supported countries from that
+field, so "US" counted as no country written; the directory check then saw the employer's jobs as
+UK jobs and jobs of unknown place ("elsewhere" false), and a search placed the Kansas job in the
+UK, the one country the employer's entry names. Now a JobPosting country outside the supported
+ones (any ISO 3166 two- or three-letter code, or a country's name such as "Mexico") marks the job
+abroad, and the job leaves the search as other foreign jobs do; a job offered in several places
+is in the first supported country they name; three-letter codes of supported countries ("DEU",
+"GBR", "IRL") are read too. Words that name no country ("EMEA", "Remote") and "NA" (written for
+"not available") still decide nothing. The same applies to the employer's own pages the Workday
+reader opens.
+
 ### Countries a sitemap's job addresses name — 2026-11-26
 
 The directory check opens a job sitemap's twenty newest pages to see which countries its
