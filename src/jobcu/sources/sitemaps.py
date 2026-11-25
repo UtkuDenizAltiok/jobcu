@@ -20,6 +20,7 @@ Adzuna summaries, Redline Group's about 20 of them).
 import dataclasses
 import gzip
 import re
+from collections import Counter
 from collections.abc import Iterator
 from datetime import UTC, datetime, timedelta
 from urllib.parse import unquote, urlsplit
@@ -60,6 +61,9 @@ class SitemapSource(CareerSystemSource):
     name = "Recruiters' and employers' own sites"
     system = "sitemap"
     parallel = 4  # every site has its own address
+    # Whether the directory check also reads the countries the ends of the job pages' addresses
+    # name ("/en/job/Design-Engineer-d_m_f-Regensburg/24800"): many sites write the town last.
+    towns_in_addresses = True
 
     def list_jobs(self, employer: Employer, ctx: SourceContext, *, countries=None, start=None,
                   terms=None) -> Iterator[FoundJob]:
@@ -226,10 +230,24 @@ class SitemapSource(CareerSystemSource):
         return False
 
     def survey(self, employer: Employer, ctx: SourceContext) -> Survey:
-        """The countries of the newest pages (SURVEY_PAGES): a sample, so their towns aren't
-        recorded as all the towns the site's jobs are in."""
+        """The countries of the newest pages (SURVEY_PAGES), and those only the ends of the
+        other job pages' addresses name: a sample, so their towns aren't recorded as all the
+        towns the site's jobs are in."""
         survey = super().survey(employer, ctx)
         survey.sample = True
+        if self.towns_in_addresses:
+            # The newest pages of a large site can all be abroad: ams OSRAM's twenty newest of
+            # 271 named no German job while 19 addresses end in Regensburg, Munich or Garching
+            # (2026-11-26), so searches in Germany would have skipped it. The sitemap is the
+            # one already read (the client keeps its answer): no more requests.
+            named: Counter = Counter()
+            pattern = re.compile(employer.jobs) if employer.jobs else None
+            for entry in self._listing(employer, ctx, ["en"]):
+                if entry.job and entry.titled:
+                    named.update(address_countries(entry.address, pattern))
+            for code, count in named.items():
+                if code not in survey.counts:
+                    survey.counts[code] = count
         return survey
 
     def _entries(self, board: str, ctx: SourceContext, pattern: re.Pattern | None = None
@@ -495,6 +513,19 @@ def title_of(address: str, pattern: re.Pattern | None = None) -> str:
     words = " ".join(word for word in re.split(r"[_\-.+%\s()\[\],]+", wordy)
                      if word and not word.isdigit())
     return " ".join(_GENDER.sub(" ", words).split())
+
+
+def address_countries(address: str, pattern: re.Pattern | None = None) -> set[str]:
+    """The countries the end of a job page's address names, where the site writes the job's
+    town after its title ("/en/job/Design-Engineer-d_m_f-Regensburg/24800": DE; OTHER for a
+    place outside the supported countries): its last word, else its last two or three, never
+    the whole title. Only for the directory check: a wrong country there costs one reading of
+    the list."""
+    words = title_of(address, pattern).split()
+    for size in (1, 2, 3):
+        if len(words) > size and (found := countries_in(" ".join(words[-size:]))):
+            return found
+    return set()
 
 
 def unescape(address: str) -> str:

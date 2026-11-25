@@ -91,6 +91,20 @@ Directory membership does not establish reachable vacancies or engineering recal
 
 ## Access and protocol records
 
+### Countries a sitemap's job addresses name — 2026-11-26
+
+The directory check opens a job sitemap's twenty newest pages to see which countries its
+employer hires in. On a large international site they can all be abroad: ams OSRAM's sitemap
+(`jobs.ams-osram.com/sitemap.xml`, 271 jobs) gave twenty pages in Austria, Malaysia, the US and
+elsewhere and not one of its German jobs, so searches in Germany would have skipped it. Its
+addresses end in the job's town (`/en/job/Hardware-Engineer-d_m_f-Regensburg/20931`): 19 end in
+Regensburg, Munich, Garching or Jena and 12 in Exeter or Leeds. The check now also counts the
+countries the last one to three words of each job address name (the place names Jobcu knows),
+for countries the opened pages didn't show, from the sitemap it has already read: no more
+requests. A wrong country there costs one reading of the list in a search of that country;
+towns are still recorded only from pages. List pages are left out (their own text beside each
+link names the place, and their addresses end in numbers or languages).
+
 ### UKAEA's job list, and pages without a day or a place — 2026-11-25
 
 The UK Atomic Energy Authority (fusion research at Culham, Rotherham and West Burton; a graduate
