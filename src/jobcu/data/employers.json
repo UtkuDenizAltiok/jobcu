@@ -1616,6 +1616,19 @@
    }
   },
   {
+   "name": "McLaren Automotive",
+   "system": "avature",
+   "board": "mclarencareers.mclaren.com/careers",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "lists": {
+    "GB": "https://mclarencareers.mclaren.com/careers/SearchJobs"
+   }
+  },
+  {
    "name": "Siemens",
    "system": "avature",
    "board": "jobs.siemens.com/en_US/externaljobs",
@@ -1722,6 +1735,49 @@
      "Klipphausen",
      "Nürtingen",
      "Wilsdruff"
+    ]
+   }
+  },
+  {
+   "name": "FEV",
+   "system": "dvinci",
+   "board": "career.fev.com",
+   "countries": [
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "IT",
+    "PL",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Aachen",
+     "Bremen",
+     "Köln",
+     "Munich",
+     "Osnabrück"
+    ],
+    "ES": [
+     "Bilbao"
+    ],
+    "FR": [
+     "Marseille"
+    ],
+    "GB": [
+     "Basildon"
+    ],
+    "IT": [
+     "Bologna"
+    ],
+    "PL": [
+     "Kraków",
+     "Poznań"
+    ],
+    "SE": [
+     "Gothenburg"
     ]
    }
   },
@@ -6346,6 +6402,18 @@
    "jobs": "-j(\\d+)\\.html"
   },
   {
+   "name": "Lenze",
+   "system": "listpage",
+   "board": "https://karriere.lenze.com/stellenangebote.html",
+   "countries": [
+    "AT",
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "-j(\\d+)\\.html"
+  },
+  {
    "name": "MBRYONICS",
    "system": "listpage",
    "board": "https://ats.rippling.com/mbryonics/jobs",
@@ -6377,6 +6445,19 @@
    "elsewhere": false,
    "towns": {},
    "jobs": "mhm\\.jobs/(\\d+)-"
+  },
+  {
+   "name": "Preh",
+   "system": "listpage",
+   "board": "https://preh8-portal.rexx-recruitment.com/stellenangebote.html",
+   "countries": [
+    "DE",
+    "PT",
+    "RO"
+   ],
+   "elsewhere": true,
+   "towns": {},
+   "jobs": "[?&]yid=(\\d+)"
   },
   {
    "name": "Tyndall National Institute",
@@ -6412,6 +6493,18 @@
    "jobs": "-j(\\d+)\\.html"
   },
   {
+   "name": "Weidmüller",
+   "system": "listpage",
+   "board": "https://www.weidmueller.de/de/jobboard/stellenangebote.html",
+   "countries": [
+    "CH",
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "-j(\\d+)\\.html"
+  },
+  {
    "name": "Würth Elektronik",
    "system": "listpage",
    "board": "https://jobs.we-online.com/stellenangebote.html",
@@ -6421,6 +6514,17 @@
    "elsewhere": false,
    "towns": {},
    "jobs": "-j(\\d+)\\.html"
+  },
+  {
+   "name": "YASA",
+   "system": "listpage",
+   "board": "https://ats.rippling.com/yasa/jobs",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "ats\\.rippling\\.com/yasa/jobs/([0-9a-f-]{36})"
   },
   {
    "name": "Akamai",
@@ -8632,6 +8736,23 @@
    }
   },
   {
+   "name": "ams OSRAM",
+   "system": "sitemap",
+   "board": "https://jobs.ams-osram.com/sitemap.xml",
+   "countries": [
+    "AT",
+    "DE",
+    "GB",
+    "IT",
+    "NL",
+    "PT",
+    "RO",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {}
+  },
+  {
    "name": "Arm",
    "system": "sitemap",
    "board": "https://careers.arm.com/sitemap.xml",
@@ -8652,6 +8773,17 @@
    ],
    "elsewhere": true,
    "towns": {}
+  },
+  {
+   "name": "Beckhoff Automation",
+   "system": "sitemap",
+   "board": "https://www.beckhoff.com/de-de/sitemap.xml",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "/de-de/unternehmen/stellenangebote/[^/]+\\.html$"
   },
   {
    "name": "BMW Group",
@@ -15210,6 +15342,21 @@
     "RO": [
      "Bucharest",
      "Cluj-Napoca"
+    ]
+   }
+  },
+  {
+   "name": "Raspberry Pi",
+   "system": "workable",
+   "board": "raspberrypi",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Bristol",
+     "Cambridge"
     ]
    }
   },

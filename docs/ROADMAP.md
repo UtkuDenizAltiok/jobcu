@@ -7,6 +7,10 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- Nine electronics, drives and automation employers that no source covered are read from their
+  own sites: YASA, Raspberry Pi, Lenze, FEV, McLaren Automotive, ams OSRAM, Beckhoff, Weidmüller
+  and Preh. An Avature ad written under labelled headings is read whole, and the directory check
+  learns a sitemap employer's countries also from the towns its job addresses end with.
 - UKAEA's jobs are read from its own list (fusion research: power supplies, electrical and
   graduate engineering), with Tokamak Energy, IONATE (grid power converters) and Nidec Control
   Techniques (drives R&D in Wales). A job whose page gives no day or place takes them from its
