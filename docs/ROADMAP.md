@@ -7,6 +7,10 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- Mercedes-Benz's jobs are read from its job sitemap (967 jobs, each once in the searched
+  country's language). A sitemap whose job addresses don't say "job" is read by the pattern the
+  directory gives; pages new on a list are opened first, and the directory check samples the
+  whole list when its dates can't order it.
 - Jobcu recognises by itself an employer's own list of plain job links when the person's AI names
   that employer: the shape of the links (a job number in the same place) and one job page with
   job data are enough; such lists are read from the next search on, on any system.

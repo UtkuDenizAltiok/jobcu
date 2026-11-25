@@ -69,6 +69,16 @@ class SitemapSource(CareerSystemSource):
         wanted = list(dict.fromkeys([*wanted, "en"]))
         entries = self._listing(employer, ctx, wanted)
         if terms is None:  # the directory check: the newest pages, whatever they are
+            dated = [entry.changed for entry in entries if entry.changed is not None]
+            if len(entries) > SURVEY_PAGES and (not dated or max(dated) - min(dated)
+                                                < timedelta(days=1)):
+                # Where the dates can't order the list (none, or all from the day the sitemap
+                # was written), pages spread over the whole list: in its own order the first
+                # ones can all be in one place. Mercedes-Benz's sitemap dates every page to the
+                # seconds it was written in and lists its jobs alphabetically; its first twenty
+                # named no German job (2026-11-25).
+                step = len(entries) / SURVEY_PAGES
+                entries = [entries[int((n + 0.5) * step)] for n in range(SURVEY_PAGES)]
             opened = 0
             for entry in entries:
                 if opened >= SURVEY_PAGES:
@@ -84,6 +94,14 @@ class SitemapSource(CareerSystemSource):
         # its first sight (listmemory), whatever language its address is in this time.
         sights = listmemory.note(self.id, employer.board,
                                  [entry.key for entry in entries if entry.job])
+        if start is not None:
+            # Pages new on the list since the window began come first, then those listed
+            # before it (older than the window: wanted only as older copies). Where a sitemap
+            # dates every page to the moment it was written (Mercedes-Benz's, 2026-11-25), its
+            # dates can't put new pages first, and MAX_PAGES would take the first ones in the
+            # list's own order (the alphabet).
+            entries = sorted(entries, key=lambda entry: _listed_before(sights.get(entry.key),
+                                                                       start))
         opened, unread = 0, []
         for entry in entries:
             if not matches_terms(terms, set(wanted), entry.title or words_of(entry.address)):
@@ -123,11 +141,17 @@ class SitemapSource(CareerSystemSource):
 
     def _listing(self, employer: Employer, ctx: SourceContext, languages: list[str]
                  ) -> list["Listed"]:
-        """The site's listed pages, newest first, one per job."""
-        return [Listed(address, changed, key=job_key(address),
-                       job=bool(_JOB_PAGE.search(urlsplit(address).path)))
+        """The site's listed pages, newest first, one per job. Where the addresses of a site's
+        job pages speak of no job ("/de/pcb-layout-design-engineer-248186-mer000469f",
+        Mercedes-Benz's, 2026-11-25), the directory gives their pattern (`Employer.jobs`, as for
+        list pages): only addresses it finds are job pages, and its first group, when it has
+        one, names the job in every language and is no part of its title."""
+        pattern = re.compile(employer.jobs) if employer.jobs else None
+        return [Listed(address, changed, key=job_key(address, pattern),
+                       title=(title_of(address, pattern) or None) if pattern else None,
+                       job=pattern is not None or bool(_JOB_PAGE.search(urlsplit(address).path)))
                 for address, changed in one_address_per_job(
-                    self._entries(employer.board, ctx), languages)]
+                    self._entries(employer.board, ctx, pattern), languages, pattern)]
 
     def _new_title(self, entry: "Listed", sights: dict, start: datetime | None,
                    ctx: SourceContext) -> FoundJob | None:
@@ -178,8 +202,9 @@ class SitemapSource(CareerSystemSource):
         survey.sample = True
         return survey
 
-    def _entries(self, board: str, ctx: SourceContext) -> list[tuple[str, datetime | None]]:
-        return job_pages(self, board, ctx)
+    def _entries(self, board: str, ctx: SourceContext, pattern: re.Pattern | None = None
+                 ) -> list[tuple[str, datetime | None]]:
+        return job_pages(self, board, ctx, pattern)
 
     def _from_page(self, address: str, employer: Employer, ctx: SourceContext) -> FoundJob | None:
         """The job from memory or from its page's JobPosting data; None without such data."""
@@ -244,11 +269,13 @@ def to_found_job(address: str, page: str, employer: Employer,
     )
 
 
-def job_pages(source: CareerSystemSource, board: str, ctx: SourceContext
-              ) -> list[tuple[str, datetime | None]]:
+def job_pages(source: CareerSystemSource, board: str, ctx: SourceContext,
+              pattern: re.Pattern | None = None) -> list[tuple[str, datetime | None]]:
     """A job sitemap's job pages with their last change, newest first (undated ones last); a
     sitemap index leads to its job sitemaps. Read through `source`: its robots check, request
-    budget and report (the Workday reader looks an ad up on the employer's own site this way)."""
+    budget and report (the Workday reader looks an ad up on the employer's own site this way).
+    Job pages are the addresses that speak of jobs, or those `pattern` finds where the
+    directory gives the site's own pattern."""
     if not source.allowed(board, ctx):
         raise SourceError(f"{source.name}: {urlsplit(board).hostname} asks automated tools "
                           "not to read its job list.")
@@ -261,22 +288,36 @@ def job_pages(source: CareerSystemSource, board: str, ctx: SourceContext
     entries = [(unescape(address), parse_iso(changed) if changed else None)
                for address, changed in _URL.findall(text)]
     entries = [(address, changed) for address, changed in entries
-               if _JOB_WORDS.search(urlsplit(address).path)]
+               if (pattern.search(address) if pattern is not None
+                   else _JOB_WORDS.search(urlsplit(address).path))]
     return sorted(dict(entries).items(),
                   key=lambda entry: (entry[1] is not None, entry[1] or _LONG_AGO),
                   reverse=True)
 
 
-# A language (and maybe a region) as an address's first part: "/de/", "/en-gb/", "/pt_br/".
-_LANGUAGE_PART = re.compile(r"^/([a-z]{2})(?:[_-][a-z]{2,4})?(?=/)", re.IGNORECASE)
+# A language (and maybe a region) as an address's first part: "/de/", "/en-gb/", "/pt_br/",
+# "/enUS/". The region without a mark is in capitals, so "/jobs/" is no language.
+_LANGUAGE_PART = re.compile(r"^/((?i:[a-z]{2}))(?:(?i:[_-][a-z]{2,4})|[A-Z]{2})?(?=/)")
 
 
-def one_address_per_job(entries: list[tuple[str, datetime | None]], languages: list[str]
-                        ) -> list[tuple[str, datetime | None]]:
+def _named(address: str, pattern: re.Pattern | None) -> re.Match | None:
+    """Where the directory's pattern of a site's job pages names the job (its first group: the
+    vacancy's own code, the same in every language), the match that names it."""
+    if pattern is None or not pattern.groups:
+        return None
+    match = pattern.search(address)
+    return match if match is not None and match.group(1) else None
+
+
+def one_address_per_job(entries: list[tuple[str, datetime | None]], languages: list[str],
+                        pattern: re.Pattern | None = None) -> list[tuple[str, datetime | None]]:
     """One address for each job a sitemap lists under several languages ("/de/job/x/1",
     "/en/job/x/1"...; Rheinmetall's lists each of its 1,423 jobs in 13): the page in the first
     of `languages` it has, else the first listed, at the place of its newest listing. Without
-    this a search opened the same job once per language. `entries` come newest first."""
+    this a search opened the same job once per language. `entries` come newest first. Where
+    `pattern` names the job, that name says which addresses are the same job: Mercedes-Benz
+    numbers each language's page apart and keeps one code for the vacancy
+    ("/de/ai-data-analytics-233242-bei00000us", "/en/ai-data-analytics-233238-bei00000us")."""
     chosen: dict[tuple[str, str], list] = {}
     for address, changed in entries:
         parts = urlsplit(address)
@@ -286,7 +327,8 @@ def one_address_per_job(entries: list[tuple[str, datetime | None]], languages: l
             code = language.group(1).lower()
             rank = languages.index(code) if code in languages else len(languages)
             rest = parts.path[language.end():]
-        key = (parts.netloc.lower(), f"{rest}?{parts.query}")
+        named = _named(address, pattern)
+        key = (parts.netloc.lower(), f"#{named.group(1)}" if named else f"{rest}?{parts.query}")
         if key not in chosen:
             chosen[key] = [rank, address, changed]
         elif rank < chosen[key][0]:
@@ -319,10 +361,13 @@ def words_of(address: str) -> str:
     return " ".join(re.split(r"[/_\-.?=&+%]+", unquote(urlsplit(address).path)))
 
 
-def job_key(address: str) -> str:
-    """A job page's address without its language part: the same job whichever language's page
-    a search picks (`one_address_per_job`)."""
+def job_key(address: str, pattern: re.Pattern | None = None) -> str:
+    """A job page's address without its language part, or the job's name where the directory's
+    pattern gives one: the same job whichever language's page a search picks
+    (`one_address_per_job`)."""
     parts = urlsplit(address)
+    if (named := _named(address, pattern)) is not None:
+        return f"{parts.netloc.lower()}#{named.group(1)}"
     language = _LANGUAGE_PART.match(parts.path)
     path = parts.path[language.end():] if language else parts.path
     return f"{parts.netloc.lower()}{path}" + (f"?{parts.query}" if parts.query else "")
@@ -332,9 +377,12 @@ def job_key(address: str) -> str:
 _GENDER = re.compile(r"\b(?:[mwfdx] ){1,3}[mwfdx]\b|\ball genders?\b", re.IGNORECASE)
 
 
-def title_of(address: str) -> str:
+def title_of(address: str, pattern: re.Pattern | None = None) -> str:
     """The title a job page's address spells, from its longest wordy part
-    ("/de/job/elektrischer_entwickler__m_w_d_/1191311" -> "elektrischer entwickler")."""
+    ("/de/job/elektrischer_entwickler__m_w_d_/1191311" -> "elektrischer entwickler"), without
+    the job's code where the directory's pattern names it ("-248186-mer000469f")."""
+    if (named := _named(address, pattern)) is not None:
+        address = address[:named.start(1)] + address[named.end(1):]
     parts = [part for part in unquote(urlsplit(address).path).split("/") if part]
     wordy = max(parts, key=lambda part: len(re.findall(r"[^\W\d_]", part)), default="")
     words = " ".join(word for word in re.split(r"[_\-.+%\s()\[\],]+", wordy)
@@ -344,3 +392,8 @@ def title_of(address: str) -> str:
 
 def unescape(address: str) -> str:
     return address.replace("&amp;", "&")
+
+
+def _listed_before(sight: "listmemory.Sight | None", start: datetime) -> bool:
+    """Whether the list had the job before the search's window began (an older job)."""
+    return sight is not None and sight.first_seen_at < start

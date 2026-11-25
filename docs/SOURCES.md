@@ -91,6 +91,42 @@ Directory membership does not establish reachable vacancies or engineering recal
 
 ## Access and protocol records
 
+### Mercedes-Benz's job sitemap, and sitemaps whose addresses name no job — 2026-11-25
+
+**Access.** `jobs.mercedes-benz.com/robots.txt` allows every robot everything and names its
+sitemap, an index of four: German, English, US English (only the start page) and Hungarian. Each
+lists the group's open jobs worldwide (959 German addresses, 929 English, 916 Hungarian; 967
+different jobs), and every job page carries JobPosting data: title, full ad, posting day, town,
+country and the hiring company (Mercedes-Benz AG, its Chinese, Polish and Hungarian companies...).
+The site's own job list is built in the browser, so the sitemap is the way in. Its careers terms
+([General Terms & Conditions](https://group.mercedes-benz.com/careers/general-terms-conditions.html))
+are about misuse of accounts and uploaded content and say nothing about reading job ads; no legal
+action by Mercedes-Benz against readers of job ads or job aggregators was found (web search,
+2026-11-25). Jobcu reads the sitemaps (five requests a search) and opens only the pages of jobs whose
+address matches the search words, or that are new on the list and kept by the person's AI.
+
+**What the reader needed.** The addresses speak of no job (`/de/pcb-pcb-layout-design-engineer-
+248186-mer000469f`), so the sitemap reader, which keeps addresses with "job", "stelle" and the like,
+kept none. The directory now gives such a site the pattern of its job pages' addresses (`jobs`, as
+for list pages); its first group names the vacancy. Mercedes-Benz numbers each language's page apart
+(`-233242-` German, `-233238-` English) and keeps one code for the vacancy (`bei00000us`): the code
+says which addresses are one job, so it is read once, in the searched country's language, and it
+isn't part of the title the address spells. The sitemap dates every page to the seconds it was
+written in, so its dates order nothing: pages new on the list since its last reading are opened
+first (also on every other sitemap and list page), and the directory check, which looked at the
+first twenty pages (alphabetical: China, Hungary, no German job), samples pages spread over the
+whole list when the dates span less than a day (9 of 20 in Germany).
+
+**Measured.** With the saved search words of an electronics engineer, 6 of the 967 titles matched
+(in China and Poland, older than the window); the German list is mostly internships and working
+students now, with a PCB layout, a power-net and a high-power charging engineer and the Tech Trainee
+programme among the rest. A repeat reading takes 6 requests (pages are remembered).
+
+Porsche's job sitemap (`jobs.porsche.com`, 759 pages, robots open) dates its pages, but the pages
+carry no JobPosting data and their addresses no title (`index.php?ac=jobad&id=22236`); BMW's
+(`bmwgroup.jobs`, robots open, 748 job pages) gives neither dates nor titles and no JobPosting data.
+Neither is read yet.
+
 ### Plain job lists recognised by themselves — 2026-11-25
 
 When the person's AI names an employer whose careers page shows no career system Jobcu knows,
@@ -137,7 +173,8 @@ while the first one read on that server (Spellman) answered: Workday was then le
 systems Jobcu doesn't read: Cornerstone (OHB, 11 ads; Weller's owner Apex Tool; Spirax-Sarco),
 Rippling (MBRYONICS), umantis (pro-beam), HiBob (Cambridge Aerospace), Zoho Recruit (ePropelled),
 digitalrecruiters (AES Aerospace Embedded Solutions), ADP (Advantest, Diodes), beesite
-(Mercedes-Benz, Porsche).
+(Mercedes-Benz, read through its job sitemap since the same day:
+[record](#mercedes-benzs-job-sitemap-and-sitemaps-whose-addresses-name-no-job--2026-11-25); Porsche).
 
 ### Employers' own job list pages, and German application systems — 2026-11-25
 

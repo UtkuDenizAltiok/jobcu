@@ -8487,6 +8487,18 @@
    "towns": {}
   },
   {
+   "name": "Mercedes-Benz",
+   "system": "sitemap",
+   "board": "https://jobs.mercedes-benz.com/sitemap.xml",
+   "countries": [
+    "DE",
+    "HU"
+   ],
+   "elsewhere": true,
+   "towns": {},
+   "jobs": "/[^/?#]+-\\d{4,}-([0-9a-z]{6,})$"
+  },
+  {
    "name": "NewTec",
    "system": "sitemap",
    "board": "https://career.newtec.de/sitemap.xml",
