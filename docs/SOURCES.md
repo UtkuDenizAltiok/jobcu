@@ -219,7 +219,10 @@ Analog Devices' wd1 robots.txt still answered with the check while its list answ
 and each of the five, asked once and minutes apart at their real addresses (FreeHire's links to
 their jobs), answered: they are read since. BD has 35 jobs in Germany and 20 in Ireland (two sites
 of its own), Frazer-Nash 72 in the UK, NCR Atleos 37 in the UK (hardware engineering in Dundee) and
-Videojet 8 in Germany and 13 in the UK. Seen on
+Videojet 8 in Germany and 13 in the UK. NCR Atleos' location filter writes its sites without a
+country ("DUNDEE-GBR"), so its UK towns came out as only Warrington; since then a place that names
+no country counts as a town of the one country of the site's own filter that has it (ambiguous
+names are left out). Seen on
 systems Jobcu doesn't read: Cornerstone (OHB, 11 ads; Weller's owner Apex Tool; Spirax-Sarco),
 Rippling (MBRYONICS), umantis (pro-beam), HiBob (Cambridge Aerospace), Zoho Recruit (ePropelled),
 digitalrecruiters (AES Aerospace Embedded Solutions), ADP (Advantest, Diodes), beesite
