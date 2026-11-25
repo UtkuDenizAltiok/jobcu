@@ -6333,6 +6333,17 @@
    "jobs": "-j(\\d+)\\.html"
   },
   {
+   "name": "MBRYONICS",
+   "system": "listpage",
+   "board": "https://ats.rippling.com/mbryonics/jobs",
+   "countries": [
+    "IE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "ats\\.rippling\\.com/mbryonics/jobs/([0-9a-f-]{36})"
+  },
+  {
    "name": "Pfisterer",
    "system": "listpage",
    "board": "https://www.pfisterer.com/de/stellenangebote",
@@ -6342,6 +6353,17 @@
    "elsewhere": false,
    "towns": {},
    "jobs": "mhm\\.jobs/(\\d+)-"
+  },
+  {
+   "name": "Tyndall National Institute",
+   "system": "listpage",
+   "board": "https://tyndallnationalinstitute.applytojob.com/apply",
+   "countries": [
+    "IE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "applytojob\\.com/apply/([A-Za-z0-9]{6,})/"
   },
   {
    "name": "VACUUMSCHMELZE",

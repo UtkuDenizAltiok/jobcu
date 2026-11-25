@@ -163,6 +163,16 @@ have no clause on automated reading; one list page and the matching or kept job 
 A live read with an electronics engineer's search words over 30 days found one open
 power-electronics development job each at dSPACE and Würth Elektronik (posted in June and August).
 
+**Pages without job data; Ireland (same day).** A listed job whose page carries no JobPosting data
+now comes with the list's title and place and its first sight on the list, its link opening the
+employer's ad, instead of being lost; a sitemap's page without such data is still no job (it is
+usually a page about working there). Style and script blocks in a list are not read as text.
+Added: **Tyndall National Institute** (Cork; JazzHR, `tyndallnationalinstitute.applytojob.com/apply`,
+11 jobs, research posts in electronics and packaging; robots.txt closes only `/cb`; job pages carry
+JobPosting) and **MBRYONICS** (Galway, space photonics and electronics; Rippling,
+`ats.rippling.com/mbryonics/jobs`, 13 jobs; robots.txt closes only `/internal/`; its job pages
+build the ad with scripts, so its jobs come title-only).
+
 ### Rheinmetall's job sitemap, and sitemaps in many languages — 2026-11-25
 
 **Access.** Rheinmetall publishes its jobs on its own site (`www.rheinmetall.com/{language}/job/
