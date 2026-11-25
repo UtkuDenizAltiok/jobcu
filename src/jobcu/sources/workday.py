@@ -11,9 +11,12 @@ filters such as the job's country with an ID each. A job's full ad and exact day
 Because the address isn't documented, Jobcu checks each site's robots.txt first and skips the
 company if it disallows these addresses.
 
-Since November 2026 the ads on Workday's wd1 and wd5 servers are behind a human check, which Jobcu
-never passes (the lists still answer). Some employers publish every vacancy on their own career
-site too, under the same vacancy number ("R5049393" on Workday and in
+Since November 2026 Workday's wd1 and wd5 servers answer robots.txt, and at times the ads too, with
+a human check, which Jobcu never passes; once one address has sent them a lot, they answer its job
+lists the same way for a while (2026-11-25). So every company on one server shares that server's
+polite pace, and a server that refuses three companies in a row isn't asked again in that search
+(`http.server_of`). Some employers publish every vacancy on their own career site too, under the
+same vacancy number ("R5049393" on Workday and in
 `careers.gevernova.com/automation-engineer/job/R5049393`). For those the directory names that
 site's job sitemap (`Employer.ads`), and an ad Workday won't serve is read from the employer's
 page with the same number and title.

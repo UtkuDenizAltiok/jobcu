@@ -590,6 +590,26 @@ same job where there are some, and a job known only by its title is scored as su
 read"). In search 21 (72 hours) these servers gave 89 jobs of 33 employers, four of them at 60+
 (Analog Devices 84, Medtronic 75, Littelfuse 71).
 
+### Workday's check follows what one address sends — 2026-11-25
+
+With Jobcu's own identity, one request at a time: the lists and the ads of 11 wd1/wd5 employers
+(Analog Devices, Microchip, NXP, Medtronic, KLA, Intel, NVIDIA, Aptiv, Moog, GE Vernova, Stryker)
+answered normally, full ads included; robots.txt still answered with the check. About half an hour
+later, after some 40 more Workday requests that included about ten to addresses that don't exist (a
+wrong site name; Workday answers those with the same check page, not 404), every wd1 and wd5 list
+answered this computer with the check, Analog Devices' and Microchip's included, for at least 20
+minutes (one request every three minutes, still refused at 09:12 UTC+3), while wd3 lists answered.
+So the check depends on what one address has sent, not on the list: a search reading about 90
+wd1/wd5 companies, four at a time at each site's own pace, can meet it midway, and from then on each
+further company only adds a refused request.
+
+Since then Jobcu keeps the polite pace per Workday server (`wd1`, `wd5`, ...: one request a second
+across all the companies on it, `http.server_of`) instead of per company, and a server that refuses
+three companies in a row, with nothing answered in between, isn't asked again in that search
+(`http.REFUSALS_IN_A_ROW`): the others are tried again in the next search. One company refusing alone
+(a list whose address changed) doesn't stop the rest. The search's notes say how many companies asked
+for a human check. The check itself is never passed.
+
 ### Workday ads read from the employer's own site — 2026-11-24
 
 Some employers on wd1/wd5 publish every vacancy on their own career site too, under the vacancy

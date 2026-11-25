@@ -73,6 +73,25 @@ SITE_INTERVALS = {
 }
 
 
+# Servers shared by many companies' sites. Every company's Workday site has its own address
+# ("acme.wd1.myworkdayjobs.com"), but one server's sites ("wd1") answer from the same machines
+# behind the same firewall, which in November 2026 began asking for a human check once one
+# address had sent it too much (all of wd1 and wd5 refused this computer for over 20 minutes
+# after a burst of reads on 2026-11-25). So the polite pace is kept per server, not per site, and
+# a server that refuses REFUSALS_IN_A_ROW different sites in a row, with nothing answered in
+# between, is not asked again in that search: each further request would only meet the same
+# check and lengthen it. One site that refuses alone (a company whose list moved gets the same
+# check page) doesn't stop the others.
+_SHARED_SERVER = re.compile(r"^[a-z0-9-]+\.((?:wd\d+\.)?myworkdayjobs\.com)$")
+REFUSALS_IN_A_ROW = 3
+
+
+def server_of(host: str) -> str:
+    """The server a site's address belongs to: the address itself, except on shared servers."""
+    match = _SHARED_SERVER.match(host.lower())
+    return match.group(1) if match else host
+
+
 class KeyCheck:
     """The result of testing a job site key, in plain words."""
 
@@ -198,6 +217,9 @@ class PoliteClient:
         self._last_request: dict[str, float] = {}
         self._cooldowns: dict[str, float] = {}
         self._blocked_hosts: set[str] = set()
+        # Shared servers that refused several sites in a row, and their current run of refusals.
+        self._blocked_servers: set[str] = set()
+        self._refusals: dict[str, int] = {}
         self._host_locks: dict[str, threading.Lock] = {}
         self._lock = threading.Lock()
         self._cache: dict[tuple, httpx.Response] = {}
@@ -258,11 +280,13 @@ class PoliteClient:
                     self.request_count[host] = self.request_count.get(host, 0) + 1
             if response.status_code in (401, 403, 429) and _looks_like_bot_protection(response):
                 # A check on one address (a site's robots.txt, `blocks_host=False`) says nothing
-                # of the others; a check on what Jobcu reads ends reading that server.
+                # of the others; a check on what Jobcu reads ends reading that site, and a shared
+                # server's run of refused sites ends reading the server (REFUSALS_IN_A_ROW).
                 if blocks_host:
-                    with self._lock:
-                        self._blocked_hosts.add(host)
+                    self._refused(host)
                 raise Blocked(host)
+            if blocks_host:
+                self._answered(host)
             if response.status_code == 429 or response.status_code >= 500:
                 wait = _retry_after(response, now=self._wall_clock())
                 if wait is None:
@@ -287,6 +311,32 @@ class PoliteClient:
             self._cache[key] = response
         return response
 
+    def _refused(self, host: str) -> None:
+        server = server_of(host)
+        with self._lock:
+            self._blocked_hosts.add(host)
+            if server == host:
+                return
+            self._refusals[server] = self._refusals.get(server, 0) + 1
+            if (self._refusals[server] < REFUSALS_IN_A_ROW
+                    or server in self._blocked_servers):
+                return
+            self._blocked_servers.add(server)
+        log.info("%s refused %d of its sites in a row: not asked again in this search",
+                 server, REFUSALS_IN_A_ROW)
+
+    def _answered(self, host: str) -> None:
+        server = server_of(host)
+        if server != host:
+            with self._lock:
+                self._refusals[server] = 0
+
+    def refused_server(self, host: str) -> bool:
+        """Whether the shared server of this site refused several sites in a row in this
+        search, so the site wasn't asked itself."""
+        with self._lock:
+            return server_of(host) in self._blocked_servers
+
     def _exists(self, host: str) -> bool:
         """Whether the host name has an address at all (asked once per host)."""
         with self._lock:
@@ -306,25 +356,28 @@ class PoliteClient:
         return known
 
     def _wait_turn(self, host: str) -> None:
+        # Sites of one shared server take turns at the server's pace (server_of).
+        pace = server_of(host)
         with self._lock:
-            host_lock = self._host_locks.setdefault(host, threading.Lock())
+            host_lock = self._host_locks.setdefault(pace, threading.Lock())
         while True:
             self._check_request(host)
             if host_lock.acquire(timeout=STOP_POLL_SECONDS):
                 break
         try:
-            interval = self._min_intervals.get(host, DEFAULT_MIN_INTERVAL)
+            interval = self._min_intervals.get(pace, self._min_intervals.get(
+                host, DEFAULT_MIN_INTERVAL))
             while True:
                 self._check_request(host)
                 with self._lock:
-                    until = max(self._last_request.get(host, 0.0) + interval,
+                    until = max(self._last_request.get(pace, 0.0) + interval,
                                 self._cooldowns.get(host, 0.0))
                 self._pause(max(0.0, until - self._clock()), host)
                 # An in-flight response can extend the deadline while this reader waits.
                 with self._lock:
                     if self._cooldowns.get(host, 0.0) <= until:
                         break
-            self._last_request[host] = self._clock()
+            self._last_request[pace] = self._clock()
         finally:
             host_lock.release()
 
@@ -335,7 +388,7 @@ class PoliteClient:
     def _check_request(self, host: str) -> None:
         self._check_stop()
         with self._lock:
-            if host in self._blocked_hosts:
+            if host in self._blocked_hosts or server_of(host) in self._blocked_servers:
                 raise Blocked(host)
 
     def _pause(self, seconds: float, host: str) -> None:
