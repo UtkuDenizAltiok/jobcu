@@ -57,7 +57,9 @@ _LONG_AGO = datetime.min.replace(tzinfo=UTC)
 
 class SitemapSource(CareerSystemSource):
     id = "sitemap"
-    detail_cache_version = 2  # retain separate original JobPosting requirements
+    # 2: retain separate original JobPosting requirements. 4: a page without job data is read
+    # from the title its list gives (3: countries abroad, on another branch).
+    detail_cache_version = 4
     name = "Recruiters' and employers' own sites"
     system = "sitemap"
     parallel = 4  # every site has its own address
@@ -90,7 +92,8 @@ class SitemapSource(CareerSystemSource):
                     return
                 if self.allowed(entry.address, ctx):
                     opened += 1
-                    if (job := self._from_page(entry.address, employer, ctx)) is not None:
+                    if (job := self._from_page(entry.address, employer, ctx,
+                                               entry.title)) is not None:
                         yield self._placed(_listed_place(job, entry, employer), entry.place)
                     elif (bare := self._title_only(entry, {}, None)) is not None:
                         yield bare
@@ -119,7 +122,8 @@ class SitemapSource(CareerSystemSource):
                         or not self.allowed(entry.address, ctx)):
                     continue
                 opened += 1
-                if (job := self._from_page(entry.address, employer, ctx)) is not None:
+                if (job := self._from_page(entry.address, employer, ctx,
+                                           entry.title)) is not None:
                     yield _dated(job, *sight)
                 continue
             if not matches_terms(terms, set(wanted), entry.title or words_of(entry.address)):
@@ -139,7 +143,7 @@ class SitemapSource(CareerSystemSource):
             if not self.allowed(entry.address, ctx):
                 continue
             opened += 1
-            job = self._from_page(entry.address, employer, ctx)
+            job = self._from_page(entry.address, employer, ctx, entry.title)
             if job is not None:
                 yield self._placed(_listed_day(_listed_place(job, entry, employer), entry, sights,
                                                start), entry.place)
@@ -207,7 +211,8 @@ class SitemapSource(CareerSystemSource):
         """A job listed by its address only (a title the search words missed): its page's
         title, place, ad and date; where the page gives no date, its first sight stands."""
         full = self._from_page(job.url, Employer(job.company or "", self.system, "", (),
-                                                 jobs=job.source_context.get("job_pages")), ctx)
+                                                 jobs=job.source_context.get("job_pages")), ctx,
+                               job.title)
         if full is None:
             return job
         if full.posted_at is None:
@@ -254,8 +259,10 @@ class SitemapSource(CareerSystemSource):
                  ) -> list[tuple[str, datetime | None]]:
         return job_pages(self, board, ctx, pattern)
 
-    def _from_page(self, address: str, employer: Employer, ctx: SourceContext) -> FoundJob | None:
-        """The job from memory or from its page's JobPosting data; None without such data."""
+    def _from_page(self, address: str, employer: Employer, ctx: SourceContext,
+                   listed_title: str | None = None) -> FoundJob | None:
+        """The job from memory or from its page's JobPosting data; None without such data. A
+        page without it is read as text from the title its list gives (`listed_title`)."""
         # Imported here: the job memory itself imports the sources (through dedupe).
         from jobcu import jobstore
 
@@ -275,7 +282,8 @@ class SitemapSource(CareerSystemSource):
         # pages, and only if the address still names one after redirects (Diehl's job pages lead
         # back to its list).
         if job is None and employer.jobs and re.search(employer.jobs, str(response.url)):
-            job = page_job(address, response.text, employer, source=self.id)
+            job = page_job(address, response.text, employer, source=self.id,
+                           listed_title=listed_title)
         if job is not None:
             jobstore.remember_ad(job, reader_version=self.detail_cache_version)
         return _in_own_country(job, employer) if job is not None else None
@@ -323,11 +331,12 @@ def to_found_job(address: str, page: str, employer: Employer,
     )
 
 
-def page_job(address: str, page: str, employer: Employer, source: str = "sitemap"
-             ) -> FoundJob | None:
+def page_job(address: str, page: str, employer: Employer, source: str = "sitemap",
+             listed_title: str | None = None) -> FoundJob | None:
     """A job page without job data, read as text (`jobpage.read`): its title, its place and
-    the ad. It gives no posting day; the list's first sight dates it."""
-    if (ad := jobpage.read(page)) is None:
+    the ad, from where the page names the title its list gives, if any. It gives no posting
+    day; the list's first sight dates it."""
+    if (ad := jobpage.read(page, listed_title)) is None:
         return None
     return FoundJob(source=source, source_job_id=address, url=address, title=ad.title,
                     company=ad.company or employer.name or None, location_text=ad.place,

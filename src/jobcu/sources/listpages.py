@@ -166,20 +166,30 @@ def listed_jobs(page: str, base: str, pattern: re.Pattern) -> tuple[list[Listed]
                 more.append(full)
             continue
         key = _key(full, match, pattern)
-        title = own or named
+        action = bool(own) and _ACTION.fullmatch(own.strip(" .:>»›→")) is not None
+        if action:
+            # "View job details": the link only invites to open the job; its title is the
+            # heading before it (TDK-Lambda UK's list: "<h4>Senior Electronics Test
+            # Engineer</h4> <p>Location : Ilfracombe</p> <a>View job details</a>").
+            own = None
+        heading = _heading_before(text, start, job_links) if action else None
+        title = own or named or (heading[0] if heading else None)
         if key in jobs and (jobs[key].title or not title):
             continue
         record = _record(text, start)
         place = _data_value(_DATA_PLACE, record)
         title = title or _data_value(_DATA_TITLE, record)
         card = cards.get(key)
+        if action and card and _ACTION.fullmatch(card.strip(" .:>»›→")):
+            card = None  # the "card" is the link itself
         posted = _listed_day(card)
         if card and title:
             card = " ".join(card.replace(title, " ").split())
+        beside = (heading[1] if heading else _beside(text, start, end, job_links,
+                                                     after=bool(own)))
         jobs[key] = Listed(
             full, title=title, key=key, place=place, posted=posted,
-            around=place or (_place_in(card) if card else None)
-            or _beside(text, start, end, job_links, after=bool(own)))
+            around=place or (_place_in(card) if card else None) or beside)
     return list(jobs.values()), list(dict.fromkeys(more))
 
 
@@ -276,6 +286,29 @@ def _beside(text: str, start: int, end: int, job_links: list[tuple[int, int]], a
     previous = max((other_end for _, other_end in job_links if other_end <= start), default=0)
     words = _visible(text[previous:start])
     return words[-AROUND:] or None
+
+
+# A link's whole text that only invites to open the job ("View job details", "Read more", "Mehr
+# erfahren", "Zur Stelle"): it names no title.
+_ACTION = re.compile(
+    r"(?:(?:view|see|show|open|read|find out|learn)(?: the| this)?"
+    r"(?: job| position| vacancy| role| post| offer)?(?: details?| more| description)?"
+    r"|more(?: info(?:rmation)?| details)?|details?|apply(?: now| here)?"
+    r"|mehr(?: erfahren| infos?| lesen| details)?|weiterlesen|zur stelle(?:nanzeige)?"
+    r"|(?:stelle|job|details?|stellenanzeige) ansehen|jetzt bewerben|zum job"
+    r"|en savoir plus|voir (?:l'offre|plus|le poste)|postuler)", re.IGNORECASE)
+_HEADING = re.compile(r"<h([1-6])\b[^>]*>(.*?)</h\1\s*>", re.IGNORECASE | re.DOTALL)
+
+
+def _heading_before(text: str, start: int, job_links: list[tuple[int, int]]
+                    ) -> tuple[str, str | None] | None:
+    """The last heading between the previous job's link and this one, and the text between it
+    and the link: the title and the details of a job whose link only says "View job details"."""
+    previous = max((other_end for _, other_end in job_links if other_end <= start), default=0)
+    headings = list(_HEADING.finditer(text, previous, start))
+    if not headings or not (title := _visible(headings[-1].group(2))):
+        return None
+    return title, _visible(text[headings[-1].end():start])[:AROUND] or None
 
 
 _HIDDEN = re.compile(r"<(script|style)\b[^>]*>.*?</\1\s*>", re.I | re.S)

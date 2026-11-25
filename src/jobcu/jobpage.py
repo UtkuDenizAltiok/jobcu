@@ -58,9 +58,11 @@ class PageAd:
     company: str | None = None  # the hiring company where a label names it
 
 
-def read(page: str) -> PageAd | None:
+def read(page: str, listed_title: str | None = None) -> PageAd | None:
     """The ad on a job page without job data, or None when the page has no title or too little
-    text to be an ad."""
+    text to be an ad. Where the employer's list gives the job's title, the ad starts where the
+    page names it: a site's own heading and its country switcher can come first ("About
+    TDK-Lambda", "Change Location : France"; TDK-Lambda UK's job pages, 2026-11-26)."""
     try:
         document = lxml_html.fromstring(page)
     except (ParserError, ValueError):
@@ -76,12 +78,24 @@ def read(page: str) -> PageAd | None:
         # A label and its value in a definition list are lines of their own, as on screen.
         element.tail = "\n" + (element.tail or "")
     text = html_to_text(lxml_html.tostring(main, encoding="unicode"))
+    if listed_title and (ad := _from_title(text, listed_title)) is not None:
+        title, text = " ".join(listed_title.split()), ad
     if len(text) < MIN_TEXT:
         return None
     place, country = _labelled(text, _PLACE_LABEL, _a_place), None
     if place is None and (town := _town_above(text, title)) is not None:
         place, country = town.name, town.country
     return PageAd(title, place, country, text, _labelled(text, _COMPANY_LABEL))
+
+
+def _from_title(text: str, title: str) -> str | None:
+    """The page's text from the first line that names the title on; None if no line does."""
+    wanted = " ".join(title.split()).casefold()
+    lines = text.split("\n")
+    for number, line in enumerate(lines):
+        if wanted in " ".join(line.split()).casefold():
+            return "\n".join(lines[number:]).strip()
+    return None
 
 
 def _title(document) -> str:

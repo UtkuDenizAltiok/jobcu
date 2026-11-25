@@ -91,6 +91,24 @@ Directory membership does not establish reachable vacancies or engineering recal
 
 ## Access and protocol records
 
+### Job lists whose links only say "View job details" — 2026-11-26
+
+TDK-Lambda (power supplies; its UK design and manufacturing centre in Ilfracombe, its EMEA head
+office in Achern) lists its vacancies on its own site (`www.emea.lambda.tdk.com/uk/about/
+tdk-lambda-recruitment` and `/de/...`): each job is a heading with its title, a line with its
+place and a link that says only "View job details" (`/uk/about/tdk-lambda-job/2277`); the job
+pages carry no job data, open with the site's own heading ("About TDK-Lambda") and a country
+switcher ("Change Location : France"), and give the ad after the job's title with "Location :
+Kingsley Avenue, Ilfracombe, Devon". The list-page reader took every link's text for the job's
+title and the text after it for its place, so all five UK jobs were called "View job details",
+and the page reader took the switcher's France for the place. Now a link whose whole text only
+invites to open the job ("View job details", "Read more", "Mehr erfahren", "Zur Stelle",
+"Apply now", "Voir l'offre") takes its title from the last heading before it, and its place from
+the text between that heading and the link; a job page read as text starts where it names the
+title its list gives. robots.txt closes only the site's technical folders; no terms of use
+against reading were found. Added: TDK-Lambda (UK), 5 jobs (Senior Electrical Design Engineer,
+"Power + Design Engineer", test engineering), and TDK-Lambda (Germany), 7.
+
 ### Electronics and power employers read from their own sites — 2026-11-26
 
 Nineteen employers in electronics, power conversion, drives and automation in Germany and the UK
