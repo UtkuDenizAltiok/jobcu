@@ -221,3 +221,13 @@ def test_a_listed_job_whose_page_carries_no_job_data_comes_with_the_lists_title_
     # The directory check counts such jobs by the list's places too.
     survey = listpages.ListPageSource().survey(acme, scripted_site([]))
     assert survey.counts["IE"] == 2 and survey.sample
+
+
+def test_a_next_page_named_only_in_a_data_attribute_is_followed():
+    page = ('<table><tr><td><a href="/Vacancies/18826/Description/31">Systemingenieur (m/w/d)</a>'
+            '</td></tr></table><span data-pagination-next-href="?tc1152481=p2&amp;_search_token'
+            '1152481=99#connectortable_1152481" data-pagination-to="10"></span>')
+    jobs, more = listpages.listed_jobs(page, "https://career.example.test/Jobs/All",
+                                       re.compile(r"/Vacancies/(\d+)/Description"))
+    assert [job.key for job in jobs] == ["career.example.test#18826"]
+    assert more == ["https://career.example.test/Jobs/All?tc1152481=p2&_search_token1152481=99"]

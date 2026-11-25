@@ -45,12 +45,16 @@ _LABEL = re.compile(r"\b(?:aria-label|title)\s*=\s*([\"'])(.*?)\1", re.I | re.S)
 _NEW_TAB = re.compile(r"\s*\([^()]*\b(?:opens?|öffnet|new|neue[mn]?)\b[^()]*\)\s*$", re.I)
 # An address in the page's own data ("href":"/jobs/..."), as dSPACE's job finder gives it.
 _DATA_LINK = re.compile(r"[\"'](?:href|url|link|jobUrl)[\"']\s*:\s*[\"']([^\"'<>\s]+)[\"']", re.I)
+# An address in an element's data attribute: umantis lists name their next page only in
+# `data-pagination-next-href` (Diehl's, 2026-11-25).
+_ATTR_LINK = re.compile(r"\bdata-[\w-]*href\s*=\s*([\"'])(.*?)\1", re.I | re.S)
 _DATA_TITLE = re.compile(r"\"(?:title|jobTitle|name)\"\s*:\s*\"([^\"]{3,200})\"")
 _DATA_PLACE = re.compile(r"\"(?:location|city|place|town|ort|standort)\"\s*:\s*\"([^\"]{2,120})\"",
                          re.I)
 _TAG = re.compile(r"<[^>]+>")
-# Text kept around a link: enough for "Waldzimmern" or "Berlin, München, Waldenburg".
-AROUND = 160
+# Text kept beside a link: enough for "Waldzimmern" or "Berlin, München, Waldenburg", and for
+# umantis' town after the job's number, type, contract and department (about 200 characters).
+AROUND = 300
 # The longest data record read for a job's title and place (dSPACE's are about 400 characters).
 RECORD = 3000
 
@@ -130,6 +134,8 @@ def listed_jobs(page: str, base: str, pattern: re.Pattern) -> tuple[list[Listed]
         links.append((match.start(), match.end(), href.group(2), own or None, named or None))
     for match in _DATA_LINK.finditer(text):
         links.append((match.start(), match.end(), match.group(1), None, None))
+    for match in _ATTR_LINK.finditer(text):
+        links.append((match.start(), match.end(), match.group(2), None, None))
     links.sort()
     jobs: dict[str, Listed] = {}
     more: list[str] = []
