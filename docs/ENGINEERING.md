@@ -375,7 +375,8 @@ alone doesn't stop the others. The search's notes say how many companies asked f
 collection/detail budgets and hosted AI tool allowances are distinct.
 
 Blocked access remains blocked. Sources whose site terms forbid automated reading (the
-Bundesagentur portal, Siemens' Avature site, SmartRecruiters' career pages, ABB's Phenom site)
+Bundesagentur portal, Siemens' Avature site, SmartRecruiters' career pages, ABB's Phenom site,
+Gradcracker)
 run only for a person who switches them on in Settings, accepting those terms
 (`sources.TERMS_NOTES`); they are off by default.
 Employer feeds and original pages can change; their directory and permitted interfaces are

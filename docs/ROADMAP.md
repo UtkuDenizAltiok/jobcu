@@ -41,6 +41,10 @@ done. Implementation details belong in pull requests; current behavior is descri
   on the ads is never passed, so those jobs come with title, place, date and the employer's link.
   Where the employer's own career site lists the same vacancy number (GE Vernova, Johnson &
   Johnson, Thermo Fisher, Danaher, RTX), the full ad is read there instead.
+- Gradcracker, the UK's board for engineering and technology graduate jobs, can be read: only the
+  graduate lists of the areas the person's search words name (electronic and electrical, hardware,
+  ...), whole, with a job counted as posted on the day it first appears there (the board gives no
+  dates). Its legal page forbids scraping, so it is off until the person switches it on.
 - Jobcu learns employers' own career sites from the jobs it finds: when a job site's copy of a
   job links the employer's Workday, Oracle, Greenhouse or SuccessFactors list and Jobcu doesn't
   read it yet, the list is checked during the search and read from the next search on. Lists that

@@ -67,6 +67,7 @@ Countries below describe the adapter's scope, not complete market coverage.
 | Arbeitnow | Germany/UK feeds; public API | Free-text locations need interpretation. |
 | FreeHire | Every country; public search API, no key | Employers' own ads plus some board copies; [check](#freehire--2026-11-02). Some employers are named by their career site's address ("riedelcommunications"); the duplicate rules read it as the spaced name. |
 | jobs.ac.uk | UK/Ireland; search pages and JobPosting data | Academic/research/technical jobs; personal-use terms. Its JobPosting data marks hybrid jobs remote too; the listing's "Hybrid" decides. Closing dates come as midnight of the closing day; Jobcu reads any midnight closing time as the whole day. |
+| Gradcracker | Opt-in: off unless the person accepts its terms; UK (a few Irish jobs) graduate lists of the areas the search words name | No dates: a job new on a list since the last reading counts as posted that day, and only such jobs are passed on ([record](#gradcracker--2026-11-25)). |
 | EURAXESS | Supported countries; research-job pages | Throttling and per-search request limits apply. |
 | JobTech | Sweden; public JobSearch API | Full text; local timestamps and paging limits need handling. |
 | service.bund.de | Germany; RSS and job pages | Feed has a bounded recent window. |
@@ -88,6 +89,35 @@ address (Recruitee's answers the same public `/api/offers/` there).
 Directory membership does not establish reachable vacancies or engineering recall.
 
 ## Access and protocol records
+
+### Gradcracker — 2026-11-25
+
+Gradcracker (gradcracker.com) is the UK's main board for engineering and technology graduate jobs,
+placements and apprenticeships (BAE Systems, Rolls-Royce, Cambridge Consultants, Network Rail,
+CERN and hundreds of smaller engineering employers). Read with Jobcu's own client: robots.txt allows
+everything but the keyword search, outgoing links, downloads and campaigns; the sitemap names each
+list (`/search/{discipline}/{area}-graduate-jobs`, also per town and "rest of the world"); a list
+page shows 80 jobs as cards (`<article data-search-result="{number}">`: title, job page, employer,
+place, salary, deadline, start), `?page=2` and on (the electronic and electrical graduate list had
+7 pages, about 1 MB each; all disciplines' graduate list 19). A job's page has the full ad
+(`div.body-content`) and the same facts; neither gives a posting date or standard job data.
+
+Terms: its legal page says "you're not allowed to download, distribute or scrape any part of this
+website, but we do allow you to make copies for reading or browsing and you may also make permanent
+copies for your personal use". No legal action or threat by Gradcracker against anyone reading its
+pages was found (web search, 2026-11-25). Under the owner's rule (terms alone don't rule a source
+out; lawsuits and lasting bans do) it is read only for a person who switches it on in Settings,
+accepting that for their own job search, like the Bundesagentur, Avature, SmartRecruiters and Phenom.
+
+How it is read: only the graduate lists of the areas whose names share a field word with the
+person's English search words ("Power Electronics Engineer" → electronic-electrical; "Hardware
+Design Engineer" → hardware; a nurse's or chef's words name none, so nothing is read), at most four
+lists, each whole, at the polite pace; never the board. The lists give no dates, so each reading is
+remembered (`listmemory`): a job new on a list since a reading at most 36 hours before counts as
+posted that day, and only such jobs are passed on, so "Posted within" stays exact (a list's first
+reading passes none). A job's page is opened only for a job still in the running. A UK list's job is
+in the UK unless its place names another country (a CERN post in Geneva, Irish jobs of Tetra Tech).
+
 
 ### JSearch assessment — 2026-10-18
 
