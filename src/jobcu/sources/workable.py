@@ -23,6 +23,7 @@ class WorkableSource(CareerSystemSource):
     id = "workable"
     name = "Company career sites (Workable)"
     system = "workable"
+    asks_every_employer = True  # one answer lists every job, wherever it is
 
     def list_jobs(self, employer: Employer, ctx: SourceContext, *, countries=None, start=None,
                   terms=None) -> Iterator[FoundJob]:

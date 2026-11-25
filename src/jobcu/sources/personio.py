@@ -44,6 +44,7 @@ class PersonioSource(CareerSystemSource):
     id = "personio"
     name = "Company career sites (Personio)"
     system = "personio"
+    asks_every_employer = True  # one answer lists every job, wherever it is
     parallel = 4  # every employer has its own address
 
     def list_jobs(self, employer: Employer, ctx: SourceContext, *, countries=None, start=None,

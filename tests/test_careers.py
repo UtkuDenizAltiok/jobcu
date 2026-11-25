@@ -179,11 +179,19 @@ def test_one_company_failing_never_stops_the_others(monkeypatch):
 
     source = greenhouse.GreenhouseSource()
     ctx = context(handler, "greenhouse")
-    assert source.covers(query(["IE"])) and not source.covers(query(["FR"]))
     jobs = list(source.search(query(["IE"]), ctx))
-    assert [j.source_job_id for j in jobs] == ["fakeco/7"]
-    assert ctx.report.requests == 2  # the German-only company wasn't read
-    assert ctx.report.status == "partial" and "1 of 2" in ctx.report.message
+    # One answer lists every job, so the company known only in Germany is asked too: its new
+    # job in Cork is found the day it is posted, not after the next directory check.
+    assert sorted(j.source_job_id for j in jobs) == ["fakeco/7", "other/7"]
+    assert ctx.report.requests == 3
+    assert ctx.report.status == "partial" and "1 of 3" in ctx.report.message
+
+    # A system read country by country asks only the employers known to hire there.
+    source.asks_every_employer = False
+    assert source.covers(query(["IE"])) and not source.covers(query(["FR"]))
+    ctx = context(handler, "greenhouse")
+    assert [j.source_job_id for j in source.search(query(["IE"]), ctx)] == ["fakeco/7"]
+    assert ctx.report.requests == 2
 
     monkeypatch.setattr(careers, "load_directory", lambda: directory[:1])
     with pytest.raises(SourceError):
@@ -1140,6 +1148,17 @@ def workday_handler(pages, robots="User-agent: *\nAllow: /External/\n", seen=Non
 def posting(title, posted, path):
     return {"title": title, "externalPath": path, "locationsText": "Ireland, Limerick",
             "postedOn": posted}
+
+
+def test_a_workday_employer_known_elsewhere_is_asked_and_its_first_job_here_found(monkeypatch):
+    # Known only in Germany when the directory was checked; today its list has a job in Ireland.
+    known_in_germany = employer("workday", "https://fakeco.wd1.myworkdayjobs.com/External",
+                                countries=("DE",))
+    monkeypatch.setattr(careers, "load_directory", lambda: (known_in_germany,))
+    fresh = [posting("Power Electronics Engineer", "Posted Today", "/job/Limerick/P_1")]
+    source = wd.WorkdaySource()
+    jobs = list(source.search(query(["IE"]), context(workday_handler([fresh]), "workday")))
+    assert [(job.title, job.country) for job in jobs] == [("Power Electronics Engineer", "IE")]
 
 
 def test_workday_reads_the_searched_countries_newest_first_and_stops_at_old_jobs():

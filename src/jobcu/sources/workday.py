@@ -100,6 +100,7 @@ class WorkdaySource(CareerSystemSource):
     id = "workday"
     name = "Company career sites (Workday)"
     system = "workday"
+    asks_every_employer = True  # one answer lists every job, wherever it is
     parallel = 4
     details_supply_locations = True
     # Earlier cached bodies discarded the workplaces supplied in the same response.
