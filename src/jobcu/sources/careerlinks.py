@@ -43,6 +43,8 @@ _READABLE: list[tuple[str, re.Pattern, str]] = [
     ("personio", re.compile(r"\b([a-z0-9-]+)\.jobs\.personio\.com"), "{0}.jobs.personio.com"),
     ("softgarden", re.compile(r"\b(?!www\b|api\b|static\b)([a-z0-9-]+)\.softgarden\.io"),
      "{0}"),
+    ("pinpoint", re.compile(r"\b(?!www\b|api\b|developers\b|help\b)([a-z0-9-]+)\.pinpointhq\.com"),
+     "{0}"),
     # Read only for a person who accepts SmartRecruiters' terms (sources.TERMS_NOTES): its links
     # are recognised for them, and the readers a search may use decide (employers.learn, find).
     ("smartrecruiters", re.compile(
@@ -58,7 +60,7 @@ SYSTEM_NAMES = {
     "workday": "Workday", "oracle": "Oracle", "greenhouse": "Greenhouse", "lever": "Lever",
     "ashby": "Ashby", "workable": "Workable", "recruitee": "Recruitee", "teamtailor": "Teamtailor",
     "dvinci": "d.vinci", "personio": "Personio", "softgarden": "Softgarden",
-    "eightfold": "Eightfold", "smartrecruiters": "SmartRecruiters",
+    "eightfold": "Eightfold", "smartrecruiters": "SmartRecruiters", "pinpoint": "Pinpoint",
     "successfactors": "SuccessFactors",
 }
 
