@@ -8,8 +8,9 @@ done. Implementation details belong in pull requests; current behavior is descri
 ## Recently completed (October and November 2026)
 
 - UKAEA's jobs are read from its own list (fusion research: power supplies, electrical and
-  graduate engineering). A job whose page gives no day or place takes them from its list: the
-  list's day or its first sight, and the place written beside its link.
+  graduate engineering), with Tokamak Energy, IONATE (grid power converters) and Nidec Control
+  Techniques (drives R&D in Wales). A job whose page gives no day or place takes them from its
+  list: the list's day or its first sight, and the place written beside its link.
 - Employers on SmartRecruiters are found by themselves, from job sites' links and the person's
   AI's employer look-up, for a person who accepted SmartRecruiters' terms; for anyone else their
   lists are never read, not even to check them.

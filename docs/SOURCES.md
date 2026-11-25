@@ -110,6 +110,13 @@ employer's own countries resolve it (never "abroad" from it: UKAEA's text is som
 "Engineering"). An empty place label on a page no longer takes the next line as the place unless
 that line names a place. The directory check counts 8 of UKAEA's 10 jobs in the UK by these texts.
 
+Added with it, UK employers in fusion and power conversion that no saved search had shown: Tokamak
+Energy (Workable, 4 jobs), IONATE (Workable, 8; grid-connected power converters) and Nidec Control
+Techniques (drives R&D in Newtown, Powys: its own list at `moen.nidec.com/.../current-vacancies`, 6
+jobs; robots.txt allows everything; job pages without job data, read as text: "Hardware Engineer",
+"Location: Newtown, Powys, UK"). The directory's Nidec Workday site lists only Greece and Italy.
+Equipmake's jobs weren't found (one posting on Breathe HR, which Jobcu has no reader for).
+
 ### Mercedes-Benz's job sitemap, and sitemaps whose addresses name no job — 2026-11-25
 
 **Access.** `jobs.mercedes-benz.com/robots.txt` allows every robot everything and names its
