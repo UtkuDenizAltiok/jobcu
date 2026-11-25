@@ -7,6 +7,9 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- Jobcu recognises by itself an employer's own list of plain job links when the person's AI names
+  that employer: the shape of the links (a job number in the same place) and one job page with
+  job data are enough; such lists are read from the next search on, on any system.
 - 55 more employers in electronics hardware are read directly, found through FreeHire's
   catalogue of employers' own job systems: Neura Robotics, Quantum-Systems, Rocket Factory
   Augsburg, Heraeus, STIHL, Enercon, AVL, Knorr-Bremse, SiTime, the Plath group, VACUUMSCHMELZE

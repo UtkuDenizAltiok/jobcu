@@ -319,6 +319,11 @@ MIGRATIONS: list[str] = [
         PRIMARY KEY (system, board)
     );
     """,
+    # 27: An employer found by the person's AI whose own careers page lists its jobs as plain
+    # links: the pattern of its job pages' addresses (sources/listpages.py).
+    """
+    ALTER TABLE found_employers ADD COLUMN jobs TEXT;
+    """,
 ]
 
 

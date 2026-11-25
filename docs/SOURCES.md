@@ -91,6 +91,20 @@ Directory membership does not establish reachable vacancies or engineering recal
 
 ## Access and protocol records
 
+### Plain job lists recognised by themselves — 2026-11-25
+
+When the person's AI names an employer whose careers page shows no career system Jobcu knows,
+Jobcu now looks whether that page (or its job-list link, or its `jobs.`/`careers.` host) lists jobs
+as plain links: links of one shape naming at least three different job numbers (a number of four
+digits or more, a UUID, or a code of letters and digits; a title spelled before the number is no
+part of the shape; shapes whose addresses speak of jobs first). It opens one such job page (at most
+three shapes a page) and keeps the list only when that page carries JobPosting data with a title;
+the list is then checked like any found employer and read with the list-page reader, its pattern
+kept in the person's data folder (migration 27). On the saved pages it found the job links of
+dSPACE, Würth Elektronik, Pfisterer, Tyndall, MBRYONICS, Diehl, Rheinmetall's list page and TDK
+(whose pages carry no job data, so TDK would not be kept). This happens only in the employer
+look-up every 14 days, for employers on no known system.
+
 ### Employers found through FreeHire's catalogue — 2026-11-25
 
 FreeHire's public search (`source_type=ats|company`, the last 60 days) was asked twelve

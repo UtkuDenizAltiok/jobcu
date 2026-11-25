@@ -35,6 +35,7 @@ from jobcu.ai.base import (
 )
 from jobcu.ai.client import AIClient, in_parallel
 from jobcu.countries import COUNTRIES
+from jobcu.jobposting import find_job_posting
 from jobcu.keystore import KeyStore
 from jobcu.location import Place
 from jobcu.placenames import OTHER
@@ -49,6 +50,7 @@ from jobcu.sources.careerlinks import (
 )
 from jobcu.sources.careers import Employer, EmployerNotFound, all_employers, save_found_employer
 from jobcu.sources.http import PoliteClient, RequestStopped, RobotsRules
+from jobcu.sources.listpages import recognise
 from jobcu.text import normalise
 
 log = logging.getLogger(__name__)
@@ -240,7 +242,7 @@ def _check(http: PoliteClient, named: list[tuple[str, str, str]],
     robots: dict[str, RobotsRules] = {}
     lock = threading.Lock()
 
-    def locate(row: tuple[str, str, str]) -> tuple[str, tuple[str, str] | None]:
+    def locate(row: tuple[str, str, str]) -> tuple[str, tuple[str, ...] | None]:
         name, _, address = row
         board = board_in(address)
         if board is None:
@@ -252,7 +254,7 @@ def _check(http: PoliteClient, named: list[tuple[str, str, str]],
 
     with ThreadPoolExecutor(max_workers=8, thread_name_prefix="employers") as pool:
         located = list(pool.map(locate, named))
-    candidates: dict[tuple[str, str], str] = {}
+    candidates: dict[tuple[str, ...], str] = {}
     already = 0
     for name, board in located:
         if board is None:
@@ -264,9 +266,11 @@ def _check(http: PoliteClient, named: list[tuple[str, str, str]],
     sources = {source.system: source for source in career_sources()}
     added: list[str] = []
 
-    def verify(item: tuple[tuple[str, str], str]) -> None:
-        (system, board), name = item
-        employer = _verified(sources[system], Employer(name, system, board, ()), http)
+    def verify(item: tuple[tuple[str, ...], str]) -> None:
+        (system, board, *jobs), name = item
+        employer = _verified(sources[system],
+                             Employer(name, system, board, (), jobs=jobs[0] if jobs else None),
+                             http)
         if employer is not None:
             save_found_employer(employer, now)
             with lock:
@@ -305,8 +309,8 @@ def _checked(source, employer: Employer, http: PoliteClient) -> tuple[Employer |
     return Employer(employer.name, employer.system, employer.board, tuple(countries),
                     bool(survey.counts[OTHER] or survey.counts["unknown"]),
                     {code: tuple(sorted(survey.towns.get(code, ()))[:MAX_TOWNS])
-                     for code in countries if survey.towns.get(code)},
-                    found_by_ai=True), True
+                     for code in countries if survey.towns.get(code) and not survey.sample},
+                    found_by_ai=True, jobs=employer.jobs), True
 
 
 # Career sites learned from the jobs a search finds: job sites' copies of a job often link the
@@ -395,14 +399,16 @@ _CAREER_SYSTEM_IDS = frozenset(source.id for source in career_sources())
 
 
 def _board_from_page(http: PoliteClient, address: str, robots: dict[str, RobotsRules],
-                     lock: threading.Lock) -> tuple[tuple[str, str] | None, str | None]:
+                     lock: threading.Lock) -> tuple[tuple[str, ...] | None, str | None]:
     """Opens the employer's careers page (or, when the AI's address doesn't exist, the page one
     level up) and looks for a career system in it; then, when it shows none, the page's own
-    link to its job list and the company's job hosts (`jobs.` and `careers.`). Returns
-    (system, board) or None, and the name of a system Jobcu doesn't read yet when that's what
-    the employer uses."""
+    link to its job list and the company's job hosts (`jobs.` and `careers.`); last, whether
+    one of those pages lists jobs as plain links (`_list_page`). Returns (system, board) or
+    ("listpage", list address, job pages' pattern) or None, and the name of a system Jobcu
+    doesn't read yet when that's what the employer uses."""
     url = address if "://" in address else f"https://{address}"
     page = final = None
+    lists: list[tuple[str, str]] = []  # pages looked at, which may list jobs as plain links
     for attempt in (url, _parent(url)):
         if attempt is None:
             break
@@ -432,6 +438,8 @@ def _board_from_page(http: PoliteClient, address: str, robots: dict[str, RobotsR
                 other = system_not_read(looked[0] + " " + looked[1])
                 if other:
                     return None, other
+                lists.append(looked)
+        lists.append((final, page))
     # Many companies run their job site on its own host: Rohde & Schwarz on
     # job.rohde-schwarz.com, Hensoldt on jobs.hensoldt.net (both SuccessFactors).
     for host in _job_hosts(final or url):
@@ -441,7 +449,26 @@ def _board_from_page(http: PoliteClient, address: str, robots: dict[str, RobotsR
             if board is not None:
                 return board, None
             other = other or system_not_read(looked[0] + " " + looked[1])
+            lists.append(looked)
+    if other is None:
+        # Its own list of plain job links, on a system Jobcu doesn't know (rexx, MHM, a site of
+        # its own): read when a job page of the shape found carries job data (listpages.py).
+        for address, text in lists:
+            if (board := _list_page(http, address, text, robots, lock)) is not None:
+                return board, None
     return None, other
+
+
+def _list_page(http: PoliteClient, address: str, page: str, robots: dict[str, RobotsRules],
+               lock: threading.Lock) -> tuple[str, str, str] | None:
+    """("listpage", the list's address, its job pages' pattern) when the page lists jobs as
+    plain links and one of them, opened, carries job data with a title; None otherwise."""
+    for pattern, sample in recognise(address, page):
+        looked = _look(http, sample, robots, lock)
+        if isinstance(looked, tuple) and (posting := find_job_posting(looked[1])) is not None \
+                and posting.title:
+            return "listpage", address, pattern
+    return None
 
 
 def _look(http: PoliteClient, url: str, robots: dict[str, RobotsRules],

@@ -12,7 +12,7 @@ itself as a newly edited checkout. State-changing routes require `X-Jobcu: 1`; C
 binding constrain browser access.
 
 `paths.py` locates private data outside every checkout. SQLite migrations are additive and
-numbered; `db.py` currently includes migration 26. Keys, settings, uploaded documents, logs,
+numbered; `db.py` currently includes migration 27. Keys, settings, uploaded documents, logs,
 reviews and capture files stay private. Reset actions are explicit, scoped and protect usage
 counters, settings and keys. Secure deletion/compaction is app-file behavior, not a promise
 about SSD snapshots or external backups.
@@ -404,7 +404,7 @@ CLAUDE.md imports it), LICENSE and Python/tool configuration.
 | Search preparation | `preparation.py`; bounded private reuse of exact-input location readings, search-word groups and verified reference-city facts, excluding other research, scores and journeys. |
 | Search coordination | `search.py`, `search_api.py`, `pipeline.py`, `pool.py`; progress, collection, decisions, cards and condition reapplication. |
 | Places/criteria | `countries.py`, `location.py`, `reference_places.py`, `reference_sources.py`, `reference_tables.py`, `places.py`, `placenames.py`, `travel.py`; supported geography, query interpretation, finite reference-city evidence, exact table calculations and measurements. |
-| Discovery | `keywords.py`, `employers.py`; multilingual words, employers the person's AI finds every few weeks, and employers' career sites learned from the links of each search's jobs. |
+| Discovery | `keywords.py`, `employers.py`; multilingual words, employers the person's AI finds every few weeks (also those whose careers page lists jobs as plain links: `listpages.recognise` finds the links' shape, kept when a job page carries job data), and employers' career sites learned from the links of each search's jobs. |
 | Evidence/matching | `text.py`, `jobposting.py`, `dedupe.py`, `filters.py`, `freshness.py`, `listmemory.py`, `relevance.py`, `jobplace.py`, `requirements.py`, `recheck.py`, `scoring.py`; text extraction, filtering, dates (also from a job's first sight on its employer's list), research, grounded requirements, saved-ad recovery and fit. |
 | Results/evaluation | `applications.py`, `applylink.py`, `employerpostings.py`, `livepostings.py`, `vacancy_evidence.py`, `jobidentity.py`, `jobstore.py`, `quality.py`, `quality_api.py`; application routes, apply links found on a click, employers' own postings of board-only jobs, verified original facts, remembered jobs, saved results and independent score checks. |
 | Private comparison capture | `review_capture.py`; explicitly armed one-run document/candidate/request/response evidence outside Git, without searches, timers or paid replay. |

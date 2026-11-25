@@ -456,3 +456,81 @@ def test_a_stopped_search_leaves_the_sites_it_did_not_check_for_the_next_search(
     CountingTeamtailor.read = Counter()
     employers.learn(jobs, web({}), {"teamtailor"}, now=NOW + timedelta(hours=1))
     assert set(CountingTeamtailor.read) == {"first", "second"}
+
+
+def test_an_employers_own_list_of_plain_job_links_is_recognised_and_read(monkeypatch):
+    import json as json_module
+
+    from jobcu.sources.listpages import ListPageSource
+
+    monkeypatch.setattr(employers, "career_sources", lambda: [ListPageSource()])
+
+    def posting(title):
+        data = {"@type": "JobPosting", "title": title, "datePosted": "2026-09-29",
+                "description": "<p>Design power converters.</p>",
+                "jobLocation": {"address": {"addressLocality": "Erlangen",
+                                            "addressCountry": "DE"}}}
+        return f'<script type="application/ld+json">{json_module.dumps(data)}</script>'
+
+    listing = "".join(
+        f'<li><a href="/stellen/{title.lower().replace(" ", "-")}-j{number}.html">{title}</a>'
+        f'<span>Erlangen</span></li>'
+        for number, title in ((4101, "Hardwareentwickler"), (4102, "Elektronikentwickler"),
+                              (4103, "Einkäufer")))
+    pages = {
+        "www.antriebe.test/karriere": '<a href="/karriere/stellen">Offene Stellen</a>'
+                                      '<a href="/news/2026/11/messe">Messe</a>',
+        "www.antriebe.test/karriere/stellen": f"<ul>{listing}</ul>",
+        "www.antriebe.test/stellen/hardwareentwickler-j4101.html": posting("Hardwareentwickler"),
+        "www.antriebe.test/stellen/elektronikentwickler-j4102.html":
+            posting("Elektronikentwickler"),
+        "www.antriebe.test/stellen/einkäufer-j4103.html": posting("Einkäufer"),
+    }
+    ai = FinderAI("Example Antriebe | DE | https://www.antriebe.test/karriere\n")
+    engineer = NURSE.model_copy(update={"field": "Power electronics",
+                                        "target_roles": ["Hardware engineer"]})
+    found = employers.find(ai_client(ai), web(pages), engineer, ["DE"], [], now=NOW)
+    assert found.new == ["Example Antriebe"]
+    [antriebe] = found_employers()
+    assert (antriebe.system, antriebe.board) == ("listpage",
+                                                 "https://www.antriebe.test/karriere/stellen")
+    assert antriebe.jobs and antriebe.countries == ("DE",) and antriebe.found_by_ai
+
+
+@pytest.mark.parametrize(("page", "base", "jobs"), [
+    # rexx: the number follows a letter in the address's last part.
+    ('<a href="/Hardware-Entwickler-mwd-de-j5301.html?sid=1">a</a>'
+     '<a href="/Elektronikentwickler-mwd-de-j4973.html?sid=1">b</a>'
+     '<a href="/Einkaeufer-mwd-de-j5338.html?sid=1">c</a><a href="/impressum.html">i</a>',
+     "https://jobs.example.test/stellenangebote.html", 3),
+    # The number in the query (dSPACE's job finder), in the page's own data.
+    ('<div data=\'[{"href":"/career/stellen.cfm?fuseaction=einzel&jid=38208"},'
+     '{"href":"/career/stellen.cfm?fuseaction=einzel&jid=38207"},'
+     '{"href":"/career/stellen.cfm?fuseaction=einzel&jid=38206"}]\'></div>',
+     "https://www.example.test/career/stellen.cfm", 3),
+    # The title spelled before the number (Rheinmetall), and a bigger group of product pages
+    # whose addresses don't speak of jobs.
+    ("".join(f'<a href="/de/job/entwicklungsingenieur_elektronik_{n}__m_w_d_/{900000 + n}">j</a>'
+             for n in range(3))
+     + "".join(f'<a href="/de/produkte/{155000 + n}/sensor">p</a>' for n in range(6)),
+     "https://www.example.test/de/karriere", 3),
+    # JazzHR's codes of letters and digits, UUIDs on Rippling.
+    ('<a href="/apply/cto8fD1zOl/Senior-Researcher">a</a><a href="/apply/aKRKovG8fV/PhD">b</a>'
+     '<a href="/apply/JL3T0dCjY8/Postdoc">c</a>', "https://inst.example.test/apply", 3),
+    ("".join(f'<a href="/acme/jobs/{n}1c621ab-52c6-4e4d-ab5b-cf96d3028902">t</a>'
+             for n in range(4, 7)), "https://ats.example.test/acme/jobs", 3),
+    # Too few links of one shape: no list.
+    ('<a href="/jobs/123456">a</a><a href="/jobs/123457">b</a>', "https://x.example.test/", 0),
+])
+def test_a_list_of_job_links_is_recognised_by_the_shape_of_their_addresses(page, base, jobs):
+    import re
+
+    from jobcu.sources.listpages import listed_jobs, recognise
+
+    found = recognise(base, page)
+    if not jobs:
+        assert found == []
+        return
+    pattern, sample = found[0]
+    assert re.search(pattern, sample)
+    assert len(listed_jobs(page, base, re.compile(pattern))[0]) == jobs

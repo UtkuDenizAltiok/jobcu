@@ -310,3 +310,82 @@ def _record(text: str, position: int) -> str:
 def _data_value(pattern: re.Pattern, record: str) -> str | None:
     match = pattern.search(record) if record else None
     return " ".join(match.group(1).split()) if match else None
+
+
+# Recognising a careers page as a list of jobs by itself (employers.py): a job's address names it
+# by a number of four digits or more, a UUID, or a code of 8 to 12 letters and digits mixed
+# (JazzHR's "cto8fD1zOl"), in the same place on every job's address.
+_ID = re.compile(
+    r"(?<!\d)(\d{4,})(?!\d)|(?<![0-9A-Za-z])([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-"
+    r"[0-9a-f]{12}|(?=[A-Za-z]*\d)(?=\d*[A-Za-z])[A-Za-z0-9]{8,12})(?![0-9A-Za-z])")
+# A job's title spelled in its address before its number ("/de/job/hardware_entwickler/900713"):
+# it differs from job to job, so it is no part of the shape.
+_SLUG = re.compile(r"^(?=.{16,})[^/]*[-_+%][^/]*$")
+# Shapes whose addresses speak of jobs are tried first (a list of product pages can be bigger).
+_JOBBY = re.compile(r"job|stelle|karriere|career|vacanc|position|offer|apply|bewerb|recruit",
+                    re.IGNORECASE)
+_ID_PATTERNS = {"number": r"\d+", "uuid": r"[0-9a-f-]{36}", "code": r"[A-Za-z0-9]{8,12}"}
+# A list needs at least this many jobs of one shape to be taken for one.
+MIN_LISTED = 3
+# Shapes tried per page, the biggest first (a news list can outnumber a short job list).
+MAX_SHAPES = 3
+
+
+def recognise(base: str, page: str) -> list[tuple[str, str]]:
+    """The likely patterns of a careers page's job addresses, each with one of those addresses,
+    the most links first: links of one shape that name at least MIN_LISTED different things by
+    number. Whether such an address is a job (its page carries job data) is the caller's check."""
+    text = html.unescape(page or "")
+    addresses = [match.group(2) for match in (_HREF.search(m.group(1))
+                                              for m in _ANCHOR.finditer(text)) if match]
+    addresses += _DATA_LINK.findall(text)
+    here = without_session(base)
+    shapes: dict[tuple, tuple[str, set[str], str]] = {}
+    for address in addresses:
+        full = without_session(urljoin(base, address.strip()))
+        if full == here or urlsplit(full).scheme not in ("http", "https"):
+            continue
+        if (shape := _shape(full)) is not None:
+            key, pattern, number = shape
+            entry = shapes.setdefault(key, (pattern, set(), full))
+            entry[1].add(number)
+    found = sorted((entry for entry in shapes.values() if len(entry[1]) >= MIN_LISTED),
+                   key=lambda entry: (not _JOBBY.search(urlsplit(entry[2]).path + "?"
+                                                         + urlsplit(entry[2]).query),
+                                      -len(entry[1])))
+    return [(pattern, sample) for pattern, _numbers, sample in found[:MAX_SHAPES]]
+
+
+def _shape(address: str) -> tuple[tuple, str, str] | None:
+    """An address's shape (where its number sits and what surrounds it), the pattern that
+    matches every address of that shape with the number as its first group, and the number."""
+    parts = urlsplit(address)
+    for name, value in parse_qsl(parts.query):
+        if re.fullmatch(r"\d{3,}", value):
+            pattern = (re.escape(f"{parts.netloc}{parts.path}") + r"\?(?:[^#]*&)?"
+                       + re.escape(name) + r"=(\d+)")
+            return (parts.netloc, parts.path, "query", name), pattern, value
+    segments = parts.path.split("/")
+    for position in range(len(segments) - 1, -1, -1):
+        match = _ID.search(segments[position])
+        if match is None:
+            continue
+        group = 1 if match.group(1) else 2
+        number = match.group(group)
+        kind = ("number" if number.isdigit() else
+                "uuid" if len(number) == 36 and number.count("-") == 4 else "code")
+        before = segments[position][:match.start(group)]
+        after = segments[position][match.end(group):]
+        tail = re.search(r"[^A-Za-z0-9]?[A-Za-z]{0,2}$", before).group()
+        ending = after if re.fullmatch(r"(?:\.[A-Za-z]{2,5})?", after) else "*"
+        following = len(segments) - position - 1
+        leading = "/".join("*" if _SLUG.match(segment) else segment
+                           for segment in segments[:position])
+        pattern = ("/".join(re.escape(f"{parts.netloc}{piece}") if index == 0 else
+                            "[^/]+" if piece == "*" else re.escape(piece)
+                            for index, piece in enumerate(leading.split("/")))
+                   + "/[^/]*?" + re.escape(tail)
+                   + f"({_ID_PATTERNS[kind]})" + ("[^/]*" if ending == "*" else re.escape(ending))
+                   + (r"(?:/[^/?#]*){" + str(following) + "}" if following else ""))
+        return (parts.netloc, leading, tail, kind, ending, following), pattern, number
+    return None
