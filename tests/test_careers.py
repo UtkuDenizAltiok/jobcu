@@ -198,6 +198,45 @@ def test_one_company_failing_never_stops_the_others(monkeypatch):
         list(source.search(query(["IE"]), context(handler, "greenhouse")))
 
 
+def test_a_directory_list_gone_in_searches_a_week_apart_rests_until_it_is_due_again(
+        monkeypatch):
+    directory = (employer(board="gone", name="Moved Ltd"), employer(board="fakeco"))
+    monkeypatch.setattr(careers, "load_directory", lambda: directory)
+    answers = {"gone": 404}
+
+    def handler(request):
+        board = request.url.path.split("/")[3]
+        if answers.get(board) == 404:
+            return httpx.Response(404, json={"error": "not found"})
+        return httpx.Response(200, json={"jobs": [{
+            "id": 7, "title": "Hardware Engineer", "location": {"name": "Cork, Ireland"},
+            "first_published": NOW.isoformat(), "absolute_url": "https://example.test/7"}]})
+
+    def search(days):
+        ctx = context(handler, "greenhouse")
+        at = NOW + timedelta(days=days)
+        found = list(greenhouse.GreenhouseSource().search(
+            JobQuery(["IE"], [], [term("Hardware Engineer")], 24 * 60, at), ctx))
+        return ctx, sorted(job.source_job_id for job in found)
+
+    # Gone in one search and in another three days later: still asked, as any failing list.
+    for days in (0, 3):
+        ctx, _ = search(days)
+        assert ctx.report.requests == 2 and "1 of 2" in ctx.report.message
+    # Gone again a week after the first time: moved or closed. The next searches don't ask it
+    # and say so once.
+    search(8)
+    ctx, found = search(9)
+    assert ctx.report.requests == 1 and found == ["fakeco/7"] and ctx.report.status == "ok"
+    assert "Moved Ltd" in ctx.report.message and "every month" in ctx.report.message
+    # A month after it was last found gone it is asked again; answering, it is read as before.
+    answers["gone"] = 200
+    ctx, found = search(8 + 31)
+    assert found == ["fakeco/7", "gone/7"] and ctx.report.status == "ok"
+    with db.connect() as conn:
+        assert conn.execute("SELECT COUNT(*) FROM gone_lists").fetchone()[0] == 0
+
+
 CHALLENGE = ("<html><title>Security Check</title><div class='captcha-box'>Enable JavaScript and "
              "cookies to continue</div></html>")
 

@@ -324,6 +324,17 @@ MIGRATIONS: list[str] = [
     """
     ALTER TABLE found_employers ADD COLUMN jobs TEXT;
     """,
+    # 28: Directory employers' job lists that answered "not found" (sources/careers.py): since
+    # when, and the latest search that found them gone; a list that answers again is cleared.
+    """
+    CREATE TABLE gone_lists (
+        system TEXT NOT NULL,
+        board TEXT NOT NULL,
+        first_gone_at TEXT NOT NULL,
+        last_gone_at TEXT NOT NULL,
+        PRIMARY KEY (system, board)
+    );
+    """,
 ]
 
 
