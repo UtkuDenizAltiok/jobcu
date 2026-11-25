@@ -22,7 +22,7 @@ from collections import Counter
 from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import cache
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -159,6 +159,47 @@ class EmployerNotFound(SourceError):
     """The company's job list doesn't exist (any more) in this career system."""
 
 
+# A directory employer's list that answers "not found" in searches at least GONE_CONFIRM apart,
+# with no answer in between, has moved or closed: it isn't asked until GONE_RECHECK after it was
+# last found gone, and the moment it answers again it is read as before. Lists move without
+# notice (NXP's and Dell's in November 2026), and the directory is updated only now and then;
+# meanwhile the employer's new list is found through job sites' links and the person's AI
+# (employers.py), and the old one no longer costs a request and a line in every search's notes.
+GONE_CONFIRM = timedelta(days=7)
+GONE_RECHECK = timedelta(days=30)
+
+
+def _gone(now: datetime) -> tuple[set[tuple[str, str]], set[tuple[str, str]]]:
+    """The lists found gone (all of them) and those resting until they are due again."""
+    with db.connect() as conn:
+        rows = conn.execute(
+            "SELECT system, board, first_gone_at, last_gone_at FROM gone_lists").fetchall()
+    found, resting = set(), set()
+    for row in rows:
+        key = (row["system"], row["board"])
+        found.add(key)
+        first, last = (datetime.fromisoformat(row["first_gone_at"]),
+                       datetime.fromisoformat(row["last_gone_at"]))
+        if last - first >= GONE_CONFIRM and now - last < GONE_RECHECK:
+            resting.add(key)
+    return found, resting
+
+
+def _note_gone(employer: "Employer", now: datetime) -> None:
+    stamp = now.isoformat(timespec="seconds")
+    with db.connect() as conn:
+        conn.execute(
+            "INSERT INTO gone_lists (system, board, first_gone_at, last_gone_at) "
+            "VALUES (?, ?, ?, ?) ON CONFLICT (system, board) DO UPDATE SET last_gone_at = "
+            "excluded.last_gone_at", (employer.system, employer.board.lower(), stamp, stamp))
+
+
+def _note_answered(employer: "Employer") -> None:
+    with db.connect() as conn:
+        conn.execute("DELETE FROM gone_lists WHERE system = ? AND board = ?",
+                     (employer.system, employer.board.lower()))
+
+
 class CareerSystemSource(JobSource):
     """Common search for one career system. Subclasses read one employer's job list."""
 
@@ -192,6 +233,10 @@ class CareerSystemSource(JobSource):
         self._budget = RequestBudget(self.id, self.name, LIMITS)
         start = window_start(query.started_at, query.posted_within_hours)
         employers = self.employers(query.countries, query.places)
+        found_gone, resting = _gone(query.started_at)
+        gone = [e for e in employers
+                if not e.found_by_ai and (e.system, e.board.lower()) in resting]
+        employers = [e for e in employers if e not in gone]
         failed: list[str] = []
         refused: list[Blocked] = []
         stop: list[BaseException] = []  # a problem that ends reading for every company
@@ -200,9 +245,12 @@ class CareerSystemSource(JobSource):
             if stop or ctx.should_stop():
                 return []
             try:
-                return [kept for job in self.list_jobs(employer, ctx, countries=query.countries,
+                jobs = [kept for job in self.list_jobs(employer, ctx, countries=query.countries,
                                                        start=start, terms=query.terms)
                         if (kept := keep_job(job, employer, query, start)) is not None]
+                if (employer.system, employer.board.lower()) in found_gone:
+                    _note_answered(employer)
+                return jobs
             except BudgetExhausted as exc:
                 stop.append(exc)
             except Blocked as exc:
@@ -216,9 +264,12 @@ class CareerSystemSource(JobSource):
                 failed.append(employer.name)
             except EmployerNotFound as exc:
                 # A list the person's AI found that no longer exists is forgotten; a
-                # directory company's is reported, and the next directory check drops it.
+                # directory company's is remembered as gone (GONE_CONFIRM), and the next
+                # directory check drops it.
                 if employer.found_by_ai:
                     forget_found_employer(employer)
+                else:
+                    _note_gone(employer, query.started_at)
                 log.info("%s: %s couldn't be read: %s", self.name, employer.name, exc)
                 failed.append(employer.name)
             except SourceError as exc:
@@ -232,6 +283,13 @@ class CareerSystemSource(JobSource):
         with ThreadPoolExecutor(max_workers=self.parallel, thread_name_prefix=self.id) as pool:
             for jobs in pool.map(read, employers):
                 yield from jobs
+        if gone:
+            ctx.report.message = (
+                f"{self.name}: {len(gone)} compan{'ies' if len(gone) != 1 else 'y'}' job "
+                f"list{'s' if len(gone) != 1 else ''} gone in earlier searches weren't asked "
+                f"({', '.join(e.name for e in gone[:5])}{'…' if len(gone) > 5 else ''}): moved "
+                "or closed. Jobcu asks them again every month and finds lists that moved "
+                "through job sites' links and your AI's employer look-up.")
         if stop:
             ctx.report.status = "partial"
             ctx.report.message = f"{stop[0].message} Some companies weren't read."
@@ -242,7 +300,7 @@ class CareerSystemSource(JobSource):
             raise SourceError(f"None of the {len(employers)} companies' job lists could be read.")
         if failed:
             ctx.report.status = "partial"
-            ctx.report.message = (
+            ctx.report.message = ((ctx.report.message + " ") if gone else "") + (
                 f"{self.name}: {len(failed)} of {len(employers)} companies' job lists couldn't "
                 f"be read ({', '.join(failed[:5])}{'…' if len(failed) > 5 else ''})."
                 + (f" {len(refused)} of them asked for a human check, which Jobcu never "

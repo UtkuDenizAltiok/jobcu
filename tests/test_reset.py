@@ -61,6 +61,8 @@ def populated(temporary_data_dir):
         conn.execute("INSERT INTO listed_jobs (source,board,job_id,first_seen_at) "
                      "VALUES ('example','board','ad','2026-10-09')")
         conn.execute("INSERT INTO list_readings VALUES ('example','board','2026-10-09')")
+        conn.execute("INSERT INTO gone_lists VALUES "
+                     "('example','board','2026-10-09','2026-10-16')")
         conn.execute("INSERT INTO ai_usage (search_id,step,provider,model,input_tokens,"
                      "output_tokens,cached_input_tokens,reasoning_tokens,web_searches) "
                      "VALUES (7,'scoring','openai_compatible','fictional-model',100,20,0,0,0)")

@@ -995,6 +995,17 @@ returned listed jobs with full descriptions. The API host's robots file returned
 no HTML crawling permission is inferred. Existing documented posting-API use, access decisions
 and request budgets remain. This verifies board identity, not market coverage or fresh-job recall.
 
+### Lists that are gone rest — 2026-11-25
+
+Lists move without notice: NXP's Workday address answered 422 for weeks after it moved, Dell
+moved to Oracle, and search 21 found two Greenhouse boards gone. The directory is checked only now
+and then, so a gone list cost a request and a line in every search's notes until someone removed it.
+Now a directory list that answers "not found" (404 or 410) in searches at least seven days apart,
+with no answer in between, rests: it isn't asked until 30 days after it was last found gone, then
+once more; any answer clears it. The employer's new list is found by Jobcu itself, through the
+links of job sites' copies of its jobs and the person's AI's employer look-up. Only "not found"
+counts: a refusal, a human check or a server error never makes a list rest.
+
 ### Official town populations — 2026-11-24
 
 Conditions about a town's size ("a city with at least 0.3% of the country's people") used GeoNames'
