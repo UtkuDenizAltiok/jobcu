@@ -8,7 +8,8 @@ supported countries and the career system they use. It's general reference data,
 finds for their kind of work (`employers.py`) are read too; they are remembered only in that
 person's data folder.
 
-Each search reads the job lists of the employers that hire in the countries searched, keeps
+Each search reads the job lists of the employers that hire in the countries searched (on systems
+whose one answer lists every job, every employer: `CareerSystemSource.asks_every_employer`), keeps
 jobs that are fresh, in those countries and match the search words, and treats the result as
 the employer's own ad (the best main link). One company failing never
 stops the others.
@@ -152,12 +153,20 @@ class CareerSystemSource(JobSource):
     system: str
     countries = None
 
+    # Whether one answer of an employer's list shows all its jobs wherever they are (Greenhouse,
+    # Lever, Workday's first page with its country filter...). Such a system asks every employer
+    # in every search, also one whose known countries don't include those searched: one request
+    # each shows whether it hires there now, so an employer that starts hiring in a new country
+    # is read from that day on, not from the next directory check.
+    asks_every_employer = False
+
     def employers(self, countries: list[str], places: list[Place] | None = None
                   ) -> list[Employer]:
         wanted = set(countries)
         return [e for e in all_employers()
-                if e.system == self.system and wanted & set(e.countries)
-                and hires_near(e, countries, places or [])]
+                if e.system == self.system and (
+                    hires_near(e, countries, places or []) if wanted & set(e.countries)
+                    else self.asks_every_employer)]
 
     def covers(self, query: JobQuery) -> bool:
         return bool(self.employers(query.countries, query.places))

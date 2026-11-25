@@ -26,6 +26,7 @@ class AshbySource(CareerSystemSource):
     id = "ashby"
     name = "Company career sites (Ashby)"
     system = "ashby"
+    asks_every_employer = True  # one answer lists every job, wherever it is
     # Old full-ad caches can restore workplace metadata parsed without structured localities.
     detail_cache_version = 2
 

@@ -31,7 +31,11 @@ happens before a new search is created or source collection begins, including wi
    from the next search on, like the employers the person's AI finds (`employers.learn`). A site
    checked stays checked for a month, or a week when it only refused for now (`learned_sites`).
    So the employers read keep up with lists that move and with new employers, for free and
-   without anyone updating the directory. Career-title screening rejects only explicitly
+   without anyone updating the directory. On systems whose one answer lists every job (Workday's
+   first page with its country filter, Greenhouse, Lever, Ashby, Workable, Teamtailor, Recruitee,
+   Personio) every directory employer is asked, also one not known to hire in the countries
+   searched: an employer that starts hiring there is read from that day on. Systems read country
+   by country ask only employers known there. Career-title screening rejects only explicitly
    unrelated titles; unseen titles survive its preliminary request bound. SuccessFactors sites
    list job pages by address only, so of the titles there the search words miss, only jobs new
    on the list since its last reading (`listmemory.py`), in a country searched, are screened;

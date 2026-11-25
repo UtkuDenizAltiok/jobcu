@@ -41,6 +41,9 @@ done. Implementation details belong in pull requests; current behavior is descri
   on the ads is never passed, so those jobs come with title, place, date and the employer's link.
   Where the employer's own career site lists the same vacancy number (GE Vernova, Johnson &
   Johnson, Thermo Fisher, Danaher, RTX), the full ad is read there instead.
+- An employer that starts hiring in a new country is read there at once: on career systems whose
+  one answer lists every job (Workday, Greenhouse, Lever, Ashby and others), every directory
+  employer is asked in every search, not only those known to hire in the countries searched.
 - Gradcracker, the UK's board for engineering and technology graduate jobs, can be read: only the
   graduate lists of the areas the person's search words name (electronic and electrical, hardware,
   ...), whole, with a job counted as posted on the day it first appears there (the board gives no

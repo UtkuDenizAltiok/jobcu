@@ -24,6 +24,7 @@ class GreenhouseSource(CareerSystemSource):
     id = "greenhouse"
     name = "Company career sites (Greenhouse)"
     system = "greenhouse"
+    asks_every_employer = True  # one answer lists every job, wherever it is
     detail_cache_version = 2  # older caches can contain an update as their posting date
     details_supply_dates = True
 

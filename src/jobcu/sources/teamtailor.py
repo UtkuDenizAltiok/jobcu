@@ -31,6 +31,7 @@ class TeamtailorSource(CareerSystemSource):
     id = "teamtailor"
     name = "Company career sites (Teamtailor)"
     system = "teamtailor"
+    asks_every_employer = True  # one answer lists every job, wherever it is
     # Every company has its own address, so a few can be read at once (the pace per address
     # stays polite).
     parallel = 4

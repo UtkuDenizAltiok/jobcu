@@ -30,6 +30,7 @@ class LeverSource(CareerSystemSource):
     id = "lever"
     name = "Company career sites (Lever)"
     system = "lever"
+    asks_every_employer = True  # one answer lists every job, wherever it is
 
     def list_jobs(self, employer: Employer, ctx: SourceContext, *, countries=None, start=None,
                   terms=None) -> Iterator[FoundJob]:
