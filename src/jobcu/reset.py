@@ -28,7 +28,7 @@ SEARCH_TABLES = (
     "job_keys",
     "search_results", "search_pool", "jobs", "searches", "profile_cache", "preparation_cache",
     "ad_texts",
-    "travel_memory", "found_employers", "employer_searches", "repairs_done",
+    "travel_memory", "found_employers", "learned_sites", "employer_searches", "repairs_done",
     "listed_jobs", "list_readings",
 )
 KEEP_FILES = {

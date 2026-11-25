@@ -266,3 +266,193 @@ def test_employers_found_are_read_with_the_directory_s_and_forgotten_when_gone(m
     assert found(["IE"]) == ["Beacon Hospital"] and found(["DE"]) == []
     forget_found_employer(found_employers()[0])
     assert found(["IE"]) == []
+
+
+# --- Career sites learned from the links of a search's jobs (employers.learn) -----------------
+
+
+class CountingTeamtailor(FakeTeamtailor):
+    """FakeTeamtailor that counts the lists it reads; "shy" refuses for now."""
+
+    read: Counter = Counter()
+
+    def survey(self, employer, ctx):
+        from jobcu.sources.http import Blocked
+
+        type(self).read[employer.board] += 1
+        if employer.board == "shy":
+            raise Blocked("shy.teamtailor.com")
+        return super().survey(employer, ctx)
+
+
+def job_from_a_job_site(link, company, source="jsearch"):
+    from jobcu.sources.base import FoundJob
+
+    return FoundJob(source=source, source_job_id=link, url="https://www.jobsite.test/ad/1",
+                    title="ICU Staff Nurse", company=company,
+                    application_options=[{"url": link, "source": company}])
+
+
+def test_career_sites_named_by_job_links_are_learned_once_and_read_from_the_next_search(
+        monkeypatch):
+    CountingTeamtailor.read = Counter()
+    monkeypatch.setattr(employers, "career_sources", lambda: [CountingTeamtailor()])
+    jobs = [job_from_a_job_site("https://beacon.teamtailor.com/jobs/1-nurse", "Beacon Hospital"),
+            job_from_a_job_site("https://beacon.teamtailor.com/jobs/2-nurse", "Beacon Hospital"),
+            job_from_a_job_site("https://abroad.teamtailor.com/jobs/3", "Big Group"),
+            job_from_a_job_site("https://gone.teamtailor.com/jobs/4", "Old Clinic"),
+            # A career site's own job names a list Jobcu reads already.
+            job_from_a_job_site("https://mine.teamtailor.com/jobs/5", "Mine", source="teamtailor")]
+    http = web({})
+    assert employers.learn(jobs, http, {"teamtailor"}, now=NOW) == ["Beacon Hospital"]
+    [beacon] = found_employers()
+    assert (beacon.board, beacon.countries, beacon.found_by_ai) == ("beacon", ("IE",), True)
+    assert set(CountingTeamtailor.read) == {"beacon", "abroad", "gone"}
+
+    # The next searches don't check the same sites again: the usable one is read with the
+    # directory's employers, the others wait a month.
+    assert employers.learn(jobs, http, {"teamtailor"}, now=NOW + timedelta(days=1)) == []
+    assert sum(CountingTeamtailor.read.values()) == 3
+    employers.learn(jobs, http, {"teamtailor"},
+                    now=NOW + timedelta(days=employers.LEARN_AGAIN_DAYS + 1))
+    assert CountingTeamtailor.read == Counter({"beacon": 1, "abroad": 2, "gone": 2})
+
+
+def test_a_site_that_refuses_for_now_is_tried_again_a_week_later(monkeypatch):
+    CountingTeamtailor.read = Counter()
+    monkeypatch.setattr(employers, "career_sources", lambda: [CountingTeamtailor()])
+    jobs = [job_from_a_job_site("https://shy.teamtailor.com/jobs/1", "Shy Clinic")]
+    http = web({})
+    assert employers.learn(jobs, http, {"teamtailor"}, now=NOW) == []
+    employers.learn(jobs, http, {"teamtailor"}, now=NOW + timedelta(days=3))
+    assert CountingTeamtailor.read["shy"] == 1
+    employers.learn(jobs, http, {"teamtailor"},
+                    now=NOW + timedelta(days=employers.LEARN_RETRY_DAYS + 1))
+    assert CountingTeamtailor.read["shy"] == 2
+
+
+def test_the_most_linked_sites_are_checked_first_and_only_on_readers_the_person_uses(
+        monkeypatch):
+    CountingTeamtailor.read = Counter()
+    monkeypatch.setattr(employers, "career_sources", lambda: [CountingTeamtailor()])
+    monkeypatch.setattr(employers, "LEARN_PER_SEARCH", 1)
+    jobs = [job_from_a_job_site("https://abroad.teamtailor.com/jobs/1", "Big Group"),
+            *(job_from_a_job_site(f"https://beacon.teamtailor.com/jobs/{n}", "Beacon Hospital")
+              for n in range(3))]
+    http = web({})
+    # Teamtailor switched off (or a system whose terms the person hasn't accepted): nothing.
+    assert employers.learn(jobs, http, set(), now=NOW) == []
+    assert not CountingTeamtailor.read
+    assert employers.learn(jobs, http, {"teamtailor"}, now=NOW) == ["Beacon Hospital"]
+    assert CountingTeamtailor.read == Counter({"beacon": 1})
+
+
+@pytest.mark.parametrize(("link", "expected"), [
+    ("https://jobs.example.test/job/Friedrichshafen-Hardware-Engineer-88046/1234567801/",
+     ("successfactors", "jobs.example.test")),
+    ("https://acme.jobs.hr.cloud.test/job/Bremen-Engineer-28195/1458085833/",
+     ("successfactors", "acme.jobs.hr.cloud.test")),
+    ("https://moog.wd5.myworkdayjobs.com/en-US/MOOG_External_Career_Site/job/Cork/x_R1",
+     ("workday", "https://moog.wd5.myworkdayjobs.com/MOOG_External_Career_Site")),
+    ("https://www.example.test/job/123/", None),  # too short a number for a vacancy
+    ("https://www.jobsite.test/ad/1", None),
+])
+def test_a_job_link_names_the_career_site_it_belongs_to(link, expected):
+    from jobcu.sources.careerlinks import board_in_job_link
+
+    assert board_in_job_link(link) == expected
+
+
+def test_a_search_learns_sites_beside_its_steps_and_says_what_it_found(monkeypatch):
+    from jobcu import search
+    from jobcu.settings import SearchForm
+
+    asked = {}
+
+    def learn(jobs, http, systems, now=None):
+        asked["systems"] = systems
+        return ["Beacon Hospital"]
+
+    monkeypatch.setattr(search.employers, "learn", learn)
+    run = search.SearchRun(id=1, form=SearchForm(), started_at=NOW.isoformat())
+    search._learn_career_sites(run, Settings(), [], web({}))
+    run.learning.join(timeout=5)
+    assert any("Beacon Hospital" in note and "next search" in note for note in run.notes)
+    # Readers whose site terms the person hasn't accepted are never used to learn.
+    assert "workday" in asked["systems"] and "smartrecruiters" not in asked["systems"]
+    assert "phenom" not in asked["systems"] and "avature" not in asked["systems"]
+
+
+def test_another_address_of_a_list_jobcu_reads_is_not_learned_again(monkeypatch):
+    from jobcu.sources.careers import save_found_employer
+
+    checked = []
+
+    class Anything(CareerSystemSource):
+        id = system = "personio"
+        name = "Personio"
+
+        def survey(self, employer, ctx):
+            checked.append(employer.board)
+            return Survey(counts=Counter({"DE": 3}))
+
+    class AnyOracle(Anything):
+        id = system = "oracle"
+        name = "Oracle"
+
+    monkeypatch.setattr(employers, "career_sources", lambda: [Anything(), AnyOracle()])
+    save_found_employer(Employer("Acme", "personio", "acme", ("DE",), found_by_ai=True), NOW)
+    save_found_employer(Employer("Big", "oracle", "abcd.fa.us2.oraclecloud.com/CX", ("DE",),
+                                 found_by_ai=True), NOW)
+    jobs = [job_from_a_job_site("https://acme.jobs.personio.com/job/1", "Acme"),
+            job_from_a_job_site("https://abcd.fa.us2.oraclecloud.com/hcmUI/CandidateExperience/"
+                                "en/sites/jobsearch/job/2", "Big"),
+            job_from_a_job_site("https://other.jobs.personio.de/job/3", "Other")]
+    assert employers.learn(jobs, web({}), {"personio", "oracle"}, now=NOW) == ["Other"]
+    assert checked == ["other"]
+
+
+def test_a_list_named_by_several_addresses_in_one_search_is_checked_once(monkeypatch):
+    checked = []
+
+    class AnyOracle(CareerSystemSource):
+        id = system = "oracle"
+        name = "Oracle"
+
+        def survey(self, employer, ctx):
+            checked.append(employer.board)
+            return Survey(counts=Counter({"GB": 21}))
+
+    monkeypatch.setattr(employers, "career_sources", lambda: [AnyOracle()])
+    base = "https://abcd.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites"
+    jobs = [job_from_a_job_site(f"{base}/Aerospace/job/1", "Big"),
+            job_from_a_job_site(f"{base}/Aerospace/job/2", "Big"),
+            job_from_a_job_site(f"{base}/CX_1/job/3", "Big")]
+    assert employers.learn(jobs, web({}), {"oracle"}, now=NOW) == ["Big"]
+    assert checked == ["abcd.fa.ocs.oraclecloud.com/Aerospace"]  # the most linked address
+
+
+def test_a_stopped_search_leaves_the_sites_it_did_not_check_for_the_next_search(monkeypatch):
+    from jobcu.sources.http import RequestStopped
+
+    asked = []
+
+    class Stopping(CareerSystemSource):
+        id = system = "teamtailor"
+        name = "Teamtailor"
+
+        def survey(self, employer, ctx):
+            asked.append(employer.board)
+            raise RequestStopped("Search stopped before another source request.")
+
+    monkeypatch.setattr(employers, "career_sources", lambda: [Stopping()])
+    jobs = [job_from_a_job_site("https://first.teamtailor.com/jobs/1", "First"),
+            job_from_a_job_site("https://second.teamtailor.com/jobs/2", "Second")]
+    with pytest.raises(RequestStopped):
+        employers.learn(jobs, web({}), {"teamtailor"}, now=NOW)
+    assert len(asked) == 1
+    # Nothing counts as checked: the next search looks at both.
+    monkeypatch.setattr(employers, "career_sources", lambda: [CountingTeamtailor()])
+    CountingTeamtailor.read = Counter()
+    employers.learn(jobs, web({}), {"teamtailor"}, now=NOW + timedelta(hours=1))
+    assert set(CountingTeamtailor.read) == {"first", "second"}

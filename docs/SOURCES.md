@@ -590,6 +590,29 @@ same job where there are some, and a job known only by its title is scored as su
 read"). In search 21 (72 hours) these servers gave 89 jobs of 33 employers, four of them at 60+
 (Analog Devices 84, Medtronic 75, Littelfuse 71).
 
+### Career sites learned from job links — 2026-11-25
+
+Job sites' copies of a job often carry the employer's own link: JSearch's apply options, FreeHire's
+original address, the Bundesagentur's link to the original ad, Reed's external link. In search 21's
+saved pool (72 hours) 30 job-site copies linked a career system Jobcu reads (Oracle 10, Workday 10,
+SuccessFactors 3, Softgarden 2, Personio 2, Ashby, Greenhouse, Teamtailor 1 each), on 13 sites the
+directory and the found employers didn't read: among them Honeywell's newer Oracle host
+(`icfcjb.fa.ocs.oraclecloud.com`, 21 jobs in the UK), Ralliant's (Tektronix) Oracle site, Oxford
+Nanopore's, and Eykon's SuccessFactors site. Most of the directory's additions of 24 November came
+from such links, found by hand.
+
+Since this date a search does that itself (`employers.learn`): after collecting, it takes the career
+sites the job sites' links name (`careerlinks.board_in_job_link`: an address on a system Jobcu
+reads, or a SuccessFactors job page `/job/{Town}-{Title}-{postcode}/{number}/` on the employer's own
+address), leaves out those Jobcu reads (another address of one list counts as that list: a Personio
+company at `.de` or `.com`, another site name on an Oracle host) and checks the twelve most linked,
+beside the later steps, with the system's own reader as the directory check does (its list read
+once; robots.txt, polite pace and checks as always). Usable ones are kept in the person's data folder
+and read from the next search on, like the employers the person's AI finds. A site is checked again
+after a month, or after a week when it only refused or couldn't be reached. Only readers the person
+uses and whose terms need no acceptance (not SmartRecruiters, Phenom or Avature) take part. No AI
+call, no web search and no job link is visited: only the public job lists of the sites named.
+
 ### Workday's check follows what one address sends — 2026-11-25
 
 With Jobcu's own identity, one request at a time: the lists and the ads of 11 wd1/wd5 employers

@@ -81,6 +81,24 @@ def board_in(text: str) -> tuple[str, str] | None:
     return None
 
 
+# A SuccessFactors job page on the employer's own address ("jobs.zf.com/job/Friedrichshafen-
+# Engineer-88046/1234567801/"): the address alone suggests the system; a check of the site's own
+# job list confirms it before anything is kept (employers.learn).
+_SUCCESSFACTORS_JOB = re.compile(r"^/job/[^/]+/\d{6,}/?$")
+
+
+def board_in_job_link(address: str) -> tuple[str, str] | None:
+    """The (system, board) a job's own link points to: a career system's address, or a
+    SuccessFactors job page on the employer's address. None for anything else."""
+    if board := board_in(address):
+        return board
+    parts = urlsplit(address or "")
+    host = (parts.hostname or "").lower()
+    if parts.scheme in ("http", "https") and host and _SUCCESSFACTORS_JOB.match(parts.path):
+        return "successfactors", host
+    return None
+
+
 def own_address_board(url: str, page: str) -> tuple[str, str] | None:
     """(system, board) when the page itself is a career site of a system Jobcu reads, served
     from the employer's own address (SuccessFactors' "jobs.example.com")."""

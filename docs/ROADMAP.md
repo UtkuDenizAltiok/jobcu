@@ -41,6 +41,12 @@ done. Implementation details belong in pull requests; current behavior is descri
   on the ads is never passed, so those jobs come with title, place, date and the employer's link.
   Where the employer's own career site lists the same vacancy number (GE Vernova, Johnson &
   Johnson, Thermo Fisher, Danaher, RTX), the full ad is read there instead.
+- Jobcu learns employers' own career sites from the jobs it finds: when a job site's copy of a
+  job links the employer's Workday, Oracle, Greenhouse or SuccessFactors list and Jobcu doesn't
+  read it yet, the list is checked during the search and read from the next search on. Lists that
+  move (as NXP's and Dell's did) and new employers are picked up without a directory update, with
+  no AI and no web searches; search 21's job links named 13 such sites (Honeywell's newer Oracle
+  site, Oxford Nanopore, Ralliant among them).
 - Workday is read at one polite pace per Workday server rather than per company: its servers ask
   one computer for a human check once it has sent them a lot, and then refuse every company for a
   while. A server that refuses three companies in a row isn't asked again in that search (one
