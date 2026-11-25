@@ -50,7 +50,10 @@ happens before a new search is created or source collection begins, including wi
    the list since its last reading are opened, dated by their first sight; a page without job
    data is read as text there (`jobpage.py`: the heading as title, a labelled place or the town
    above the title, the main text as the ad), only where the directory names the site's job
-   pages and the address still names one after redirects. Merge proven copies
+   pages and the address still names one after redirects. A job whose page gives no posting day
+   takes the day its list gives, else its first sight on the list; one whose page names no
+   place takes the text its list shows beside its link (the country only where that text or the
+   employer's own countries resolve it). Merge proven copies
    and apply date, type, remote, country and dismissal rules before full-ad loading. A job
    leaves for its type only when the employer's own career system or the ad text says so (a
    job site's tag alone can keep a job, never remove it), and as remote only when no copy

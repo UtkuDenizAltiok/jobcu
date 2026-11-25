@@ -6379,6 +6379,17 @@
    "jobs": "applytojob\\.com/apply/([A-Za-z0-9]{6,})/"
   },
   {
+   "name": "UKAEA",
+   "system": "listpage",
+   "board": "https://careers.ukaea.uk/current-vacancies/",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "careers\\.ukaea\\.uk/job/([^/?#]+)/?$"
+  },
+  {
    "name": "VACUUMSCHMELZE",
    "system": "listpage",
    "board": "https://jobs.vacuumschmelze.de/stellenangebote.html",

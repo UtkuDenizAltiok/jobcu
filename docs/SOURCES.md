@@ -91,6 +91,25 @@ Directory membership does not establish reachable vacancies or engineering recal
 
 ## Access and protocol records
 
+### UKAEA's job list, and pages without a day or a place — 2026-11-25
+
+The UK Atomic Energy Authority (fusion research at Culham, Rotherham and West Burton; a graduate
+engineering scheme; power-supply and electrical engineering jobs) lists its vacancies on
+`careers.ukaea.uk/current-vacancies/` (WordPress; robots.txt closes only `/wp-admin/`). Each card
+links `/job/<title>/` and names the site ("UKAEA Culham, Oxfordshire", "Rotherham, United
+Kingdom"); the job pages carry no JobPosting data and leave their "Site Location" empty, and
+neither gives a day. Its job sitemap (45 pages) keeps filled jobs whose pages answer 404, so the
+list page is read (list-page reader; 10 jobs that day, 2 requests). No legal action against readers
+of job ads was found; its careers site has no terms of use of its own.
+
+Two general rules came with it: a job whose page gives no posting day takes the day its list
+gives, else its first sight on the list (before, a job matching the search words whose page had
+no day stayed "Posting date unknown" however new); a job whose page names no place takes the text
+its list shows beside its link, as title-only jobs did, the country only where that text or the
+employer's own countries resolve it (never "abroad" from it: UKAEA's text is sometimes only
+"Engineering"). An empty place label on a page no longer takes the next line as the place unless
+that line names a place. The directory check counts 8 of UKAEA's 10 jobs in the UK by these texts.
+
 ### Mercedes-Benz's job sitemap, and sitemaps whose addresses name no job — 2026-11-25
 
 **Access.** `jobs.mercedes-benz.com/robots.txt` allows every robot everything and names its

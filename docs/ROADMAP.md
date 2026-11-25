@@ -7,6 +7,9 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- UKAEA's jobs are read from its own list (fusion research: power supplies, electrical and
+  graduate engineering). A job whose page gives no day or place takes them from its list: the
+  list's day or its first sight, and the place written beside its link.
 - A directory employer's job list that is gone (moved or closed) in searches a week apart rests
   instead of costing a request and a note in every search; it is asked again monthly and read as
   before once it answers, while Jobcu finds the employer's new list by itself.

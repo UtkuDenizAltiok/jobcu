@@ -20,6 +20,7 @@ from lxml import html as lxml_html
 from lxml.etree import ParserError
 
 from jobcu import places as place_list
+from jobcu.placenames import countries_in
 from jobcu.text import html_to_text, normalise, tidy
 
 # Less main text than this is no ad: a page that builds its ad with scripts (Rippling's) or a
@@ -77,7 +78,7 @@ def read(page: str) -> PageAd | None:
     text = html_to_text(lxml_html.tostring(main, encoding="unicode"))
     if len(text) < MIN_TEXT:
         return None
-    place, country = _labelled(text, _PLACE_LABEL), None
+    place, country = _labelled(text, _PLACE_LABEL, _a_place), None
     if place is None and (town := _town_above(text, title)) is not None:
         place, country = town.name, town.country
     return PageAd(title, place, country, text, _labelled(text, _COMPANY_LABEL))
@@ -93,18 +94,26 @@ def _title(document) -> str:
     return tidy(html.unescape(written).split(" | ")[0].removeprefix("Stellenanzeige:"))
 
 
-def _labelled(text: str, label: re.Pattern) -> str | None:
-    """The value a label gives, on its line or the next, up to the next label."""
+def _labelled(text: str, label: re.Pattern, fits=lambda value: True) -> str | None:
+    """The value a label gives, on its line or the next, up to the next label. A value on the
+    next line counts only when it `fits`: an empty label ("Site Location:") is followed by
+    whatever the page shows next."""
     lines = [line.strip().lstrip("•·*–- \t") for line in text.split("\n")]
     for number, line in enumerate(lines):
         if (match := label.search(line)) is None:
             continue
         value = match.group(1).strip() or next(
-            (following for following in lines[number + 1:number + 3] if following), "")
+            (following for following in lines[number + 1:number + 3]
+             if following and fits(following)), "")
         value = _NEXT_LABEL.split(value)[0].strip(" ,;.")
         if 1 < len(value) <= 120:
             return value
     return None
+
+
+def _a_place(text: str) -> bool:
+    """Whether a line names a place: a town or a country Jobcu knows."""
+    return place_list.locate(text, villages=False) is not None or bool(countries_in(text))
 
 
 def _town_above(text: str, title: str) -> place_list.Town | None:

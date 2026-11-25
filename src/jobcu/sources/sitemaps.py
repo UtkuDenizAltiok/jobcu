@@ -32,7 +32,7 @@ from jobcu.jobposting import find_job_posting
 from jobcu.placenames import OTHER, countries_in
 from jobcu.sources.base import FoundJob, SourceContext, SourceError
 from jobcu.sources.budget import BudgetExhausted
-from jobcu.sources.careers import CareerSystemSource, Employer, Survey
+from jobcu.sources.careers import CareerSystemSource, Employer, Survey, job_countries
 from jobcu.sources.matching import matches_terms
 
 # Job pages opened per site in one search, newest first: enough for every fresh match on the
@@ -87,7 +87,7 @@ class SitemapSource(CareerSystemSource):
                 if self.allowed(entry.address, ctx):
                     opened += 1
                     if (job := self._from_page(entry.address, employer, ctx)) is not None:
-                        yield self._placed(job, entry.place)
+                        yield self._placed(_listed_place(job, entry, employer), entry.place)
                     elif (bare := self._title_only(entry, {}, None)) is not None:
                         yield bare
             return
@@ -137,7 +137,8 @@ class SitemapSource(CareerSystemSource):
             opened += 1
             job = self._from_page(entry.address, employer, ctx)
             if job is not None:
-                yield self._placed(job, entry.place)
+                yield self._placed(_listed_day(_listed_place(job, entry, employer), entry, sights,
+                                               start), entry.place)
             elif (bare := self._title_only(entry, sights, start)) is not None:
                 yield bare
         yield from unread
@@ -328,6 +329,36 @@ def _in_own_country(job: FoundJob, employer: Employer) -> FoundJob:
     found = {code for code in employer.countries if code in COUNTRIES
              and place_list.locate(job.location_text, code) is not None}
     return dataclasses.replace(job, country=found.pop()) if len(found) == 1 else job
+
+
+def _listed_place(job: FoundJob, entry: "Listed", employer: Employer) -> FoundJob:
+    """A job whose page names no place takes the text its list shows beside its link, as a
+    title-only job does (UKAEA's pages leave their "Site Location" empty; its list names
+    "UKAEA Culham, Oxfordshire" or "Rotherham, United Kingdom", 2026-11-25). The country comes
+    only from what that text or the employer's own countries resolve; the text is never taken
+    to mean abroad (it may be a department's name)."""
+    if job.location_text or not entry.around or entry.place:
+        return job
+    found = job_countries(dataclasses.replace(job, country=None,
+                                                      location_text=entry.around)) - {OTHER}
+    country = job.country or (next(iter(found)) if len(found) == 1 else None)
+    return _in_own_country(dataclasses.replace(job, location_text=entry.around, country=country),
+                           employer)
+
+
+def _listed_day(job: FoundJob, entry: "Listed", sights: dict, start: datetime | None
+                ) -> FoundJob:
+    """A job whose page gives no posting day dated by its list: the day the list gives it, else
+    its first sight on the list (`listmemory.posted`: the day a job new since the last reading
+    appeared, or a time before the window for one listed before it). UKAEA's job pages carry no
+    job data and its list gives no days (2026-11-25); without this such a job matching the search
+    words stayed "Posting date unknown" however new it was."""
+    if job.posted_at is not None:
+        return job
+    if entry.posted is not None:
+        return dataclasses.replace(job, posted_at=entry.posted, date_precision="day")
+    posted, precision = listmemory.posted(sights.get(entry.key), start)
+    return dataclasses.replace(job, posted_at=posted, date_precision=precision) if posted else job
 
 
 def _dated(job: FoundJob, posted: datetime, precision: str) -> FoundJob:
