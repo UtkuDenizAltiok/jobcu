@@ -5684,6 +5684,17 @@
    "towns": {}
   },
   {
+   "name": "Power Integrations",
+   "system": "jobvite",
+   "board": "https://jobs.jobvite.com/power-integrations/jobs",
+   "countries": [
+    "DE",
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {}
+  },
+  {
    "name": "Ajax Systems",
    "system": "lever",
    "board": "ajax",

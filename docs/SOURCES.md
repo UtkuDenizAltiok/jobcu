@@ -82,7 +82,8 @@ Career adapters: Ashby, Avature (opt-in, [Siemens' terms](#avature-siemens-and-s
 d.vinci, Eightfold, Greenhouse, Jibe, Lever, Oracle, Personio, Phenom (opt-in,
 [ABB's terms](#phenom-career-sites--2026-11-24)), Prospective, Recruitee, generic job
 sitemaps, employers' own job list pages ([2026-11-25](#employers-own-job-list-pages-and-german-application-systems--2026-11-25)),
-SmartRecruiters (opt-in, [its terms](#smartrecruiters-career-pages--2026-11-24)),
+SmartRecruiters (opt-in, [its terms](#smartrecruiters-career-pages--2026-11-24)), Jobvite
+(opt-in, [its terms](#jobvite-career-sites-power-integrations--2026-11-26)),
 Softgarden, SuccessFactors, Teamtailor, Workable and Workday.
 Recruitee, SuccessFactors and Teamtailor career sites are also recognised on an employer's own
 address (Recruitee's answers the same public `/api/offers/` there).
@@ -90,6 +91,26 @@ address (Recruitee's answers the same public `/api/offers/` there).
 Directory membership does not establish reachable vacancies or engineering recall.
 
 ## Access and protocol records
+
+### Jobvite career sites: Power Integrations — 2026-11-26
+
+Power Integrations (gate drivers and power conversion ICs; its gate-driver development in Ense
+and field applications in Munich, a lab in Cambridge) lists its jobs on Jobvite:
+`jobs.jobvite.com/power-integrations/jobs`, 46 jobs, each link under its title with its place
+beside it ("Munich, Germany"), each job page with JobPosting data (posting day, country, the
+whole ad). The host answers robots.txt with 404 (no rules). Jobvite's terms of use
+(`www.jobvite.com/terms-of-use`) say of all content "on or through the Site": "You may not copy,
+distribute, scrape ... any of these materials"; no legal action against readers of job pages was
+found. So Jobvite is read as an opt-in source, like Avature or SmartRecruiters: only for a person
+who switches it on in Settings and so accepts that for their own job search. It is read like
+employers' own list pages (`sources/jobvite.py`), and a Jobvite job link in a search's results
+names its company's list, so Jobcu learns other Jobvite employers by itself for such a person.
+
+The directory check opened the list's first twenty job pages (all abroad: San José, Penang,
+Pasig City) and found no supported country, so the company would have been dropped. A list page
+names each job's place beside its link; the check now also counts the countries that text
+names, as it counts the towns at the end of a sitemap's job addresses (record below): Power
+Integrations hires in Germany and the UK, and elsewhere.
 
 ### Crawl delays in robots.txt — 2026-11-26
 
