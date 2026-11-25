@@ -23,11 +23,12 @@ import html
 import re
 from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
 
+from jobcu import listmemory
 from jobcu.placenames import OTHER
 from jobcu.sources import careers
 from jobcu.sources.base import FoundJob, SourceContext, SourceError
 from jobcu.sources.careers import Employer
-from jobcu.sources.sitemaps import Listed, SitemapSource
+from jobcu.sources.sitemaps import Listed, SitemapSource, title_of
 from jobcu.text import normalise
 
 # List pages read per employer and search: Würth Elektronik's 180 jobs fill two.
@@ -101,6 +102,18 @@ class ListPageSource(SitemapSource):
             country = OTHER
         return dataclasses.replace(job, location_text=place, country=country)
 
+    def _title_only(self, entry: Listed, sights: dict, start) -> FoundJob | None:
+        """A listed job whose page carries no job data (Rippling's pages build their ad with
+        scripts, 2026-11-25): its title and place as the list gives them, dated by its first
+        sight on the list, so the job isn't lost; its link opens the employer's ad."""
+        if not (title := entry.title or title_of(entry.address)):
+            return None
+        posted, precision = listmemory.posted(sights.get(entry.key), start)
+        return FoundJob(source=self.id, source_job_id=entry.address, url=entry.address,
+                        title=title, location_text=entry.around, posted_at=posted,
+                        date_precision=precision, employer_url=entry.address,
+                        source_context={"listed_place": entry.place} if entry.place else {})
+
 
 def listed_jobs(page: str, base: str, pattern: re.Pattern) -> tuple[list[Listed], list[str]]:
     """The job pages a list page names, in its order, and the further list pages it links to
@@ -111,7 +124,7 @@ def listed_jobs(page: str, base: str, pattern: re.Pattern) -> tuple[list[Listed]
     for match in _ANCHOR.finditer(text):
         if (href := _HREF.search(match.group(1))) is None:
             continue
-        own = " ".join(_TAG.sub(" ", match.group(2)).split())
+        own = _visible(match.group(2))
         label = _LABEL.search(match.group(1))
         named = _NEW_TAB.sub("", " ".join(label.group(2).split())) if label else ""
         links.append((match.start(), match.end(), href.group(2), own or None, named or None))
@@ -153,11 +166,23 @@ def _beside(text: str, start: int, end: int, job_links: list[tuple[int, int]], a
     the link is only an icon after the details (Pfisterer's cards)."""
     if after:
         following = next((other for other, _ in job_links if other > start), len(text))
-        words = " ".join(_TAG.sub(" ", text[end:following]).split())
+        words = _visible(text[end:following])
         return words[:AROUND] or None
     previous = max((other_end for _, other_end in job_links if other_end <= start), default=0)
-    words = " ".join(_TAG.sub(" ", text[previous:start]).split())
+    words = _visible(text[previous:start])
     return words[-AROUND:] or None
+
+
+_HIDDEN = re.compile(r"<(script|style)\b[^>]*>.*?</\1\s*>", re.I | re.S)
+
+
+def _visible(fragment: str) -> str:
+    """A page fragment's visible words: without its style and script blocks (Rippling's job
+    cards carry their own styles), also one the fragment cuts in half."""
+    fragment = _HIDDEN.sub(" ", fragment)
+    fragment = re.sub(r"<(?:script|style)\b.*\Z", " ", fragment, flags=re.I | re.S)
+    fragment = re.sub(r"\A.*?</(?:script|style)\s*>", " ", fragment, flags=re.I | re.S)
+    return " ".join(_TAG.sub(" ", fragment).split())
 
 
 def without_session(address: str) -> str:

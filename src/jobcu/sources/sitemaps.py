@@ -77,6 +77,8 @@ class SitemapSource(CareerSystemSource):
                     opened += 1
                     if (job := self._from_page(entry.address, employer, ctx)) is not None:
                         yield self._placed(job, entry.place)
+                    elif (bare := self._title_only(entry, {}, None)) is not None:
+                        yield bare
             return
         # The whole list, matching or not: a job new on it since its last reading is dated by
         # its first sight (listmemory), whatever language its address is in this time.
@@ -104,12 +106,20 @@ class SitemapSource(CareerSystemSource):
             job = self._from_page(entry.address, employer, ctx)
             if job is not None:
                 yield self._placed(job, entry.place)
+            elif (bare := self._title_only(entry, sights, start)) is not None:
+                yield bare
         yield from unread
 
     def _placed(self, job: FoundJob, place: str | None) -> FoundJob:
         """The job with the place its site's list gives it, where the list states one
         (listpages.py); a sitemap states none."""
         return job
+
+    def _title_only(self, entry: "Listed", sights: dict, start: datetime | None
+                    ) -> FoundJob | None:
+        """A listed page that carries no job data, as the list gives it; a sitemap's page
+        without job data is no job (a careers page about working there), so none."""
+        return None
 
     def _listing(self, employer: Employer, ctx: SourceContext, languages: list[str]
                  ) -> list["Listed"]:

@@ -15,9 +15,11 @@ done. Implementation details belong in pull requests; current behavior is descri
   the UK.
 - Employers' own job list pages can be read, whatever application system runs behind them, when
   their job pages carry the standard job data: dSPACE, Würth Elektronik (rexx) and Pfisterer (MHM)
-  to start with. The German application systems without a reader (coveto, JOIN, rexx, umantis,
-  HR4you, onlyfy) were counted first: in electronics their ads are few and mostly agencies' and
-  building firms', and they reach Jobcu through FreeHire already, so they got no readers of their own.
+  to start with, and in Ireland Tyndall National Institute (JazzHR) and MBRYONICS (Rippling: its
+  pages carry no job data, so its jobs come with the list's title and place). The German
+  application systems without a reader (coveto, JOIN, rexx, umantis, HR4you, onlyfy) were
+  counted first: in electronics their ads are few and mostly agencies' and building firms', and
+  they reach Jobcu through FreeHire already, so they got no readers of their own.
 - Rheinmetall's jobs are read from its own site's sitemap (1,423 jobs). A sitemap listing each
   job in many languages counts it once, in the searched country's language; titles the search
   words miss reach the person's AI when the job is new on the list, as on SuccessFactors.
