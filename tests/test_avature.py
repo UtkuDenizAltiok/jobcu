@@ -155,6 +155,31 @@ def test_a_page_reads_avature_fields_and_the_standard_job_data_together():
     assert "Fictional duties." in found.description
 
 
+def test_an_ad_split_into_labelled_sections_is_read_whole_rather_than_the_cut_job_data():
+    # A site that writes its ad under its own headings and cuts the standard job data to the
+    # ad's first sentences (McLaren's, 2026-11-26).
+    def field(label, value):
+        return (f'<div class="article__content__view__field "><div class="article__content__'
+                f'view__field__label">{label}</div><div class="article__content__view__field__'
+                f'value">{value}</div></div>')
+    duties = "<ul>" + "".join(f"<li>Design fictional converter stage {n}.</li>"
+                              for n in range(8)) + "</ul>"
+    page = ('<script type="application/ld+json">' + json.dumps(
+        {"@type": "JobPosting", "title": "Power Electronics Engineer",
+         "description": "Design fictional converters from concept to", "datePosted": "2026-11-20"})
+        + "</script>" + field("Ref #", "1234") + field("Date posted", "Friday, November 20, 2026")
+        + field("Department", "Fictional Drives") + field("Salary", ".")
+        + field("What You&#039;ll Do", duties)
+        + field("What You&#039;ll Bring", "<p>" + "A fictional degree in electronics. " * 6
+                + "</p>"))
+    found = avature.read_page(page)
+    assert found.description.startswith("What You'll Do\n\n")
+    assert "Design fictional converter stage 7." in found.description
+    assert "What You'll Bring" in found.description
+    assert "1234" not in found.description and "Fictional Drives" not in found.description
+    assert found.posted.date() == date(2026, 11, 20)
+
+
 @pytest.mark.parametrize("ad", ["Location\n\nYour tasks\n\nNurse the fictional patients.",
                                 "About us\n\nGermany\n\nA fictional bakery."])
 def test_an_ad_s_first_lines_are_a_place_only_under_a_location_heading_with_a_country(ad):

@@ -91,6 +91,57 @@ Directory membership does not establish reachable vacancies or engineering recal
 
 ## Access and protocol records
 
+### Electronics and power employers read from their own sites — 2026-11-26
+
+Nineteen employers in electronics, power conversion, drives and automation in Germany and the UK
+were neither in the directory nor read through another source. Each one's real job list was
+found by a web search and asked once, robots.txt first.
+
+Added, with existing readers (jobs in the supported countries on the day):
+- **YASA** (axial-flux motors, Oxford): Rippling list `ats.rippling.com/yasa/jobs` (list-page
+  reader, as MBRYONICS); 2 jobs. Its old `careers.yasa.com` refused the connection.
+- **Raspberry Pi** (Cambridge): Workable `raspberrypi`; 4 UK jobs.
+- **Lenze** (drives, Aerzen): rexx list `karriere.lenze.com/stellenangebote.html`, job pages with
+  JobPosting; DE 8, AT 2. Its robots.txt closes the site only to generic HTTP libraries by name
+  (wget, python-requests ...); Jobcu reads under its own name, for which every page is open.
+- **FEV** (powertrain and vehicle engineering, Aachen): d.vinci on its own host `career.fev.com`;
+  DE 34 and 13 elsewhere in Europe.
+- **McLaren Automotive** (Woking): Avature, `mclarencareers.mclaren.com/careers/SearchJobs`; 97 UK
+  jobs (robots.txt allows `/careers`; the site links no terms of its own). Read with the Avature
+  switch. Its pages write the ad under labelled headings ("What You'll Do", "What You'll Bring")
+  and cut the standard job data to the ad's first sentences, so the Avature reader now also keeps
+  labelled fields of 150 characters or more as parts of the ad, and the longer of the two ads
+  (a power-electronics systems job: 361 characters before, 4,870 now).
+- **ams OSRAM** (Regensburg, Garching, Premstätten, Exeter): its job sitemap
+  `jobs.ams-osram.com/sitemap.xml` (271 job pages with JobPosting); countries from the job
+  addresses (record below).
+- **Beckhoff Automation** (Verl): its German site's sitemap `www.beckhoff.com/de-de/sitemap.xml`
+  (12,407 addresses, 2.7 MB, one request a search) has its ~70 German job pages
+  (`/de-de/unternehmen/stellenangebote/{title}-{town}.html`, JobPosting on each); the directory's
+  pattern picks them.
+- **Weidmüller** (Detmold): rexx list `www.weidmueller.de/de/jobboard/stellenangebote.html`;
+  DE 19, CH 1.
+- **Preh** (Bad Neustadt): rexx portal `preh8-portal.rexx-recruitment.com/stellenangebote.html`,
+  whose links (`career.preh.com/...?yid=3938`) lead to the portal's job pages with JobPosting;
+  DE 9 and abroad.
+
+A live read of each with an electronics engineer's search words over 30 days found, among
+others, Lenze's "Hardware Entwickler Electronics", Weidmüller's "Senior System Architect Power
+Electronics" (Paderborn), ams OSRAM's "Application Engineer - Electronics Display" (Regensburg)
+and McLaren's "Senior Systems Engineer, Power Electronics" (Woking), each with its full ad.
+
+Already covered: Hitachi Rail (Hitachi's Workday site lists its UK jobs).
+
+Not read, and why: McLaren Racing (robots.txt closes everything); WAGO (its job list comes from
+its site search, which robots.txt closes; its jobs reach Jobcu through the Bundesagentur); JCB,
+Eberspächer, Varta and Rosenberger (their lists are built in the browser by scripts, with no job
+sitemap or feed found); Turbo Power Systems (adverts are PDFs, only when hiring; none now);
+Imagination Technologies (PageUp list readable, job pages without job data; mostly GPU chip
+design); LEONI (its SmartRecruiters page leads to its own site, which the SmartRecruiters reader
+doesn't follow); STFC (UK SBS's SelectMinds site refused the connection; STFC's jobs reach Jobcu
+through jobs.ac.uk); Power Integrations (Jobvite; Jobvite's terms of use forbid scraping content
+on or through its site: only an opt-in source could read it).
+
 ### Countries a sitemap's job addresses name — 2026-11-26
 
 The directory check opens a job sitemap's twenty newest pages to see which countries its
