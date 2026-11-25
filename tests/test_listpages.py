@@ -231,3 +231,30 @@ def test_a_next_page_named_only_in_a_data_attribute_is_followed():
                                        re.compile(r"/Vacancies/(\d+)/Description"))
     assert [job.key for job in jobs] == ["career.example.test#18826"]
     assert more == ["https://career.example.test/Jobs/All?tc1152481=p2&_search_token1152481=99"]
+
+
+ROWS = """<table>
+<tr><td><p>D: Example Defence GmbH | Online seit: 25.11.2026</p>
+<p><a href="/Vacancies/501/Description/31">Entwicklungsingenieur (m/w/d) Hardware</a></p>
+<p>| Stellennummer: 501 | Art: Vollzeit | Erlangen (DE) | Example Defence GmbH</p></td></tr>
+<tr><td><p>A: Example Aviation Gilching | Online seit: 24.11.2026</p>
+<p><a href="/Vacancies/502/Description/31">Systemingenieur (m/w/d)</a></p>
+<p>| Stellennummer: 502 | Dresden (DE), Gilching (DE) | Example Aviation GmbH</p></td></tr>
+</table>"""
+
+
+def test_a_jobs_place_comes_from_its_own_row_not_the_next_ones():
+    jobs, _ = listpages.listed_jobs(ROWS, "https://career.example.test/Jobs/All",
+                                    re.compile(r"/Vacancies/(\d+)/Description"))
+    assert [(job.title, job.around) for job in jobs] == [
+        ("Entwicklungsingenieur (m/w/d) Hardware", "Erlangen, Germany"),
+        ("Systemingenieur (m/w/d)", "Dresden, Germany")]
+
+
+def test_the_day_a_list_states_for_a_job_dates_it():
+    jobs, _ = listpages.listed_jobs(ROWS, "https://career.example.test/Jobs/All",
+                                    re.compile(r"/Vacancies/(\d+)/Description"))
+    assert [job.posted.date().isoformat() for job in jobs] == ["2026-11-25", "2026-11-24"]
+    bare = listpages.ListPageSource()._title_only(jobs[0], {}, None)
+    assert bare.date_precision == "day" and bare.posted_at == jobs[0].posted
+    assert listpages._listed_day("Eintritt ab 01.01.2027") is None  # a start date isn't one

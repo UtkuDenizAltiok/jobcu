@@ -139,6 +139,8 @@ class SitemapSource(CareerSystemSource):
         if precision != "day" or (start is not None
                                   and freshness(posted, precision, start) != "fresh"):
             return None
+        if entry.posted is not None:
+            posted = entry.posted  # the employer's own day beats Jobcu's first sight
         if not self.allowed(entry.address, ctx):
             return None
         return FoundJob(source=self.id, source_job_id=entry.address, url=entry.address,
@@ -214,6 +216,7 @@ class Listed:
     around: str | None = None
     job: bool = True  # a job's page rather than a careers page about working there
     place: str | None = None  # the place the list's own data gives the job ("Paderborn")
+    posted: datetime | None = None  # the day the list says the job was published
 
 
 def to_found_job(address: str, page: str, employer: Employer,

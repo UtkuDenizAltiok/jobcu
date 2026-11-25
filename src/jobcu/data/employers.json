@@ -6309,6 +6309,19 @@
    }
   },
   {
+   "name": "Diehl",
+   "system": "listpage",
+   "board": "https://career.diehl.com/Jobs/All",
+   "countries": [
+    "DE",
+    "FR",
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "/Vacancies/(\\d+)/Description"
+  },
+  {
    "name": "dSPACE",
    "system": "listpage",
    "board": "https://www.dspace.com/de/gmb/home/career/jobfinder/stellen.cfm",

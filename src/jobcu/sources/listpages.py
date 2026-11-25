@@ -21,9 +21,16 @@ one address.
 import dataclasses
 import html
 import re
+from datetime import date, datetime
 from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
 
+from lxml import html as lxml_html
+from lxml.etree import ParserError
+
 from jobcu import listmemory
+from jobcu import places as place_list
+from jobcu.countries import COUNTRIES
+from jobcu.freshness import day_at_utc
 from jobcu.placenames import OTHER
 from jobcu.sources import careers
 from jobcu.sources.base import FoundJob, SourceContext, SourceError
@@ -112,7 +119,8 @@ class ListPageSource(SitemapSource):
         sight on the list, so the job isn't lost; its link opens the employer's ad."""
         if not (title := entry.title or title_of(entry.address)):
             return None
-        posted, precision = listmemory.posted(sights.get(entry.key), start)
+        posted, precision = ((entry.posted, "day") if entry.posted
+                             else listmemory.posted(sights.get(entry.key), start))
         return FoundJob(source=self.id, source_job_id=entry.address, url=entry.address,
                         title=title, location_text=entry.around, posted_at=posted,
                         date_precision=precision, employer_url=entry.address,
@@ -142,6 +150,7 @@ def listed_jobs(page: str, base: str, pattern: re.Pattern) -> tuple[list[Listed]
     here = urlsplit(base)
     job_links = [(start, end) for start, end, address, _own, _named in links
                  if pattern.search(urljoin(base, address))]
+    cards = _cards(page, base, pattern)
     for start, end, address, own, named in links:
         full = without_session(urljoin(base, address.strip()))
         parts = urlsplit(full)
@@ -153,16 +162,103 @@ def listed_jobs(page: str, base: str, pattern: re.Pattern) -> tuple[list[Listed]
                     and any(_PAGING.match(name) for name, _ in parse_qsl(parts.query))):
                 more.append(full)
             continue
-        key = f"{parts.netloc.lower()}#{match.group(1)}" if pattern.groups else full
+        key = _key(full, match, pattern)
         title = own or named
         if key in jobs and (jobs[key].title or not title):
             continue
         record = _record(text, start)
         place = _data_value(_DATA_PLACE, record)
+        title = title or _data_value(_DATA_TITLE, record)
+        card = cards.get(key)
+        posted = _listed_day(card)
+        if card and title:
+            card = " ".join(card.replace(title, " ").split())
         jobs[key] = Listed(
-            full, title=title or _data_value(_DATA_TITLE, record), key=key, place=place,
-            around=place or _beside(text, start, end, job_links, after=bool(own)))
+            full, title=title, key=key, place=place, posted=posted,
+            around=place or (_place_in(card) if card else None)
+            or _beside(text, start, end, job_links, after=bool(own)))
     return list(jobs.values()), list(dict.fromkeys(more))
+
+
+def _key(address: str, match: re.Match, pattern: re.Pattern) -> str:
+    """A job's key: its number on its host where the pattern names one, else its address."""
+    return f"{urlsplit(address).netloc.lower()}#{match.group(1)}" if pattern.groups else address
+
+
+# The longest text read as one job's card: beyond it, the "card" is the page itself.
+CARD = 1500
+_COUNTRY_CODE = re.compile(r"\(([A-Z]{2})\)")
+# The day a list says a job was published, after a label naming it: "Online seit: 25.11.2026"
+# (umantis), "Veröffentlicht am 3.11.26", "Posted on 2026-11-24".
+_LISTED_DAY = re.compile(
+    r"\b(?:online seit|veröffentlicht(?: am)?|ausgeschrieben am|eingestellt am|erstellt am|"
+    r"posted(?: on)?|published(?: on)?|date posted)\s*:?\s*"
+    r"(\d{1,2})\.(\d{1,2})\.(\d{2}|\d{4})\b|\b(?:posted|published)(?: on)?\s*:?\s*"
+    r"(\d{4})-(\d{2})-(\d{2})\b", re.IGNORECASE)
+
+
+def _listed_day(card: str | None) -> datetime | None:
+    """The publication day a job's card states after such a label; None without one."""
+    match = _LISTED_DAY.search(card or "")
+    if match is None:
+        return None
+    if match.group(1):
+        day, month, year = (int(match.group(n)) for n in (1, 2, 3))
+        year += 2000 if year < 100 else 0
+    else:
+        year, month, day = (int(match.group(n)) for n in (4, 5, 6))
+    try:
+        return day_at_utc(date(year, month, day))
+    except ValueError:
+        return None
+
+
+def _cards(page: str, base: str, pattern: re.Pattern) -> dict[str, str]:
+    """Each job's card on a list page: the largest element around its link that holds no other
+    job's link (a table row, a list item, a box), as visible text. umantis puts a job's company
+    and day before its link and its town after it, in the same row (Diehl's, 2026-11-25)."""
+    try:
+        root = lxml_html.fromstring(page or "<html></html>")
+    except (ParserError, ValueError):
+        return {}
+    for hidden in root.xpath("//script|//style"):
+        hidden.drop_tree()
+    keys: dict = {}
+    for anchor in root.iter("a"):
+        href = anchor.get("href")
+        if not href:
+            continue
+        full = without_session(urljoin(base, href.strip()))
+        if (match := pattern.search(full)) is not None:
+            keys[anchor] = _key(full, match, pattern)
+    cards: dict[str, str] = {}
+    for anchor, key in keys.items():
+        if key in cards:
+            continue
+        node = anchor
+        while (parent := node.getparent()) is not None and not any(
+                keys.get(other, key) != key for other in parent.iter("a")):
+            node = parent
+        words = " ".join(" ".join(node.itertext()).split())
+        if len(words) <= CARD:
+            cards[key] = words
+    return cards
+
+
+def _place_in(card: str) -> str | None:
+    """The town and country a job's card names ("Überlingen, Germany"), else the card's text."""
+    if not card:
+        return None
+    found = careers.job_countries(FoundJob(source="listpage", source_job_id="", url="",
+                                           title="", location_text=card)) - {OTHER}
+    # umantis writes "Überlingen am Bodensee (DE)": the country's code after the town.
+    found = found or {code for code in _COUNTRY_CODE.findall(card) if code in COUNTRIES}
+    if len(found) == 1:
+        code = next(iter(found))
+        town = place_list.locate(card, code, villages=False)
+        if town is not None:
+            return f"{town.name}, {COUNTRIES[code].name}"
+    return card[:AROUND]
 
 
 def _beside(text: str, start: int, end: int, job_links: list[tuple[int, int]], after: bool
