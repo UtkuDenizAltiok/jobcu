@@ -51,6 +51,10 @@ NURSE = Profile.model_validate({
     ("https://klinik.dvinci-hr.com/de/jobs", ("dvinci", "klinik")),
     ("https://mtuaero.dvinci-easy.com/de/jobs/61631/x", ("dvinci", "mtuaero.dvinci-easy.com")),
     ("https://acme.teamtailor.com/jobs", ("teamtailor", "acme")),
+    ("https://jobs.smartrecruiters.com/AcmeGroup1/744000161874185-hardware-engineer",
+     ("smartrecruiters", "AcmeGroup1")),
+    ("https://careers.smartrecruiters.com/AcmeGroup1", ("smartrecruiters", "AcmeGroup1")),
+    ("https://jobs.smartrecruiters.com/api/x", None),
     ("https://jobs.example.com/careers?domain=example.com",
      ("eightfold", "jobs.example.com/example.com")),
     ("https://www.example.com/careers", None),
@@ -64,7 +68,7 @@ def test_a_page_can_be_the_career_site_itself_or_use_a_system_not_read_yet():
     assert own_address_board("https://jobs.example.com/", page) == (
         "successfactors", "jobs.example.com")
     assert own_address_board("https://www.example.com/", "<html></html>") is None
-    assert system_not_read("https://jobs.smartrecruiters.com/BoschGroup") == "SmartRecruiters"
+    assert system_not_read("https://acme.taleo.net/careersection/2/jobsearch.ftl") == "Taleo"
     assert board_in("https://acme.softgarden.io/job/1") == ("softgarden", "acme")
     assert board_in("https://acme-gmbh.jobs.personio.de/job/1") == ("personio", "acme-gmbh")
     assert board_in("https://acme.jobs.personio.com/") == ("personio", "acme.jobs.personio.com")
@@ -177,6 +181,33 @@ def test_the_ai_names_employers_and_jobcu_keeps_the_lists_it_can_read(monkeypatc
     chef = NURSE.model_copy(update={"field": "Professional cooking", "target_roles": ["Sous-chef"]})
     employers.find(client, web(pages), chef, ["IE"], [], now=NOW + timedelta(days=15))
     assert len(ai.asked) == 3
+
+
+class FakeSmartRecruiters(FakeTeamtailor):
+    id = system = "smartrecruiters"
+    name = "Company career sites (SmartRecruiters)"
+    read: list = []
+
+    def survey(self, employer, ctx):
+        self.read.append(employer.board)
+        return Survey(counts=Counter({"IE": 4}))
+
+
+def test_the_ai_s_employers_are_checked_only_on_readers_the_person_uses(monkeypatch):
+    FakeSmartRecruiters.read = []
+    monkeypatch.setattr(employers, "career_sources",
+                        lambda: [FakeTeamtailor(), FakeSmartRecruiters()])
+    ai = FinderAI("Acme Devices | IE | https://jobs.smartrecruiters.com/AcmeDevices1\n")
+    client = ai_client(ai)
+    # Its site's terms not accepted: the list isn't read, and the employer is named as one on a
+    # system the person doesn't use.
+    found = employers.find(client, web({}), NURSE, ["IE"], [], now=NOW, systems={"teamtailor"})
+    assert found.new == [] and found.not_read == {"SmartRecruiters": ["Acme Devices"]}
+    assert FakeSmartRecruiters.read == []
+    # Accepted: checked and kept like any other.
+    found = employers.find(client, web({}), NURSE, ["IE"], [], now=NOW + timedelta(days=15),
+                           systems={"teamtailor", "smartrecruiters"})
+    assert found.new == ["Acme Devices"] and FakeSmartRecruiters.read == ["AcmeDevices1"]
 
 
 def test_refused_web_research_does_not_record_a_successful_employer_refresh():
@@ -381,6 +412,13 @@ def test_a_search_learns_sites_beside_its_steps_and_says_what_it_found(monkeypat
     # Readers whose site terms the person hasn't accepted are never used to learn.
     assert "workday" in asked["systems"] and "smartrecruiters" not in asked["systems"]
     assert "phenom" not in asked["systems"] and "avature" not in asked["systems"]
+    # A reader the person switched on, accepting its site's terms, learns like the others.
+    accepted = Settings()
+    accepted.source_opt_ins = ["smartrecruiters"]
+    run = search.SearchRun(id=2, form=SearchForm(), started_at=NOW.isoformat())
+    search._learn_career_sites(run, accepted, [], web({}))
+    run.learning.join(timeout=5)
+    assert "smartrecruiters" in asked["systems"] and "phenom" not in asked["systems"]
 
 
 def test_another_address_of_a_list_jobcu_reads_is_not_learned_again(monkeypatch):

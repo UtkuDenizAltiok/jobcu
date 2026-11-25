@@ -713,6 +713,15 @@ clause the source is off by default and read only for a person who switches "Com
 (SmartRecruiters)" on in Settings, accepting the terms for their own job search
 (`sources.TERMS_NOTES`).
 
+**Found by themselves (2026-11-25).** SmartRecruiters' addresses (`jobs.` and
+`careers.smartrecruiters.com/{Company}`) are recognised in job sites' links and in the careers pages
+the person's AI names, like Workday's: for a person who accepted SmartRecruiters' terms, such a
+company's list is checked once and read from the next search on (`employers.learn`,
+`employers.find`); for anyone else it isn't read at all, not even to check it, and the AI's
+look-up names the employer under "SmartRecruiters" among the systems they don't use. Before, every
+reader with such terms was left out of learning even when accepted, and SmartRecruiters' addresses
+counted as a system Jobcu doesn't read.
+
 ### Phenom career sites — 2026-11-24
 
 **Access.** A Phenom career site's search page asks the site's own interface,
