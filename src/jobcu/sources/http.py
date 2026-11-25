@@ -27,6 +27,9 @@ log = logging.getLogger(__name__)
 USER_AGENT = f"Jobcu/{__version__} (personal job search app)"
 TIMEOUT = httpx.Timeout(30.0, connect=10.0)
 DEFAULT_MIN_INTERVAL = 1.0  # seconds between requests to the same site
+# The longest pause between requests a site's robots.txt "Crawl-delay" makes Jobcu keep: a list
+# of a few dozen pages then still takes minutes, not hours.
+MAX_CRAWL_DELAY = 60.0
 MAX_RETRIES = 3
 MAX_BACKOFF_SECONDS = 120.0
 STOP_POLL_SECONDS = 0.2
@@ -136,14 +139,19 @@ class RobotsRules:
     or else the one for every robot; within it the most specific rule (the longest path)
     decides, and an Allow wins a tie. Python's own reader takes the first matching rule instead,
     so "Disallow: /" followed by "Allow: /careers" wrongly shut Jobcu out of pages the site
-    allows."""
+    allows. The group's "Crawl-delay", which many sites add, is kept too (`crawl_delay`)."""
 
     def __init__(self, text: str = "", *, allow_all: bool = False, disallow_all: bool = False):
         self.allow_all, self.disallow_all = allow_all, disallow_all
         self._rules: list[tuple[bool, str]] = []
-        groups: list[tuple[list[str], list[tuple[bool, str]]]] = []
+        groups: list[tuple[list[str], list[tuple[bool, str]], float | None]] = []
         agents: list[str] = []
         rules: list[tuple[bool, str]] = []
+        delay: float | None = None
+        # Whether the group's lines of rules have begun: a user-agent line after them starts
+        # the next group, also after an empty "Disallow:" or a "Crawl-delay" alone (before, a
+        # group that allowed everything took the rules of the next group's robot).
+        in_rules = False
         for raw in text.splitlines():
             line = raw.split("#", 1)[0].strip()
             if ":" not in line:
@@ -151,19 +159,31 @@ class RobotsRules:
             field, value = (part.strip() for part in line.split(":", 1))
             field = field.lower()
             if field == "user-agent":
-                if rules:  # a new group starts
-                    groups.append((agents, rules))
-                    agents, rules = [], []
+                if in_rules:  # a new group starts
+                    groups.append((agents, rules, delay))
+                    agents, rules, delay, in_rules = [], [], None, False
                 agents.append(value.lower())
             elif field in ("allow", "disallow") and agents:
+                in_rules = True
                 if value:  # an empty Disallow allows everything
                     rules.append((field == "allow", value))
+            elif field == "crawl-delay" and agents:
+                in_rules = True
+                try:
+                    delay = float(value)
+                except ValueError:
+                    pass
         if agents:
-            groups.append((agents, rules))
-        mine = [r for names, r in groups if any(n.split("/")[0] == "jobcu" for n in names)]
-        anyone = [r for names, r in groups if "*" in names]
-        for chosen in mine or anyone:
+            groups.append((agents, rules, delay))
+        mine = [(r, d) for names, r, d in groups if any(n.split("/")[0] == "jobcu" for n in names)]
+        anyone = [(r, d) for names, r, d in groups if "*" in names]
+        delays = []
+        for chosen, wait in mine or anyone:
             self._rules.extend(chosen)
+            if wait is not None and wait > 0:
+                delays.append(wait)
+        # The seconds the site asks robots to wait between requests, if it says.
+        self.crawl_delay: float | None = max(delays) if delays else None
 
     @staticmethod
     def _matches(pattern: str, path: str) -> bool:
@@ -216,6 +236,8 @@ class PoliteClient:
         self._min_intervals = SITE_INTERVALS if min_intervals is None else min_intervals
         self._last_request: dict[str, float] = {}
         self._cooldowns: dict[str, float] = {}
+        # Pauses sites' robots.txt files ask for ("Crawl-delay"), per site or shared server.
+        self._robots_intervals: dict[str, float] = {}
         self._blocked_hosts: set[str] = set()
         # Shared servers that refused several sites in a row, and their current run of refusals.
         self._blocked_servers: set[str] = set()
@@ -331,6 +353,16 @@ class PoliteClient:
             with self._lock:
                 self._refusals[server] = 0
 
+    def keep_pace(self, host: str, seconds: float) -> None:
+        """Wait at least `seconds` (at most MAX_CRAWL_DELAY) between requests to this site from
+        now on, as its robots.txt asks ("Crawl-delay: 10", career.reinhausen.com's,
+        2026-11-26); a longer pace Jobcu already keeps stays."""
+        if seconds > 0:
+            pace = server_of(host)
+            with self._lock:
+                self._robots_intervals[pace] = max(self._robots_intervals.get(pace, 0.0),
+                                                   min(seconds, MAX_CRAWL_DELAY))
+
     def refused_server(self, host: str) -> bool:
         """Whether the shared server of this site refused several sites in a row in this
         search, so the site wasn't asked itself."""
@@ -365,8 +397,8 @@ class PoliteClient:
             if host_lock.acquire(timeout=STOP_POLL_SECONDS):
                 break
         try:
-            interval = self._min_intervals.get(pace, self._min_intervals.get(
-                host, DEFAULT_MIN_INTERVAL))
+            interval = max(self._min_intervals.get(pace, self._min_intervals.get(
+                host, DEFAULT_MIN_INTERVAL)), self._robots_intervals.get(pace, 0.0))
             while True:
                 self._check_request(host)
                 with self._lock:

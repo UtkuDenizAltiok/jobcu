@@ -403,6 +403,8 @@ class CareerSystemSource(JobSource):
                 response = None
             if response is not None and response.status_code == 200:
                 robots[host] = RobotsRules(response.text)
+                if robots[host].crawl_delay:
+                    ctx.http.keep_pace(host, robots[host].crawl_delay)
             elif unavailable or response is not None and 400 <= response.status_code < 500:
                 robots[host] = RobotsRules(allow_all=True)
             else:

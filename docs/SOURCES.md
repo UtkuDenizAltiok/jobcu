@@ -91,6 +91,18 @@ Directory membership does not establish reachable vacancies or engineering recal
 
 ## Access and protocol records
 
+### Crawl delays in robots.txt — 2026-11-26
+
+Maschinenfabrik Reinhausen's application portal (`career.reinhausen.com`; power-electronics
+development in Regensburg) asks every robot for `Crawl-delay: 10` in its robots.txt. Jobcu kept
+such pauses only where they were written into its own table (service.bund.de's 30 seconds,
+Lever's 1 second), so a new site's request was honoured only if someone added it by hand. Now a
+career site's robots.txt, read once a search, sets that site's pace when it asks for a delay:
+the delay of the group for Jobcu or, without one, for every robot, at most a minute between
+requests. Reading the file also changed in one way: a group whose rules are only an empty
+`Disallow:` (allowing everything) or a `Crawl-delay` now ends at the next `User-agent` line, as
+the standard says; before, the next robot's `Disallow: /` was taken as Jobcu's too.
+
 ### Electronics and power employers read from their own sites — 2026-11-26
 
 Nineteen employers in electronics, power conversion, drives and automation in Germany and the UK
