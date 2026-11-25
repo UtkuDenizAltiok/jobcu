@@ -21,6 +21,7 @@ from jobcu.sources.jobtech import JobTechSource
 from jobcu.sources.jsearch import JSearchSource
 from jobcu.sources.leforem import LeForemSource
 from jobcu.sources.lever import LeverSource
+from jobcu.sources.listpages import ListPageSource
 from jobcu.sources.nav import NavSource
 from jobcu.sources.nhsjobs import NhsJobsSource
 from jobcu.sources.oracle import OracleSource
@@ -80,10 +81,10 @@ def accepted_terms(settings: Settings) -> frozenset[str]:
 def career_sources() -> list[CareerSystemSource]:
     """Company career systems, read for the employers in the employer directory."""
     return [AshbySource(), AvatureSource(), DvinciSource(), EightfoldSource(),
-            GreenhouseSource(), JibeSource(), LeverSource(), OracleSource(), PersonioSource(),
-            PhenomSource(), ProspectiveSource(), RecruiteeSource(), SitemapSource(),
-            SmartRecruitersSource(), SoftgardenSource(), SuccessFactorsSource(),
-            TeamtailorSource(), WorkableSource(), WorkdaySource()]
+            GreenhouseSource(), JibeSource(), LeverSource(), ListPageSource(), OracleSource(),
+            PersonioSource(), PhenomSource(), ProspectiveSource(), RecruiteeSource(),
+            SitemapSource(), SmartRecruitersSource(), SoftgardenSource(),
+            SuccessFactorsSource(), TeamtailorSource(), WorkableSource(), WorkdaySource()]
 
 
 def all_sources() -> list[JobSource]:

@@ -6161,6 +6161,41 @@
    }
   },
   {
+   "name": "dSPACE",
+   "system": "listpage",
+   "board": "https://www.dspace.com/de/gmb/home/career/jobfinder/stellen.cfm",
+   "countries": [
+    "DE",
+    "FR",
+    "HR"
+   ],
+   "elsewhere": true,
+   "towns": {},
+   "jobs": "fuseaction=einzel&jid=(\\d+)"
+  },
+  {
+   "name": "Pfisterer",
+   "system": "listpage",
+   "board": "https://www.pfisterer.com/de/stellenangebote",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "mhm\\.jobs/(\\d+)-"
+  },
+  {
+   "name": "Würth Elektronik",
+   "system": "listpage",
+   "board": "https://jobs.we-online.com/stellenangebote.html",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "-j(\\d+)\\.html"
+  },
+  {
    "name": "Akamai",
    "system": "oracle",
    "board": "fa-extu-saasfaprod1.fa.ocs.oraclecloud.com/CX_1",

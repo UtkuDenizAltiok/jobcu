@@ -67,60 +67,74 @@ class SitemapSource(CareerSystemSource):
         # advertised on in its own country says best which languages it needs.
         wanted = [language for code in countries or () for language in COUNTRIES[code].ad_languages]
         wanted = list(dict.fromkeys([*wanted, "en"]))
-        entries = one_address_per_job(self._entries(employer.board, ctx), wanted)
+        entries = self._listing(employer, ctx, wanted)
         if terms is None:  # the directory check: the newest pages, whatever they are
             opened = 0
-            for address, _changed in entries:
+            for entry in entries:
                 if opened >= SURVEY_PAGES:
                     return
-                if self.allowed(address, ctx):
+                if self.allowed(entry.address, ctx):
                     opened += 1
-                    if (job := self._from_page(address, employer, ctx)) is not None:
-                        yield job
+                    if (job := self._from_page(entry.address, employer, ctx)) is not None:
+                        yield self._placed(job, entry.place)
             return
         # The whole list, matching or not: a job new on it since its last reading is dated by
         # its first sight (listmemory), whatever language its address is in this time.
         sights = listmemory.note(self.id, employer.board,
-                                 [job_key(address) for address, _ in entries
-                                  if _JOB_PAGE.search(urlsplit(address).path)])
+                                 [entry.key for entry in entries if entry.job])
         opened, unread = 0, []
-        for address, changed in entries:
-            if not matches_terms(terms, set(wanted), words_of(address)):
+        for entry in entries:
+            if not matches_terms(terms, set(wanted), entry.title or words_of(entry.address)):
                 # Titles the search words miss go to the person's AI like other career sites'
                 # (a page is opened only for a title it keeps, `load_details`); only jobs new
                 # since the list's last reading, as on SuccessFactors. Rheinmetall's
                 # "Entwicklungsingenieur Elektrotechnik" and "Elektrischer Entwickler" spell
                 # none of an electronics engineer's search words (2026-11-25).
-                if (new := self._new_title(address, sights, start, ctx)) is not None:
+                if (new := self._new_title(entry, sights, start, ctx)) is not None:
                     unread.append(new)
                 continue
-            if opened >= MAX_PAGES or (since is not None and changed is not None
-                                       and changed < since):
+            if opened >= MAX_PAGES or (since is not None and entry.changed is not None
+                                       and entry.changed < since):
                 continue
             # A page the site's robots.txt closes is never opened, nor counted among the pages
             # a search opens (Rheinmetall closes 11 of the 13 languages its sitemap lists).
-            if not self.allowed(address, ctx):
+            if not self.allowed(entry.address, ctx):
                 continue
             opened += 1
-            job = self._from_page(address, employer, ctx)
+            job = self._from_page(entry.address, employer, ctx)
             if job is not None:
-                yield job
+                yield self._placed(job, entry.place)
         yield from unread
 
-    def _new_title(self, address: str, sights: dict, start: datetime | None,
+    def _placed(self, job: FoundJob, place: str | None) -> FoundJob:
+        """The job with the place its site's list gives it, where the list states one
+        (listpages.py); a sitemap states none."""
+        return job
+
+    def _listing(self, employer: Employer, ctx: SourceContext, languages: list[str]
+                 ) -> list["Listed"]:
+        """The site's listed pages, newest first, one per job."""
+        return [Listed(address, changed, key=job_key(address),
+                       job=bool(_JOB_PAGE.search(urlsplit(address).path)))
+                for address, changed in one_address_per_job(
+                    self._entries(employer.board, ctx), languages)]
+
+    def _new_title(self, entry: "Listed", sights: dict, start: datetime | None,
                    ctx: SourceContext) -> FoundJob | None:
         """A job page new on the list since its last reading, dated to its first sight and
-        named by the title its address spells; None for any other page."""
-        if not _JOB_PAGE.search(urlsplit(address).path) or not (title := title_of(address)):
+        named by the title the list gives or its address spells; None for any other page."""
+        if not entry.job or not (title := entry.title or title_of(entry.address)):
             return None
-        posted, precision = listmemory.posted(sights.get(job_key(address)), start)
+        posted, precision = listmemory.posted(sights.get(entry.key), start)
         if precision != "day" or (start is not None
                                   and freshness(posted, precision, start) != "fresh"):
             return None
-        if not self.allowed(address, ctx):
+        if not self.allowed(entry.address, ctx):
             return None
-        return FoundJob(source=self.id, source_job_id=address, url=address, title=title,
-                        posted_at=posted, date_precision=precision, employer_url=address)
+        return FoundJob(source=self.id, source_job_id=entry.address, url=entry.address,
+                        title=title, location_text=entry.around, posted_at=posted,
+                        date_precision=precision, employer_url=entry.address,
+                        source_context={"listed_place": entry.place} if entry.place else {})
 
     def load_details(self, job: FoundJob, ctx: SourceContext) -> FoundJob:
         """A job listed by its address only (a title the search words missed): its page's
@@ -131,6 +145,12 @@ class SitemapSource(CareerSystemSource):
         if full.posted_at is None:
             full = dataclasses.replace(full, posted_at=job.posted_at,
                                        date_precision=job.date_precision)
+        if place := job.source_context.get("listed_place"):
+            placed = self._placed(full, place)
+            # The list's place was already found to be in a country searched; a page that
+            # says otherwise doesn't move the job abroad now.
+            full = placed if placed.country != OTHER else dataclasses.replace(
+                full, location_text=job.location_text, country=job.country)
         return full
 
     def readable(self, employer: Employer, ctx: SourceContext) -> bool:
@@ -165,18 +185,34 @@ class SitemapSource(CareerSystemSource):
             page = self.get(address, ctx, cache=False).text
         except (SourceError, BudgetExhausted):
             return None
-        job = to_found_job(address, page, employer)
+        job = to_found_job(address, page, employer, source=self.id)
         if job is not None:
             jobstore.remember_ad(job, reader_version=self.detail_cache_version)
         return job
 
 
-def to_found_job(address: str, page: str, employer: Employer) -> FoundJob | None:
+@dataclasses.dataclass(frozen=True)
+class Listed:
+    """One job page a site lists: its address and last change (a sitemap's), the title the
+    list gives it (a list page's link text), a key that stays the same whichever language's page
+    is listed, and the text around its link (a list page's: often its town)."""
+
+    address: str
+    changed: datetime | None = None
+    title: str | None = None
+    key: str = ""
+    around: str | None = None
+    job: bool = True  # a job's page rather than a careers page about working there
+    place: str | None = None  # the place the list's own data gives the job ("Paderborn")
+
+
+def to_found_job(address: str, page: str, employer: Employer,
+                 source: str = "sitemap") -> FoundJob | None:
     posting = find_job_posting(page)
     if posting is None or not posting.title:
         return None
     return FoundJob(
-        source=SitemapSource.id,
+        source=source,
         source_job_id=address,
         url=address,
         title=posting.title,
