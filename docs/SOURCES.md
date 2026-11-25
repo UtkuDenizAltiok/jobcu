@@ -116,7 +116,8 @@ were outside electronics (construction, utilities, retail).
 
 Not added: PA Consulting's and Western Digital's SmartRecruiters pages listed no job in the
 supported countries; NewTec's and Burmester's Softgarden sites use Softgarden's newer layout,
-which has no list at `/de/vacancies`. Five Workday sites on the wd1 and wd5 servers (BD's German
+which has no list at `/de/vacancies`; both publish a sitemap of their job pages, which carry
+JobPosting data, and are read as job sitemaps (NewTec 59 pages, Burmester 6 jobs in Germany). Five Workday sites on the wd1 and wd5 servers (BD's German
 and Irish sites, Frazer-Nash on KBR's, NCR Atleos, Videojet) answered with Workday's human check
 while the first one read on that server (Spellman) answered: Workday was then left alone. Seen on
 systems Jobcu doesn't read: Cornerstone (OHB, 11 ads; Weller's owner Apex Tool; Spirax-Sarco),
@@ -172,6 +173,19 @@ Added: **Tyndall National Institute** (Cork; JazzHR, `tyndallnationalinstitute.a
 JobPosting) and **MBRYONICS** (Galway, space photonics and electronics; Rippling,
 `ats.rippling.com/mbryonics/jobs`, 13 jobs; robots.txt closes only `/internal/`; its job pages
 build the ad with scripts, so its jobs come title-only).
+
+**Cards, listed days and Diehl (same day).** A job's place on a list page now comes from its own
+card: the largest element around its link that holds no other job's link (a table row, a list
+item, a box), without its title, resolved to a town and country where it names one ("Galway,
+Ireland"; umantis writes "Überlingen am Bodensee (DE)"). Before, the text after a link could run
+into the next job's company and town. A day the card states after a label ("Online seit:
+25.11.2026", "Veröffentlicht am", "Posted on") dates a job whose page gives none. Added: **Diehl**
+(umantis, `career.diehl.com/Jobs/All`, ten jobs a page, the next page named in
+`data-pagination-next-href`; robots.txt answers 403, so no rules; its job pages lead to its career
+site's job board, so its jobs come title-only with the list's place and day; Diehl's legal notice
+has no clause on automated reading). A live read over 30 days with an electronics engineer's words
+found three development-engineer jobs among its newest hundred, one in power electronics
+(Markdorf).
 
 ### Rheinmetall's job sitemap, and sitemaps in many languages — 2026-11-25
 

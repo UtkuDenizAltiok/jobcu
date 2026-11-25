@@ -6309,6 +6309,19 @@
    }
   },
   {
+   "name": "Diehl",
+   "system": "listpage",
+   "board": "https://career.diehl.com/Jobs/All",
+   "countries": [
+    "DE",
+    "FR",
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "/Vacancies/(\\d+)/Description"
+  },
+  {
    "name": "dSPACE",
    "system": "listpage",
    "board": "https://www.dspace.com/de/gmb/home/career/jobfinder/stellen.cfm",
@@ -8434,6 +8447,16 @@
    "towns": {}
   },
   {
+   "name": "Burmester",
+   "system": "sitemap",
+   "board": "https://www.burmester.jobs/sitemap.xml",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {}
+  },
+  {
    "name": "Delta Energy Systems",
    "system": "sitemap",
    "board": "https://application.delta-emea.com/sitemap.xml.gz",
@@ -8457,6 +8480,16 @@
    "name": "expertum",
    "system": "sitemap",
    "board": "https://expertum.de/job/sitemap.xml",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {}
+  },
+  {
+   "name": "NewTec",
+   "system": "sitemap",
+   "board": "https://career.newtec.de/sitemap.xml",
    "countries": [
     "DE"
    ],

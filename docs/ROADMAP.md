@@ -13,10 +13,10 @@ done. Implementation details belong in pull requests; current behavior is descri
   in Germany; AMETEK, Pickering, Spellman, Cambridge GaN Devices, Filtronic, Oxford Quantum
   Circuits, Integral Powertrain, Open Cosmos, Babcock's and Graphcore's graduate jobs and others in
   the UK.
-- Employers' own job list pages can be read, whatever application system runs behind them, when
-  their job pages carry the standard job data: dSPACE, Würth Elektronik (rexx) and Pfisterer (MHM)
-  to start with, and in Ireland Tyndall National Institute (JazzHR) and MBRYONICS (Rippling: its
-  pages carry no job data, so its jobs come with the list's title and place). The German
+- Employers' own job list pages can be read, whatever application system runs behind them:
+  dSPACE, Würth Elektronik (rexx), Pfisterer (MHM) and Diehl (umantis) to start with, and in
+  Ireland Tyndall National Institute (JazzHR) and MBRYONICS (Rippling). Where a job's page has
+  no job data, the job comes with the title, place and day its list gives it. The German
   application systems without a reader (coveto, JOIN, rexx, umantis, HR4you, onlyfy) were
   counted first: in electronics their ads are few and mostly agencies' and building firms', and
   they reach Jobcu through FreeHire already, so they got no readers of their own.
