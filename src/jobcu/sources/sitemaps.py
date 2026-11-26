@@ -64,9 +64,6 @@ class SitemapSource(CareerSystemSource):
     name = "Recruiters' and employers' own sites"
     system = "sitemap"
     parallel = 4  # every site has its own address
-    # Whether the directory check also reads the countries the ends of the job pages' addresses
-    # name ("/en/job/Design-Engineer-d_m_f-Regensburg/24800"): many sites write the town last.
-    towns_in_addresses = True
 
     def list_jobs(self, employer: Employer, ctx: SourceContext, *, countries=None, start=None,
                   terms=None) -> Iterator[FoundJob]:
@@ -241,20 +238,24 @@ class SitemapSource(CareerSystemSource):
         towns the site's jobs are in."""
         survey = super().survey(employer, ctx)
         survey.sample = True
-        if self.towns_in_addresses:
-            # The newest pages of a large site can all be abroad: ams OSRAM's twenty newest of
-            # 271 named no German job while 19 addresses end in Regensburg, Munich or Garching
-            # (2026-11-26), so searches in Germany would have skipped it. The sitemap is the
-            # one already read (the client keeps its answer): no more requests.
-            named: Counter = Counter()
-            pattern = re.compile(employer.jobs) if employer.jobs else None
-            for entry in self._listing(employer, ctx, ["en"]):
-                if entry.job and entry.titled:
-                    named.update(address_countries(entry.address, pattern))
-            for code, count in named.items():
-                if code not in survey.counts:
-                    survey.counts[code] = count
+        # The newest pages of a large site can all be abroad: ams OSRAM's twenty newest of 271
+        # named no German job while 19 addresses end in Regensburg, Munich or Garching
+        # (2026-11-26), so searches in Germany would have skipped it. The list is the one
+        # already read (the client keeps its answer): no more requests.
+        named: Counter = Counter()
+        pattern = re.compile(employer.jobs) if employer.jobs else None
+        for entry in self._listing(employer, ctx, ["en"]):
+            if entry.job:
+                named.update(self._listed_countries(entry, pattern))
+        for code, count in named.items():
+            if code not in survey.counts:
+                survey.counts[code] = count
         return survey
+
+    def _listed_countries(self, entry: "Listed", pattern: re.Pattern | None) -> set[str]:
+        """The countries a listed job names without its page being opened: the end of its
+        address, where many sites write the job's town (`address_countries`)."""
+        return address_countries(entry.address, pattern) if entry.titled else set()
 
     def _entries(self, board: str, ctx: SourceContext, pattern: re.Pattern | None = None
                  ) -> list[tuple[str, datetime | None]]:

@@ -50,6 +50,9 @@ _READABLE: list[tuple[str, re.Pattern, str]] = [
     ("smartrecruiters", re.compile(
         r"(?:jobs|careers)\.smartrecruiters\.com/(?!api\b|static\b|privacy\b|legal\b)"
         r"([A-Za-z0-9_-]+)"), "{0}"),
+    # Read only for a person who accepts Jobvite's terms (sources.TERMS_NOTES).
+    ("jobvite", re.compile(r"jobs\.jobvite\.com/(?!api\b|www\b)([A-Za-z0-9_-]+)"),
+     "https://jobs.jobvite.com/{0}/jobs"),
     ("eightfold", re.compile(
         r"https?://([a-z0-9.-]+)/careers\?(?:[^\"'\s<>]*&(?:amp;)?)?domain=([a-z0-9.-]+)"),
      "{0}/{1}"),
@@ -61,7 +64,7 @@ SYSTEM_NAMES = {
     "ashby": "Ashby", "workable": "Workable", "recruitee": "Recruitee", "teamtailor": "Teamtailor",
     "dvinci": "d.vinci", "personio": "Personio", "softgarden": "Softgarden",
     "eightfold": "Eightfold", "smartrecruiters": "SmartRecruiters", "pinpoint": "Pinpoint",
-    "successfactors": "SuccessFactors",
+    "successfactors": "SuccessFactors", "jobvite": "Jobvite",
 }
 
 # Signs in a page that its own address is the career site of a system Jobcu reads.

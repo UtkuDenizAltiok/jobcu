@@ -31,7 +31,7 @@ from jobcu import listmemory
 from jobcu import places as place_list
 from jobcu.countries import COUNTRIES
 from jobcu.freshness import day_at_utc
-from jobcu.placenames import OTHER
+from jobcu.placenames import OTHER, countries_in
 from jobcu.sources import careers
 from jobcu.sources.base import FoundJob, SourceContext, SourceError
 from jobcu.sources.careers import Employer
@@ -71,9 +71,13 @@ class ListPageSource(SitemapSource):
     name = "Employers' own job pages"
     system = "listpage"
     parallel = 4  # every employer has its own address
-    # A list's own text beside each link names the job's place; its addresses often end in a
-    # language or a number ("-de-j1507.html"), not a town.
-    towns_in_addresses = False
+
+    def _listed_countries(self, entry: Listed, pattern: re.Pattern | None) -> set[str]:
+        """The countries the list's own text beside a job's link names ("Munich, Germany"):
+        Power Integrations' list showed its German and British jobs only after its first twenty,
+        all abroad (2026-11-26). A list's addresses end in numbers or languages
+        ("-de-j1507.html"), not towns."""
+        return countries_in(entry.place or entry.around or "")
 
     def _listing(self, employer: Employer, ctx: SourceContext, languages: list[str]
                  ) -> list[Listed]:
