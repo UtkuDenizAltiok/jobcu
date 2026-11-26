@@ -358,6 +358,42 @@ def test_robots_txt_follows_the_standard_for_each_answer():
     assert not source.allowed("https://rules.example/private/x", ctx)
 
 
+def test_the_crawl_delay_a_site_s_robots_txt_asks_for_is_kept_between_its_requests():
+    from jobcu.sources.http import RobotsRules
+
+    rules = RobotsRules("User-agent: *\nCrawl-delay: 10\nDisallow: /accounts\n\n"
+                        "User-agent: AhrefsBot\nDisallow: /\n")
+    assert rules.crawl_delay == 10 and rules.allows("https://career.example/12-x/job.html")
+    # Jobcu's own group, without a delay, replaces the one for every robot.
+    assert RobotsRules("User-agent: *\nCrawl-delay: 5\n\nUser-agent: Jobcu\nAllow: /\n"
+                       ).crawl_delay is None
+    # A group that allows everything keeps that: the next robot's rules are its own (before,
+    # an empty "Disallow:" left the group open and every robot took "Disallow: /").
+    open_to_all = RobotsRules("User-agent: *\nDisallow:\n\nUser-agent: BadBot\nDisallow: /\n")
+    assert open_to_all.allows("https://career.example/jobs") and open_to_all.crawl_delay is None
+
+    now, sleeps = [100.0], []
+
+    def sleep(seconds):
+        sleeps.append(seconds)
+        now[0] += seconds
+
+    def handler(request):
+        if request.url.path == "/robots.txt":
+            return httpx.Response(200, text="User-agent: *\nCrawl-delay: 10\n")
+        return httpx.Response(200, text="<html></html>")
+
+    http = PoliteClient(min_intervals={}, sleep=sleep, clock=lambda: now[0],
+                        transport=httpx.MockTransport(handler))
+    ctx = SourceContext(http, KeyStore(), SourceReport("workday", "Workday"), lambda: False,
+                        lambda m: None)
+    assert wd.WorkdaySource().allowed("https://career.example/12-x/job.html", ctx)
+    http.get("https://career.example/12-x/job.html")
+    http.get("https://career.example/13-y/job.html")
+    http.get("https://other.example/jobs")  # another site keeps its own pace
+    assert sleeps == [10.0, 10.0]
+
+
 def test_a_system_whose_shared_server_refuses_jobcu_is_asked_once(monkeypatch):
     directory = (employer(board="first"), employer(board="second"), employer(board="third"))
     monkeypatch.setattr(careers, "load_directory", lambda: directory)

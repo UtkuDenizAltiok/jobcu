@@ -109,6 +109,60 @@ title its list gives. robots.txt closes only the site's technical folders; no te
 against reading were found. Added: TDK-Lambda (UK), 5 jobs (Senior Electrical Design Engineer,
 "Power + Design Engineer", test engineering), and TDK-Lambda (Germany), 7.
 
+### More power-electronics, drives and motorsport employers — 2026-11-26
+
+Found by web searches for the field's employers in Germany and the UK that no source covered;
+each list asked once, robots.txt first. Added with existing readers:
+- **Maschinenfabrik Reinhausen** (Regensburg; grid power electronics, converter control,
+  hardware-in-the-loop): its application portal's sitemap `career.reinhausen.com/sitemap.xml`
+  (127 job pages `/{number}-{title}/job.html` with JobPosting); robots.txt asks for
+  `Crawl-delay: 10`, which Jobcu now keeps. DE 13.
+- **AEG Power Solutions** (Warstein; UPS and industrial power electronics): Softgarden `aegps`.
+  DE 16, ES 9.
+- **Bender** (Grünberg; insulation monitoring, EV charge controllers) and **Isabellenhütte**
+  (Dillenburg; precision resistors and current measurement): rexx lists
+  (`karriere.bender.de/stellenangebote.html`, `karriere.isabellenhuette.com/stellenangebote.html`;
+  robots.txt closes them only to generic HTTP libraries by name). DE 18 and DE 10.
+- **Vincotech** (Unterhaching; power modules; a Mitsubishi Electric company): its list page
+  `www.vincotech.com/career/open-positions/` (job pages without job data, read as text). DE 1,
+  HU 5.
+- **Cosworth** (Northampton; electronics and powertrain): Teamtailor on its own address
+  `currentopportunities.cosworth.com`. GB 11.
+
+Not added: Red Bull Powertrains (its Workday site named in a job ad answered 422), KEB
+Automation (vacancies built by scripts), Benning, Baumüller, SIEB & MEYER, Drive System Design,
+Advanced Electric Machines (no list of their own found), Mitsubishi Electric Europe (its German
+jobs reach Jobcu through the Bundesagentur), KACO new energy (a Siemens company), EA
+Elektro-Automatik (its careers address refused the connection). Already in the directory: Jaguar
+Land Rover.
+
+### A job page's country outside the supported ones — 2026-11-26
+
+TT Electronics' job pages (iCIMS) name each job's country in their JobPosting data, and its site
+lists jobs in the UK, the US, Mexico, China and India. A page for a power-electronics job in
+Olathe, Kansas, says `"addressCountry": "US"`. Jobcu read only the supported countries from that
+field, so "US" counted as no country written; the directory check then saw the employer's jobs as
+UK jobs and jobs of unknown place ("elsewhere" false), and a search placed the Kansas job in the
+UK, the one country the employer's entry names. Now a JobPosting country outside the supported
+ones (any ISO 3166 two- or three-letter code, or a country's name such as "Mexico") marks the job
+abroad, and the job leaves the search as other foreign jobs do; a job offered in several places
+is in the first supported country they name; three-letter codes of supported countries ("DEU",
+"GBR", "IRL") are read too. Words that name no country ("EMEA", "Remote") and "NA" (written for
+"not available") still decide nothing. The same applies to the employer's own pages the Workday
+reader opens.
+
+### Crawl delays in robots.txt — 2026-11-26
+
+Maschinenfabrik Reinhausen's application portal (`career.reinhausen.com`; power-electronics
+development in Regensburg) asks every robot for `Crawl-delay: 10` in its robots.txt. Jobcu kept
+such pauses only where they were written into its own table (service.bund.de's 30 seconds,
+Lever's 1 second), so a new site's request was honoured only if someone added it by hand. Now a
+career site's robots.txt, read once a search, sets that site's pace when it asks for a delay:
+the delay of the group for Jobcu or, without one, for every robot, at most a minute between
+requests. Reading the file also changed in one way: a group whose rules are only an empty
+`Disallow:` (allowing everything) or a `Crawl-delay` now ends at the next `User-agent` line, as
+the standard says; before, the next robot's `Disallow: /` was taken as Jobcu's too.
+
 ### Electronics and power employers read from their own sites — 2026-11-26
 
 Nineteen employers in electronics, power conversion, drives and automation in Germany and the UK
