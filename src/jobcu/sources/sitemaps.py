@@ -23,7 +23,7 @@ import re
 from collections import Counter
 from collections.abc import Iterator
 from datetime import UTC, datetime, timedelta
-from urllib.parse import unquote, urlsplit
+from urllib.parse import unquote, urljoin, urlsplit
 
 from jobcu import jobpage, listmemory
 from jobcu import places as place_list
@@ -274,6 +274,17 @@ class SitemapSource(CareerSystemSource):
         except (SourceError, BudgetExhausted):
             return None
         job = to_found_job(address, response.text, employer, source=self.id)
+        if job is None and (frame := own_frame(response.text, str(response.url))) is not None:
+            # A page that shows its ad in a frame of its own site, as a browser does: an iCIMS
+            # career site's job page carries no job data, the frame it embeds
+            # ("/jobs/6336/manufacturing-engineer/job?in_iframe=1") the whole ad with its
+            # JobPosting data (TT Electronics', 2026-11-26). The job keeps its page's address.
+            try:
+                if self.allowed(frame, ctx):
+                    job = to_found_job(address, self.get(frame, ctx, cache=False).text, employer,
+                                       source=self.id)
+            except (SourceError, BudgetExhausted):
+                pass
         # A page without job data is read as text only where the directory names the site's job
         # pages, and only if the address still names one after redirects (Diehl's job pages lead
         # back to its list).
@@ -557,6 +568,22 @@ def address_countries(address: str, pattern: re.Pattern | None = None) -> set[st
 
 def unescape(address: str) -> str:
     return address.replace("&amp;", "&")
+
+
+_FRAME = re.compile(r"<iframe\b[^>]*?\bsrc\s*=\s*([\"'])(.*?)\1", re.IGNORECASE | re.DOTALL)
+
+
+def own_frame(page: str, address: str) -> str | None:
+    """The address of the first frame a page embeds from its own site (the same host), where
+    some career systems show the ad; None if it embeds none (frames of video or analytics
+    services are other sites)."""
+    host = urlsplit(address).hostname
+    for match in _FRAME.finditer(page):
+        frame = urljoin(address, unescape(match.group(2).strip()))
+        if (frame.startswith(("https://", "http://")) and urlsplit(frame).hostname == host
+                and frame != address):
+            return frame
+    return None
 
 
 def _listed_before(sight: "listmemory.Sight | None", start: datetime) -> bool:
