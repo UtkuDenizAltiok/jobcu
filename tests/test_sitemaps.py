@@ -338,7 +338,9 @@ def test_a_site_whose_addresses_name_no_title_opens_only_the_pages_new_on_its_li
     engineer = by_title["Hardware Engineer Power Electronics"]
     assert (engineer.location_text, engineer.country, engineer.company) == (
         "Munich", "DE", "Example Cars")
-    assert engineer.date_precision == "day" and engineer.posted_at.date() == NOW.date()
+    # First seen when the reader ran: today, also after a midnight since NOW was taken.
+    assert engineer.date_precision == "day"
+    assert engineer.posted_at.date() in {NOW.date(), datetime.now(UTC).date()}
     assert engineer.description_is_complete and "gate drivers" in engineer.description
     assert not engineer.title_unmatched and by_title["Praktikum Marketing"].title_unmatched
     # The jobs listed before weren't opened; the page that led back to the job finder wasn't

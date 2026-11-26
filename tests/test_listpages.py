@@ -274,7 +274,9 @@ def test_a_job_page_without_job_data_takes_the_lists_place_and_its_first_sight(m
     # the list's text places it, its first sight dates it.
     assert (graduate.location_text, graduate.country) == (
         "Example Fusion Culham, Oxfordshire", "GB")
-    assert graduate.date_precision == "day" and graduate.posted_at.date() == NOW.date()
+    # First seen when the reader ran: today, also after a midnight since NOW was taken.
+    assert graduate.date_precision == "day"
+    assert graduate.posted_at.date() in {NOW.date(), datetime.now(UTC).date()}
     assert graduate.description_is_complete and "power supplies" in graduate.description
     # The job the list had before the window began is an older copy, not a new job.
     assert by_title["Electrical Engineer Power Supplies"].older_copy
