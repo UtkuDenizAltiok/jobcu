@@ -274,7 +274,9 @@ def test_a_job_page_without_job_data_takes_the_lists_place_and_its_first_sight(m
     # the list's text places it, its first sight dates it.
     assert (graduate.location_text, graduate.country) == (
         "Example Fusion Culham, Oxfordshire", "GB")
-    assert graduate.date_precision == "day" and graduate.posted_at.date() == NOW.date()
+    # First seen when the reader ran: today, also after a midnight since NOW was taken.
+    assert graduate.date_precision == "day"
+    assert graduate.posted_at.date() in {NOW.date(), datetime.now(UTC).date()}
     assert graduate.description_is_complete and "power supplies" in graduate.description
     # The job the list had before the window began is an older copy, not a new job.
     assert by_title["Electrical Engineer Power Supplies"].older_copy
@@ -315,3 +317,25 @@ def test_the_day_a_list_states_for_a_job_dates_it():
     bare = listpages.ListPageSource()._title_only(jobs[0], {}, None)
     assert bare.date_precision == "day" and bare.posted_at == jobs[0].posted
     assert listpages._listed_day("Eintritt ab 01.01.2027") is None  # a start date isn't one
+
+
+ACTION_LIST = """<html><div class="intro"><p>Email your CV to our HR team, Exampleton.</p></div>
+<div id="jobslist">
+<h4>Power Electronics Design Engineer</h4><p class="posted">Location : Exampleton</p>
+<a class="btn" href="/uk/about/example-job/2291">View job details</a>
+<h4>Test Engineering Team Leader</h4><p class="posted">Location : Otherford</p>
+<a class="btn" href="/uk/about/example-job/2289">View job details</a>
+</div></html>"""
+
+
+def test_a_link_that_only_says_view_job_details_takes_the_title_of_the_heading_before_it():
+    jobs, _ = listpages.listed_jobs(ACTION_LIST, "https://www.example.test/uk/about/recruitment",
+                                    re.compile(r"/uk/about/example-job/(\d+)$"))
+    assert [(job.title, job.around) for job in jobs] == [
+        ("Power Electronics Design Engineer", "Location : Exampleton"),
+        ("Test Engineering Team Leader", "Location : Otherford")]
+    for words in ("View job details", "Read more", "Mehr erfahren", "Zur Stelle", "Details",
+                  "Apply now", "Voir l'offre"):
+        assert listpages._ACTION.fullmatch(words), words
+    for title in ("Hardware Engineer", "Details Engineer", "Applications Engineer"):
+        assert not listpages._ACTION.fullmatch(title), title

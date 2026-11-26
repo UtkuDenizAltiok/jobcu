@@ -6493,6 +6493,28 @@
    "jobs": "[?&]yid=(\\d+)"
   },
   {
+   "name": "TDK-Lambda (Germany)",
+   "system": "listpage",
+   "board": "https://www.emea.lambda.tdk.com/de/about/tdk-lambda-recruitment",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "/de/about/tdk-lambda-job/(\\d+)$"
+  },
+  {
+   "name": "TDK-Lambda (UK)",
+   "system": "listpage",
+   "board": "https://www.emea.lambda.tdk.com/uk/about/tdk-lambda-recruitment",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "/uk/about/tdk-lambda-job/(\\d+)$"
+  },
+  {
    "name": "Tyndall National Institute",
    "system": "listpage",
    "board": "https://tyndallnationalinstitute.applytojob.com/apply",
