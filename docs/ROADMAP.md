@@ -7,8 +7,9 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
-- TU Berlin's job exchange (Stellenticket: its research posts and employers' graduate jobs) is
-  read from its sitemap; new jobs are opened and dated by their first sight.
+- TU Berlin's job exchange (Stellenticket: its research posts and employers' graduate jobs) and
+  Dynex Semiconductor (power modules, Lincoln) are read from their sitemaps; new jobs are opened
+  and dated by their first sight.
 - DLR (the German Aerospace Center, 278 jobs in Germany) and the Leibniz institutes' job list are
   read from their own sites.
 - A Workday site whose list names no posting day (MBDA's German site) has its jobs dated by their

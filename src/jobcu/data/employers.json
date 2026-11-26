@@ -9149,6 +9149,19 @@
    "towns": {}
   },
   {
+   "name": "Dynex Semiconductor",
+   "system": "sitemap",
+   "board": "https://careers.dynexsemi.com/sitemap.xml",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "/role/([0-9a-f-]{36})$",
+   "titles": false,
+   "checked": "2026-11-26"
+  },
+  {
    "name": "ECM Selection",
    "system": "sitemap",
    "board": "https://www.ecmselection.co.uk/sitemap.xml",
