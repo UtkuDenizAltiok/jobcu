@@ -212,7 +212,7 @@ def test_limits_and_source_switches_are_saved(client):
     switched_off = {s["id"] for s in data["sources"] if not s["enabled"]}
     # Optional sources need a positive opt-in.
     assert switched_off == {"workday", "jsearch", "bundesagentur", "avature",
-                            "smartrecruiters", "phenom", "gradcracker"}
+                            "smartrecruiters", "phenom", "gradcracker", "jobvite"}
     assert load_settings().sources_disabled == ["workday"]
 
 

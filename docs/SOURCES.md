@@ -82,7 +82,8 @@ Career adapters: Ashby, Avature (opt-in, [Siemens' terms](#avature-siemens-and-s
 d.vinci, Eightfold, Greenhouse, Jibe, Lever, Oracle, Personio, Phenom (opt-in,
 [ABB's terms](#phenom-career-sites--2026-11-24)), Prospective, Recruitee, generic job
 sitemaps, employers' own job list pages ([2026-11-25](#employers-own-job-list-pages-and-german-application-systems--2026-11-25)),
-SmartRecruiters (opt-in, [its terms](#smartrecruiters-career-pages--2026-11-24)),
+SmartRecruiters (opt-in, [its terms](#smartrecruiters-career-pages--2026-11-24)), Jobvite
+(opt-in, [its terms](#jobvite-career-sites-power-integrations--2026-11-26)),
 Softgarden, SuccessFactors, Teamtailor, Workable and Workday.
 Recruitee, SuccessFactors and Teamtailor career sites are also recognised on an employer's own
 address (Recruitee's answers the same public `/api/offers/` there).
@@ -113,6 +114,53 @@ power-electronics and controls graduate roles in Leamington Spa and Shoreham:
 `careers-ricardo.icims.com`, 13 jobs). A live read with an electronics engineer's search words
 over 30 days gave Bruker's "Hardwareentwickler Elektronik" (Leipzig) with its full ad. The
 iCIMS sites of Schneider Electric, Arm and AMD stay unread: their robots.txt closes them.
+
+### Jobvite career sites: Power Integrations — 2026-11-26
+
+Power Integrations (gate drivers and power conversion ICs; its gate-driver development in Ense
+and field applications in Munich, a lab in Cambridge) lists its jobs on Jobvite:
+`jobs.jobvite.com/power-integrations/jobs`, 46 jobs, each link under its title with its place
+beside it ("Munich, Germany"), each job page with JobPosting data (posting day, country, the
+whole ad). The host answers robots.txt with 404 (no rules). Jobvite's terms of use
+(`www.jobvite.com/terms-of-use`) say of all content "on or through the Site": "You may not copy,
+distribute, scrape ... any of these materials"; no legal action against readers of job pages was
+found. So Jobvite is read as an opt-in source, like Avature or SmartRecruiters: only for a person
+who switches it on in Settings and so accepts that for their own job search. It is read like
+employers' own list pages (`sources/jobvite.py`), and a Jobvite job link in a search's results
+names its company's list, so Jobcu learns other Jobvite employers by itself for such a person.
+
+The directory check opened the list's first twenty job pages (all abroad: San José, Penang,
+Pasig City) and found no supported country, so the company would have been dropped. A list page
+names each job's place beside its link; the check now also counts the countries that text
+names, as it counts the towns at the end of a sitemap's job addresses (record below): Power
+Integrations hires in Germany and the UK, and elsewhere.
+
+### More power-electronics, drives and motorsport employers — 2026-11-26
+
+Found by web searches for the field's employers in Germany and the UK that no source covered;
+each list asked once, robots.txt first. Added with existing readers:
+- **Maschinenfabrik Reinhausen** (Regensburg; grid power electronics, converter control,
+  hardware-in-the-loop): its application portal's sitemap `career.reinhausen.com/sitemap.xml`
+  (127 job pages `/{number}-{title}/job.html` with JobPosting); robots.txt asks for
+  `Crawl-delay: 10`, which Jobcu now keeps. DE 13.
+- **AEG Power Solutions** (Warstein; UPS and industrial power electronics): Softgarden `aegps`.
+  DE 16, ES 9.
+- **Bender** (Grünberg; insulation monitoring, EV charge controllers) and **Isabellenhütte**
+  (Dillenburg; precision resistors and current measurement): rexx lists
+  (`karriere.bender.de/stellenangebote.html`, `karriere.isabellenhuette.com/stellenangebote.html`;
+  robots.txt closes them only to generic HTTP libraries by name). DE 18 and DE 10.
+- **Vincotech** (Unterhaching; power modules; a Mitsubishi Electric company): its list page
+  `www.vincotech.com/career/open-positions/` (job pages without job data, read as text). DE 1,
+  HU 5.
+- **Cosworth** (Northampton; electronics and powertrain): Teamtailor on its own address
+  `currentopportunities.cosworth.com`. GB 11.
+
+Not added: Red Bull Powertrains (its Workday site named in a job ad answered 422), KEB
+Automation (vacancies built by scripts), Benning, Baumüller, SIEB & MEYER, Drive System Design,
+Advanced Electric Machines (no list of their own found), Mitsubishi Electric Europe (its German
+jobs reach Jobcu through the Bundesagentur), KACO new energy (a Siemens company), EA
+Elektro-Automatik (its careers address refused the connection). Already in the directory: Jaguar
+Land Rover.
 
 ### A job page's country outside the supported ones — 2026-11-26
 
