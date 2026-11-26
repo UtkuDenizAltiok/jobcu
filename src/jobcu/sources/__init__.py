@@ -18,6 +18,7 @@ from jobcu.sources.jibe import JibeSource
 from jobcu.sources.jobsacuk import JobsAcUkSource
 from jobcu.sources.jobsireland import JobsIrelandSource
 from jobcu.sources.jobtech import JobTechSource
+from jobcu.sources.jobvite import JobviteSource
 from jobcu.sources.jsearch import JSearchSource
 from jobcu.sources.leforem import LeForemSource
 from jobcu.sources.lever import LeverSource
@@ -66,6 +67,10 @@ TERMS_NOTES = {
     "gradcracker": "Gradcracker's legal page doesn't allow scraping (it allows copies for "
                    "reading and for your personal use). Switch it on only if you accept that "
                    "for your own job search.",
+    # Jobvite's terms of use forbid scraping content "on or through" its site (2026-11-26); no
+    # legal action against readers of job pages was found.
+    "jobvite": "Jobvite's terms of use don't allow scraping its content. Switch it on only if "
+               "you accept that for your own job search.",
 }
 OPT_IN_SOURCES = frozenset({"jsearch", *TERMS_NOTES})
 
@@ -82,7 +87,8 @@ def accepted_terms(settings: Settings) -> frozenset[str]:
 def career_sources() -> list[CareerSystemSource]:
     """Company career systems, read for the employers in the employer directory."""
     return [AshbySource(), AvatureSource(), DvinciSource(), EightfoldSource(),
-            GreenhouseSource(), JibeSource(), LeverSource(), ListPageSource(), OracleSource(),
+            GreenhouseSource(), JibeSource(), JobviteSource(), LeverSource(), ListPageSource(),
+            OracleSource(),
             PersonioSource(), PhenomSource(), PinpointSource(), ProspectiveSource(),
             RecruiteeSource(), SitemapSource(), SmartRecruitersSource(), SoftgardenSource(),
             SuccessFactorsSource(), TeamtailorSource(), WorkableSource(), WorkdaySource()]

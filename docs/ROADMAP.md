@@ -7,6 +7,9 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- Jobvite career sites are read for a person who accepts Jobvite's terms (Settings): Power
+  Integrations' gate-driver jobs in Ense and Munich. The directory check also counts the places a
+  list page writes beside its links.
 - More field employers read from their own sites: Maschinenfabrik Reinhausen, AEG Power
   Solutions, Bender, Isabellenhütte, Vincotech and Cosworth. A career site's robots.txt crawl
   delay is kept by itself.
