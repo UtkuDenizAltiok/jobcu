@@ -30,6 +30,8 @@ MIN_TEXT = 400
 # "25.11.2026"); more is the page's own introduction, where a town would be a guess.
 ABOVE_TITLE = 200
 SHORT_LINE = 40
+# A line longer than this that names the listed title is a sentence, not the ad's heading.
+MAX_TITLE = 150
 # What may follow a town's name on its line: a region or country, or "bei" a bigger town.
 _QUALIFIED = re.compile(r"(?:\s*[,(/–-].*|\s+(?:bei|near|am|an der|im|in der)\s.*)?",
                         re.IGNORECASE)
@@ -79,7 +81,10 @@ def read(page: str, listed_title: str | None = None) -> PageAd | None:
         element.tail = "\n" + (element.tail or "")
     text = html_to_text(lxml_html.tostring(main, encoding="unicode"))
     if listed_title and (ad := _from_title(text, listed_title)) is not None:
-        title, text = " ".join(listed_title.split()), ad
+        # The page's own line that names it keeps the page's spelling ("(m/w/d)", capitals),
+        # where a sitemap's title is only its address's words.
+        first = " ".join(ad.split("\n", 1)[0].split())
+        title, text = (first if len(first) <= MAX_TITLE else " ".join(listed_title.split())), ad
     if len(text) < MIN_TEXT:
         return None
     place, country = _labelled(text, _PLACE_LABEL, _a_place), None

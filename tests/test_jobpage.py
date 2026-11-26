@@ -50,3 +50,16 @@ def test_a_word_in_a_sentence_above_the_title_is_no_town():
     ad = jobpage.read(page("<p>Please switch on JavaScript to use every part of this page.</p>"
                            "<h1>Hardware Engineer</h1>" + AD))
     assert ad.place is None and ad.country is None
+
+
+def test_a_page_is_read_from_the_title_its_list_gives():
+    # A site whose job page opens with its own heading and a country switcher, then the job.
+    switcher = ("<h1>About Example Power</h1><p>Change Location : France</p>"
+                "<h2>Senior Electrical Design Engineer (m/f/d)</h2>"
+                "<p>Location : Exampleton, Devon</p>")
+    ad = jobpage.read(page(switcher + AD), "senior electrical design engineer")
+    assert ad.title == "Senior Electrical Design Engineer (m/f/d)"  # the page's own spelling
+    assert ad.place == "Exampleton, Devon"
+    assert ad.text.startswith("Senior Electrical Design Engineer") and "France" not in ad.text
+    # Without the list's title the page's main heading stands, as before.
+    assert jobpage.read(page(switcher + AD)).title == "About Example Power"
