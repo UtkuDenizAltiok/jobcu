@@ -1344,6 +1344,38 @@ def test_workday_stops_when_a_site_answers_every_page_with_the_same_jobs():
     assert len(seen) == 3  # the country filter, its first page, and one repeat
 
 
+def test_a_workday_list_that_names_no_posting_day_dates_its_jobs_by_their_first_sight():
+    # MBDA's German site lists no "Posted ..." at all (2026-11-26): its jobs are dated by when
+    # Jobcu first saw them on the list, as on SuccessFactors sites, so only new ones count.
+    from jobcu.freshness import freshness
+
+    def undated(*numbers):
+        return [{"title": f"Hardware Engineer {n}", "externalPath": f"/job/Limerick/H_{n}",
+                 "locationsText": "Ireland, Limerick"} for n in numbers]
+
+    board = employer("workday", "https://fakeco.wd3.myworkdayjobs.com/External")
+    start = NOW - timedelta(hours=24)
+    source = wd.WorkdaySource()
+    first = list(source.list_jobs(board, context(workday_handler([undated(1, 2)])),
+                                  countries=["IE"], start=start))
+    assert [(job.title, job.date_precision) for job in first] == [
+        ("Hardware Engineer 1", "unknown"), ("Hardware Engineer 2", "unknown")]
+    # That reading was a little more than a day ago.
+    earlier = (NOW - timedelta(hours=30)).isoformat(timespec="seconds")
+    with db.connect() as conn:
+        conn.execute("UPDATE list_readings SET read_at = ?", (earlier,))
+        conn.execute("UPDATE listed_jobs SET first_seen_at = ?", (earlier,))
+    later = list(source.list_jobs(board, context(workday_handler([undated(3, 1, 2)])),
+                                  countries=["IE"], start=start))
+    assert {job.title: freshness(job.posted_at, job.date_precision, start) for job in later} == {
+        "Hardware Engineer 3": "fresh", "Hardware Engineer 1": "too_old",
+        "Hardware Engineer 2": "too_old"}
+    # Without a search's window (the directory check) nothing is remembered or dated.
+    checked = list(source.list_jobs(board, context(workday_handler([undated(4)])),
+                                    countries=["IE"]))
+    assert [job.date_precision for job in checked] == ["unknown"]
+
+
 def test_workday_respects_robots_txt():
     source = wd.WorkdaySource()
     ctx = context(workday_handler([], robots="User-agent: *\nDisallow: /wday/\n"))

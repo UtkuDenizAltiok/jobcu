@@ -7,6 +7,8 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- A Workday site whose list names no posting day (MBDA's German site) has its jobs dated by their
+  first sight on the list, so only its new jobs count and go to the person's AI.
 - Employers whose good matches came only through job sites are read from their own sites:
   thyssenkrupp with TKMS (Atlas Elektronik's electronics development in Bremen), Huawei R&D UK,
   Proxima Fusion, Hypersonica, GKN Aerospace, Sunfire, pro-beam and TOPTICA Eagleyard.

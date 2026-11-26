@@ -6,7 +6,8 @@ Workday has no documented public API. Each company's career site (e.g.
 "searchText": ""}`. The answer lists 20 jobs at a time, newest first, with the title, place
 text and a relative date ("Posted Today", "Posted 3 Days Ago", "Posted 30+ Days Ago"), plus
 filters such as the job's country with an ID each. A job's full ad and exact day come from
-`GET /wday/cxs/{tenant}/{site}{externalPath}`.
+`GET /wday/cxs/{tenant}/{site}{externalPath}`. A site whose list names no day has its jobs dated by
+their first sight on it (`listmemory`).
 
 Because the address isn't documented, Jobcu checks each site's robots.txt first and skips the
 company if it disallows these addresses.
@@ -30,6 +31,7 @@ from urllib.parse import urlsplit
 
 from rapidfuzz import fuzz
 
+from jobcu import listmemory
 from jobcu import places as place_list
 from jobcu.countries import COUNTRIES
 from jobcu.freshness import day_at_utc, freshness
@@ -121,6 +123,10 @@ class WorkdaySource(CareerSystemSource):
                       for code in countries]
             wanted = [(code, ids) for code, ids in wanted if ids]
         seen: set[str] = set()
+        # Jobs whose list names no posting day: MBDA's German site gives none at all, so its 165
+        # jobs stayed "date unknown" in every search and their titles went to the person's AI
+        # every time (2026-11-26). They are dated by their first sight once their list is read.
+        undated: dict[str | None, list[FoundJob]] = {}
         for code, ids in wanted:
             for page in range(MAX_PAGES_PER_COUNTRY):
                 data = first if not ids and page == 0 else self._page(
@@ -138,12 +144,30 @@ class WorkdaySource(CareerSystemSource):
                         continue
                     seen.add(job.source_job_id)
                     new += 1
+                    if job.posted_at is None and start is not None:
+                        undated.setdefault(code, []).append(job)
+                        continue
                     yield job
                 # Lists come newest first; a page of only older jobs means the rest is older.
                 # Some sites answer every later page with the same jobs (the same titles 25
                 # times, 2026-09-24 night): a page with nothing new ends the list too.
                 if len(postings) < PAGE_SIZE or (start and too_old == len(postings)) or not new:
                     break
+        for code, jobs in undated.items():
+            yield from self._first_sight(employer, code, jobs, start)
+
+    def _first_sight(self, employer: Employer, code: str | None, jobs: list[FoundJob],
+                     start: datetime) -> Iterator[FoundJob]:
+        """A list's jobs without a posting day, dated by their first sight on it (listmemory),
+        as SuccessFactors' and Avature's are: a job new since the list's last reading a day or
+        so before was posted that day; one listed since before the window began is older than
+        the window. A list read with a country filter is remembered per country."""
+        sights = listmemory.note(self.id, f"{employer.board}#{code}" if code else employer.board,
+                                 [job.source_job_id for job in jobs])
+        for job in jobs:
+            posted, precision = listmemory.posted(sights.get(job.source_job_id), start)
+            yield (dataclasses.replace(job, posted_at=posted, date_precision=precision)
+                   if posted is not None else job)
 
     def survey(self, employer: Employer, ctx: SourceContext) -> Survey:
         """Workday's own filters already say how many jobs are in each country and town."""

@@ -92,6 +92,19 @@ Directory membership does not establish reachable vacancies or engineering recal
 
 ## Access and protocol records
 
+### Workday lists that name no posting day — 2026-11-26
+
+MBDA's German Workday site (`mbda.wd3.myworkdayjobs.com/MBDA-DE`, 165 jobs) lists each job's
+title, place and vacancy number but no "Posted ..." day, and has no country filter. A live read
+with an electronics engineer's search words over seven days returned all 165 jobs with an
+unknown date, every one a title the search words miss, so each search would have read its whole
+list (nine pages) and handed all of them to the person's AI again. The 163 Workday copies in the
+last saved search all had a day, so such sites are rare. Their jobs are now dated by their first
+sight on the list, as SuccessFactors' and Avature's are (`listmemory`): the first search records
+the list; from the next one, a job new since the last reading counts as posted that day and one
+listed since before the window began as older. The reading is remembered per country where the
+site filters by country.
+
 ### Employers behind good job-site cards, read from their own sites — 2026-11-26
 
 Saved search results name employers whose good matches came only through job sites
