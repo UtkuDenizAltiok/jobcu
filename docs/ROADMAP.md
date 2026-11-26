@@ -7,6 +7,9 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- Titles and ad texts a site sends escaped ("&amp;", "&#8211;", sometimes escaped twice) read as
+  plain text from every source: BAE Systems', Daimler Truck's and Reinhausen's titles showed the
+  codes, and one job's copies could differ in title.
 - Jobvite career sites are read for a person who accepts Jobvite's terms (Settings): Power
   Integrations' gate-driver jobs in Ense and Munich. The directory check also counts the places a
   list page writes beside its links.
