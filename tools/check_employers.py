@@ -85,6 +85,12 @@ def main() -> int:
             continue
         for entry in read_entries(path):
             key = (entry["system"], entry["board"].strip().lower())
+            if path != DIRECTORY and key in existing:
+                # Say so: a candidate already listed (perhaps under another name) is otherwise
+                # silently kept as it is with --only-new.
+                listed = entries[key]["name"] if key in entries else "?"
+                print(f"{entry['system']:10} {entry['name']:35} already in the directory as "
+                      f"{listed!r}")
             entries.setdefault(key, entry)
 
     unchecked: list[dict] = []
