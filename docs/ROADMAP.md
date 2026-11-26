@@ -7,6 +7,10 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- Eighteen more employers read from their own career sites, found through the career systems
+  their job links name: ifm, Kärcher, Stiebel Eltron, AGCO (Fendt), CLAAS, Kistler, Miele,
+  Pepperl+Fuchs, Bürkert, MBDA's German site, Ford, LAPP, Megger, Cummins, Cambridge
+  Consultants, Surrey Satellite Technology, Ceres Power and Enoda.
 - Titles and ad texts a site sends escaped ("&amp;", "&#8211;", sometimes escaped twice) read as
   plain text from every source: BAE Systems', Daimler Truck's and Reinhausen's titles showed the
   codes, and one job's copies could differ in title.
