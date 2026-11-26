@@ -7,6 +7,9 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- Jungheinrich (drives and chargers), Ziehl-Abegg (motor electronics) and Hager are read from
+  their own lists: a list whose page buttons have no links is read page by page, and a link
+  around a whole job card takes the card's heading as the job's title.
 - Eighteen more employers read from their own career sites, found through the career systems
   their job links name: ifm, Kärcher, Stiebel Eltron, AGCO (Fendt), CLAAS, Kistler, Miele,
   Pepperl+Fuchs, Bürkert, MBDA's German site, Ford, LAPP, Megger, Cummins, Cambridge

@@ -40,8 +40,10 @@ from jobcu.text import normalise
 
 # List pages read per employer and search: Würth Elektronik's 180 jobs fill two.
 MAX_LIST_PAGES = 10
-# Query parameters that name a visitor's session, not the page.
-_SESSION = re.compile(r"^(?:sid|jsessionid|phpsessid|sessionid|session|cfid|cftoken)$", re.I)
+# Query parameters that name a visitor's session or search, not the page: onlyfy's job links
+# carry the list page they were on ("?career_page_search=page%3D2").
+_SESSION = re.compile(
+    r"^(?:sid|jsessionid|phpsessid|sessionid|session|cfid|cftoken|career_page_search)$", re.I)
 # Query parameters that page through a list ("start=100", "page=2", umantis' "tc1152481=p2").
 _PAGING = re.compile(r"^(?:start|page|p|pg|offset|seite|from|skip|tc\d+)$", re.I)
 _ANCHOR = re.compile(r"<a\b([^>]*)>(.*?)</a\s*>", re.I | re.S)
@@ -59,6 +61,7 @@ _DATA_TITLE = re.compile(r"\"(?:title|jobTitle|name)\"\s*:\s*\"([^\"]{3,200})\""
 _DATA_PLACE = re.compile(r"\"(?:location|city|place|town|ort|standort)\"\s*:\s*\"([^\"]{2,120})\"",
                          re.I)
 _TAG = re.compile(r"<[^>]+>")
+_HEADING = re.compile(r"<h([1-6])\b[^>]*>(.*?)</h\1\s*>", re.I | re.S)
 # Text kept beside a link: enough for "Waldzimmern" or "Berlin, München, Waldenburg", and for
 # umantis' town after the job's number, type, contract and department (about 200 characters).
 AROUND = 300
@@ -88,6 +91,7 @@ class ListPageSource(SitemapSource):
             raise SourceError(f"{employer.name} asks automated tools not to read its job list.")
         found: dict[str, Listed] = {}
         pages, seen = [employer.board], {without_session(employer.board)}
+        number = 1
         while pages and len(seen) <= MAX_LIST_PAGES:
             address = pages.pop(0)
             response = self.get(address, ctx, cache=False)
@@ -96,6 +100,12 @@ class ListPageSource(SitemapSource):
             found.update((job.key, job) for job in new)
             if found and not new:
                 continue  # the same jobs again ("?start=0" is the first page): no further pages
+            if employer.pages and new:
+                # A list whose buttons for further pages have no addresses (Jungheinrich's
+                # onlyfy list, ten of its 172 jobs a page, newest first): the next page by
+                # number, as long as each brings new jobs.
+                number += 1
+                more = [*more, numbered(employer.board, employer.pages, number)]
             for page in more:
                 if (key := without_session(page)) not in seen and self.allowed(page, ctx):
                     seen.add(key)
@@ -144,6 +154,13 @@ def listed_jobs(page: str, base: str, pattern: re.Pattern) -> tuple[list[Listed]
         if (href := _HREF.search(match.group(1))) is None:
             continue
         own = _visible(match.group(2))
+        if (heading := _HEADING.search(match.group(2))) is not None and (
+                title := _visible(heading.group(2))):
+            # A link around the job's whole card: its heading is the job's title, and the rest
+            # of the card says where and what (Ziehl-Abegg's list: "<a><h4>Advanced Quality
+            # Planning Engineer (m/w/d)</h4> ... <span>Deutschland, Künzelsau</span></a>",
+            # onlyfy's: "<h3>...</h3><div>Hamburg | Full-time employee | 26.11.2026</div>").
+            own = title
         label = _LABEL.search(match.group(1))
         named = _NEW_TAB.sub("", " ".join(label.group(2).split())) if label else ""
         links.append((match.start(), match.end(), href.group(2), own or None, named or None))
@@ -335,6 +352,15 @@ def without_session(address: str) -> str:
     query = [(name, value) for name, value in parse_qsl(parts.query, keep_blank_values=True)
              if not _SESSION.match(name)]
     return urlunsplit(parts._replace(query=urlencode(query), fragment=""))
+
+
+def numbered(address: str, parameter: str, number: int) -> str:
+    """A list's page by its number: the list's address with that page in its query."""
+    parts = urlsplit(address)
+    query = [(name, value) for name, value in parse_qsl(parts.query, keep_blank_values=True)
+             if name != parameter]
+    return urlunsplit(parts._replace(query=urlencode([*query, (parameter, str(number))]),
+                                     fragment=""))
 
 
 def _record(text: str, position: int) -> str:

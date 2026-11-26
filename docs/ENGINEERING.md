@@ -40,7 +40,10 @@ happens before a new search is created or source collection begins, including wi
    by country ask only employers known there. Career-title screening rejects only explicitly
    unrelated titles; unseen titles survive its preliminary request bound. SuccessFactors sites,
    job sitemaps and employers' own list pages (`listpages.py`: a list page and the pattern of
-   its job pages' addresses) list job pages without their ads, so of the titles there the
+   its job pages' addresses; a list whose page buttons have no addresses names its page
+   parameter, `"pages": "page"`, and is read page by page while each brings new jobs; a link
+   around a whole job card takes the card's heading as the title) list job
+   pages without their ads, so of the titles there the
    search words miss, only jobs new on the list since its last reading (`listmemory.py`) are
    screened (on SuccessFactors, in a country searched); a page is opened only for a title the
    screen keeps (`load_details`). A sitemap listing each job in several languages counts it

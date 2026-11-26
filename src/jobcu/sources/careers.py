@@ -75,6 +75,9 @@ class Employer:
     # Whether those addresses spell the job's title. BMW's and Porsche's name only a number:
     # their pages are opened for jobs new on the list, to read the titles (sitemaps.py).
     titles: bool = True
+    # The query parameter its list page is paged by where the page's buttons for further pages
+    # have no addresses (onlyfy's "?page=2"): those pages are read by number (listpages.py).
+    pages: str | None = None
 
 
 @dataclass
@@ -111,6 +114,7 @@ def load_directory(path: Path = DIRECTORY) -> tuple[Employer, ...]:
             lists=dict(entry.get("lists") or {}),
             jobs=entry.get("jobs"),
             titles=entry.get("titles") is not False,
+            pages=entry.get("pages"),
         )
         for entry in data["employers"]
     )
