@@ -92,6 +92,26 @@ Directory membership does not establish reachable vacancies or engineering recal
 
 ## Access and protocol records
 
+### TU Berlin's job exchange (Stellenticket) and Dynex Semiconductor — 2026-11-26
+
+Stellenticket (`stellenticket.tu-berlin.de`) is TU Berlin's job exchange: its own posts (research
+and doctoral positions) and those employers place there for its students and graduates. robots.txt
+allows everything and names its sitemap, which lists 275 jobs, each in German
+(`/stellenangebote/{number}`) and English (`/en/job-offers/{number}`), all dated the day the sitemap
+was written. Each job page carries JobPosting data naming the employer that hires (a federal
+research institute's post was read with its posting day, Berlin and the ad). The addresses name no
+title, so it is read like BMW's site (`"titles": false`): the first search records the list, and
+from the next one only the pages of jobs new on it are opened, dated by their first sight; the
+directory's pattern names each job by its number, so the two languages are one job. DE 20 of the
+20 pages surveyed. Universities' other job systems vary (interamt, their own pages): not read.
+
+**Dynex Semiconductor** (power modules, IGBTs and thyristors designed in Lincoln) runs its
+careers site on Hireful (`careers.dynexsemi.com`): robots.txt closes only its legal notice and
+names a sitemap listing each vacancy as `/role/{code}`. The role pages carry no job data and are
+read as text: a "Senior Power Module Design Engineer" (SiC and GaN power modules, R&D, Lincoln)
+gave its title, its place and the whole ad. Read the same way (`"titles": false`). GB 5.
+Clas-SiC Wafer Fab (SiC devices, Fife) recruits through agencies: no list of its own.
+
 ### Research employers: DLR and the Leibniz institutes — 2026-11-26
 
 - **DLR** (German Aerospace Center; electric aviation propulsion in Cottbus, vehicle concepts in
