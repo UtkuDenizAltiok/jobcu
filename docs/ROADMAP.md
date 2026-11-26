@@ -7,6 +7,9 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- Employers whose good matches came only through job sites are read from their own sites:
+  thyssenkrupp with TKMS (Atlas Elektronik's electronics development in Bremen), Huawei R&D UK,
+  Proxima Fusion, Hypersonica, GKN Aerospace, Sunfire, pro-beam and TOPTICA Eagleyard.
 - Jungheinrich (drives and chargers), Ziehl-Abegg (motor electronics) and Hager are read from
   their own lists: a list whose page buttons have no links is read page by page, and a link
   around a whole job card takes the card's heading as the job's title.

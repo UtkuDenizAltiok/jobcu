@@ -1284,6 +1284,29 @@
    }
   },
   {
+   "name": "Proxima Fusion",
+   "system": "ashby",
+   "board": "proxima-fusion",
+   "countries": [
+    "CH",
+    "DE",
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "CH": [
+     "Zürich"
+    ],
+    "DE": [
+     "Munich"
+    ],
+    "GB": [
+     "Oxford"
+    ]
+   },
+   "checked": "2026-11-26"
+  },
+  {
    "name": "Qonto",
    "system": "ashby",
    "board": "qonto",
@@ -5986,6 +6009,26 @@
    }
   },
   {
+   "name": "Hypersonica",
+   "system": "lever",
+   "board": "hypersonica-prod",
+   "countries": [
+    "DE",
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Berlin",
+     "Munich"
+    ],
+    "GB": [
+     "London"
+    ]
+   },
+   "checked": "2026-11-26"
+  },
+  {
    "name": "Insider One",
    "system": "lever",
    "board": "insiderone",
@@ -6528,6 +6571,18 @@
    "elsewhere": true,
    "towns": {},
    "jobs": "[?&]yid=(\\d+)"
+  },
+  {
+   "name": "pro-beam",
+   "system": "listpage",
+   "board": "https://recruitingapp-5365.de.umantis.com/Jobs/All",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "/Vacancies/(\\d+)/Description",
+   "checked": "2026-11-26"
   },
   {
    "name": "TDK-Lambda (Germany)",
@@ -9205,6 +9260,34 @@
    "jobs": "/jobs/(\\d+)/[^/]+/job$"
   },
   {
+   "name": "Sunfire",
+   "system": "sitemap",
+   "board": "https://sunfire.career.softgarden.de/sitemap.xml",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "checked": "2026-11-26"
+  },
+  {
+   "name": "thyssenkrupp (with TKMS)",
+   "system": "sitemap",
+   "board": "https://jobs.thyssenkrupp.com/sitemap.xml",
+   "countries": [
+    "DE",
+    "ES",
+    "GB",
+    "HU",
+    "IT",
+    "PL",
+    "RO"
+   ],
+   "elsewhere": true,
+   "towns": {},
+   "checked": "2026-11-26"
+  },
+  {
    "name": "TT Electronics",
    "system": "sitemap",
    "board": "https://global-portal-ttelectronics.icims.com/sitemap.xml",
@@ -10506,6 +10589,21 @@
      "Hilversum"
     ]
    }
+  },
+  {
+   "name": "TOPTICA Eagleyard",
+   "system": "softgarden",
+   "board": "toptica-eagleyard",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Berlin"
+    ]
+   },
+   "checked": "2026-11-26"
   },
   {
    "name": "Advanced Energy",
@@ -12082,6 +12180,41 @@
      "Kassel"
     ]
    }
+  },
+  {
+   "name": "GKN Aerospace",
+   "system": "successfactors",
+   "board": "careers.gknaerospace.com",
+   "countries": [
+    "DE",
+    "GB",
+    "NL",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Munich"
+    ],
+    "GB": [
+     "Birmingham",
+     "Bristol",
+     "East Cowes",
+     "Luton",
+     "Newington",
+     "Wellington"
+    ],
+    "NL": [
+     "Hoogeveen",
+     "Papendrecht"
+    ],
+    "SE": [
+     "Linköping",
+     "Mölndal",
+     "Trollhättan"
+    ]
+   },
+   "checked": "2026-11-26"
   },
   {
    "name": "Goldwind",
@@ -15219,6 +15352,24 @@
      "Dublin"
     ]
    }
+  },
+  {
+   "name": "Huawei R&D UK",
+   "system": "teamtailor",
+   "board": "huaweiuk",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Cambridge",
+     "Edinburgh",
+     "Ipswich",
+     "London"
+    ]
+   },
+   "checked": "2026-11-26"
   },
   {
    "name": "Huawei Research Center Germany & Austria",
