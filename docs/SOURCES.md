@@ -92,6 +92,35 @@ Directory membership does not establish reachable vacancies or engineering recal
 
 ## Access and protocol records
 
+### Employers behind good job-site cards, read from their own sites — 2026-11-26
+
+Saved search results name employers whose good matches came only through job sites
+(`tools/unread_employers.py` in the maintainer's tools; most are agencies). The real employers
+among them were looked up as in the record below (FreeHire's job addresses, robots.txt first,
+each list read once):
+- **thyssenkrupp, with TKMS** (Atlas Elektronik's sonar and electronics development in Bremen,
+  naval shipbuilding in Kiel and Wismar, and the group's other companies): one job site under
+  two addresses, `jobs.thyssenkrupp.com` and `jobs.tkmsgroup.com`, whose sitemaps list the same
+  884 jobs (`/en/job/{title}-{town}/{number}`, each with its day); TKMS's pages answer at its own
+  address. Read from thyssenkrupp's sitemap only, so no job is read twice. Each job page carries
+  JobPosting data (a "Designer/Layouter" in Bremen, posted 24 November, with its full ad). robots.txt
+  closes only the API, newsletter, sign-in and profile pages.
+- **Huawei R&D UK** (Teamtailor `huaweiuk`: research and laboratory jobs in Cambridge; GB 56).
+  Huawei's research centre in Germany was already read.
+- **Proxima Fusion** (Ashby `proxima-fusion`: fusion power plant engineering in Munich; DE 50),
+  **Hypersonica** (Lever `hypersonica-prod`; Munich and London; DE 65, GB 30), **GKN Aerospace**
+  (SuccessFactors `careers.gknaerospace.com`; Bristol and Germany; GB 58, DE 14).
+- **Sunfire** (electrolysers, Dresden): Softgarden's newer layout on `sunfire.career.softgarden.de`,
+  read through its sitemap as NewTec's (DE 18). **pro-beam** (electron-beam systems, Gilching):
+  its umantis list `recruitingapp-5365.de.umantis.com/Jobs/All`, read as Diehl's (DE 19).
+  **TOPTICA Eagleyard** (laser diodes, Berlin): Softgarden `toptica-eagleyard` (DE 4); TOPTICA's
+  own jobs are on helixjobs, which Jobcu has no reader for.
+
+Not readable or not added: VINCORION (power electronics in Wedel; its vacancies come through
+b-ite's script loader, which needs the employer's key), Weller Tools (XING only), Molex, Terepco,
+Sikora, INELTA, Redur, ESMC, SYOS Aerospace and Indra Renewable Technologies (no list of their
+own found), enqt (coveto). Bosch, Clarios, Advantest and Saab were checked on 2026-11-24.
+
 ### Lists paged by buttons and whole-card links: Jungheinrich, Ziehl-Abegg, Hager — 2026-11-26
 
 - **Jungheinrich** (forklift drives, chargers and motor inverters; development in Norderstedt and
@@ -949,6 +978,11 @@ hardware-developer ads of the last day, five of which Jobcu had not found elsewh
 
 - Held boards: StepStone, Totaljobs, IrishJobs and Jobs.ie
   lack established permission for direct automated collection. Do not infer permission from robots alone.
+  Rechecked 2026-11-26 under the rule that only a real legal or lasting-ban risk rules a source
+  out: StepStone obtained a court injunction in Germany against a competing job portal, OFiR,
+  for linking to its job ads (one of the first cases under the EU database rules,
+  [report](https://itworldcanada.com/?p=29449)). A board that has gone to court against an
+  aggregator stays unread, and so do the group's other boards.
 - Unused sources: EURES (see the 2026-10-30 check below); publicjobs.ie, UK Civil Service Jobs
   and DWP Find a Job blocked automated access.
 - LinkedIn/StepStone: no established direct
