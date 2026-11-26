@@ -110,6 +110,19 @@ title its list gives. robots.txt closes only the site's technical folders; no te
 against reading were found. Added: TDK-Lambda (UK), 5 jobs (Senior Electrical Design Engineer,
 "Power + Design Engineer", test engineering), and TDK-Lambda (Germany), 7.
 
+### Murata Power Solutions; more field employers checked — 2026-11-26
+
+**Murata Power Solutions** (DC-DC converters and power supplies designed in Milton Keynes and
+Bordon) runs a SuccessFactors career site on its own address, `careers.murata-ps.com`
+(`/job/Milton-Keynes-...-MK8-0ES/1286750000`), read by the SuccessFactors reader: GB jobs and
+others in the US and Canada. The group's `jobs.murata.com` (already in the directory) lists
+other Murata companies.
+
+Checked and not added: Diodes Incorporated (its careers page answered with a bot check: left
+alone), Leuze electronic (its HR4YOU list frame builds its jobs with scripts), Toshiba Electronics
+Europe (`careers.toshiba.eu`: list built by scripts), Fuji Electric Europe and STÖBER (no list of
+their own found). ROHM Semiconductor (Personio) was already in the directory.
+
 ### Job pages that show their ad in a frame: iCIMS career sites — 2026-11-26
 
 An iCIMS career site (`{company}.icims.com`) lists its jobs in a sitemap

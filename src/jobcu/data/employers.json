@@ -12607,6 +12607,21 @@
    }
   },
   {
+   "name": "Murata Power Solutions",
+   "system": "successfactors",
+   "board": "careers.murata-ps.com",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "GB": [
+     "Bordon"
+    ]
+   },
+   "checked": "2026-11-26"
+  },
+  {
    "name": "Nordex",
    "system": "successfactors",
    "board": "jobs.nordex-online.com",
