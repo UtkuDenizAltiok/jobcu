@@ -92,6 +92,25 @@ Directory membership does not establish reachable vacancies or engineering recal
 
 ## Access and protocol records
 
+### Research employers: DLR and the Leibniz institutes — 2026-11-26
+
+- **DLR** (German Aerospace Center; electric aviation propulsion in Cottbus, vehicle concepts in
+  Stuttgart, energy systems in Oldenburg, quantum sensors in Hannover): a SuccessFactors career
+  site of its own, `jobs.dlr.de`, whose sitemap lists its job pages (DE 278 of its jobs, ES 3).
+  A live read with an electronics engineer's search words over seven days gave an
+  "Elektronikentwicklerin (w/m/d) für Quantensensoren" in Hannover with its full ad.
+- **The Leibniz Association's job list** (`www.leibniz-gemeinschaft.de/en/careers/jobs`: the
+  vacancies of its institutes, among them the Ferdinand-Braun-Institut's GaN power electronics
+  and IHP's microelectronics): one page, each title a link to the job's page, the institute and
+  its town written below it; the job pages carry no job data and are read as text. robots.txt
+  answers 404 (no rules). DE 13 of the pages surveyed.
+
+Also checked: the Helmholtz Association's EURAXESS export
+(`www.helmholtz.de/en/helmholtzdatensaetze/news-und-presseinformationen/stellenangebote/euraxess-xml-export`,
+67 offers, almost all doctoral and postdoctoral posts in the sciences, also listed on EURAXESS): no
+reader. The Semiconductor Catapult (formerly the Compound Semiconductor Applications Catapult;
+power electronics in Newport) lists its vacancies through Occupop, which Jobcu has no reader for.
+
 ### Workday lists that name no posting day — 2026-11-26
 
 MBDA's German Workday site (`mbda.wd3.myworkdayjobs.com/MBDA-DE`, 165 jobs) lists each job's
