@@ -9272,6 +9272,19 @@
    "jobs": "/jobs/(\\d+)/[^/]+/job$"
   },
   {
+   "name": "Stellenticket (TU Berlin job exchange)",
+   "system": "sitemap",
+   "board": "https://stellenticket.tu-berlin.de/sitemap.xml",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "/(?:stellenangebote|job-offers)/(\\d+)$",
+   "titles": false,
+   "checked": "2026-11-26"
+  },
+  {
    "name": "Sunfire",
    "system": "sitemap",
    "board": "https://sunfire.career.softgarden.de/sitemap.xml",
