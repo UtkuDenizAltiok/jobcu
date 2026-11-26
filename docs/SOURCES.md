@@ -92,6 +92,36 @@ Directory membership does not establish reachable vacancies or engineering recal
 
 ## Access and protocol records
 
+### Lists paged by buttons and whole-card links: Jungheinrich, Ziehl-Abegg, Hager — 2026-11-26
+
+- **Jungheinrich** (forklift drives, chargers and motor inverters; development in Norderstedt and
+  Moosburg) lists its jobs on onlyfy (`jungheinrich.onlyfy.jobs/en`): ten of its 172 jobs a
+  page, newest first, each a link around the job's card (title in a heading, then "Hamburg |
+  Full-time employee | 26.11.2026"), and the page's buttons for further pages have no addresses.
+  The same list answers `?page=2` with the next ten, whose job links carry the visitor's list
+  page (`?career_page_search=page%3D2`). Its job pages carry JobPosting data (the whole ad, the
+  posting time, the place). robots.txt closes only the recruiters' area and language switching
+  and asks for `Crawl-delay: 1`; it has no sitemap (404). The directory now names such a list's
+  page parameter (`"pages": "page"`): the reader reads its pages by number while each brings new
+  jobs, within its ten-page limit (the newest 100 jobs, 11 requests and about 11 seconds), and
+  leaves the visitor's list page out of each job's address. DE 10 of the pages surveyed.
+- **Ziehl-Abegg** (EC motors and their drive electronics; Künzelsau) moved its vacancies to
+  `karriere.ziehl-abegg.de/jobs`: one page of 98 jobs, each a link around its card (title in an
+  `<h4>`, then level, department and "Deutschland, Künzelsau"); its job pages
+  (`/detail/job/{24-digit code}`) carry no job data and are read as text. The reader took the
+  whole card's text for the title and found no place, so the check placed all twenty surveyed
+  jobs abroad; now a job link holding a heading takes the heading as the title and the rest of
+  its card as the job's details. Checked on the twenty other list-page employers' current lists:
+  no title or place changed. robots.txt closes only the site's technical folders. DE 20.
+- **Hager** (electrical distribution, EV charging and energy management; development in
+  Blieskastel) runs a Radancy career site whose sitemap (`careers.hager.com/en/sitemap.xml`)
+  lists 224 job pages (`/en/job/{town}/{title}/3352/{number}`) beside category, location and
+  employment pages; the directory gives the job pages' pattern. Each job page carries JobPosting
+  data. robots.txt closes only `/search-jobs/`. DE 7, GB 2, IE 1 of the pages surveyed.
+
+Also checked: Safran's job site (Talentsoft, `safran.profils.org`) closes everything to robots,
+so it stays unread.
+
 ### Field employers on career systems Jobcu reads — 2026-11-26
 
 Found by asking FreeHire's public search once per employer name (`q_fields=company`, 58 names of

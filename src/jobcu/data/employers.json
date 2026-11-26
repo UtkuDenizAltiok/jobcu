@@ -6446,6 +6446,19 @@
    "jobs": "-j(\\d+)\\.html"
   },
   {
+   "name": "Jungheinrich",
+   "system": "listpage",
+   "board": "https://jungheinrich.onlyfy.jobs/en",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "/job/([a-z0-9]{20,})$",
+   "pages": "page",
+   "checked": "2026-11-26"
+  },
+  {
    "name": "LAPP",
    "system": "listpage",
    "board": "https://www.lappcareer.com/stellenangebote.html",
@@ -6616,6 +6629,18 @@
    "elsewhere": false,
    "towns": {},
    "jobs": "ats\\.rippling\\.com/yasa/jobs/([0-9a-f-]{36})"
+  },
+  {
+   "name": "Ziehl-Abegg",
+   "system": "listpage",
+   "board": "https://karriere.ziehl-abegg.de/jobs",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "/detail/job/([0-9a-f]{24})$",
+   "checked": "2026-11-26"
   },
   {
    "name": "Akamai",
@@ -9075,6 +9100,26 @@
    ],
    "elsewhere": false,
    "towns": {}
+  },
+  {
+   "name": "Hager",
+   "system": "sitemap",
+   "board": "https://careers.hager.com/en/sitemap.xml",
+   "countries": [
+    "CH",
+    "CZ",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "IE",
+    "NL",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {},
+   "jobs": "/job/[^/]+/[^/]+/\\d+/(\\d+)$",
+   "checked": "2026-11-26"
   },
   {
    "name": "Maschinenfabrik Reinhausen",

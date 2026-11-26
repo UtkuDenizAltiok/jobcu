@@ -292,6 +292,71 @@ def test_a_next_page_named_only_in_a_data_attribute_is_followed():
     assert more == ["https://career.example.test/Jobs/All?tc1152481=p2&_search_token1152481=99"]
 
 
+def test_a_list_whose_page_buttons_have_no_links_is_read_by_page_number_while_jobs_are_new(
+        monkeypatch):
+    # An onlyfy-like list, newest first: its buttons for further pages have no addresses, and
+    # "?page=2" gives the next jobs, whose links carry the list's page; a page past the end
+    # shows the last one again. Each job's card is its link, its title in a heading.
+    def list_page(page, *numbers):
+        state = f"?career_page_search=page%3D{page}" if page > 1 else ""
+        return ("<html><body>" + "".join(
+            f'<a href="/de/job/job{n}{state}"><h3>Hardwareentwickler Ladetechnik {n} (m/w/d)'
+            f'</h3><div>Musterstadt | Vollzeit | 25.11.2026</div></a>' for n in numbers)
+            + '<button aria-label="Go to next page"></button></body></html>')
+
+    lists = {"": list_page(1, 1, 2), "page=2": list_page(2, 3), "page=3": list_page(3, 3)}
+    requested = []
+
+    def handler(request):
+        path, query = request.url.path, request.url.query.decode()
+        requested.append(f"{path}?{query}" if query else path)
+        if path == "/de":
+            return httpx.Response(200, text=lists[query])
+        if path.startswith("/de/job/job"):
+            return httpx.Response(200, text=posting(
+                f"Hardwareentwickler Ladetechnik {path[-1]} (m/w/d)", "Musterstadt"))
+        return httpx.Response(404)
+
+    def read(employer):
+        requested.clear()
+        monkeypatch.setattr(careers, "load_directory", lambda: (employer,))
+        http = PoliteClient(min_intervals={}, sleep=lambda s: None,
+                            transport=httpx.MockTransport(handler))
+        ctx = SourceContext(http, KeyStore(), SourceReport("listpage", "Lists"), lambda: False,
+                            lambda message: None)
+        jobs = list(listpages.ListPageSource().search(JobQuery(["DE"], [], TERMS, 24, NOW), ctx))
+        return (sorted(job.title for job in jobs),
+                [path for path in requested if path.startswith("/de") and "/job/" not in path])
+
+    employer = Employer("Example Fahrzeuge", "listpage", "https://jobs.example.test/de", ("DE",),
+                        jobs=r"/job/(job\d+)$", pages="page")
+    titles, lists_read = read(employer)
+    assert titles == [f"Hardwareentwickler Ladetechnik {n} (m/w/d)" for n in (1, 2, 3)]
+    assert lists_read == ["/de", "/de?page=2", "/de?page=3"]
+    assert "/de/job/job3" in requested  # the job's own address, without the list's page
+    # Without the directory's word for it, only the first page is known.
+    titles, lists_read = read(dataclasses.replace(employer, pages=None))
+    assert len(titles) == 2 and lists_read == ["/de"]
+    assert listpages.numbered("https://a.test/jobs?lang=de&page=1", "page", 4) == (
+        "https://a.test/jobs?lang=de&page=4")
+
+
+def test_a_link_around_a_whole_card_takes_its_heading_as_title_and_the_rest_as_its_place():
+    def job_card(number, title, place):
+        return (f'<div class="job"><a href="/detail/job/{number:024x}"><div class="content">'
+                f'<h4>{title}</h4><div class="types"><span>Professional</span>'
+                f'<span>Entwicklung</span><span>{place}</span></div></div></a></div>')
+
+    page = (job_card(1, "Entwicklungsingenieur Leistungselektronik (m/w/d)",
+                     "Deutschland, Erlangen")
+            + job_card(2, "Hardwareentwickler (m/w/d)", "Deutschland, Dresden"))
+    jobs, _ = listpages.listed_jobs(page, "https://karriere.example.test/jobs",
+                                    re.compile(r"/detail/job/([0-9a-f]{24})$"))
+    assert [(job.title, job.around) for job in jobs] == [
+        ("Entwicklungsingenieur Leistungselektronik (m/w/d)", "Erlangen, Germany"),
+        ("Hardwareentwickler (m/w/d)", "Dresden, Germany")]
+
+
 ROWS = """<table>
 <tr><td><p>D: Example Defence GmbH | Online seit: 25.11.2026</p>
 <p><a href="/Vacancies/501/Description/31">Entwicklungsingenieur (m/w/d) Hardware</a></p>
