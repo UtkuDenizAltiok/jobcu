@@ -92,6 +92,57 @@ Directory membership does not establish reachable vacancies or engineering recal
 
 ## Access and protocol records
 
+### Field employers on career systems Jobcu reads — 2026-11-26
+
+Found by asking FreeHire's public search once per employer name (`q_fields=company`, 58 names of
+electronics, drives, power and instruments employers in Germany, the UK and Ireland that the
+directory lacked): its results carry each job's real address, which names the employer's career
+system. Every list below comes from such addresses (no Workday address was guessed) and was read
+once with `tools/check_employers.py`; robots.txt was read first for every host.
+
+- SuccessFactors: **ifm** (`jobs.ifm.com`; sensor and power electronics in Tettnang; DE 75),
+  **Kärcher** (`careers.kaercher.com`; DE 116, GB 7), **Stiebel Eltron**
+  (`karriere.stiebel-eltron.de`; heat-pump electronics in Holzminden; DE 69), **AGCO (Fendt)**
+  (`careers.agcocorp.com`; DE 137), **CLAAS** (`recruiting.claas.com`; DE 103) and **Kistler**
+  (`jobs.kistler.com`; DE 12). A live read with an electronics engineer's search words gave
+  ifm's "Elektroingenieur als Hardwareentwickler für induktive Sensoren" and "Entwicklungsingenieur
+  Elektronik Drucksensorik" with their full ads. An old ifm job address from a job board
+  (`/job/...aspx?LCID=2057`) answered 403 ("forbidden by administrative rules"): an address of the
+  site's earlier system, which Jobcu never reads; the career site itself answered.
+- Workday (wd3, wd103 and wd502 servers, not the wd1/wd5 ones behind the human check): **Miele**
+  (`miele.wd3.myworkdayjobs.com/miele-jobs`; DE 78, GB 12, IE 3), **Pepperl+Fuchs**
+  (`pepperlfuchs.wd103.myworkdayjobs.com/PepperlFuchs`; DE 26), **Bürkert**
+  (`burkert.wd502.myworkdayjobs.com/burkert-career`; DE 54), **MBDA (Germany)**
+  (`mbda.wd3.myworkdayjobs.com/MBDA-DE`; Schrobenhausen and Aschau; DE 165; MBDA's UK site was
+  already read) and **Megger** (`megger.wd3.myworkdayjobs.com/MeggerCareers`; test instruments
+  for power networks in Dover and Germany; GB 2, DE 5).
+- Oracle: **Ford** (`efds.fa.em5.oraclecloud.com`, site `CX_1`; Cologne and Aachen; DE 19,
+  GB 10) and **Cummins** (`fa-espx-saasfaprod1.fa.ocs.oraclecloud.com`, site `jobsearch`; GB 69,
+  DE 3, IE 2).
+- Greenhouse: **Cambridge Consultants** (`cambridgeconsultantslimited`; electronics and systems
+  engineering, graduate roles; GB 82). Its board is on Greenhouse's EU host, and the public Job
+  Board API answers for it as for any board.
+- Teamtailor on the employers' own addresses: **Surrey Satellite Technology**
+  (`jobs.sstl.co.uk`; spacecraft electronics in Guildford; GB 11) and **Ceres Power**
+  (`careers.ceres.tech`; fuel-cell and power systems in Horsham; GB 8).
+- SmartRecruiters (opt-in): **Enoda** (`ENODA`; grid power electronics in Edinburgh; GB 3).
+- A rexx list page: **LAPP** (`www.lappcareer.com/stellenangebote.html`; cables and charging
+  technology in Stuttgart; DE 20). Its robots.txt closes the site only to generic HTTP libraries
+  by name (python-requests, wget and others), not to Jobcu's own named client.
+
+Not added: Balluff (its careers page answered with a bot check: left alone), JUMO (its career
+host refused the connection), Murrelektronik (its vacancies are built by scripts), ebm-papst
+(Cornerstone, which Jobcu has no reader for: 128 ads), Hager (Radancy), Safran (Talentsoft),
+ITM Power (JOIN, decided 2026-11-25), ePropelled (Zoho Recruit), Hyundai Motorsport (its
+Softgarden name answered 404), Heidenhain (its ads are PDF files only), Eberspächer,
+Kostal, Marquardt, Wilo, BSH, Festool, Recom, Sumida, Dräger, Melexis, WAE, Pulsiv, Protean,
+Saietta, Turntide, Equipmake, 42 Technology, IQE and Plextek (no list of their own on any
+system; their jobs reach Jobcu through job sites and the Bundesagentur). Already read under
+another entry: Semikron Danfoss (in Danfoss's SuccessFactors site), Tesat-Spacecom (Airbus's
+Workday site lists its jobs: 36), Hitachi Energy (Hitachi's Workday site); already in the
+directory: Nexperia, Oxford
+Instruments, Lotus and MBDA's UK site.
+
 ### Job lists whose links only say "View job details" — 2026-11-26
 
 TDK-Lambda (power supplies; its UK design and manufacturing centre in Ilfracombe, its EMEA head

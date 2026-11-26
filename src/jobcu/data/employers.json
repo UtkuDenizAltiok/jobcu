@@ -3128,6 +3128,17 @@
    }
   },
   {
+   "name": "Cambridge Consultants",
+   "system": "greenhouse",
+   "board": "cambridgeconsultantslimited",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {},
+   "checked": "2026-11-26"
+  },
+  {
    "name": "Celonis",
    "system": "greenhouse",
    "board": "celonis",
@@ -6435,6 +6446,19 @@
    "jobs": "-j(\\d+)\\.html"
   },
   {
+   "name": "LAPP",
+   "system": "listpage",
+   "board": "https://www.lappcareer.com/stellenangebote.html",
+   "countries": [
+    "DE",
+    "PL"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "-j(\\d+)\\.html",
+   "checked": "2026-11-26"
+  },
+  {
    "name": "Lenze",
    "system": "listpage",
    "board": "https://karriere.lenze.com/stellenangebote.html",
@@ -6834,6 +6858,74 @@
    }
   },
   {
+   "name": "Cummins",
+   "system": "oracle",
+   "board": "fa-espx-saasfaprod1.fa.ocs.oraclecloud.com/jobsearch",
+   "countries": [
+    "BE",
+    "CZ",
+    "DE",
+    "ES",
+    "FR",
+    "GB",
+    "IE",
+    "IT",
+    "NL",
+    "PL",
+    "RO",
+    "SE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "BE": [
+     "Antwerp"
+    ],
+    "CZ": [
+     "Trutnov"
+    ],
+    "DE": [
+     "Groß-Gerau"
+    ],
+    "ES": [
+     "Guadalajara",
+     "San Fernando de Henares",
+     "Zaragoza"
+    ],
+    "GB": [
+     "Cwmbran",
+     "Darlington",
+     "Daventry",
+     "Huddersfield",
+     "Leeds",
+     "Peterborough",
+     "Redditch",
+     "Sandwich",
+     "Stamford",
+     "Wellingborough"
+    ],
+    "IE": [
+     "Dublin"
+    ],
+    "IT": [
+     "Cameri",
+     "Milan"
+    ],
+    "NL": [
+     "Dordrecht"
+    ],
+    "PL": [
+     "Lubin"
+    ],
+    "RO": [
+     "Craiova"
+    ],
+    "SE": [
+     "Örebro"
+    ]
+   },
+   "checked": "2026-11-26"
+  },
+  {
    "name": "Dell",
    "system": "oracle",
    "board": "enterpriseplatform.dell.com/CX_1001",
@@ -7025,6 +7117,42 @@
      "Nové Mesto nad Váhom"
     ]
    }
+  },
+  {
+   "name": "Ford",
+   "system": "oracle",
+   "board": "efds.fa.em5.oraclecloud.com/CX_1",
+   "countries": [
+    "BE",
+    "DE",
+    "ES",
+    "GB",
+    "HU",
+    "IT"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "BE": [
+     "Brussels"
+    ],
+    "DE": [
+     "Berlin",
+     "Hamburg",
+     "Köln"
+    ],
+    "ES": [
+     "Madrid",
+     "Valencia"
+    ],
+    "HU": [
+     "Budapest",
+     "Szentendre"
+    ],
+    "IT": [
+     "Rome"
+    ]
+   },
+   "checked": "2026-11-26"
   },
   {
    "name": "Garrett Motion",
@@ -9740,6 +9868,21 @@
    }
   },
   {
+   "name": "Enoda",
+   "system": "smartrecruiters",
+   "board": "ENODA",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Edinburgh"
+    ]
+   },
+   "checked": "2026-11-26"
+  },
+  {
    "name": "General Dynamics UK",
    "system": "smartrecruiters",
    "board": "GDMSI",
@@ -10340,6 +10483,56 @@
      "Cork"
     ]
    }
+  },
+  {
+   "name": "AGCO (Fendt)",
+   "system": "successfactors",
+   "board": "careers.agcocorp.com",
+   "countries": [
+    "CH",
+    "DE",
+    "DK",
+    "FI",
+    "FR",
+    "GB",
+    "HU",
+    "IT",
+    "PL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "CH": [
+     "Neuhausen"
+    ],
+    "DE": [
+     "Asbach",
+     "Feucht",
+     "Hofgeismar",
+     "Hohenmölsen",
+     "Marktoberdorf",
+     "Neustadt an der Weinstraße",
+     "Salzkotten",
+     "Wolfenbüttel"
+    ],
+    "DK": [
+     "Randers"
+    ],
+    "FI": [
+     "Suolahti"
+    ],
+    "FR": [
+     "Beauvais",
+     "Ennery",
+     "Heillecourt"
+    ],
+    "HU": [
+     "Budapest"
+    ],
+    "IT": [
+     "Breganze"
+    ]
+   },
+   "checked": "2026-11-26"
   },
   {
    "name": "Alstom",
@@ -11198,6 +11391,47 @@
    }
   },
   {
+   "name": "CLAAS",
+   "system": "successfactors",
+   "board": "recruiting.claas.com",
+   "countries": [
+    "AT",
+    "DE",
+    "FR",
+    "HU"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Spillern"
+    ],
+    "DE": [
+     "Bad Saulgau",
+     "Dissen",
+     "Harsewinkel",
+     "Herzebrock-Clarholz",
+     "Hockenheim",
+     "Klein Schwülper",
+     "Paderborn",
+     "Vohburg an der Donau"
+    ],
+    "FR": [
+     "Charnay-lès-Mâcon",
+     "Ergué-Gabéric",
+     "Le Mans",
+     "Plouédern",
+     "Pontivy",
+     "Trangé",
+     "Varois-et-Chaignot",
+     "Woippy"
+    ],
+    "HU": [
+     "Törökszentmiklós"
+    ]
+   },
+   "checked": "2026-11-26"
+  },
+  {
    "name": "Codan",
    "system": "successfactors",
    "board": "careers.codan.com.au",
@@ -11979,6 +12213,29 @@
    }
   },
   {
+   "name": "ifm",
+   "system": "successfactors",
+   "board": "jobs.ifm.com",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Essen",
+     "Friedrichshafen",
+     "Fürth",
+     "Gera",
+     "Heppenheim an der Bergstrasse",
+     "Ingolstadt",
+     "Kressbronn am Bodensee",
+     "Stuttgart",
+     "Tettnang"
+    ]
+   },
+   "checked": "2026-11-26"
+  },
+  {
    "name": "Jaguar Land Rover",
    "system": "successfactors",
    "board": "www.jaguarlandrovercareers.com",
@@ -12045,6 +12302,39 @@
      "Vlotho"
     ]
    }
+  },
+  {
+   "name": "Kistler",
+   "system": "successfactors",
+   "board": "jobs.kistler.com",
+   "countries": [
+    "CH",
+    "DE",
+    "IT",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "CH": [
+     "Winterthur"
+    ],
+    "DE": [
+     "Lorch",
+     "Meerane",
+     "Munich",
+     "Remscheid",
+     "Sindelfingen",
+     "Straubenhardt"
+    ],
+    "IT": [
+     "Milan",
+     "Novi di Modena"
+    ],
+    "SK": [
+     "Bratislava"
+    ]
+   },
+   "checked": "2026-11-26"
   },
   {
    "name": "KNDS Deutschland",
@@ -12222,6 +12512,116 @@
      "Partille"
     ]
    }
+  },
+  {
+   "name": "Kärcher",
+   "system": "successfactors",
+   "board": "careers.kaercher.com",
+   "countries": [
+    "AT",
+    "DE",
+    "DK",
+    "ES",
+    "FR",
+    "GB",
+    "GR",
+    "HU",
+    "IT",
+    "NL",
+    "NO",
+    "PL",
+    "RO",
+    "SE",
+    "SK"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Thüringen",
+     "Vienna"
+    ],
+    "DE": [
+     "Ahorn",
+     "Donaueschingen",
+     "Duisburg",
+     "Erfurt",
+     "Frankfurt am Main",
+     "Kaiserslautern",
+     "Münster",
+     "Nuremberg",
+     "Obersontheim",
+     "Reutlingen",
+     "Schwaikheim",
+     "Stadthagen",
+     "Stuttgart",
+     "Waldstetten",
+     "Wesel",
+     "Winnenden",
+     "Würzburg"
+    ],
+    "DK": [
+     "Rødovre"
+    ],
+    "ES": [
+     "Granollers",
+     "Santa Ana de Pusa",
+     "Santa Cruz de Tenerife",
+     "Santiago de Compostela"
+    ],
+    "FR": [
+     "Antibes",
+     "Aulnay-sous-Bois",
+     "Bonneuil-sur-Marne",
+     "Embrun",
+     "Niort",
+     "Rennes",
+     "Rouen",
+     "Toulon",
+     "Tours"
+    ],
+    "GB": [
+     "Banbury",
+     "Chelmsford",
+     "Forth"
+    ],
+    "GR": [
+     "Thessaloníki"
+    ],
+    "HU": [
+     "Biatorbágy"
+    ],
+    "IT": [
+     "Aurora",
+     "Coccaglio",
+     "Quistello",
+     "Rho"
+    ],
+    "NL": [
+     "Made",
+     "Urk"
+    ],
+    "NO": [
+     "Bergen"
+    ],
+    "PL": [
+     "Kraków",
+     "Poznań",
+     "Ząbki"
+    ],
+    "RO": [
+     "Curtea de Argeş",
+     "Voluntari"
+    ],
+    "SE": [
+     "Gothenburg",
+     "Malmö",
+     "Stockholm"
+    ],
+    "SK": [
+     "Nitra"
+    ]
+   },
+   "checked": "2026-11-26"
   },
   {
    "name": "Lear",
@@ -13364,6 +13764,25 @@
      "Wildpoldsried"
     ]
    }
+  },
+  {
+   "name": "Stiebel Eltron",
+   "system": "successfactors",
+   "board": "karriere.stiebel-eltron.de",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Eschwege",
+     "Gifhorn",
+     "Holzminden",
+     "Neu-Ulm",
+     "Nuremberg"
+    ]
+   },
+   "checked": "2026-11-26"
   },
   {
    "name": "STIHL",
@@ -14519,6 +14938,22 @@
    }
   },
   {
+   "name": "Ceres Power",
+   "system": "teamtailor",
+   "board": "careers.ceres.tech",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Horsham",
+     "Redhill"
+    ]
+   },
+   "checked": "2026-11-26"
+  },
+  {
    "name": "Combine",
    "system": "teamtailor",
    "board": "combine",
@@ -15081,6 +15516,22 @@
      "Stockholm"
     ]
    }
+  },
+  {
+   "name": "Surrey Satellite Technology",
+   "system": "teamtailor",
+   "board": "jobs.sstl.co.uk",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Bordon",
+     "Guildford"
+    ]
+   },
+   "checked": "2026-11-26"
   },
   {
    "name": "Teamtailor",
@@ -17808,6 +18259,32 @@
      "Regensburg"
     ]
    }
+  },
+  {
+   "name": "Bürkert",
+   "system": "workday",
+   "board": "https://burkert.wd502.myworkdayjobs.com/burkert-career",
+   "countries": [
+    "DE",
+    "FR"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Au in der Hallertau",
+     "Berlin",
+     "Egelsbach",
+     "Filderstadt",
+     "Gerabronn",
+     "Hannover",
+     "Ingelfingen",
+     "Karlsruhe",
+     "Menden",
+     "Munich",
+     "Öhringen"
+    ]
+   },
+   "checked": "2026-11-26"
   },
   {
    "name": "Cadence",
@@ -22541,6 +23018,23 @@
    }
   },
   {
+   "name": "MBDA (Germany)",
+   "system": "workday",
+   "board": "https://mbda.wd3.myworkdayjobs.com/MBDA-DE",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "DE": [
+     "Aschau am Inn",
+     "Schrobenhausen",
+     "Ulm"
+    ]
+   },
+   "checked": "2026-11-26"
+  },
+  {
    "name": "Medtronic",
    "system": "workday",
    "board": "https://medtronic.wd1.myworkdayjobs.com/MedtronicCareers",
@@ -22750,6 +23244,26 @@
    }
   },
   {
+   "name": "Megger",
+   "system": "workday",
+   "board": "https://megger.wd3.myworkdayjobs.com/MeggerCareers",
+   "countries": [
+    "DE",
+    "GB"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Baunach",
+     "Mönchengladbach"
+    ],
+    "GB": [
+     "Dover"
+    ]
+   },
+   "checked": "2026-11-26"
+  },
+  {
    "name": "Microchip",
    "system": "workday",
    "board": "https://microchiphr.wd5.myworkdayjobs.com/External",
@@ -22836,6 +23350,117 @@
      "Vimercate"
     ]
    }
+  },
+  {
+   "name": "Miele",
+   "system": "workday",
+   "board": "https://miele.wd3.myworkdayjobs.com/miele-jobs",
+   "countries": [
+    "AT",
+    "BE",
+    "CH",
+    "CY",
+    "CZ",
+    "DE",
+    "DK",
+    "FR",
+    "GB",
+    "GR",
+    "IE",
+    "IT",
+    "LU",
+    "NL",
+    "NO",
+    "PL",
+    "RO"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Bürmoos",
+     "Salzburg",
+     "Vienna"
+    ],
+    "BE": [
+     "Antwerp",
+     "Brugge",
+     "Gent",
+     "Hasselt",
+     "Mollem"
+    ],
+    "CH": [
+     "Sankt Gallen",
+     "Spreitenbach"
+    ],
+    "CY": [
+     "Nicosia"
+    ],
+    "CZ": [
+     "Uničov"
+    ],
+    "DE": [
+     "Arnsberg",
+     "Berlin",
+     "Bielefeld",
+     "Düsseldorf",
+     "Gütersloh",
+     "Hamburg",
+     "Kempen",
+     "Lehrte",
+     "Oelde",
+     "Warendorf"
+    ],
+    "DK": [
+     "Copenhagen",
+     "Næstved",
+     "Roskilde"
+    ],
+    "FR": [
+     "Le Blanc-Mesnil",
+     "Montréal"
+    ],
+    "GB": [
+     "Abingdon",
+     "Brent",
+     "Doncaster",
+     "Edinburgh",
+     "Edmonton",
+     "Hawthorn",
+     "Hilton",
+     "London",
+     "Melbourne",
+     "Street",
+     "Wellington"
+    ],
+    "GR": [
+     "Maroúsi"
+    ],
+    "IE": [
+     "Dublin"
+    ],
+    "IT": [
+     "Cà Dè Fabbri",
+     "Eppan"
+    ],
+    "LU": [
+     "Luxembourg"
+    ],
+    "NL": [
+     "America",
+     "Amsterdam",
+     "Eindhoven",
+     "The Hague",
+     "Vianen"
+    ],
+    "PL": [
+     "Poznań"
+    ],
+    "RO": [
+     "Braşov",
+     "Bucharest"
+    ]
+   },
+   "checked": "2026-11-26"
   },
   {
    "name": "Monolithic Power Systems",
@@ -23479,6 +24104,51 @@
      "Amsterdam"
     ]
    }
+  },
+  {
+   "name": "Pepperl+Fuchs",
+   "system": "workday",
+   "board": "https://pepperlfuchs.wd103.myworkdayjobs.com/PepperlFuchs",
+   "countries": [
+    "AT",
+    "BE",
+    "CZ",
+    "DE",
+    "GB",
+    "HU",
+    "NL"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "AT": [
+     "Bad Vöslau"
+    ],
+    "BE": [
+     "Antwerp"
+    ],
+    "CZ": [
+     "Trutnov"
+    ],
+    "DE": [
+     "Assamstadt",
+     "Berlin",
+     "Bühl",
+     "Hamburg",
+     "Mannheim"
+    ],
+    "GB": [
+     "Melbourne",
+     "Oldham"
+    ],
+    "HU": [
+     "Veszprém"
+    ],
+    "NL": [
+     "'s-Hertogenbosch",
+     "America"
+    ]
+   },
+   "checked": "2026-11-26"
   },
   {
    "name": "Pfizer",
