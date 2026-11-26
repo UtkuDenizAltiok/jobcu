@@ -18,12 +18,36 @@ _LEFTOVER_TAG = re.compile(
 )
 
 
+# A character reference: "&amp;", "&#038;", "&#x2013;". Only whole ones, with their ";": in
+# plain text "R&D" or "AT&T" is written as it is meant.
+_REFERENCE = re.compile(r"&(?:#[0-9]{1,7}|#[xX][0-9a-fA-F]{1,6}|[A-Za-z][A-Za-z0-9]{1,31});")
+
+
+def decode_references(text: str) -> str:
+    """Plain text with its character references decoded, also when a site escaped it twice
+    ("&amp;amp;" → "&"). An unknown name ("&foo;") stays as it is."""
+    for _ in range(3):
+        if "&" not in text:
+            break
+        decoded = _REFERENCE.sub(lambda reference: html.unescape(reference.group(0)), text)
+        if decoded == text:
+            break
+        text = decoded
+    return text
+
+
 def html_to_text(markup: str | None) -> str:
     if not markup:
         return ""
-    if "<" not in markup and "&lt;" in markup:
-        markup = html.unescape(markup)
+    if "<" not in markup:
+        # Text without tags can still be escaped: HTML sent as "&lt;p&gt;", or plain text with
+        # "&amp;" in it (Reed's and JSearch's ads, Daimler Truck's titles).
+        markup = decode_references(markup)
     text = _to_text(markup)
+    if "&" in text:
+        # A site that escapes its text twice leaves "&amp;" or "&#8211;" (BAE Systems' titles)
+        # after the HTML is read: shown as such, and a different title to match copies by.
+        text = tidy(decode_references(text))
     # HTML escaped inside HTML (Arbeitnow sometimes): the first pass leaves the inner tags.
     return _to_text(text) if _LEFTOVER_TAG.search(text) else text
 

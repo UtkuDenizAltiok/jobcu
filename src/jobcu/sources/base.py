@@ -15,6 +15,7 @@ from jobcu.keywords import SearchTerm
 from jobcu.location import Place
 from jobcu.settings import JobType
 from jobcu.sources.http import PoliteClient
+from jobcu.text import decode_references
 
 DatePrecision = Literal["exact", "day", "unknown"]
 WorkMode = Literal["remote", "hybrid", "on_site"]
@@ -60,6 +61,18 @@ class FoundJob:
     # A career site's own word that several of its listings are one vacancy (`requisition`),
     # and the language of this listing's page (`language`), when one job is listed per language.
     source_context: dict[str, str] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        # These are plain text whatever the reader. A reader that takes a site's value as it
+        # comes (Adzuna's ad text: "&nbsp;") or a site that escapes its job data twice would
+        # otherwise show the reference, and one job's copies would differ in title.
+        for name in _PLAIN_TEXT:
+            value = getattr(self, name)
+            if value and "&" in value:
+                setattr(self, name, decode_references(value))
+
+
+_PLAIN_TEXT = ("title", "company", "location_text", "description", "salary_text")
 
 
 @dataclass
