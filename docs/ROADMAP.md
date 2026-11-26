@@ -7,6 +7,8 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- DLR (the German Aerospace Center, 278 jobs in Germany) and the Leibniz institutes' job list are
+  read from their own sites.
 - A Workday site whose list names no posting day (MBDA's German site) has its jobs dated by their
   first sight on the list, so only its new jobs count and go to the person's AI.
 - Employers whose good matches came only through job sites are read from their own sites:

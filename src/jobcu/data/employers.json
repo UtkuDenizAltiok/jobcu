@@ -6515,6 +6515,18 @@
    "checked": "2026-11-26"
   },
   {
+   "name": "Leibniz Association (institutes' jobs)",
+   "system": "listpage",
+   "board": "https://www.leibniz-gemeinschaft.de/en/careers/jobs",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "/careers/jobs/detail/job/show/Job/([a-z0-9-]+)$",
+   "checked": "2026-11-26"
+  },
+  {
    "name": "Lenze",
    "system": "listpage",
    "board": "https://karriere.lenze.com/stellenangebote.html",
@@ -11769,6 +11781,48 @@
      "Vrbové"
     ]
    }
+  },
+  {
+   "name": "DLR (German Aerospace Center)",
+   "system": "successfactors",
+   "board": "jobs.dlr.de",
+   "countries": [
+    "DE",
+    "ES"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Aachen",
+     "Augsburg",
+     "Berlin",
+     "Bonn",
+     "Braunschweig",
+     "Bremen",
+     "Bremerhaven",
+     "Cochstedt",
+     "Cottbus",
+     "Geisenfeld",
+     "Göttingen",
+     "Hamburg",
+     "Hannover",
+     "Hansestadt Stade",
+     "Ilmenau",
+     "Jena",
+     "Jülich",
+     "Kiel",
+     "Köln",
+     "Leuna",
+     "Neustrelitz",
+     "Sankt Augustin",
+     "Stuttgart",
+     "Ulm"
+    ],
+    "ES": [
+     "Almería"
+    ]
+   },
+   "checked": "2026-11-26"
   },
   {
    "name": "EDAG",
