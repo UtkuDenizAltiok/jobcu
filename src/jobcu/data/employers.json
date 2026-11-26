@@ -6376,6 +6376,17 @@
    }
   },
   {
+   "name": "Bender",
+   "system": "listpage",
+   "board": "https://karriere.bender.de/stellenangebote.html",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "-j(\\d+)\\.html"
+  },
+  {
    "name": "Diehl",
    "system": "listpage",
    "board": "https://career.diehl.com/Jobs/All",
@@ -6400,6 +6411,17 @@
    "elsewhere": true,
    "towns": {},
    "jobs": "fuseaction=einzel&jid=(\\d+)"
+  },
+  {
+   "name": "Isabellenhütte",
+   "system": "listpage",
+   "board": "https://karriere.isabellenhuette.com/stellenangebote.html",
+   "countries": [
+    "DE"
+   ],
+   "elsewhere": false,
+   "towns": {},
+   "jobs": "-j(\\d+)\\.html"
   },
   {
    "name": "Jenaer Antriebstechnik (JAT)",
@@ -6502,6 +6524,18 @@
    "elsewhere": false,
    "towns": {},
    "jobs": "-j(\\d+)\\.html"
+  },
+  {
+   "name": "Vincotech",
+   "system": "listpage",
+   "board": "https://www.vincotech.com/career/open-positions/",
+   "countries": [
+    "DE",
+    "HU"
+   ],
+   "elsewhere": true,
+   "towns": {},
+   "jobs": "/career/open-positions/([a-z0-9-]+)/$"
   },
   {
    "name": "Weidmüller",
@@ -8865,6 +8899,18 @@
    "towns": {}
   },
   {
+   "name": "Maschinenfabrik Reinhausen",
+   "system": "sitemap",
+   "board": "https://career.reinhausen.com/sitemap.xml",
+   "countries": [
+    "DE",
+    "IT"
+   ],
+   "elsewhere": true,
+   "towns": {},
+   "jobs": "career\\.reinhausen\\.com/(\\d+)-[^/]+/job\\.html$"
+  },
+  {
    "name": "Mercedes-Benz",
    "system": "sitemap",
    "board": "https://jobs.mercedes-benz.com/sitemap.xml",
@@ -10019,6 +10065,39 @@
     "DE": [
      "Salach",
      "Schechen"
+    ]
+   }
+  },
+  {
+   "name": "AEG Power Solutions",
+   "system": "softgarden",
+   "board": "aegps",
+   "countries": [
+    "DE",
+    "ES",
+    "FR",
+    "IT"
+   ],
+   "elsewhere": true,
+   "towns": {
+    "DE": [
+     "Berlin",
+     "Hamburg",
+     "Munich",
+     "Stuttgart",
+     "Warstein"
+    ],
+    "ES": [
+     "Barcelona",
+     "Cartagena",
+     "Gasteiz / Vitoria",
+     "Madrid"
+    ],
+    "FR": [
+     "Lyon"
+    ],
+    "IT": [
+     "Milan"
     ]
    }
   },
@@ -14364,6 +14443,20 @@
      "Gothenburg",
      "Linköping",
      "Lund"
+    ]
+   }
+  },
+  {
+   "name": "Cosworth",
+   "system": "teamtailor",
+   "board": "currentopportunities.cosworth.com",
+   "countries": [
+    "GB"
+   ],
+   "elsewhere": false,
+   "towns": {
+    "GB": [
+     "Northampton"
     ]
    }
   },

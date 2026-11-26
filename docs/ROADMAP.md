@@ -10,6 +10,9 @@ done. Implementation details belong in pull requests; current behavior is descri
 - Jobvite career sites are read for a person who accepts Jobvite's terms (Settings): Power
   Integrations' gate-driver jobs in Ense and Munich. The directory check also counts the places a
   list page writes beside its links.
+- More field employers read from their own sites: Maschinenfabrik Reinhausen, AEG Power
+  Solutions, Bender, Isabellenhütte, Vincotech and Cosworth. A career site's robots.txt crawl
+  delay is kept by itself.
 - Nine electronics, drives and automation employers that no source covered are read from their
   own sites: YASA, Raspberry Pi, Lenze, FEV, McLaren Automotive, ams OSRAM, Beckhoff, Weidmüller
   and Preh. An Avature ad written under labelled headings is read whole, and the directory check

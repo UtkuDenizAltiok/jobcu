@@ -27,9 +27,9 @@ from urllib.parse import unquote, urlsplit
 
 from jobcu import jobpage, listmemory
 from jobcu import places as place_list
-from jobcu.countries import COUNTRIES
+from jobcu.countries import ALPHA3, COUNTRIES, WORLD_CODES
 from jobcu.freshness import freshness, parse_iso
-from jobcu.jobposting import find_job_posting
+from jobcu.jobposting import JobPosting, find_job_posting
 from jobcu.placenames import OTHER, countries_in
 from jobcu.sources.base import FoundJob, SourceContext, SourceError
 from jobcu.sources.budget import BudgetExhausted
@@ -57,7 +57,9 @@ _LONG_AGO = datetime.min.replace(tzinfo=UTC)
 
 class SitemapSource(CareerSystemSource):
     id = "sitemap"
-    detail_cache_version = 2  # retain separate original JobPosting requirements
+    # 2: retain separate original JobPosting requirements. 3: a JobPosting country outside the
+    # supported ones marks the job abroad (remembered before as no country written).
+    detail_cache_version = 3
     name = "Recruiters' and employers' own sites"
     system = "sitemap"
     parallel = 4  # every site has its own address
@@ -311,7 +313,7 @@ def to_found_job(address: str, page: str, employer: Employer,
         title=posting.title,
         company=posting.company or employer.name,
         location_text=posting.location_text,
-        country=country_code(posting.country),
+        country=posting_country(posting),
         posted_at=posting.date_posted,
         date_precision=("exact" if posting.date_has_time else "day") if posting.date_posted
         else "unknown",
@@ -470,7 +472,8 @@ def _read(source: CareerSystemSource, address: str, ctx: SourceContext) -> str:
 
 
 def country_code(written: str | None) -> str | None:
-    """A supported country's code from what JobPosting data says ("GB", "UK", "Deutschland")."""
+    """A supported country's code from what JobPosting data says ("GB", "UK", "Deutschland",
+    "DEU"); None for anything else."""
     if not written:
         return None
     code = written.strip().upper()
@@ -478,8 +481,31 @@ def country_code(written: str | None) -> str | None:
         code = "GB"
     if code in COUNTRIES:
         return code
+    if code in ALPHA3:
+        return ALPHA3[code]
     found = countries_in(written) - {OTHER}
     return next(iter(found)) if len(found) == 1 else None
+
+
+def abroad(written: str) -> bool:
+    """Whether what JobPosting data writes as a country names one outside the supported ones
+    ("US", "USA", "Mexico"), rather than a supported one or no country ("EMEA", "Remote")."""
+    if country_code(written) is not None:
+        return False
+    return written.strip().upper() in WORLD_CODES or countries_in(written) == {OTHER}
+
+
+def posting_country(posting: JobPosting) -> str | None:
+    """A job's country from its JobPosting addresses: the first supported country they name;
+    OTHER when each names a country outside them (a job abroad, which no search here shows);
+    else None. Before, a country outside them counted as none written: TT Electronics' job in
+    Olathe, Kansas ("addressCountry": "US") was then placed in the UK, the one country its
+    directory entry names (2026-11-26)."""
+    written = posting.countries or ([posting.country] if posting.country else [])
+    for one in written:
+        if (code := country_code(one)) is not None:
+            return code
+    return OTHER if written and all(abroad(one) for one in written) else None
 
 
 def words_of(address: str) -> str:
