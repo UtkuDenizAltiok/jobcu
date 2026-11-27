@@ -11,6 +11,15 @@ done. Implementation details belong in pull requests; current behavior is descri
   everything it found and continues by itself once the provider accepts requests again
   (checked every ten minutes for a day); Google's spend-cap refusal is named as such, with
   where to raise the cap.
+- Search details shows what each step of a search cost by the prices in Settings, and the
+  search's total, so the person sees where the money goes.
+- When Google's half-price Flex processing was busy at a search's start, the whole search paid
+  the normal price; one request now tries Flex again every ten minutes (a refusal costs nothing),
+  so a search goes back to half price once Google has room.
+- One ad with a control character in its text no longer stops the reading of its whole source
+  (Arbeitnow lost all but its first page in a live search).
+- The employer look-up no longer opens the careers page of an employer whose list Jobcu reads
+  already (one such site answered "too many requests" twelve times in a live search).
 - TU Berlin's job exchange (Stellenticket: its research posts and employers' graduate jobs) and
   Dynex Semiconductor (power modules, Lincoln) are read from their sitemaps; new jobs are opened
   and dated by their first sight.
