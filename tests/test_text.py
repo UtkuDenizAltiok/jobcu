@@ -52,3 +52,11 @@ def test_every_reader_s_job_text_is_plain_text_and_its_addresses_stay_as_given()
     assert job.url == "https://jobs.example.test/7?a=1&amp;b=2"
     # Copies made from a job are plain text too (full ads, remembered ads).
     assert dataclasses.replace(job, title="Test &amp; Validation").title == "Test & Validation"
+
+
+def test_a_control_character_in_an_ad_is_dropped_instead_of_failing_its_reading():
+    # One such character in one Arbeitnow ad stopped the reading of the whole source.
+    assert html_to_text("<ul><li>Design\x0bpower boards</li><li>Lab\x01work</li></ul>") == (
+        "• Design power boards\n• Lab work")
+    assert html_to_text("<p>Bring\x00 up boards</p>") == "Bring up boards"
+    assert html_to_text("Plain\x0ctext &amp; tabs\tstay") == "Plain text & tabs stay"

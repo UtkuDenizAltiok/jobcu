@@ -97,3 +97,18 @@ def test_ad_text_sent_as_escaped_html_is_read_as_text():
     # Text that only looks a bit like HTML stays as it is.
     assert html_to_text("Salary <50k and >30k") == "Salary <50k and >30k"
     assert html_to_text("<p>A &lt; B</p>") == "A < B"
+
+
+def test_an_ad_with_a_control_character_is_read_with_the_others():
+    def handler(request):
+        if request.url.host == "www.arbeitnow.co.uk" or request.url.params.get("page") != "1":
+            return httpx.Response(200, json={"data": []})
+        return httpx.Response(200, json={"data": [
+            item("a", "Hardwareentwickler (m/w/d)", "München", description="Platinen\x0bdesign"),
+            item("b", "Hardware Engineer", "Berlin")]})
+
+    query = JobQuery(["DE"], [], [term("Hardwareentwickler", "de"), term("Hardware Engineer")],
+                     24, NOW)
+    jobs = list(arbeitnow.ArbeitnowSource().search(query, context(handler)))
+    assert [job.source_job_id for job in jobs] == ["a", "b"]
+    assert jobs[0].description == "Platinen design"
