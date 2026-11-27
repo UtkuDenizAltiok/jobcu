@@ -10,7 +10,7 @@ from conftest import FAKE_CV_LINES, make_pdf
 from fastapi.testclient import TestClient
 
 from jobcu import applications, db, documents, jobstore, search
-from jobcu.ai.base import AIAuthError, ProviderAdapter, RawReply, Usage
+from jobcu.ai.base import AIAuthError, AIQuotaExhausted, ProviderAdapter, RawReply, Usage
 from jobcu.app import create_app
 from jobcu.settings import ModelPrice, SearchForm, Settings, load_settings, save_settings
 from jobcu.sources.base import FoundJob, JobSource, SourceError
@@ -470,6 +470,77 @@ def test_resume_before_cards_keeps_identity_and_never_collects_again(
     assert events[continuation]["previous_snapshot"]["status"] == outcome
     with db.connect() as conn:
         assert conn.execute("SELECT COUNT(*) FROM searches").fetchone()[0] == 1
+
+
+def test_a_search_a_spending_cap_stopped_continues_by_itself_once_the_provider_answers(
+        ready, monkeypatch):
+    import threading
+
+    from jobcu import pipeline
+
+    monkeypatch.setattr(pipeline, "all_sources", lambda: [FakeSource()])
+    original = search.scoring.score_groups
+
+    def capped(*args, **kwargs):
+        raise AIQuotaExhausted("Fictional provider: the project's monthly spending cap is reached.")
+
+    monkeypatch.setattr(search.scoring, "score_groups", capped)
+    raised, checks = threading.Event(), []
+
+    def provider_answers():
+        # Not yet at the first check, while the cap holds; then the person raises it.
+        answered = bool(checks) and raised.wait(5)
+        checks.append(answered)
+        return answered
+
+    manager = search.SearchManager(sleep=lambda seconds: None, provider_answers=provider_answers)
+    monkeypatch.setattr(search, "manager", manager)
+    run = manager.start(SearchForm())
+    stopped = wait_until_done(manager)
+    assert stopped["status"] == "failed" and "jobs" not in stopped["result"]
+    assert "spending cap is reached" in stopped["error"]
+    assert search.PROVIDER_WAIT_NOTE in stopped["error"]
+    saved = json.loads(jobstore.latest_results()[1])
+    assert saved["provider_wait_until"] > saved["started_at"]
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("Continuing saved work must never collect sources again")
+
+    monkeypatch.setattr(search.scoring, "score_groups", original)
+    monkeypatch.setattr(pipeline, "collect", forbidden)
+    raised.set()
+    deadline = time.monotonic() + 30
+    while manager.current.kind != "resume" and time.monotonic() < deadline:
+        time.sleep(0.02)
+    resumed = wait_until_done(manager)
+    assert resumed["status"] == "finished", resumed["error"]
+    assert resumed["id"] == run.id and resumed["kind"] == "resume"
+    assert [card["title"] for card in resumed["result"]["jobs"]["cards"]]
+    assert checks[0] is False and checks[-1] is True
+    # Finished: nothing waits any more, also after Jobcu starts again.
+    assert manager._waiting_until(run.id) is None
+    manager.continue_waiting_search()
+    assert not manager._waiting
+
+
+def test_a_waiting_search_stops_waiting_when_the_person_starts_another(ready, monkeypatch):
+    def capped(*args, **kwargs):
+        raise AIQuotaExhausted("Fictional provider: credit used up.")
+
+    monkeypatch.setattr(search.scoring, "score_groups", capped)
+    manager = search.SearchManager(sleep=lambda seconds: time.sleep(0.01),
+                                   provider_answers=lambda: False)
+    monkeypatch.setattr(search, "manager", manager)
+    first = manager.start(SearchForm())
+    assert wait_until_done(manager)["status"] == "failed"
+    assert manager._waiting_until(first.id) is not None
+    second = manager.start(SearchForm())
+    wait_until_done(manager)
+    assert second.id != first.id and manager._waiting_until(first.id) is None
+    deadline = time.monotonic() + 10
+    while first.id in manager._waiting and time.monotonic() < deadline:
+        time.sleep(0.02)
+    assert first.id not in manager._waiting
 
 
 def test_stop_once_jobs_are_scored_shows_them_and_a_retry_finishes_the_rest(ready, monkeypatch):

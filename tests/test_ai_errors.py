@@ -108,6 +108,23 @@ def test_gemini_errors(error, expected):
     assert isinstance(gemini_adapter._translate(error), expected)
 
 
+def test_google_s_spend_cap_is_named_as_the_cause_also_inside_its_details():
+    # The 403 Google sent when a project's monthly spend cap stopped a search (27 Nov 2026): its
+    # own words sit inside the error's message, and they say "breached".
+    nested = ("[{'error': {'code': 403, 'message': 'Spend cap breached for project: projects/1 "
+              "for service: generativelanguage.googleapis.com. Correlation id: -1', "
+              "'status': 'PERMISSION_DENIED'}}]")
+    error = genai_errors.ClientError(403, {"error": {"message": nested}})
+    result = gemini_adapter._translate(error)
+    assert isinstance(result, AIQuotaExhausted) and "Monthly spend cap" in result.message
+    worded = _gemini_error(429, "RESOURCE_EXHAUSTED", "Your project has exceeded its monthly "
+                           "spending cap. Raise the cap in AI Studio.")
+    assert isinstance(gemini_adapter._translate(worded), AIQuotaExhausted)
+    # A refusal that doesn't say why stays a refusal of access.
+    plain = _gemini_error(403, "PERMISSION_DENIED", "The caller does not have permission")
+    assert type(gemini_adapter._translate(plain)) is AIAuthError
+
+
 def test_gemini_per_minute_limit_keeps_suggested_wait():
     error = _gemini_error(
         429, "RESOURCE_EXHAUSTED", "Quota exceeded",

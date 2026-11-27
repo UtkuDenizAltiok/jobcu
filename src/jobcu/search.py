@@ -40,8 +40,8 @@ from jobcu import (
 )
 from jobcu import pool as search_pool
 from jobcu.ai import budgets
-from jobcu.ai.base import AIBadRequest, AIError, AIWebSearchUnavailable
-from jobcu.ai.client import AIClient, in_parallel
+from jobcu.ai.base import AIBadRequest, AIError, AIQuotaExhausted, AIWebSearchUnavailable
+from jobcu.ai.client import AIClient, check_setup, in_parallel
 from jobcu.ai.usage import UsageLog, billing_days_left, billing_month_start, estimate_cost
 from jobcu.countries import COUNTRIES, LANGUAGE_NAMES, languages_for
 from jobcu.documents import DocumentError
@@ -251,13 +251,44 @@ class SearchStopped(Exception):
     pass
 
 
+# An AI provider that refuses for money (a spending cap reached, credit used up, a daily allowance
+# spent) leaves the search saved where it stopped (the owner, 2026-11-27, after a monthly spend
+# cap stopped a live search at scoring: "if jobcu stops due to this api token usage thing it should
+# recover search shouldnt go waste"). Jobcu asks the provider again every PROVIDER_CHECK_SECONDS
+# with one small connection test (a refusal costs nothing, an answer a few hundred tokens) and
+# continues the search by itself once the provider answers, for PROVIDER_WAIT_HOURS, unless the
+# person starts another search or continues this one first.
+PROVIDER_CHECK_SECONDS = 600
+PROVIDER_WAIT_HOURS = 24
+PROVIDER_WAIT_NOTE = (
+    "Jobcu has kept everything this search found and continues it by itself once the AI provider "
+    "accepts requests again: it checks every 10 minutes for a day. \"Continue saved search\" "
+    "continues it at once.")
+
+
+def _provider_answers() -> bool:
+    """Whether the person's AI provider accepts requests again: one small connection test."""
+    return check_setup(load_settings(), usage_log=UsageLog()).ok
+
+
+def _resumable(run: "SearchRun") -> bool:
+    """A search stopped before its cards, whose collected jobs are kept: it can be continued."""
+    return ("location" in run.result and "jobs" not in run.result
+            and search_pool.exists(run.id))
+
+
 class SearchManager:
     """Keeps track of the current search. One per running Jobcu."""
 
-    def __init__(self, runner: Callable[[SearchRun], None] | None = None) -> None:
+    def __init__(self, runner: Callable[[SearchRun], None] | None = None, *,
+                 sleep: Callable[[float], None] = time.sleep,
+                 provider_answers: Callable[[], bool] | None = None) -> None:
         self._lock = threading.Lock()
         self._current: SearchRun | None = None
         self._runner = runner or run_search
+        self._sleep = sleep
+        self._provider_answers = provider_answers or _provider_answers
+        self._waiting: set[int] = set()  # saved searches waiting for their AI provider
 
     @property
     def current(self) -> SearchRun | None:
@@ -361,6 +392,7 @@ class SearchManager:
     def _run(self, run: SearchRun, runner: Callable[[SearchRun], None]) -> None:
         status: RunStatus = "finished"
         error = None
+        provider_stop = False
         try:
             runner(run)
             if run.stopped_with_results:
@@ -370,6 +402,7 @@ class SearchManager:
         except (AIError, DocumentError) as exc:
             status = "failed"
             error = getattr(exc, "message", None) or str(exc)
+            provider_stop = isinstance(exc, AIQuotaExhausted)
             log.warning("Search %s failed: %s", run.id, getattr(exc, "detail", "") or error)
         except Exception:  # a bug: keep Jobcu running and tell the user plainly
             log.exception("Search %s failed unexpectedly", run.id)
@@ -384,9 +417,16 @@ class SearchManager:
             stopped_note = STOPPED_WITH_RESULTS_NOTE if run.stopped_with_results else STOPPED_NOTE
             with run._lock:
                 run.notes = [stopped_note if note == STOPPING_NOTE else note for note in run.notes]
+        wait_until = None
+        if provider_stop and _resumable(run):
+            wait_until = (datetime.now(UTC) + timedelta(hours=PROVIDER_WAIT_HOURS)).isoformat(
+                timespec="seconds")
+            error = f"{error} {PROVIDER_WAIT_NOTE}"
         try:
             # Polling and new searches must still see "running" until the save commits.
             snapshot = {**run.snapshot(), "status": status, "error": error}
+            if wait_until:
+                snapshot["provider_wait_until"] = wait_until
             # A stopped/failed attempt must survive reopening even before it has cards;
             # otherwise the previous search silently becomes the apparent current run.
             jobstore.finish_search(run.id, status, json.dumps(snapshot))
@@ -404,6 +444,62 @@ class SearchManager:
         with run._lock:
             run.error = error
             run.status = status
+        if wait_until:
+            self._wait_for_provider(run.id)
+
+    def continue_waiting_search(self) -> None:
+        """At Jobcu's start: a saved search waiting for its AI provider goes on waiting."""
+        saved = jobstore.latest_results()
+        if saved and self._waiting_until(saved[0]) is not None:
+            self._wait_for_provider(saved[0])
+
+    def _wait_for_provider(self, search_id: int) -> None:
+        with self._lock:
+            if search_id in self._waiting:
+                return  # watched already; the saved search carries its deadline
+            self._waiting.add(search_id)
+        threading.Thread(target=self._continue_when_provider_answers, args=(search_id,),
+                         daemon=True, name="provider-wait").start()
+
+    def _continue_when_provider_answers(self, search_id: int) -> None:
+        try:
+            while self._waiting_until(search_id) is not None:
+                self._sleep(PROVIDER_CHECK_SECONDS)
+                if self._waiting_until(search_id) is None:
+                    return
+                try:
+                    answers = self._provider_answers()
+                except Exception:  # noqa: BLE001 - a check that fails is another "not yet"
+                    log.exception("Checking whether the AI provider answers again failed")
+                    answers = False
+                if not answers:
+                    continue
+                try:
+                    self.reapply(search_id, [], resume_only=True)
+                    log.info("Search %s continues by itself: the AI provider accepts requests "
+                             "again", search_id)
+                except (RuntimeError, LookupError):
+                    pass  # another search runs, or this one was continued or replaced meanwhile
+                return
+        finally:
+            with self._lock:
+                self._waiting.discard(search_id)
+
+    def _waiting_until(self, search_id: int) -> datetime | None:
+        """Until when this saved search waits for its AI provider, or None when it doesn't (any
+        more): continued, replaced by a newer search, past its day, or a search is running."""
+        current = self._current
+        if current is not None and current.status == "running":
+            return None
+        saved = jobstore.latest_results()
+        if not saved or saved[0] != search_id:
+            return None
+        snapshot = json.loads(saved[1])
+        until = snapshot.get("provider_wait_until")
+        if snapshot.get("status") != "failed" or not until or "jobs" in snapshot.get("result", {}):
+            return None
+        deadline = datetime.fromisoformat(until)
+        return deadline if datetime.now(UTC) < deadline else None
 
     def stop(self, search_id: int) -> bool:
         run = self._current
