@@ -9,6 +9,10 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 - Workday jobs whose ad Workday hides behind its human check get the whole ad from FreeHire's
   copy of the same vacancy (FreeHire reads Workday itself; 7 of 8 found in a live search).
+- A search an AI provider's spending cap or used-up credit stopped before its results keeps
+  everything it found and continues by itself once the provider accepts requests again
+  (checked every ten minutes for a day); Google's spend-cap refusal is named as such, with
+  where to raise the cap.
 - Search details shows what each step of a search cost by the prices in Settings, and the
   search's total, so the person sees where the money goes.
 - When Google's half-price Flex processing was busy at a search's start, the whole search paid

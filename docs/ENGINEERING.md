@@ -78,7 +78,13 @@ happens before a new search is created or source collection begins, including wi
    Stop, once jobs are scored, ends the remaining scoring and online look-ups and builds the
    cards from what is done (status `stopped`, with results); "Retry incomplete checks" finishes
    the rest. Before any score exists, and when corrections to a finished search are stopped,
-   the attempt ends without new results and can be continued or repeated.
+   the attempt ends without new results and can be continued or repeated. When the AI
+   provider refuses for money (a monthly spending cap reached, credit used up, a daily
+   allowance spent: `AIQuotaExhausted`) before the cards exist, the saved attempt waits for
+   the provider: every ten minutes one small connection test asks again (a refusal costs
+   nothing), and once the provider answers the search continues by itself, for a day, unless
+   another search starts or the person continues it first (`SearchManager._waiting_until`;
+   the wait goes on after Jobcu restarts).
    The result lists of the last 90 searches are kept; older ones are deleted only when a new
    search starts (`jobstore.make_room_for_a_new_search`), so the latest list stays until then.
    Job memory, saved cards and the person's marks are never deleted this way.

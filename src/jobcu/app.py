@@ -4,6 +4,7 @@ It only ever listens on this computer (127.0.0.1). Extra checks stop other
 websites open in the same browser from using Jobcu behind the user's back.
 """
 
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -11,7 +12,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from jobcu import COPYRIGHT, __version__
+from jobcu import COPYRIGHT, __version__, search
 from jobcu.build import build_id
 from jobcu.documents_api import router as documents_router
 from jobcu.paths import data_dir
@@ -46,6 +47,13 @@ SECURITY_HEADERS = {
 }
 
 
+@asynccontextmanager
+async def _lifespan(app: FastAPI):
+    # A search that an AI provider's spending cap stopped goes on waiting after a restart.
+    search.manager.continue_waiting_search()
+    yield
+
+
 def create_app() -> FastAPI:
     app = FastAPI(
         title="Jobcu",
@@ -53,6 +61,7 @@ def create_app() -> FastAPI:
         docs_url=None,
         redoc_url=None,
         openapi_url=None,
+        lifespan=_lifespan,
     )
     mutations = Mutations()
 
