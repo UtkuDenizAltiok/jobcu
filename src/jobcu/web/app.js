@@ -1607,21 +1607,35 @@ function renderDetails(search) {
     scoring: "Scoring jobs",
     job_places: "Checking the best jobs online",
   };
+  // What a step cost by the prices in Settings; searches kept before this existed show none.
+  const priced = (used) => used.cost == null ? "" :
+    `, about ${used.cost.toFixed(2)} ${used.currency}${used.cost_complete ? "" : " or more"}`;
   const rows = Object.entries(usage).map(([step, used]) =>
     el("li", {
       text: `${stepNames[step] || step}: ${used.input_tokens.toLocaleString()} tokens in, ${used.output_tokens.toLocaleString()} tokens out` +
         // Searches the provider bills; searches kept before this count existed show none.
         (used.billed_web_searches ? `, ${used.billed_web_searches.toLocaleString()} web ${used.billed_web_searches === 1 ? "search" : "searches"}` : "") +
+        priced(used) +
         (used.unreported_requests ? `; ${used.unreported_requests} request(s) have incomplete usage` : ""),
     }),
   );
+  const costs = Object.values(usage).filter((used) => used.cost != null);
+  const currencies = new Set(costs.map((used) => used.currency));
+  if (costs.length && currencies.size === 1) {
+    const total = costs.reduce((sum, used) => sum + used.cost, 0);
+    const complete = costs.length === Object.keys(usage).length &&
+      costs.every((used) => used.cost_complete);
+    rows.push(el("li", {
+      text: `In all: about ${total.toFixed(2)} ${[...currencies][0]}${complete ? "" : " or more"}`,
+    }));
+  }
   if (rows.length) {
     parts.push(
       section(
         "AI use in this search",
         el("p", {
           class: "muted",
-          text: "Tokens are the pieces of text the AI reads and writes. Output includes thinking. Web tools and failed requests can add charges; the provider's bill is the reference.",
+          text: "Tokens are the pieces of text the AI reads and writes. Output includes thinking. Costs are estimates from the prices in Settings; failed requests can add charges, and the provider's bill is the reference.",
         }),
         el("ul", {}, ...rows),
       ),
