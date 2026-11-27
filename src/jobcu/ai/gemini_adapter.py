@@ -512,8 +512,9 @@ class GeminiAdapter(ProviderAdapter):
             if not isinstance(interaction_id, str) or not interaction_id:
                 raise AIConnectionError(MSG_CONNECTION, "No recoverable AI operation ID.",
                                         request_sent=True)
+            # No progress message for this normal state: it replaced the step's own progress
+            # ("120 of 450 jobs scored") for every request of a search (2026-11-27).
             request_recovery.track(context, interaction_id, request["model"])
-            context.progress("The AI is processing this request; connection recovery is active")
             deadline = time.monotonic() + max(
                 self.timeout, FLEX_SECONDS if request.get("service_tier") == "flex" else 600)
             retries = 0
