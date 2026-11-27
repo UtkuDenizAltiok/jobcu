@@ -17,6 +17,11 @@ _LEFTOVER_TAG = re.compile(
     re.IGNORECASE,
 )
 
+# Characters no text needs and lxml refuses to hold (control characters other than tab and line
+# breaks, unpaired surrogates, non-characters): one in a single Arbeitnow ad (2026-11-27)
+# stopped the reading of that whole source for the search.
+_UNUSABLE = re.compile("[\x00-\x08\x0b\x0c\x0e-\x1f\x7f\ud800-\udfff￾￿]")
+
 
 # A character reference: "&amp;", "&#038;", "&#x2013;". Only whole ones, with their ";": in
 # plain text "R&D" or "AT&T" is written as it is meant.
@@ -53,6 +58,7 @@ def html_to_text(markup: str | None) -> str:
 
 
 def _to_text(markup: str) -> str:
+    markup = _UNUSABLE.sub(" ", markup)
     if "<" not in markup:
         return tidy(markup)
     try:
@@ -69,7 +75,7 @@ def _to_text(markup: str) -> str:
 
 
 def tidy(text: str) -> str:
-    text = text.replace("\r\n", "\n").replace("\r", "\n").replace(" ", " ")
+    text = _UNUSABLE.sub(" ", text).replace("\r\n", "\n").replace("\r", "\n").replace(" ", " ")
     text = re.sub(r"[ \t]+", " ", text)
     text = "\n".join(line.strip() for line in text.split("\n"))
     text = re.sub(r"\n{3,}", "\n\n", text)
