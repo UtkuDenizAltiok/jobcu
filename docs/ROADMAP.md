@@ -7,6 +7,10 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- A search an AI provider's spending cap or used-up credit stopped before its results keeps
+  everything it found and continues by itself once the provider accepts requests again
+  (checked every ten minutes for a day); Google's spend-cap refusal is named as such, with
+  where to raise the cap.
 - TU Berlin's job exchange (Stellenticket: its research posts and employers' graduate jobs) and
   Dynex Semiconductor (power modules, Lincoln) are read from their sitemaps; new jobs are opened
   and dated by their first sight.

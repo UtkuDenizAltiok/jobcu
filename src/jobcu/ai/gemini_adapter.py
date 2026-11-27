@@ -781,11 +781,11 @@ def _translate(exc: Exception, *, web_search: bool = False) -> Exception:
                 "Jobcu won't retry this billing refusal. Check the provider's billing page.",
                 detail,
             )
-        if _spend_cap_reached(exc.message or ""):
+        if _spend_cap_reached(text):
             return AIQuotaExhausted(
-                "The AI provider says a monthly spending cap has been reached. "
-                "Jobcu won't retry this account refusal. Check the project's and billing "
-                "account's cap/status on the provider's billing page before another search.",
+                "Google says the project's monthly spending cap is reached. Raise or remove it in "
+                "Google AI Studio (Spend, \"Monthly spend cap\"); adding credit alone doesn't "
+                "change it.",
                 detail,
             )
         if web_search and _web_search_refused(exc.code, text):
@@ -827,12 +827,15 @@ def _translate(exc: Exception, *, web_search: bool = False) -> Exception:
 
 
 def _spend_cap_reached(message: str) -> bool:
-    """A stated monthly cap is terminal; a generic 403 cannot establish its cause."""
+    """A stated monthly cap is terminal; a generic 403 cannot establish its cause. Google's own
+    words can sit inside the error's details ("Spend cap breached for project: ...", 403
+    PERMISSION_DENIED, 2026-11-27), so the whole error text is read."""
     text = message.casefold().replace("_", " ")
     cap = r"(?:monthly (?:spend(?:ing)? |billing )?(?:cap|limit)|spend(?:ing)? cap)"
     return bool(re.search(
-        rf"\b(?:{cap}(?: has been| is)? (?:reached|exceeded|exhausted)"
-        rf"|(?:reached|reaching|exceeded|exhausted) (?:the |your |its |a )?{cap})\b", text))
+        rf"\b(?:{cap}(?: has been| is| was)? (?:reached|exceeded|exhausted|breached)"
+        rf"|(?:reached|reaching|exceeded|exhausted|breached) (?:the |your |its |a )?{cap})\b",
+        text))
 
 
 def _web_search_refused(code: int | None, text: str) -> bool:
