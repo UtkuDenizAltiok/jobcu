@@ -529,7 +529,7 @@ def run_search(run: SearchRun) -> None:
         if run.learning is not None:
             run.learning.join(timeout=LEARN_WAIT_SECONDS)
         http.close()
-        _save_usage(run)
+        _save_usage(run, settings)
 
 
 def _screen_career_titles(run, client, profile, collected) -> str:
@@ -1513,7 +1513,7 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
         raise
     finally:
         http.close()
-        _save_usage(run)
+        _save_usage(run, settings)
 
 
 def _prepare_saved_evidence_retry(job_pool) -> None:
@@ -1709,13 +1709,23 @@ def _keep_for_the_score_check(groups, shown, scored, unrelated, plan) -> None:
 manager = SearchManager()
 
 
-def _save_usage(run) -> None:
-    """What each step of the search used, for "Search details": tokens as reported, and the
-    web searches the provider bills (the usage record keeps every search seen)."""
+def _save_usage(run, settings) -> None:
+    """What each step of the search used, for "Search details": tokens as reported, the web
+    searches the provider bills (the usage record keeps every search seen), and what the step
+    cost by the prices in Settings, so the person sees where the money goes (owner, 2026-11-26:
+    spend it efficiently, never at the cost of the jobs found or their scores)."""
     log = UsageLog()
     billed = log.billed_searches_by_step(run.id)
-    run.set_result("usage", {step: {**asdict(used), "billed_web_searches": billed.get(step, 0)}
-                             for step, used in log.for_search(run.id).items()})
+    currencies = {price.currency.strip().upper() for price in settings.prices}
+    currency = currencies.pop() if len(currencies) == 1 else None
+    usage = {}
+    for step, used in log.for_search(run.id).items():
+        usage[step] = {**asdict(used), "billed_web_searches": billed.get(step, 0)}
+        cost, complete = estimate_cost(log.for_search_by_model(run.id, step=step),
+                                       settings.prices)
+        if currency and cost:
+            usage[step].update(cost=round(cost, 4), cost_complete=complete, currency=currency)
+    run.set_result("usage", usage)
 
 
 def _look_up_estimate(client: AIClient, settings, seconds: float, asked: int, left: int) -> str:

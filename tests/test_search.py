@@ -12,7 +12,7 @@ from fastapi.testclient import TestClient
 from jobcu import applications, db, documents, jobstore, search
 from jobcu.ai.base import AIAuthError, ProviderAdapter, RawReply, Usage
 from jobcu.app import create_app
-from jobcu.settings import SearchForm, Settings, load_settings, save_settings
+from jobcu.settings import ModelPrice, SearchForm, Settings, load_settings, save_settings
 from jobcu.sources.base import FoundJob, JobSource, SourceError
 
 HEADERS = {"X-Jobcu": "1"}
@@ -354,6 +354,9 @@ def test_fresh_search_recovers_native_research_without_another_generation(
     settings = load_settings()
     settings.ai.recover_interrupted_requests = True
     settings.ai.model = "gemini-3.8-flash"
+    settings.prices = [ModelPrice(provider="gemini", model="gemini-3.8-flash",
+                                  input_per_million=0.75, output_per_million=3.75,
+                                  cached_input_per_million=0.075, web_search_per_thousand=14.0)]
     save_settings(settings)
     original = AIClient.__init__
     def initialize(self, *args, **kwargs):
@@ -374,8 +377,11 @@ def test_fresh_search_recovers_native_research_without_another_generation(
         research = [key for key, body in records.items() if body.get("tools")]
         assert len(research) == 1 and gets[research[0]] == 2
         assert snapshot["result"]["usage"]["job_places"]["unreported_requests"] == 0
-        # "Search details" names the step's billed web searches.
-        assert snapshot["result"]["usage"]["job_places"]["billed_web_searches"] >= 1
+        # "Search details" names the step's billed web searches and what the step cost.
+        places = snapshot["result"]["usage"]["job_places"]
+        assert places["billed_web_searches"] >= 1
+        assert places["currency"] == "USD" and places["cost_complete"]
+        assert places["cost"] >= places["billed_web_searches"] * 14.0 / 1000
         assert sum(method == "DELETE" for method, _ in requests) == len(records)
         with db.connect() as conn:
             assert conn.execute("SELECT COUNT(*) FROM ai_recovery_requests").fetchone()[0] == 0
