@@ -184,6 +184,29 @@ def test_the_ai_names_employers_and_jobcu_keeps_the_lists_it_can_read(monkeypatc
     assert len(ai.asked) == 3
 
 
+def test_an_employer_whose_list_jobcu_reads_is_not_looked_up_on_its_own_site(monkeypatch):
+    monkeypatch.setattr(employers, "career_sources", lambda: [FakeTeamtailor()])
+    monkeypatch.setattr(employers, "all_employers", lambda: (
+        Employer("Beacon Hospital", "teamtailor", "beacon", ("IE",)),))
+    monkeypatch.setattr(employers, "lists_found_gone", set)
+    opened = []
+
+    def handler(request):
+        opened.append(request.url.host)
+        return httpx.Response(404)
+
+    http = PoliteClient(min_intervals={}, sleep=lambda s: None,
+                        transport=httpx.MockTransport(handler))
+    ai = FinderAI("Beacon Hospital Ltd | IE | https://www.beacon.test/careers/nursing\n")
+    found = employers.find(ai_client(ai), http, NURSE, ["IE"], [], now=NOW)
+    assert found.named == 1 and found.known == 1 and found.new == []
+    assert opened == []
+    # A list once found gone is looked for again: the AI's address may show where it moved.
+    monkeypatch.setattr(employers, "lists_found_gone", lambda: {("teamtailor", "beacon")})
+    employers.find(ai_client(ai), http, NURSE, ["IE"], [], now=NOW + timedelta(days=15))
+    assert "www.beacon.test" in opened
+
+
 class FakeSmartRecruiters(FakeTeamtailor):
     id = system = "smartrecruiters"
     name = "Company career sites (SmartRecruiters)"

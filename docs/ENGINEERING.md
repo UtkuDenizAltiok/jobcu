@@ -29,7 +29,8 @@ happens before a new search is created or source collection begins, including wi
    address of the job) and that Jobcu doesn't read yet are checked beside the later steps, the most linked
    first, at most twelve a search, on the readers the person uses (one whose site's terms restrict
    automated reading only for a person who accepted them; the employer look-up likewise reads a
-   named employer's list to check it only on those readers); usable ones are read
+   named employer's list to check it only on those readers, and doesn't open the careers page
+   of an employer whose list it reads already unless that list was found gone); usable ones are read
    from the next search on, like the employers the person's AI finds (`employers.learn`). A site
    checked stays checked for a month, or a week when it only refused for now (`learned_sites`).
    So the employers read keep up with lists that move and with new employers, for free and

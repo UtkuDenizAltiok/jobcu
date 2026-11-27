@@ -35,6 +35,7 @@ from jobcu.ai.base import (
 )
 from jobcu.ai.client import AIClient, in_parallel
 from jobcu.countries import COUNTRIES
+from jobcu.dedupe import normal_company
 from jobcu.jobposting import find_job_posting
 from jobcu.keystore import KeyStore
 from jobcu.location import Place
@@ -49,7 +50,13 @@ from jobcu.sources.careerlinks import (
     own_address_board,
     system_not_read,
 )
-from jobcu.sources.careers import Employer, EmployerNotFound, all_employers, save_found_employer
+from jobcu.sources.careers import (
+    Employer,
+    EmployerNotFound,
+    all_employers,
+    lists_found_gone,
+    save_found_employer,
+)
 from jobcu.sources.http import PoliteClient, RequestStopped, RobotsRules
 from jobcu.sources.listpages import recognise
 from jobcu.text import normalise
@@ -235,13 +242,25 @@ def parse_lines(text: str, default_country: str) -> list[tuple[str, str, str]]:
     return rows
 
 
+# `_check`'s answer for an employer whose list Jobcu reads already, found by its name.
+READ_ALREADY = ("read already",)
+
+
 def _check(http: PoliteClient, named: list[tuple[str, str, str]],
            now: datetime, systems: set[str] | None = None
            ) -> tuple[list[str], int, dict[str, list[str]]]:
     """Finds each named employer's career system and checks its list; saves the readable ones.
     Returns the names added, how many were read already, and the employers on systems Jobcu
     doesn't read yet, or that the person doesn't use (`systems`)."""
-    known = {(e.system, e.board.lower()) for e in all_employers()}
+    directory = all_employers()
+    known = {(e.system, e.board.lower()) for e in directory}
+    # An employer whose list Jobcu reads already needs no look at its own careers page: the AI
+    # named Helsing with its own site on 2026-11-27, which answered 429 to twelve requests while
+    # Helsing's Greenhouse list was read as usual. A list once found gone is looked for again,
+    # since the AI's address may show where it moved.
+    gone = lists_found_gone()
+    read_by_name = {name for e in directory if (e.system, e.board.lower()) not in gone
+                    if (name := normal_company(e.name))}
     readers = {source.system: source for source in career_sources()
                if systems is None or source.system in systems}
     not_read: dict[str, list[str]] = {}
@@ -251,6 +270,8 @@ def _check(http: PoliteClient, named: list[tuple[str, str, str]],
     def locate(row: tuple[str, str, str]) -> tuple[str, tuple[str, ...] | None]:
         name, _, address = row
         board = board_in(address)
+        if board is None and normal_company(name) in read_by_name:
+            return name, READ_ALREADY
         if board is None:
             board, other = _board_from_page(http, address, robots, lock)
             if board is None and other:
@@ -265,7 +286,7 @@ def _check(http: PoliteClient, named: list[tuple[str, str, str]],
     for name, board in located:
         if board is None:
             continue
-        if (board[0], board[1].lower()) in known:
+        if board is READ_ALREADY or (board[0], board[1].lower()) in known:
             already += 1
         elif board[0] not in readers:
             # A reader the person switched off, or whose site's terms they haven't accepted:

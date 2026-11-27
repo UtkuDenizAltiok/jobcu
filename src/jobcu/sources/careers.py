@@ -22,7 +22,7 @@ from collections import Counter
 from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from functools import cache
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -187,6 +187,11 @@ def _gone(now: datetime) -> tuple[set[tuple[str, str]], set[tuple[str, str]]]:
         if last - first >= GONE_CONFIRM and now - last < GONE_RECHECK:
             resting.add(key)
     return found, resting
+
+
+def lists_found_gone() -> set[tuple[str, str]]:
+    """Every list a search found gone (404/410), resting or due again, as (system, board)."""
+    return _gone(datetime.now(UTC))[0]
 
 
 def _note_gone(employer: "Employer", now: datetime) -> None:
