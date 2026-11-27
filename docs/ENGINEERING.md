@@ -278,7 +278,9 @@ answer (cancelled, failed after part of the work, e.g. a web look-up after some 
 "not found") goes once at the normal tier, and what the stopped part used is recorded as of unknown
 cost; otherwise one stopped look-up would read as an outage after paid searches and stop every
 later online check of the search. Other failures around accepted Flex work (a lost connection while
-waiting) follow the normal retry rules. Repeated Flex failures end Flex for that search.
+waiting) follow the normal retry rules. Repeated Flex failures move the search to normal
+processing; every ten minutes one request tries Flex once more without waiting (a refusal
+generates nothing and costs nothing), and Google taking it puts the search back at half price.
 Usage records the served tier as `<model> (flex)`, priced at half the normal row unless a Flex
 row exists. Connection tests use the normal tier. Flex runs only with request recovery: a
 preempted Flex stream is otherwise an ambiguous dropped connection. Both need the event path,
