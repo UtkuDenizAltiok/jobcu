@@ -172,6 +172,54 @@ def test_repeated_flex_failures_move_the_rest_of_the_search_to_normal_processing
     assert [post.get("service_tier") for post in posts[sent:]] == [None]
 
 
+def on_normal_processing(client, since: float):
+    """The search moved to normal processing at `since` on a clock the test moves."""
+    adapter = client.adapter()
+    now = [since]
+    adapter._clock = lambda: now[0]
+    adapter._flex_paused_at = since
+    return now
+
+
+def test_a_search_on_normal_processing_tries_flex_again_after_ten_minutes(service):
+    client, posts, notices, waits = service(["accepted"], failures=FLEX_FAILURES)
+    now = on_normal_processing(client, 1000.0)
+    assert ask(client).ok
+    now[0] += gemini_adapter.FLEX_RETRY_AFTER_SECONDS - 1
+    assert ask(client).ok
+    now[0] += 1
+    assert ask(client).ok  # Google takes Flex again ...
+    assert ask(client).ok  # ... so the rest of the search is back at half price
+    assert [post.get("service_tier") for post in posts] == [None, None, "flex", "flex"]
+    assert sorted(recorded_models()) == ["gemini-3.8-flash", "gemini-3.8-flash (flex)"]
+    assert all(wait < gemini_adapter.FLEX_RETRY_SECONDS for wait in waits)  # polls only
+
+
+def test_flex_still_refused_costs_no_wait_and_rests_another_ten_minutes(service):
+    client, posts, _, waits = service(["busy", "accepted"], failures=FLEX_FAILURES)
+    now = on_normal_processing(client, 1000.0)
+    now[0] += gemini_adapter.FLEX_RETRY_AFTER_SECONDS
+    assert ask(client).ok
+    # One try without the busy waits; the refusal generated nothing, so only the answer at the
+    # normal price is recorded.
+    assert [post.get("service_tier") for post in posts] == ["flex", None]
+    assert all(wait < gemini_adapter.FLEX_RETRY_SECONDS for wait in waits)  # polls only
+    assert recorded_models() == ["gemini-3.8-flash"]
+    assert ask(client).ok
+    now[0] += gemini_adapter.FLEX_RETRY_AFTER_SECONDS
+    assert ask(client).ok
+    assert [post.get("service_tier") for post in posts[2:]] == [None, "flex"]
+
+
+def test_only_one_request_at_a_time_tries_flex_again(service):
+    client, posts, _, _ = service(["accepted"], failures=FLEX_FAILURES)
+    now = on_normal_processing(client, 1000.0)
+    now[0] += gemini_adapter.FLEX_RETRY_AFTER_SECONDS
+    client.adapter()._flex_trying_again = True  # another request of the search is trying it
+    assert ask(client).ok
+    assert [post.get("service_tier") for post in posts] == [None]
+
+
 def test_flex_work_google_stops_midway_is_recorded_and_sent_once_at_the_normal_price(service):
     # Google may preempt or evict accepted Flex work; it ends "failed" after part of the work.
     client, posts, _, _ = service(["failed", "accepted"], patient=False)

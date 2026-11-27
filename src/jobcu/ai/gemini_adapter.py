@@ -56,15 +56,21 @@ _TERMINAL_INTERACTIONS = {
 # Flex (half price) queues requests for minutes when Google is busy (1-15 minutes is Google's
 # target; 435 s for one web-search request on 2026-10-24). Google refuses a request it has no
 # capacity for: try again a little later, then send it at the normal price. After this many
-# Flex failures in one search, the rest of the search uses normal processing.
+# Flex failures in one search, the search moves to normal processing.
 FLEX_ATTEMPTS = 3
 # Google's high demand lasts minutes rather than seconds; the owner puts cost before a search's
 # duration, so a busy Flex request waits 30 s, then 60 s, before going at the normal price.
 FLEX_RETRY_SECONDS = 30.0
 FLEX_SECONDS = 1200
 FLEX_FAILURES = 3
-FLEX_NOTICE = ("Google's half-price Flex processing was busy or failed several times, so the "
-               "rest of this search uses normal processing at the normal price.")
+# Google's Flex capacity changes over the day (2026-11-13: served from morning to afternoon;
+# 2026-11-27: refused to the first three requests of an evening search, which then paid the
+# normal price for its next hour and a half of scoring). A refusal generates nothing and costs
+# nothing, so a search on normal processing lets one request try Flex once, without waiting,
+# every ten minutes; when Google takes it, the search is back at half price.
+FLEX_RETRY_AFTER_SECONDS = 600
+FLEX_NOTICE = ("Google's half-price Flex processing was busy or failed several times, so this "
+               "search used normal processing at the normal price while it was busy.")
 _REFUSAL_REASONS = {"SAFETY", "PROHIBITED_CONTENT", "BLOCKLIST", "SPII", "RECITATION"}
 log = logging.getLogger(__name__)
 
@@ -112,6 +118,11 @@ class GeminiAdapter(ProviderAdapter):
         self._interactions = None
         self._recovery_context = threading.local()
         self._flex_failures = 0
+        # When the search moved to normal processing, or last found Flex still refused, and
+        # whether a request is trying Flex again now (one at a time).
+        self._flex_paused_at = 0.0
+        self._flex_trying_again = False
+        self._clock = time.monotonic
 
     def configure_request_recovery(self, context: RecoveryContext) -> None:
         self._recovery_context.current = context
@@ -209,10 +220,17 @@ class GeminiAdapter(ProviderAdapter):
             # failed operation; over a plain stream it is a dropped connection that may have
             # been billed, which stops research for the rest of the search (search 8 replay,
             # 2026-10-25: 2 of 5 web look-ups dropped after 81-171 s). Flex needs recovery.
-            flex = (self.flex and self._flex_failures < FLEX_FAILURES
-                    and context is not None and context.enabled)
+            usable = self.flex and context is not None and context.enabled
+            again = (usable and self._flex_failures >= FLEX_FAILURES
+                     and not self._flex_trying_again
+                     and self._clock() - self._flex_paused_at >= FLEX_RETRY_AFTER_SECONDS)
+            if again:
+                self._flex_trying_again = True
+            flex = usable and (self._flex_failures < FLEX_FAILURES or again)
         if not flex:
             return self._send_events(request, web_search, context)
+        if again:
+            return self._try_flex_again(request, web_search, context)
         for attempt in range(1, FLEX_ATTEMPTS + 1):
             try:
                 return self._send_events({**request, "service_tier": "flex"}, web_search,
@@ -242,10 +260,39 @@ class GeminiAdapter(ProviderAdapter):
         self._flex_failed(context)
         return self._send_events(request, web_search, context)
 
+    def _try_flex_again(self, request, web_search, context):
+        """Sends one request of a search on normal processing at Flex once, without waiting.
+        Taken, the rest of the search is back at half price; refused or lost, this request goes
+        at the normal price and Flex waits another FLEX_RETRY_AFTER_SECONDS."""
+        served = False
+        try:
+            try:
+                answer = self._send_events({**request, "service_tier": "flex"}, web_search,
+                                           context)
+                served = True
+                return answer
+            except (_FlexRefused, _FlexLost) as failed:
+                log.info("Flex tried again and still unavailable; sending at the normal price: %s",
+                         failed.error.detail or failed.error.message)
+        finally:
+            # Any other failure (a lost connection while waiting) follows the normal retry rules,
+            # and the retried request is sent at the normal price.
+            with self._client_lock:
+                self._flex_trying_again = False
+                if served:
+                    self._flex_failures = 0
+                else:
+                    self._flex_paused_at = self._clock()
+            if served:
+                log.info("Flex served again: the rest of the search goes back to half price")
+        return self._send_events(request, web_search, context)
+
     def _flex_failed(self, context) -> None:
         with self._client_lock:
             self._flex_failures += 1
             last = self._flex_failures == FLEX_FAILURES
+            if last:
+                self._flex_paused_at = self._clock()
         if last and context is not None:
             context.notify(FLEX_NOTICE)
 
