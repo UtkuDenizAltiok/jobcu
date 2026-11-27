@@ -7,6 +7,8 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- Workday jobs whose ad Workday hides behind its human check get the whole ad from FreeHire's
+  copy of the same vacancy (FreeHire reads Workday itself; 7 of 8 found in a live search).
 - Search details shows what each step of a search cost by the prices in Settings, and the
   search's total, so the person sees where the money goes.
 - When Google's half-price Flex processing was busy at a search's start, the whole search paid

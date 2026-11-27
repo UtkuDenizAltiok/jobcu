@@ -183,7 +183,11 @@ cover that continuation, while usage is cumulative.
 - A Workday ad behind a human check (never passed) is read from the employer's own career site
   when the directory names that site's job sitemap (`Employer.ads`): the page whose address names
   the same vacancy number, taken only with the job's title and a full ad; its date only when
-  earlier than the list's (`WorkdaySource._from_own_site`, `sitemaps.job_pages`).
+  earlier than the list's (`WorkdaySource._from_own_site`, `sitemaps.job_pages`). Otherwise,
+  for a person who uses FreeHire, FreeHire's copy of the same vacancy (one request: the title in
+  the job's country; the same address, or the same employer and title; only a copy read from
+  Workday itself, with a whole ad) gives the ad, at most 60 times a search
+  (`WorkdaySource._from_freehire`, `freehire.same_ad`).
 - Direct links: the employer's own page (an employer source's page, a supplied employer address, a
   page of an employer's application system, or the employer's posting found online) is marked
   `direct` and opens as it is. A good job (60 or more) whose links all lead through job sites gets

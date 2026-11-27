@@ -993,6 +993,14 @@ merged. On 2026-11-02 its facets counted 229,817 open ads in Germany, 124,731 in
   7 of those relevant: from Lenze's rexx, SMA's SuccessFactors, veralto's Workday, Agile
   Robots' Greenhouse, Infineon's Eightfold and a recruiter's Loxo system, and one Adzuna copy.
 
+
+**2026-11-27: full ads of Workday jobs behind Workday's human check.** In a live search Workday
+answered its lists but put every ad of its wd1 and wd3 servers behind a human check (never
+passed): 85 copies came without their ad. Asked once per job (its title in its country),
+FreeHire had the same vacancy, read from Workday, with a 4,000-7,000-character ad for 7 of 8.
+Jobcu now asks FreeHire for such ads, at most 60 a search, inside FreeHire's stated 120
+requests a minute and the person's choice to use FreeHire (its terms allow the API for one's
+own job search).
 ### Source checks — 2026-10-30
 
 - **EURES** has a public search interface (`POST

@@ -21,11 +21,13 @@ On 2026-11-02 a hardware engineering search's titles found 34 FreeHire ads in tw
 Jobcu had searched; 22 had reached Jobcu through no other source, about a third of them relevant.
 """
 
+import dataclasses
 import html
 import logging
 import re
 from collections.abc import Iterator
 from datetime import datetime
+from urllib.parse import urlsplit
 
 import httpx
 
@@ -291,3 +293,48 @@ def _country(location: str, listed, searched: list[str]) -> str | None:
 
 def _text(value) -> str:
     return value.strip() if isinstance(value, str) else ""
+
+
+# Full ads asked for in one search for jobs whose employer's own site hides them: a small share of
+# FreeHire's 120 requests a minute, far below the ~400 in 90 minutes after which its firewall once
+# asked this computer for a human check (2026-11-25).
+SAME_AD_REQUESTS = 60
+# A copy shorter than this is a summary, not the ad.
+SAME_AD_CHARS = 500
+
+
+def same_ad(job: FoundJob, ctx: SourceContext) -> FoundJob | None:
+    """The job with the whole ad FreeHire keeps for the same vacancy, when the employer's own site
+    won't show it to Jobcu: on 2026-11-27 Workday put every ad of its wd1 and wd3 servers behind a
+    human check (never passed), and FreeHire, which reads Workday itself, had 7 of 8 such jobs with
+    their whole ad. One request: the job's title in its country. The vacancy is matched by its own
+    address, else by employer and title, and only a copy FreeHire read from the same career system
+    counts. None when there is no such copy or FreeHire doesn't answer."""
+    # Imported here: the duplicate rules import the sources.
+    from jobcu.dedupe import normal_company, normal_title
+
+    phrase = _phrase(job.title)
+    if not normalise(phrase) or not job.country or not job.company:
+        return None
+    try:
+        response = ctx.http.get(API + "/agent/jobs/search", params={
+            "q": f'title:"{phrase}"', "countries": [job.country.lower()], "limit": 20})
+        items = response.json().get("data") if response.status_code == 200 else None
+    except (httpx.HTTPError, ValueError, AttributeError):
+        return None
+    key = _address_key(job.url)
+    for item in items if isinstance(items, list) else []:
+        if not isinstance(item, dict) or _text(item.get("source")) != job.source:
+            continue
+        same = (key and _address_key(_text(item.get("url"))) == key) or (
+            normal_company(html.unescape(_text(item.get("company")))) == normal_company(job.company)
+            and normal_title(html.unescape(_text(item.get("title")))) == normal_title(job.title))
+        description = html_to_text(_text(item.get("description")))
+        if same and len(description) >= SAME_AD_CHARS:
+            return dataclasses.replace(job, description=description, description_is_complete=True)
+    return None
+
+
+def _address_key(url: str) -> str:
+    """A job address's own part, the last segment of its path: a Workday job's title and number."""
+    return urlsplit(url).path.rstrip("/").rsplit("/", 1)[-1].lower() if url else ""

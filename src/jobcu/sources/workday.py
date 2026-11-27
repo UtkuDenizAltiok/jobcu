@@ -206,8 +206,9 @@ class WorkdaySource(CareerSystemSource):
             info = self.get_json(job.source_job_id, ctx, headers=HEADERS).get(
                 "jobPostingInfo") or {}
         except Blocked:
-            # The ad behind a human check (never passed): the employer's own site may show it.
-            if (own := self._from_own_site(job, ctx)) is None:
+            # The ad behind a human check (never passed): the employer's own site may show it,
+            # or FreeHire's copy of the same vacancy (it reads Workday itself).
+            if (own := self._from_own_site(job, ctx) or self._from_freehire(job, ctx)) is None:
                 raise
             return own
         except BudgetExhausted:
@@ -278,6 +279,21 @@ class WorkdaySource(CareerSystemSource):
                 closes_at=posting.valid_through or job.closes_at,
             )
         return None
+
+    def _from_freehire(self, job: FoundJob, ctx: SourceContext) -> FoundJob | None:
+        """The vacancy's whole ad from FreeHire (`freehire.same_ad`), for a person who uses
+        FreeHire, at most SAME_AD_REQUESTS times a search."""
+        # Imported here: the source list imports this reader.
+        from jobcu.settings import load_settings
+        from jobcu.sources import disabled_sources, freehire
+
+        state = self.__dict__.setdefault("_freehire", {"asked": 0, "on": None})
+        if state["on"] is None:
+            state["on"] = "freehire" not in disabled_sources(load_settings())
+        if not state["on"] or state["asked"] >= freehire.SAME_AD_REQUESTS:
+            return None
+        state["asked"] += 1
+        return freehire.same_ad(job, ctx)
 
     def _own_pages(self, address: str, ctx: SourceContext) -> list[str]:
         """The job pages an employer's own sitemap lists, read once a search."""
