@@ -127,7 +127,7 @@ def _search_words(client: AIClient, profile: Profile, languages: list[str], *, r
         answer = None
         if reuse:
             client.checkpoint()
-            request_key = preparation.key(client, reasoning=False, inputs=[
+            request_key = preparation.key(client, reasoning=True, inputs=[
                 "search-words-4", setup_identity, SYSTEM_PROMPT, prompt,
                 strict_json_schema(SearchWordsAnswer),
                 6000,
@@ -138,9 +138,11 @@ def _search_words(client: AIClient, profile: Profile, languages: list[str], *, r
                 answer = None
         if answer is None:
             all_reused = False
+            # Read once per profile like the documents and places, and the words decide which
+            # ads a search finds at all: the careful setting, whatever the many small steps use.
             answer = client.generate(
                 SearchWordsAnswer, step="search_words", system=SYSTEM_PROMPT, prompt=prompt,
-                max_output_tokens=6000,
+                reasoning=True, max_output_tokens=6000,
             )
             answer = SearchWordsAnswer(terms=_with_broad_titles(answer))
             if reuse:
