@@ -7,6 +7,9 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- A language level estimated from the same words in the same documents ("basic", "fluent")
+  keeps the estimate of the last complete reading, so a new model or a new reading can't move
+  every language score between two searches.
 - A reading of the person's CV and cover letter is used and kept only when complete: at least one
   language and one wanted role, no entry holding several degrees or the model's own notes, and
   nothing lost against the last complete reading of the same documents. Otherwise it is asked for
