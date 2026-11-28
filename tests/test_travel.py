@@ -1329,3 +1329,53 @@ def test_conflicting_ad_workplace_does_not_reuse_feed_point_or_old_journey():
     assert not travel.workplace_conflict(job)
     job.place_from_text = ["Munich", "Berlin"]
     assert travel.workplace_conflict(job)
+
+
+def several(towns, location="Deutschland", job_id="9"):
+    """A job a job site places only in the country, whose ad names several workplaces."""
+    job = group(location, job_id=job_id)
+    job.place_from_text = towns
+    return job
+
+
+def test_a_job_with_several_far_apart_workplaces_fits_when_one_of_them_does():
+    # Search 22: "Kassel or Kiel", "Bristol, Filton or Derby" waited unscored and unchecked.
+    condition = Condition(text="within 30 km of Munich", understood_as="Within 30 km of Munich",
+                          status="applied", kind="near", max_km=30,
+                          anchor=Anchor(named=[TownRef(name="Munich", country="DE")]))
+    fits = several(["Kiel", "Fürstenfeldbruck"])
+    assert [site.site for site in travel.job_sites(fits)] == ["Kiel", "Fürstenfeldbruck"]
+    assert travel.job_point(fits) is None  # the job itself has no one place
+    assert condition_fit(condition, fits) == "yes"
+    assert travel.detail(condition, fits) is None  # distance answers carry no journey
+    assert condition_fit(condition, several(["Kiel", "Augsburg"])) == "no"
+    # One town named twice, or a town and its neighbour, is one workplace, checked as before.
+    assert travel.job_sites(several(["Kiel", "Kiel"]))[0].site is None
+
+
+def test_each_workplace_of_a_job_gets_its_own_journey(monkeypatch):
+    condition = near()
+    assert condition.reference_status == "applied"
+    job = several(["Kiel", "Fürstenfeldbruck"])
+    views = travel.job_sites(job)
+    assert len({travel.job_key(view) for view in views}) == 2
+    assert all(travel.job_key(view).startswith(travel.job_key(job) + "@") for view in views)
+    # The card names the workplace that fits.
+    condition.travel = {
+        travel.job_key(views[0]): {"minutes": {"Hamburg": 80}, "by": "Google Maps",
+                                   "point": travel.job_point(views[0]).key},
+        travel.job_key(views[1]): {"minutes": {"München": 25}, "by": "Google Maps",
+                                   "point": travel.job_point(views[1]).key}}
+    monkeypatch.setattr(travel, "anchor_towns", lambda anchor, country: [
+        places.locate("Hamburg", "DE"), places.locate("München", "DE")])
+    assert travel.answer(condition, job) == "yes"
+    text, by = travel.detail(condition, job)
+    assert text.startswith("From Fürstenfeldbruck: München, 25 min") and by == "Google Maps"
+
+
+def test_a_job_site_town_against_one_other_town_in_the_ad_still_needs_confirming():
+    contradicting = group("Berlin", latitude=52.52, longitude=13.405)
+    contradicting.place_from_text = ["Munich"]
+    assert travel.workplace_conflict(contradicting)
+    assert travel.several_workplaces(contradicting) == []
+    assert travel.job_sites(contradicting) == [contradicting]

@@ -7,6 +7,10 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- A job naming several workplaces far apart ("Bristol, Filton or Derby") is checked at each:
+  it is a match when one of them meets the conditions about places, and its card names which.
+  Before, such jobs were never scored and waited as "location unchecked" (17 related jobs in a
+  live search, among them hardware roles at Rolls-Royce, Leonardo and Rheinmetall).
 - A job whose town nobody gave is scored first and looked up online only when it scores 50 or
   more: before, every such job was looked up before scoring, and a look-up costs several
   scorings (a live search looked up 103 towns before scoring; 47 of those jobs then scored under

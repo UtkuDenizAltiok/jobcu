@@ -572,7 +572,7 @@ def build_card(
         checks.append({"label": "Location unclear", "status": "unclear", "source": None})
     # What the conditions the person wrote say about this job. When its town
     # isn't known, one line says so instead of one "couldn't be checked" per condition.
-    town_known = travel.job_point(group) is not None
+    town_known = any(travel.job_point(site) is not None for site in travel.job_sites(group))
     unanswered = 0
     for condition in [] if ruled_out and elsewhere else plan.conditions:
         if not condition.filters:
@@ -615,7 +615,8 @@ def build_card(
             "your conditions about places")
         checks.append({
             "label": ("The source and ad name different workplaces; location eligibility "
-                      "needs confirmation" if travel.workplace_conflict(group) else
+                      "needs confirmation" if travel.workplace_conflict(group)
+                      and not travel.several_workplaces(group) else
                       f"Jobcu doesn't know where \"{where}\" is, so {conditions} couldn't be "
                       "checked" if where else
                       f"{source_names.get(main.source, main.source)} doesn't say which town "
