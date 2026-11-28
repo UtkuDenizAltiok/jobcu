@@ -313,8 +313,35 @@ def read_profile_reusing(
             missing = list(dict.fromkeys(PLAIN_NAMES[name] for name, _ in problems))
             notify(INCOMPLETE_READING.format(missing=_and(missing)))
     if not problems:
+        profile = keep_estimates(profile, previous)
         _save(key, documents, profile)
     return profile, False
+
+
+def keep_estimates(profile: Profile, previous: Profile | None) -> Profile:
+    """A language level estimated from the same written words keeps the last complete reading's
+    estimate. The documents and note are the same, so only the reader changed: "Basic (actively
+    improving)" read as A2 four times and as A1 once (2026-11-28), and every ad asking for that
+    language would have scored differently between two searches."""
+    if previous is None:
+        return profile
+    earlier = {(_language(skill.language), _words(skill.level_as_written)): skill.cefr
+               for skill in previous.languages if skill.cefr_is_estimate and skill.cefr}
+    languages = [
+        skill.model_copy(update={"cefr": earlier[found]})
+        if skill.cefr_is_estimate and (found := (_language(skill.language),
+                                                 _words(skill.level_as_written))) in earlier
+        else skill
+        for skill in profile.languages]
+    return profile.model_copy(update={"languages": languages})
+
+
+def _language(name: str) -> str:
+    return " ".join(name.split()).casefold()
+
+
+def _words(level: str | None) -> str:
+    return " ".join((level or "").split()).casefold()
 
 
 def _read_complete(client: AIClient, cv_text: str, cover_letter_text: str, about_you: str,
