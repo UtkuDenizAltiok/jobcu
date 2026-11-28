@@ -383,3 +383,26 @@ def test_the_checks_hold_for_any_profession(person):
     assert profile_module.reading_problems(Profile.model_validate({**PROFILE, **person})) == []
     assert [name for name, _ in profile_module.reading_problems(
         Profile.model_validate({**PROFILE, **person, "languages": []}))] == ["languages"]
+
+
+def test_a_level_estimated_from_the_same_words_keeps_the_earlier_reading_s_estimate(settings):
+    basic = {"language": "Spanish", "level_as_written": "Basic (actively improving)",
+             "cefr": "A2", "cefr_is_estimate": True}
+    first = {**PROFILE, "languages": [*PROFILE["languages"], basic]}
+    read_profile_reusing(AIClient(settings, adapter=SequenceAdapter([first])), "CV TEXT",
+                         "LETTER TEXT")
+    settings.ai.reasoning_model = "newer-model"
+    lower = {**first, "languages": [PROFILE["languages"][0],
+                                    {**basic, "level_as_written": "basic (Actively improving) ",
+                                     "cefr": "A1"}]}
+    profile, _ = read_profile_reusing(AIClient(settings, adapter=SequenceAdapter([lower])),
+                                      "CV TEXT", "LETTER TEXT")
+    assert [skill.cefr for skill in profile.languages] == ["C1", "A2"]
+    # New words, or a level the documents state, are read as they are.
+    settings.ai.reasoning_model = "third-model"
+    stated = {**first, "languages": [PROFILE["languages"][0],
+                                     {**basic, "level_as_written": "B1", "cefr": "B1",
+                                      "cefr_is_estimate": False}]}
+    profile, _ = read_profile_reusing(AIClient(settings, adapter=SequenceAdapter([stated])),
+                                      "CV TEXT", "LETTER TEXT")
+    assert profile.languages[1].cefr == "B1"
