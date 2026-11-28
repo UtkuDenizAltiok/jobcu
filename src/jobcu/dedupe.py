@@ -288,16 +288,26 @@ def group_duplicates(jobs: list[FoundJob], source_kinds: dict[str, str]) -> list
     cities = [town.name if not city and town else city
               for city, town in zip(cities, towns, strict=True)]
 
-    # The same ad from the same source is always one job.
+    # The same ad from the same source is always one job: by the source's own ID, and by its link
+    # with the same title and company, since a source can give one ad two IDs (JSearch listed one
+    # Jooble ad twice in search 22, an agency's 249-character summary, so the text rule couldn't
+    # join them).
     by_source_id: dict[tuple[str, str], int] = {}
+    by_link: dict[tuple[str, str, str], int] = {}
     for i, job in enumerate(jobs):
-        if not job.source_job_id:
-            continue
-        key = (job.source, _vacancy(job))
-        if key in by_source_id:
-            union(i, by_source_id[key], exact=True)
-        else:
-            by_source_id[key] = i
+        if job.source_job_id:
+            key = (job.source, _vacancy(job))
+            if key in by_source_id:
+                union(i, by_source_id[key], exact=True)
+            else:
+                by_source_id[key] = i
+        if job.url:
+            link = (job.source, job.url.strip(), normal_title(job.title),
+                    normal_company(job.company))
+            if link in by_link:
+                union(i, by_link[link], exact=True)
+            else:
+                by_link[link] = i
 
     # Compare jobs of the same company only, which keeps this fast.
     by_company: dict[str, list[int]] = {}

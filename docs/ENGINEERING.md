@@ -120,8 +120,9 @@ cover that continuation, while usage is cumulative.
 
 - Original full ads are preferred. Summaries, clipped text, unknown dates and unchecked
   requirements remain labelled; absence of a requirement is not evidence it is satisfied.
-- Duplicate identity uses source/requisition identifiers and supporting evidence. Distinct
-  requisitions remain separate despite similar names/templates. Ambiguous copies cannot share
+- Duplicate identity uses source/requisition identifiers and supporting evidence. One source's
+  copies with the same link, title and company are one ad even under two of its IDs (JSearch
+  gives some ads two). Distinct requisitions remain separate despite similar names/templates. Ambiguous copies cannot share
   saved/applied/dismissed state solely through title similarity. Duplicates are looked for
   twice: in what the job sites' lists give, and again among the jobs worth a closer look once
   their full ads are read (`dedupe.same_jobs`, `search._join_same_jobs`), because an agency's

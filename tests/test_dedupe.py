@@ -11,8 +11,8 @@ TEXT = "We design power electronics for electric cars and need an engineer. " * 
 
 
 def job(source="adzuna", job_id="1", title="Hardware Engineer (m/w/d)", company="Acme GmbH",
-        city="München", **extra):
-    return FoundJob(source=source, source_job_id=job_id, url=f"https://{source}/{job_id}",
+        city="München", url=None, **extra):
+    return FoundJob(source=source, source_job_id=job_id, url=url or f"https://{source}/{job_id}",
                     title=title, company=company, location_text=city, country="DE", **extra)
 
 
@@ -497,3 +497,21 @@ def test_a_company_written_without_its_spaces_is_the_same_company(written):
                description_is_complete=True)
     groups = group_duplicates([own, copy], {"softgarden": "employer", "freehire": "aggregator"})
     assert len(groups) == 1 and groups[0].main is own
+
+
+def test_one_sources_two_ids_for_the_same_link_and_title_are_one_job():
+    # JSearch gave one agency ad, with one link and a short summary, two IDs (search 22).
+    link = "https://jobs.example.test/ad/63564557/hardware-entwickler"
+    a = job("jsearch", "A1", company="Fictional Staffing GmbH", url=link)
+    b = job("jsearch", "B2", company="Fictional Staffing GmbH", url=link)
+    a.description = b.description = "Entwicklung von Elektronik-Hardware für E-Motoren."
+    assert len(group_duplicates([a, b], KINDS)) == 1
+    # Another title or company behind the same link, or another source's copy with it, stays
+    # apart here.
+    other_company = job("jsearch", "E5", company="Another Fictional Employer", url=link)
+    assert len(group_duplicates([a, other_company], KINDS)) == 2
+    other_title = job("jsearch", "C3", title="Embedded Software Engineer (m/w/d)",
+                      company="Fictional Staffing GmbH", url=link)
+    other_source = job("adzuna", "D4", company="Fictional Staffing GmbH", url=link)
+    assert len(group_duplicates([a, other_title], KINDS)) == 2
+    assert len(group_duplicates([a, other_source], KINDS)) == 2
