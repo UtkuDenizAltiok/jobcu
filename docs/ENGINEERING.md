@@ -23,11 +23,14 @@ about SSD snapshots or external backups.
 happens before a new search is created or source collection begins, including with cached setup.
 
 1. Parse documents into a profile, interpret geography/conditions, generate multilingual
-   search words, and refresh discovered employers when due. A profile reading is used and kept
-   only when complete (`profile.reading_problems`: at least one language and one wanted role,
-   no entry holding several degrees or notes, and nothing lost against the last complete reading
-   of the same documents and note by any model); otherwise it is asked for again, up to three
-   readings, then that last complete reading stands in and the person is told.
+   search words, and refresh discovered employers when due. These readings are made once per
+   profile with the careful model and effort (`reasoning_effort`); the many small steps (title
+   check, scoring, structuring look-ups) use the everyday setting (`scoring_effort`), so a
+   cheaper everyday setting never changes which ads a search finds. A profile reading is used
+   and kept only when complete (`profile.reading_problems`: at least one language and one wanted
+   role, no entry holding several degrees or notes, and nothing lost against the last complete
+   reading of the same documents and note by any model); otherwise it is asked for again, up to
+   three readings, then that last complete reading stands in and the person is told.
 2. Collect independent sources in parallel. The employers' own career sites that job sites'
    copies link to (a Workday, Oracle, Greenhouse, SmartRecruiters, Pinpoint or SuccessFactors
    address of the job) and that Jobcu doesn't read yet are checked beside the later steps, the most linked

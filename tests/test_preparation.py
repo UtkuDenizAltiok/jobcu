@@ -102,7 +102,7 @@ def test_changed_text_profile_languages_model_and_effort_require_new_answers():
     generate_search_words_reusing(c, changed, ["en", "fr"])
     c.settings.ai.model = "another-fictional-model"
     generate_search_words_reusing(c, changed, ["en", "fr"])
-    c.settings.ai.scoring_effort = "high"
+    c.settings.ai.reasoning_effort = "high"  # the careful setting the words are read with
     generate_search_words_reusing(c, changed, ["en", "fr"])
     assert len(ai.calls) == 7
 
@@ -377,3 +377,21 @@ def test_broad_titles_come_first_and_survive_the_title_cap(reuse):
               for code in ("en", "de")}
     assert titles["en"][0] == "Fictional Engineer" and len(titles["en"]) == 16
     assert titles["de"] == ["Fiktiver Entwickler", "Fiktive Spezialisierung"]
+
+
+def test_search_words_use_the_careful_setting_so_the_everyday_one_never_changes_them():
+    # The words decide which ads a search finds at all: like the documents and places, they are
+    # read once per profile with the careful model and effort, whatever the many small steps use.
+    person = Profile.model_validate(PROFILE)
+    ai = SetupAI()
+    c = client(ai)
+    c.settings.ai.reasoning_model = "fictional-careful-model"
+    c.settings.ai.scoring_effort = "low"
+    first, reused = generate_search_words_reusing(c, person, ["en"])
+    assert not reused and ai.calls[0]["model"] == "fictional-careful-model"
+    assert ai.calls[0]["effort"] == "medium"
+    # A cheaper everyday setting reuses them; a new careful setting reads them again.
+    c.settings.ai.scoring_effort = "medium"
+    assert generate_search_words_reusing(c, person, ["en"]) == (first, True)
+    c.settings.ai.reasoning_effort = "high"
+    assert not generate_search_words_reusing(c, person, ["en"])[1]

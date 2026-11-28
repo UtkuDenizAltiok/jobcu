@@ -48,8 +48,9 @@ class AISettings(BaseModel):
     flex_processing: bool = False
     # Reasoning effort per kind of step: medium everywhere, the owner's choice (2026-09-24).
     # `scoring_effort` is for the many small steps (quick check, scoring), `reasoning_effort` for
-    # reading documents and places and for web look-ups. Custom controls are explicit and
-    # rejected controls stop; legacy native compatibility is handled in ai/client.py.
+    # reading documents and places, writing the search words and for web look-ups. Custom
+    # controls are explicit and rejected controls stop; legacy native compatibility is handled
+    # in ai/client.py.
     scoring_effort: Effort | None = "medium"
     reasoning_effort: Effort | None = "medium"
 
