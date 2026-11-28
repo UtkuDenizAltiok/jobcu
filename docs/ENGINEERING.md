@@ -315,7 +315,31 @@ waiting) follow the normal retry rules. Repeated Flex failures move the search t
 processing; every ten minutes one request tries Flex once more without waiting (a refusal
 generates nothing and costs nothing), and Google taking it puts the search back at half price.
 Usage records the served tier as `<model> (flex)`, priced at half the normal row unless a Flex
-row exists. Connection tests use the normal tier. Flex runs only with request recovery: a
+row exists. Connection tests use the normal tier.
+
+Google's Batch API takes the work that can wait when Flex is refused (`ai/gemini_batch.py`). Flex
+uses Google's spare capacity: on 2026-11-28 Gemini 4 Hydrogen's Flex was refused at every attempt
+and in every way of sending (Google answered 503 "high demand" within 0.2 s), while the Batch API
+answered the same model in about two minutes, also at half price. So the first Flex refusal of a
+structured request sends it into a batch job instead (no waiting for Flex, no normal price), and
+the search uses Batch for such requests until Flex is tried again ten minutes later. A job
+gathers the requests waiting at that moment: `AIClient` lets up to `WAITING_AT_ONCE` requests wait
+for batch answers outside the usual `PARALLEL_REQUESTS`, and `in_parallel(can_wait=True)` (title
+checks, scoring, requirement checks) starts that many items while the provider batches, so a
+step's requests share a few jobs. Web look-ups keep the Flex rules above. Each request's answer is
+matched by a key in its metadata and recorded as `<model> (batch)`, priced at half the normal row;
+a refusal or a cut answer comes back with its bill and is handled as on the normal path. The
+answer's format goes as Gemini's own schema (`response_schema`, properties in order): a batch
+request ignored the same format sent as JSON Schema (2026-11-28), while plain requests follow both.
+A request the job didn't answer goes the normal way. A job whose every request Google refused is
+sent again once a minute later (for a quarter of an hour on 2026-11-28 Google refused every batch
+request, plain ones included); refused again, or refused for the model or request form, or still
+unanswered after an hour (Google's target is 24 hours), Batch ends for the search: its requests go
+the normal way, so a search always finishes. Batch stores requests and answers at Google until
+the job is deleted, like a recoverable request, so it runs only with Flex and request recovery on;
+the job is in the recovery journal while it runs, Stop cancels it, and a job a closed Jobcu left
+behind is cancelled, its answers' bill recorded and the job deleted at the next start. A create
+whose answer was lost is looked up by the job's unique name before anything is sent again. Flex runs only with request recovery: a
 preempted Flex stream is otherwise an ambiguous dropped connection. Both need the event path,
 which serves the Gemini models listed in `ai/gemini_events.py` (`EVENT_MODELS`); a model not
 listed there is sent the older way, without Flex or recovery, at the normal price. A new model is

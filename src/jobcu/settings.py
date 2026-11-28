@@ -44,7 +44,8 @@ class AISettings(BaseModel):
     # Explicit privacy choice: supported providers can retain one operation for reconnecting.
     recover_interrupted_requests: bool = False
     # Google's Flex processing: the same model at half the token price, queued for minutes
-    # when Google is busy. A request Google refuses for capacity is sent at the normal price.
+    # when Google is busy. While Google refuses Flex, structured requests go through its Batch
+    # API (also half price; needs request recovery), web look-ups at the normal price.
     flex_processing: bool = False
     # Reasoning effort per kind of step: medium everywhere, the owner's choice (2026-09-24).
     # `scoring_effort` is for the many small steps (quick check, scoring), `reasoning_effort` for

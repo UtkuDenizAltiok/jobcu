@@ -468,7 +468,7 @@ def score_groups(
     batches = [indexes[start : start + batch_size]
                for start in range(0, len(indexes), batch_size)]
     results: dict[int, dict] = {}
-    for found in in_parallel(client, score, batches, finished):
+    for found in in_parallel(client, score, batches, finished, can_wait=True):
         results.update(found)
     return results
 

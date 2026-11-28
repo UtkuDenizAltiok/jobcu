@@ -259,6 +259,9 @@ class ProviderAdapter(ABC):
     # True when the provider offers a slower half-price tier (`flex` asks for it).
     can_flex = False
     flex = False
+    # True when the provider has a batch service for work that can wait (`batch` allows it).
+    can_batch = False
+    batch = False
 
     def __init__(self, api_key: str, base_url: str = "", timeout: float = 180.0) -> None:
         self.api_key = api_key
@@ -272,6 +275,11 @@ class ProviderAdapter(ABC):
     def configure_request_recovery(self, context: "RecoveryContext") -> None:
         """Optional provider capability; the default never enables remote storage."""
         return None
+
+    def batching(self, model: str) -> bool:
+        """Whether structured requests for `model` go to the provider's batch service now, so
+        many may wait together; such requests are sent with `batch=True`."""
+        return False
 
     @abstractmethod
     def complete_json(

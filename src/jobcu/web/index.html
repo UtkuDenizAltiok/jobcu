@@ -425,10 +425,12 @@
               Half price, slower: Google Flex processing</label>
             <p class="muted">Google answers with the same model at half the token price when it
               has spare capacity, so a request can wait several minutes. When Google is too busy,
-              Jobcu tries again and then sends that request at the normal price. Web search fees
-              are not reduced. Connection tests always use normal processing. Flex needs
-              <strong>Recover interrupted AI connections</strong> above: Google can stop a queued
-              Flex request midway, and only a recoverable request can then be retried safely.</p>
+              the work that can wait goes through Google's Batch processing, also at half price,
+              which can take a few minutes more; web look-ups are tried again and then sent at the
+              normal price. Web search fees are not reduced. Connection tests always use normal
+              processing. Flex and Batch need <strong>Recover interrupted AI connections</strong>
+              above: Google can stop a queued Flex request midway, and only a recoverable request
+              can then be retried safely; a batch is kept at Google until Jobcu deletes it.</p>
           </div>
 
           <div class="actions">

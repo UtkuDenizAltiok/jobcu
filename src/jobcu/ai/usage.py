@@ -235,21 +235,27 @@ def billed_searches(provider: str, usage: Usage) -> int:
 
 
 FLEX = " (flex)"
-# Google's Flex price is half of every standard token price; search fees are not reduced.
+BATCH = " (batch)"
+# Google's Flex and Batch prices are half of every standard token price; search fees are not
+# reduced.
 FLEX_SHARE = 0.5
+TIER_SUFFIXES = {"flex": FLEX, "batch": BATCH}
 
 
 def billed_model(model: str, usage: Usage) -> str:
-    """Flex usage is kept apart from the same model's normal-price usage."""
-    return model + FLEX if usage.service_tier == "flex" and not model.endswith(FLEX) else model
+    """Flex and Batch usage are kept apart from the same model's normal-price usage."""
+    suffix = TIER_SUFFIXES.get(usage.service_tier)
+    return model + suffix if suffix and not model.endswith(suffix) else model
 
 
 def price_for(prices: dict[tuple[str, str], ModelPrice], provider: str,
               model: str) -> ModelPrice | None:
-    """The saved price; Flex usage without its own row costs half the model's normal tokens."""
+    """The saved price; Flex or Batch usage without its own row costs half the model's normal
+    tokens."""
     price = prices.get((provider, model))
-    if price is None and model.endswith(FLEX):
-        normal = prices.get((provider, model.removesuffix(FLEX)))
+    suffix = next((suffix for suffix in (FLEX, BATCH) if model.endswith(suffix)), None)
+    if price is None and suffix is not None:
+        normal = prices.get((provider, model.removesuffix(suffix)))
         if normal is not None:
             price = normal.model_copy(update={
                 "model": model,

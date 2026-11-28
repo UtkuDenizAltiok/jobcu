@@ -18,7 +18,7 @@ import random
 import threading
 import time
 from collections.abc import Callable, Iterator, Sequence
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import ClassVar, TypeVar
@@ -67,6 +67,10 @@ MAX_WAIT_SECONDS = 300
 # its 46 minutes waiting for them. Paid tiers allow far more than this; a free tier may not, so
 # the first "too many requests" answer puts the rest of the search back to one at a time.
 PARALLEL_REQUESTS = 4
+# Requests that may wait for the provider's batch service at the same time (while Flex is
+# refused): one batch job gathers those waiting, so a step's requests share a few jobs instead
+# of waiting one job each. They hold no place among the PARALLEL_REQUESTS.
+WAITING_AT_ONCE = 100
 
 
 # Thinking counts towards the output limit with every provider, but only what is used is paid
@@ -160,6 +164,7 @@ class AIClient:
         # How many requests may be waiting for an answer at the same time (see `_slot`).
         self.parallel_requests = PARALLEL_REQUESTS
         self._requests_running = 0
+        self._requests_waiting = 0  # sent to the batch service
         self._endpoint_running: dict[tuple[str, str, bool], int] = {}
         self._connection_recovery: set[tuple[str, str, bool]] = set()
         self._uncertain_requests: dict[tuple[str, str, bool], AIError] = {}
@@ -216,9 +221,46 @@ class AIClient:
                 self._research_adapter = self._make_adapter(ai.research_provider)
         return ai.research_provider, model, self._research_adapter
 
+    def at_once(self, *, can_wait: bool = False) -> int:
+        """How many items of a step `in_parallel` may run now. Work whose requests can wait
+        (structured answers only, no web look-ups) runs many at a time while the provider takes
+        such requests in batches, so they share a batch job."""
+        if can_wait and self.batching():
+            return WAITING_AT_ONCE
+        return self.parallel_requests
+
+    def batching(self) -> bool:
+        """Whether structured requests now go to the provider's batch service."""
+        try:
+            batching = getattr(self.adapter(), "batching", None)
+            return batching is not None and (
+                batching(self.model_for(False)) or batching(self.model_for(True)))
+        except AIError:
+            return False
+
     @contextmanager
-    def _slot(self, endpoint: tuple[str, str, bool]) -> Iterator[None]:
+    def _waiting_slot(self) -> Iterator[None]:
+        """A place among the requests waiting for the batch service."""
+        with self._gate:
+            while self._requests_waiting >= WAITING_AT_ONCE:
+                self.checkpoint()
+                self._gate.wait(timeout=0.25)
+            self.checkpoint()
+            self._requests_waiting += 1
+        try:
+            yield
+        finally:
+            with self._gate:
+                self._requests_waiting -= 1
+                self._gate.notify_all()
+
+    @contextmanager
+    def _slot(self, endpoint: tuple[str, str, bool], *, waits: bool = False) -> Iterator[None]:
         """Keep interrupted paths to one real request until a complete answer restores them."""
+        if waits:
+            with self._waiting_slot():
+                yield
+            return
         with self._gate:
             recovery_wait = 0.0
             try:
@@ -252,11 +294,11 @@ class AIClient:
 
     @contextmanager
     def _request(self, step: str, provider: str, model: str,
-                 *, research: bool = False) -> Iterator[None]:
+                 *, research: bool = False, waits: bool = False) -> Iterator[None]:
         """Every dispatch, including repairs/retries, obeys Stop and recorded limits."""
         self.checkpoint()
         endpoint = provider, model, research
-        with self._slot(endpoint):
+        with self._slot(endpoint, waits=waits):
             with self._gate:
                 quota = self._quota_errors.get((provider, model))
                 uncertain = self._uncertain_requests.get(endpoint)
@@ -395,8 +437,11 @@ class AIClient:
         effort_dropped = truncation_retried = repair_used = False
 
         while True:
+            # While the provider takes structured requests in batches, this one waits with the
+            # others for a batch job (half price) instead of taking a place among those sent now.
+            waits = bool(getattr(adapter, "batching", lambda model: False)(model))
             try:
-                with self._request(step, provider, model):
+                with self._request(step, provider, model, waits=waits):
                     reply = self._call_adapter(adapter.complete_json, step, provider,
                         model=model,
                         system=system,
@@ -405,6 +450,7 @@ class AIClient:
                         schema_name=output.__name__,
                         effort=effort,
                         max_output_tokens=with_thinking_room(max_output_tokens, effort),
+                        **({"batch": True} if waits else {}),
                     )
                     self._record(step, provider, model, reply.usage,
                                  recovery_id=reply.recovery_id)
@@ -877,13 +923,21 @@ def _saved_prices() -> list[ModelPrice]:
 
 def in_parallel[Item, Result](
         client: AIClient, work: Callable[[Item], Result], items: Sequence[Item],
-        on_done: Callable[[Item, Result], None] | None = None) -> list[Result]:
+        on_done: Callable[[Item, Result], None] | None = None, *,
+        can_wait: bool = False) -> list[Result]:
     """Runs `work` (which asks `client`) for every item, as many at a time as the client
-    allows, and returns the results in the items' order. `on_done` is called here, in the
-    calling thread, as each item finishes, so a step can show its progress. The first error
-    stops the items not started yet and is raised here once the running ones have finished."""
-    at_once = min(client.parallel_requests, len(items))
-    if at_once <= 1:
+    allows now (`AIClient.at_once`; `can_wait` says the work only asks for structured answers,
+    which may wait for a batch job together), and returns the results in the items' order.
+    `on_done` is called here, in the calling thread, as each item finishes, so a step can show
+    its progress. The first error stops the items not started yet and is raised here once the
+    running ones have finished."""
+    def allowance() -> int:
+        at_once = getattr(client, "at_once", None)  # simple stand-ins in tests have none
+        return at_once(can_wait=can_wait) if at_once else client.parallel_requests
+
+    if not items:
+        return []
+    if len(items) == 1 or (not can_wait and allowance() <= 1):
         results = []
         for item in items:
             results.append(work(item))
@@ -892,23 +946,31 @@ def in_parallel[Item, Result](
         return results
     done: dict[int, Result] = {}
     failure: BaseException | None = None
-    with ThreadPoolExecutor(max_workers=at_once, thread_name_prefix="ai") as pool:
-        futures = {pool.submit(work, item): position for position, item in enumerate(items)}
-        for future in as_completed(futures):
-            if future.cancelled():
-                continue
-            try:
-                position = futures[future]
-                done[position] = future.result()
-                if on_done is not None:
-                    on_done(items[position], done[position])
-            except BaseException as exc:
-                if failure is None:
-                    failure = exc
-                    for queued in futures:
-                        queued.cancel()
-                # Requests already running can finish with useful, billed evidence.
-                # Deliver their checkpoints before propagating the original failure.
+    started = 0
+    most = max(WAITING_AT_ONCE if can_wait else client.parallel_requests, 1)
+    with ThreadPoolExecutor(max_workers=min(len(items), most), thread_name_prefix="ai") as pool:
+        running: dict = {}
+        while True:
+            # The allowance is read again while items run: when the provider starts taking
+            # requests in batches mid-step, the waiting items join the same batch job.
+            limit = max(1, allowance())
+            while failure is None and started < len(items) and len(running) < limit:
+                running[pool.submit(work, items[started])] = started
+                started += 1
+            if not running:
+                break
+            finished, _ = wait(running, timeout=1.0, return_when=FIRST_COMPLETED)
+            for future in finished:
+                position = running.pop(future)
+                try:
+                    done[position] = future.result()
+                    if on_done is not None:
+                        on_done(items[position], done[position])
+                except BaseException as exc:
+                    # Requests already running can finish with useful, billed evidence.
+                    # Deliver their checkpoints before propagating the original failure.
+                    if failure is None:
+                        failure = exc
     if failure is not None:
         raise failure
     return [done[position] for position in range(len(items))]

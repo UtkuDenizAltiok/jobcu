@@ -72,6 +72,9 @@ def configured_adapter(provider: str, key: str, ai: AISettings, *, timeout=180.0
         adapter = PROVIDERS[provider].adapter(key, timeout=timeout)
         if getattr(adapter, "can_flex", False):
             adapter.flex = ai.flex_processing
+        if getattr(adapter, "can_batch", False):
+            # Batch work is stored at the provider until deleted, as a recoverable request is.
+            adapter.batch = ai.flex_processing and ai.recover_interrupted_requests
         return adapter
     options = {"base_url": ai.base_url.strip(), "timeout": timeout, "session_id": session_id}
     if ai.compatible_protocol == "responses":

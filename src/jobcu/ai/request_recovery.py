@@ -107,6 +107,17 @@ def release(provider: str, interaction_id: str, *, deleted: bool) -> None:
         _active.discard(_identity(provider, interaction_id))
 
 
+def later(provider: str, interaction_id: str, seconds: float = 300) -> None:
+    """Cleanup of this record failed or must wait (a cancelled batch job still ending): leave it
+    for a later cleanup instead of retrying before every request."""
+    with _lock:
+        with db.connect() as conn:
+            conn.execute("UPDATE ai_recovery_requests SET not_before=? "
+                         "WHERE provider=? AND interaction_id=?",
+                         (time.time() + seconds, provider, interaction_id))
+        _active.discard(_identity(provider, interaction_id))
+
+
 def unclaim(provider: str, interaction_id: str) -> None:
     """Release a process-local claim even if writing its durable record failed."""
     with _lock:
