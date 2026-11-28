@@ -1116,10 +1116,10 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     # A job whose location condition still lacks evidence is scored too, so its own fit can be
     # judged meanwhile: search 9 listed 125 of 179 jobs without any order, and search 14 left
     # close fits whose ads name only a state among 21 jobs nobody could rank. It stays out of the
-    # matches until the evidence arrives, and the online checks still wait for it. Workplaces
-    # that contradict each other aren't scored from a guessed place.
-    to_score = [i for i in to_score if i in candidates and (
-        i not in location_pending or not travel.workplace_conflict(groups[i]))]
+    # matches until the evidence arrives, and the online checks still wait for it. A job whose
+    # places contradict each other is scored too: scoring reads the ad, not a guessed place (17
+    # related jobs with several workplaces were never scored in search 22).
+    to_score = [i for i in to_score if i in candidates]
     run.update("eligibility", "done", (
         f"{len(location_pending)} jobs still need location evidence" if location_pending
         else "Location conditions checked for the remaining jobs"))

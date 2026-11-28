@@ -202,7 +202,12 @@ def fails_a_condition(group: JobGroup, conditions: list) -> bool:
 
 
 def condition_fit(condition, group: JobGroup) -> str:
-    """"yes", "no" or "unknown" for a job and one of the conditions the person wrote."""
+    """"yes", "no" or "unknown" for a job and one of the conditions the person wrote. A job with
+    several workplaces fits when one of them does (travel.job_sites)."""
+    if condition.kind != "about_job" and (sites := travel.job_sites(group))[0] is not group:
+        if condition.kind == "near":
+            return travel.answer(condition, group)
+        return travel.combined([condition_fit(condition, site) for site in sites])
     if condition.kind != "about_job" and travel.workplace_conflict(group):
         return "unknown"
     if condition.kind == "near":

@@ -121,7 +121,7 @@ def test_saved_score_with_unknown_location_is_only_reclassified_in_the_response(
 
 
 @pytest.mark.parametrize("title", ["Power Electronics Engineer", "Ward Nurse", "Primary Teacher"])
-def test_conflicting_workplaces_use_no_scoring_research_or_routes(monkeypatch, title):
+def test_contradicting_workplaces_are_scored_but_use_no_research_or_routes(monkeypatch, title):
     now = datetime.now(UTC)
     condition = Condition(text="Near Berlin", understood_as="Within 50 minutes of Berlin",
                           status="applied", kind="near", max_minutes=50,
@@ -142,16 +142,24 @@ def test_conflicting_workplaces_use_no_scoring_research_or_routes(monkeypatch, t
     run = search.SearchRun(run_id, SearchForm(), now.isoformat())
 
     def forbidden(*args, **kwargs):
-        pytest.fail("Conflicting workplace used a scoring, research or route request")
+        pytest.fail("Conflicting workplace used a research or route request")
 
-    monkeypatch.setattr(search.scoring, "score_groups", forbidden)
+    scored = []
+
+    def score_groups(client, profile, plan, groups, indexes, **kwargs):
+        scored.extend(groups[i].main.title for i in indexes)
+        return {}
+
+    # Scoring reads the ad, not a guessed place: the job is ranked while it waits (search 22
+    # left 17 jobs with several or contradicting workplaces unscored).
+    monkeypatch.setattr(search.scoring, "score_groups", score_groups)
     monkeypatch.setattr(search.jobplace, "find_online", forbidden)
     monkeypatch.setattr(travel.TravelMeter, "_minutes", forbidden)
     client = SimpleNamespace(web_research_unavailable_reason=lambda: None)
     search._decide(run, client, {}, None, Settings(), plan, saved_pool,
                    pipeline.Collected([], [], {}), [], lambda: None)
     pending = run.result["jobs"]["location_unchecked"]
-    assert len(pending) == 1 and pending[0]["score"] is None
+    assert scored == [title] and len(pending) == 1
     assert any("different workplaces" in c["label"] for c in pending[0]["location_checks"])
     assert not run.result["jobs"]["cards"]
     assert condition.travel == {} and travel.job_point(group) is None

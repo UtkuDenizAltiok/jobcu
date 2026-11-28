@@ -191,6 +191,9 @@ class JobGroup:
     # {"country": two-letter code, "towns": as the notes write them}. Adzuna's UK list carried 28
     # jobs in the US, Canada and Australia as "UK" in search 22.
     found_elsewhere: dict | None = None
+    # One workplace of a job that names several (travel.job_sites): the checks about places look
+    # at that town alone. Set only on those temporary views, never saved with a search.
+    site: str | None = None
 
     @property
     def main(self) -> FoundJob:

@@ -142,7 +142,8 @@ def resolve_for_jobs(client, plan, groups, *, retry_unknown: bool = False) -> No
         anchor = condition.anchor
         if not condition.switched_off and anchor is not None and anchor.reference_deferred:
             shared[anchor.look_up].append(condition)
-    points = [p for group in groups if (p := travel.job_point(group)) is not None]
+    points = [p for group in groups for site in travel.job_sites(group)
+              if (p := travel.job_point(site)) is not None]
     for fact, conditions in shared.items():
         towns = {}
         previous = {}

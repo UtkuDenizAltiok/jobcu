@@ -36,6 +36,7 @@ Google's Routes API terms (section 19.3, checked 2026-10-30) allow keeping only 
 which Settings says.
 """
 
+import dataclasses
 import json
 import logging
 import math
@@ -82,6 +83,10 @@ FASTEST_KMH = {"transit": 170, "drive": 120, "bicycle": 25, "walk": 7}
 # A job whose ad names a reference town is in it, wherever in the town its address is ("Moosach,
 # München" is Munich), unless the address is this far away: then it's another town of that name.
 HOME_TOWN_KM = 30.0
+# A job naming several far-apart workplaces is checked at each of them, up to this many; towns
+# closer together than SAME_SITE_KM count as one workplace.
+MAX_SITES = 4
+SAME_SITE_KM = 5.0
 # A town the ad names this small and this near a feed's place may share its name with another.
 SMALL_TOWN_PEOPLE = 15_000
 SAME_NAME_KM = 70.0
@@ -162,7 +167,8 @@ class Point:
 
 
 def job_key(group: JobGroup) -> str:
-    return f"{group.main.source}:{group.main.source_job_id}"
+    key = f"{group.main.source}:{group.main.source_job_id}"
+    return f"{key}@{group.site}" if group.site else key
 
 
 def job_point(group: JobGroup) -> Point | None:
@@ -171,6 +177,9 @@ def job_point(group: JobGroup) -> Point | None:
     country = job_country(group)
     if country is None:
         return None
+    if group.site is not None:
+        town = place_list.locate(group.site, country)
+        return Point(town.latitude, town.longitude, country, "town", town.name) if town else None
     if workplace_conflict(group):
         return None
     for copy in group.copies:
@@ -214,11 +223,50 @@ def _maybe_another_town_of_that_name(group: JobGroup, named: list[place_list.Tow
 
 def job_places(group: JobGroup) -> list[str]:
     """The job's places as written, the ones to believe first."""
+    if group.site is not None:
+        return [group.site]
     first = [copy.location_text for copy in group.copies
              if _counts(group, copy) and not place_list.names_more_places(copy.location_text)]
     rest = [] if found_places(group) else [copy.location_text for copy in group.copies
                                            if place_list.names_more_places(copy.location_text)]
     return [*first, *found_places(group), *rest]
+
+
+def several_workplaces(group: JobGroup) -> list[place_list.Town]:
+    """The towns of a job whose ad, or the ad found online, names several far apart ("Bristol,
+    Filton or Derby"): the person may work at any of them, so each is checked (job_sites). The
+    places a job site gives that count stand beside them. [] for a job with one workplace, and
+    for one whose places only contradict each other (a job site's town against the one town the
+    ad names), which stays to be confirmed."""
+    if group.site is not None:
+        return []
+    country = job_country(group)
+    named = _distinct([town for name in found_places(group)
+                       if (town := place_list.locate(name, country)) is not None])
+    if len(named) < 2 or not any(
+            place_list.km(a.latitude, a.longitude, b.latitude, b.longitude) > HOME_TOWN_KM
+            for a in named for b in named):
+        return []
+    stated = [town for copy in group.copies if _counts(group, copy)
+              if (town := place_list.locate(copy.location_text, country)) is not None]
+    return _distinct([*named, *stated])[:MAX_SITES]
+
+
+def _distinct(towns: list[place_list.Town]) -> list[place_list.Town]:
+    kept: list[place_list.Town] = []
+    for town in towns:
+        if all(place_list.km(town.latitude, town.longitude, other.latitude, other.longitude)
+               > SAME_SITE_KM for other in kept):
+            kept.append(town)
+    return kept
+
+
+def job_sites(group: JobGroup) -> list[JobGroup]:
+    """The job itself, or one view of it per workplace when it names several far apart."""
+    towns = several_workplaces(group)
+    if not towns:
+        return [group]
+    return [dataclasses.replace(group, site=town.name) for town in towns]
 
 
 def workplace_conflict(group: JobGroup) -> bool:
@@ -227,6 +275,8 @@ def workplace_conflict(group: JobGroup) -> bool:
     Preserve both descriptions for recovery. A mere mention extracted without a supported
     workplace quote is rejected by the quick pass before reaching this function.
     """
+    if group.site is not None:
+        return False
     country = job_country(group)
     named = [town for name in found_places(group)
              if (town := place_list.locate(name, country)) is not None]
@@ -380,6 +430,8 @@ def unchecked_reference_towns(anchor: Anchor | None, country: str) -> list[place
 def unchecked_reference_in_reach(condition: Condition, group: JobGroup) -> bool:
     if condition.anchor is None or condition.anchor.reference_checks is None:
         return False
+    if (sites := job_sites(group))[0] is not group:
+        return any(unchecked_reference_in_reach(condition, site) for site in sites)
     point = job_point(group)
     if point is None:
         return True
@@ -418,11 +470,14 @@ def _unmeasured_in_reach(condition: Condition, group: JobGroup, entry: dict) -> 
 
 
 def answer(condition: Condition, group: JobGroup) -> str:
-    """"yes", "no" or "unknown" for a "near" condition and one job."""
+    """"yes", "no" or "unknown" for a "near" condition and one job. A job with several
+    workplaces fits when one of them does, and fails only when all of them do."""
     if condition.kind != "near" or not condition.filters:
         return "unknown"
     if condition.reference_status != "applied":
         return "unknown"
+    if (sites := job_sites(group))[0] is not group:
+        return combined([answer(condition, site) for site in sites])
     if condition.max_km:
         point = job_point(group)
         if point is None:
@@ -484,11 +539,26 @@ def home_town(point: Point, towns: list[place_list.Town],
     return None
 
 
+def combined(answers: list[str]) -> str:
+    """The answer for a job with several workplaces, from each workplace's."""
+    if "yes" in answers:
+        return "yes"
+    return "no" if answers and all(a == "no" for a in answers) else "unknown"
+
+
 def detail(condition: Condition, group: JobGroup) -> tuple[str, str] | None:
     """What was found for this job, for its card: ("Munich, 17 min by public transport",
-    "Google Maps")."""
+    "Google Maps"). For a job with several workplaces, the one that fits (else the first with
+    something found), named first: ("From Filton: Bristol, 12 min ...")."""
     if condition.reference_status != "applied":
         return None
+    if (sites := job_sites(group))[0] is not group:
+        found = [(site, answer(condition, site), detail(condition, site)) for site in sites]
+        found = [item for item in found if item[2] is not None]
+        if not found:
+            return None
+        site, _, (text, by) = next((item for item in found if item[1] == "yes"), found[0])
+        return f"From {site.site}: {text}", by
     entry = condition.travel.get(job_key(group)) if condition.kind == "near" else None
     if not entry:
         return None
@@ -917,8 +987,7 @@ class TravelMeter:
         reach_km = condition.max_minutes / 60 * FASTEST_KMH[mode]
         anchors: dict[str, list[place_list.Town]] = {}
         wanted: dict[str, tuple[Point, list[place_list.Town], list[str]]] = {}
-        for index in indexes:
-            group = groups[index]
+        for group in (site for index in indexes for site in job_sites(groups[index])):
             key, point = job_key(group), job_point(group)
             if point is None:
                 continue

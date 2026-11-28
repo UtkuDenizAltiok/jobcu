@@ -85,6 +85,11 @@ happens before a new search is created or source collection begins, including wi
    once, like those near the other workplaces). A job the found ad places in a country the
    person didn't search leaves as in another country, its card saying where the ad is
    (`jobplace.found_elsewhere`: a country code and towns outside the listed country, both).
+   A job whose ad (or the ad found online) names several workplaces far apart ("Bristol,
+   Filton or Derby") is checked at each one (`travel.job_sites`: one view per town, up to four,
+   with its own journey): it fits a condition about places when one of them does, and its card
+   names that workplace. A job site's town against one other town in the ad is a contradiction
+   instead, and waits to be confirmed. Both are scored: scoring reads the ad, not a place.
    The profile states work rights per country once (now, and whether they last); scoring only
    reads an ad's right-to-work clause and code compares the two (`scoring.work_right`).
    Validated batch outcomes survive failures in later batches.
