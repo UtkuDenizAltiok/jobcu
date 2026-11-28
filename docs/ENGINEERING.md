@@ -325,7 +325,11 @@ An optional monthly free-search allowance (`limits.free_web_searches`) gives eac
 share of the research provider's free searches left in its billing month (Pacific time for
 Google), spread over the remaining days at the person's searches per day; past the share Jobcu
 looks nothing more up (it neither pays nor asks), and the smaller of the share and the per-search
-limit applies. Every research request carries its own search budget (2 a job for look-ups): as a
+limit applies. Cost estimates (Search details, the month against its limit, the usage page)
+price only searches past the allowance: each billing month's free searches are used up in the
+order the requests were made, by every step and search (`UsageLog.free_searches`); Google's bill
+showed a search's 351 searches under its free search item at nothing, where the estimate had
+priced them. Every research request carries its own search budget (2 a job for look-ups): as a
 native cap where the provider has one (Anthropic `max_uses`, OpenAI `max_tool_calls`, MiMo
 keywords) and, for all, said in the request (`client.with_search_budget`), since Gemini's search
 tool has no cap. The budget is counted in queries, the unit providers bill: one search step can

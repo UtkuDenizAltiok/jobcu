@@ -1,6 +1,7 @@
 """Records the tokens every AI request uses, for the usage meter and monthly limits."""
 
 import calendar
+from collections import Counter
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -27,6 +28,25 @@ def billing_month_start(now: datetime) -> datetime:
     return local.replace(day=1, hour=0, minute=0, second=0, microsecond=0).astimezone(UTC)
 
 
+def _billing_month(created_at: str) -> tuple[int, int]:
+    """The provider's billing month (Pacific time) of a usage record's time."""
+    moment = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
+    if moment.tzinfo is None:
+        moment = moment.replace(tzinfo=UTC)
+    local = moment.astimezone(BILLING_ZONE)
+    return local.year, local.month
+
+
+def free_allowances(settings) -> dict[str, int]:
+    """The free web searches a month of the research provider, from Settings: Google gives 5,000
+    a month, shared by its Gemini 3 and newer models, then bills $14 a thousand (pricing page,
+    read 2026-11-28). Its bill showed a search's 351 searches under its free search item, at
+    nothing, while Jobcu's estimate had priced them at $4.91."""
+    allowance = settings.limits.free_web_searches
+    provider = settings.ai.research_provider or settings.ai.provider
+    return {provider: allowance} if allowance and provider else {}
+
+
 def billing_days_left(now: datetime) -> int:
     """Days left in the billing month, today included."""
     local = now.astimezone(BILLING_ZONE)
@@ -41,16 +61,28 @@ class ModelUsage:
     # Of `usage.web_searches`, those seen inside requests the provider doesn't bill
     # (`billed_searches`): they stay on record and are never priced.
     unbilled_searches: int = 0
+    # Of the billed search units, those inside the provider's free searches of their month
+    # (`UsageLog.free_searches`): they count against the allowance and cost nothing.
+    free_search_units: int = 0
 
     @property
     def billed_search_units(self) -> int:
         """What the provider bills for searching: queries and result pages."""
         return self.usage.web_searches - self.unbilled_searches + self.usage.web_results
 
+    @property
+    def paid_search_units(self) -> int:
+        """The billed search units past the free monthly searches: those that cost money."""
+        return max(0, self.billed_search_units - self.free_search_units)
+
 
 class UsageLog:
-    def __init__(self, folder: Path | None = None) -> None:
+    def __init__(self, folder: Path | None = None, *,
+                 free_searches: dict[str, int] | None = None) -> None:
         self.folder = folder
+        # Free web search units a month per provider (`free_allowances`): usage read through
+        # this log prices only the searches past them.
+        self.free_searches = free_searches or {}
 
     def record(
         self, *, step: str, provider: str, model: str, usage: Usage, search_id: int | None = None,
@@ -160,7 +192,35 @@ class UsageLog:
                     FROM ai_usage WHERE {where} GROUP BY provider, model""",
                 params,
             ).fetchall()
-        return [ModelUsage(row[0], row[1], Usage(*row[2:9]), row[9]) for row in rows]
+            free = self._free_units(conn, where, params) if self.free_searches else Counter()
+        usages = [ModelUsage(row[0], row[1], Usage(*row[2:9]), row[9]) for row in rows]
+        for item in usages:
+            item.free_search_units = min(item.billed_search_units,
+                                         free[(item.provider, item.model)])
+        return usages
+
+    def _free_units(self, conn, where: str, params: tuple) -> Counter:
+        """Of the billed search units of the records matching `where`, those inside their
+        provider's free searches: each billing month's allowance (Pacific time) is used up in
+        the order the requests were made, by every step and search."""
+        found: Counter = Counter()
+        wanted = {row_id: (provider, model) for row_id, provider, model in conn.execute(
+            f"SELECT id, provider, model FROM ai_usage WHERE ({where}) AND {_BILLED} "
+            "AND web_searches + web_results > 0", params)}
+        if not wanted:
+            return found
+        for provider, allowance in self.free_searches.items():
+            used: Counter = Counter()
+            for row_id, created_at, units in conn.execute(
+                    "SELECT id, created_at, web_searches + web_results FROM ai_usage "
+                    f"WHERE provider = ? AND {_BILLED} AND web_searches + web_results > 0 "
+                    "AND id <= ? ORDER BY id", (provider, max(wanted))):
+                month = _billing_month(created_at)
+                inside = max(0, min(units, allowance - used[month]))
+                used[month] += units
+                if inside and row_id in wanted:
+                    found[wanted[row_id]] += inside
+        return found
 
 
 _BILLED = "NOT (provider IN ({}) AND {})".format(
@@ -207,11 +267,13 @@ def total_tokens(usages: list[ModelUsage]) -> int:
 def estimate_cost(usages: list[ModelUsage], prices: list[ModelPrice]) -> tuple[float, bool]:
     """Estimated cost from the user's price table.
 
-    Price reported usage before account allowances, taxes and other service fees. Thinking is
+    Price reported usage before account credits, taxes and other service fees. Thinking is
     already included in output. Missing cache prices use the regular input price; missing
     search prices omit those fees. Either omission makes the estimate incomplete. Searches
     the provider doesn't bill (`ModelUsage.unbilled_searches`) cost nothing: one search's
     estimate priced 553 searches where the provider's report billed 431 (November 2026).
+    Nor do searches inside the free monthly searches (`ModelUsage.free_search_units`, read
+    through a log that knows the allowance).
     """
     table = {(p.provider, p.model): p for p in prices}
     cost = 0.0
@@ -223,7 +285,7 @@ def estimate_cost(usages: list[ModelUsage], prices: list[ModelPrice]) -> tuple[f
         if price is None:
             complete = complete and not (
                 item.usage.input_tokens or item.usage.output_tokens
-                or item.billed_search_units)
+                or item.paid_search_units)
             continue
         currencies.add(price.currency.strip().upper())
         cached = min(max(item.usage.cached_input_tokens, 0), item.usage.input_tokens)
@@ -233,12 +295,12 @@ def estimate_cost(usages: list[ModelUsage], prices: list[ModelPrice]) -> tuple[f
         cost += (item.usage.input_tokens - cached) / 1e6 * price.input_per_million
         cost += cached / 1e6 * (price.input_per_million if cached_price is None else cached_price)
         cost += item.usage.output_tokens / 1e6 * price.output_per_million
-        billed = item.billed_search_units
-        if billed:
+        paid = item.paid_search_units
+        if paid:
             if price.web_search_per_thousand is None:
                 complete = False
             else:
-                cost += billed / 1000 * price.web_search_per_thousand
+                cost += paid / 1000 * price.web_search_per_thousand
     if len(currencies) > 1:
         # Adding EUR and USD has no meaningful monetary value without a chosen exchange rate.
         return 0.0, False

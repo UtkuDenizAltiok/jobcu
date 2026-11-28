@@ -14,7 +14,7 @@ from jobcu.ai import budgets
 from jobcu.ai.base import AIError
 from jobcu.ai.client import AIClient, check_research_setup, check_setup
 from jobcu.ai.providers import PROVIDERS, configured_adapter
-from jobcu.ai.usage import ModelUsage, UsageLog, estimate_cost, total_tokens
+from jobcu.ai.usage import ModelUsage, UsageLog, estimate_cost, free_allowances, total_tokens
 from jobcu.keystore import KeyStore, KeyStoreError, mask
 from jobcu.settings import (
     AISettings,
@@ -368,7 +368,7 @@ def get_usage(now: datetime | None = None) -> dict:
     """What has been used this month and in the last search, and the state of every source."""
     now = now or datetime.now(UTC)
     settings = load_settings()
-    log = UsageLog()
+    log = UsageLog(free_searches=free_allowances(settings))
     this_month = log.this_month(now)
     with db.connect() as conn:
         row = conn.execute(

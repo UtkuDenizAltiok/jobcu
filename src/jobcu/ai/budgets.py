@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field, ValidationError
 
 from jobcu import db, documents, review_capture
 from jobcu.ai.base import AIBadRequest
-from jobcu.ai.usage import UsageLog, estimate_cost
+from jobcu.ai.usage import UsageLog, estimate_cost, free_allowances
 from jobcu.paths import ensure_data_dir
 from jobcu.settings import SearchForm, Settings
 
@@ -83,7 +83,8 @@ def for_search(search_id: int) -> str | None:
 
 
 def summary(allowance: ExtraAllowance, settings: Settings) -> dict:
-    usage = UsageLog().for_budget(allowance.id, after_id=allowance.accounted_through_usage_id)
+    usage = UsageLog(free_searches=free_allowances(settings)).for_budget(
+        allowance.id, after_id=allowance.accounted_through_usage_id)
     cost, complete = estimate_cost(usage, settings.prices)
     spent = allowance.opening_spent + cost * allowance.cost_multiplier
     return {"id": allowance.id, "label": allowance.label, "currency": allowance.currency,
