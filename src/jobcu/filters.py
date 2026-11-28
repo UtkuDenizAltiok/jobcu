@@ -161,12 +161,13 @@ def job_types_of(group: JobGroup, scored: dict | None) -> list[str]:
     one it is. When no site says, the ad text decides alone."""
     stated = sorted({t for c in group.copies for t in c.job_types})
     read = (scored or {}).get("job_type")
-    # These two hints describe a full-time schedule with an unspecified contract.
-    # Student work can also be full-time; the ad may refine this broad schedule.
-    student = (read == "internship_or_working_student"
-               and set(stated) == {"full_time_permanent", "fixed_term"})
+    # These two hints describe a full-time schedule with an unspecified contract. Student work
+    # and freelance or contract work can also be full-time; the ad may refine this broad
+    # schedule (search 22: "project-based work (2-4 months)" tagged so, shown at 78).
+    schedule_only = (read in ("internship_or_working_student", "freelance_or_contract")
+                     and set(stated) == {"full_time_permanent", "fixed_term"})
     if read and read != "unclear" and (
-            not stated or (len(stated) > 1 and (read in stated or student))):
+            not stated or (len(stated) > 1 and (read in stated or schedule_only))):
         return [read]
     return stated
 
