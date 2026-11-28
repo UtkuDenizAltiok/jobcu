@@ -76,6 +76,13 @@ def test_the_ad_text_or_the_employer_proves_a_type_and_a_disagreement_keeps_the_
     assert leaves_for_job_type(employer, unclear, wanted)
     assert not leaves_for_job_type(employer, full, wanted)  # the ad names a ticked type
     assert job_types_of(board, full) == ["part_time"]  # what the card shows stays the site's
+    # A site's "full-time" pair gives a schedule, not a contract: the ad's freelance or contract
+    # work decides, as its student work does (search 22: a 2-4 month project shown at 78).
+    schedule = group_duplicates([found("p", job_types=["full_time_permanent", "fixed_term"])],
+                                {"s": "job_board"})[0]
+    assert leaves_for_job_type(schedule, freelance, wanted)
+    assert not leaves_for_job_type(schedule, freelance, [*wanted, "freelance_or_contract"])
+    assert not leaves_for_job_type(schedule, part, wanted)  # part-time is no refinement of it
 
 
 def test_a_remote_label_is_certain_only_when_no_copy_names_an_office():
