@@ -1121,8 +1121,10 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             run.note(warning)
         checkpoint()
         if measured and candidates:
+            run.update("eligibility", "running", "Measuring travel times")
             travel_meter.measure(measured, groups, candidates)
     elif measured and moved:
+        run.update("eligibility", "running", "Measuring travel times")
         travel_meter.measure(measured, groups, moved)
     detail_location_failures = {i for i in candidates
                                 if fails_a_condition(groups[i], plan.conditions)}

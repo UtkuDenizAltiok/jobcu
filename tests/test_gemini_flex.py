@@ -279,6 +279,15 @@ def test_flex_work_the_provider_cancels_or_loses_is_sent_once_at_the_normal_pric
     assert [post.get("service_tier") for post in posts[sent:]] == [None]
 
 
+def test_a_request_that_runs_normally_leaves_the_step_s_own_progress_in_view(service):
+    # "The AI is processing this request" replaced "120 of 450 jobs scored" for every request.
+    client, _, _, _ = service(["accepted"], flex=False)
+    seen = []
+    client.on_progress = seen.append
+    assert ask(client).ok
+    assert seen == []
+
+
 def test_flex_is_off_unless_chosen(service):
     client, posts, _, _ = service(["accepted"], flex=False)
     assert ask(client).ok
