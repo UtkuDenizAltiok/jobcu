@@ -23,7 +23,10 @@ about SSD snapshots or external backups.
 happens before a new search is created or source collection begins, including with cached setup.
 
 1. Parse documents into a profile, interpret geography/conditions, generate multilingual
-   search words, and refresh discovered employers when due.
+   search words, and refresh discovered employers when due. These readings are made once per
+   profile with the careful model and effort (`reasoning_effort`); the many small steps (title
+   check, scoring, structuring look-ups) use the everyday setting (`scoring_effort`), so a
+   cheaper everyday setting never changes which ads a search finds.
 2. Collect independent sources in parallel. The employers' own career sites that job sites'
    copies link to (a Workday, Oracle, Greenhouse, SmartRecruiters, Pinpoint or SuccessFactors
    address of the job) and that Jobcu doesn't read yet are checked beside the later steps, the most linked
