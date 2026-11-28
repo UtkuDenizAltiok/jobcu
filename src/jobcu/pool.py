@@ -100,7 +100,8 @@ def group_from_dict(group: dict) -> JobGroup:
                     source_kinds=group["source_kinds"],
                     place_from_text=group.get("place_from_text"),
                     place_from_web=group.get("place_from_web"),
-                    link_from_web=group.get("link_from_web"))
+                    link_from_web=group.get("link_from_web"),
+                    found_elsewhere=group.get("found_elsewhere"))
 
 
 def _to_dict(pool: Pool) -> dict:

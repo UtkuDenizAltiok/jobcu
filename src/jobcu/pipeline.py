@@ -554,7 +554,13 @@ def build_card(
     main_link, also_on = applications.links(group, source_names, reported_links)
     country = main.country or next((c.country for c in group.copies if c.country), None)
     checks = []
-    if ruled_out:
+    elsewhere = group.found_elsewhere
+    if ruled_out and elsewhere:
+        where = ", ".join(elsewhere.get("towns") or []) or elsewhere.get("country", "")
+        checks.append({"label": f"The ad found online is for a job in {where}, outside the "
+                                "countries you searched", "status": "fails",
+                       "source": "Found online", "whole_sentence": True})
+    elif ruled_out:
         pass  # the country is fine for these: a condition about places left them out
     elif country and country in plan.countries:
         checks.append({
@@ -568,7 +574,7 @@ def build_card(
     # isn't known, one line says so instead of one "couldn't be checked" per condition.
     town_known = travel.job_point(group) is not None
     unanswered = 0
-    for condition in plan.conditions:
+    for condition in [] if ruled_out and elsewhere else plan.conditions:
         if not condition.filters:
             if location_pending and not condition.switched_off and condition.kind != "about_job":
                 checks.append({"label": condition.understood_as, "status": "unclear",

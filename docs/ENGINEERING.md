@@ -73,6 +73,12 @@ happens before a new search is created or source collection begins, including wi
    richer summaries after failed/incomplete reads. Recheck newly revealed objective facts.
 4. Check fit, workplaces, requirements and travel; use sourced research where supported.
    `requirements.py` validates ad/profile evidence; `scoring.py` applies deterministic limits.
+   A job whose town nobody gave is scored first; only one that scores 50 or more
+   (`jobplace.MIN_SCORE`) is looked up online, its town and full ad in one request, and a found
+   town then decides the conditions about places (reference-city facts near it are looked up
+   once, like those near the other workplaces). A job the found ad places in a country the
+   person didn't search leaves as in another country, its card saying where the ad is
+   (`jobplace.found_elsewhere`: a country code and towns outside the listed country, both).
    The profile states work rights per country once (now, and whether they last); scoring only
    reads an ad's right-to-work clause and code compares the two (`scoring.work_right`).
    Validated batch outcomes survive failures in later batches.

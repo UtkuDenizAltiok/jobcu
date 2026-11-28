@@ -377,7 +377,7 @@ def unchecked_reference_towns(anchor: Anchor | None, country: str) -> list[place
             if (country, normalise(town.name), town.latitude, town.longitude) not in checked]
 
 
-def _unchecked_reference_in_reach(condition: Condition, group: JobGroup) -> bool:
+def unchecked_reference_in_reach(condition: Condition, group: JobGroup) -> bool:
     if condition.anchor is None or condition.anchor.reference_checks is None:
         return False
     point = job_point(group)
@@ -434,7 +434,7 @@ def answer(condition: Condition, group: JobGroup) -> str:
         near = [town for town in towns
                 if edge_distance(point, town, centre) <= condition.max_km]
         return "yes" if near else (
-            "unknown" if _unchecked_reference_in_reach(condition, group) else "no")
+            "unknown" if unchecked_reference_in_reach(condition, group) else "no")
     entry = condition.travel.get(job_key(group))
     if not entry:
         return "unknown"
@@ -444,7 +444,7 @@ def answer(condition: Condition, group: JobGroup) -> str:
     minutes = [m for m in _eligible_minutes(condition, group, entry).values() if m is not None]
     if minutes and min(minutes) <= (condition.max_minutes or 0):
         return "yes"
-    if (entry.get("unchecked") or _unchecked_reference_in_reach(condition, group)
+    if (entry.get("unchecked") or unchecked_reference_in_reach(condition, group)
             or _unmeasured_in_reach(condition, group, entry)):
         return "unknown"
     return "no"
@@ -507,7 +507,7 @@ def detail(condition: Condition, group: JobGroup) -> tuple[str, str] | None:
         elif _unmeasured_in_reach(condition, group, entry) and best > (
                 condition.max_minutes or 0):
             text += "; other candidate cities have not been measured"
-    elif _unchecked_reference_in_reach(condition, group):
+    elif unchecked_reference_in_reach(condition, group):
         text, by = "Other candidate cities still need their place facts checked", "Not checked"
     elif entry.get("unchecked"):
         text, by = f"Journey couldn't be checked {words}", "Not checked"

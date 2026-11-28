@@ -7,6 +7,12 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- A job whose town nobody gave is scored first and looked up online only when it scores 50 or
+  more: before, every such job was looked up before scoring, and a look-up costs several
+  scorings (a live search looked up 103 towns before scoring; 47 of those jobs then scored under
+  50). A job the ad found online places in another country leaves as abroad, its card saying
+  where; before, it waited as "location unchecked" (40 of a live search's 64 waiting cards were
+  jobs in the US, Canada, the Netherlands or Australia that job sites listed as UK or German).
 - A reading of the person's CV and cover letter is used and kept only when complete: at least one
   language and one wanted role, no entry holding several degrees or the model's own notes, and
   nothing lost against the last complete reading of the same documents. Otherwise it is asked for

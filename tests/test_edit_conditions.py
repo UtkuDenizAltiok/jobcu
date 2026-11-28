@@ -23,7 +23,7 @@ from test_search import (  # noqa: F401
     wait_until_done,
 )
 
-from jobcu import jobstore, pool, search
+from jobcu import jobplace, jobstore, pool, search
 from jobcu.ai.base import RawReply, ResearchReply, Source, Usage
 from jobcu.app import create_app
 from jobcu.dedupe import JobGroup
@@ -557,8 +557,9 @@ def test_the_town_of_a_good_job_is_found_online_and_the_conditions_decide(condit
     assert result["status"] == "finished", result["error"]
     jobs = result["result"]["jobs"]
     # Only the job no text placed is looked up; Garching is too small for "only big cities".
+    # It is scored first: a look-up costs several scorings, so only a job worth it is looked up.
     assert ai.looked_up == [["PCB Designer"]]
-    assert ai.scored_titles == [["Hardware Engineer"]]
+    assert ai.scored_titles == [["Hardware Engineer", "PCB Designer"]]
     assert titles(jobs["cards"]) == ["Hardware Engineer"]
     assert titles(jobs["ruled_out_by_conditions"]) == ["Electronics Engineer", "PCB Designer"]
     assert result["steps"][-1]["detail"] == "Found online: the town of 1 of 1 jobs"
@@ -569,3 +570,74 @@ def test_the_town_of_a_good_job_is_found_online_and_the_conditions_decide(condit
     pcb = next(c for c in cards if c["title"] == "PCB Designer")
     assert pcb["location"] == "Garching" and pcb["location_found_online"]
     assert len(ai.looked_up) == 1
+
+
+class AbroadAI(OnlineAI):
+    """The look-up finds the PCB Designer ad in the United States: a "Deutschland" listing of a
+    job abroad, as Adzuna's UK list carried US jobs as "UK" in search 22."""
+
+    def complete_json(self, **request):
+        if request["schema_name"] != "OnlineAnswer":
+            return super().complete_json(**request)
+        jobs = re.findall(r"^(J\d+) \| ([^|]+) \|", request["prompt"], re.MULTILINE)
+        answer = [{"id": job_id, "found": True, "towns": ["Mountain View, CA"], "country": "US",
+                   "languages_asked": [], "years_required": None, "doctorate": "not_required",
+                   "citizenship_or_clearance": "no_such_requirement",
+                   "citizenship_or_clearance_words": ""} for job_id, _ in jobs]
+        return RawReply(json.dumps({"jobs": answer}), Usage(10, 5))
+
+
+def test_a_job_the_ad_found_online_places_abroad_leaves_saying_where_it_is(conditions_ready,
+                                                                           monkeypatch):
+    _, manager = conditions_ready
+    ai = AbroadAI()
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: ai)
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [CountryOnlySource()])
+    run = manager.start(SearchForm(location_text="Germany, only big cities"))
+    result = wait_until_done(manager)
+    assert result["status"] == "finished", result["error"]
+    jobs = result["result"]["jobs"]
+    assert ai.looked_up == [["PCB Designer"]] and jobs["location_unchecked"] == []
+    abroad = next(c for c in jobs["ruled_out_by_conditions"] if c["title"] == "PCB Designer")
+    assert abroad["location_checks"] == [{
+        "label": "The ad found online is for a job in Mountain View, CA, outside the countries "
+                 "you searched", "status": "fails", "source": "Found online",
+        "whole_sentence": True}]
+    left_out = {row["reason"]: row["count"] for row in jobs["counts"]["left_out"]}
+    assert left_out["In a country you didn't search"] == 1
+    assert left_out["The place doesn't fit a condition you wrote"] == 1  # Garching
+
+    # Corrections to the conditions keep it out without looking it up again.
+    manager.reapply(run.id, [ConditionEdit(text="only big cities", original=0, use=False)])
+    again = wait_until_done(manager)["result"]["jobs"]
+    assert "PCB Designer" not in titles(again["cards"]) and len(ai.looked_up) == 1
+
+
+class LowScoreAI(OnlineAI):
+    """Scores the job no text placed under 50: not worth a look-up."""
+
+    def complete_json(self, **request):
+        reply = super().complete_json(**request)
+        if request["schema_name"] != "ScoringAnswer":
+            return reply
+        answer = json.loads(reply.text)
+        for score in answer["scores"]:
+            if "PCB" in request["prompt"].split(f"JOB {score['job_id']}")[1].split("\n")[1]:
+                score.update(role_and_skills=8, seniority=5, hard_requirements=5)
+        return RawReply(json.dumps(answer), reply.usage)
+
+
+def test_a_job_whose_town_nobody_gave_is_looked_up_only_when_its_score_is_worth_it(
+        conditions_ready, monkeypatch):
+    _, manager = conditions_ready
+    ai = LowScoreAI()
+    monkeypatch.setattr("jobcu.ai.client.AIClient.adapter", lambda self: ai)
+    monkeypatch.setattr("jobcu.pipeline.all_sources", lambda: [CountryOnlySource()])
+    manager.start(SearchForm(location_text="Germany, only big cities"))
+    result = wait_until_done(manager)
+    assert result["status"] == "finished", result["error"]
+    jobs = result["result"]["jobs"]
+    # Scored, ranked low, and kept waiting for its town: no paid look-up for it.
+    assert ai.looked_up == []
+    pending = next(c for c in jobs["location_unchecked"] if c["title"] == "PCB Designer")
+    assert pending["score"] < jobplace.MIN_SCORE
