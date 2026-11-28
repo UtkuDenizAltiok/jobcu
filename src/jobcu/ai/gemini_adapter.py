@@ -11,7 +11,7 @@ import httpx
 from google import genai
 from google.genai import errors, types
 
-from jobcu.ai import request_recovery
+from jobcu.ai import gemini_batch, request_recovery
 from jobcu.ai.base import (
     MSG_BAD_REQUEST,
     MSG_CONNECTION,
@@ -110,6 +110,7 @@ class GeminiAdapter(ProviderAdapter):
     can_search_the_web = True
     can_recover_requests = True
     can_flex = True
+    can_batch = True
     _genai_client: genai.Client | None = None
 
     def __init__(self, api_key: str, base_url: str = "", timeout: float = 180.0) -> None:
@@ -123,6 +124,9 @@ class GeminiAdapter(ProviderAdapter):
         self._flex_paused_at = 0.0
         self._flex_trying_again = False
         self._clock = time.monotonic
+        # Structured requests that can wait go to Google's Batch API while Flex is refused.
+        self._batches = gemini_batch.BatchQueue(gemini_batch.BatchService(self._client))
+        self._batch_told = False
 
     def configure_request_recovery(self, context: RecoveryContext) -> None:
         self._recovery_context.current = context
@@ -147,6 +151,14 @@ class GeminiAdapter(ProviderAdapter):
                 )
         return self._genai_client
 
+    def batching(self, model: str) -> bool:
+        """Whether a structured request for `model` goes into a batch job now: Flex was refused
+        lately and Batch still answers in this search. AIClient then lets many such requests
+        wait together (a job gathers those waiting) and passes `batch=True`."""
+        with self._client_lock:
+            return (self.batch and self.flex and model.removeprefix("models/") in EVENT_MODELS
+                    and self._flex_failures >= FLEX_FAILURES and not self._batches.unavailable)
+
     def complete_json(
         self,
         *,
@@ -157,9 +169,11 @@ class GeminiAdapter(ProviderAdapter):
         schema_name: str,
         effort: Effort | None,
         max_output_tokens: int,
+        batch: bool = False,
     ) -> RawReply:
         if model.removeprefix("models/") in EVENT_MODELS:
-            reply = self._event_stream(model, system, prompt, effort, max_output_tokens, schema)
+            reply = self._event_stream(model, system, prompt, effort, max_output_tokens, schema,
+                                       batch=batch)
             return RawReply(reply.text, reply.usage, reply.recovery_id)
         config = types.GenerateContentConfig(
             system_instruction=system,
@@ -200,7 +214,7 @@ class GeminiAdapter(ProviderAdapter):
         return self._interactions
 
     def _event_stream(self, model, system, prompt, effort, max_tokens, schema=None,
-                      *, web_search=False):
+                      *, web_search=False, batch=False):
         model = model.removeprefix("models/")
         generation = {"max_output_tokens": max_tokens, "thinking_summaries": "auto"}
         if effort:
@@ -227,10 +241,20 @@ class GeminiAdapter(ProviderAdapter):
             if again:
                 self._flex_trying_again = True
             flex = usable and (self._flex_failures < FLEX_FAILURES or again)
+        # Batch (half price, minutes) takes structured requests while Flex is refused; web
+        # look-ups keep the Flex rules below.
+        batchable = (usable and self.batch and schema is not None and not web_search
+                     and not self._batches.unavailable)
+        if batch and batchable and not again:
+            # Sent to wait with many others (AIClient): it goes into the batch even if Flex was
+            # just served again, so those waiting never become a burst of Flex requests.
+            return self._batched(request, context)
         if not flex:
+            if batchable:
+                return self._batched(request, context)
             return self._send_events(request, web_search, context)
         if again:
-            return self._try_flex_again(request, web_search, context)
+            return self._try_flex_again(request, web_search, context, batchable=batchable)
         for attempt in range(1, FLEX_ATTEMPTS + 1):
             try:
                 return self._send_events({**request, "service_tier": "flex"}, web_search,
@@ -238,6 +262,11 @@ class GeminiAdapter(ProviderAdapter):
             except _FlexRefused as refused:
                 log.info("Flex request refused before any work (attempt %d of %d): %s",
                          attempt, FLEX_ATTEMPTS, refused.error.detail or refused.error.message)
+                if batchable:
+                    # The same half price without waiting for Flex to have room again: the
+                    # search moves to Batch, and Flex is tried again in ten minutes.
+                    self._flex_rests(context)
+                    return self._batched(request, context)
                 if attempt < FLEX_ATTEMPTS:
                     delay = FLEX_RETRY_SECONDS * 2 ** (attempt - 1)
                     (context.wait(delay, retry=True) if context is not None
@@ -249,6 +278,9 @@ class GeminiAdapter(ProviderAdapter):
                 # processing after FLEX_FAILURES) instead of failing the search's AI work.
                 log.info("Flex request lost by the provider; sending it at the normal price: %s",
                          lost.error.detail or lost.error.message)
+                if batchable:
+                    self._flex_rests(context)
+                    return self._batched(request, context)
                 break
             except (AIUnavailable, AIRateLimited) as error:
                 # Other failures around accepted Flex work (a lost connection while waiting, a
@@ -260,10 +292,10 @@ class GeminiAdapter(ProviderAdapter):
         self._flex_failed(context)
         return self._send_events(request, web_search, context)
 
-    def _try_flex_again(self, request, web_search, context):
+    def _try_flex_again(self, request, web_search, context, *, batchable=False):
         """Sends one request of a search on normal processing at Flex once, without waiting.
         Taken, the rest of the search is back at half price; refused or lost, this request goes
-        at the normal price and Flex waits another FLEX_RETRY_AFTER_SECONDS."""
+        by Batch (or at the normal price) and Flex waits another FLEX_RETRY_AFTER_SECONDS."""
         served = False
         try:
             try:
@@ -285,7 +317,34 @@ class GeminiAdapter(ProviderAdapter):
                     self._flex_paused_at = self._clock()
             if served:
                 log.info("Flex served again: the rest of the search goes back to half price")
+        if batchable:
+            return self._batched(request, context)
         return self._send_events(request, web_search, context)
+
+    def _flex_rests(self, context) -> None:
+        """Flex refused while Batch takes the work: the search uses Batch until Flex is tried
+        again (FLEX_RETRY_AFTER_SECONDS)."""
+        with self._client_lock:
+            self._flex_failures = max(self._flex_failures, FLEX_FAILURES)
+            self._flex_paused_at = self._clock()
+            first = not self._batch_told
+            self._batch_told = True
+        if first:
+            context.notify(gemini_batch.NOTICE)
+
+    def _batched(self, request, context):
+        """The request's answer from a batch job, or, when the job gave none, sent the normal
+        way at the normal price."""
+        generation = request["generation_config"]
+        try:
+            return self._batches.ask(
+                model=request["model"], system=request["system_instruction"],
+                prompt=request["input"], schema=request["response_format"]["schema"],
+                effort=generation.get("thinking_level"),
+                max_output_tokens=generation["max_output_tokens"], context=context)
+        except gemini_batch.BatchUnanswered as reason:
+            log.info("Sending a request at the normal price after Batch: %s", reason)
+            return self._send_events(request, False, context)
 
     def _flex_failed(self, context) -> None:
         with self._client_lock:
@@ -467,6 +526,20 @@ class GeminiAdapter(ProviderAdapter):
                                   model=row["model"], search_id=row["search_id"],
                                   recovery_id=request_id, created_at=row["created_at"], usage=usage,
                                   budget_id=row["budget_id"])
+            if interaction_id.startswith("batches/"):
+                # A batch job left by a closed Jobcu: cancelled, its bill recorded, deleted.
+                try:
+                    gone = gemini_batch.cleanup(self._batches.service, row, account)
+                except Exception:
+                    log.info("A batch job could not be cleaned up yet", exc_info=True)
+                    gone = False
+                # A job not yet gone was cancelled or can't be read now: it is tried again
+                # later. It never blocks new requests: a batch bills only what it answered.
+                if gone:
+                    request_recovery.release(context.provider, interaction_id, deleted=True)
+                else:
+                    request_recovery.later(context.provider, interaction_id)
+                continue
             cleanup_context = replace(context, account=account)
             try:
                 try:

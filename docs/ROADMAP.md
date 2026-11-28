@@ -7,6 +7,11 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- When Google refuses its half-price Flex processing, the work that can wait (title checks,
+  scoring, requirement checks, reading look-up answers) goes through Google's Batch processing,
+  also at half price, instead of at the normal price. Flex was refused at every attempt on a
+  whole day while Batch answered the same model in about two minutes; a live search had paid the
+  normal price for most of its tokens.
 - Cost estimates count the web searches inside the provider's free monthly searches as free:
   Google's bill showed a live search's 351 searches at nothing (its first 5,000 a month are free),
   while Search details had added about $4.90 for them, a third of that search's estimate.

@@ -337,7 +337,8 @@ def _typical_search(settings, log: UsageLog) -> dict | None:
     picked = []
     for search_id in ids:
         used = log.for_search_by_model(search_id)
-        if any(item.provider == provider and item.model in (model, f"{model} (flex)")
+        if any(item.provider == provider
+               and item.model in (model, f"{model} (flex)", f"{model} (batch)")
                for item in used):
             picked.append(used)
         if len(picked) == TYPICAL_SEARCHES:

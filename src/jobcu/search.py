@@ -1692,7 +1692,8 @@ def _retry_requirements(run, client, job_pool, settings, *, indexes=None) -> Non
             done += 1
             run.update("requirements", "running", f"{done} of {len(pending)} jobs")
 
-        list(in_parallel(client, check, pending[start:start + cap], progress))
+        list(in_parallel(client, check, pending[start:start + cap], progress,
+                         can_wait=True))
         if stopped.is_set():
             break
     run.update("requirements", "done", f"{done} of {len(pending)} jobs attempted")

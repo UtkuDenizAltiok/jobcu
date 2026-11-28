@@ -209,7 +209,7 @@ def quick_pass(
 
     batches = [indexes[start : start + BATCH_SIZE]
                for start in range(0, len(indexes), BATCH_SIZE)]
-    in_parallel(client, check, batches, finished)
+    in_parallel(client, check, batches, finished, can_wait=True)
     return result
 
 
@@ -302,7 +302,7 @@ def screen_titles(
     batches = [range(start, min(start + TITLE_BATCH, len(looked_at)))
                for start in range(0, len(looked_at), TITLE_BATCH)]
     result = TitleScreenResult(unreviewed=set(range(len(looked_at), len(titles))))
-    for part in in_parallel(client, screen, batches):
+    for part in in_parallel(client, screen, batches, can_wait=True):
         result.unrelated.update(part.unrelated)
         result.reviewed.update(part.reviewed)
         result.unreviewed.update(part.unreviewed)
