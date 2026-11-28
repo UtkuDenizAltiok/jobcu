@@ -9,6 +9,8 @@ in every search. The cache stays in the private data folder; changing a document
 profile. Necessary profile text is sent to the chosen provider for matching.
 """
 
+import logging
+from collections.abc import Callable
 from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
@@ -17,7 +19,13 @@ from jobcu import db, preparation
 from jobcu.ai.client import AIClient
 from jobcu.ai.schema import strict_json_schema
 
+log = logging.getLogger(__name__)
+
 KEPT_PROFILES = 5
+# A reading that fails the checks below is asked for again, up to this many readings in all.
+READING_ATTEMPTS = 3
+# Longer than any degree's or school's name: such an entry holds several degrees, or notes.
+MAX_EDUCATION_CHARS = 150
 
 CEFR = Literal["A1", "A2", "B1", "B2", "C1", "C2", "native"]
 Seniority = Literal[
@@ -170,10 +178,57 @@ explicitly seeking student work. This applies to every profession.
 """
 
 
+# Facts the same documents and note can't lose from one reading to the next, and the lists of
+# separate facts among them, of which a later reading can't name fewer.
+LASTING_FACTS = ("languages", "education", "work_rights", "work_authorisation", "target_roles",
+                 "skills")
+COUNTED_FACTS = ("languages", "education", "work_rights")
+# What the person is told a reading lacked, when no complete reading came.
+PLAIN_NAMES = {
+    "languages": "the languages you speak", "education": "your degrees",
+    "work_rights": "where you may work", "work_authorisation": "where you may work",
+    "target_roles": "the jobs you want", "skills": "your skills",
+}
+EARLIER_READING = ("Your AI's reading of your CV and cover letter came back incomplete this time, "
+                   "so Jobcu used its last complete reading of the same documents.")
+INCOMPLETE_READING = ("Your AI couldn't read {missing} from your CV and cover letter, even when "
+                      "asked again, so the scores can't take it into account. Jobcu reads them "
+                      "again at your next search.")
+
+
+def reading_problems(profile: Profile, previous: Profile | None = None) -> list[tuple[str, str]]:
+    """What makes a reading incomplete: (the field, what the AI is told when asked again).
+
+    Every check holds for anyone's documents. On 27 Nov 2026 a well-formed answer named no
+    languages, no work rights and no wanted roles, and put two degrees and the model's own notes
+    into one entry; every job of that search then got full language points, and citizenship
+    requirements went unnoticed. `previous` is the last complete reading of the same documents
+    and note, by any model: what it found, these documents state."""
+    problems = []
+    if not profile.languages:
+        problems.append(("languages", "languages is empty, but documents are always written "
+                         "in a language (rule 5)"))
+    if not profile.target_roles:
+        problems.append(("target_roles", "target_roles is empty (rule 8)"))
+    if any(len(entry.degree) > MAX_EDUCATION_CHARS
+           or len(entry.institution or "") > MAX_EDUCATION_CHARS for entry in profile.education):
+        problems.append(("education", "an education entry is far too long: one entry per "
+                         "degree or qualification, with its name and subject only"))
+    if previous is not None:
+        for name in LASTING_FACTS:
+            before, now = getattr(previous, name), getattr(profile, name)
+            if (before and not now) or (name in COUNTED_FACTS and len(now) < len(before)):
+                problems.append((name, f"{name} names less than another reading of the same "
+                                 "documents and note found in them"))
+    return problems
+
+
 def read_profile(
-    client: AIClient, cv_text: str, cover_letter_text: str, about_you: str = ""
+    client: AIClient, cv_text: str, cover_letter_text: str, about_you: str = "",
+    problems: list[tuple[str, str]] | None = None,
 ) -> Profile:
-    """Asks the AI to read the documents, always freshly."""
+    """Asks the AI to read the documents, always freshly. `problems`: what an earlier answer
+    for them lacked, so the AI reads them again with that in mind."""
     prompt = (
         "CV (between the markers):\n<<<CV\n"
         f"{cv_text}\nCV>>>\n\n"
@@ -183,6 +238,10 @@ def read_profile(
     if about_you.strip():
         prompt += ("\n\nThe person's note (between the markers):\n<<<NOTE\n"
                    f"{about_you.strip()}\nNOTE>>>")
+    if problems:
+        prompt += ("\n\nIMPORTANT: an earlier answer for these documents was incomplete: "
+                   + "; ".join(words for _, words in problems)
+                   + ". Read the documents again and answer completely, following every rule.")
     return client.generate(
         Profile,
         step="profile",
@@ -200,6 +259,11 @@ def _cache_key(client: AIClient, cv_text: str, cover_letter_text: str, about_you
     ])
 
 
+def documents_key(cv_text: str, cover_letter_text: str, about_you: str) -> str:
+    """Which documents and note a reading is of, whatever model read them and how."""
+    return preparation.input_identity("profile-documents", cv_text, cover_letter_text, about_you)
+
+
 def reset_profile_cache() -> None:
     """Forget saved interpretations; documents and previous search results stay intact."""
     with db.connect() as conn:
@@ -215,29 +279,92 @@ def progress_detail(profile: Profile, reused: bool) -> str:
 
 
 def read_profile_reusing(
-    client: AIClient, cv_text: str, cover_letter_text: str, about_you: str = ""
+    client: AIClient, cv_text: str, cover_letter_text: str, about_you: str = "",
+    notify: Callable[[str], None] | None = None,
 ) -> tuple[Profile, bool]:
     """The profile and whether it came from the last time these exact documents (and note) were
-    read."""
+    read. Only a complete reading is kept or reused: an incomplete one is asked for again, and
+    if no complete one comes, the last complete reading of the same documents by another model
+    stands in for it. `notify` tells the person when the reading is not this model's own."""
     key = _cache_key(client, cv_text, cover_letter_text, about_you)
+    documents = documents_key(cv_text, cover_letter_text, about_you)
+    previous = _last_complete(documents, other_than=key)
     with db.connect() as conn:
         row = conn.execute(
             "SELECT profile_json FROM profile_cache WHERE key = ?", (key,)
         ).fetchone()
     if row is not None:
         try:
-            return Profile.model_validate_json(row["profile_json"]), True
+            saved = Profile.model_validate_json(row["profile_json"])
         except ValueError:
-            pass  # saved by an older Jobcu and no longer readable: read the documents again
-    profile = read_profile(client, cv_text, cover_letter_text, about_you)
+            saved = None  # saved by an older Jobcu and no longer readable
+        if saved is not None and not reading_problems(saved, previous):
+            return saved, True
+        # An incomplete reading kept by an earlier Jobcu is never reused: read them again.
+    profile, problems = _read_complete(client, cv_text, cover_letter_text, about_you, previous)
+    if problems:
+        log.warning("The profile reading stayed incomplete after %d attempts: %s",
+                    READING_ATTEMPTS, "; ".join(words for _, words in problems))
+        if previous is not None:
+            profile, problems = previous, []
+            if notify is not None:
+                notify(EARLIER_READING)
+        elif notify is not None:
+            missing = list(dict.fromkeys(PLAIN_NAMES[name] for name, _ in problems))
+            notify(INCOMPLETE_READING.format(missing=_and(missing)))
+    if not problems:
+        _save(key, documents, profile)
+    return profile, False
+
+
+def _read_complete(client: AIClient, cv_text: str, cover_letter_text: str, about_you: str,
+                   previous: Profile | None) -> tuple[Profile, list[tuple[str, str]]]:
+    """The first reading without problems, of up to READING_ATTEMPTS; otherwise the one with
+    the fewest problems, and those problems."""
+    best: tuple[Profile, list[tuple[str, str]]] | None = None
+    problems: list[tuple[str, str]] = []
+    for _ in range(READING_ATTEMPTS):
+        profile = read_profile(client, cv_text, cover_letter_text, about_you, problems)
+        problems = reading_problems(profile, previous)
+        if not problems:
+            return profile, []
+        if best is None or len(problems) < len(best[1]):
+            best = (profile, problems)
+    assert best is not None
+    return best
+
+
+def _last_complete(documents: str, other_than: str) -> Profile | None:
+    """The newest complete reading of these documents and note saved under another model or
+    prompt."""
+    with db.connect() as conn:
+        rows = conn.execute(
+            "SELECT profile_json FROM profile_cache WHERE documents_key = ? AND key != ? "
+            "ORDER BY created_at DESC", (documents, other_than),
+        ).fetchall()
+    for row in rows:
+        try:
+            profile = Profile.model_validate_json(row["profile_json"])
+        except ValueError:
+            continue
+        if not reading_problems(profile):
+            return profile
+    return None
+
+
+def _save(key: str, documents: str, profile: Profile) -> None:
     with db.connect() as conn:
         conn.execute(
-            "INSERT OR REPLACE INTO profile_cache (key, profile_json) VALUES (?, ?)",
-            (key, profile.model_dump_json()),
+            "INSERT OR REPLACE INTO profile_cache (key, profile_json, documents_key) "
+            "VALUES (?, ?, ?)",
+            (key, profile.model_dump_json(), documents),
         )
         conn.execute(
             "DELETE FROM profile_cache WHERE key NOT IN "
             "(SELECT key FROM profile_cache ORDER BY created_at DESC LIMIT ?)",
             (KEPT_PROFILES,),
         )
-    return profile, False
+
+
+def _and(names: list[str]) -> str:
+    return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]
