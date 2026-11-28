@@ -16,6 +16,14 @@ from typing import Literal
 from pydantic import BaseModel, Field, field_validator
 
 from jobcu import db, preparation
+from jobcu.ai.base import (
+    AIAuthError,
+    AIError,
+    AILimitReached,
+    AIModelNotFound,
+    AIQuotaExhausted,
+    AIUsageUncertain,
+)
 from jobcu.ai.client import AIClient
 from jobcu.ai.schema import strict_json_schema
 
@@ -191,6 +199,12 @@ PLAIN_NAMES = {
 }
 EARLIER_READING = ("Your AI's reading of your CV and cover letter came back incomplete this time, "
                    "so Jobcu used its last complete reading of the same documents.")
+UNREAD_READING = ("Your AI couldn't read your CV and cover letter this time ({reason}), so Jobcu "
+                  "used its last complete reading of the same documents.")
+# Refusals that stop the whole search anyway: the key, the money, the limits or a request whose
+# bill is unknown. Telling them at once is clearer than reaching the next step first.
+_SEARCH_STOPPERS = (AIAuthError, AIModelNotFound, AIQuotaExhausted, AILimitReached,
+                    AIUsageUncertain)
 INCOMPLETE_READING = ("Your AI couldn't read {missing} from your CV and cover letter, even when "
                       "asked again, so the scores can't take it into account. Jobcu reads them "
                       "again at your next search.")
@@ -301,7 +315,22 @@ def read_profile_reusing(
         if saved is not None and not reading_problems(saved, previous):
             return saved, True
         # An incomplete reading kept by an earlier Jobcu is never reused: read them again.
-    profile, problems = _read_complete(client, cv_text, cover_letter_text, about_you, previous)
+    try:
+        profile, problems = _read_complete(client, cv_text, cover_letter_text, about_you,
+                                           previous)
+    except _SEARCH_STOPPERS:
+        raise
+    except AIError as error:
+        # The provider failed after its retries (an outage, an answer in no usable format):
+        # documents read completely before (by another model or prompt) are the same, so their
+        # reading carries the search on. Not saved under this model's key: read again next time.
+        if previous is None:
+            raise
+        log.warning("The profile could not be read now; the last complete reading of the same "
+                    "documents stands in: %s", error.detail or error.message)
+        if notify is not None:
+            notify(UNREAD_READING.format(reason=error.message.rstrip(".")))
+        return previous, False
     if problems:
         log.warning("The profile reading stayed incomplete after %d attempts: %s",
                     READING_ATTEMPTS, "; ".join(words for _, words in problems))

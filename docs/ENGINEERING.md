@@ -30,7 +30,10 @@ happens before a new search is created or source collection begins, including wi
    and kept only when complete (`profile.reading_problems`: at least one language and one wanted
    role, no entry holding several degrees or notes, and nothing lost against the last complete
    reading of the same documents and note by any model); otherwise it is asked for again, up to
-   three readings, then that last complete reading stands in and the person is told. A language
+   three readings, then that last complete reading stands in and the person is told. It also
+   stands in when the provider fails the reading after its retries (an outage, no usable
+   answer), not saved under the new key so the next search reads again; refusals that stop the
+   whole search (key, credit, limits, an unknown bill) stop it at once. A language
    level estimated from the same written words ("basic", "fluent") keeps that last reading's
    estimate (`profile.keep_estimates`), so scores don't change between searches because a model
    did.
