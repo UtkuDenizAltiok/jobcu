@@ -7,6 +7,9 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- Cost estimates count the web searches inside the provider's free monthly searches as free:
+  Google's bill showed a live search's 351 searches at nothing (its first 5,000 a month are free),
+  while Search details had added about $4.90 for them, a third of that search's estimate.
 - A job naming several workplaces far apart ("Bristol, Filton or Derby") is checked at each:
   it is a match when one of them meets the conditions about places, and its card names which.
   Before, such jobs were never scored and waited as "location unchecked" (17 related jobs in a

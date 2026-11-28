@@ -42,7 +42,13 @@ from jobcu import pool as search_pool
 from jobcu.ai import budgets
 from jobcu.ai.base import AIBadRequest, AIError, AIQuotaExhausted, AIWebSearchUnavailable
 from jobcu.ai.client import AIClient, check_setup, in_parallel
-from jobcu.ai.usage import UsageLog, billing_days_left, billing_month_start, estimate_cost
+from jobcu.ai.usage import (
+    UsageLog,
+    billing_days_left,
+    billing_month_start,
+    estimate_cost,
+    free_allowances,
+)
 from jobcu.countries import COUNTRIES, LANGUAGE_NAMES, languages_for
 from jobcu.documents import DocumentError
 from jobcu.filters import REASONS, apply_rules, fails_a_condition, leaves_for_job_type
@@ -300,7 +306,8 @@ class SearchManager:
                 raise RuntimeError("A search is already running.")
             settings = load_settings()
             budget_id = budgets.for_setup(settings, form)
-            AIClient(settings, usage_log=UsageLog(), budget_id=budget_id).check_search_budget()
+            AIClient(settings, usage_log=UsageLog(free_searches=free_allowances(settings)),
+                     budget_id=budget_id).check_search_budget()
             budgets.check_preparation(budget_id)
             with db.connect() as conn:
                 cursor = conn.execute(
@@ -542,7 +549,8 @@ def run_search(run: SearchRun) -> None:
         raise AIBadRequest("Comparison capture could not start. No job-site or AI request "
                            "has been sent; keep this attempt and repair its preparation.")
     client = AIClient(
-        settings, KeyStore(), usage_log=UsageLog(), search_id=run.id, notify=run.note,
+        settings, KeyStore(), usage_log=UsageLog(free_searches=free_allowances(settings)),
+        search_id=run.id, notify=run.note,
         checkpoint=lambda: _checkpoint(run),
         on_wait=lambda seconds: _ai_wait_note(run, seconds),
         on_progress=lambda message: _ai_progress_note(run, message),
@@ -1586,7 +1594,8 @@ def reapply_conditions(run: SearchRun, job_pool: search_pool.Pool,
     decide again about the jobs that search found."""
     settings = load_settings()
     client = AIClient(
-        settings, KeyStore(), usage_log=UsageLog(), search_id=run.id, notify=run.note,
+        settings, KeyStore(), usage_log=UsageLog(free_searches=free_allowances(settings)),
+        search_id=run.id, notify=run.note,
         checkpoint=lambda: _checkpoint(run),
         on_wait=lambda seconds: _ai_wait_note(run, seconds),
         on_progress=lambda message: _ai_progress_note(run, message),
@@ -1830,7 +1839,7 @@ def _save_usage(run, settings) -> None:
     searches the provider bills (the usage record keeps every search seen), and what the step
     cost by the prices in Settings, so the person sees where the money goes (owner, 2026-11-26:
     spend it efficiently, never at the cost of the jobs found or their scores)."""
-    log = UsageLog()
+    log = UsageLog(free_searches=free_allowances(settings))
     billed = log.billed_searches_by_step(run.id)
     currencies = {price.currency.strip().upper() for price in settings.prices}
     currency = currencies.pop() if len(currencies) == 1 else None
