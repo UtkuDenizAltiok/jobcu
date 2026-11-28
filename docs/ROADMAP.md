@@ -7,6 +7,9 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- A requirement the AI found met is no longer turned into "unknown" when its quote of the profile
+  is cut inside a bracket or names one item of a bracketed list ("SMPS" in "Switched-mode power
+  supplies (SMPS, …)"): 30 of a live search's 31 such refusals were facts the profile states.
 - A reading of the person's CV and cover letter is used and kept only when complete: at least one
   language and one wanted role, no entry holding several degrees or the model's own notes, and
   nothing lost against the last complete reading of the same documents. Otherwise it is asked for
