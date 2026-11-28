@@ -196,6 +196,32 @@ def test_models_may_join_and_shorten_stated_facts(quote):
 
 
 @pytest.mark.parametrize("quote", [
+    "Ward care, DC-DC converters (isolated, buck",  # cut inside the bracket
+    "DC-DC converters (isolated",
+    "isolated, buck), Ward care",  # begun inside the bracket
+])
+def test_a_quote_cut_inside_a_bracket_still_names_only_stated_facts(quote):
+    # (Each case also names a detail of a bracketed list as a fact of its own: "buck".)
+    # Search 22: 31 "met" comparisons quoting a long skill's bracket, cut short, were refused.
+    assert requirements._profile_quote(quote, SPECIALIST.model_dump())
+
+
+@pytest.mark.parametrize("quote", ["buck, Ward care", "isolated; Altium Designer"])
+def test_an_item_of_a_bracketed_list_is_a_stated_fact(quote):
+    assert requirements._profile_quote(quote, SPECIALIST.model_dump())
+
+
+@pytest.mark.parametrize("quote", [
+    "DC-DC converters (isolated, inverters",  # an invented detail in an open bracket
+    "converters, Ward care",  # a word of a value's name, not an item of its list
+    "Ward care, Altium Designer (RF",
+    "RF design), Ward care",
+])
+def test_an_open_bracket_cannot_hide_an_invented_fact(quote):
+    assert not requirements._profile_quote(quote, SPECIALIST.model_dump())
+
+
+@pytest.mark.parametrize("quote", [
     "Altium Designer; RF design",  # an invented skill beside a real one
     "MSc Chemistry (FUT)",  # a changed degree
     "No Altium Designer",  # changed negation
