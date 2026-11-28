@@ -1060,10 +1060,11 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     kept = set(candidates)
     to_score = [i for i in to_score if i in kept]
 
-    # Missing workplaces have to be identified before a hard location condition can
-    # admit a scoring request. Reuse this lookup's requirements later; never pay twice
-    # for the same job. If the reference facts themselves failed, a town lookup cannot
-    # unblock admission and is deferred with the job instead of adding avoidable work.
+    # A job whose town nobody gave is scored first and looked up online afterwards, only when it
+    # is worth it (below). A look-up costs several scorings: before scoring, search 22 looked up
+    # 103 towns, and 47 of those jobs then scored under 50 (ROADMAP 97). Look-ups an earlier
+    # pass of this search finished are used again, never bought twice. If the reference facts
+    # themselves failed, a town can't decide a condition about places: its look-up waits.
     hard_conditions = [c for c in plan.conditions
                        if not c.switched_off and c.kind != "about_job"]
     reference_ready = (not plan.not_checked_yet and all(
@@ -1076,26 +1077,6 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     early_lookup = jobplace.saved_lookups(groups, {
         i: job.online_evidence for i, job in enumerate(job_pool.jobs)
         if job.online_evidence is not None})
-    early_towns = [i for i in candidates if i not in early_lookup.asked
-                   and hard_conditions and reference_ready
-                   and jobplace.needs_looking_up(groups[i])
-                   and not travel.workplace_conflict(groups[i])
-                   and _ad_exclusion(groups[i], job_pool.jobs[i].scored, form) is None]
-    if early_towns and not client.web_research_unavailable_reason():
-        run.update("eligibility", "running", "Checking missing workplaces before scoring")
-        early_lookup = early_lookup.add(jobplace.find_online(
-            client, groups, early_towns, profile, lambda *_: None, on_evidence=keep_online,
-            research_cache=job_pool.research_notes))
-        while early_lookup.not_asked and client.web_searches_left() > 0:
-            waiting = len(early_lookup.not_asked)
-            early_lookup = early_lookup.add(jobplace.find_online(
-                client, groups, early_lookup.not_asked, profile, lambda *_: None,
-                on_evidence=keep_online, research_cache=job_pool.research_notes))
-            if len(early_lookup.not_asked) >= waiting:
-                break
-        if early_lookup.not_asked:
-            run.note("Some workplaces are waiting for the existing web lookup allowance; "
-                     "those jobs have not been sent for scoring.")
 
     # A town found in the ad's text or online can show that an earlier search listed this job.
     seen_again = _shown_before_in_found_town(groups, job_pool, candidates, started_at,
@@ -1225,14 +1206,19 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             job_pool.jobs[index].scored = scoring.with_location_confidence(
                 job_pool.jobs[index].scored, profile, plan, groups[index],
             )
-    research_candidates = [i for i in candidates if i not in location_pending
-                           if _ad_exclusion(groups[i], job_pool.jobs[i].scored, form) is None]
-    later_towns = [i for i in research_candidates if jobplace.needs_looking_up(groups[i])
-                 and scoring.evidence_priority(job_pool.jobs[i].scored) >= jobplace.MIN_SCORE]
+    eligible = [i for i in candidates
+                if _ad_exclusion(groups[i], job_pool.jobs[i].scored, form) is None]
+    research_candidates = [i for i in eligible if i not in location_pending]
+    # The town of every job worth it, also of one waiting for its town to meet a condition about
+    # places: the look-up finds its full ad too, so it isn't asked again for requirements.
+    later_towns = [i for i in eligible if jobplace.needs_looking_up(groups[i])
+                   and not travel.workplace_conflict(groups[i])
+                   and (i not in location_pending or reference_ready)
+                   and scoring.evidence_priority(job_pool.jobs[i].scored) >= jobplace.MIN_SCORE]
     need_requirements = [i for i in research_candidates
                          if i not in early_lookup.asked
                          if jobplace.needs_requirements(groups[i], job_pool.jobs[i].scored)]
-    need_town = list(dict.fromkeys([*early_towns, *later_towns]))
+    need_town = later_towns
     worth_it = sorted(set(later_towns) | set(need_requirements),
                       key=lambda i: -scoring.evidence_priority(job_pool.jobs[i].scored))
     looked_up = early_lookup
@@ -1263,6 +1249,19 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
                       else "incomplete")
             job_pool.jobs[index].scored = {**scored, "read_online": True, "online_check": status}
     placed = [i for i in later_towns if groups[i].place_from_web]
+    if placed and not stopped and _references_needed(plan, [groups[i] for i in placed]):
+        # Cities near a town found only now were never needed before: their facts are looked
+        # up like those near the other workplaces (each fact once, earlier ones kept).
+        from jobcu import reference_places
+
+        for condition in plan.conditions:
+            if condition.kind == "near" and condition.anchor is not None and (
+                    condition.anchor.look_up and not condition.switched_off):
+                condition.anchor.reference_deferred = True
+        with until_stopped():
+            checkpoint()
+            reference_places.resolve_for_jobs(client, plan, [groups[i] for i in placed])
+        run.set_result("location", plan.model_dump())
     fails = [i for i in placed if fails_a_condition(groups[i], at_once)]
     if measured and placed:
         in_reach = [i for i in placed if i not in fails]
@@ -1274,14 +1273,24 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
             # A journey the stop left unmeasured is a condition still without evidence.
             location_pending |= {i for i in in_reach if i not in fails
                                  and pipeline.unchecked_location_conditions(groups[i], plan)}
+    # The ad found online places the job in a country the person didn't search (Adzuna's UK
+    # list carried US, Canadian and Australian jobs as "UK"): it leaves like any job abroad, and
+    # its card says where the ad is.
+    abroad = [i for i in candidates if i in looked_up.asked and groups[i].found_elsewhere
+              and groups[i].found_elsewhere.get("country") not in plan.countries]
+    fails = list(dict.fromkeys([*fails, *abroad]))
     ruled_out = sorted([*ruled_out, *fails])
     candidates = [i for i in candidates if i not in set(fails)]
+    # A job whose town was found only now and meets the conditions is a match, no longer waiting.
+    location_pending = {i for i in location_pending if i in set(candidates)
+                        and pipeline.unchecked_location_conditions(groups[i], plan)}
     seen_again.update(_shown_before_in_found_town(groups, job_pool, candidates, started_at,
                                                   form.posted_within_hours))
     candidates = [i for i in candidates if i not in seen_again]
     found_online = []
     if need_town:
-        found_online.append(f"the town of {looked_up.towns_found} of {len(need_town)} jobs")
+        towns = sum(1 for i in need_town if groups[i].place_from_web)
+        found_online.append(f"the town of {towns} of {len(need_town)} jobs")
     if need_requirements:
         read = sum(1 for i in need_requirements if i in looked_up.requirements)
         found_online.append(f"the requirements of {read} of {len(need_requirements)} jobs")
@@ -1315,7 +1324,8 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
     left_out.update(original.values())
     left_out.update(seen_again.values())
     if ruled_out:
-        left_out["location_condition"] = len(ruled_out)
+        left_out["location_condition"] = len(set(ruled_out) - set(abroad))
+        left_out["country"] += len(abroad)
     shown: list[int] = []
     # Reports can be added while a search runs; full ads may also expose another route.
     reported_links = applications.reported_urls()
@@ -1437,6 +1447,14 @@ def _decide(run, client, keys, http, settings, plan, job_pool, collected, hidden
         {i for i in unrelated if i in worked_on},
         plan,
     )
+
+
+def _references_needed(plan, groups) -> bool:
+    """Whether a reference city near one of these workplaces has no checked facts yet."""
+    return any(not condition.switched_off and condition.kind == "near"
+               and condition.anchor is not None and condition.anchor.look_up
+               and travel.unchecked_reference_in_reach(condition, group)
+               for condition in plan.conditions for group in groups)
 
 
 def _look_up_online(run, client, settings, groups, job_pool, profile, worth_it, early_lookup,
