@@ -16,6 +16,7 @@ from jobcu.sources import (
     all_sources,
     ashby,
     careers,
+    freehire,
     greenhouse,
     lever,
     recruitee,
@@ -1465,6 +1466,67 @@ def test_workday_keeps_an_ad_behind_a_check_unread_without_the_same_vacancy_on_i
     [listed] = source.list_jobs(board, ctx, countries=["IE"], start=NOW - timedelta(days=7))
     with pytest.raises(Blocked):
         source.load_details(listed, ctx)
+
+
+def freehire_copy(company="FakeCo", title="Hardware Engineer (m/w/d)", source="workday",
+                  path="/External/job/Elsewhere/Another-Address_R7", text=None):
+    return {"source": source, "company": company, "title": title,
+            "url": f"https://fakeco.wd5.myworkdayjobs.com{path}",
+            "description": text or "<p>The whole fictional ad as FreeHire keeps it.</p>" * 20}
+
+
+def freehire_handler(items, asked):
+    def handler(request):
+        if request.url.host == "freehire.me":
+            asked.append(dict(request.url.params))
+            return httpx.Response(200, json={"data": items})
+        return own_site_handler("Hardware Engineer")(request)
+
+    return handler
+
+
+@pytest.mark.parametrize("copy", [
+    # The same address: FreeHire names the employer and the title its own way.
+    freehire_copy(company="FakeCo Holding Ltd", title="Something else",
+                  path="/en-US/External/job/Limerick/The-Job_R1234567-2"),
+    # Another address, the same employer and title.
+    freehire_copy(),
+])
+def test_workday_reads_an_ad_behind_a_check_from_freehire_s_copy_of_the_same_vacancy(copy):
+    # 27 Nov 2026: every ad of Workday's wd1 and wd3 servers was behind a human check (never
+    # passed); FreeHire, which reads Workday itself, had 7 of 8 such jobs with their whole ad.
+    asked = []
+    someone_else = freehire_copy(company="Another Co", title="Hardware Engineer")
+    ctx = context(freehire_handler([someone_else, copy], asked), "workday")
+    board = employer("workday", "https://fakeco.wd5.myworkdayjobs.com/External")
+    source = wd.WorkdaySource()
+    [listed] = source.list_jobs(board, ctx, countries=["IE"], start=NOW - timedelta(days=7))
+    full = source.load_details(listed, ctx)
+    assert full.description.startswith("The whole fictional ad as FreeHire keeps it.")
+    assert full.description_is_complete and full.source == "workday"
+    assert asked == [{"q": 'title:"Hardware Engineer"', "countries": "ie", "limit": "20"}]
+
+
+@pytest.mark.parametrize("case", ["job board's copy", "summary", "switched off", "spent"])
+def test_freehire_gives_no_ad_without_the_whole_ad_from_the_same_career_system(case):
+    from jobcu.settings import Settings, save_settings
+
+    copy = freehire_copy(source="adzuna" if case == "job board's copy" else "workday",
+                         text="A short summary." if case == "summary" else None)
+    if case == "switched off":
+        settings = Settings()
+        settings.sources_disabled = ["freehire"]
+        save_settings(settings)
+    asked = []
+    ctx = context(freehire_handler([copy], asked), "workday")
+    board = employer("workday", "https://fakeco.wd5.myworkdayjobs.com/External")
+    source = wd.WorkdaySource()
+    if case == "spent":
+        source._freehire = {"asked": freehire.SAME_AD_REQUESTS, "on": True}
+    [listed] = source.list_jobs(board, ctx, countries=["IE"], start=NOW - timedelta(days=7))
+    with pytest.raises(Blocked):
+        source.load_details(listed, ctx)
+    assert len(asked) == (0 if case in {"switched off", "spent"} else 1)
 
 
 def test_workday_finds_the_country_filter_whatever_it_is_called():
