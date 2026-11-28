@@ -57,6 +57,8 @@ IMPLIED_POINTS_FURTHER = 3
 
 # The owner's limits on the total for clear blockers.
 LIMIT_LANGUAGE = 80  # a must-have language exactly two levels above the person's
+NO_LANGUAGES_NOTE = ("Your profile names no languages, so the languages this ad asks for "
+                     "weren't compared")
 LIMIT_LANGUAGE_FURTHER = 75  # three or more levels above
 LIMIT_CITIZENSHIP = 30  # a citizenship or clearance the person definitely can't get
 LIMIT_DOCTORATE = 50  # a required doctorate the person doesn't have
@@ -753,7 +755,11 @@ def judge_languages(score: JobScore, profile: Profile) -> LanguageJudgement:
     and says nothing about it, it most likely needs it, but it doesn't say: low, not 0."""
     judgement = LanguageJudgement()
     if not profile.languages:
-        return judgement  # the documents name no languages, so there's nothing to compare
+        # Nothing to compare with: the card says so rather than looking checked (search 22's
+        # incomplete profile gave every job full language points without a word).
+        if any(asked.level != "not_needed" for asked in score.languages_asked):
+            judgement.notes.append(NO_LANGUAGES_NOTE)
+        return judgement
     spoken = person_levels(profile)
     named = set()
     for asked in score.languages_asked:

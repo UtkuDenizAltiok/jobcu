@@ -12,7 +12,7 @@ itself as a newly edited checkout. State-changing routes require `X-Jobcu: 1`; C
 binding constrain browser access.
 
 `paths.py` locates private data outside every checkout. SQLite migrations are additive and
-numbered; `db.py` currently includes migration 28. Keys, settings, uploaded documents, logs,
+numbered; `db.py` currently includes migration 29. Keys, settings, uploaded documents, logs,
 reviews and capture files stay private. Reset actions are explicit, scoped and protect usage
 counters, settings and keys. Secure deletion/compaction is app-file behavior, not a promise
 about SSD snapshots or external backups.
@@ -23,7 +23,11 @@ about SSD snapshots or external backups.
 happens before a new search is created or source collection begins, including with cached setup.
 
 1. Parse documents into a profile, interpret geography/conditions, generate multilingual
-   search words, and refresh discovered employers when due.
+   search words, and refresh discovered employers when due. A profile reading is used and kept
+   only when complete (`profile.reading_problems`: at least one language and one wanted role,
+   no entry holding several degrees or notes, and nothing lost against the last complete reading
+   of the same documents and note by any model); otherwise it is asked for again, up to three
+   readings, then that last complete reading stands in and the person is told.
 2. Collect independent sources in parallel. The employers' own career sites that job sites'
    copies link to (a Workday, Oracle, Greenhouse, SmartRecruiters, Pinpoint or SuccessFactors
    address of the job) and that Jobcu doesn't read yet are checked beside the later steps, the most linked

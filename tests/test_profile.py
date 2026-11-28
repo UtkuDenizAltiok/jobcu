@@ -5,6 +5,7 @@ from conftest import FAKE_CV_LINES, make_pdf
 from fastapi.testclient import TestClient
 
 from jobcu import db, documents, search
+from jobcu import profile as profile_module
 from jobcu.ai.base import ProviderAdapter, RawReply, Usage
 from jobcu.ai.client import AIClient
 from jobcu.app import create_app
@@ -254,3 +255,131 @@ class _Started:
 
     def snapshot(self):
         return {"form": self.form.model_dump()}
+
+
+class SequenceAdapter(ProviderAdapter):
+    """Answers each request with the next profile of a list (the last one again after that)."""
+
+    def __init__(self, answers):
+        super().__init__("fake-key")
+        self.answers, self.calls = list(answers), []
+
+    def complete_json(self, **request):
+        self.calls.append(request)
+        answer = self.answers[min(len(self.calls), len(self.answers)) - 1]
+        return RawReply(json.dumps(answer), Usage(100, 50))
+
+    def list_models(self):
+        return []
+
+
+# A well-formed answer that read too little: no languages, no wanted roles, two degrees and the
+# model's own notes in one entry (what a reading of real documents returned on 27 Nov 2026).
+INCOMPLETE = {**PROFILE, "languages": [], "target_roles": [], "education": [{
+    "degree": "BSc Electrical Engineering (thesis on motor drives, grade 1.7, projects: a 48 W "
+              "flyback converter and a BLDC drive, term projects ... wait: keep the degree "
+              "clean!) -> separate entries!",
+    "institution": "Example University / Second Example University -> separate entries!",
+    "finished": "2019"}]}
+WORK_RIGHTS = [{"country": "IE", "now": "yes", "later": "yes", "basis": "Irish citizenship"}]
+
+
+def test_an_answer_without_languages_or_wanted_roles_is_asked_again_and_the_complete_one_kept(
+        settings):
+    adapter = SequenceAdapter([INCOMPLETE, PROFILE])
+    notes = []
+    profile, reused = read_profile_reusing(AIClient(settings, adapter=adapter), "CV TEXT",
+                                           "LETTER TEXT", notify=notes.append)
+    assert not reused and len(adapter.calls) == 2
+    assert profile.languages and profile.target_roles and notes == []
+    again = adapter.calls[1]["prompt"]
+    assert "IMPORTANT: an earlier answer for these documents was incomplete" in again
+    assert "languages is empty" in again and "target_roles is empty" in again
+    assert "education entry is far too long" in again
+    # The complete reading is the one kept.
+    assert read_profile_reusing(AIClient(settings, adapter=adapter), "CV TEXT",
+                                "LETTER TEXT")[1]
+    assert len(adapter.calls) == 2
+
+
+def test_an_incomplete_reading_saved_by_an_earlier_jobcu_is_never_reused(settings):
+    ai = AIClient(settings, adapter=SequenceAdapter([PROFILE]))
+    key = profile_module._cache_key(ai, "CV TEXT", "LETTER TEXT", "")
+    with db.connect() as conn:
+        conn.execute("INSERT INTO profile_cache (key, profile_json) VALUES (?, ?)",
+                     (key, json.dumps(INCOMPLETE)))
+    profile, reused = read_profile_reusing(ai, "CV TEXT", "LETTER TEXT")
+    assert not reused and profile.languages == Profile.model_validate(PROFILE).languages
+    assert len(ai._adapter.calls) == 1
+
+
+def test_the_last_complete_reading_of_the_same_documents_stands_in_for_an_incomplete_one(
+        settings):
+    first = AIClient(settings, adapter=SequenceAdapter([PROFILE]))
+    complete, _ = read_profile_reusing(first, "CV TEXT", "LETTER TEXT", "Irish citizen")
+    settings.ai.reasoning_model = "newer-model"
+    adapter = SequenceAdapter([INCOMPLETE])
+    notes = []
+    profile, reused = read_profile_reusing(AIClient(settings, adapter=adapter), "CV TEXT",
+                                           "LETTER TEXT", "Irish citizen", notify=notes.append)
+    assert len(adapter.calls) == profile_module.READING_ATTEMPTS
+    assert profile == complete and not reused
+    assert notes == [profile_module.EARLIER_READING]
+    # Kept for the newer model too: the next search doesn't pay for three readings again.
+    assert read_profile_reusing(AIClient(settings, adapter=adapter), "CV TEXT", "LETTER TEXT",
+                                "Irish citizen") == (complete, True)
+    assert len(adapter.calls) == profile_module.READING_ATTEMPTS
+
+
+def test_a_reading_of_other_documents_never_stands_in(settings):
+    read_profile_reusing(AIClient(settings, adapter=SequenceAdapter([PROFILE])), "CV TEXT",
+                         "LETTER TEXT")
+    settings.ai.reasoning_model = "newer-model"
+    notes = []
+    profile, _ = read_profile_reusing(AIClient(settings, adapter=SequenceAdapter([INCOMPLETE])),
+                                      "ANOTHER CV", "LETTER TEXT", notify=notes.append)
+    assert profile.languages == [] and len(notes) == 1
+    assert "the languages you speak, the jobs you want and your degrees" in notes[0]
+
+
+def test_a_reading_that_loses_facts_another_reading_found_in_the_same_documents_is_asked_again(
+        settings):
+    with_rights = {**PROFILE, "work_authorisation": "Irish citizen", "work_rights": WORK_RIGHTS}
+    read_profile_reusing(AIClient(settings, adapter=SequenceAdapter([with_rights])), "CV TEXT",
+                         "LETTER TEXT", "Irish citizen")
+    settings.ai.reasoning_model = "newer-model"
+    lost = {**with_rights, "work_authorisation": None, "work_rights": [],
+            "languages": with_rights["languages"] * 0 + [
+                {"language": "Irish", "level_as_written": "native", "cefr": "native",
+                 "cefr_is_estimate": False}]}
+    adapter = SequenceAdapter([lost, with_rights])
+    profile, _ = read_profile_reusing(AIClient(settings, adapter=adapter), "CV TEXT",
+                                      "LETTER TEXT", "Irish citizen")
+    assert len(adapter.calls) == 2 and profile.work_rights[0].country == "IE"
+    assert "work_rights names less than another reading" in adapter.calls[1]["prompt"]
+
+
+def test_without_any_complete_reading_the_person_is_told_and_it_is_read_again_next_time(
+        settings):
+    adapter = SequenceAdapter([INCOMPLETE])
+    notes = []
+    read_profile_reusing(AIClient(settings, adapter=adapter), "CV TEXT", "LETTER TEXT",
+                         notify=notes.append)
+    assert len(notes) == 1 and "even when asked again" in notes[0]
+    assert len(adapter.calls) == profile_module.READING_ATTEMPTS
+    _, reused = read_profile_reusing(AIClient(settings, adapter=adapter), "CV TEXT", "LETTER TEXT")
+    assert not reused and len(adapter.calls) == 2 * profile_module.READING_ATTEMPTS
+
+
+@pytest.mark.parametrize("person", [
+    {"field": "Nursing", "skills": ["Wound care"], "target_roles": ["Staff Nurse"],
+     "education": [{"degree": "BSc Nursing", "institution": "Example College",
+                    "finished": "2021"}]},
+    {"field": "Hospitality", "skills": ["Pastry"], "target_roles": ["Sous Chef"],
+     "education": [{"degree": "Chef apprenticeship (EFZ)", "institution": None,
+                    "finished": "2018"}]},
+])
+def test_the_checks_hold_for_any_profession(person):
+    assert profile_module.reading_problems(Profile.model_validate({**PROFILE, **person})) == []
+    assert [name for name, _ in profile_module.reading_problems(
+        Profile.model_validate({**PROFILE, **person, "languages": []}))] == ["languages"]

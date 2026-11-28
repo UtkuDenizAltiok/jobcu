@@ -567,7 +567,7 @@ def run_search(run: SearchRun) -> None:
 
     run.update("profile", "running")
     profile, reused = read_profile_reusing(client, cv_text, cover_letter_text,
-                                           run.form.about_you)
+                                           run.form.about_you, notify=run.note)
     run.set_result("profile", profile.model_dump())
     run.update("profile", "done", progress_detail(profile, reused))
     checkpoint()

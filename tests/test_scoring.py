@@ -182,6 +182,16 @@ def test_a_language_the_cv_does_not_name_is_not_spoken():
     assert scored(profile=PROFILE, ad_language="German")["parts"]["languages"] == 15
 
 
+def test_a_profile_without_languages_compares_none_and_the_card_says_so():
+    # Search 22: a profile read without its languages gave all 535 jobs full language points
+    # and no card showed that nothing had been compared.
+    asks = scored(profile=PROFILE, languages_asked=[asked("German", "C1")])
+    assert asks["parts"]["languages"] == 15 and asks["limits"] == []
+    assert scoring.NO_LANGUAGES_NOTE in asks["notes"]
+    needs_none = scored(profile=PROFILE, languages_asked=[asked("German", "not_needed")])
+    assert scoring.NO_LANGUAGES_NOTE not in needs_none["notes"]
+
+
 def test_languages_named_in_the_cvs_own_language_are_recognised():
     # A German CV says "Englisch" and "Deutsch"; scoring names the ad's languages in English.
     german_cv = PROFILE.model_copy(update={"languages": [

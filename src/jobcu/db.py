@@ -335,6 +335,11 @@ MIGRATIONS: list[str] = [
         PRIMARY KEY (system, board)
     );
     """,
+    # 29: Which documents and note a saved profile reading is of, whatever model read them:
+    # a later reading of the same documents that loses facts is not complete (profile.py).
+    """
+    ALTER TABLE profile_cache ADD COLUMN documents_key TEXT;
+    """,
 ]
 
 

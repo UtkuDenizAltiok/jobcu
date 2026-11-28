@@ -7,6 +7,12 @@ done. Implementation details belong in pull requests; current behavior is descri
 
 ## Recently completed (October and November 2026)
 
+- A reading of the person's CV and cover letter is used and kept only when complete: at least one
+  language and one wanted role, no entry holding several degrees or the model's own notes, and
+  nothing lost against the last complete reading of the same documents. Otherwise it is asked for
+  again (three readings at most), then that last complete reading stands in, and the person is
+  told. A live search had read none of the person's languages, so every job got full language
+  points; a card now also says when no languages could be compared.
 - Workday jobs whose ad Workday hides behind its human check get the whole ad from FreeHire's
   copy of the same vacancy (FreeHire reads Workday itself; 7 of 8 found in a live search).
 - A search an AI provider's spending cap or used-up credit stopped before its results keeps
