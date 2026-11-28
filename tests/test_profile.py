@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 
 from jobcu import db, documents, search
 from jobcu import profile as profile_module
-from jobcu.ai.base import ProviderAdapter, RawReply, Usage
+from jobcu.ai.base import AIQuotaExhausted, AIRefused, ProviderAdapter, RawReply, Usage
 from jobcu.ai.client import AIClient
 from jobcu.app import create_app
 from jobcu.profile import Profile, progress_detail, read_profile, read_profile_reusing
@@ -329,6 +329,52 @@ def test_the_last_complete_reading_of_the_same_documents_stands_in_for_an_incomp
     assert read_profile_reusing(AIClient(settings, adapter=adapter), "CV TEXT", "LETTER TEXT",
                                 "Irish citizen") == (complete, True)
     assert len(adapter.calls) == profile_module.READING_ATTEMPTS
+
+
+class FailingAdapter(SequenceAdapter):
+    """The provider fails every request after Jobcu's own retries."""
+
+    def __init__(self, error):
+        super().__init__([PROFILE])
+        self.error = error
+
+    def complete_json(self, **request):
+        self.calls.append(request)
+        raise self.error
+
+
+def test_when_the_ai_fails_the_last_complete_reading_of_the_same_documents_carries_on(settings):
+    first = AIClient(settings, adapter=SequenceAdapter([PROFILE]))
+    complete, _ = read_profile_reusing(first, "CV TEXT", "LETTER TEXT", "Irish citizen")
+    settings.ai.reasoning_model = "newer-model"
+    failing = FailingAdapter(AIRefused("The AI declined to answer this request.", "SAFETY"))
+    notes = []
+    profile, reused = read_profile_reusing(AIClient(settings, adapter=failing, patient=False),
+                                           "CV TEXT", "LETTER TEXT", "Irish citizen",
+                                           notify=notes.append)
+    assert profile == complete and not reused
+    assert notes == [profile_module.UNREAD_READING.format(
+        reason="The AI declined to answer this request")]
+    # Not kept for the newer model: the next search reads the documents again.
+    working = SequenceAdapter([PROFILE])
+    assert read_profile_reusing(AIClient(settings, adapter=working), "CV TEXT", "LETTER TEXT",
+                                "Irish citizen")[1] is False
+    assert len(working.calls) == 1
+
+
+def test_without_an_earlier_reading_or_with_a_refusal_that_stops_the_search_the_error_stands(
+        settings):
+    failing = FailingAdapter(AIRefused("The AI declined to answer this request.", "SAFETY"))
+    with pytest.raises(AIRefused):
+        read_profile_reusing(AIClient(settings, adapter=failing, patient=False), "CV TEXT",
+                             "LETTER TEXT")
+    read_profile_reusing(AIClient(settings, adapter=SequenceAdapter([PROFILE])), "CV TEXT",
+                         "LETTER TEXT")
+    settings.ai.reasoning_model = "newer-model"
+    money = FailingAdapter(AIQuotaExhausted("The provider says your credit is depleted.", ""))
+    with pytest.raises(AIQuotaExhausted):
+        read_profile_reusing(AIClient(settings, adapter=money, patient=False), "CV TEXT",
+                             "LETTER TEXT")
 
 
 def test_a_reading_of_other_documents_never_stands_in(settings):
