@@ -60,7 +60,7 @@ Countries below describe the adapter's scope, not complete market coverage.
 
 | Source | Scope and method | Evidence and caveats |
 |---|---|---|
-| Adzuna | Ten supported countries; official API, app ID/key | No Ireland; descriptions are summaries. Blocked ad pages are not fetched. |
+| Adzuna | Ten supported countries; official API, app ID/key | No Ireland; descriptions are summaries. Blocked ad pages are not fetched. Its UK list carries jobs abroad placed only as "UK" (search 22, 27 Nov 2026: 28 of 37 such ads looked up were in the US, Canada or Australia); the online look-up's country decides. |
 | Reed | UK; official API/key, job details | List dates have day precision; full details are separate. |
 | Bundesagentur | Opt-in: off unless the person accepts its terms | [Access hold](#bundesagentur-access-hold--2026-10-17) and [owner's decision](#bundesagentur-opt-in--2026-10-30). |
 | JobsIreland | Ireland; public list and job pages | Match titles locally; an empty first page may be a service failure. |

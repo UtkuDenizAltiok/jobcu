@@ -375,3 +375,33 @@ def test_years_found_online_count_only_when_the_notes_quote_an_amount():
               online("J2", years=3, years_words="Ten years of experience")]  # not in the notes
     found = jobplace.find_online(Researcher([notes], [answer]), groups, [0, 1, 2]).requirements
     assert [found[i].years_required for i in range(3)] == [None, 2, None]
+
+
+def _listed(country: str, place: str) -> JobGroup:
+    return JobGroup([FoundJob(source="adzuna", source_job_id="1", url="https://x",
+                              title="Nurse", company="Example Clinic", location_text=place,
+                              country=country)])
+
+
+def _answer(country: str, towns: list[str]) -> jobplace.OnlineJob:
+    return jobplace.OnlineJob.model_validate({
+        "id": "J0", "found": True, "towns": towns, "country": country, "languages_asked": [],
+        "years_required": None, "doctorate": "not_required",
+        "citizenship_or_clearance": "no_such_requirement",
+        "citizenship_or_clearance_words": ""})
+
+
+@pytest.mark.parametrize("country,towns,abroad", [
+    ("US", ["Mountain View, CA", "San Francisco, CA"], True),
+    ("NL", ["Arnhem"], True),
+    ("US", [], False),  # a country alone could be a slip
+    ("US", ["Cambridge"], False),  # a town the listed country has too: kept
+    ("GB", ["Atlantis"], False),  # the listed country: an unknown village of it, not abroad
+    ("XX", ["Mountain View, CA"], False),  # no real country code
+])
+def test_a_job_counts_as_found_abroad_only_with_a_country_and_towns_outside_its_listed_one(
+        country, towns, abroad):
+    found = jobplace.found_elsewhere(_listed("GB", "UK"), _answer(country, towns))
+    assert (found is not None) == abroad
+    if abroad:
+        assert found == {"country": country, "towns": towns}

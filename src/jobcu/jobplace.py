@@ -33,6 +33,7 @@ from jobcu.ai.base import (
     Usage,
 )
 from jobcu.ai.client import AIClient, in_parallel
+from jobcu.countries import WORLD_CODES
 from jobcu.dedupe import JobGroup
 from jobcu.profile import Profile
 from jobcu.scoring import (
@@ -114,6 +115,9 @@ what the notes say about that job's ad.
 - found: false when the notes say the ad wasn't found; then leave everything else empty.
 - towns: where the work is, as the notes write it. Empty when the ad names no town, when it is \
 fully remote, or when only a country or region is known.
+- country: the country where the work is, as a two-letter ISO 3166-1 code (GB, DE, US), when the \
+notes name it or a town in it. Empty when the notes don't say. It may differ from the country \
+the job was listed in: say what the ad says.
 - languages_asked: each language the ad asks for, with its name in English. level: \
 {LEVEL_RULES} must_have: false when the ad calls it a plus, an advantage or nice to have. Empty \
 when the ad asks for no language.
@@ -142,6 +146,7 @@ class OnlineJob(BaseModel):
     id: str
     found: bool
     towns: list[str]
+    country: str = ""
     languages_asked: list[LanguageAsked]
     years_required: float | None
     years_words: str = ""
@@ -352,6 +357,8 @@ def _keep_answer(group, index: int, answer: OnlineJob | None, looked_up: LookedU
         towns = _real_towns(group, answer.towns) if found else []
         group.place_from_web = towns
         looked_up.towns_found += bool(towns)
+        if found and not towns:
+            group.found_elsewhere = found_elsewhere(group, answer)
     if found:
         looked_up.requirements[index] = Requirements(
             answer.languages_asked, answer.years_required, blockers={
@@ -473,6 +480,21 @@ def _job_notes(text: str, job_id: str, jobs: int) -> str:
     index = matches[0]
     end = headings[index + 1].start() if index + 1 < len(headings) else len(text)
     return text[headings[index].end():end]
+
+
+def found_elsewhere(group: JobGroup, answer: OnlineJob) -> dict | None:
+    """Where the found ad places a job that none of its towns place in its listed country: a
+    country the answer names, and towns it names that aren't in the listed country. Both are
+    needed: a country alone could be a slip, and a town missing from the town list could be a
+    village of the listed country."""
+    listed, country = job_country(group), answer.country.strip().upper()
+    if len(country) != 2 or country not in WORLD_CODES or country == listed:
+        return None
+    named = [name.strip(" *.,\"'`") for entry in answer.towns for name in entry.split(";")]
+    named = [name for name in named if name and name.casefold() not in ("unknown", "none")]
+    if not named or any(place_list.locate(name, listed) is not None for name in named):
+        return None
+    return {"country": country, "towns": named[:MAX_PLACES]}
 
 
 def _real_towns(group: JobGroup, answer: list[str]) -> list[str]:

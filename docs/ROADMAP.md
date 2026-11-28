@@ -10,6 +10,12 @@ done. Implementation details belong in pull requests; current behavior is descri
 - A requirement the AI found met is no longer turned into "unknown" when its quote of the profile
   is cut inside a bracket or names one item of a bracketed list ("SMPS" in "Switched-mode power
   supplies (SMPS, …)"): 30 of a live search's 31 such refusals were facts the profile states.
+- A job whose town nobody gave is scored first and looked up online only when it scores 50 or
+  more: before, every such job was looked up before scoring, and a look-up costs several
+  scorings (a live search looked up 103 towns before scoring; 47 of those jobs then scored under
+  50). A job the ad found online places in another country leaves as abroad, its card saying
+  where; before, it waited as "location unchecked" (40 of a live search's 64 waiting cards were
+  jobs in the US, Canada, the Netherlands or Australia that job sites listed as UK or German).
 - A language level estimated from the same words in the same documents ("basic", "fluent")
   keeps the estimate of the last complete reading, so a new model or a new reading can't move
   every language score between two searches.

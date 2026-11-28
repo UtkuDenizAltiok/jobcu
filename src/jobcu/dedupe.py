@@ -187,6 +187,10 @@ class JobGroup:
     # The page where the vacancy is open, found online when none of its links can take the
     # person's application (livepostings.py): None until looked up, "" when not found.
     link_from_web: str | None = None
+    # The ad found online places the job in another country than its sources listed (jobplace.py):
+    # {"country": two-letter code, "towns": as the notes write them}. Adzuna's UK list carried 28
+    # jobs in the US, Canada and Australia as "UK" in search 22.
+    found_elsewhere: dict | None = None
 
     @property
     def main(self) -> FoundJob:
