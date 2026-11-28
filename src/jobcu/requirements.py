@@ -142,7 +142,19 @@ def _named_facts(words: str, keys: frozenset[str] = frozenset(),
         return facts
 
     inside = [fact for part in re.findall(r"\(([^()]*)\)", words) for fact in split(part)]
-    outside = split(re.sub(r"\([^()]*\)", ",", words))
+    rest = re.sub(r"\([^()]*\)", ",", words)
+    # A quote cut inside a bracket ("C++, Embedded Firmware (ESP32, STM32") leaves it open, or
+    # starts inside one ("STM32, CAN) and C++"): what stands in the open bracket is the
+    # bracketed detail of the fact before it, not a fact of its own (search 22: 31 "met"
+    # comparisons were refused for such quotes of a long skill).
+    closed_before, bracket, rest_inside = rest.rpartition(")")
+    if bracket and "(" not in closed_before:
+        inside += split(closed_before)
+        rest = rest_inside
+    rest, bracket, open_part = rest.partition("(")
+    if bracket:
+        inside += split(open_part.replace("(", ","))
+    outside = split(rest)
     return [(fact, False) for fact in outside] + [(fact, True) for fact in inside]
 
 
@@ -153,9 +165,17 @@ def _fact_stated(fact: str, in_brackets: bool, values: set[str]) -> bool:
     if len(fact.split()) > 1 or in_brackets:
         return any(_stated_in(fact, value) for value in values)
     plain = _plain(fact)
-    # A value with a detail in brackets states its first word too: "Basic (actively improving)".
+    # A value with a detail in brackets states its first word too: "Basic (actively improving)",
+    # and each item of a list in its brackets: "SMPS" in "Switched-mode power supplies (SMPS, up
+    # to 2 kW)" (search 22: such quotes made 11 "met" comparisons unknown).
     return plain in values or any(f"({plain})" in value or value.startswith(f"{plain} (")
-                                  for value in values)
+                                  or plain in _bracket_items(value) for value in values)
+
+
+def _bracket_items(value: str) -> set[str]:
+    """The items of the lists in a value's brackets, a bracket left open at the end included."""
+    parts = re.findall(r"\(([^()]*)(?:\)|$)", value)
+    return {item.strip() for part in parts for item in re.split(r"[;,]", part) if item.strip()}
 
 
 def _profile_quote(words: str, profile: str | dict) -> bool:
